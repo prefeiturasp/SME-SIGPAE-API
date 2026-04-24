@@ -52,10 +52,27 @@
 <li class="toctree-l3"><a class="reference internal" href="base.html">base</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">inversao_dia_cardapio</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.admin">admin</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.models">models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api">api</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures">fixtures</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.managers">managers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioDesteMesManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioVencidaManager</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="management.html">management</a></li>
@@ -549,7 +566,7 @@ object the first time, the query is executed.</p>
 <section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api">
 <span id="api"></span><h2>api<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api" title="Link to this heading"></a></h2>
 <section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers">
-<span id="api-serializers"></span><h3>api/serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers" title="Link to this heading"></a></h3>
+<span id="serializers"></span><h3>serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer" title="Link to this definition"></a></dt>
@@ -598,7 +615,7 @@ object the first time, the query is executed.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create">
-<span id="api-serializers-create"></span><h3>api/serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create" title="Link to this heading"></a></h3>
+<span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate" title="Link to this definition"></a></dt>
@@ -677,7 +694,7 @@ to write an explicit <cite>.create()</cite> method.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators">
-<span id="api-validators"></span><h3>api/validators<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators" title="Link to this heading"></a></h3>
+<span id="validators"></span><h3>validators<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators" title="Link to this heading"></a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators.nao_pode_existir_solicitacao_igual_para_mesma_escola">
 <span class="sig-name descname"><span class="pre">nao_pode_existir_solicitacao_igual_para_mesma_escola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_para</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipos_alimentacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/validators.html#nao_pode_existir_solicitacao_igual_para_mesma_escola"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators.nao_pode_existir_solicitacao_igual_para_mesma_escola" title="Link to this definition"></a></dt>
@@ -690,7 +707,7 @@ to write an explicit <cite>.create()</cite> method.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets">
-<span id="api-viewsets"></span><h3>api/viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets" title="Link to this heading"></a></h3>
+<span id="viewsets"></span><h3>viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet" title="Link to this definition"></a></dt>

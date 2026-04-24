@@ -49,11 +49,33 @@
 <li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao.html">alteracao_tipo_alimentacao</a></li>
 <li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao_cei.html">alteracao_tipo_alimentacao_cei</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">alteracao_tipo_alimentacao_cemei</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.admin">admin</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models">models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api">api</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures">fixtures</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.managers">managers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.admin.AlteracaoCardapioCEMEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEMEIModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEMEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.DataIntervaloAlteracaoCardapioCEMEI"><code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapioCEMEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.FaixaEtariaSubstituicaoAlimentacaoCEMEICEI"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEMEICEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers.AlteracoesCardapioCEMEIDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEMEIDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers.AlteracoesCardapioCEMEIDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEMEIDesteMesManager</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="base.html">base</a></li>
@@ -1061,7 +1083,7 @@ object the first time, the query is executed.</p>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api">
 <span id="api"></span><h2>api<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api" title="Link to this heading"></a></h2>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers">
-<span id="api-serializers"></span><h3>api/serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers" title="Link to this heading"></a></h3>
+<span id="serializers"></span><h3>serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers.AlteracaoCardapioCEMEISerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioCEMEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cemei/api/serializers.html#AlteracaoCardapioCEMEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers.AlteracaoCardapioCEMEISerializer" title="Link to this definition"></a></dt>
@@ -1156,7 +1178,7 @@ object the first time, the query is executed.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create">
-<span id="api-serializers-create"></span><h3>api/serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create" title="Link to this heading"></a></h3>
+<span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create.AlteracaoCardapioCEMEISerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioCEMEISerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cemei/api/serializers_create.html#AlteracaoCardapioCEMEISerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create.AlteracaoCardapioCEMEISerializerCreate" title="Link to this definition"></a></dt>
@@ -1350,7 +1372,7 @@ to write an explicit <cite>.create()</cite> method.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets">
-<span id="api-viewsets"></span><h3>api/viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets" title="Link to this heading"></a></h3>
+<span id="viewsets"></span><h3>viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracoesCardapioCEMEIViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cemei/api/viewsets.html#AlteracoesCardapioCEMEIViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet" title="Link to this definition"></a></dt>
