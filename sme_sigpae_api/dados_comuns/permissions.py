@@ -60,28 +60,32 @@ class UsuarioEscolaTercTotal(BasePermission):
             and usuario.vinculo_atual.perfil.nome in [DIRETOR_UE, ADMINISTRADOR_UE]
         )
 
-    """Permite acesso ao objeto se o objeto pertence a essa escola."""
-
     def has_object_permission(self, request, view, obj):
+        """Permite acesso ao objeto se o objeto pertence à unidade educacional.
+
+        - Para escolas, o objeto pertence à unidade educacional se o objeto tem um campo escola ou rastro_escola que é igual à escola do usuário.
+        - Para solicitações de medição, o objeto pertence à unidade educacional se a escola da solicitação de medição é igual à escola do usuário.
+        - Para Kit Lanche Unificado, o objeto pertence à unidade educacional se a escola do usuário está entre as escolas relacionadas ao kit lanche unificado.
+        """
+
         usuario = request.user
-        if hasattr(obj, "escola") and hasattr(obj, "rastro_escola"):
-            return usuario.vinculo_atual.instituicao in [obj.escola, obj.rastro_escola]
-        elif hasattr(obj, "escola"):
-            return usuario.vinculo_atual.instituicao == obj.escola
-        elif hasattr(obj, "rastro_escola"):
-            return usuario.vinculo_atual.instituicao == obj.rastro_escola
-        elif isinstance(obj, Medicao):
-            return (
-                usuario.vinculo_atual.instituicao
-                == obj.solicitacao_medicao_inicial.escola
-            )
-        elif obj.tipo == "Kit Lanche Unificado":
-            return (
-                usuario.vinculo_atual.instituicao.id
-                in obj.escolas_quantidades.all().values_list("escola", flat=True)
-            )
-        else:
-            return False
+        instituicao = usuario.vinculo_atual.instituicao
+
+        escolas = {
+            getattr(obj, "escola", None),
+            getattr(obj, "rastro_escola", None),
+        }
+
+        if instituicao in escolas:
+            return True
+
+        if isinstance(obj, Medicao):
+            return instituicao == obj.solicitacao_medicao_inicial.escola
+
+        if getattr(obj, "tipo", None) == "Kit Lanche Unificado":
+            return obj.escolas_quantidades.filter(escola=instituicao).exists()
+
+        return False
 
 
 class UsuarioEscolaTercTotalSemAlunosRegulares(UsuarioEscolaTercTotal):
