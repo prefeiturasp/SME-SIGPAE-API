@@ -42,6 +42,12 @@ class AlteracoesCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewS
     queryset = AlteracaoCardapio.objects.all()
 
     def get_permissions(self):
+        """
+        Retorna a lista de permissões que o usuário precisa ter para acessar a ação atual.
+            - Para a ação "list", o usuário precisa ser um usuário de escola terceirizada (tipo gestão TERC TOTAL).
+            - Para as ações "retrieve" e "update", o usuário precisa estar autenticado e ter permissão para recuperar o objeto.
+            - Para as ações "create" e "destroy", o usuário precisa ser um usuário de escola terceirizada (tipo gestão TERC TOTAL).
+        """
         if self.action in ["list"]:
             self.permission_classes = (UsuarioEscolaTercTotal,)
         elif self.action in ["retrieve", "update"]:
@@ -51,13 +57,14 @@ class AlteracoesCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewS
         return super(AlteracoesCardapioViewSet, self).get_permissions()
 
     def get_serializer_class(self):
+        """
+        Retorna a classe de serializer que será utilizada para a ação atual.
+            - Para as ações "create", "update" e "partial_update", utiliza o serializer de criação.
+            - Para as demais ações, utiliza o serializer padrão.
+        """
         if self.action in ["create", "update", "partial_update"]:
             return AlteracaoCardapioSerializerCreate
         return AlteracaoCardapioSerializer
-
-    #
-    # Pedidos
-    #
 
     @action(
         detail=False,
@@ -65,6 +72,9 @@ class AlteracoesCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewS
         permission_classes=(UsuarioEscolaTercTotal,),
     )
     def minhas_solicitacoes(self, request):
+        """
+        Retorna as solicitações de Alteração de Tipo de Alimentação do usuário logado que estão em rascunho, paginando os resultados.
+        """
         usuario = request.user
         alteracoes_cardapio_rascunho = AlteracaoCardapio.get_rascunhos_do_usuario(
             usuario
@@ -79,7 +89,6 @@ class AlteracoesCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewS
         permission_classes=[UsuarioCODAEGestaoAlimentacao],
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
         alteracoes_cardapio = codae.alteracoes_cardapio_das_minhas(filtro_aplicado)
@@ -100,7 +109,6 @@ class AlteracoesCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewS
         permission_classes=[UsuarioDiretoriaRegional],
     )
     def solicitacoes_dre(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de DRE aqui...
         usuario = request.user
         dre = usuario.vinculo_atual.instituicao
         alteracoes_cardapio = dre.alteracoes_cardapio_das_minhas_escolas_a_validar(
