@@ -6086,10 +6086,12 @@ class CronogramaSemanalWorkflow(xwf_models.Workflow):
     log_model = ""
     RASCUNHO = "RASCUNHO"
     ENVIADO_AO_FORNECEDOR = "ENVIADO_AO_FORNECEDOR"
+    FORNECEDOR_CIENTE = "FORNECEDOR_CIENTE"
 
     states = (
         (RASCUNHO, "Rascunho"),
         (ENVIADO_AO_FORNECEDOR, "Enviado ao Fornecedor"),
+        (FORNECEDOR_CIENTE, "Fornecedor Ciente"),
     )
 
     transitions = (("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),)
