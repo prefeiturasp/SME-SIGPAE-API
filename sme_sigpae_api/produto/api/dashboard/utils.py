@@ -149,6 +149,10 @@ def filtra_reclamacoes_questionamento_codae(
                 HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_UE,
                 HomologacaoProduto.workflow_class.CODAE_PEDIU_ANALISE_RECLAMACAO,
                 HomologacaoProduto.workflow_class.CODAE_QUESTIONOU_NUTRISUPERVISOR,
+                HomologacaoProduto.workflow_class.ESCOLA_OU_NUTRICIONISTA_RECLAMOU,
+                HomologacaoProduto.workflow_class.TERCEIRIZADA_RESPONDEU_RECLAMACAO,
+                HomologacaoProduto.workflow_class.UE_RESPONDEU_QUESTIONAMENTO,
+                HomologacaoProduto.workflow_class.NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO,
             ]
         )
 
