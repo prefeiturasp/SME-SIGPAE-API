@@ -60,11 +60,14 @@ django.setup()
 import sphinx.util.inspect as _sphinx_inspect  # noqa: E402
 from django.db import OperationalError as _DBOperationalError  # noqa: E402
 from django.db import ProgrammingError as _DBProgrammingError  # noqa: E402
+from django.db.models import QuerySet as _QuerySet  # noqa: E402
 
 _original_object_description = _sphinx_inspect.object_description
 
 
 def _safe_object_description(obj, *args, **kwargs):
+    if isinstance(obj, _QuerySet):
+        return f"<QuerySet de {obj.model.__name__}>"
     try:
         return _original_object_description(obj, *args, **kwargs)
     except (ValueError, _DBOperationalError, _DBProgrammingError):

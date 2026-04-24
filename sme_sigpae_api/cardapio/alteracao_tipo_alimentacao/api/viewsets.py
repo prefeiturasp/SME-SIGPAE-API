@@ -41,6 +41,7 @@ from sme_sigpae_api.relatorios.relatorios import relatorio_alteracao_cardapio
 class AlteracoesCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet):
     lookup_field = "uuid"
     permission_classes = (IsAuthenticated,)
+    #: Retorna objetos de Alteração do Tipo de Alimentação.
     queryset = AlteracaoCardapio.objects.all()
 
     def get_permissions(self) -> list:
