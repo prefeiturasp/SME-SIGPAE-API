@@ -22,6 +22,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serialize
     CronogramaSemanalRascunhoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
+    CronogramaSemanalDetailSerializer,
     CronogramaSemanalListagemSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
@@ -45,6 +46,7 @@ class CronogramaSemanalViewSet(
     - PATCH /cronogramas-semanais/{uuid}/ - Atualiza cronograma semanal
     - PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/ - Assina e envia cronograma semanal
     - GET /cronogramas-semanais/cronogramas-mensal-assinados/ - Lista cronogramas mensal Ponto a Ponto assinados
+    - GET /cronogramas-semanais/{uuid}/ - Detalha cronograma semanal
     """
 
     queryset = CronogramaSemanal.objects.all()
@@ -73,7 +75,9 @@ class CronogramaSemanalViewSet(
             return CronogramaSemanalRascunhoSerializer
         if self.action == "assinar_e_enviar":
             return CronogramaSemanalAssinarEEnviarSerializer
-        if self.action in ["retrieve", "list"]:
+        if self.action == "retrieve":
+            return CronogramaSemanalDetailSerializer
+        if self.action == "list":
             return CronogramaSemanalListagemSerializer
         return CronogramaSemanalListagemSerializer
 
