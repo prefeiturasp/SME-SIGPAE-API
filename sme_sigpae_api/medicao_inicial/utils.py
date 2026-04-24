@@ -6019,7 +6019,7 @@ def _calcula_total_alimentacao(
 
         total += valor_total
 
-    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return total
 
 
 def _calcula_total_dietas(
@@ -6080,7 +6080,7 @@ def _calcula_total_dietas(
 
         total += valor_total
 
-    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return total
 
 
 def _calcula_total_tabelas(
@@ -6194,4 +6194,7 @@ def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
             grupo_nome,
         )
 
-    return total_pagamento
+    return total_pagamento.quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP
+    )
