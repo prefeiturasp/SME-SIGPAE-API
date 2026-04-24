@@ -178,6 +178,66 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">total</span>
 
+<div class="viewcode-block" id="AlteracaoCardapioCEMEI.tipos_alimentacao_de">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.tipos_alimentacao_de">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao_de</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nome_periodo_escolar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retorna uma lista com os tipos de alimentação &quot;de&quot; selecionados em todas as substituições da solicitação.</span>
+<span class="sd">         - Para as substituições do CEI, os tipos de alimentação &quot;de&quot; são obtidos a partir do campo &quot;tipos_alimentacao_de&quot; da model &quot;SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI&quot;.</span>
+<span class="sd">         - Para as substituições do EMEI, os tipos de alimentação &quot;de&quot; são obtidos a partir do campo &quot;tipos_alimentacao_de&quot; da model &quot;SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI&quot;.</span>
+<span class="sd">         - A lista resultante é a combinação dos tipos de alimentação &quot;de&quot; de ambas as substituições, sem duplicatas.</span>
+<span class="sd">         - O resultado é uma lista de strings, onde cada string é o nome de um tipo de alimentação &quot;de&quot; selecionado em alguma das substituições da solicitação.</span>
+<span class="sd">         - Exemplo de retorno: [&quot;Tipo A&quot;, &quot;Tipo B&quot;, &quot;Tipo C&quot;]</span>
+<span class="sd">         - Se não houver tipos de alimentação &quot;de&quot; selecionados em nenhuma das substituições, o retorno será uma lista vazia.</span>
+<span class="sd">         - A ordem dos tipos de alimentação &quot;de&quot; na lista não é garantida, pois depende da ordem de obtenção dos dados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">substituicoes_cei</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_cei_periodo_escolar</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">nome_periodo_escolar</span><span class="p">:</span>
+            <span class="n">substituicoes_cei</span> <span class="o">=</span> <span class="n">substituicoes_cei</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">periodo_escolar__nome</span><span class="o">=</span><span class="n">nome_periodo_escolar</span>
+            <span class="p">)</span>
+        <span class="n">tipos_alimentacao_de</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">substituicoes_cei</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao_de__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">substituicoes_emei</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_emei_periodo_escolar</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">nome_periodo_escolar</span><span class="p">:</span>
+            <span class="n">substituicoes_emei</span> <span class="o">=</span> <span class="n">substituicoes_emei</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">periodo_escolar__nome</span><span class="o">=</span><span class="n">nome_periodo_escolar</span>
+            <span class="p">)</span>
+        <span class="n">tipos_alimentacao_de</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">substituicoes_emei</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao_de__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">tipos_alimentacao_de</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">periodos_escolares</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retorna uma lista com os nomes dos períodos escolares selecionados em todas as substituições da solicitação.</span>
+<span class="sd">         - Para as substituições do CEI, os períodos escolares são obtidos a partir do campo &quot;periodo_escolar__nome&quot; da model &quot;SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI&quot;.</span>
+<span class="sd">         - Para as substituições do EMEI, os períodos escolares são obtidos a partir do campo &quot;periodo_escolar__nome&quot; da model &quot;SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI&quot;.</span>
+<span class="sd">         - A lista resultante é a combinação dos períodos escolares de ambas as substituições, sem duplicatas.</span>
+<span class="sd">         - O resultado é uma lista de strings, onde cada string é o nome de um período escolar selecionado em alguma das substituições da solicitação.</span>
+<span class="sd">         - Exemplo de retorno: [&quot;Período A&quot;, &quot;Período B&quot;, &quot;Período C&quot;]</span>
+<span class="sd">         - Se não houver períodos escolares selecionados em nenhuma das substituições, o retorno será uma lista vazia.</span>
+<span class="sd">         - A ordem dos períodos escolares na lista não é garantida, pois depende da ordem de obtenção dos dados.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">periodos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">periodos</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_cei_periodo_escolar</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                <span class="s2">&quot;periodo_escolar__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">periodos</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cemei_emei_periodo_escolar</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                <span class="s2">&quot;periodo_escolar__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">periodos</span>
+
 <div class="viewcode-block" id="AlteracaoCardapioCEMEI.salvar_log_transicao">
 <a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.salvar_log_transicao">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

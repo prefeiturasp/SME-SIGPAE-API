@@ -181,6 +181,47 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;qtd_alunos&quot;</span><span class="p">))[</span><span class="s2">&quot;qtd_alunos__sum&quot;</span><span class="p">]</span>
 
+<div class="viewcode-block" id="AlteracaoCardapio.tipos_alimentacao_de">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.tipos_alimentacao_de">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao_de</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nome_periodo_escolar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna uma lista com os tipos de alimentação substituídos nesta solicitação.</span>
+
+<span class="sd">        Retorna uma lista com os nomes dos tipos de alimentação que estão sendo</span>
+<span class="sd">        substituídos nesta solicitação, considerando todas as substituições</span>
+<span class="sd">        vinculadas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[str]: Lista de nomes dos tipos de alimentação substituídos.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tipos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">substituicao</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">nome_periodo_escolar</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">or</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="n">nome_periodo_escolar</span>
+            <span class="p">):</span>
+                <span class="n">tipos</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="n">substituicao</span><span class="o">.</span><span class="n">tipos_alimentacao_de</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">tipos</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">periodos_escolares</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna uma lista com os períodos escolares afetados por esta solicitação.</span>
+
+<span class="sd">        Retorna uma lista com os nomes dos períodos escolares que estão sendo</span>
+<span class="sd">        afetados nesta solicitação, considerando todas as substituições</span>
+<span class="sd">        vinculadas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[str]: Lista de nomes dos períodos escolares afetados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                <span class="s2">&quot;periodo_escolar__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna um atalho para ``substituicoes_periodo_escolar``.</span>

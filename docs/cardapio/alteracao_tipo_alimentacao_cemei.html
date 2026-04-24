@@ -413,6 +413,19 @@ object the first time, the query is executed.</p>
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.path" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.periodos_escolares">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">periodos_escolares</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.periodos_escolares" title="Link to this definition"></a></dt>
+<dd><p>Retorna uma lista com os nomes dos períodos escolares selecionados em todas as substituições da solicitação.
+- Para as substituições do CEI, os períodos escolares são obtidos a partir do campo “periodo_escolar__nome” da model “SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI”.
+- Para as substituições do EMEI, os períodos escolares são obtidos a partir do campo “periodo_escolar__nome” da model “SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI”.
+- A lista resultante é a combinação dos períodos escolares de ambas as substituições, sem duplicatas.
+- O resultado é uma lista de strings, onde cada string é o nome de um período escolar selecionado em alguma das substituições da solicitação.
+- Exemplo de retorno: [“Período A”, “Período B”, “Período C”]
+- Se não houver períodos escolares selecionados em nenhuma das substituições, o retorno será uma lista vazia.
+- A ordem dos períodos escolares na lista não é garantida, pois depende da ordem de obtenção dos dados.</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.rastro_dre">
 <span class="sig-name descname"><span class="pre">rastro_dre</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.rastro_dre" title="Link to this definition"></a></dt>
@@ -558,6 +571,28 @@ object the first time, the query is executed.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.tipo">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tipo</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.tipo" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.tipos_alimentacao_de">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao_de</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nome_periodo_escolar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cemei/models.html#AlteracaoCardapioCEMEI.tipos_alimentacao_de"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.tipos_alimentacao_de" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Retorna uma lista com os tipos de alimentação “de” selecionados em todas as substituições da solicitação.</dt><dd><ul class="simple">
+<li><p>Para as substituições do CEI, os tipos de alimentação “de” são obtidos a partir do campo “tipos_alimentacao_de” da model “SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI”.</p></li>
+<li><p>Para as substituições do EMEI, os tipos de alimentação “de” são obtidos a partir do campo “tipos_alimentacao_de” da model “SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI”.</p></li>
+<li><p>A lista resultante é a combinação dos tipos de alimentação “de” de ambas as substituições, sem duplicatas.</p></li>
+<li><p>O resultado é uma lista de strings, onde cada string é o nome de um tipo de alimentação “de” selecionado em alguma das substituições da solicitação.</p></li>
+<li><p>Exemplo de retorno: [“Tipo A”, “Tipo B”, “Tipo C”]</p></li>
+<li><p>Se não houver tipos de alimentação “de” selecionados em nenhuma das substituições, o retorno será uma lista vazia.</p></li>
+<li><p>A ordem dos tipos de alimentação “de” na lista não é garantida, pois depende da ordem de obtenção dos dados.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI.uuid">
@@ -1338,27 +1373,98 @@ querysets depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.get_serializer_class">
 <span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cemei/api/viewsets.html#AlteracoesCardapioCEMEIViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
+<dd><p>Retorna a classe de serializer adequada para a ação atual.</p>
+<ul class="simple">
+<li><p>Para as ações <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>: utiliza <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreate</span></code>.</p></li>
+<li><p>Para as demais ações: utiliza <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializer</span></code>.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Classe de serializer a ser utilizada na ação corrente.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.relatorio">
 <span class="sig-name descname"><span class="pre">relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cemei/api/viewsets.html#AlteracoesCardapioCEMEIViewSet.relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.relatorio" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gera e retorna o relatório da Alteração do Tipo de Alimentação em formato PDF.
+- permissão: qualquer usuário autenticado com acesso à solicitação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instância de <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code>. Padrão: None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta contendo o PDF do relatório gerado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.solicitacoes_codae">
 <span class="sig-name descname"><span class="pre">solicitacoes_codae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cemei/api/viewsets.html#AlteracoesCardapioCEMEIViewSet.solicitacoes_codae"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.solicitacoes_codae" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Retorna as todas solicitações de Alteração de Tipo de Alimentação:</dt><dd><ul class="simple">
+<li><p>com status DRE_VALIDADO, para a CODAE autorizar, negar ou pedir questionamento à empresa do lote;</p></li>
+<li><p>utilizado em tela para dividir as solicitações por prioridade (próximas ao vencimento, prazo limite, prazo regular).</p></li>
+<li><p>permissão: CODAE Gestão de Alimentação.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Filtra opcionalmente por diretoria regional e/ou lote via query params.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP. Aceita <code class="docutils literal notranslate"><span class="pre">diretoria_regional</span></code> e
+<code class="docutils literal notranslate"><span class="pre">lote</span></code> como query params opcionais.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado às solicitações.
+Padrão: <code class="docutils literal notranslate"><span class="pre">constants.SEM_FILTRO</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada das alterações de cardápio encontradas.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.solicitacoes_diretoria_regional">
 <span class="sig-name descname"><span class="pre">solicitacoes_diretoria_regional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cemei/api/viewsets.html#AlteracoesCardapioCEMEIViewSet.solicitacoes_diretoria_regional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.solicitacoes_diretoria_regional" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Retorna as solicitações de Alteração do Tipo de Alimentação das escolas da diretoria regional.</dt><dd><ul class="simple">
+<li><p>consolida em uma única pesquisa as buscas por prioridade.</p></li>
+<li><p>filtra opcionalmente por lote via query param.</p></li>
+<li><p>permissão: Diretoria Regional.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP. Aceita <code class="docutils literal notranslate"><span class="pre">lote</span></code> como query param opcional.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado às solicitações. Padrão: <code class="docutils literal notranslate"><span class="pre">&quot;sem_filtro&quot;</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada das alterações de cardápio encontradas para a diretoria regional.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

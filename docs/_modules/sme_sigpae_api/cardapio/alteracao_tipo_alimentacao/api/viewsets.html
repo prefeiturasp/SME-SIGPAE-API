@@ -117,6 +117,12 @@
 <div class="viewcode-block" id="AlteracoesCardapioViewSet.get_permissions">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet.get_permissions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retorna a lista de permissões que o usuário precisa ter para acessar a ação atual.</span>
+<span class="sd">            - Para a ação &quot;list&quot;, o usuário precisa ser um usuário de escola terceirizada (tipo gestão TERC TOTAL).</span>
+<span class="sd">            - Para as ações &quot;retrieve&quot; e &quot;update&quot;, o usuário precisa estar autenticado e ter permissão para recuperar o objeto.</span>
+<span class="sd">            - Para as ações &quot;create&quot; e &quot;destroy&quot;, o usuário precisa ser um usuário de escola terceirizada (tipo gestão TERC TOTAL).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;list&quot;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">UsuarioEscolaTercTotal</span><span class="p">,)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;retrieve&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">]:</span>
@@ -129,14 +135,15 @@
 <div class="viewcode-block" id="AlteracoesCardapioViewSet.get_serializer_class">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet.get_serializer_class">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retorna a classe de serializer que será utilizada para a ação atual.</span>
+<span class="sd">            - Para as ações &quot;create&quot;, &quot;update&quot; e &quot;partial_update&quot;, utiliza o serializer de criação.</span>
+<span class="sd">            - Para as demais ações, utiliza o serializer padrão.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">AlteracaoCardapioSerializerCreate</span>
         <span class="k">return</span> <span class="n">AlteracaoCardapioSerializer</span></div>
 
-
-    <span class="c1">#</span>
-    <span class="c1"># Pedidos</span>
-    <span class="c1">#</span>
 
 <div class="viewcode-block" id="AlteracoesCardapioViewSet.minhas_solicitacoes">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet.minhas_solicitacoes">[docs]</a>
@@ -146,6 +153,9 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEscolaTercTotal</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">minhas_solicitacoes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retorna as solicitações de Alteração de Tipo de Alimentação do usuário logado que estão em rascunho, paginando os resultados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">alteracoes_cardapio_rascunho</span> <span class="o">=</span> <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">get_rascunhos_do_usuario</span><span class="p">(</span>
             <span class="n">usuario</span>
@@ -163,7 +173,6 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">[</span><span class="n">UsuarioCODAEGestaoAlimentacao</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_codae</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
-        <span class="c1"># TODO: colocar regras de codae CODAE aqui...</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">codae</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
         <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">codae</span><span class="o">.</span><span class="n">alteracoes_cardapio_das_minhas</span><span class="p">(</span><span class="n">filtro_aplicado</span><span class="p">)</span>
@@ -187,7 +196,6 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">[</span><span class="n">UsuarioDiretoriaRegional</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_dre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
-        <span class="c1"># TODO: colocar regras de DRE aqui...</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">dre</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
         <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">dre</span><span class="o">.</span><span class="n">alteracoes_cardapio_das_minhas_escolas_a_validar</span><span class="p">(</span>

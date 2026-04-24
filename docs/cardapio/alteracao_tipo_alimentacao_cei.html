@@ -923,17 +923,43 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.get_serializer_class">
 <span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
+<dd><p>Retorna a classe de serializer adequada para a ação atual.</p>
+<ul class="simple">
+<li><p>Para as ações <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>: utiliza <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreate</span></code>.</p></li>
+<li><p>Para as demais ações: utiliza <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializer</span></code>.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Classe de serializer a ser utilizada na ação corrente.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.minhas_solicitacoes">
 <span class="sig-name descname"><span class="pre">minhas_solicitacoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.minhas_solicitacoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.minhas_solicitacoes" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Retorna as solicitações de Alteração de Tipo de Alimentação do usuário logado que estão em RASCUNHO.</dt><dd><ul class="simple">
+<li><p>permissão: Escola terceirizada.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Os resultados são paginados.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP contendo o usuário autenticado.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com a lista de alterações de cardápio em rascunho do usuário.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.queryset">
@@ -943,17 +969,80 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.relatorio">
 <span class="sig-name descname"><span class="pre">relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.relatorio" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gera e retorna o relatório da Alteração do Tipo de Alimentação em formato PDF.
+- permissão: qualquer usuário autenticado com acesso à solicitação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instância de <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code>. Padrão: None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta contendo o PDF do relatório gerado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_codae">
 <span class="sig-name descname"><span class="pre">solicitacoes_codae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.solicitacoes_codae"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_codae" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Retorna as todas solicitações de Alteração de Tipo de Alimentação:</dt><dd><ul class="simple">
+<li><p>com status DRE_VALIDADO, para a CODAE autorizar, negar ou pedir questionamento à empresa do lote;</p></li>
+<li><p>utilizado em tela para dividir as solicitações por prioridade (próximas ao vencimento, prazo limite, prazo regular).</p></li>
+<li><p>permissão: CODAE Gestão de Alimentação.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Filtra opcionalmente por diretoria regional e/ou lote via query params.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP. Aceita <code class="docutils literal notranslate"><span class="pre">diretoria_regional</span></code> e
+<code class="docutils literal notranslate"><span class="pre">lote</span></code> como query params opcionais.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado às solicitações.
+Padrão: <code class="docutils literal notranslate"><span class="pre">constants.SEM_FILTRO</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada das alterações de cardápio encontradas.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_diretoria_regional">
 <span class="sig-name descname"><span class="pre">solicitacoes_diretoria_regional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.solicitacoes_diretoria_regional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_diretoria_regional" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Retorna as solicitações de Alteração do Tipo de Alimentação das escolas da diretoria regional.</dt><dd><ul class="simple">
+<li><p>consolida em uma única pesquisa as buscas por prioridade.</p></li>
+<li><p>filtra opcionalmente por lote via query param.</p></li>
+<li><p>permissão: Diretoria Regional.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP. Aceita <code class="docutils literal notranslate"><span class="pre">lote</span></code> como query param opcional.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado às solicitações. Padrão: <code class="docutils literal notranslate"><span class="pre">&quot;sem_filtro&quot;</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada das alterações de cardápio encontradas para a diretoria regional.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_terceirizada">

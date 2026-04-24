@@ -673,6 +673,7 @@
         <span class="p">(</span>
             <span class="s2">&quot;codae_pede_analise_sensorial&quot;</span><span class="p">,</span>
             <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
                 <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
                 <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
                 <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
@@ -680,17 +681,47 @@
                 <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
                 <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
                 <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONADO</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;codae_cancela_analise_sensorial&quot;</span><span class="p">,</span>
-            <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">],</span>
             <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;terceirizada_responde_analise_sensorial&quot;</span><span class="p">,</span>
-            <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">],</span>
             <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
@@ -705,88 +736,162 @@
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;escola_ou_nutricionista_reclamou&quot;</span><span class="p">,</span>
-            <span class="p">[</span><span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span> <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">],</span>
+            <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">],</span>
             <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;codae_questiona_ue&quot;</span><span class="p">,</span>
             <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
                 <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
                 <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
                 <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
-                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
                 <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
                 <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
-                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
-                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;codae_questiona_nutrisupervisor&quot;</span><span class="p">,</span>
             <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
                 <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
                 <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
-                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
                 <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;nutrisupervisor_respondeu_questionamento&quot;</span><span class="p">,</span>
-            <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">],</span>
             <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;ue_respondeu_questionamento&quot;</span><span class="p">,</span>
-            <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">],</span>
             <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;codae_pediu_analise_reclamacao&quot;</span><span class="p">,</span>
             <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
                 <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
                 <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
                 <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
-                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
                 <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
                 <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
-                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
-                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;terceirizada_responde_reclamacao&quot;</span><span class="p">,</span>
-            <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">],</span>
             <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;codae_autorizou_reclamacao&quot;</span><span class="p">,</span>
             <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
                 <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
                 <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
                 <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
-                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
                 <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
                 <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
-                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
-                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;codae_recusou_reclamacao&quot;</span><span class="p">,</span>
             <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
                 <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
-                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
-                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
                 <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
                 <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
                 <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
                 <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
                 <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
-                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
         <span class="p">),</span>
@@ -810,12 +915,38 @@
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;terceirizada_responde_analise_sensorial_da_reclamacao&quot;</span><span class="p">,</span>
-            <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">],</span>
             <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
             <span class="s2">&quot;terceirizada_responde_analise_sensorial_homologado&quot;</span><span class="p">,</span>
-            <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">CODAE_PEDIU_ANALISE_SENSORIAL</span><span class="p">,</span>
+                <span class="n">CODAE_PEDIU_ANALISE_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">UE_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">NUTRISUPERVISOR_RESPONDEU_QUESTIONAMENTO</span><span class="p">,</span>
+                <span class="n">CODAE_PENDENTE_HOMOLOGACAO</span><span class="p">,</span>
+                <span class="n">ESCOLA_OU_NUTRICIONISTA_RECLAMOU</span><span class="p">,</span>
+                <span class="n">TERCEIRIZADA_RESPONDEU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_UE</span><span class="p">,</span>
+                <span class="n">CODAE_QUESTIONOU_NUTRISUPERVISOR</span><span class="p">,</span>
+                <span class="n">CODAE_AUTORIZOU_RECLAMACAO</span><span class="p">,</span>
+                <span class="n">CODAE_CANCELOU_ANALISE_SENSORIAL</span><span class="p">,</span>
+            <span class="p">],</span>
             <span class="n">CODAE_HOMOLOGADO</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="p">(</span>
@@ -3319,6 +3450,8 @@
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;justificativa&quot;</span><span class="p">]</span>
         <span class="n">alta_medica</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alta_medica&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">pendente_autorizacao</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pendente_autorizacao&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
         <span class="n">assunto</span> <span class="o">=</span> <span class="s2">&quot;[SIGPAE] Status de solicitação - #&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span>
         <span class="n">titulo</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;Status de solicitação - &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">codigo_eol</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
@@ -3334,7 +3467,8 @@
             <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
             <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo_solicitacao</span> <span class="o">!=</span> <span class="s2">&quot;CANCELAMENTO_DIETA&quot;</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo_solicitacao</span> <span class="o">!=</span> <span class="s2">&quot;CANCELAMENTO_DIETA&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pendente_autorizacao</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_preenche_template_e_envia_email</span><span class="p">(</span>
                 <span class="n">assunto</span><span class="p">,</span>
                 <span class="n">titulo</span><span class="p">,</span>
@@ -3586,6 +3720,7 @@
                 <span class="n">ANALISE_SENSORIAL_RESPONDIDA</span><span class="p">,</span>
                 <span class="n">AGUARDANDO_RESPOSTA_UE</span><span class="p">,</span>
                 <span class="n">RESPONDIDO_UE</span><span class="p">,</span>
+                <span class="n">CODAE_ACEITOU</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">CODAE_ACEITOU</span><span class="p">,</span>
         <span class="p">),</span>
@@ -4358,13 +4493,6 @@
             <span class="n">status</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRIGIDA_PELA_UE</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OcorrenciaMedicaoInicial</span><span class="p">):</span>
-                <span class="n">log_antigo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status_evento</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="n">log_antigo</span><span class="p">:</span>
-                    <span class="n">log_antigo</span> <span class="o">=</span> <span class="n">log_antigo</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-                    <span class="n">log_antigo</span><span class="o">.</span><span class="n">anexos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                    <span class="n">log_antigo</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-
                 <span class="n">log_transicao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
                     <span class="n">status_evento</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span>
                 <span class="p">)</span>
@@ -4399,13 +4527,6 @@
                 <span class="p">)</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRIGIDA_PARA_CODAE</span>
-
-            <span class="n">log_antigo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status_evento</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">log_antigo</span><span class="p">:</span>
-                <span class="n">log_antigo</span> <span class="o">=</span> <span class="n">log_antigo</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-                <span class="n">log_antigo</span><span class="o">.</span><span class="n">anexos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                <span class="n">log_antigo</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
 
             <span class="n">log_transicao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span>
@@ -4808,6 +4929,16 @@
                 <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">:</span> <span class="n">numero_cronograma</span><span class="p">,</span>
                 <span class="s2">&quot;log_transicao&quot;</span><span class="p">:</span> <span class="n">log_transicao</span><span class="p">,</span>
                 <span class="s2">&quot;url_cronograma&quot;</span><span class="p">:</span> <span class="n">url_cronograma</span><span class="p">,</span>
+                <span class="s2">&quot;nome_produto&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;nome_usual_fornecedor&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;razao_social_fornecedor&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">razao_social</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;data_assinatura&quot;</span><span class="p">:</span> <span class="n">log_transicao</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -6000,6 +6131,53 @@
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">FICHA_RECEBIMENTO_ASSINADA</span><span class="p">,</span>
+                <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaSemanalWorkflow</span><span class="p">(</span><span class="n">xwf_models</span><span class="o">.</span><span class="n">Workflow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Workflow para Cronograma Semanal FLV&quot;&quot;&quot;</span>
+
+    <span class="n">log_model</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">RASCUNHO</span> <span class="o">=</span> <span class="s2">&quot;RASCUNHO&quot;</span>
+    <span class="n">ENVIADO_AO_FORNECEDOR</span> <span class="o">=</span> <span class="s2">&quot;ENVIADO_AO_FORNECEDOR&quot;</span>
+
+    <span class="n">states</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">RASCUNHO</span><span class="p">,</span> <span class="s2">&quot;Rascunho&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">ENVIADO_AO_FORNECEDOR</span><span class="p">,</span> <span class="s2">&quot;Enviado ao Fornecedor&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">transitions</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;inicia_fluxo&quot;</span><span class="p">,</span> <span class="n">RASCUNHO</span><span class="p">,</span> <span class="n">ENVIADO_AO_FORNECEDOR</span><span class="p">),)</span>
+
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="n">RASCUNHO</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FluxoCronogramaSemanal</span><span class="p">(</span><span class="n">xwf_models</span><span class="o">.</span><span class="n">WorkflowEnabled</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classe abstrata que adiciona workflow de Cronograma Semanal&quot;&quot;&quot;</span>
+
+    <span class="n">workflow_class</span> <span class="o">=</span> <span class="n">CronogramaSemanalWorkflow</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">xwf_models</span><span class="o">.</span><span class="n">StateField</span><span class="p">(</span><span class="n">workflow_class</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Salva log de transição do workflow&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+
+        <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">&quot;inicia_fluxo&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_inicia_fluxo_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
+                <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
             <span class="p">)</span>
 
