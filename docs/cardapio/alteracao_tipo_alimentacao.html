@@ -2594,33 +2594,6 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet.terceirizada_toma_ciencia">
-<span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/viewsets.html#AlteracoesCardapioViewSet.terceirizada_toma_ciencia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
-<dd><p>Registra que a terceirizada tomou ciência da Alteração de Tipo de Alimentação.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP contendo o usuário autenticado.</p></li>
-<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instância de <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code>. Padrão: None.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Dados serializados da alteração após o registro de ciência, ou erro 400</dt><dd><p>em caso de transição inválida.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Response</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>InvalidTransitionError</strong> – Quando a transição de estado não é permitida pelo workflow.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet.valida_datas">
 <span class="sig-name descname"><span class="pre">valida_datas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/api/viewsets.html#AlteracoesCardapioViewSet.valida_datas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet.valida_datas" title="Link to this definition"></a></dt>
 <dd><dl class="simple">
@@ -2699,38 +2672,44 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 <span id="fixtures"></span><h2>fixtures<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures" title="Link to this heading"></a></h2>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories">
 <span id="fixtures-factories"></span><h3>fixtures/factories<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories" title="Link to this heading"></a></h3>
-<dl class="py class" id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory">
+<p id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory">Factories para os modelos de Alteração do Tipo de Alimentação.</p>
+<p>Utiliza <code class="docutils literal notranslate"><span class="pre">factory_boy</span></code> para criação de instâncias de teste dos modelos
+relacionados à alteração de cardápio escolar.</p>
+<dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/fixtures/factories/alteracao_tipo_alimentacao_factory.html#AlteracaoCardapioFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<p>Factory para o modelo <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code>.</p>
+<p>Cria a escola solicitante, o motivo e os campos de rastreio (escola, lote,
+DRE e terceirizada) via subfactories.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.escola">
-<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.escola" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EscolaFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.escola" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.motivo">
-<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.motivo" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(MotivoAlteracaoCardapioFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.motivo" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_dre">
-<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_dre" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(DiretoriaRegionalFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_dre" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_escola">
-<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_escola" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EscolaFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_escola" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_lote">
-<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_lote" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(LoteFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_lote" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_terceirizada">
-<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_terceirizada" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EmpresaFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory.rastro_terceirizada" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2739,9 +2718,11 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.DataIntervaloAlteracaoCardapioFactory">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DataIntervaloAlteracaoCardapioFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/fixtures/factories/alteracao_tipo_alimentacao_factory.html#DataIntervaloAlteracaoCardapioFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.DataIntervaloAlteracaoCardapioFactory" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<p>Factory para o modelo <code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapio</span></code>.</p>
+<p>Associa automaticamente uma <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code> via subfactory.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.DataIntervaloAlteracaoCardapioFactory.alteracao_cardapio">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.DataIntervaloAlteracaoCardapioFactory.alteracao_cardapio" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(AlteracaoCardapioFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.DataIntervaloAlteracaoCardapioFactory.alteracao_cardapio" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2750,6 +2731,8 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.MotivoAlteracaoCardapioFactory">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivoAlteracaoCardapioFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/fixtures/factories/alteracao_tipo_alimentacao_factory.html#MotivoAlteracaoCardapioFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.MotivoAlteracaoCardapioFactory" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<p>Factory para o modelo <code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoCardapio</span></code>.</p>
+<p>Gera instâncias com nome único usando sequência + Faker.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.MotivoAlteracaoCardapioFactory.nome">
 <span class="sig-name descname"><span class="pre">nome</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.Sequence</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.MotivoAlteracaoCardapioFactory.nome" title="Link to this definition"></a></dt>
@@ -2761,14 +2744,18 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/fixtures/factories/alteracao_tipo_alimentacao_factory.html#SubstituicaoAlimentacaoNoPeriodoEscolarFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<p>Factory para o modelo <code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code>.</p>
+<p>Cria a instância com uma alteração de cardápio e um período escolar via
+subfactories. Suporta adição de tipos de alimentação de origem e destino
+via parâmetros <code class="docutils literal notranslate"><span class="pre">tipos_alimentacao_de</span></code> e <code class="docutils literal notranslate"><span class="pre">tipos_alimentacao_para</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory.alteracao_cardapio">
-<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory.alteracao_cardapio" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">alteracao_cardapio</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(AlteracaoCardapioFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory.alteracao_cardapio" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory.periodo_escolar" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(PeriodoEscolarFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory.periodo_escolar" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2787,15 +2774,26 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 </section>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers">
 <span id="managers"></span><h2>managers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers" title="Link to this heading"></a></h2>
-<dl class="py class" id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers">
+<p id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers">Managers customizados para o modelo AlteracaoCardapio.</p>
+<p>Cada manager aplica um filtro diferente sobre o queryset padrão, segmentando
+as alterações de cardápio por janela temporal ou status do fluxo de trabalho.</p>
+<dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracoesCardapioDestaSemanaManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/managers/alteracao_tipo_alimentacao_managers.html#AlteracoesCardapioDestaSemanaManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna alterações de cardápio com início nos próximos 7 dias.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/managers/alteracao_tipo_alimentacao_managers.html#AlteracoesCardapioDestaSemanaManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset filtrado pelo intervalo da semana atual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Alterações cuja <code class="docutils literal notranslate"><span class="pre">data_inicial</span></code> está entre hoje e hoje + 7 dias.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -2804,11 +2802,19 @@ customize the behavior of the Manager.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracoesCardapioDesteMesManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/managers/alteracao_tipo_alimentacao_managers.html#AlteracoesCardapioDesteMesManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna alterações de cardápio com início nos próximos 31 dias.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/managers/alteracao_tipo_alimentacao_managers.html#AlteracoesCardapioDesteMesManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset filtrado pelo intervalo do mês atual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Alterações cuja <code class="docutils literal notranslate"><span class="pre">data_inicial</span></code> está entre hoje e hoje + 31 dias.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -2817,11 +2823,22 @@ customize the behavior of the Manager.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracoesCardapioDoMesCorrenteManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/managers/alteracao_tipo_alimentacao_managers.html#AlteracoesCardapioDoMesCorrenteManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna alterações de cardápio do mês corrente em status ativo.</p>
+<p>Filtra pelo primeiro e último dia do mês atual, incluindo apenas alterações
+cujo status indica que ainda estão em andamento no fluxo de trabalho.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/managers/alteracao_tipo_alimentacao_managers.html#AlteracoesCardapioDoMesCorrenteManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset das alterações do mês corrente.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Alterações com <code class="docutils literal notranslate"><span class="pre">data_inicial</span></code> dentro do mês atual e em
+status ativo (DRE_A_VALIDAR, DRE_VALIDADO, CODAE_AUTORIZADO, etc.).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -2830,11 +2847,21 @@ customize the behavior of the Manager.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracoesCardapioVencidaManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/managers/alteracao_tipo_alimentacao_managers.html#AlteracoesCardapioVencidaManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna alterações de cardápio vencidas e ainda em status aberto.</p>
+<p>Considera vencidas as alterações com <code class="docutils literal notranslate"><span class="pre">data_inicial</span></code> anterior a hoje e que
+ainda estejam nos status RASCUNHO, DRE_A_VALIDAR ou DRE_PEDIU_ESCOLA_REVISAR.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao/managers/alteracao_tipo_alimentacao_managers.html#AlteracoesCardapioVencidaManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset das alterações vencidas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Alterações com <code class="docutils literal notranslate"><span class="pre">data_inicial</span></code> passada e status pendente.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
