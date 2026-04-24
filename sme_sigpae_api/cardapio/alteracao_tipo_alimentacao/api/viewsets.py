@@ -429,39 +429,6 @@ class AlteracoesCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewS
         detail=True,
         permission_classes=[UsuarioEmpresaGenerico],
         methods=["patch"],
-        url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA,
-    )
-    def terceirizada_toma_ciencia(self, request, uuid=None) -> Response:
-        """Registra que a terceirizada tomou ciência da Alteração de Tipo de Alimentação.
-
-        Args:
-            request (Request): Objeto da requisição HTTP contendo o usuário autenticado.
-            uuid (str, optional): UUID da instância de ``AlteracaoCardapio``. Padrão: None.
-
-        Returns:
-            Response: Dados serializados da alteração após o registro de ciência, ou erro 400
-                em caso de transição inválida.
-
-        Raises:
-            InvalidTransitionError: Quando a transição de estado não é permitida pelo workflow.
-        """
-        alteracao_cardapio = self.get_object()
-        try:
-            alteracao_cardapio.terceirizada_toma_ciencia(
-                user=request.user,
-            )
-            serializer = self.get_serializer(alteracao_cardapio)
-            return Response(serializer.data)
-        except InvalidTransitionError as e:
-            return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-    @action(
-        detail=True,
-        permission_classes=[UsuarioEmpresaGenerico],
-        methods=["patch"],
         url_path=constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
     )
     def terceirizada_responde_questionamento(self, request, uuid=None) -> Response:

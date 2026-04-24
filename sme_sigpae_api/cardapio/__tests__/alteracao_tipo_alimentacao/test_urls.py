@@ -714,39 +714,6 @@ def test_url_endpoint_alt_card_codae_nega_error(
     }
 
 
-def test_url_endpoint_alt_card_terceirizada_ciencia(
-    client_autenticado_vinculo_terceirizada_cardapio,
-    alteracao_cardapio_codae_autorizado,
-):
-    assert (
-        str(alteracao_cardapio_codae_autorizado.status)
-        == PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO
-    )
-    response = client_autenticado_vinculo_terceirizada_cardapio.patch(
-        f"/{ENDPOINT_ALTERACAO_CARD}/{alteracao_cardapio_codae_autorizado.uuid}/{constants.TERCEIRIZADA_TOMOU_CIENCIA}/"
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    json = response.json()
-    assert json["status"] == PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_TOMOU_CIENCIA
-    assert str(json["uuid"]) == str(alteracao_cardapio_codae_autorizado.uuid)
-
-
-def test_url_endpoint_alt_card_terceirizada_ciencia_error(
-    client_autenticado_vinculo_terceirizada_cardapio, alteracao_cardapio
-):
-    assert str(alteracao_cardapio.status) == PedidoAPartirDaEscolaWorkflow.RASCUNHO
-    response = client_autenticado_vinculo_terceirizada_cardapio.patch(
-        f"/{ENDPOINT_ALTERACAO_CARD}/{alteracao_cardapio.uuid}/{constants.TERCEIRIZADA_TOMOU_CIENCIA}/"
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        "detail": "Erro de transição de estado: Transition 'terceirizada_toma_ciencia'"
-        " isn't available from state 'RASCUNHO'."
-    }
-
-
 def test_url_endpoint_alt_card_relatorio(client_autenticado, alteracao_cardapio):
     response = client_autenticado.get(
         f"/{ENDPOINT_ALTERACAO_CARD}/{alteracao_cardapio.uuid}/{constants.RELATORIO}/"
