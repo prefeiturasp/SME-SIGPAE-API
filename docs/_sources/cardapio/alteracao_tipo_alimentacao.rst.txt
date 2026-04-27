@@ -97,6 +97,7 @@ models
       data_final,
       data_inicial,
       datas_intervalo,
+      DESCRICAO,
       escola,
       escola_id,
       foi_solicitado_fora_do_prazo,
