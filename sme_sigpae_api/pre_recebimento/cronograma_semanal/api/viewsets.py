@@ -3,6 +3,10 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from sme_sigpae_api.dados_comuns.constants import (
+    ADMINISTRADOR_EMPRESA,
+    USUARIO_EMPRESA,
+)
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaCriarCronogramaSemanal,
     PermissaoParaVisualizarCronogramaSemanal,
@@ -88,9 +92,15 @@ class CronogramaSemanalViewSet(
         Lista cronogramas semanais ordenados por data de alteração (mais recente primeiro).
         Suporta paginação através do PreRecebimentoPagination.
         """
-
+        vinculo = self.request.user.vinculo_atual
         queryset = self.filter_queryset(self.get_queryset())
         queryset = queryset.order_by("-alterado_em").distinct()
+
+        if (
+            vinculo.perfil.nome == ADMINISTRADOR_EMPRESA
+            or vinculo.perfil.nome == USUARIO_EMPRESA
+        ) and vinculo.instituicao.eh_fornecedor:
+            queryset = queryset.filter(cronograma_mensal__empresa=vinculo.instituicao)
 
         page = self.paginate_queryset(queryset)
         if page is not None:

@@ -2,8 +2,8 @@ import pytest
 from django.test import Client
 from rest_framework import status
 
-from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
 pytestmark = pytest.mark.django_db
 
@@ -283,7 +283,9 @@ class TestCronogramaSemanalViewSet:
             content_type="application/json",
         )
         if response.status_code != status.HTTP_200_OK:
-            print(f"test_patch_assinar_e_enviar_sucesso - Error response: {response.json()}")
+            print(
+                f"test_patch_assinar_e_enviar_sucesso - Error response: {response.json()}"
+            )
         assert response.status_code == status.HTTP_200_OK
         cronograma_semanal_rascunho.refresh_from_db()
         assert (
@@ -355,15 +357,19 @@ class TestCronogramaSemanalViewSet:
             cronograma_semanal_rascunho.status
             == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
         )
-        assert cronograma_semanal_rascunho.observacoes == "Observação atualizada ao assinar"
+        assert (
+            cronograma_semanal_rascunho.observacoes
+            == "Observação atualizada ao assinar"
+        )
 
     def test_patch_assinar_e_enviar_status_nao_rascunho(
         self,
         client_autenticado_vinculo_dilog_cronograma,
         cronograma_ponto_a_ponto_assinado,
     ):
-        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
         from model_bakery import baker
+
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
 
         client, _ = client_autenticado_vinculo_dilog_cronograma
         cronograma_semanal_enviado = baker.make(

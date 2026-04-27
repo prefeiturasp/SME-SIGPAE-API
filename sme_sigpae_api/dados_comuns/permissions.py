@@ -1613,6 +1613,8 @@ class PermissaoParaVisualizarCronogramaSemanal(BasePermission):
 
     def has_permission(self, request, view):
         usuario = request.user
+        if not usuario.is_authenticated:
+            return False
         return (
             not usuario.is_anonymous
             and usuario.vinculo_atual
@@ -1621,6 +1623,7 @@ class PermissaoParaVisualizarCronogramaSemanal(BasePermission):
                 and usuario.vinculo_atual.perfil.nome
                 in [DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA]
             )
+            or usuario.eh_fornecedor
         )
 
 
