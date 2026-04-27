@@ -82,7 +82,7 @@ importlib-metadata = "==8.7.0"
 attrs = "==25.3.0"
 xlrd = "==2.0.2"
 spyne = { git = "https://github.com/prefeiturasp/spyne-fork.git" }
-lxml = "==6.0.2"
+lxml = "==6.1.0"
 openpyxl = "==3.1.5"
 httpx = "==0.28.1"
 pikepdf = "==10.5.1"

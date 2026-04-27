@@ -19,15 +19,15 @@
     <div class="relatorio-financeiro">
       {% include "relatorio_financeiro/componentes/cabecalho.html" with
       cabecalho=cabecalho %} {% include
-      "relatorio_financeiro/componentes/tabela_alimentacao_cei.html" with
+      "relatorio_financeiro/componentes/tabela_alimentacao.html" with
       linhas=alimentacao.linhas faixasEtarias=faixasEtarias ordem="A"
       total_atendimentos=alimentacao.total_atendimentos
       valor_total=alimentacao.valor_total %} {% include
-      "relatorio_financeiro/componentes/tabela_dieta_cei.html" with
+      "relatorio_financeiro/componentes/tabela_dieta.html" with
       linhas=dieta_a.linhas faixasEtarias=faixasEtarias tipoDieta="TIPO A"
       tipo_class="cor-tipo-a" ordem="B" total_consumo=dieta_a.total_consumo
       valor_total=dieta_a.valor_total %} {% include
-      "relatorio_financeiro/componentes/tabela_dieta_cei.html" with
+      "relatorio_financeiro/componentes/tabela_dieta.html" with
       linhas=dieta_b.linhas faixasEtarias=faixasEtarias tipoDieta="TIPO B"
       tipo_class="cor-tipo-b" ordem="C" total_consumo=dieta_b.total_consumo
       valor_total=dieta_b.valor_total %} {% include

@@ -21,8 +21,9 @@ from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from sme_sigpae_api.medicao_inicial.models import SolicitacaoMedicaoInicial
-from sme_sigpae_api.medicao_inicial.services.relatorio_financeiro_cei import (
+from sme_sigpae_api.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
+    build_relatorio_financeiro_grupo_emei,
 )
 from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
 from sme_sigpae_api.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -49,7 +50,7 @@ from ..escola.constants import (
     PERIODOS_CEMEI_EVENTO_ESPECIFICO,
     PERIODOS_ESPECIAIS_CEMEI,
 )
-from ..escola.models import Codae, DiretoriaRegional, Escola, FaixaEtaria, Lote
+from ..escola.models import Codae, DiretoriaRegional, Escola, Lote
 from ..imr.models import TipoOcorrencia
 from ..kit_lanche.models import EscolaQuantidade
 from ..logistica.api.helpers import retorna_status_guia_remessa
@@ -2538,12 +2539,9 @@ def relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao):
         "faixa_etaria",
     )
 
-    faixas = FaixaEtaria.objects.filter(ativo=True)
-
     relatorio_cei = build_relatorio_financeiro_grupo_cei(
         relatorio_financeiro,
         parametrizacao,
-        faixas,
         totais_consumo,
     )
 
@@ -2557,6 +2555,36 @@ def relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao):
 
     return html_to_pdf_file(
         html_string,
-        "relatorio_ateste_financeiro.pdf",
+        f"relatorio_ateste_financeiro_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
+        is_async=True,
+    )
+
+
+def relatorio_ateste_financeiro_grupo_emei(relatorio_financeiro, parametrizacao):
+    totais_consumo = calcula_totais_consumo_por_grupo(
+        relatorio_financeiro.lote,
+        relatorio_financeiro.grupo_unidade_escolar,
+        relatorio_financeiro.mes,
+        relatorio_financeiro.ano,
+        "tipo_alimentacao",
+    )
+
+    relatorio_emei = build_relatorio_financeiro_grupo_emei(
+        relatorio_financeiro,
+        parametrizacao,
+        totais_consumo,
+    )
+
+    html_string = render_to_string(
+        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emei.html",
+        {
+            **relatorio_emei,
+            "relatorio": relatorio_financeiro,
+        },
+    )
+
+    return html_to_pdf_file(
+        html_string,
+        f"relatorio_ateste_financeiro_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )

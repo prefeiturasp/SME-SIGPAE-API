@@ -1,8 +1,10 @@
 /// <reference types='cypress' />
 
 Cypress.Commands.add('autenticar_login', (usuario, senha) => {
-	const login = usuario ?? Cypress.env('usuario_coordenador_logistica')
-	const password = senha ?? Cypress.env('senha')
+	const obterCredencial = (chave) => Cypress.env(chave) ?? Cypress.config(chave)
+
+	const login = usuario ?? obterCredencial('usuario_coordenador_logistica')
+	const password = senha ?? obterCredencial('senha')
 
 	if (!login || !password) {
 		throw new Error(

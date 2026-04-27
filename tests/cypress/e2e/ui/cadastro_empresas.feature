@@ -12,3 +12,5 @@ Feature: Cadastro de Empresas
     And clico no botao Salvar
     And confirmo a acao no modal de confirmacao
     Then devo visualizar a mensagem "Empresa cadastrada com sucesso"
+    #teste
+    

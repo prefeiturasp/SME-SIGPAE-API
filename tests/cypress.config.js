@@ -18,21 +18,23 @@ module.exports = defineConfig({
 			return cloudPlugin(on, config)
 		},
 		baseUrl: 'https://qa-sigpae.sme.prefeitura.sp.gov.br/',
-
-		usuario_coordenador_logistica: process.env.COORDENADOR_LOGISTICA,
-		usuario_coordenador_codae_dilog_logistica:
-			process.env.COORDENADOR_CODAE_DILOG_LOGISTICA,
-		usuario_coordenador_supervisao_nutricao:
-			process.env.COORDENADOR_SUPERVISAO_NUTRICAO,
-		usuario_dilog_cronograma: process.env.DILOG_CRONOGRAMA,
-		usuario_dilog_qualidade: process.env.DILOG_QUALIDADE,
-		usuario_abastecimento: process.env.ABASTECIMENTO,
-		usuario_diretor_ue: process.env.DIRETOR_UE,
-		usuario_codae: process.env.CODAE,
-		usuario_gpcodae: process.env.GPCODAE,
-		usuario_dre: process.env.DRE,
-		usuario_homologacao_produto: process.env.HOMOLOCACAO_PRODUTO,
-		senha: process.env.SENHA,video: false,
+		env: {
+			usuario_coordenador_logistica: process.env.COORDENADOR_LOGISTICA,
+			usuario_coordenador_codae_dilog_logistica:
+				process.env.COORDENADOR_CODAE_DILOG_LOGISTICA,
+			usuario_coordenador_supervisao_nutricao:
+				process.env.COORDENADOR_SUPERVISAO_NUTRICAO,
+			usuario_dilog_cronograma: process.env.DILOG_CRONOGRAMA,
+			usuario_dilog_qualidade: process.env.DILOG_QUALIDADE,
+			usuario_abastecimento: process.env.ABASTECIMENTO,
+			usuario_diretor_ue: process.env.DIRETOR_UE,
+			usuario_codae: process.env.CODAE,
+			usuario_gpcodae: process.env.GPCODAE,
+			usuario_dre: process.env.DRE,
+			usuario_homologacao_produto: process.env.HOMOLOCACAO_PRODUTO,
+			senha: process.env.SENHA,
+		},
+		video: false,
 		timeout: 60000,
 		videoCompression: 0,
 		retries: 0,
