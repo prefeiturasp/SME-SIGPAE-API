@@ -6020,7 +6020,7 @@ class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
 
     transitions = ()
 
-    initial_state = EM_ANALISE
+    initial_state = RELATORIO_FINANCEIRO_GERADO
 
 
 class FluxoRelatorioFinanceiroMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
