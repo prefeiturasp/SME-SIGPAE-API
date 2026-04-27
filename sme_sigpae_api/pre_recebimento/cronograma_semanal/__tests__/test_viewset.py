@@ -437,11 +437,30 @@ class TestCronogramaSemanalViewSet:
         data_retrieve = response_retrieve.json()
         assert data_retrieve["uuid"] == str(cronograma_semanal_rascunho.uuid)
 
+    def test_get_listagem_fornecedor_ve_apenas_propria_empresa(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_rascunho,
+        cronograma_semanal_outra_empresa,
+    ):
+        """Fornecedor deve ver apenas cronogramas semanais da sua própria empresa."""
+        client, _ = client_autenticado_vinculo_fornecedor
+        response = client.get("/cronogramas-semanais/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+
+        uuids_retornados = [item["uuid"] for item in data["results"]]
+
+        assert str(cronograma_semanal_rascunho.uuid) in uuids_retornados
+        assert str(cronograma_semanal_outra_empresa.uuid) not in uuids_retornados
+
     def test_get_retrieve_sucesso(
         self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
     ):
         client, _ = client_autenticado_vinculo_dilog_cronograma
-        response = client.get(f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/")
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert "uuid" in data
@@ -455,7 +474,9 @@ class TestCronogramaSemanalViewSet:
         self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
     ):
         client, _ = client_autenticado_vinculo_dilog_cronograma
-        response = client.get(f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/")
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["cronograma_mensal"]["uuid"] is not None
@@ -470,7 +491,9 @@ class TestCronogramaSemanalViewSet:
         programacao_entrega_semanal,
     ):
         client, _ = client_autenticado_vinculo_dilog_cronograma
-        response = client.get(f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/")
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert isinstance(data["programacoes"], list)
@@ -481,16 +504,22 @@ class TestCronogramaSemanalViewSet:
         assert "data_fim" in prog
         assert "quantidade" in prog
 
-    def test_get_retrieve_uuid_inexistente(self, client_autenticado_vinculo_dilog_cronograma):
+    def test_get_retrieve_uuid_inexistente(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
         client, _ = client_autenticado_vinculo_dilog_cronograma
-        response = client.get("/cronogramas-semanais/00000000-0000-0000-0000-000000000000/")
+        response = client.get(
+            "/cronogramas-semanais/00000000-0000-0000-0000-000000000000/"
+        )
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_get_retrieve_sem_autenticacao(self):
         from django.test import Client
 
         client = Client()
-        response = client.get("/cronogramas-semanais/00000000-0000-0000-0000-000000000000/")
+        response = client.get(
+            "/cronogramas-semanais/00000000-0000-0000-0000-000000000000/"
+        )
         assert response.status_code in [
             status.HTTP_401_UNAUTHORIZED,
             status.HTTP_403_FORBIDDEN,
