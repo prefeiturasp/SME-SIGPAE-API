@@ -156,6 +156,11 @@ def tipo_unidade_escolar_ceu_emei():
 
 
 @pytest.fixture
+def tipo_unidade_escolar_emei():
+    return baker.make("TipoUnidadeEscolar", iniciais="EMEI")
+
+
+@pytest.fixture
 def tipo_unidade_escolar_emefm():
     return baker.make("TipoUnidadeEscolar", iniciais="EMEFM")
 
@@ -324,9 +329,14 @@ def escola_emefm(diretoria_regional):
 @pytest.fixture
 def escola_emei():
     terceirizada = baker.make("Terceirizada")
-    lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    lote = baker.make(
+        "Lote",
+        nome="LOTE 1",
+        terceirizada=terceirizada,
+        diretoria_regional=diretoria_regional,
     )
     tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEI")
@@ -6096,3 +6106,152 @@ def relatorio_financeiro_cei(
         mes="10",
         ano="2025",
     )
+
+
+@pytest.fixture
+def grupo_unidade_escolar_emei(
+    tipo_unidade_escolar_ceu_emei,
+    tipo_unidade_escolar_emei,
+):
+    return baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 3",
+        tipos_unidades=[
+            tipo_unidade_escolar_ceu_emei,
+            tipo_unidade_escolar_emei,
+        ],
+    )
+
+
+@pytest.fixture
+def vinculo_alimentacao_emei(
+    tipo_unidade_escolar_emei,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+):
+    vinculo_alimentacao = baker.make(
+        "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        tipo_unidade_escolar=tipo_unidade_escolar_emei,
+    )
+    vinculo_alimentacao.tipos_alimentacao.add(tipo_alimentacao_refeicao)
+    vinculo_alimentacao.tipos_alimentacao.add(tipo_alimentacao_lanche)
+    vinculo_alimentacao.tipos_alimentacao.add(tipo_alimentacao_lanche_4h)
+    vinculo_alimentacao.save()
+
+
+@pytest.fixture
+def relatorio_financeiro_emei(
+    escola_emei,
+    grupo_unidade_escolar_emei,
+):
+    return baker.make(
+        "RelatorioFinanceiro",
+        grupo_unidade_escolar=grupo_unidade_escolar_emei,
+        lote=escola_emei.lote,
+        mes="11",
+        ano="2025",
+    )
+
+
+@pytest.fixture
+def parametrizacao_financeira_emei(
+    edital,
+    escola_emei,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+    grupo_unidade_escolar_emei,
+):
+    parametrizacao_financeira = baker.make(
+        "ParametrizacaoFinanceira",
+        edital=edital,
+        lote=escola_emei.lote,
+        grupo_unidade_escolar=grupo_unidade_escolar_emei,
+        data_inicial="2025-11-01",
+        data_final="2025-11-30",
+        legenda="Parametrização Financeira: Legenda Inicial",
+    )
+
+    tabela_alimentacoes = baker.make(
+        "ParametrizacaoFinanceiraTabela",
+        nome=PRECO_DAS_ALIMENTACOES,
+        periodo_escolar=None,
+        parametrizacao_financeira=parametrizacao_financeira,
+    )
+
+    tabela_dieta_a = baker.make(
+        "ParametrizacaoFinanceiraTabela",
+        nome="Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+        periodo_escolar=None,
+        parametrizacao_financeira=parametrizacao_financeira,
+    )
+
+    tabela_dieta_b = baker.make(
+        "ParametrizacaoFinanceiraTabela",
+        nome="Dietas Tipo B",
+        periodo_escolar=None,
+        parametrizacao_financeira=parametrizacao_financeira,
+    )
+
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="UNITARIO")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="REAJUSTE")
+    TipoValorParametrizacaoFinanceira.objects.get_or_create(nome="ACRESCIMO")
+    tipo_unitario = TipoValorParametrizacaoFinanceira.objects.get(nome="UNITARIO")
+    tipo_reajuste = TipoValorParametrizacaoFinanceira.objects.get(nome="REAJUSTE")
+    tipo_acrescimo = TipoValorParametrizacaoFinanceira.objects.get(nome="ACRESCIMO")
+
+    for tipo_valor in [tipo_unitario, tipo_reajuste]:
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_alimentacoes,
+            nome_campo="refeicao",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            tipo_valor=tipo_valor,
+            valor="21.00",
+        )
+
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_alimentacoes,
+            nome_campo="lanche",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_lanche,
+            tipo_valor=tipo_valor,
+            valor="10.50",
+        )
+
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_alimentacoes,
+            nome_campo="lanche_4h",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_lanche_4h,
+            tipo_valor=tipo_valor,
+            valor="5.25",
+        )
+
+    for tipo_valor in [tipo_unitario, tipo_acrescimo]:
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_dieta_a,
+            nome_campo="lanche",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_lanche,
+            tipo_valor=tipo_valor,
+            valor="12.00",
+        )
+
+    for tipo_valor in [tipo_unitario, tipo_acrescimo]:
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_dieta_b,
+            nome_campo="lanche",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_lanche,
+            tipo_valor=tipo_valor,
+            valor="10.00",
+        )
+
+    return parametrizacao_financeira

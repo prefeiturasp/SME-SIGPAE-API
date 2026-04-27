@@ -1,5 +1,5 @@
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from num2words import num2words
 
@@ -119,7 +119,10 @@ def _build_consolidado_total(alimentacao, dieta_a, dieta_b):
 
     return {
         "quantidade": int(quantidade),
-        "valor": valor,
+        "valor": valor.quantize(
+            Decimal("0.01"),
+            rounding=ROUND_HALF_UP
+        ),
         "valor_extenso": num2words(valor, lang="pt_BR", to="currency"),
     }
 
