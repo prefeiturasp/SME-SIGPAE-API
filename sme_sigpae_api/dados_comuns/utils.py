@@ -35,7 +35,9 @@ from django_celery_beat.schedulers import DatabaseScheduler
 from workalendar.america import BrazilSaoPauloCity
 
 from config.settings.base import URL_CONFIGS
-from sme_sigpae_api.dados_comuns.docs import DOCS_DJANGO_WORKFLOW
+from sme_sigpae_api.dados_comuns.docs import (
+    DOCS_FLUXO_PARTINDO_ESCOLA_GESTAO_ALIMENTACAO_DJANGO_WORKFLOW,
+)
 
 from .constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, DOMINIOS_DEV
 from .models import CentralDeDownload, LogSolicitacoesUsuario, Notificacao
@@ -892,7 +894,10 @@ def secure_sample(seq, k):
 
 
 def patch_docs(model):
-    for method_name, doc in DOCS_DJANGO_WORKFLOW.items():
+    for (
+        method_name,
+        doc,
+    ) in DOCS_FLUXO_PARTINDO_ESCOLA_GESTAO_ALIMENTACAO_DJANGO_WORKFLOW.items():
         method = getattr(model, method_name, None)
         if method:
             method.__doc__ = doc

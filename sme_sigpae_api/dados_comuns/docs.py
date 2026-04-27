@@ -1,4 +1,4 @@
-DOCS_DJANGO_WORKFLOW = {
+DOCS_FLUXO_PARTINDO_ESCOLA_GESTAO_ALIMENTACAO_DJANGO_WORKFLOW = {
     "inicia_fluxo": """
         Inicia o fluxo da solicitação de Gestão de Alimentação (envia a solicitação para DRE validar).
 
