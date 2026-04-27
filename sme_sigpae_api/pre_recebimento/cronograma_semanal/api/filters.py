@@ -1,5 +1,6 @@
 from django_filters import rest_framework as filters
 
+from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
 
@@ -11,7 +12,7 @@ class CronogramaSemanalFilter(filters.FilterSet):
     - numero: Número do cronograma mensal (icontains)
     - nome_empresa: Nome da empresa do cronograma mensal (icontains)
     - nome_produto: Nome do produto do cronograma mensal (icontains)
-    - status: Status do cronograma semanal (exact)
+    - status: Status do cronograma semanal (múltipla escolha)
     - data_inicial: Data inicial do período de Lançamento (gte)
     - data_final: Data final do período de Lançamento (lte)
     """
@@ -31,10 +32,9 @@ class CronogramaSemanalFilter(filters.FilterSet):
         lookup_expr="icontains",
         label="Nome do Produto",
     )
-    status = filters.CharFilter(
+    status = filters.MultipleChoiceFilter(
         field_name="status",
-        lookup_expr="exact",
-        label="Status",
+        choices=[(str(state), state) for state in CronogramaSemanalWorkflow.states],
     )
     data_inicial = filters.DateFilter(
         field_name="alterado_em",
