@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import transaction
 from rest_framework import serializers
 
@@ -80,8 +82,25 @@ class CronogramaSemanalRascunhoSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def gera_proximo_numero_cronograma_semanal(self):
+        """Gera o próximo número sequencial para cronograma semanal no formato XXX/YYYY."""
+        ano = date.today().year
+        ultimo_cronograma = (
+            CronogramaSemanal.objects.filter(numero__endswith=f"/{ano}")
+            .order_by("numero")
+            .last()
+        )
+        if ultimo_cronograma:
+            try:
+                sequencial = int(ultimo_cronograma.numero.split("/")[0])
+                return f"{str(sequencial + 1).zfill(3)}/{ano}"
+            except (ValueError, IndexError):
+                pass
+        return f"001/{ano}"
+
     def create(self, validated_data):
         programacoes_data = validated_data.pop("programacoes", [])
+        validated_data["numero"] = self.gera_proximo_numero_cronograma_semanal()
         with transaction.atomic():
             cronograma_semanal = CronogramaSemanal.objects.create(**validated_data)
             for programacao_data in programacoes_data:

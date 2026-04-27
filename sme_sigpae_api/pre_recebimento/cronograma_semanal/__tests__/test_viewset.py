@@ -2,8 +2,8 @@ import pytest
 from django.test import Client
 from rest_framework import status
 
-from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
 pytestmark = pytest.mark.django_db
 
@@ -283,7 +283,9 @@ class TestCronogramaSemanalViewSet:
             content_type="application/json",
         )
         if response.status_code != status.HTTP_200_OK:
-            print(f"test_patch_assinar_e_enviar_sucesso - Error response: {response.json()}")
+            print(
+                f"test_patch_assinar_e_enviar_sucesso - Error response: {response.json()}"
+            )
         assert response.status_code == status.HTTP_200_OK
         cronograma_semanal_rascunho.refresh_from_db()
         assert (
@@ -355,15 +357,19 @@ class TestCronogramaSemanalViewSet:
             cronograma_semanal_rascunho.status
             == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
         )
-        assert cronograma_semanal_rascunho.observacoes == "Observação atualizada ao assinar"
+        assert (
+            cronograma_semanal_rascunho.observacoes
+            == "Observação atualizada ao assinar"
+        )
 
     def test_patch_assinar_e_enviar_status_nao_rascunho(
         self,
         client_autenticado_vinculo_dilog_cronograma,
         cronograma_ponto_a_ponto_assinado,
     ):
-        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
         from model_bakery import baker
+
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
 
         client, _ = client_autenticado_vinculo_dilog_cronograma
         cronograma_semanal_enviado = baker.make(
@@ -430,3 +436,91 @@ class TestCronogramaSemanalViewSet:
         assert response_retrieve.status_code == status.HTTP_200_OK
         data_retrieve = response_retrieve.json()
         assert data_retrieve["uuid"] == str(cronograma_semanal_rascunho.uuid)
+
+    def test_get_listagem_fornecedor_ve_apenas_propria_empresa(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_rascunho,
+        cronograma_semanal_outra_empresa,
+    ):
+        """Fornecedor deve ver apenas cronogramas semanais da sua própria empresa."""
+        client, _ = client_autenticado_vinculo_fornecedor
+        response = client.get("/cronogramas-semanais/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+
+        uuids_retornados = [item["uuid"] for item in data["results"]]
+
+        assert str(cronograma_semanal_rascunho.uuid) in uuids_retornados
+        assert str(cronograma_semanal_outra_empresa.uuid) not in uuids_retornados
+
+    def test_get_retrieve_sucesso(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert "uuid" in data
+        assert "numero" in data
+        assert "status" in data
+        assert "cronograma_mensal" in data
+        assert "programacoes" in data
+        assert "logs" in data
+
+    def test_get_retrieve_campos_cronograma_mensal(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["cronograma_mensal"]["uuid"] is not None
+        assert data["cronograma_mensal"]["numero"] is not None
+        assert data["cronograma_mensal"]["empresa"] is not None
+        assert data["cronograma_mensal"]["contrato"] is not None
+
+    def test_get_retrieve_programacoes(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        programacao_entrega_semanal,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert isinstance(data["programacoes"], list)
+        assert len(data["programacoes"]) >= 1
+        prog = data["programacoes"][0]
+        assert "mes_programado" in prog
+        assert "data_inicio" in prog
+        assert "data_fim" in prog
+        assert "quantidade" in prog
+
+    def test_get_retrieve_uuid_inexistente(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get(
+            "/cronogramas-semanais/00000000-0000-0000-0000-000000000000/"
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_get_retrieve_sem_autenticacao(self):
+        from django.test import Client
+
+        client = Client()
+        response = client.get(
+            "/cronogramas-semanais/00000000-0000-0000-0000-000000000000/"
+        )
+        assert response.status_code in [
+            status.HTTP_401_UNAUTHORIZED,
+            status.HTTP_403_FORBIDDEN,
+        ]

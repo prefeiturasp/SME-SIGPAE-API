@@ -3,6 +3,10 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from sme_sigpae_api.dados_comuns.constants import (
+    ADMINISTRADOR_EMPRESA,
+    USUARIO_EMPRESA,
+)
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaCriarCronogramaSemanal,
     PermissaoParaVisualizarCronogramaSemanal,
@@ -22,6 +26,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serialize
     CronogramaSemanalRascunhoSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
+    CronogramaSemanalDetailSerializer,
     CronogramaSemanalListagemSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
@@ -45,6 +50,7 @@ class CronogramaSemanalViewSet(
     - PATCH /cronogramas-semanais/{uuid}/ - Atualiza cronograma semanal
     - PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/ - Assina e envia cronograma semanal
     - GET /cronogramas-semanais/cronogramas-mensal-assinados/ - Lista cronogramas mensal Ponto a Ponto assinados
+    - GET /cronogramas-semanais/{uuid}/ - Detalha cronograma semanal
     """
 
     queryset = CronogramaSemanal.objects.all()
@@ -73,7 +79,9 @@ class CronogramaSemanalViewSet(
             return CronogramaSemanalRascunhoSerializer
         if self.action == "assinar_e_enviar":
             return CronogramaSemanalAssinarEEnviarSerializer
-        if self.action in ["retrieve", "list"]:
+        if self.action == "retrieve":
+            return CronogramaSemanalDetailSerializer
+        if self.action == "list":
             return CronogramaSemanalListagemSerializer
         return CronogramaSemanalListagemSerializer
 
@@ -84,9 +92,15 @@ class CronogramaSemanalViewSet(
         Lista cronogramas semanais ordenados por data de alteração (mais recente primeiro).
         Suporta paginação através do PreRecebimentoPagination.
         """
-
+        vinculo = self.request.user.vinculo_atual
         queryset = self.filter_queryset(self.get_queryset())
         queryset = queryset.order_by("-alterado_em").distinct()
+
+        if (
+            vinculo.perfil.nome == ADMINISTRADOR_EMPRESA
+            or vinculo.perfil.nome == USUARIO_EMPRESA
+        ) and vinculo.instituicao.eh_fornecedor:
+            queryset = queryset.filter(cronograma_mensal__empresa=vinculo.instituicao)
 
         page = self.paginate_queryset(queryset)
         if page is not None:

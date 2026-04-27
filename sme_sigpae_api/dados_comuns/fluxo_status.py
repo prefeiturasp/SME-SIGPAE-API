@@ -6020,7 +6020,7 @@ class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
 
     transitions = ()
 
-    initial_state = EM_ANALISE
+    initial_state = RELATORIO_FINANCEIRO_GERADO
 
 
 class FluxoRelatorioFinanceiroMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
@@ -6073,10 +6073,12 @@ class CronogramaSemanalWorkflow(xwf_models.Workflow):
     log_model = ""
     RASCUNHO = "RASCUNHO"
     ENVIADO_AO_FORNECEDOR = "ENVIADO_AO_FORNECEDOR"
+    FORNECEDOR_CIENTE = "FORNECEDOR_CIENTE"
 
     states = (
         (RASCUNHO, "Rascunho"),
         (ENVIADO_AO_FORNECEDOR, "Enviado ao Fornecedor"),
+        (FORNECEDOR_CIENTE, "Fornecedor Ciente"),
     )
 
     transitions = (("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),)
