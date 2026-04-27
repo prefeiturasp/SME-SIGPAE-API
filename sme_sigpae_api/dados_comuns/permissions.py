@@ -1613,6 +1613,8 @@ class PermissaoParaVisualizarCronogramaSemanal(BasePermission):
 
     def has_permission(self, request, view):
         usuario = request.user
+        if not usuario.is_authenticated:
+            return False
         return (
             not usuario.is_anonymous
             and usuario.vinculo_atual
