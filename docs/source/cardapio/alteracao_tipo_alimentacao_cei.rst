@@ -11,6 +11,7 @@ admin
 .. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin
    :members:
    :show-inheritance:
+   :exclude-members: extra, inlines, list_display, list_filter, media, model
 
 models
 ------

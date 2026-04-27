@@ -119,25 +119,45 @@
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioCEIModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/admin.html#AlteracaoCardapioCEIModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Django para solicitações de alteração do tipo de alimentação CEI.</p>
+<p>Configura a listagem administrativa de <code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapioCEI</span></code>,
+exibindo o UUID, a data e o status de cada solicitação, habilitando filtro
+por status e incorporando o inline de substituições no formulário de edição.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.inlines">
-<span class="sig-name descname"><span class="pre">inlines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine'&gt;]</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.inlines" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">inlines</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.inlines" title="Link to this definition"></a></dt>
+<dd><p>Inlines exibidos no formulário de edição.
+Valor: <code class="docutils literal notranslate"><span class="pre">[SubstituicoesCEIInLine]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.list_display">
-<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['uuid',</span> <span class="pre">'data',</span> <span class="pre">'status']</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.list_display" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">list_display</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.list_display" title="Link to this definition"></a></dt>
+<dd><p>Colunas exibidas na listagem do admin.
+Valores: <code class="docutils literal notranslate"><span class="pre">[&quot;uuid&quot;,</span> <span class="pre">&quot;data&quot;,</span> <span class="pre">&quot;status&quot;]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.list_filter">
-<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['status']</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.list_filter" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.media">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.media" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">list_filter</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd><p>Filtros laterais disponíveis na listagem.
+Valores: <code class="docutils literal notranslate"><span class="pre">[&quot;status&quot;]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -145,20 +165,32 @@
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicoesCEIInLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/admin.html#SubstituicoesCEIInLine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TabularInline</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine.extra">
-<span class="sig-name descname"><span class="pre">extra</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine.extra" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine.media">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine.media" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
+<p>Inline do Django para substituições de alimentação no período escolar CEI.</p>
+<p>Exibe e permite editar instâncias de
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span></code> diretamente no
+formulário de <code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapioCEI</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span></code></a></p>
+<dd><p>Modelo gerenciado pelo inline.
+Valor: <code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine.extra">
+<span class="sig-name descname"><span class="pre">extra</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine.extra" title="Link to this definition"></a></dt>
+<dd><p>Número de formulários extras exibidos para novos registros.
+Valor: <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
