@@ -252,7 +252,7 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         None,
     )
     assert rows[1] == (
-        "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEI",
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE - LOTE 1 - EMEI",
         None,
         None,
         None,
@@ -2292,7 +2292,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emei(
     esperados = {"A3:E3", "F3:K3", "L3:N3", "O3:P3", "A2:P2"}
     assert {str(r) for r in merged_ranges} == esperados
 
-    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - EMEI"
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE - LOTE 1 - EMEI"
     assert sheet["A2"].alignment.horizontal == "center"
     assert sheet["A2"].alignment.vertical == "center"
     assert sheet["A2"].font.bold is True
@@ -2497,7 +2497,7 @@ def test_formata_filtros_unidade_emei(mock_query_params_excel_emei):
     tipos_unidades = ["EMEI"]
     filtros = _formata_filtros(mock_query_params_excel_emei, tipos_unidades)
     assert isinstance(filtros, str)
-    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - EMEI"
+    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE - LOTE 1 - EMEI"
 
 
 def test_formata_filtros_unidade_cei(mock_query_params_excel_cei):

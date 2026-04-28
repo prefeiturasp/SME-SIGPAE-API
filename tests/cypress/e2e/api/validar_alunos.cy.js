@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
 describe('Validar rotas de alunos da aplicação SIGPAE', () => {
-	var usuario = Cypress.env('usuario_diretor_ue')
-	var senha = Cypress.env('senha')
+	var usuario = Cypress.config('usuario_diretor_ue')
+	var senha = Cypress.config('senha')
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
@@ -184,4 +184,3 @@ describe('Validar rotas de alunos da aplicação SIGPAE', () => {
 		})
 	})
 })
-

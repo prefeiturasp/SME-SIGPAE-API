@@ -15,6 +15,13 @@ class CronogramaSemanal(ModeloBase, TemIdentificadorExternoAmigavel, Logs, Fluxo
     O status é gerenciado pelo FluxoCronogramaSemanal (inicia como RASCUNHO).
     """
 
+    numero = models.CharField(
+        "Número do Cronograma Semanal",
+        blank=True,
+        null=True,
+        max_length=250,
+        unique=True,
+    )
     cronograma_mensal = models.ForeignKey(
         Cronograma,
         on_delete=models.PROTECT,
@@ -24,7 +31,10 @@ class CronogramaSemanal(ModeloBase, TemIdentificadorExternoAmigavel, Logs, Fluxo
     observacoes = models.TextField("Observações", blank=True)
 
     def __str__(self):
-        return f"Cronograma Semanal {self.uuid} - Status: {self.get_status_display()}"
+        return (
+            f"Cronograma Semanal {self.numero or self.uuid} - "
+            f"Status: {self.get_status_display()}"
+        )
 
     class Meta:
         verbose_name = "Cronograma Semanal"

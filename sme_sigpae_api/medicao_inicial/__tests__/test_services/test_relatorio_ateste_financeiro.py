@@ -1,0 +1,164 @@
+import pytest
+
+from decimal import Decimal
+from sme_sigpae_api.medicao_inicial.services.relatorio_ateste_financeiro import build_relatorio_financeiro_grupo_cei, build_relatorio_financeiro_grupo_emei
+from sme_sigpae_api.medicao_inicial.utils import normalizar_nome_campo
+from sme_sigpae_api.relatorios.relatorios import relatorio_ateste_financeiro_grupo_cei, relatorio_ateste_financeiro_grupo_emei
+from sme_sigpae_api.relatorios.utils import extrair_texto_de_pdf
+
+
+@pytest.mark.django_db
+def test_build_relatorio_financeiro_grupo_cei(
+    relatorio_financeiro_cei,
+    parametrizacao_financeira_cei,
+    faixas_etarias_ativas,
+):
+    totais_consumo = {
+        "ALIMENTAÇÃO - INTEGRAL": {
+            str(faixas_etarias_ativas[0]): 10,
+        },
+        "ALIMENTAÇÃO - PARCIAL": {
+            str(faixas_etarias_ativas[0]): 5,
+        },
+        "DIETA ESPECIAL - TIPO A - INTEGRAL": {
+            str(faixas_etarias_ativas[0]): 2,
+        },
+        "DIETA ESPECIAL - TIPO B - PARCIAL": {
+            str(faixas_etarias_ativas[0]): 1,
+        },
+    }
+
+    resultado = build_relatorio_financeiro_grupo_cei(
+        relatorio_financeiro_cei,
+        parametrizacao_financeira_cei,
+        totais_consumo,
+    )
+
+    assert resultado["alimentacao"]["total_atendimentos"] == 15
+    assert resultado["dieta_a"]["total_consumo"] == 2
+    assert resultado["dieta_b"]["total_consumo"] == 1
+    assert resultado["consolidado"]["quantidade"] == 18
+
+    assert resultado["cabecalho"]["data_referencia"] == "OUTUBRO/2025"
+
+
+@pytest.mark.django_db
+def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
+    relatorio_financeiro_cei,
+    parametrizacao_financeira_cei,
+):
+    pdf_bytes = relatorio_ateste_financeiro_grupo_cei(
+        relatorio_financeiro_cei,
+        parametrizacao_financeira_cei,
+    )
+
+    texto = extrair_texto_de_pdf(pdf_bytes)
+
+    assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
+    assert "SECRETARIA MUNICIPAL DE EDUCAÇÃO" in texto
+
+    assert "REFERÊNCIA:" in texto
+    assert "OUTUBRO/2025" in texto
+
+    assert relatorio_financeiro_cei.lote.nome.upper() in texto
+    assert (
+        relatorio_financeiro_cei.lote.diretoria_regional.nome
+        in texto
+    )
+
+    assert "Grupo 1" in texto
+
+    assert "ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS" in texto
+    assert "DIETA ESPECIAL - TIPO A" in texto
+    assert "DIETA ESPECIAL - TIPO B" in texto
+
+    assert "CONSOLIDADO TOTAL (A + B + C)" in texto
+    assert "QUANTIDADE SERVIDA (A+B+C):" in texto
+    assert "VALOR DO FATURAMENTO TOTAL (A+B+C):" in texto
+
+
+@pytest.mark.django_db
+def test_build_relatorio_financeiro_grupo_emei(
+    relatorio_financeiro_emei,
+    parametrizacao_financeira_emei,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+    grupo_unidade_escolar_emei,
+    vinculo_alimentacao_emei,
+):
+    TIPOS_ALIMENTACOES = [
+        tipo_alimentacao_lanche,
+        tipo_alimentacao_lanche_4h,
+        tipo_alimentacao_refeicao,
+    ]
+
+    GRUPO_NOME = grupo_unidade_escolar_emei.nome
+
+    totais_consumo = {
+        "ALIMENTAÇÃO": {
+            f"total_{normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower()}": valor
+            for tipo, valor in zip(TIPOS_ALIMENTACOES, [10, 20, 30])
+        },
+        "DIETA ESPECIAL - TIPO A": {
+            normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower(): valor
+            for tipo, valor in zip(TIPOS_ALIMENTACOES, [2, 4, 6])
+        },
+        "DIETA ESPECIAL - TIPO B": {
+            normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower(): valor
+            for tipo, valor in zip(TIPOS_ALIMENTACOES, [1, 2, 3])
+        },
+    }
+
+    resultado = build_relatorio_financeiro_grupo_emei(
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+        totais_consumo,
+    )
+
+    assert resultado["alimentacao"]["total_atendimentos"] == 60
+    assert resultado["alimentacao"]["valor_total"] == Decimal("1680.00")
+
+    assert resultado["dieta_a"]["total_consumo"] == 12
+    assert resultado["dieta_b"]["total_consumo"] == 3
+    
+    assert resultado["consolidado"]["quantidade"] == 75
+    assert resultado["consolidado"]["valor"] == Decimal("1717.88")
+    assert resultado["consolidado"]["valor_extenso"] == "mil, setecentos e dezessete reais e oitenta e oito centavos"
+
+    assert resultado["cabecalho"]["data_referencia"] == "NOVEMBRO/2025"
+
+
+@pytest.mark.django_db
+def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
+    relatorio_financeiro_emei,
+    parametrizacao_financeira_emei,
+):
+    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    )
+
+    texto = extrair_texto_de_pdf(pdf_bytes)
+
+    assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
+
+    assert "REFERÊNCIA:" in texto
+    assert "NOVEMBRO/2025" in texto
+
+    assert relatorio_financeiro_emei.lote.nome.upper() in texto
+    assert (
+        relatorio_financeiro_emei.lote.diretoria_regional.nome
+        in texto
+    )
+
+    assert "Grupo 3" in texto
+    assert "(CEU EMEI, EMEI)" in texto
+
+    assert "TIPOS DE ALIMENTAÇÕES - SEM DIETAS" in texto
+    assert "DIETA ESPECIAL - TIPO A, A ENTERAL E RESTRIÇÃO DE AMINOÁCIDOS" in texto
+    assert "DIETA ESPECIAL - TIPO B" in texto
+
+    assert "CONSOLIDADO TOTAL (A + B + C)" in texto
+    assert "QUANTIDADE SERVIDA (A+B+C):" in texto
+    assert "VALOR DO FATURAMENTO TOTAL (A+B+C):" in texto
