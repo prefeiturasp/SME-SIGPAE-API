@@ -6091,7 +6091,7 @@
 
     <span class="n">transitions</span> <span class="o">=</span> <span class="p">()</span>
 
-    <span class="n">initial_state</span> <span class="o">=</span> <span class="n">EM_ANALISE</span>
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="n">RELATORIO_FINANCEIRO_GERADO</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">FluxoRelatorioFinanceiroMedicaoInicial</span><span class="p">(</span><span class="n">xwf_models</span><span class="o">.</span><span class="n">WorkflowEnabled</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
@@ -6144,10 +6144,12 @@
     <span class="n">log_model</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">RASCUNHO</span> <span class="o">=</span> <span class="s2">&quot;RASCUNHO&quot;</span>
     <span class="n">ENVIADO_AO_FORNECEDOR</span> <span class="o">=</span> <span class="s2">&quot;ENVIADO_AO_FORNECEDOR&quot;</span>
+    <span class="n">FORNECEDOR_CIENTE</span> <span class="o">=</span> <span class="s2">&quot;FORNECEDOR_CIENTE&quot;</span>
 
     <span class="n">states</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="n">RASCUNHO</span><span class="p">,</span> <span class="s2">&quot;Rascunho&quot;</span><span class="p">),</span>
         <span class="p">(</span><span class="n">ENVIADO_AO_FORNECEDOR</span><span class="p">,</span> <span class="s2">&quot;Enviado ao Fornecedor&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span> <span class="s2">&quot;Fornecedor Ciente&quot;</span><span class="p">),</span>
     <span class="p">)</span>
 
     <span class="n">transitions</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;inicia_fluxo&quot;</span><span class="p">,</span> <span class="n">RASCUNHO</span><span class="p">,</span> <span class="n">ENVIADO_AO_FORNECEDOR</span><span class="p">),)</span>

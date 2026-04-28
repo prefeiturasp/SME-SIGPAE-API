@@ -1082,6 +1082,18 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.AlteracaoCardapioCEISerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioCEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers.html#AlteracaoCardapioCEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.AlteracaoCardapioCEISerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializerBase" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.AlteracaoCardapioSerializerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerBase</span></code></a></p>
+<p>Serializa a representacao detalhada de uma alteracao de cardapio CEI.</p>
+<p>Inclui substituicoes por periodo com faixas etarias, motivo, escola, logs
+e dados de rastreabilidade usados nas respostas completas da API.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIViewSet</span></code>: retornado por
+<code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> em todas as acoes de leitura e nas actions
+customizadas que respondem com o objeto serializado, exceto
+<code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.AlteracaoCardapioCEISerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers.html#AlteracaoCardapioCEISerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.AlteracaoCardapioCEISerializer.Meta" title="Link to this definition"></a></dt>
@@ -1105,6 +1117,18 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.FaixaEtariaSubstituicaoAlimentacaoCEISerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers.html#FaixaEtariaSubstituicaoAlimentacaoCEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.FaixaEtariaSubstituicaoAlimentacaoCEISerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa uma faixa etaria com quantidade e matriculados de uma substituicao CEI.</p>
+<p>Expoe os campos publicos de <code class="docutils literal notranslate"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEI</span></code>
+utilizados nas respostas aninhadas em substituicoes de periodo escolar CEI.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIViewSet</span></code>, aninhado em
+<code class="docutils literal notranslate"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer</span></code> nas
+respostas de leitura.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.FaixaEtariaSubstituicaoAlimentacaoCEISerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers.html#FaixaEtariaSubstituicaoAlimentacaoCEISerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.FaixaEtariaSubstituicaoAlimentacaoCEISerializer.Meta" title="Link to this definition"></a></dt>
@@ -1128,6 +1152,18 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers.html#SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase</span></code></a></p>
+<p>Serializa substituicoes completas de alimentacao por periodo escolar para CEI.</p>
+<p>Complementa o serializer base com o tipo de alimentacao de destino (FK) e
+as faixas etarias detalhadas, alem de injetar o total de alunos por faixa
+no periodo escolar via <code class="docutils literal notranslate"><span class="pre">to_representation</span></code>.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIViewSet</span></code>, aninhado em
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEISerializer</span></code> nas respostas de leitura.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers.html#SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.Meta" title="Link to this definition"></a></dt>
@@ -1148,7 +1184,24 @@ Identificador único do registro.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.to_representation">
 <span class="sig-name descname"><span class="pre">to_representation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers.html#SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.to_representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.to_representation" title="Link to this definition"></a></dt>
-<dd><p>Object instance -&gt; Dict of primitive datatypes.</p>
+<dd><p>Adiciona o total de alunos por faixa etaria no periodo escolar.</p>
+<p>Consulta o metodo <code class="docutils literal notranslate"><span class="pre">alunos_por_periodo_e_faixa_etaria</span></code> da escola para
+enriquecer cada faixa etaria com o campo <code class="docutils literal notranslate"><span class="pre">total_alunos_no_periodo</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>instance</strong> (<a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI"><em>SubstituicaoAlimentacaoNoPeriodoEscolarCEI</em></a>) – Substituicao
+a ser representada.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Representacao da substituicao com o campo
+<code class="docutils literal notranslate"><span class="pre">total_alunos_no_periodo</span></code> adicionado a cada faixa etaria
+encontrada na consulta. Faixas nao encontradas no dicionario de
+alunos sao ignoradas silenciosamente.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1160,6 +1213,18 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.AlteracaoCardapioCEISerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracaoCardapioCEISerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers_create.html#AlteracaoCardapioCEISerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.AlteracaoCardapioCEISerializerCreate" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.AlteracaoCardapioSerializerCreateBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreateBase</span></code></a></p>
+<p>Serializa a criacao e atualizacao completas de alteracoes de cardapio CEI.</p>
+<p>Valida datas e regras de negocio especificas para CEI (incluindo
+duplicidade de RPL), resolve relacionamentos por UUID e cria as
+substituicoes por periodo e faixa etaria associadas ao pedido.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIViewSet</span></code>: retornado por
+<code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> nas actions <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e
+<code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.AlteracaoCardapioCEISerializerCreate.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers_create.html#AlteracaoCardapioCEISerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.AlteracaoCardapioCEISerializerCreate.Meta" title="Link to this definition"></a></dt>
@@ -1186,7 +1251,24 @@ Identificador único do registro.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.AlteracaoCardapioCEISerializerCreate.validate_data">
 <span class="sig-name descname"><span class="pre">validate_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers_create.html#AlteracaoCardapioCEISerializerCreate.validate_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.AlteracaoCardapioCEISerializerCreate.validate_data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Aplica as validacoes de negocio especificas para a data da solicitacao CEI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>datetime.date</em>) – Data informada na solicitacao.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A mesma data recebida, apos passar pelas
+validacoes de prazo, ano corrente e duplicidade de RPL.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.date</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando a data viola alguma das regras de negocio
+    aplicadas.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1194,6 +1276,18 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers_create.html#FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa a escrita de uma faixa etaria de substituicao de alimentacao CEI.</p>
+<p>Recebe referencias por UUID para a substituicao de periodo escolar e para a
+faixa etaria ao criar a solicitacao CEI.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIViewSet</span></code>, aninhado em
+<code class="docutils literal notranslate"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate</span></code> nas
+actions <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers_create.html#FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate.Meta" title="Link to this definition"></a></dt>
@@ -1217,6 +1311,18 @@ Identificador único do registro.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers_create.html#SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase</span></code></a></p>
+<p>Serializa a escrita completa de substituicoes por periodo escolar para CEI.</p>
+<p>Complementa o serializer base com o tipo de alimentacao de destino (FK) e
+as faixas etarias detalhadas, criando todos os relacionamentos vinculados.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIViewSet</span></code>, aninhado em
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEISerializerCreate</span></code> nas actions <code class="docutils literal notranslate"><span class="pre">create</span></code>,
+<code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers_create.html#SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate.Meta" title="Link to this definition"></a></dt>
@@ -1237,24 +1343,21 @@ Identificador único do registro.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/serializers_create.html#SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate.create" title="Link to this definition"></a></dt>
-<dd><p>We have a bit of extra checking around this in order to provide
-descriptive messages when something goes wrong, but this method is
-essentially just:</p>
-<blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
-</div></blockquote>
-<p>If there are many to many fields present on the instance then they
-cannot be set until the model is instantiated, in which case the
-implementation is like so:</p>
-<blockquote>
-<div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
-instance.example_relationship = example_relationship
-return instance</p>
-</div></blockquote>
-<p>The default implementation also does not handle nested relationships.
-If you want to support writable nested relationships you’ll need
-to write an explicit <cite>.create()</cite> method.</p>
+<dd><p>Cria uma substituicao de alimentacao CEI com relacionamentos M2M e faixas etarias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados pelo serializer, incluindo
+<code class="docutils literal notranslate"><span class="pre">tipos_alimentacao_de</span></code> e <code class="docutils literal notranslate"><span class="pre">faixas_etarias</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia criada com
+os tipos de alimentacao de origem vinculados e as faixas etarias
+associadas.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1266,17 +1369,31 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracoesCardapioCEIViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet" title="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets.AlteracoesCardapioViewSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code></a></p>
+<p>ViewSet para gerenciar solicitacoes de Alteracao do Tipo de Alimentacao CEI.</p>
+<p>Herda todas as actions de fluxo de <code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioViewSet</span></code> (inicio de
+pedido, validacao DRE, autorizacao CODAE, cancelamento, etc.) e sobrescreve
+o queryset, os serializers e as actions de listagem por perfil para operar
+sobre <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEI</span></code>.</p>
+<dl class="simple">
+<dt>Tipos de unidade contemplados:</dt><dd><ul class="simple">
+<li><p>CEI DIRET</p></li>
+<li><p>CEU CEI</p></li>
+<li><p>CCI/CIPS</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.get_serializer_class">
 <span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Retorna a classe de serializer adequada para a ação atual.</p>
+<dd><p>Retorna a classe de serializer adequada para a acao atual.</p>
 <ul class="simple">
-<li><p>Para as ações <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>: utiliza <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializerCreate</span></code>.</p></li>
-<li><p>Para as demais ações: utiliza <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioSerializer</span></code>.</p></li>
+<li><p>Para as acoes <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>: utiliza
+<code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEISerializerCreate</span></code>.</p></li>
+<li><p>Para as demais acoes: utiliza <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEISerializer</span></code>.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Classe de serializer a ser utilizada na ação corrente.</p>
+<dd class="field-odd"><p>Classe de serializer a ser utilizada na acao corrente.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>type</p>
@@ -1288,18 +1405,18 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.minhas_solicitacoes">
 <span class="sig-name descname"><span class="pre">minhas_solicitacoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.minhas_solicitacoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.minhas_solicitacoes" title="Link to this definition"></a></dt>
 <dd><dl class="simple">
-<dt>Retorna as solicitações de Alteração de Tipo de Alimentação do usuário logado que estão em RASCUNHO.</dt><dd><ul class="simple">
-<li><p>permissão: Escola terceirizada.</p></li>
+<dt>Retorna as solicitacoes de Alteracao de Tipo de Alimentacao CEI do usuario logado que estao em RASCUNHO.</dt><dd><ul class="simple">
+<li><p>permissao: Escola terceirizada.</p></li>
 </ul>
 </dd>
 </dl>
-<p>Os resultados são paginados.</p>
+<p>Os resultados sao paginados.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP contendo o usuário autenticado.</p>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Objeto da requisicao HTTP contendo o usuario autenticado.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Resposta paginada com a lista de alterações de cardápio em rascunho do usuário.</p>
+<dd class="field-even"><p>Resposta paginada com a lista de alteracoes de cardapio CEI em rascunho do usuario.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Response</p>
@@ -1316,17 +1433,21 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.relatorio">
 <span class="sig-name descname"><span class="pre">relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.relatorio" title="Link to this definition"></a></dt>
-<dd><p>Gera e retorna o relatório da Alteração do Tipo de Alimentação em formato PDF.
-- permissão: qualquer usuário autenticado com acesso à solicitação.</p>
+<dd><dl class="simple">
+<dt>Gera e retorna o relatorio da Alteracao do Tipo de Alimentacao CEI em formato PDF.</dt><dd><ul class="simple">
+<li><p>permissao: qualquer usuario autenticado com acesso a solicitacao.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP.</p></li>
-<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instância de <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code>. Padrão: None.</p></li>
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisicao HTTP.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instancia de <code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEI</span></code>. Padrao: None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Resposta contendo o PDF do relatório gerado.</p>
+<dd class="field-even"><p>Resposta contendo o PDF do relatorio gerado.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>HttpResponse</p>
@@ -1338,10 +1459,10 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_codae">
 <span class="sig-name descname"><span class="pre">solicitacoes_codae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.solicitacoes_codae"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_codae" title="Link to this definition"></a></dt>
 <dd><dl class="simple">
-<dt>Retorna as todas solicitações de Alteração de Tipo de Alimentação:</dt><dd><ul class="simple">
-<li><p>com status DRE_VALIDADO, para a CODAE autorizar, negar ou pedir questionamento à empresa do lote;</p></li>
-<li><p>utilizado em tela para dividir as solicitações por prioridade (próximas ao vencimento, prazo limite, prazo regular).</p></li>
-<li><p>permissão: CODAE Gestão de Alimentação.</p></li>
+<dt>Retorna todas as solicitacoes de Alteracao de Tipo de Alimentacao CEI para a CODAE:</dt><dd><ul class="simple">
+<li><p>com status DRE_VALIDADO, para a CODAE autorizar, negar ou pedir questionamento a empresa do lote;</p></li>
+<li><p>utilizado em tela para dividir as solicitacoes por prioridade (proximas ao vencimento, prazo limite, prazo regular).</p></li>
+<li><p>permissao: CODAE Gestao de Alimentacao.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1349,14 +1470,14 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP. Aceita <code class="docutils literal notranslate"><span class="pre">diretoria_regional</span></code> e
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisicao HTTP. Aceita <code class="docutils literal notranslate"><span class="pre">diretoria_regional</span></code> e
 <code class="docutils literal notranslate"><span class="pre">lote</span></code> como query params opcionais.</p></li>
-<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado às solicitações.
-Padrão: <code class="docutils literal notranslate"><span class="pre">constants.SEM_FILTRO</span></code>.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado as solicitacoes.
+Padrao: <code class="docutils literal notranslate"><span class="pre">constants.SEM_FILTRO</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Lista serializada das alterações de cardápio encontradas.</p>
+<dd class="field-even"><p>Lista serializada das alteracoes de cardapio CEI encontradas.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Response</p>
@@ -1368,22 +1489,25 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_diretoria_regional">
 <span class="sig-name descname"><span class="pre">solicitacoes_diretoria_regional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.solicitacoes_diretoria_regional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_diretoria_regional" title="Link to this definition"></a></dt>
 <dd><dl class="simple">
-<dt>Retorna as solicitações de Alteração do Tipo de Alimentação das escolas da diretoria regional.</dt><dd><ul class="simple">
-<li><p>consolida em uma única pesquisa as buscas por prioridade.</p></li>
-<li><p>filtra opcionalmente por lote via query param.</p></li>
-<li><p>permissão: Diretoria Regional.</p></li>
+<dt>Retorna as solicitacoes de Alteracao do Tipo de Alimentacao CEI das escolas vinculadas a DRE do usuario:</dt><dd><ul class="simple">
+<li><p>com status DRE_A_VALIDAR, para a DRE validar ou nao validar;</p></li>
+<li><p>utilizado em tela para dividir as solicitacoes por prioridade (proximas ao vencimento, prazo limite, prazo regular).</p></li>
+<li><p>permissao: Diretoria Regional.</p></li>
 </ul>
 </dd>
 </dl>
+<p>Filtra opcionalmente por lote via query param.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP. Aceita <code class="docutils literal notranslate"><span class="pre">lote</span></code> como query param opcional.</p></li>
-<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado às solicitações. Padrão: <code class="docutils literal notranslate"><span class="pre">&quot;sem_filtro&quot;</span></code>.</p></li>
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisicao HTTP contendo o usuario autenticado.
+Aceita <code class="docutils literal notranslate"><span class="pre">lote</span></code> como query param opcional.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado as solicitacoes.
+Padrao: <code class="docutils literal notranslate"><span class="pre">constants.SEM_FILTRO</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Lista serializada das alterações de cardápio encontradas para a diretoria regional.</p>
+<dd class="field-even"><p>Lista serializada das alteracoes de cardapio CEI encontradas para a DRE.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Response</p>
@@ -1394,7 +1518,29 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_terceirizada">
 <span class="sig-name descname"><span class="pre">solicitacoes_terceirizada</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/api/viewsets.html#AlteracoesCardapioCEIViewSet.solicitacoes_terceirizada"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.solicitacoes_terceirizada" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Retorna as solicitacoes de Alteracao do Tipo de Alimentacao CEI da terceirizada do usuario.</dt><dd><ul class="simple">
+<li><p>permissao: empresa terceirizada.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Os resultados sao paginados.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisicao HTTP contendo o usuario autenticado.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status aplicado as solicitacoes.
+Padrao: <code class="docutils literal notranslate"><span class="pre">constants.SEM_FILTRO</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com a lista de alteracoes de cardapio CEI da terceirizada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1402,15 +1548,26 @@ Padrão: <code class="docutils literal notranslate"><span class="pre">constants.
 </section>
 <section id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers">
 <span id="managers"></span><h2>managers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers" title="Link to this heading"></a></h2>
-<dl class="py class" id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers">
+<p id="module-sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers">Managers customizados para o modelo AlteracaoCardapioCEI.</p>
+<p>Cada manager aplica um filtro diferente sobre o queryset padrão, segmentando
+as alterações de cardápio CEI por janela temporal.</p>
+<dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracoesCardapioCEIDestaSemanaManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/managers/alteracao_tipo_alimentacao_cei_managers.html#AlteracoesCardapioCEIDestaSemanaManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna alterações de cardápio CEI com data nos próximos 7 dias.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/managers/alteracao_tipo_alimentacao_cei_managers.html#AlteracoesCardapioCEIDestaSemanaManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset filtrado pelo intervalo da semana atual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Alterações cuja <code class="docutils literal notranslate"><span class="pre">data</span></code> está entre hoje e hoje + 7 dias.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1419,11 +1576,19 @@ customize the behavior of the Manager.</p>
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlteracoesCardapioCEIDesteMesManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/managers/alteracao_tipo_alimentacao_cei_managers.html#AlteracoesCardapioCEIDesteMesManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna alterações de cardápio CEI com data nos próximos 31 dias.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/alteracao_tipo_alimentacao_cei/managers/alteracao_tipo_alimentacao_cei_managers.html#AlteracoesCardapioCEIDesteMesManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset filtrado pelo intervalo do mês atual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Alterações cuja <code class="docutils literal notranslate"><span class="pre">data</span></code> está entre hoje e hoje + 31 dias.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
