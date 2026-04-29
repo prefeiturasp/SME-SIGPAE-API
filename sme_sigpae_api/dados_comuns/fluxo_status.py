@@ -4895,17 +4895,29 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
             SolicitacaoAlteracaoCronograma,
         )
+        from sme_sigpae_api.recebimento.models import FichaDeRecebimento
 
         user = kwargs["user"]
         solicitacao_uuid = kwargs.get("justificativa")
 
         if solicitacao_uuid:
-            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
-                uuid=solicitacao_uuid
-            )
-
+            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
             self.qtd_total_programada = solicitacao.qtd_total_programada
-            self.etapas.set(solicitacao.etapas_novas.all())
+
+            etapas_antigas = list(solicitacao.etapas_antigas.all())
+            etapas_novas = list(solicitacao.etapas_novas.all())
+
+            for indice, etapa_antiga in enumerate(etapas_antigas):
+                try:
+                    etapa_nova = etapas_novas[indice]
+                except IndexError:
+                    break
+
+                FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(etapa=etapa_nova)
+                etapa_antiga.cronograma = None
+                etapa_antiga.save(update_fields=["cronograma"])
+
+            self.etapas.set(etapas_novas)
             self.programacoes_de_recebimento.all().delete()
             self.programacoes_de_recebimento.set(solicitacao.programacoes_novas.all())
             self.save()
