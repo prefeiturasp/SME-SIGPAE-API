@@ -6081,7 +6081,10 @@ class CronogramaSemanalWorkflow(xwf_models.Workflow):
         (FORNECEDOR_CIENTE, "Fornecedor Ciente"),
     )
 
-    transitions = (("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),)
+    transitions = (
+        ("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),
+        ("fornecedor_ciente", ENVIADO_AO_FORNECEDOR, FORNECEDOR_CIENTE),
+    )
 
     initial_state = RASCUNHO
 
@@ -6103,12 +6106,28 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             solicitacao_tipo=LogSolicitacoesUsuario.CRONOGRAMA,
         )
 
+    def salvar_log_cronograma_semanal_criado(self, usuario):
+        """Salva log de criação de rascunho. Deve ser chamado manualmente ao criar o objeto."""
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_CRIADO,
+            usuario=usuario,
+        )
+
     @xworkflows.after_transition("inicia_fluxo")
     def _inicia_fluxo_hook(self, *args, **kwargs):
         user = kwargs.get("user")
         if user:
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
+                usuario=user,
+            )
+
+    @xworkflows.after_transition("fornecedor_ciente")
+    def _fornecedor_ciente_hook(self, *args, **kwargs):
+        user = kwargs.get("user")
+        if user:
+            self.salvar_log_transicao(
+                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
                 usuario=user,
             )
 

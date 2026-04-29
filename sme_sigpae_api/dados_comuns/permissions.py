@@ -1643,3 +1643,15 @@ class PermissaoParaCriarCronogramaSemanal(BasePermission):
                 in [DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA]
             )
         )
+
+
+class PermissaoParaDarCienciaCronogramaSemanal(BasePermission):
+    """Permissão para dar ciência ao Cronograma Semanal FLV.
+    Apenas o FORNECEDOR pode acessar.
+    """
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous and usuario.vinculo_atual and usuario.eh_fornecedor
+        )

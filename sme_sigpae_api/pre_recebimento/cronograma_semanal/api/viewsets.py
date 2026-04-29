@@ -9,6 +9,7 @@ from sme_sigpae_api.dados_comuns.constants import (
 )
 from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoParaCriarCronogramaSemanal,
+    PermissaoParaDarCienciaCronogramaSemanal,
     PermissaoParaVisualizarCronogramaSemanal,
 )
 from sme_sigpae_api.pre_recebimento.base.api.paginations import (
@@ -62,6 +63,7 @@ class CronogramaSemanalViewSet(
         "update": [PermissaoParaCriarCronogramaSemanal],
         "partial_update": [PermissaoParaCriarCronogramaSemanal],
         "cronogramas_mensal_assinados": [PermissaoParaCriarCronogramaSemanal],
+        "fornecedor_ciente": [PermissaoParaDarCienciaCronogramaSemanal],
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
@@ -79,7 +81,7 @@ class CronogramaSemanalViewSet(
             return CronogramaSemanalRascunhoSerializer
         if self.action == "assinar_e_enviar":
             return CronogramaSemanalAssinarEEnviarSerializer
-        if self.action == "retrieve":
+        if self.action in ["retrieve", "fornecedor_ciente"]:
             return CronogramaSemanalDetailSerializer
         if self.action == "list":
             return CronogramaSemanalListagemSerializer
@@ -125,7 +127,8 @@ class CronogramaSemanalViewSet(
         """
         serializer = CronogramaSemanalRascunhoSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        instance = serializer.save()
+        instance.salvar_log_cronograma_semanal_criado(usuario=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(
@@ -186,6 +189,32 @@ class CronogramaSemanalViewSet(
         except Exception as e:
             # Se a transição do workflow falhar (ex: status não é RASCUNHO),
             # retorna erro 400
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="fornecedor-ciente",
+        url_name="fornecedor_ciente",
+    )
+    def fornecedor_ciente(self, request, uuid):
+        """
+        Endpoint: PATCH /cronogramas-semanais/{uuid}/fornecedor-ciente/
+
+        Registra a ciência do fornecedor sobre o cronograma semanal.
+        Valida a senha do usuário e executa a transição fornecedor_ciente do workflow.
+        """
+        usuario = request.user
+
+        try:
+            cronograma_semanal = self.get_object()
+            cronograma_semanal.fornecedor_ciente(user=usuario)
+            serializer = self.get_serializer(cronograma_semanal)
+            return Response(serializer.data)
+        except Exception as e:
             return Response(
                 {"detail": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
