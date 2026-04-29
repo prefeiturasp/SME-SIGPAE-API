@@ -169,32 +169,36 @@ class SolicitacaoDietaEspecialViewSet(
 
         return super().get_permissions()
 
-    def get_serializer_class(self):  # noqa C901
-        if self.action == "create":
-            return SolicitacaoDietaEspecialCreateSerializer
-        elif self.action in ["autorizar", "atualiza_protocolo"]:
-            return SolicitacaoDietaEspecialAutorizarSerializer
-        elif self.action in ["update", "partial_update"]:
-            return SolicitacaoDietaEspecialUpdateSerializer
-        elif self.action in [
+    def get_serializer_class(self):
+        RELATORIOS_QUANTITATIVOS = {
             "relatorio_quantitativo_solic_dieta_esp",
             "relatorio_quantitativo_diag_dieta_esp",
             "relatorio_quantitativo_classificacao_dieta_esp",
-        ]:
+        }
+
+        AUTORIZACAO_ACTIONS = {"autorizar", "atualiza_protocolo"}
+        UPDATE_ACTIONS = {"update", "partial_update"}
+
+        if self.action in RELATORIOS_QUANTITATIVOS:
             return RelatorioQuantitativoSolicDietaEspSerializer
-        elif self.action == "relatorio_dieta_especial":
-            return SolicitacaoDietaEspecialSimplesSerializer
-        elif self.action == "relatorio_dieta_especial_terceirizada":
-            return SolicitacaoDietaEspecialRelatorioTercSerializer
-        elif self.action == "panorama_escola":
-            return PanoramaSerializer
-        elif self.action == "alteracao_ue":
-            return AlteracaoUESerializer
-        elif self.action == "relatorio-historico-dieta-especial":
-            return UnidadeEducacionalSerializer
-        elif self.action == "relatorio_recreio_nas_ferias":
-            return SolicitacaoDietaEspecialRecreioNasFeriasSerializer
-        return SolicitacaoDietaEspecialSerializer
+
+        if self.action in AUTORIZACAO_ACTIONS:
+            return SolicitacaoDietaEspecialAutorizarSerializer
+
+        if self.action in UPDATE_ACTIONS:
+            return SolicitacaoDietaEspecialUpdateSerializer
+
+        serializer_map = {
+            "create": SolicitacaoDietaEspecialCreateSerializer,
+            "relatorio_dieta_especial": SolicitacaoDietaEspecialSimplesSerializer,
+            "relatorio_dieta_especial_terceirizada": SolicitacaoDietaEspecialRelatorioTercSerializer,
+            "panorama_escola": PanoramaSerializer,
+            "alteracao_ue": AlteracaoUESerializer,
+            "relatorio-historico-dieta-especial": UnidadeEducacionalSerializer,
+            "relatorio_recreio_nas_ferias": SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
+        }
+
+        return serializer_map.get(self.action, SolicitacaoDietaEspecialSerializer)
 
     def atualiza_solicitacao(self, solicitacao, request):
         texto_html = atualiza_historico_protocolo(solicitacao, request.data)
