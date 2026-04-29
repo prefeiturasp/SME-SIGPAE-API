@@ -1282,3 +1282,62 @@ def solicitacao_dieta_especial(escola, user_diretor_escola):
     solicitacao.save()
     solicitacao.inicia_fluxo(user=user)
     return solicitacao
+
+
+@pytest.fixture
+def solicitacao_alteracao_cronograma_com_ficha(
+    cronograma_para_alteracao,
+    etapas_do_cronograma_factory,
+    user_codae_produto,
+):
+    """
+    Fixture que cria uma solicitação de alteração onde a etapa antiga
+    possui uma Ficha de Recebimento vinculada, e a etapa nova tem o
+    mesmo etapa+parte para o de-para funcionar.
+    """
+    from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
+        ProgramacaoDoRecebimentoDoCronograma,
+        SolicitacaoAlteracaoCronograma,
+    )
+    from sme_sigpae_api.recebimento.models import (
+        FichaDeRecebimento,
+    )
+
+    cronograma = cronograma_para_alteracao
+
+    # Etapa antiga vinculada ao cronograma — terá ficha de recebimento
+    etapa_antiga = etapas_do_cronograma_factory(
+        cronograma=cronograma,
+        etapa=1,
+        parte=1,
+    )
+
+    # Etapa nova com mesmo etapa+parte para o de-para
+    etapa_nova = etapas_do_cronograma_factory(
+        cronograma=None,
+        etapa=1,
+        parte=1,
+    )
+
+    # Cria a ficha vinculada à etapa antiga
+    ficha = FichaDeRecebimento.objects.create(etapa=etapa_antiga)
+
+    solicitacao = SolicitacaoAlteracaoCronograma.objects.create(
+        cronograma=cronograma,
+        usuario_solicitante=user_codae_produto,
+        qtd_total_programada=123.0,
+        justificativa="teste",
+        numero_solicitacao=f"TESTE-FICHA-{cronograma.id}",
+    )
+
+    solicitacao.etapas_antigas.set([etapa_antiga])
+    solicitacao.etapas_novas.set([etapa_nova])
+
+    prog = ProgramacaoDoRecebimentoDoCronograma.objects.create(
+        data_programada="22/08/2022 - Etapa 1 - Parte 1",
+        tipo_carga=ProgramacaoDoRecebimentoDoCronograma.PALETIZADA,
+    )
+    solicitacao.programacoes_novas.set([prog])
+
+    return solicitacao, ficha
+
