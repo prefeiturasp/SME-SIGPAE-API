@@ -475,7 +475,12 @@ def test_finaliza_solicitacao_alteracao_hook_com_fichas_mantem_referencia(
 ):
     solicitacao, ficha = solicitacao_alteracao_cronograma_com_ficha
     cronograma = solicitacao.cronograma
-    etapa_com_ficha = ficha.etapa
+    etapa_antiga = ficha.etapa
+
+    etapa_nova_correspondente = solicitacao.etapas_novas.filter(
+        etapa=etapa_antiga.etapa,
+        parte=etapa_antiga.parte,
+    ).first()
 
     cronograma.finaliza_solicitacao_alteracao(
         user=user_codae_produto,
@@ -483,6 +488,9 @@ def test_finaliza_solicitacao_alteracao_hook_com_fichas_mantem_referencia(
     )
 
     cronograma.refresh_from_db()
-    etapa_com_ficha.refresh_from_db()
+    etapa_antiga.refresh_from_db()
+    ficha.refresh_from_db()
 
-    assert etapa_com_ficha.cronograma == cronograma
+    assert etapa_antiga.cronograma is None
+    assert ficha.etapa == etapa_nova_correspondente
+    assert etapa_nova_correspondente in cronograma.etapas.all()
