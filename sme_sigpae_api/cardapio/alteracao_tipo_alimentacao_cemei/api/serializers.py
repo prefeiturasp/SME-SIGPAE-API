@@ -25,6 +25,12 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer(serializers.ModelSerializer):
+    """Serializer de leitura para ``FaixaEtariaSubstituicaoAlimentacaoCEMEICEI``.
+
+    Expande o campo ``faixa_etaria`` com a representação completa via
+    ``FaixaEtariaSerializer``.
+    """
+
     faixa_etaria = FaixaEtariaSerializer()
 
     class Meta:
@@ -35,6 +41,12 @@ class FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer(serializers.ModelSeri
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEISerializer(
     serializers.ModelSerializer
 ):
+    """Serializer de leitura para ``SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI``.
+
+    Expande ``periodo_escolar``, ``faixas_etarias``, ``tipos_alimentacao_de`` e
+    ``tipos_alimentacao_para`` com seus respectivos serializers aninhados.
+    """
+
     periodo_escolar = PeriodoEscolarSerializer()
     faixas_etarias = FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer(many=True)
     tipos_alimentacao_de = TipoAlimentacaoSerializer(many=True)
@@ -48,6 +60,12 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEISerializer(
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEISerializer(
     serializers.ModelSerializer
 ):
+    """Serializer de leitura para ``SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI``.
+
+    Expande ``periodo_escolar``, ``tipos_alimentacao_de`` e
+    ``tipos_alimentacao_para`` com seus respectivos serializers aninhados.
+    """
+
     periodo_escolar = PeriodoEscolarSerializer()
     tipos_alimentacao_de = TipoAlimentacaoSerializer(many=True)
     tipos_alimentacao_para = TipoAlimentacaoSerializer(many=True)
@@ -58,6 +76,16 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEISerializer(
 
 
 class AlteracaoCardapioCEMEISerializer(serializers.ModelSerializer):
+    """Serializer de leitura para ``AlteracaoCardapioCEMEI``.
+
+    Utilizado pelo ``AlteracoesCardapioCEMEIViewSet`` nas actions de listagem e
+    recuperação de solicitações. Expande todos os campos relacionados com
+    representações completas, incluindo as substituições separadas por parte
+    CEI (``substituicoes_cemei_cei_periodo_escolar``) e EMEI
+    (``substituicoes_cemei_emei_periodo_escolar``), datas do intervalo,
+    rastro de terceirizada e logs de transição.
+    """
+
     escola = EscolaSimplesSerializer()
     motivo = MotivoAlteracaoCardapioSerializer()
     foi_solicitado_fora_do_prazo = serializers.BooleanField()
