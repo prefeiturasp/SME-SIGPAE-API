@@ -4890,6 +4890,22 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             html=html,
         )
 
+    def _migrar_fichas_para_etapas_novas(self, etapas_antigas, etapas_novas):
+        from sme_sigpae_api.recebimento.models import FichaDeRecebimento
+        from rest_framework.exceptions import ValidationError
+
+        for indice, etapa_antiga in enumerate(etapas_antigas):
+            try:
+                etapa_nova = etapas_novas[indice]
+            except IndexError:
+                raise ValidationError(
+                    f"Não foi possível migrar todas as fichas de recebimento. "
+                    f"A etapa de índice {indice} não possui correspondente nas novas etapas."
+                )
+            FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(etapa=etapa_nova)
+            etapa_antiga.cronograma = None
+            etapa_antiga.save(update_fields=["cronograma"])
+
     @xworkflows.after_transition("finaliza_solicitacao_alteracao")
     def _finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
         from django.db import transaction
@@ -4897,7 +4913,6 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
             SolicitacaoAlteracaoCronograma,
         )
-        from sme_sigpae_api.recebimento.models import FichaDeRecebimento
 
         user = kwargs["user"]
         solicitacao_uuid = kwargs.get("justificativa")
@@ -4911,17 +4926,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                     etapas_antigas = list(solicitacao.etapas_antigas.all())
                     etapas_novas = list(solicitacao.etapas_novas.all())
 
-                    for indice, etapa_antiga in enumerate(etapas_antigas):
-                        try:
-                            etapa_nova = etapas_novas[indice]
-                            FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(etapa=etapa_nova)
-                            etapa_antiga.cronograma = None
-                            etapa_antiga.save(update_fields=["cronograma"])
-                        except IndexError:
-                            raise ValidationError(
-                                f"Não foi possível migrar todas as fichas de recebimento. "
-                                f"A etapa de índice {indice} não possui correspondente nas novas etapas."
-                            )
+                    self._migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas)
 
                     self.etapas.set(etapas_novas)
                     self.programacoes_de_recebimento.all().delete()
