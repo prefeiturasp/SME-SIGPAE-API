@@ -1,7 +1,7 @@
 import json
 import uuid as uuid_generator
 from copy import deepcopy
-from datetime import date, datetime
+from datetime import datetime
 
 from django.core.exceptions import ValidationError as coreValidation
 from django.db import transaction
@@ -9,7 +9,6 @@ from django.db.models import (
     Case,
     CharField,
     Count,
-    F,
     OuterRef,
     Q,
     Subquery,
@@ -44,7 +43,6 @@ from sme_sigpae_api.dados_comuns.services import enviar_email_codae_atualiza_pro
 from sme_sigpae_api.dados_comuns.utils import convert_dict_to_querydict
 from sme_sigpae_api.dieta_especial.forms import (
     NegaDietaEspecialForm,
-    PanoramaForm,
     RelatorioDietaForm,
     RelatorioQuantitativoSolicDietaEspForm,
 )
@@ -81,7 +79,6 @@ from sme_sigpae_api.dieta_especial.utils import (
 from sme_sigpae_api.escola.models import (
     DiretoriaRegional,
     Escola,
-    EscolaPeriodoEscolar,
     Lote,
     TipoGestao,
 )
@@ -99,7 +96,6 @@ from sme_sigpae_api.relatorios.relatorios import (
 
 from ...api.filters import DietaEspecialFilter
 from ...api.serializers import (
-    PanoramaSerializer,
     RelatorioQuantitativoSolicDietaEspSerializer,
     SolicitacaoDietaEspecialAutorizarSerializer,
     SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
@@ -192,7 +188,6 @@ class SolicitacaoDietaEspecialViewSet(
             "create": SolicitacaoDietaEspecialCreateSerializer,
             "relatorio_dieta_especial": SolicitacaoDietaEspecialSimplesSerializer,
             "relatorio_dieta_especial_terceirizada": SolicitacaoDietaEspecialRelatorioTercSerializer,
-            "panorama_escola": PanoramaSerializer,
             "alteracao_ue": AlteracaoUESerializer,
             "relatorio-historico-dieta-especial": UnidadeEducacionalSerializer,
             "relatorio_recreio_nas_ferias": SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
@@ -1244,85 +1239,6 @@ class SolicitacaoDietaEspecialViewSet(
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=False, methods=["POST"], url_path="panorama-escola")
-    def panorama_escola(self, request):
-        # TODO: Mover essa rotina para o viewset escola simples, evitando esse
-        # form
-        form = PanoramaForm(self.request.data)
-        if not form.is_valid():
-            raise ValidationError(form.errors)
-
-        hoje = date.today()
-
-        filtros_gerais = Q(
-            escola__aluno__periodo_escolar=F("periodo_escolar"),
-            escola__aluno__escola=form.cleaned_data["escola"],
-            escola__aluno__dietas_especiais__ativo=True,
-            escola__aluno__dietas_especiais__status__in=[
-                DietaEspecialWorkflow.CODAE_AUTORIZADO,
-                DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-                DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
-            ],
-        )
-        filtros_data_dieta = (
-            Q(escola__aluno__dietas_especiais__data_termino__isnull=True)
-            | Q(escola__aluno__dietas_especiais__data_termino__gte=hoje)
-        ) & (
-            Q(escola__aluno__dietas_especiais__data_inicio__isnull=True)
-            & Q(escola__aluno__dietas_especiais__criado_em__date__lte=hoje)
-            | Q(escola__aluno__dietas_especiais__data_inicio__isnull=False)
-            & Q(escola__aluno__dietas_especiais__data_inicio__lte=hoje)
-        )
-
-        q_params = filtros_gerais & filtros_data_dieta
-
-        campos = [
-            "periodo_escolar__nome",
-            "horas_atendimento",
-            "quantidade_alunos",
-            "uuid",
-        ]
-        qs = (
-            EscolaPeriodoEscolar.objects.filter(
-                escola=form.cleaned_data["escola"], quantidade_alunos__gt=0
-            )
-            .values(*campos)
-            .annotate(
-                qtde_tipo_a=(
-                    Count(
-                        "id",
-                        filter=Q(
-                            escola__aluno__dietas_especiais__classificacao__nome="Tipo A"
-                        )
-                        & q_params,
-                    )
-                ),
-                qtde_enteral=(
-                    Count(
-                        "id",
-                        filter=Q(
-                            escola__aluno__dietas_especiais__classificacao__nome="Tipo A Enteral"
-                        )
-                        & q_params,
-                    )
-                ),
-                qtde_tipo_b=(
-                    Count(
-                        "id",
-                        filter=Q(
-                            escola__aluno__dietas_especiais__classificacao__nome="Tipo B"
-                        )
-                        & q_params,
-                    )
-                ),
-            )
-            .order_by(*campos)
-        )
-
-        serializer = self.get_serializer(qs, many=True)
-
-        return Response(serializer.data)
-
     @action(detail=False, methods=["POST"], url_path="alteracao-ue")
     def alteracao_ue(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -1356,7 +1272,7 @@ class SolicitacaoDietaEspecialViewSet(
             status=status.HTTP_200_OK,
         )
 
-    def build_texto(  # noqa: C901
+    def build_texto(
         self,
         lotes,
         classificacoes,
@@ -1365,71 +1281,54 @@ class SolicitacaoDietaEspecialViewSet(
         data_inicial,
         data_final,
     ):
-        filtros = ""
-        if lotes:
-            nomes_lotes = ", ".join(
-                [lote.nome for lote in Lote.objects.filter(uuid__in=lotes)]
-            )
-            if len(filtros) == 0:
-                filtros += f"{nomes_lotes}"
-            else:
-                filtros += f" | {nomes_lotes}"
+        partes = []
 
-        if classificacoes:
-            nomes_classificacoes = ", ".join(
-                [
-                    classificacao.nome
-                    for classificacao in ClassificacaoDieta.objects.filter(
-                        id__in=classificacoes
-                    )
-                ]
-            )
-            if len(filtros) == 0:
-                filtros += f"Classificação(ões) da dieta: {nomes_classificacoes}"
-            else:
-                filtros += f" | Classificação(ões) da dieta: {nomes_classificacoes}"
+        configs = [
+            (lotes, Lote, "uuid__in", "nome", None),
+            (
+                classificacoes,
+                ClassificacaoDieta,
+                "id__in",
+                "nome",
+                "Classificação(ões) da dieta",
+            ),
+            (
+                protocolos,
+                ProtocoloPadraoDietaEspecial,
+                "uuid__in",
+                "nome_protocolo",
+                "Protocolo(s) padrão(ões)",
+            ),
+            (
+                alergias_intolerancias,
+                AlergiaIntolerancia,
+                "id__in",
+                "descricao",
+                "Diagnóstico(s) da dieta",
+            ),
+        ]
 
-        if protocolos:
-            nomes_protocolos = ", ".join(
-                [
-                    protocolo.nome_protocolo
-                    for protocolo in ProtocoloPadraoDietaEspecial.objects.filter(
-                        uuid__in=protocolos
-                    )
-                ]
-            )
-            if len(filtros) == 0:
-                filtros += f"Protocolo(s) padrão(ões): {nomes_protocolos}"
-            else:
-                filtros += f" | Protocolo(s) padrão(ões): {nomes_protocolos}"
+        for valores, model, filtro, field, label in configs:
+            if not valores:
+                continue
 
-        if alergias_intolerancias:
-            nomes_alergias_intolerancias = ", ".join(
-                [
-                    alergia_intolerancia.descricao
-                    for alergia_intolerancia in AlergiaIntolerancia.objects.filter(
-                        id__in=alergias_intolerancias
-                    )
-                ]
+            nomes = model.objects.filter(**{filtro: valores}).values_list(
+                field, flat=True
             )
-            if len(filtros) == 0:
-                filtros += f"Diagnóstico(s) da dieta: {nomes_alergias_intolerancias}"
-            else:
-                filtros += f" | Diagnóstico(s) da dieta: {nomes_alergias_intolerancias}"
+            texto = ", ".join(nomes)
+
+            if label:
+                texto = f"{label}: {texto}"
+
+            partes.append(texto)
 
         if data_inicial:
-            if len(filtros) == 0:
-                filtros += f"Data inicial: {data_inicial}"
-            else:
-                filtros += f" | Data inicial: {data_inicial}"
+            partes.append(f"Data inicial: {data_inicial}")
 
         if data_final:
-            if len(filtros) == 0:
-                filtros += f"Data final: {data_final}"
-            else:
-                filtros += f" | Data final: {data_final}"
+            partes.append(f"Data final: {data_final}")
 
-        return filtros
+        return " | ".join(partes)
 
     @action(detail=False, methods=["GET"], url_path="exportar-pdf")
     def exportar_pdf(self, request):
