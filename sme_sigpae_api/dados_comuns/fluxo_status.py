@@ -4892,6 +4892,8 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
 
     @xworkflows.after_transition("finaliza_solicitacao_alteracao")
     def _finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
+        from django.db import transaction
+        from rest_framework.exceptions import ValidationError
         from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
             SolicitacaoAlteracaoCronograma,
         )
@@ -4901,26 +4903,35 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         solicitacao_uuid = kwargs.get("justificativa")
 
         if solicitacao_uuid:
-            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
-            self.qtd_total_programada = solicitacao.qtd_total_programada
+            try:
+                with transaction.atomic():
+                    solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
+                    self.qtd_total_programada = solicitacao.qtd_total_programada
 
-            etapas_antigas = list(solicitacao.etapas_antigas.all())
-            etapas_novas = list(solicitacao.etapas_novas.all())
+                    etapas_antigas = list(solicitacao.etapas_antigas.all())
+                    etapas_novas = list(solicitacao.etapas_novas.all())
 
-            for indice, etapa_antiga in enumerate(etapas_antigas):
-                try:
-                    etapa_nova = etapas_novas[indice]
-                except IndexError:
-                    break
+                    for indice, etapa_antiga in enumerate(etapas_antigas):
+                        try:
+                            etapa_nova = etapas_novas[indice]
+                            FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(etapa=etapa_nova)
+                            etapa_antiga.cronograma = None
+                            etapa_antiga.save(update_fields=["cronograma"])
+                        except IndexError:
+                            raise ValidationError(
+                                f"Não foi possível migrar todas as fichas de recebimento. "
+                                f"A etapa de índice {indice} não possui correspondente nas novas etapas."
+                            )
 
-                FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(etapa=etapa_nova)
-                etapa_antiga.cronograma = None
-                etapa_antiga.save(update_fields=["cronograma"])
+                    self.etapas.set(etapas_novas)
+                    self.programacoes_de_recebimento.all().delete()
+                    self.programacoes_de_recebimento.set(solicitacao.programacoes_novas.all())
+                    self.save()
 
-            self.etapas.set(etapas_novas)
-            self.programacoes_de_recebimento.all().delete()
-            self.programacoes_de_recebimento.set(solicitacao.programacoes_novas.all())
-            self.save()
+            except Exception as exc:
+                raise ValidationError(
+                    f"Erro ao finalizar solicitação de alteração de cronograma: {str(exc)}"
+                )
 
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE,
