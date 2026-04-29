@@ -178,6 +178,17 @@ def cronograma_ponto_a_ponto_assinado_2(
 
 
 @pytest.fixture
+def cronograma_semanal_enviado_ao_fornecedor(cronograma_ponto_a_ponto_assinado):
+    from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+    return baker.make(
+        CronogramaSemanal,
+        cronograma_mensal=cronograma_ponto_a_ponto_assinado,
+        status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+    )
+
+
+@pytest.fixture
 def cronograma_semanal_rascunho(cronograma_ponto_a_ponto_assinado):
     return baker.make(
         CronogramaSemanal,

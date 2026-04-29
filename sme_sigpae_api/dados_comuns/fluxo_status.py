@@ -4890,37 +4890,53 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             html=html,
         )
 
+    def _migrar_fichas_para_etapas_novas(self, etapas_antigas, etapas_novas):
+        from sme_sigpae_api.recebimento.models import FichaDeRecebimento
+        from rest_framework.exceptions import ValidationError
+
+        for indice, etapa_antiga in enumerate(etapas_antigas):
+            try:
+                etapa_nova = etapas_novas[indice]
+            except IndexError:
+                raise ValidationError(
+                    f"Não foi possível migrar todas as fichas de recebimento. "
+                    f"A etapa de índice {indice} não possui correspondente nas novas etapas."
+                )
+            FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(etapa=etapa_nova)
+            etapa_antiga.cronograma = None
+            etapa_antiga.save(update_fields=["cronograma"])
+
     @xworkflows.after_transition("finaliza_solicitacao_alteracao")
     def _finaliza_solicitacao_alteracao_hook(self, *args, **kwargs):
+        from django.db import transaction
+        from rest_framework.exceptions import ValidationError
         from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
             SolicitacaoAlteracaoCronograma,
         )
-        from sme_sigpae_api.recebimento.models import FichaDeRecebimento
 
         user = kwargs["user"]
         solicitacao_uuid = kwargs.get("justificativa")
 
         if solicitacao_uuid:
-            solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
-            self.qtd_total_programada = solicitacao.qtd_total_programada
+            try:
+                with transaction.atomic():
+                    solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
+                    self.qtd_total_programada = solicitacao.qtd_total_programada
 
-            etapas_antigas = list(solicitacao.etapas_antigas.all())
-            etapas_novas = list(solicitacao.etapas_novas.all())
+                    etapas_antigas = list(solicitacao.etapas_antigas.all())
+                    etapas_novas = list(solicitacao.etapas_novas.all())
 
-            for indice, etapa_antiga in enumerate(etapas_antigas):
-                try:
-                    etapa_nova = etapas_novas[indice]
-                except IndexError:
-                    break
+                    self._migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas)
 
-                FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(etapa=etapa_nova)
-                etapa_antiga.cronograma = None
-                etapa_antiga.save(update_fields=["cronograma"])
+                    self.etapas.set(etapas_novas)
+                    self.programacoes_de_recebimento.all().delete()
+                    self.programacoes_de_recebimento.set(solicitacao.programacoes_novas.all())
+                    self.save()
 
-            self.etapas.set(etapas_novas)
-            self.programacoes_de_recebimento.all().delete()
-            self.programacoes_de_recebimento.set(solicitacao.programacoes_novas.all())
-            self.save()
+            except Exception as exc:
+                raise ValidationError(
+                    f"Erro ao finalizar solicitação de alteração de cronograma: {str(exc)}"
+                )
 
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE,
@@ -6093,7 +6109,10 @@ class CronogramaSemanalWorkflow(xwf_models.Workflow):
         (FORNECEDOR_CIENTE, "Fornecedor Ciente"),
     )
 
-    transitions = (("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),)
+    transitions = (
+        ("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),
+        ("fornecedor_ciente", ENVIADO_AO_FORNECEDOR, FORNECEDOR_CIENTE),
+    )
 
     initial_state = RASCUNHO
 
@@ -6115,12 +6134,28 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             solicitacao_tipo=LogSolicitacoesUsuario.CRONOGRAMA,
         )
 
+    def salvar_log_cronograma_semanal_criado(self, usuario):
+        """Salva log de criação de rascunho. Deve ser chamado manualmente ao criar o objeto."""
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_CRIADO,
+            usuario=usuario,
+        )
+
     @xworkflows.after_transition("inicia_fluxo")
     def _inicia_fluxo_hook(self, *args, **kwargs):
         user = kwargs.get("user")
         if user:
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
+                usuario=user,
+            )
+
+    @xworkflows.after_transition("fornecedor_ciente")
+    def _fornecedor_ciente_hook(self, *args, **kwargs):
+        user = kwargs.get("user")
+        if user:
+            self.salvar_log_transicao(
+                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
                 usuario=user,
             )
 
