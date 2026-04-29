@@ -102,7 +102,9 @@ class CronogramaSemanalViewSet(
             vinculo.perfil.nome == ADMINISTRADOR_EMPRESA
             or vinculo.perfil.nome == USUARIO_EMPRESA
         ) and vinculo.instituicao.eh_fornecedor:
-            queryset = queryset.filter(cronograma_mensal__empresa=vinculo.instituicao)
+            queryset = queryset.filter(
+                cronograma_mensal__empresa=vinculo.instituicao
+            ).exclude(status="RASCUNHO")
 
         page = self.paginate_queryset(queryset)
         if page is not None:

@@ -3,6 +3,7 @@ from django.test import Client
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
 pytestmark = pytest.mark.django_db
@@ -441,9 +442,10 @@ class TestCronogramaSemanalViewSet:
         self,
         client_autenticado_vinculo_fornecedor,
         cronograma_semanal_rascunho,
+        cronograma_semanal_enviado_ao_fornecedor,
         cronograma_semanal_outra_empresa,
     ):
-        """Fornecedor deve ver apenas cronogramas semanais da sua própria empresa."""
+        """Fornecedor deve ver apenas cronogramas semanais da sua própria empresa, excluindo rascunhos."""
         client, _ = client_autenticado_vinculo_fornecedor
         response = client.get("/cronogramas-semanais/")
         assert response.status_code == status.HTTP_200_OK
@@ -451,7 +453,8 @@ class TestCronogramaSemanalViewSet:
 
         uuids_retornados = [item["uuid"] for item in data["results"]]
 
-        assert str(cronograma_semanal_rascunho.uuid) in uuids_retornados
+        assert str(cronograma_semanal_rascunho.uuid) not in uuids_retornados
+        assert str(cronograma_semanal_enviado_ao_fornecedor.uuid) in uuids_retornados
         assert str(cronograma_semanal_outra_empresa.uuid) not in uuids_retornados
 
     def test_get_retrieve_sucesso(
@@ -524,3 +527,50 @@ class TestCronogramaSemanalViewSet:
             status.HTTP_401_UNAUTHORIZED,
             status.HTTP_403_FORBIDDEN,
         ]
+
+    def test_patch_fornecedor_ciente_sucesso(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_enviado_ao_fornecedor,
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_fornecedor
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/fornecedor-ciente/",
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_enviado_ao_fornecedor.refresh_from_db()
+        assert (
+            cronograma_semanal_enviado_ao_fornecedor.status
+            == CronogramaSemanalWorkflow.FORNECEDOR_CIENTE
+        )
+
+    def test_patch_fornecedor_ciente_status_invalido(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_rascunho,
+    ):
+        """Não deve ser possível dar ciência em cronograma que não está ENVIADO_AO_FORNECEDOR."""
+        client, _ = client_autenticado_vinculo_fornecedor
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/fornecedor-ciente/",
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_fornecedor_ciente_salva_log(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_enviado_ao_fornecedor,
+    ):
+        client, _ = client_autenticado_vinculo_fornecedor
+        client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/fornecedor-ciente/",
+            content_type="application/json",
+        )
+        assert LogSolicitacoesUsuario.objects.filter(
+            uuid_original=cronograma_semanal_enviado_ao_fornecedor.uuid,
+            status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
+        ).exists()
