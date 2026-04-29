@@ -468,3 +468,29 @@ def test_deve_manter_anexos_de_todos_os_logs(
     assert AnexoLogSolicitacoesUsuario.objects.filter(log__in=logs).count() == 2
     assert all(log.anexos.count() == 1 for log in logs)
 
+
+def test_finaliza_solicitacao_alteracao_hook_com_fichas_mantem_referencia(
+    solicitacao_alteracao_cronograma_com_ficha,
+    user_codae_produto,
+):
+    solicitacao, ficha = solicitacao_alteracao_cronograma_com_ficha
+    cronograma = solicitacao.cronograma
+    etapa_antiga = ficha.etapa
+
+    etapa_nova_correspondente = solicitacao.etapas_novas.filter(
+        etapa=etapa_antiga.etapa,
+        parte=etapa_antiga.parte,
+    ).first()
+
+    cronograma.finaliza_solicitacao_alteracao(
+        user=user_codae_produto,
+        justificativa=str(solicitacao.uuid),
+    )
+
+    cronograma.refresh_from_db()
+    etapa_antiga.refresh_from_db()
+    ficha.refresh_from_db()
+
+    assert etapa_antiga.cronograma is None
+    assert ficha.etapa == etapa_nova_correspondente
+    assert etapa_nova_correspondente in cronograma.etapas.all()
