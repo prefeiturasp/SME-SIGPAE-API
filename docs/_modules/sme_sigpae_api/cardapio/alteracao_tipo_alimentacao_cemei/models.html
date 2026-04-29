@@ -117,12 +117,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Modelo responsável por armazenar Solicitações de Alteração do Tipo de Alimentação para escolas do tipo CEMEI.</span>
 
 <span class="sd">    Representa uma solicitação formal de troca do tipo de alimentação servida</span>
-<span class="sd">    em determinado(s) período(s) escolar(es). </span>
-<span class="sd">    </span>
+<span class="sd">    em determinado(s) período(s) escolar(es).</span>
+
 <span class="sd">    Para os CEMEIs, a solicitação pode ir em um único dia (``alterar_dia``) ou em um intervalo de datas</span>
-<span class="sd">    (``data_inicial`` / ``data_final``). </span>
-<span class="sd">    </span>
-<span class="sd">    As substituições são divididas por tipo de unidade interna: </span>
+<span class="sd">    (``data_inicial`` / ``data_final``).</span>
+
+<span class="sd">    As substituições são divididas por tipo de unidade interna:</span>
 <span class="sd">      - CEI (com faixas etárias)</span>
 <span class="sd">      - EMEI (com quantidade de alunos por período).</span>
 
@@ -166,6 +166,8 @@
     <span class="n">TODOS</span> <span class="o">=</span> <span class="s2">&quot;TODOS&quot;</span>
     <span class="n">CEI</span> <span class="o">=</span> <span class="s2">&quot;CEI&quot;</span>
     <span class="n">EMEI</span> <span class="o">=</span> <span class="s2">&quot;EMEI&quot;</span>
+
+    <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Alteração do Tipo de Alimentação CEMEI&quot;</span>
 
     <span class="n">STATUS_CHOICES</span> <span class="o">=</span> <span class="p">((</span><span class="n">TODOS</span><span class="p">,</span> <span class="s2">&quot;Todos&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CEI</span><span class="p">,</span> <span class="s2">&quot;CEI&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">EMEI</span><span class="p">,</span> <span class="s2">&quot;EMEI&quot;</span><span class="p">))</span>
 
@@ -660,6 +662,7 @@
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Data do intervalo de Alteração de cardápio CEMEI&quot;</span>
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Datas do intervalo de Alteração de cardápio CEMEI&quot;</span>
         <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,)</span></div>
+
 
 
 <span class="n">patch_docs</span><span class="p">(</span><span class="n">AlteracaoCardapioCEMEI</span><span class="p">)</span>
