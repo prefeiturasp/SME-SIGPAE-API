@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from sme_sigpae_api.dieta_especial.api.viewsets import (
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.viewsets import (
     SolicitacoesAtivasInativasPorAlunoView,
 )
 
