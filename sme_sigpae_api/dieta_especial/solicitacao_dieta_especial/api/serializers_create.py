@@ -4,34 +4,25 @@ from copy import deepcopy
 
 from rest_framework import serializers
 
-from ...dados_comuns.constants import DEZ_MB
-from ...dados_comuns.utils import (
+from sme_sigpae_api.dados_comuns.constants import DEZ_MB
+from sme_sigpae_api.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_date_format,
-    remove_multiplos_espacos,
     size,
-    update_instance_from_dict,
 )
-from ...dados_comuns.validators import deve_ser_no_passado, deve_ter_extensao_valida
-from ...escola.api.serializers import AlunoNaoMatriculadoSerializer
-from ...escola.models import Aluno, Escola, Responsavel
-from ...produto.api.serializers import serializers as ser
-from ...produto.models import Produto
-from ...terceirizada.models import Edital
-from ..protocolo_padrao.models import (
-    Alimento,
-    AlimentoSubstituto,
-    ProtocoloPadraoDietaEspecial,
-    SubstituicaoAlimento,
-    SubstituicaoAlimentoProtocoloPadrao,
+from sme_sigpae_api.dados_comuns.validators import (
+    deve_ser_no_passado,
+    deve_ter_extensao_valida,
 )
-from ..solicitacao_dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.api.validators import AlunoSerializerValidator
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import SubstituicaoAlimento
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     Anexo,
     MotivoAlteracaoUE,
     SolicitacaoDietaEspecial,
 )
-from ..utils import log_create, log_update
-from .validators import AlunoSerializerValidator, edital_ja_existe_protocolo
+from sme_sigpae_api.escola.api.serializers import AlunoNaoMatriculadoSerializer
+from sme_sigpae_api.escola.models import Aluno, Escola, Responsavel
 
 
 class AnexoCreateSerializer(serializers.ModelSerializer):
@@ -45,35 +36,6 @@ class AnexoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Anexo
         fields = ("arquivo", "nome")
-
-
-class SubstituicaoCreateSerializer(serializers.ModelSerializer):
-    substitutos = ser.SubstitutosSerializer(many=True)
-
-    class Meta:
-        model = SubstituicaoAlimento
-        fields = "__all__"
-
-
-class SubstituicaoProtocoloPadraoCreateSerializer(serializers.ModelSerializer):
-    substitutos = ser.SubstitutosSerializer(many=True)
-
-    class Meta:
-        model = SubstituicaoAlimentoProtocoloPadrao
-        exclude = ("protocolo_padrao",)
-
-
-class SubstituicaoAutorizarSerializer(serializers.ModelSerializer):
-    substitutos = serializers.SlugRelatedField(
-        slug_field="uuid", required=False, queryset=Produto.objects.all(), many=True
-    )
-    alimentos_substitutos = serializers.SlugRelatedField(
-        slug_field="uuid", required=False, queryset=Alimento.objects.all(), many=True
-    )
-
-    class Meta:
-        model = SubstituicaoAlimento
-        fields = "__all__"
 
 
 class SolicitacaoDietaEspecialCreateSerializer(serializers.ModelSerializer):
@@ -339,116 +301,3 @@ class AlteracaoUESerializer(serializers.ModelSerializer):
             anexo_alteracao.save()
 
         return solicitacao_alteracao
-
-
-class ProtocoloPadraoDietaEspecialSerializerCreate(serializers.ModelSerializer):
-    substituicoes = SubstituicaoProtocoloPadraoCreateSerializer(many=True)
-    editais = serializers.ListField(child=serializers.CharField(), write_only=True)
-
-    def create(self, validated_data):  # noqa C901
-        substituicoes = validated_data.pop("substituicoes")
-        editais = validated_data.pop("editais")
-        nome_protocolo = remove_multiplos_espacos(
-            validated_data["nome_protocolo"]
-        ).upper()
-        protocolos = Edital.objects.check_editais_already_has_nome_protocolo(
-            editais, nome_protocolo
-        )
-        if protocolos:
-            edital_ja_existe_protocolo(protocolos, len(editais))
-        validated_data["nome_protocolo"] = nome_protocolo.upper()
-        protocolo_padrao = ProtocoloPadraoDietaEspecial.objects.create(**validated_data)
-        if editais and len(editais):
-            protocolo_padrao.editais.set(Edital.objects.filter(uuid__in=editais))
-        for substituicao in substituicoes:
-            substitutos = substituicao.pop("substitutos", None)
-            substituicao["protocolo_padrao"] = protocolo_padrao
-            subst_obj = SubstituicaoAlimentoProtocoloPadrao.objects.create(
-                **substituicao
-            )
-            if substitutos:
-                for substituto in substitutos:
-                    if isinstance(substituto, Alimento):
-                        AlimentoSubstituto.objects.create(
-                            substituicao_alimento_protocolo_padrao=subst_obj,
-                            alimento=substituto,
-                        )
-                    if isinstance(substituto, Produto):
-                        subst_obj.substitutos.add(substituto)
-
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-        log_create(protocolo_padrao, user=user)
-
-        return protocolo_padrao
-
-    def update(self, instance, validated_data):  # noqa C901
-        new_editais = validated_data.get("editais")
-        new_editais = Edital.objects.filter(uuid__in=new_editais)
-        editais = validated_data.pop("editais")
-        nome_protocolo = validated_data["nome_protocolo"]
-        protocolos = Edital.objects.check_editais_already_has_nome_protocolo(
-            editais, nome_protocolo
-        )
-        if nome_protocolo == self.instance.nome_protocolo:
-            protocolos = protocolos.exclude(
-                uuid__in=list(instance.editais.values_list("uuid", flat=True))
-            )
-        if protocolos:
-            edital_ja_existe_protocolo(protocolos, len(editais))
-
-        substituicoes = validated_data.pop("substituicoes")
-
-        validated_data["nome_protocolo"] = nome_protocolo.upper()
-        user = None
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
-
-        log_update(
-            instance,
-            validated_data,
-            instance.substituicoes,
-            substituicoes,
-            new_editais,
-            instance.editais,
-            user,
-        )
-
-        instance.editais.clear()
-        if editais and len(editais):
-            instance.editais.set(Edital.objects.filter(uuid__in=editais))
-
-        instance.substituicoes.all().delete()
-        update_instance_from_dict(instance, validated_data, save=True)
-
-        for substituicao in substituicoes:
-            substitutos = substituicao.pop("substitutos", None)
-            substituicao["protocolo_padrao"] = instance
-            subst_obj = SubstituicaoAlimentoProtocoloPadrao.objects.create(
-                **substituicao
-            )
-            if substitutos:
-                for substituto in substitutos:
-                    if isinstance(substituto, Alimento):
-                        AlimentoSubstituto.objects.create(
-                            substituicao_alimento_protocolo_padrao=subst_obj,
-                            alimento=substituto,
-                        )
-                    if isinstance(substituto, Produto):
-                        subst_obj.substitutos.add(substituto)
-        return instance
-
-    class Meta:
-        model = ProtocoloPadraoDietaEspecial
-        fields = (
-            "uuid",
-            "nome_protocolo",
-            "status",
-            "orientacoes_gerais",
-            "criado_em",
-            "substituicoes",
-            "editais",
-        )

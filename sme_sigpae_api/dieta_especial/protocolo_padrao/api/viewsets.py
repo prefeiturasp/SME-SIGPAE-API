@@ -8,12 +8,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from ....terceirizada.models import Contrato, Edital
-from ...api.serializers import (
+from sme_sigpae_api.dieta_especial.protocolo_padrao.api.serializers import (
     ProtocoloPadraoDietaEspecialSerializer,
     ProtocoloPadraoDietaEspecialSimplesSerializer,
 )
-from ...api.serializers_create import ProtocoloPadraoDietaEspecialSerializerCreate
+from sme_sigpae_api.dieta_especial.protocolo_padrao.api.serializers_create import (
+    ProtocoloPadraoDietaEspecialSerializerCreate,
+)
+
+from ....terceirizada.models import Contrato, Edital
 from ...solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 from ...utils import ProtocoloPadraoPagination
 from ..models import ProtocoloPadraoDietaEspecial

@@ -1,13 +1,13 @@
 import pytest
 
-from sme_sigpae_api.dieta_especial.api.serializers import (
-    SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
-)
 from sme_sigpae_api.dieta_especial.logs_models.api.serializers import (
     LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer,
 )
 from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers import (
+    SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
 )
 
 pytestmark = pytest.mark.django_db
@@ -50,7 +50,7 @@ def test_serializer_solicitacao_dieta_especial_relatorio_terceirizada_fallback(
     solicitacao_dieta_especial,
     protocolo_padrao_dieta_especial,
 ):
-    from sme_sigpae_api.dieta_especial.api.serializers import (
+    from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers import (
         SolicitacaoDietaEspecialRelatorioTercSerializer,
     )
 
