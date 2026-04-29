@@ -4904,21 +4904,18 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=solicitacao_uuid)
             self.qtd_total_programada = solicitacao.qtd_total_programada
 
+            etapas_antigas = list(solicitacao.etapas_antigas.all())
             etapas_novas = list(solicitacao.etapas_novas.all())
-            for etapa_antiga in self.etapas.filter(ficha_recebimento__isnull=False):
-                correspondente = next(
-                    (
-                        e for e in etapas_novas
-                        if e.etapa == etapa_antiga.etapa and e.parte == etapa_antiga.parte
-                    ),
-                    None,
-                )
-                if correspondente:
-                    FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(
-                        etapa=correspondente
-                    )
-                    etapa_antiga.cronograma = None
-                    etapa_antiga.save(update_fields=["cronograma"])
+
+            for indice, etapa_antiga in enumerate(etapas_antigas):
+                try:
+                    etapa_nova = etapas_novas[indice]
+                except IndexError:
+                    break
+
+                FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(etapa=etapa_nova)
+                etapa_antiga.cronograma = None
+                etapa_antiga.save(update_fields=["cronograma"])
 
             self.etapas.set(etapas_novas)
             self.programacoes_de_recebimento.all().delete()
