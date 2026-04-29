@@ -26,29 +26,29 @@ api
    :members:
    :show-inheritance:
 
-api/serializers
-~~~~~~~~~~~~~~~
+serializers
+~~~~~~~~~~~
 
 .. automodule:: sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers
    :members:
    :show-inheritance:
 
-api/serializers\_create
-~~~~~~~~~~~~~~~~~~~~~~~
+serializers\_create
+~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: sme_sigpae_api.cardapio.inversao_dia_cardapio.api.serializers_create
    :members:
    :show-inheritance:
 
-api/validators
-~~~~~~~~~~~~~~
+validators
+~~~~~~~~~~
 
 .. automodule:: sme_sigpae_api.cardapio.inversao_dia_cardapio.api.validators
    :members:
    :show-inheritance:
 
-api/viewsets
-~~~~~~~~~~~~
+viewsets
+~~~~~~~~
 
 .. automodule:: sme_sigpae_api.cardapio.inversao_dia_cardapio.api.viewsets
    :members:

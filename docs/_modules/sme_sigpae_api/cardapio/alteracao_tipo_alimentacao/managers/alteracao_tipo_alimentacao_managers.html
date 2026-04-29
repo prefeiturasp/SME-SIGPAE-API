@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span></span><span class="sd">&quot;&quot;&quot;Managers customizados para o modelo AlteracaoCardapio.</span>
+
+<span class="sd">Cada manager aplica um filtro diferente sobre o queryset padrão, segmentando</span>
+<span class="sd">as alterações de cardápio por janela temporal ou status do fluxo de trabalho.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
 
@@ -79,9 +85,16 @@
 <div class="viewcode-block" id="AlteracoesCardapioDestaSemanaManager">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracoesCardapioDestaSemanaManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna alterações de cardápio com início nos próximos 7 dias.&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="AlteracoesCardapioDestaSemanaManager.get_queryset">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset filtrado pelo intervalo da semana atual.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Alterações cuja ``data_inicial`` está entre hoje e hoje + 7 dias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hoje</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="n">data_limite_inicial</span> <span class="o">=</span> <span class="n">hoje</span>
         <span class="n">data_limite_final</span> <span class="o">=</span> <span class="n">hoje</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
@@ -97,9 +110,16 @@
 <div class="viewcode-block" id="AlteracoesCardapioDesteMesManager">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracoesCardapioDesteMesManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna alterações de cardápio com início nos próximos 31 dias.&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="AlteracoesCardapioDesteMesManager.get_queryset">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset filtrado pelo intervalo do mês atual.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Alterações cuja ``data_inicial`` está entre hoje e hoje + 31 dias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hoje</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="n">data_limite_inicial</span> <span class="o">=</span> <span class="n">hoje</span>
         <span class="n">data_limite_final</span> <span class="o">=</span> <span class="n">hoje</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">31</span><span class="p">)</span>
@@ -115,9 +135,20 @@
 <div class="viewcode-block" id="AlteracoesCardapioVencidaManager">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracoesCardapioVencidaManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna alterações de cardápio vencidas e ainda em status aberto.</span>
+
+<span class="sd">    Considera vencidas as alterações com ``data_inicial`` anterior a hoje e que</span>
+<span class="sd">    ainda estejam nos status RASCUNHO, DRE_A_VALIDAR ou DRE_PEDIU_ESCOLA_REVISAR.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="AlteracoesCardapioVencidaManager.get_queryset">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset das alterações vencidas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Alterações com ``data_inicial`` passada e status pendente.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hoje</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">AlteracoesCardapioVencidaManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -138,9 +169,21 @@
 <div class="viewcode-block" id="AlteracoesCardapioDoMesCorrenteManager">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracoesCardapioDoMesCorrenteManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna alterações de cardápio do mês corrente em status ativo.</span>
+
+<span class="sd">    Filtra pelo primeiro e último dia do mês atual, incluindo apenas alterações</span>
+<span class="sd">    cujo status indica que ainda estão em andamento no fluxo de trabalho.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="AlteracoesCardapioDoMesCorrenteManager.get_queryset">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset das alterações do mês corrente.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Alterações com ``data_inicial`` dentro do mês atual e em</span>
+<span class="sd">            status ativo (DRE_A_VALIDAR, DRE_VALIDADO, CODAE_AUTORIZADO, etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hoje</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
         <span class="n">primeiro_dia_do_mes</span> <span class="o">=</span> <span class="n">hoje</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">hoje</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">proximo_mes</span> <span class="o">=</span> <span class="n">hoje</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">day</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>

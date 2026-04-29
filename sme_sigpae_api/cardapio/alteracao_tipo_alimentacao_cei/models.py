@@ -25,6 +25,7 @@ from sme_sigpae_api.dados_comuns.behaviors import (
 )
 from sme_sigpae_api.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from sme_sigpae_api.dados_comuns.utils import patch_docs
 
 
 class AlteracaoCardapioCEI(
@@ -42,32 +43,109 @@ class AlteracaoCardapioCEI(
     EhAlteracaoCardapio,
     TemTerceirizadaConferiuGestaoAlimentacao,
 ):
+    """Modelo responsável por armazenar Solicitações de Alteração do Tipo de Alimentação para escolas do tipo CEI.
+
+    Representa uma solicitação formal de troca do tipo de alimentação servida em
+    determinado(s) período(s) escolar(es), com data inicial e final delimitadas.
+    Para as CEIs, as solicitações de alteração do tipo de alimentação são divididas por faixas etárias.
+
+    **O que é uma Alteração do Tipo de Alimentação?**
+
+    É uma solicitação de troca do tipo de alimentação servida em um determinado dia.
+
+    **Quais os tipos de Alteração do Tipo de Alimentação possíveis?**
+
+    - RPL (Refeição por Lanche)
+        - substitui a refeição do dia por um lanche
+        - cada escola só pode pedir uma RPL por mês
+        - exemplo: no dia dos aniversariantes do mês, a escola pode solicitar uma RPL para substituir a refeição por um lanche especial.
+        - na Medição Inicial, o lançamento de lanche neste dia é dobrado e a refeição é zerada.
+
+    - LPR (Lanche por Refeição)
+        - substitui o lanche do dia por uma refeição
+        - não há limite de solicitações de LPR por mês
+        - na Medição Inicial, o lançamento de lanche neste dia é zerado e a refeição é dobrada.
+        - esta solicitação raramente é utilizada, pois as escolas preferem lanche que refeição.
+
+    **Não há lanche emergencial para CEIs.**
+
+    Tipos de unidade contempladas:
+        - CEI DIRET
+        - CEU CEI
+        - CCI/CIPS
+
+    Exceções não contempladas:
+        - EMEF
+        - EMEI
+        - CEMEI
+        etc.
+
+    Attributes:
+        DESCRICAO (str): Descrição legível do tipo de solicitação. Utilizado no dashboard de Gestão de Alimentação para identificar o tipo de cada solicitação. O valor é a string ``"Alteração do Tipo de Alimentação CEI"``.
+    """
+
     DESCRICAO = "Alteração do Tipo de Alimentação CEI"
 
-    objects = models.Manager()  # Manager Padrão
+    objects = models.Manager()
     desta_semana = AlteracoesCardapioCEIDestaSemanaManager()
     deste_mes = AlteracoesCardapioCEIDesteMesManager()
 
     @property
     def numero_alunos(self):
+        """Retorna o total de alunos somando todas as faixas etárias das substituições vinculadas.
+
+        Returns:
+            int | None: Soma da quantidade de alunos em todas as faixas etárias das
+            ``SubstituicaoAlimentacaoNoPeriodoEscolarCEI`` desta alteração, ou
+            ``None`` se não houver faixas etárias cadastradas.
+        """
         return self.substituicoes.aggregate(Sum("faixas_etarias__quantidade"))[
             "faixas_etarias__quantidade__sum"
         ]
 
     @property
     def substituicoes(self):
+        """Retorna um atalho para ``substituicoes_cei_periodo_escolar``.
+
+        Returns:
+            django.db.models.Manager: Manager reverso das substituições de
+            alimentação CEI vinculadas.
+        """
         return self.substituicoes_cei_periodo_escolar
 
     @property
     def tipo(self):
+        """Retorna a descrição legível do tipo da solicitação.
+
+        Returns:
+            str: String ``"Alteração do Tipo de Alimentação"``.
+        """
         return "Alteração do Tipo de Alimentação"
 
     @property
     def path(self):
+        """Retorna o caminho relativo do relatório desta solicitação no frontend.
+
+        Returns:
+            str: URL relativa no formato
+            ``"alteracao-do-tipo-de-alimentacao/relatorio?uuid=<uuid>&tipoSolicitacao=solicitacao-cei"``.
+        """
         return f"alteracao-do-tipo-de-alimentacao/relatorio?uuid={self.uuid}&tipoSolicitacao=solicitacao-cei"
 
     @property
     def template_mensagem(self):
+        """Retorna o assunto e o corpo HTML do template de mensagem de alteração de cardápio.
+
+        Busca o ``TemplateMensagem`` do tipo ``ALTERACAO_CARDAPIO`` e retorna
+        seus campos de assunto e conteúdo HTML.
+
+        Returns:
+            tuple[str, str]: Tupla ``(assunto, corpo_html)`` do template.
+
+        Raises:
+            TemplateMensagem.DoesNotExist: Caso não exista template do tipo
+                ``ALTERACAO_CARDAPIO`` cadastrado.
+        """
         template = TemplateMensagem.objects.get(
             tipo=TemplateMensagem.ALTERACAO_CARDAPIO
         )
@@ -75,6 +153,23 @@ class AlteracaoCardapioCEI(
         return template.assunto, corpo
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra no log a transição de status da solicitação.
+
+        Cria uma entrada em ``LogSolicitacoesUsuario`` associada a esta
+        alteração de cardápio CEI.
+
+        Args:
+            status_evento (int): Código do evento de status.
+            usuario (django.contrib.auth.models.AbstractUser): Usuário
+                responsável pela transição.
+            **kwargs: Parâmetros opcionais do log.
+                `justificativa` (str): Texto justificando a transição.
+                `resposta_sim_nao` (bool): Indica resposta booleana associada
+                    ao log. O padrão é ``False``.
+
+        Returns:
+            None
+        """
         justificativa = kwargs.get("justificativa", "")
         resposta_sim_nao = kwargs.get("resposta_sim_nao", False)
         LogSolicitacoesUsuario.objects.create(
@@ -89,6 +184,16 @@ class AlteracaoCardapioCEI(
 
     @property
     def susbstituicoes_dict(self):
+        """Retorna as substituições de alimentação CEI serializadas como lista de dicionários.
+
+        Cada item inclui o período escolar, os tipos de alimentação substituídos,
+        o tipo resultante e as faixas etárias com quantidades e matriculados.
+
+        Returns:
+            list[dict]: Lista de dicionários com os campos ``periodo``,
+            ``tipos_alimentacao_de``, ``tipos_alimentacao_para``,
+            ``faixas_etarias``, ``total_alunos`` e ``total_matriculados``.
+        """
         substituicoes = []
         for obj in self.substituicoes_cei_periodo_escolar.all():
             periodo = obj.periodo_escolar.nome
@@ -122,6 +227,23 @@ class AlteracaoCardapioCEI(
         return substituicoes
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
+        """Serializa os dados da solicitação CEI para uso em relatórios.
+
+        Retorna um dicionário com as informações relevantes da alteração de
+        cardápio CEI, incluindo rastreamentos históricos, data, motivo e
+        substituições por faixa etária.
+
+        Args:
+            label_data (str): Rótulo descritivo para o campo de data no
+                relatório.
+            data_log (datetime.date): Data do log de referência exibida no
+                relatório.
+            instituicao (object): Instituição solicitante, mantida por
+                compatibilidade de assinatura.
+
+        Returns:
+            dict: Dicionário com os campos utilizados no relatório.
+        """
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
@@ -150,6 +272,18 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEI(
     ExportModelOperationsMixin("substituicao_cei_alimentacao_periodo_escolar"),
     TemChaveExterna,
 ):
+    """Representa uma substituição de tipo de alimentação em um período escolar específico para CEI.
+
+    Está vinculada a uma ``AlteracaoCardapioCEI`` e define quais tipos de
+    alimentação serão substituídos e por qual tipo resultante em um determinado
+    período escolar. As quantidades de alunos impactados são especificadas por
+    faixa etária em ``FaixaEtariaSubstituicaoAlimentacaoCEI``.
+
+    Exemplos:
+        - no período INTEGRAL, substituir REFEIÇÃO por LANCHE para faixas etárias específicas.
+        - no período MANHA, substituir LANCHE por REFEIÇÃO para faixas etárias determinadas.
+    """
+
     alteracao_cardapio = models.ForeignKey(
         "AlteracaoCardapioCEI",
         on_delete=models.CASCADE,
@@ -189,6 +323,14 @@ class FaixaEtariaSubstituicaoAlimentacaoCEI(
     TemFaixaEtariaEQuantidade,
     MatriculadosQuandoCriado,
 ):
+    """Representa a quantidade de alunos de uma faixa etária em uma substituição de alimentação CEI.
+
+    Está vinculada a ``SubstituicaoAlimentacaoNoPeriodoEscolarCEI`` e detalha
+    quantos alunos de cada faixa etária são afetados pela substituição,
+    juntamente com o número de matriculados no momento da criação da
+    solicitação.
+    """
+
     substituicao_alimentacao = models.ForeignKey(
         "SubstituicaoAlimentacaoNoPeriodoEscolarCEI",
         on_delete=models.CASCADE,
@@ -203,3 +345,6 @@ class FaixaEtariaSubstituicaoAlimentacaoCEI(
     class Meta:
         verbose_name = "Faixa Etária de substituição de alimentação CEI"
         verbose_name_plural = "Faixas Etárias de substituição de alimentação CEI"
+
+
+patch_docs(AlteracaoCardapioCEI)

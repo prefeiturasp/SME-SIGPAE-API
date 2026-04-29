@@ -137,9 +137,17 @@
 
 
 
+<div class="viewcode-block" id="TipoAlimentacaoAdmin">
+<a class="viewcode-back" href="../../../../cardapio/base.html#sme_sigpae_api.cardapio.base.admin.TipoAlimentacaoAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">TipoAlimentacao</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,)</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,)</span></div>
+
+
+
 <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">MotivoDRENaoValida</span><span class="p">)</span>
 <span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">)</span>
-<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">TipoAlimentacao</span><span class="p">)</span>
 </pre></div>
 
            </div>

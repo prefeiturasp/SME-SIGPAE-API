@@ -1,3 +1,9 @@
+"""Factories para os modelos de Alteração do Tipo de Alimentação CEMEI.
+
+Utiliza ``factory_boy`` para criação de instâncias de teste dos modelos
+relacionados à alteração de cardápio para escolas do tipo CEMEI e CEU CEMEI.
+"""
+
 import factory
 from factory import SubFactory
 from factory.django import DjangoModelFactory
@@ -25,6 +31,12 @@ from sme_sigpae_api.terceirizada.fixtures.factories.terceirizada_factory import 
 
 
 class AlteracaoCardapioCEMEIFactory(DjangoModelFactory):
+    """Factory para o modelo ``AlteracaoCardapioCEMEI``.
+
+    Cria a escola solicitante, o motivo e os campos de rastreio (escola, lote,
+    DRE e terceirizada) via subfactories.
+    """
+
     escola = SubFactory(EscolaFactory)
     motivo = SubFactory(MotivoAlteracaoCardapioFactory)
     rastro_escola = SubFactory(EscolaFactory)
@@ -37,6 +49,13 @@ class AlteracaoCardapioCEMEIFactory(DjangoModelFactory):
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory(DjangoModelFactory):
+    """Factory para o modelo ``SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI``.
+
+    Cria a instância com uma alteração CEMEI e um período escolar via
+    subfactories. Suporta adição de tipos de alimentação de origem e destino
+    via parâmetros ``tipos_alimentacao_de`` e ``tipos_alimentacao_para``.
+    """
+
     alteracao_cardapio = SubFactory(AlteracaoCardapioCEMEIFactory)
     periodo_escolar = SubFactory(PeriodoEscolarFactory)
 
@@ -63,6 +82,14 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory(DjangoModelFactory)
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory(DjangoModelFactory):
+    """Factory para o modelo ``SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI``.
+
+    Cria a instância com uma alteração CEMEI e um período escolar via
+    subfactories. Suporta adição de tipos de alimentação de origem e destino
+    via parâmetros ``tipos_alimentacao_de`` e ``tipos_alimentacao_para``.
+    Diferentemente do lado CEI, não possui faixas etárias aninhadas.
+    """
+
     alteracao_cardapio = SubFactory(AlteracaoCardapioCEMEIFactory)
     periodo_escolar = SubFactory(PeriodoEscolarFactory)
 
@@ -89,6 +116,12 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory(DjangoModelFactory
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory(DjangoModelFactory):
+    """Factory para o modelo ``FaixaEtariaSubstituicaoAlimentacaoCEMEICEI``.
+
+    Associa automaticamente uma substituição CEI e uma faixa etária via
+    subfactories.
+    """
+
     substituicao_alimentacao = SubFactory(
         SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory
     )
@@ -99,6 +132,11 @@ class FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory(DjangoModelFactory):
 
 
 class DataIntervaloAlteracaoCardapioCEMEIFactory(DjangoModelFactory):
+    """Factory para o modelo ``DataIntervaloAlteracaoCardapioCEMEI``.
+
+    Associa automaticamente uma ``AlteracaoCardapioCEMEI`` via subfactory.
+    """
+
     alteracao_cardapio_cemei = SubFactory(AlteracaoCardapioCEMEIFactory)
 
     class Meta:

@@ -54,11 +54,35 @@
 <li class="toctree-l3"><a class="reference internal" href="management.html">management</a></li>
 <li class="toctree-l3"><a class="reference internal" href="models.html">models</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">suspensao_alimentacao</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.admin">admin</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.models">models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api">api</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures">fixtures</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.managers">managers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoModelAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.QuantidadePorPeriodoSuspensaoAlimentacaoInline"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacaoInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacaoInline"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.models.MotivoSuspensao"><code class="docutils literal notranslate"><span class="pre">MotivoSuspensao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoNoPeriodoEscolar</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers.GrupoSuspensaoAlimentacaoDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers.GrupoSuspensaoAlimentacaoDesteMesManager"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoDesteMesManager</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="suspensao_alimentacao_cei.html">suspensao_alimentacao_cei</a></li>
@@ -926,7 +950,7 @@ object the first time, the query is executed.</p>
 <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao.api">
 <span id="api"></span><h2>api<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api" title="Link to this heading"></a></h2>
 <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers">
-<span id="api-serializers"></span><h3>api/serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers" title="Link to this heading"></a></h3>
+<span id="serializers"></span><h3>serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers.GrupoSupensaoAlimentacaoListagemSimplesSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">GrupoSupensaoAlimentacaoListagemSimplesSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao/api/serializers.html#GrupoSupensaoAlimentacaoListagemSimplesSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers.GrupoSupensaoAlimentacaoListagemSimplesSerializer" title="Link to this definition"></a></dt>
@@ -1113,7 +1137,7 @@ object the first time, the query is executed.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create">
-<span id="api-serializers-create"></span><h3>api/serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create" title="Link to this heading"></a></h3>
+<span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">GrupoSuspensaoAlimentacaoCreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao/api/serializers_create.html#GrupoSuspensaoAlimentacaoCreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer" title="Link to this definition"></a></dt>
@@ -1241,7 +1265,7 @@ to write an explicit <cite>.create()</cite> method.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets">
-<span id="api-viewsets"></span><h3>api/viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets" title="Link to this heading"></a></h3>
+<span id="viewsets"></span><h3>viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets.GrupoSuspensaoAlimentacaoSerializerViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">GrupoSuspensaoAlimentacaoSerializerViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao/api/viewsets.html#GrupoSuspensaoAlimentacaoSerializerViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets.GrupoSuspensaoAlimentacaoSerializerViewSet" title="Link to this definition"></a></dt>
@@ -1299,7 +1323,7 @@ serializations depending on the incoming request.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets.GrupoSuspensaoAlimentacaoSerializerViewSet.queryset">
-<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">[&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;CONSELHO</span> <span class="pre">DE</span> <span class="pre">CLASSE&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;Neste</span> <span class="pre">dia,</span> <span class="pre">só</span> <span class="pre">iremos</span> <span class="pre">servir</span> <span class="pre">lanche.&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;Neste</span> <span class="pre">dia</span> <span class="pre">,</span> <span class="pre">não</span> <span class="pre">haverá</span> <span class="pre">aula</span> <span class="pre">para</span> <span class="pre">os</span> <span class="pre">alunos.&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;Suspensão</span> <span class="pre">de</span> <span class="pre">aula.</span> <span class="pre">Dia</span> <span class="pre">já</span> <span class="pre">reposto.&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;Nesta</span> <span class="pre">data</span> <span class="pre">esta</span> <span class="pre">prevista</span> <span class="pre">suspensão</span> <span class="pre">de</span> <span class="pre">atividade</span> <span class="pre">de</span> <span class="pre">acordo</span> <span class="pre">com</span> <span class="pre">calendário</span> <span class="pre">homologado.&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;REUNIÃO</span> <span class="pre">PEDAGÓGICA</span> <span class="pre">PREVISTA</span> <span class="pre">EM</span> <span class="pre">CALENDÁRIO&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;Nesta</span> <span class="pre">data</span> <span class="pre">está</span> <span class="pre">prevista</span> <span class="pre">Jornada</span> <span class="pre">Pedagógica</span> <span class="pre">para</span> <span class="pre">todas</span> <span class="pre">as</span> <span class="pre">unidades</span> <span class="pre">escolares.</span> <span class="pre">Não</span> <span class="pre">é</span> <span class="pre">dia</span> <span class="pre">letivo.&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;Aula</span> <span class="pre">parcial.&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;Suspensão</span> <span class="pre">de</span> <span class="pre">alimentação</span> <span class="pre">devido</span> <span class="pre">à</span> <span class="pre">Reunião</span> <span class="pre">Pedagógica</span> <span class="pre">prevista</span> <span class="pre">em</span> <span class="pre">calendário</span> <span class="pre">Escolar.&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&gt;,</span> <span class="pre">&lt;GrupoSuspensaoAlimentacao:</span> <span class="pre">&lt;p&gt;&lt;/p&gt;&gt;,</span> <span class="pre">'...(remaining</span> <span class="pre">elements</span> <span class="pre">truncated)...']&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets.GrupoSuspensaoAlimentacaoSerializerViewSet.queryset" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">GrupoSuspensaoAlimentacao&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets.GrupoSuspensaoAlimentacaoSerializerViewSet.queryset" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1356,7 +1380,7 @@ serializations depending on the incoming request.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets.MotivosSuspensaoCardapioViewSet.queryset">
-<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">[&lt;MotivoSuspensao:</span> <span class="pre">Parada</span> <span class="pre">Pedagógica&gt;,</span> <span class="pre">&lt;MotivoSuspensao:</span> <span class="pre">Unidade</span> <span class="pre">sem</span> <span class="pre">atendimento&gt;,</span> <span class="pre">&lt;MotivoSuspensao:</span> <span class="pre">Outro&gt;]&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets.MotivosSuspensaoCardapioViewSet.queryset" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">MotivoSuspensao&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.api.viewsets.MotivosSuspensaoCardapioViewSet.queryset" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1379,27 +1403,27 @@ serializations depending on the incoming request.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.escola">
-<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.escola" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EscolaFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.escola" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_dre">
-<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_dre" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(DiretoriaRegionalFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_dre" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_escola">
-<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_escola" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EscolaFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_escola" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_lote">
-<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_lote" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(LoteFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_lote" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_terceirizada">
-<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_terceirizada" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EmpresaFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory.rastro_terceirizada" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1421,7 +1445,7 @@ serializations depending on the incoming request.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.QuantidadePorPeriodoSuspensaoAlimentacaoFactory.grupo_suspensao">
-<span class="sig-name descname"><span class="pre">grupo_suspensao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.QuantidadePorPeriodoSuspensaoAlimentacaoFactory.grupo_suspensao" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">grupo_suspensao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(GrupoSuspensaoAlimentacaoFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.QuantidadePorPeriodoSuspensaoAlimentacaoFactory.grupo_suspensao" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1431,7 +1455,7 @@ serializations depending on the incoming request.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.QuantidadePorPeriodoSuspensaoAlimentacaoFactory.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.QuantidadePorPeriodoSuspensaoAlimentacaoFactory.periodo_escolar" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(PeriodoEscolarFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.QuantidadePorPeriodoSuspensaoAlimentacaoFactory.periodo_escolar" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1447,12 +1471,12 @@ serializations depending on the incoming request.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory.grupo_suspensao">
-<span class="sig-name descname"><span class="pre">grupo_suspensao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory.grupo_suspensao" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">grupo_suspensao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(GrupoSuspensaoAlimentacaoFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory.grupo_suspensao" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory.motivo">
-<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory.motivo" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(MotivoSuspensaoFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory.motivo" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1463,7 +1487,7 @@ serializations depending on the incoming request.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.periodo_escolar" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(PeriodoEscolarFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.periodo_escolar" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1473,7 +1497,7 @@ serializations depending on the incoming request.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.suspensao_alimentacao">
-<span class="sig-name descname"><span class="pre">suspensao_alimentacao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.SubFactory</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.suspensao_alimentacao" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">suspensao_alimentacao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(SuspensaoAlimentacaoFactory)</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.suspensao_alimentacao" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
