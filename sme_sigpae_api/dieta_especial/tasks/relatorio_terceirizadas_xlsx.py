@@ -8,7 +8,7 @@ from sme_sigpae_api.dados_comuns.utils import (
     atualiza_central_download_com_erro,
     gera_objeto_na_central_download,
 )
-from sme_sigpae_api.dieta_especial.api.serializers import (
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers import (
     SolicitacaoDietaEspecialExportXLSXSerializer,
     SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer,
 )

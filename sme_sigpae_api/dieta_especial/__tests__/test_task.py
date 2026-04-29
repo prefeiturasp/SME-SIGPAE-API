@@ -7,7 +7,7 @@ from openpyxl import load_workbook
 
 from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from sme_sigpae_api.dados_comuns.models import CentralDeDownload
-from sme_sigpae_api.dieta_especial.api.serializers import (
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers import (
     SolicitacaoDietaEspecialExportXLSXSerializer,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (

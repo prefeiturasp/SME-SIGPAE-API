@@ -94,9 +94,3 @@ class RelatorioDietaTerceirizadaForm(forms.Form):
     )
     data_inicial = forms.DateField(required=False)
     data_final = forms.DateField(required=False)
-
-
-class PanoramaForm(forms.Form):
-    escola = forms.ModelChoiceField(
-        required=False, queryset=Escola.objects.all(), to_field_name="uuid"
-    )
