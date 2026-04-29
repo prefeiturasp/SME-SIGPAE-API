@@ -98,6 +98,12 @@
 <div class="viewcode-block" id="FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers.FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializer de leitura para ``FaixaEtariaSubstituicaoAlimentacaoCEMEICEI``.</span>
+
+<span class="sd">    Expande o campo ``faixa_etaria`` com a representação completa via</span>
+<span class="sd">    ``FaixaEtariaSerializer``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">FaixaEtariaSerializer</span><span class="p">()</span>
 
 <div class="viewcode-block" id="FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer.Meta">
@@ -114,6 +120,12 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEISerializer</span><span class="p">(</span>
     <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializer de leitura para ``SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI``.</span>
+
+<span class="sd">    Expande ``periodo_escolar``, ``faixas_etarias``, ``tipos_alimentacao_de`` e</span>
+<span class="sd">    ``tipos_alimentacao_para`` com seus respectivos serializers aninhados.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">PeriodoEscolarSerializer</span><span class="p">()</span>
     <span class="n">faixas_etarias</span> <span class="o">=</span> <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEMEICEISerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -133,6 +145,12 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEISerializer</span><span class="p">(</span>
     <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializer de leitura para ``SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI``.</span>
+
+<span class="sd">    Expande ``periodo_escolar``, ``tipos_alimentacao_de`` e</span>
+<span class="sd">    ``tipos_alimentacao_para`` com seus respectivos serializers aninhados.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">PeriodoEscolarSerializer</span><span class="p">()</span>
     <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">tipos_alimentacao_para</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -149,6 +167,16 @@
 <div class="viewcode-block" id="AlteracaoCardapioCEMEISerializer">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers.AlteracaoCardapioCEMEISerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioCEMEISerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializer de leitura para ``AlteracaoCardapioCEMEI``.</span>
+
+<span class="sd">    Utilizado pelo ``AlteracoesCardapioCEMEIViewSet`` nas actions de listagem e</span>
+<span class="sd">    recuperação de solicitações. Expande todos os campos relacionados com</span>
+<span class="sd">    representações completas, incluindo as substituições separadas por parte</span>
+<span class="sd">    CEI (``substituicoes_cemei_cei_periodo_escolar``) e EMEI</span>
+<span class="sd">    (``substituicoes_cemei_emei_periodo_escolar``), datas do intervalo,</span>
+<span class="sd">    rastro de terceirizada e logs de transição.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaSimplesSerializer</span><span class="p">()</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">MotivoAlteracaoCardapioSerializer</span><span class="p">()</span>
     <span class="n">foi_solicitado_fora_do_prazo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">()</span>

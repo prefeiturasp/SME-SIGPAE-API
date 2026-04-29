@@ -33,29 +33,29 @@ api
    :members:
    :show-inheritance:
 
-api/serializers
-~~~~~~~~~~~~~~~
+serializers
+~~~~~~~~~~~
 
 .. automodule:: sme_sigpae_api.cardapio.base.api.serializers
    :members:
    :show-inheritance:
 
-api/serializers\_create
-~~~~~~~~~~~~~~~~~~~~~~~
+serializers\_create
+~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: sme_sigpae_api.cardapio.base.api.serializers_create
    :members:
    :show-inheritance:
 
-api/validators
-~~~~~~~~~~~~~~
+validators
+~~~~~~~~~~
 
 .. automodule:: sme_sigpae_api.cardapio.base.api.validators
    :members:
    :show-inheritance:
 
-api/viewsets
-~~~~~~~~~~~~
+viewsets
+~~~~~~~~
 
 .. automodule:: sme_sigpae_api.cardapio.base.api.viewsets
    :members:

@@ -1,0 +1,39 @@
+{% load index %}
+<table class="tabela-relatorio">
+  <thead>
+    <tr class="{{ tipo_class }}">
+      <th>
+        {% if tipoDieta == "TIPO A" %} DIETA ESPECIAL - TIPO A, A ENTERAL E
+        RESTRIÇÃO DE AMINOÁCIDOS {% else %} DIETA ESPECIAL - {{ tipoDieta }} {%
+        endif %}
+      </th>
+      <th>VALOR UNITÁRIO</th>
+      <th>% de ACRÉSCIMO</th>
+      <th>VALOR UNIT. TOTAL</th>
+      <th>CONSUMO {{ tipoDieta }}</th>
+      <th>VALOR TOTAL</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for linha in linhas %}
+    <tr>
+      <td><b>{{ linha.tipo }}</b></td>
+      <td>R$ {{ linha.valor_unitario|agrupador_milhar_com_decimal }}</td>
+      <td>% {{ linha.valor_acrescimo|agrupador_milhar_com_decimal }}</td>
+      <td>R$ {{ linha.total_unitario|agrupador_milhar_com_decimal }}</td>
+      <td>{{ linha.numero_consumo|numero_para_milhar }}</td>
+      <td>R$ {{ linha.valor_total|agrupador_milhar_com_decimal }}</td>
+    </tr>
+    {% endfor %}
+
+    <tr class="linha-total">
+      <td>TOTAL ({{ ordem }})</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>{{ total_consumo|numero_para_milhar }}</td>
+      <td>R$ {{ valor_total|agrupador_milhar_com_decimal }}</td>
+    </tr>
+  </tbody>
+</table>

@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
+<span></span><span class="sd">&quot;&quot;&quot;Factories para os modelos de Alteração do Tipo de Alimentação.</span>
+
+<span class="sd">Utiliza ``factory_boy`` para criação de instâncias de teste dos modelos</span>
+<span class="sd">relacionados à alteração de cardápio escolar.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">SubFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory.django</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoModelFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">faker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Faker</span>
@@ -96,6 +102,11 @@
 <div class="viewcode-block" id="MotivoAlteracaoCardapioFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.MotivoAlteracaoCardapioFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivoAlteracaoCardapioFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``MotivoAlteracaoCardapio``.</span>
+
+<span class="sd">    Gera instâncias com nome único usando sequência + Faker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">nome</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;nome - </span><span class="si">{</span><span class="n">fake</span><span class="o">.</span><span class="n">unique</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -106,6 +117,12 @@
 <div class="viewcode-block" id="AlteracaoCardapioFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.AlteracaoCardapioFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``AlteracaoCardapio``.</span>
+
+<span class="sd">    Cria a escola solicitante, o motivo e os campos de rastreio (escola, lote,</span>
+<span class="sd">    DRE e terceirizada) via subfactories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">EscolaFactory</span><span class="p">)</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">MotivoAlteracaoCardapioFactory</span><span class="p">)</span>
     <span class="n">rastro_escola</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">EscolaFactory</span><span class="p">)</span>
@@ -121,6 +138,11 @@
 <div class="viewcode-block" id="DataIntervaloAlteracaoCardapioFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.DataIntervaloAlteracaoCardapioFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DataIntervaloAlteracaoCardapioFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``DataIntervaloAlteracaoCardapio``.</span>
+
+<span class="sd">    Associa automaticamente uma ``AlteracaoCardapio`` via subfactory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">AlteracaoCardapioFactory</span><span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -131,11 +153,26 @@
 <div class="viewcode-block" id="SubstituicaoAlimentacaoNoPeriodoEscolarFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory.SubstituicaoAlimentacaoNoPeriodoEscolarFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentacaoNoPeriodoEscolarFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``SubstituicaoAlimentacaoNoPeriodoEscolar``.</span>
+
+<span class="sd">    Cria a instância com uma alteração de cardápio e um período escolar via</span>
+<span class="sd">    subfactories. Suporta adição de tipos de alimentação de origem e destino</span>
+<span class="sd">    via parâmetros ``tipos_alimentacao_de`` e ``tipos_alimentacao_para``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">AlteracaoCardapioFactory</span><span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">PeriodoEscolarFactory</span><span class="p">)</span>
 
     <span class="nd">@factory</span><span class="o">.</span><span class="n">post_generation</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao_de</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="p">,</span> <span class="n">extracted</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adiciona os tipos de alimentação de origem à instância criada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            create (bool): Indica se a instância está sendo criada (``True``) ou</span>
+<span class="sd">                apenas construída em memória (``False``).</span>
+<span class="sd">            extracted: Lista de tipos de alimentação a associar, ou ``None``.</span>
+<span class="sd">            **kwargs: Argumentos adicionais ignorados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
             <span class="k">return</span>
 
@@ -145,6 +182,14 @@
 
     <span class="nd">@factory</span><span class="o">.</span><span class="n">post_generation</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao_para</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="p">,</span> <span class="n">extracted</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adiciona os tipos de alimentação de destino à instância criada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            create (bool): Indica se a instância está sendo criada (``True``) ou</span>
+<span class="sd">                apenas construída em memória (``False``).</span>
+<span class="sd">            extracted: Lista de tipos de alimentação a associar, ou ``None``.</span>
+<span class="sd">            **kwargs: Argumentos adicionais ignorados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
             <span class="k">return</span>
 

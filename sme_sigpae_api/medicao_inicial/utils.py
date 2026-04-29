@@ -5937,7 +5937,7 @@ def _formata_refeicao_emef(chave, dieta=False):
     return f"{prefixo}{dieta_prefixo}{grupo_emef}"
 
 
-def _normalizar_nome_campo(nome_campo, grupo_nome, dieta=False):
+def normalizar_nome_campo(nome_campo, grupo_nome, dieta=False):
     """
     Normaliza o nome de um campo para comparação com a tabela de parametrização.
 
@@ -6003,7 +6003,7 @@ def _calcula_total_alimentacao(
 
     mapa_valores = _mapear_valores_tabela(valores)
     for chave, valor in dados_consumo.items():
-        nome_campo = _normalizar_nome_campo(
+        nome_campo = normalizar_nome_campo(
             chave.removeprefix("total_").strip(),
             grupo_nome,
         )
@@ -6019,7 +6019,7 @@ def _calcula_total_alimentacao(
 
         total += valor_total
 
-    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return total
 
 
 def _calcula_total_dietas(
@@ -6067,7 +6067,7 @@ def _calcula_total_dietas(
 
     mapa_valores = _mapear_valores_tabela(valores)
     for chave, valor in dados_consumo.items():
-        nome_campo = _normalizar_nome_campo(chave, grupo_nome, dieta=True)
+        nome_campo = normalizar_nome_campo(chave, grupo_nome, dieta=True)
 
         valores_campo = mapa_valores.get(nome_campo)
 
@@ -6080,7 +6080,7 @@ def _calcula_total_dietas(
 
         total += valor_total
 
-    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return total
 
 
 def _calcula_total_tabelas(
@@ -6194,4 +6194,7 @@ def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
             grupo_nome,
         )
 
-    return total_pagamento
+    return total_pagamento.quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP
+    )

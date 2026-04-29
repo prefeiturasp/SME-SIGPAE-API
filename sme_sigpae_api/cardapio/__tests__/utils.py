@@ -2,12 +2,12 @@ from rest_framework import status
 
 
 def _checa_se_terceirizada_marcou_conferencia_na_gestao_de_alimentacao(
-    client_autenticado, classe, path
+    client_autenticado_vinculo_terceirizada_cardapio, classe, path
 ):
     obj = classe.objects.first()
     assert not obj.terceirizada_conferiu_gestao
 
-    response = client_autenticado.patch(
+    response = client_autenticado_vinculo_terceirizada_cardapio.patch(
         f"/{path}/{obj.uuid}/marcar-conferida/", content_type="application/json"
     )
 
