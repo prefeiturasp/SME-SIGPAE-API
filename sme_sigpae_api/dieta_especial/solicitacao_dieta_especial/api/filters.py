@@ -1,8 +1,14 @@
 from django_filters import rest_framework as filters
 
-from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ..protocolo_padrao.models import Alimento, ProtocoloPadraoDietaEspecial
-from ..solicitacao_dieta_especial.models import ClassificacaoDieta, MotivoNegacao
+from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
+    Alimento,
+    ProtocoloPadraoDietaEspecial,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
+    MotivoNegacao,
+)
 
 
 class DietaEspecialFilter(filters.FilterSet):

@@ -42,11 +42,6 @@ from sme_sigpae_api.dados_comuns.permissions import (
 )
 from sme_sigpae_api.dados_comuns.services import enviar_email_codae_atualiza_protocolo
 from sme_sigpae_api.dados_comuns.utils import convert_dict_to_querydict
-from sme_sigpae_api.dieta_especial.api.filters import (
-    AlimentoFilter,
-    DietaEspecialFilter,
-    MotivoNegacaoFilter,
-)
 from sme_sigpae_api.dieta_especial.api.serializers import (
     AlergiaIntoleranciaSerializer,
     AlimentoSerializer,
@@ -80,6 +75,11 @@ from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.filters import (
+    AlimentoFilter,
+    DietaEspecialFilter,
+    MotivoNegacaoFilter,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
