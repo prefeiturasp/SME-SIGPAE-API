@@ -142,36 +142,32 @@ class SolicitacaoDietaEspecialViewSet(
             )
         return super().get_queryset()
 
-    def get_permissions(self):  # noqa C901
-        if self.action == "list":
-            self.permission_classes = (
-                IsAuthenticated,
-                PermissaoParaRecuperarDietaEspecial,
-            )
-        elif self.action == "update":
-            self.permission_classes = (IsAdminUser, UsuarioCODAEDietaEspecial)
-        elif self.action == "retrieve":
-            self.permission_classes = (
-                IsAuthenticated,
-                PermissaoParaRecuperarDietaEspecial,
-            )
-        elif self.action == "create":
-            self.permission_classes = [
-                UsuarioEscolaTercTotal | UsuarioEscolaDiretaParceira
-            ]
-        elif self.action in [
-            "imprime_relatorio_dieta_especial",
-        ]:
-            self.permission_classes = (
-                IsAuthenticated,
-                PermissaoParaRecuperarDietaEspecial,
-            )
-        elif self.action == "relatorio_dieta_especial_terceirizada":
-            self.permission_classes = (
+    def get_permissions(self):
+        PERMISSAO_PADRAO = (
+            IsAuthenticated,
+            PermissaoParaRecuperarDietaEspecial,
+        )
+
+        permission_map = {
+            "list": PERMISSAO_PADRAO,
+            "retrieve": PERMISSAO_PADRAO,
+            "imprime_relatorio_dieta_especial": PERMISSAO_PADRAO,
+            "update": (
+                IsAdminUser,
+                UsuarioCODAEDietaEspecial,
+            ),
+            "create": [UsuarioEscolaTercTotal | UsuarioEscolaDiretaParceira],
+            "relatorio_dieta_especial_terceirizada": (
                 IsAuthenticated,
                 PermissaoRelatorioDietasEspeciais,
-            )
-        return super(SolicitacaoDietaEspecialViewSet, self).get_permissions()
+            ),
+        }
+
+        self.permission_classes = permission_map.get(
+            self.action, self.permission_classes
+        )
+
+        return super().get_permissions()
 
     def get_serializer_class(self):  # noqa C901
         if self.action == "create":
