@@ -2849,3 +2849,54 @@ def test_endpoint_exportar_pdf_relatorio_financeiro_nao_encontrado(
     assert response.data == {
         "Erro": "Relatório financeiro não encontrado."
     }
+
+
+def test_endpoint_atualizar_relatorio_financeiro(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_cei,
+):
+    payload = {
+        "status": "EM_ANALISE",
+    }
+
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/relatorio-financeiro/{relatorio_financeiro_cei.uuid}/",
+        content_type="application/json",
+        data=json.dumps(payload),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == "EM_ANALISE"
+
+
+def test_endpoint_relatorio_financeiro_nao_encontrado(
+    client_autenticado_codae_medicao,
+):
+    payload = {
+        "status": "RELATORIO_FINANCEIRO_GERADO",
+    }
+
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/relatorio-financeiro/123/",
+        content_type="application/json",
+        data=json.dumps(payload),
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_endpoint_atualizar_relatorio_financeiro_status_incorreto(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_cei,
+):
+    payload = {
+        "status": "TESTE",
+    }
+
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/relatorio-financeiro/{relatorio_financeiro_cei.uuid}/",
+        content_type="application/json",
+        data=json.dumps(payload),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
