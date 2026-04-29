@@ -4895,6 +4895,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         from sme_sigpae_api.pre_recebimento.cronograma_entrega.models import (
             SolicitacaoAlteracaoCronograma,
         )
+        from sme_sigpae_api.recebimento.models import FichaDeRecebimento
 
         user = kwargs["user"]
         solicitacao_uuid = kwargs.get("justificativa")
@@ -4904,26 +4905,22 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             self.qtd_total_programada = solicitacao.qtd_total_programada
 
             etapas_novas = list(solicitacao.etapas_novas.all())
-            etapas_para_set = []
-
             for etapa_antiga in self.etapas.filter(ficha_recebimento__isnull=False):
                 correspondente = next(
-                    (e for e in etapas_novas if e.etapa == etapa_antiga.etapa and e.parte == etapa_antiga.parte),
-                    None
+                    (
+                        e for e in etapas_novas
+                        if e.etapa == etapa_antiga.etapa and e.parte == etapa_antiga.parte
+                    ),
+                    None,
                 )
                 if correspondente:
-                    etapa_antiga.data_programada = correspondente.data_programada
-                    etapa_antiga.quantidade = correspondente.quantidade
-                    etapa_antiga.total_embalagens = correspondente.total_embalagens
-                    etapa_antiga.cronograma = self
-                    etapa_antiga.save()
-                    correspondente.delete()
-                    etapas_novas.remove(correspondente)
-                    etapas_para_set.append(etapa_antiga)
+                    FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(
+                        etapa=correspondente
+                    )
+                    etapa_antiga.cronograma = None
+                    etapa_antiga.save(update_fields=["cronograma"])
 
-            etapas_para_set.extend(etapas_novas)
-            self.etapas.set(etapas_para_set)
-
+            self.etapas.set(etapas_novas)
             self.programacoes_de_recebimento.all().delete()
             self.programacoes_de_recebimento.set(solicitacao.programacoes_novas.all())
             self.save()
