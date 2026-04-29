@@ -94,6 +94,8 @@ class AlteracaoCardapioCEMEI(
     CEI = "CEI"
     EMEI = "EMEI"
 
+    DESCRICAO = "Alteração do Tipo de Alimentação CEMEI"
+
     STATUS_CHOICES = ((TODOS, "Todos"), (CEI, "CEI"), (EMEI, "EMEI"))
 
     alunos_cei_e_ou_emei = models.CharField(
