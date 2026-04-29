@@ -55,8 +55,16 @@
 <li class="toctree-l3"><a class="reference internal" href="suspensao_alimentacao.html">suspensao_alimentacao</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">suspensao_alimentacao_cei</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.admin">admin</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models">models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api">api</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -409,7 +417,7 @@ object the first time, the query is executed.</p>
 <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api">
 <span id="api"></span><h2>api<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api" title="Link to this heading"></a></h2>
 <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers">
-<span id="api-serializers"></span><h3>api/serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers" title="Link to this heading"></a></h3>
+<span id="serializers"></span><h3>serializers<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers.html#SuspensaoAlimentacaoDaCEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer" title="Link to this definition"></a></dt>
@@ -435,7 +443,7 @@ object the first time, the query is executed.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create">
-<span id="api-serializers-create"></span><h3>api/serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create" title="Link to this heading"></a></h3>
+<span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaodeCEICreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer" title="Link to this definition"></a></dt>
@@ -494,7 +502,7 @@ to write an explicit <cite>.create()</cite> method.</p>
 
 </section>
 <section id="module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets">
-<span id="api-viewsets"></span><h3>api/viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets" title="Link to this heading"></a></h3>
+<span id="viewsets"></span><h3>viewsets<a class="headerlink" href="#module-sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEIViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sme_sigpae_api/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet" title="Link to this definition"></a></dt>
@@ -552,7 +560,7 @@ serializations depending on the incoming request.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.queryset">
-<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">[&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">8A744&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">68D3E&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">FBDA6&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">95C65&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">8A91E&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">05F93&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">D484E&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">7EFAC&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">B026D&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">BFFB7&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">232B1&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">EA223&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">9C4AB&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">2332D&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">D44A4&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">FB780&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">E5127&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">366C5&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">23651&gt;,</span> <span class="pre">&lt;SuspensaoAlimentacaoDaCEI:</span> <span class="pre">A1881&gt;,</span> <span class="pre">'...(remaining</span> <span class="pre">elements</span> <span class="pre">truncated)...']&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.queryset" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">SuspensaoAlimentacaoDaCEI&gt;</span></span><a class="headerlink" href="#sme_sigpae_api.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.queryset" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

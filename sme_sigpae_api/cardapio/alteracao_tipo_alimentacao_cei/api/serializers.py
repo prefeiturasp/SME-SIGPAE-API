@@ -20,6 +20,18 @@ from sme_sigpae_api.terceirizada.api.serializers.serializers import (
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEISerializer(serializers.ModelSerializer):
+    """Serializa uma faixa etaria com quantidade e matriculados de uma substituicao CEI.
+
+    Expoe os campos publicos de ``FaixaEtariaSubstituicaoAlimentacaoCEI``
+    utilizados nas respostas aninhadas em substituicoes de periodo escolar CEI.
+
+    Viewsets que utilizam este serializer:
+        - Nenhum diretamente.
+        - Uso indireto em ``AlteracoesCardapioCEIViewSet``, aninhado em
+          ``SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer`` nas
+          respostas de leitura.
+    """
+
     faixa_etaria = FaixaEtariaSerializer()
 
     class Meta:
@@ -30,11 +42,38 @@ class FaixaEtariaSubstituicaoAlimentacaoCEISerializer(serializers.ModelSerialize
 class SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer(
     SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase
 ):
+    """Serializa substituicoes completas de alimentacao por periodo escolar para CEI.
+
+    Complementa o serializer base com o tipo de alimentacao de destino (FK) e
+    as faixas etarias detalhadas, alem de injetar o total de alunos por faixa
+    no periodo escolar via ``to_representation``.
+
+    Viewsets que utilizam este serializer:
+        - Nenhum diretamente.
+        - Uso indireto em ``AlteracoesCardapioCEIViewSet``, aninhado em
+          ``AlteracaoCardapioCEISerializer`` nas respostas de leitura.
+    """
+
     tipo_alimentacao_para = TipoAlimentacaoSerializer()
 
     faixas_etarias = FaixaEtariaSubstituicaoAlimentacaoCEISerializer(many=True)
 
     def to_representation(self, instance):
+        """Adiciona o total de alunos por faixa etaria no periodo escolar.
+
+        Consulta o metodo ``alunos_por_periodo_e_faixa_etaria`` da escola para
+        enriquecer cada faixa etaria com o campo ``total_alunos_no_periodo``.
+
+        Args:
+            instance (SubstituicaoAlimentacaoNoPeriodoEscolarCEI): Substituicao
+                a ser representada.
+
+        Returns:
+            dict: Representacao da substituicao com o campo
+            ``total_alunos_no_periodo`` adicionado a cada faixa etaria
+            encontrada na consulta. Faixas nao encontradas no dicionario de
+            alunos sao ignoradas silenciosamente.
+        """
         retorno = super().to_representation(instance)
 
         faixas_etarias_da_solicitacao = FaixaEtaria.objects.filter(
@@ -73,6 +112,18 @@ class SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer(
 
 
 class AlteracaoCardapioCEISerializer(AlteracaoCardapioSerializerBase):
+    """Serializa a representacao detalhada de uma alteracao de cardapio CEI.
+
+    Inclui substituicoes por periodo com faixas etarias, motivo, escola, logs
+    e dados de rastreabilidade usados nas respostas completas da API.
+
+    Viewsets que utilizam este serializer:
+        - ``AlteracoesCardapioCEIViewSet``: retornado por
+          ``get_serializer_class()`` em todas as acoes de leitura e nas actions
+          customizadas que respondem com o objeto serializado, exceto
+          ``create``, ``update`` e ``partial_update``.
+    """
+
     substituicoes = SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer(many=True)
     rastro_terceirizada = TerceirizadaSimplesSerializer()
 

@@ -1,6 +1,9 @@
 from rest_framework import serializers
 
-from ...dieta_especial.api.serializers import ClassificacaoDietaSerializer
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers import (
+    ClassificacaoDietaSerializer,
+)
+
 from ...escola.models import EscolaPeriodoEscolar
 from ..models import LancamentoDiario, Refeicao
 

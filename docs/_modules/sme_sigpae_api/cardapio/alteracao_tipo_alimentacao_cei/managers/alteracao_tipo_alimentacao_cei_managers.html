@@ -69,17 +69,30 @@
            <div itemprop="articleBody">
              
   <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span></span><span class="sd">&quot;&quot;&quot;Managers customizados para o modelo AlteracaoCardapioCEI.</span>
+
+<span class="sd">Cada manager aplica um filtro diferente sobre o queryset padrão, segmentando</span>
+<span class="sd">as alterações de cardápio CEI por janela temporal.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
 
 
 <div class="viewcode-block" id="AlteracoesCardapioCEIDestaSemanaManager">
-<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.AlteracoesCardapioCEIDestaSemanaManager">[docs]</a>
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracoesCardapioCEIDestaSemanaManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna alterações de cardápio CEI com data nos próximos 7 dias.&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="AlteracoesCardapioCEIDestaSemanaManager.get_queryset">
-<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.AlteracoesCardapioCEIDestaSemanaManager.get_queryset">[docs]</a>
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset filtrado pelo intervalo da semana atual.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Alterações cuja ``data`` está entre hoje e hoje + 7 dias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hoje</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="n">data_limite_inicial</span> <span class="o">=</span> <span class="n">hoje</span>
         <span class="n">data_limite_final</span> <span class="o">=</span> <span class="n">hoje</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
@@ -93,11 +106,18 @@
 
 
 <div class="viewcode-block" id="AlteracoesCardapioCEIDesteMesManager">
-<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.AlteracoesCardapioCEIDesteMesManager">[docs]</a>
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracoesCardapioCEIDesteMesManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna alterações de cardápio CEI com data nos próximos 31 dias.&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="AlteracoesCardapioCEIDesteMesManager.get_queryset">
-<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.models.AlteracoesCardapioCEIDesteMesManager.get_queryset">[docs]</a>
+<a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset filtrado pelo intervalo do mês atual.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Alterações cuja ``data`` está entre hoje e hoje + 31 dias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hoje</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="n">data_limite_inicial</span> <span class="o">=</span> <span class="n">hoje</span>
         <span class="n">data_limite_final</span> <span class="o">=</span> <span class="n">hoje</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">31</span><span class="p">)</span>

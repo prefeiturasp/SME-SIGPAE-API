@@ -94,6 +94,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoAprovacaoPartindoDaEscola</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span><span class="p">,</span> <span class="n">TemplateMensagem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch_docs</span>
 
 
 <div class="viewcode-block" id="AlteracaoCardapio">
@@ -180,6 +181,47 @@
 <span class="sd">            ``None`` se não houver substituições.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;qtd_alunos&quot;</span><span class="p">))[</span><span class="s2">&quot;qtd_alunos__sum&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="AlteracaoCardapio.tipos_alimentacao_de">
+<a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio.tipos_alimentacao_de">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao_de</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nome_periodo_escolar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna uma lista com os tipos de alimentação substituídos nesta solicitação.</span>
+
+<span class="sd">        Retorna uma lista com os nomes dos tipos de alimentação que estão sendo</span>
+<span class="sd">        substituídos nesta solicitação, considerando todas as substituições</span>
+<span class="sd">        vinculadas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[str]: Lista de nomes dos tipos de alimentação substituídos.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tipos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">substituicao</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">nome_periodo_escolar</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">or</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="n">nome_periodo_escolar</span>
+            <span class="p">):</span>
+                <span class="n">tipos</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="n">substituicao</span><span class="o">.</span><span class="n">tipos_alimentacao_de</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">tipos</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">periodos_escolares</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna uma lista com os períodos escolares afetados por esta solicitação.</span>
+
+<span class="sd">        Retorna uma lista com os nomes dos períodos escolares que estão sendo</span>
+<span class="sd">        afetados nesta solicitação, considerando todas as substituições</span>
+<span class="sd">        vinculadas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[str]: Lista de nomes dos períodos escolares afetados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                <span class="s2">&quot;periodo_escolar__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -496,157 +538,7 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_patch_docs</span><span class="p">():</span>
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        Inicia o fluxo da solicitação de Gestão de Alimentação (envia a solicitação para DRE validar).</span>
-
-<span class="s2">        Só é possível iniciar uma solicitação que esteja em **RASCUNHO**.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_inicia_fluxo_hook``) para, após o início do fluxo:</span>
-<span class="s2">          - definir o campo ``foi_solicitado_fora_do_prazo`` com base na prioridade da solicitação.</span>
-<span class="s2">          - salvar os rastros históricos da solicitação (escola, DRE, lote e terceirizada).</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_autoriza</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        Autoriza a solicitação de Gestão de Alimentação como CODAE pedida com mais de 5 dias úteis de antecedência.</span>
-<span class="s2">        Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.</span>
-
-<span class="s2">        Exceção:</span>
-<span class="s2">          - Alteração do Tipo de Alimentação - Lanche Emergencial</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_codae_autoriza_hook``) para, após a autorização:</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a autorização.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_autoriza_questionamento</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        CODAE autoriza a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência, mediante resposta positiva do questionamento para a empresa terceirizada que atende a escola.</span>
-<span class="s2">        Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.</span>
-
-<span class="s2">        Uma solicitação pode ser autorizada se:</span>
-<span class="s2">          - teve uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=True no log de questionamento.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_codae_autoriza_hook``) para, após a autorização:</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a autorização.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_nega</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        CODAE nega a solicitação de Gestão de Alimentação.</span>
-<span class="s2">        Só é possível negar uma solicitação que foi validada pela Diretoria Regional.</span>
-
-<span class="s2">        Uma solicitação pode ser negada se, por exemplo:</span>
-<span class="s2">          - infringir alguma regra do edital</span>
-<span class="s2">          - tiver algum dado incorreto ou inconsistente (por exemplo, um Kit Lanche não pode ser solicitado para um &quot;passeio&quot; nas dependências da escola. É apenas para passeios externos.)</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_codae_recusou_hook``) para, após a negação:</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a negação.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_nega_questionamento</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        CODAE nega a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.</span>
-<span class="s2">        Só é possível negar uma solicitação que foi validada pela Diretoria Regional.</span>
-
-<span class="s2">        Uma solicitação pode ser negada se:</span>
-<span class="s2">          - não tiver uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=False no log de questionamento.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_codae_recusou_hook``) para, após a negação:</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a negação.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">codae_questiona</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        CODAE questiona a empresa terceirizada se é possível atender a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.</span>
-<span class="s2">        Só é possível questionar uma solicitação que foi validada pela Diretoria Regional.</span>
-
-<span class="s2">        Uma solicitação pedida com menos de 5 dias úteis de antecedência não pode ser autorizada imediatamente, pois a empresa terceirizada que atende a escola precisa confirmar se é possível atender a solicitação nesse prazo. Portanto, o CODAE questiona a solicitação para obter essa confirmação.</span>
-
-<span class="s2">        Exceção (pode ser autorizado imediatamente, sem questionamento):</span>
-<span class="s2">          - Alteração do Tipo de Alimentação - Lanche Emergencial</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_codae_questiona_hook``) para, após o questionamento:</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">dre_nao_valida</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        DRE não valida a solicitação de Gestão de Alimentação.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_dre_nao_valida_hook``) para, após a não validação:</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">          - enviar e-mail para as partes interessadas notificando sobre a não validação.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">dre_pede_revisao</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        Deprecado.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">dre_valida</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        DRE valida a solicitação de Gestão de Alimentação.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_dre_valida_hook``) para, após a validação:</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">escola_revisa</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        Deprecado.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">terceirizada_toma_ciencia</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        Deprecado.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Antigamente, este método era utilizado para registrar a ciência da empresa terceirizada sobre a solicitação.</span>
-
-<span class="s2">        O status final do fluxo era **TERCEIRIZADA_TOMOU_CIENCIA**.</span>
-
-<span class="s2">        Atualmente:</span>
-<span class="s2">          - o status final é **CODAE_AUTORIZADO**.</span>
-<span class="s2">          - o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.</span>
-<span class="s2">          - a empresa toma ciência sem alterar o status da solicitação, através do campo ``terceirizada_conferiu_gestao``.</span>
-
-<span class="s2">        &quot;&quot;&quot;</span>
-
-    <span class="n">AlteracaoCardapio</span><span class="o">.</span><span class="n">terceirizada_responde_questionamento</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        A empresa terceirizada responde ao questionamento da CODAE sobre a possibilidade de atendimento da solicitação.</span>
-
-<span class="s2">        Só é possível responder um questionamento quando a solicitação está em **CODAE_QUESTIONADO**.</span>
-
-<span class="s2">        Caso a empresa responda que **sim** (resposta_sim_nao=True), a solicitação pode ser autorizada normalmente pela CODAE, mesmo tendo sido pedida com menos de 5 dias úteis de antecedência.</span>
-
-<span class="s2">        Caso a empresa responda que **não** (resposta_sim_nao=False), a solicitação deve ser negada pela CODAE, pois a empresa, pelo contrato, tem o direito de negar solicitações pedidas com menos de 5 dias úteis de antecedência.</span>
-
-<span class="s2">        Este método é herdado de django_xworkflows.</span>
-
-<span class="s2">        Possui um hook (``_terceirizada_responde_questionamento_hook``) para, após a resposta:</span>
-<span class="s2">          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.</span>
-<span class="s2">          - registrar no log a justificativa informada e a resposta booleana em ``resposta_sim_nao``.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
-
-<span class="n">_patch_docs</span><span class="p">()</span>
+<span class="n">patch_docs</span><span class="p">(</span><span class="n">AlteracaoCardapio</span><span class="p">)</span>
 </pre></div>
 
            </div>

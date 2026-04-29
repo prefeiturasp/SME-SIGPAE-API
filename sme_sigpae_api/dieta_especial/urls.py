@@ -4,8 +4,13 @@ from rest_framework import routers
 from sme_sigpae_api.dieta_especial.logs_models.api import (
     viewsets as logs_models_viewsets,
 )
+from sme_sigpae_api.dieta_especial.protocolo_padrao.api import (
+    viewsets as protocolo_padrao_viewsets,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api import (
+    viewsets as solicitacao_dieta_especial_viewsets,
+)
 
-from .api import viewsets
 from .constants import (
     ENDPOINT_ALERGIAS_INTOLERANCIAS,
     ENDPOINT_ALIMENTOS,
@@ -17,37 +22,37 @@ router = routers.DefaultRouter()
 
 router.register(
     "solicitacoes-dieta-especial",
-    viewsets.SolicitacaoDietaEspecialViewSet,
+    solicitacao_dieta_especial_viewsets.SolicitacaoDietaEspecialViewSet,
     basename="Solicitações de dieta especial",
 )
 router.register(
     ENDPOINT_ALERGIAS_INTOLERANCIAS,
-    viewsets.AlergiaIntoleranciaViewSet,
+    solicitacao_dieta_especial_viewsets.AlergiaIntoleranciaViewSet,
     basename="Alergias/Intolerâncias alimentares",
 )
 router.register(
     ENDPOINT_ALIMENTOS,
-    viewsets.AlimentoViewSet,
+    solicitacao_dieta_especial_viewsets.AlimentoViewSet,
     basename="Alimentos que podem ser substituídos em uma dieta especial",
 )
 router.register(
     ENDPOINT_CLASSIFICACOES_DIETA,
-    viewsets.ClassificacaoDietaViewSet,
+    solicitacao_dieta_especial_viewsets.ClassificacaoDietaViewSet,
     basename="Classificação de dieta especial",
 )
 router.register(
     ENDPOINT_MOTIVOS_NEGACAO,
-    viewsets.MotivoNegacaoViewSet,
+    solicitacao_dieta_especial_viewsets.MotivoNegacaoViewSet,
     basename="Motivos de negação de dieta especial",
 )
 router.register(
     "motivo-alteracao-ue",
-    viewsets.MotivoAlteracaoUEViewSet,
+    solicitacao_dieta_especial_viewsets.MotivoAlteracaoUEViewSet,
     basename="Motivos alteracao UE de dieta especial",
 )
 router.register(
     "protocolo-padrao-dieta-especial",
-    viewsets.ProtocoloPadraoDietaEspecialViewSet,
+    protocolo_padrao_viewsets.ProtocoloPadraoDietaEspecialViewSet,
     basename="Protocolo padrao de dieta especial",
 )
 router.register(
@@ -76,6 +81,6 @@ urlpatterns = [
     path("", include(router.urls)),
     re_path(
         r"^solicitacoes-dieta-especial-ativas-inativas/$",
-        viewsets.SolicitacoesAtivasInativasPorAlunoView.as_view(),
+        solicitacao_dieta_especial_viewsets.SolicitacoesAtivasInativasPorAlunoView.as_view(),
     ),
 ]

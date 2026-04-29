@@ -1,7 +1,9 @@
 import pytest
 from rest_framework.exceptions import ValidationError
 
-from sme_sigpae_api.dieta_especial.api.validators import edital_ja_existe_protocolo
+from sme_sigpae_api.dieta_especial.protocolo_padrao.api.validators import (
+    edital_ja_existe_protocolo,
+)
 
 from ...dados_comuns.validators import deve_ter_extensao_valida
 

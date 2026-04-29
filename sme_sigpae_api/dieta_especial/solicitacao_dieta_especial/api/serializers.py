@@ -5,37 +5,34 @@ from django.db.models import Q
 from drf_base64.serializers import ModelSerializer
 from rest_framework import serializers, status
 
-from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
-
-from ...dados_comuns.api.serializers import (
+from sme_sigpae_api.dados_comuns.api.serializers import (
     ContatoSerializer,
     LogSolicitacoesUsuarioSerializer,
 )
-from ...dados_comuns.utils import update_instance_from_dict
-from ...dados_comuns.validators import nao_pode_ser_no_passado
-from ...escola.api.serializers import (
-    AlunoSerializer,
-    AlunoSimplesSerializer,
-    EscolaNomeCodigoEOLSerializer,
-    LoteNomeSerializer,
-    LoteSerializer,
-    TipoGestaoSerializer,
+from sme_sigpae_api.dados_comuns.utils import update_instance_from_dict
+from sme_sigpae_api.dados_comuns.validators import nao_pode_ser_no_passado
+from sme_sigpae_api.dieta_especial.protocolo_padrao.api.serializers import (
+    ProtocoloPadraoDietaEspecialSimplesSerializer,
+    SubstituicaoAlimentoSerializer,
 )
-from ...escola.models import DiretoriaRegional, Escola
-from ...escola.services import NovoSGPServicoLogadoException
-from ...produto.api.serializers.serializers import (
-    MarcaSimplesSerializer,
-    ProdutoSimplesSerializer,
+from sme_sigpae_api.dieta_especial.protocolo_padrao.api.serializers_create import (
+    SubstituicaoAutorizarSerializer,
+    SubstituicaoCreateSerializer,
 )
-from ...produto.models import Produto, SolicitacaoCadastroProdutoDieta
-from ...terceirizada.api.serializers.serializers import EditalSimplesSerializer
-from ..protocolo_padrao.models import (
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
-    SubstituicaoAlimentoProtocoloPadrao,
 )
-from ..solicitacao_dieta_especial.models import (
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers_create import (
+    SolicitacaoDietaEspecialCreateSerializer,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.validators import (
+    atributos_lista_nao_vazios,
+    atributos_string_nao_vazios,
+    deve_ter_atributos,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     Anexo,
     ClassificacaoDieta,
@@ -43,16 +40,18 @@ from ..solicitacao_dieta_especial.models import (
     MotivoNegacao,
     SolicitacaoDietaEspecial,
 )
-from .serializers_create import (
-    SolicitacaoDietaEspecialCreateSerializer,
-    SubstituicaoAutorizarSerializer,
-    SubstituicaoCreateSerializer,
+from sme_sigpae_api.escola.api.serializers import (
+    AlunoSerializer,
+    AlunoSimplesSerializer,
+    EscolaNomeCodigoEOLSerializer,
+    LoteNomeSerializer,
+    LoteSerializer,
+    TipoGestaoSerializer,
 )
-from .validators import (
-    atributos_lista_nao_vazios,
-    atributos_string_nao_vazios,
-    deve_ter_atributos,
-)
+from sme_sigpae_api.escola.models import DiretoriaRegional, Escola
+from sme_sigpae_api.escola.services import NovoSGPServicoLogadoException
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
+from sme_sigpae_api.produto.models import Produto, SolicitacaoCadastroProdutoDieta
 
 CLASSIFICACAO_NOME_SOURCE = "classificacao.nome"
 DATE_FORMAT = "%d/%m/%Y"
@@ -76,26 +75,6 @@ class MotivoNegacaoSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class AlimentoSerializer(serializers.ModelSerializer):
-    marca = MarcaSimplesSerializer()
-
-    class Meta:
-        model = Alimento
-        fields = "__all__"
-        ordering = "nome"
-
-
-class AlimentosSubstitutosSerializer(serializers.ModelSerializer):
-    tipo = serializers.SerializerMethodField()
-
-    def get_tipo(self, instance):
-        return "a"
-
-    class Meta:
-        model = Alimento
-        fields = ("uuid", "nome", "tipo")
-
-
 class AnexoSerializer(ModelSerializer):
     nome = serializers.CharField()
     arquivo_url = serializers.SerializerMethodField()
@@ -110,14 +89,34 @@ class AnexoSerializer(ModelSerializer):
         fields = ("arquivo_url", "arquivo", "nome", "eh_laudo_alta")
 
 
-class SubstituicaoAlimentoSerializer(ModelSerializer):
-    alimento = AlimentoSerializer()
-    substitutos = ProdutoSimplesSerializer(many=True)
-    alimentos_substitutos = AlimentoSerializer(many=True)
+class DiretoriaRegionalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DiretoriaRegional
+        fields = ["nome", "codigo_eol"]
+
+
+class EscolaSerializer(serializers.ModelSerializer):
+    diretoria_regional = DiretoriaRegionalSerializer()
+    tipo_gestao = TipoGestaoSerializer()
+    lote = LoteNomeSerializer()
+    contato = ContatoSerializer()
 
     class Meta:
-        model = SubstituicaoAlimento
-        fields = "__all__"
+        model = Escola
+        fields = (
+            "uuid",
+            "nome",
+            "diretoria_regional",
+            "tipo_gestao",
+            "lote",
+            "contato",
+        )
+
+
+class MotivoAlteracaoUESerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MotivoAlteracaoUE
+        fields = ("uuid", "nome", "descricao")
 
 
 class SolicitacaoDietaEspecialAutorizarSerializer(
@@ -204,36 +203,6 @@ class SolicitacaoDietaEspecialAutorizarSerializer(
                 instance.substituicaoalimento_set.add(create_serializer.save())
         instance.save()
         return instance
-
-
-class DiretoriaRegionalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DiretoriaRegional
-        fields = ["nome", "codigo_eol"]
-
-
-class EscolaSerializer(serializers.ModelSerializer):
-    diretoria_regional = DiretoriaRegionalSerializer()
-    tipo_gestao = TipoGestaoSerializer()
-    lote = LoteNomeSerializer()
-    contato = ContatoSerializer()
-
-    class Meta:
-        model = Escola
-        fields = (
-            "uuid",
-            "nome",
-            "diretoria_regional",
-            "tipo_gestao",
-            "lote",
-            "contato",
-        )
-
-
-class MotivoAlteracaoUESerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MotivoAlteracaoUE
-        fields = ("uuid", "nome", "descricao")
 
 
 class SolicitacaoDietaEspecialSerializer(serializers.ModelSerializer):
@@ -750,64 +719,6 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
             self.fields.pop("data_nascimento_aluno", None)
 
         super().__init__(*args, **kwargs)
-
-
-class PanoramaSerializer(serializers.Serializer):
-    periodo = serializers.CharField(source="periodo_escolar__nome", required=False)
-    horas_atendimento = serializers.IntegerField(required=False)
-    qtde_alunos = serializers.IntegerField(source="quantidade_alunos", required=False)
-    qtde_tipo_a = serializers.IntegerField()
-    qtde_enteral = serializers.IntegerField()
-    qtde_tipo_b = serializers.IntegerField()
-    uuid_escola_periodo_escolar = serializers.CharField(source="uuid", required=False)
-
-
-class SubstituicaoAlimentoProtocoloPadraoSerializer(ModelSerializer):
-    alimento = AlimentoSerializer()
-    substitutos = ProdutoSimplesSerializer(many=True)
-    alimentos_substitutos = AlimentoSerializer(many=True)
-    tipo = serializers.CharField(source="get_tipo_display")
-
-    class Meta:
-        model = SubstituicaoAlimentoProtocoloPadrao
-        fields = "__all__"
-
-
-class ProtocoloPadraoDietaEspecialSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source="get_status_display")
-    substituicoes = serializers.SerializerMethodField()
-    historico = serializers.SerializerMethodField()
-    editais = EditalSimplesSerializer(many=True)
-
-    class Meta:
-        model = ProtocoloPadraoDietaEspecial
-        fields = (
-            "uuid",
-            "nome_protocolo",
-            "status",
-            "orientacoes_gerais",
-            "substituicoes",
-            "editais",
-            "historico",
-            "outras_informacoes",
-        )
-
-    def get_historico(self, obj):
-        import json
-
-        return json.loads(obj.historico) if obj.historico else []
-
-    def get_substituicoes(self, obj):
-        substituicoes = obj.substituicoes.all().order_by("alimento__nome")
-        return SubstituicaoAlimentoProtocoloPadraoSerializer(
-            substituicoes, many=True
-        ).data
-
-
-class ProtocoloPadraoDietaEspecialSimplesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProtocoloPadraoDietaEspecial
-        fields = ("nome_protocolo", "uuid")
 
 
 class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerializer):

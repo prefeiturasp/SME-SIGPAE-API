@@ -96,6 +96,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoAprovacaoPartindoDaEscola</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span><span class="p">,</span> <span class="n">TemplateMensagem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sme_sigpae_api.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch_docs</span>
 
 
 <div class="viewcode-block" id="AlteracaoCardapioCEI">
@@ -115,32 +116,108 @@
     <span class="n">EhAlteracaoCardapio</span><span class="p">,</span>
     <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modelo responsável por armazenar Solicitações de Alteração do Tipo de Alimentação para escolas do tipo CEI.</span>
+
+<span class="sd">    Representa uma solicitação formal de troca do tipo de alimentação servida em</span>
+<span class="sd">    determinado(s) período(s) escolar(es), com data inicial e final delimitadas.</span>
+<span class="sd">    Para as CEIs, as solicitações de alteração do tipo de alimentação são divididas por faixas etárias.</span>
+
+<span class="sd">    **O que é uma Alteração do Tipo de Alimentação?**</span>
+
+<span class="sd">    É uma solicitação de troca do tipo de alimentação servida em um determinado dia.</span>
+
+<span class="sd">    **Quais os tipos de Alteração do Tipo de Alimentação possíveis?**</span>
+
+<span class="sd">    - RPL (Refeição por Lanche)</span>
+<span class="sd">        - substitui a refeição do dia por um lanche</span>
+<span class="sd">        - cada escola só pode pedir uma RPL por mês</span>
+<span class="sd">        - exemplo: no dia dos aniversariantes do mês, a escola pode solicitar uma RPL para substituir a refeição por um lanche especial.</span>
+<span class="sd">        - na Medição Inicial, o lançamento de lanche neste dia é dobrado e a refeição é zerada.</span>
+
+<span class="sd">    - LPR (Lanche por Refeição)</span>
+<span class="sd">        - substitui o lanche do dia por uma refeição</span>
+<span class="sd">        - não há limite de solicitações de LPR por mês</span>
+<span class="sd">        - na Medição Inicial, o lançamento de lanche neste dia é zerado e a refeição é dobrada.</span>
+<span class="sd">        - esta solicitação raramente é utilizada, pois as escolas preferem lanche que refeição.</span>
+
+<span class="sd">    **Não há lanche emergencial para CEIs.**</span>
+
+<span class="sd">    Tipos de unidade contempladas:</span>
+<span class="sd">        - CEI DIRET</span>
+<span class="sd">        - CEU CEI</span>
+<span class="sd">        - CCI/CIPS</span>
+
+<span class="sd">    Exceções não contempladas:</span>
+<span class="sd">        - EMEF</span>
+<span class="sd">        - EMEI</span>
+<span class="sd">        - CEMEI</span>
+<span class="sd">        etc.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        DESCRICAO (str): Descrição legível do tipo de solicitação. Utilizado no dashboard de Gestão de Alimentação para identificar o tipo de cada solicitação. O valor é a string ``&quot;Alteração do Tipo de Alimentação CEI&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Alteração do Tipo de Alimentação CEI&quot;</span>
 
-    <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>
     <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">AlteracoesCardapioCEIDestaSemanaManager</span><span class="p">()</span>
     <span class="n">deste_mes</span> <span class="o">=</span> <span class="n">AlteracoesCardapioCEIDesteMesManager</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o total de alunos somando todas as faixas etárias das substituições vinculadas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int | None: Soma da quantidade de alunos em todas as faixas etárias das</span>
+<span class="sd">            ``SubstituicaoAlimentacaoNoPeriodoEscolarCEI`` desta alteração, ou</span>
+<span class="sd">            ``None`` se não houver faixas etárias cadastradas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;faixas_etarias__quantidade&quot;</span><span class="p">))[</span>
             <span class="s2">&quot;faixas_etarias__quantidade__sum&quot;</span>
         <span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna um atalho para ``substituicoes_cei_periodo_escolar``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.Manager: Manager reverso das substituições de</span>
+<span class="sd">            alimentação CEI vinculadas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cei_periodo_escolar</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tipo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a descrição legível do tipo da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String ``&quot;Alteração do Tipo de Alimentação&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Alteração do Tipo de Alimentação&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o caminho relativo do relatório desta solicitação no frontend.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: URL relativa no formato</span>
+<span class="sd">            ``&quot;alteracao-do-tipo-de-alimentacao/relatorio?uuid=&lt;uuid&gt;&amp;tipoSolicitacao=solicitacao-cei&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;alteracao-do-tipo-de-alimentacao/relatorio?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&amp;tipoSolicitacao=solicitacao-cei&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o assunto e o corpo HTML do template de mensagem de alteração de cardápio.</span>
+
+<span class="sd">        Busca o ``TemplateMensagem`` do tipo ``ALTERACAO_CARDAPIO`` e retorna</span>
+<span class="sd">        seus campos de assunto e conteúdo HTML.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[str, str]: Tupla ``(assunto, corpo_html)`` do template.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TemplateMensagem.DoesNotExist: Caso não exista template do tipo</span>
+<span class="sd">                ``ALTERACAO_CARDAPIO`` cadastrado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="n">tipo</span><span class="o">=</span><span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">ALTERACAO_CARDAPIO</span>
         <span class="p">)</span>
@@ -150,6 +227,23 @@
 <div class="viewcode-block" id="AlteracaoCardapioCEI.salvar_log_transicao">
 <a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEI.salvar_log_transicao">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra no log a transição de status da solicitação.</span>
+
+<span class="sd">        Cria uma entrada em ``LogSolicitacoesUsuario`` associada a esta</span>
+<span class="sd">        alteração de cardápio CEI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            status_evento (int): Código do evento de status.</span>
+<span class="sd">            usuario (django.contrib.auth.models.AbstractUser): Usuário</span>
+<span class="sd">                responsável pela transição.</span>
+<span class="sd">            **kwargs: Parâmetros opcionais do log.</span>
+<span class="sd">                `justificativa` (str): Texto justificando a transição.</span>
+<span class="sd">                `resposta_sim_nao` (bool): Indica resposta booleana associada</span>
+<span class="sd">                    ao log. O padrão é ``False``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">resposta_sim_nao</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resposta_sim_nao&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
@@ -165,6 +259,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">susbstituicoes_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as substituições de alimentação CEI serializadas como lista de dicionários.</span>
+
+<span class="sd">        Cada item inclui o período escolar, os tipos de alimentação substituídos,</span>
+<span class="sd">        o tipo resultante e as faixas etárias com quantidades e matriculados.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[dict]: Lista de dicionários com os campos ``periodo``,</span>
+<span class="sd">            ``tipos_alimentacao_de``, ``tipos_alimentacao_para``,</span>
+<span class="sd">            ``faixas_etarias``, ``total_alunos`` e ``total_matriculados``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">substituicoes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes_cei_periodo_escolar</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="n">periodo</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span>
@@ -200,6 +304,23 @@
 <div class="viewcode-block" id="AlteracaoCardapioCEI.solicitacao_dict_para_relatorio">
 <a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEI.solicitacao_dict_para_relatorio">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacao_dict_para_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_data</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">instituicao</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serializa os dados da solicitação CEI para uso em relatórios.</span>
+
+<span class="sd">        Retorna um dicionário com as informações relevantes da alteração de</span>
+<span class="sd">        cardápio CEI, incluindo rastreamentos históricos, data, motivo e</span>
+<span class="sd">        substituições por faixa etária.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label_data (str): Rótulo descritivo para o campo de data no</span>
+<span class="sd">                relatório.</span>
+<span class="sd">            data_log (datetime.date): Data do log de referência exibida no</span>
+<span class="sd">                relatório.</span>
+<span class="sd">            instituicao (object): Instituição solicitante, mantida por</span>
+<span class="sd">                compatibilidade de assinatura.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dicionário com os campos utilizados no relatório.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;lote&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">iniciais</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rastro_lote</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;unidade_educacional&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">nome_historico</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
@@ -232,6 +353,18 @@
     <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;substituicao_cei_alimentacao_periodo_escolar&quot;</span><span class="p">),</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa uma substituição de tipo de alimentação em um período escolar específico para CEI.</span>
+
+<span class="sd">    Está vinculada a uma ``AlteracaoCardapioCEI`` e define quais tipos de</span>
+<span class="sd">    alimentação serão substituídos e por qual tipo resultante em um determinado</span>
+<span class="sd">    período escolar. As quantidades de alunos impactados são especificadas por</span>
+<span class="sd">    faixa etária em ``FaixaEtariaSubstituicaoAlimentacaoCEI``.</span>
+
+<span class="sd">    Exemplos:</span>
+<span class="sd">        - no período INTEGRAL, substituir REFEIÇÃO por LANCHE para faixas etárias específicas.</span>
+<span class="sd">        - no período MANHA, substituir LANCHE por REFEIÇÃO para faixas etárias determinadas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="s2">&quot;AlteracaoCardapioCEI&quot;</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
@@ -274,6 +407,14 @@
     <span class="n">TemFaixaEtariaEQuantidade</span><span class="p">,</span>
     <span class="n">MatriculadosQuandoCriado</span><span class="p">,</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa a quantidade de alunos de uma faixa etária em uma substituição de alimentação CEI.</span>
+
+<span class="sd">    Está vinculada a ``SubstituicaoAlimentacaoNoPeriodoEscolarCEI`` e detalha</span>
+<span class="sd">    quantos alunos de cada faixa etária são afetados pela substituição,</span>
+<span class="sd">    juntamente com o número de matriculados no momento da criação da</span>
+<span class="sd">    solicitação.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">substituicao_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="s2">&quot;SubstituicaoAlimentacaoNoPeriodoEscolarCEI&quot;</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
@@ -289,6 +430,9 @@
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Faixa Etária de substituição de alimentação CEI&quot;</span>
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Faixas Etárias de substituição de alimentação CEI&quot;</span></div>
 
+
+
+<span class="n">patch_docs</span><span class="p">(</span><span class="n">AlteracaoCardapioCEI</span><span class="p">)</span>
 </pre></div>
 
            </div>
