@@ -4,6 +4,9 @@ from rest_framework import routers
 from sme_sigpae_api.dieta_especial.logs_models.api import (
     viewsets as logs_models_viewsets,
 )
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api import (
+    viewsets as solicitacao_dieta_especial_viewsets,
+)
 
 from .api import viewsets
 from .constants import (
@@ -17,7 +20,7 @@ router = routers.DefaultRouter()
 
 router.register(
     "solicitacoes-dieta-especial",
-    viewsets.SolicitacaoDietaEspecialViewSet,
+    solicitacao_dieta_especial_viewsets.SolicitacaoDietaEspecialViewSet,
     basename="Solicitações de dieta especial",
 )
 router.register(
