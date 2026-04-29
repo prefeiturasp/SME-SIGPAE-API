@@ -11,11 +11,6 @@ from sme_sigpae_api.dados_comuns.api.serializers import (
 )
 from sme_sigpae_api.dados_comuns.utils import update_instance_from_dict
 from sme_sigpae_api.dados_comuns.validators import nao_pode_ser_no_passado
-from sme_sigpae_api.dieta_especial.api.validators import (
-    atributos_lista_nao_vazios,
-    atributos_string_nao_vazios,
-    deve_ter_atributos,
-)
 from sme_sigpae_api.dieta_especial.protocolo_padrao.api.serializers import (
     ProtocoloPadraoDietaEspecialSimplesSerializer,
     SubstituicaoAlimentoSerializer,
@@ -31,6 +26,11 @@ from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers_create import (
     SolicitacaoDietaEspecialCreateSerializer,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.validators import (
+    atributos_lista_nao_vazios,
+    atributos_string_nao_vazios,
+    deve_ter_atributos,
 )
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,

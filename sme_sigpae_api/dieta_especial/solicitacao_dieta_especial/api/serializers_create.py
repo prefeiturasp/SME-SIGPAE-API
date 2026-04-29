@@ -14,8 +14,10 @@ from sme_sigpae_api.dados_comuns.validators import (
     deve_ser_no_passado,
     deve_ter_extensao_valida,
 )
-from sme_sigpae_api.dieta_especial.api.validators import AlunoSerializerValidator
 from sme_sigpae_api.dieta_especial.protocolo_padrao.models import SubstituicaoAlimento
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.validators import (
+    AlunoSerializerValidator,
+)
 from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
     Anexo,
     MotivoAlteracaoUE,

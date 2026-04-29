@@ -4,7 +4,9 @@ from sme_sigpae_api.dados_comuns.utils import (
     remove_multiplos_espacos,
     update_instance_from_dict,
 )
-from sme_sigpae_api.dieta_especial.api.validators import edital_ja_existe_protocolo
+from sme_sigpae_api.dieta_especial.protocolo_padrao.api.validators import (
+    edital_ja_existe_protocolo,
+)
 from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     Alimento,
     AlimentoSubstituto,
