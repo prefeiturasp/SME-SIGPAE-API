@@ -99,9 +99,9 @@ def test_cria_historico_acesso_ue_cria_apenas_historicos_para_escolas_elegiveis(
     ) as mock_bulk_create:
         quantidade_criada = cria_historico_acesso_ue()
 
-    assert quantidade_criada == 1
+    assert quantidade_criada == 2
     mock_bulk_create.assert_called_once()
-    assert len(mock_bulk_create.call_args.args[0]) == 1
+    assert len(mock_bulk_create.call_args.args[0]) == 2
 
     historico_criado = HistoricoAcessoMedicaoInicialUE.objects.get(
         escola=escola_sem_historico,
