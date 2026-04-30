@@ -53,7 +53,7 @@ def _obter_historicos_ativos_desde(data_referencia):
         QuerySet: Historicos abertos com escola e lotes carregados.
     """
     return HistoricoAcessoMedicaoInicialUE.objects.filter(
-        data_inicial__gte=data_referencia,
+        data_inicial__lte=data_referencia,
         data_final__isnull=True,
     ).select_related("escola", "lote", "escola__lote")
 
