@@ -586,3 +586,26 @@ class TestCronogramaSemanalDetailSerializer:
         serializer = CronogramaSemanalDetailSerializer(cronograma_semanal_rascunho)
         data = serializer.data
         assert data["programacoes"] == []
+
+
+class TestCronogramaSemanalRascunhosSerializer:
+    def test_serializer_campos(self, cronograma_semanal_rascunho):
+        from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
+            CronogramaSemanalRascunhosSerializer,
+        )
+
+        serializer = CronogramaSemanalRascunhosSerializer(cronograma_semanal_rascunho)
+        data = serializer.data
+        assert "uuid" in data
+        assert "numero" in data
+        assert "alterado_em" in data
+
+    def test_serializer_valores(self, cronograma_semanal_rascunho):
+        from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
+            CronogramaSemanalRascunhosSerializer,
+        )
+
+        serializer = CronogramaSemanalRascunhosSerializer(cronograma_semanal_rascunho)
+        data = serializer.data
+        assert data["uuid"] == str(cronograma_semanal_rascunho.uuid)
+        assert data["numero"] == cronograma_semanal_rascunho.cronograma_mensal.numero
