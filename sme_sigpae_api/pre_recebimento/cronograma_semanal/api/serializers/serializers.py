@@ -111,6 +111,14 @@ class CronogramaMensalSimplesSerializer(serializers.ModelSerializer):
         return None
 
 
+class CronogramaSemanalRascunhosSerializer(serializers.ModelSerializer):
+    numero = serializers.CharField(source="cronograma_mensal.numero", read_only=True)
+
+    class Meta:
+        model = CronogramaSemanal
+        fields = ("uuid", "numero", "alterado_em")
+
+
 class CronogramaSemanalDetailSerializer(serializers.ModelSerializer):
     """
     Serializer para detalhamento de CronogramaSemanal (retrieve).

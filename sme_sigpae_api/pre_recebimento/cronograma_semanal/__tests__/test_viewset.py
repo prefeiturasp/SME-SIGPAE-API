@@ -1,5 +1,6 @@
 import pytest
 from django.test import Client
+from model_bakery import baker
 from rest_framework import status
 
 from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
@@ -523,6 +524,61 @@ class TestCronogramaSemanalViewSet:
         response = client.get(
             "/cronogramas-semanais/00000000-0000-0000-0000-000000000000/"
         )
+        assert response.status_code in [
+            status.HTTP_401_UNAUTHORIZED,
+            status.HTTP_403_FORBIDDEN,
+        ]
+
+    def test_get_rascunhos_lista_vazia(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/rascunhos/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert "results" in data
+        assert isinstance(data["results"], list)
+
+    def test_get_rascunhos_lista_com_rascunho(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/rascunhos/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert "results" in data
+        assert len(data["results"]) >= 1
+        item = data["results"][0]
+        assert "uuid" in item
+        assert "numero" in item
+        assert "alterado_em" in item
+
+    def test_get_rascunhos_nao_inclui_nao_rascunho(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        cronograma_semanal_enviado = baker.make(
+            CronogramaSemanal,
+            cronograma_mensal=cronograma_ponto_a_ponto_assinado,
+            status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+        )
+        response = client.get("/cronogramas-semanais/rascunhos/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        uuids = [item["uuid"] for item in data["results"]]
+        assert str(cronograma_semanal_enviado.uuid) not in uuids
+
+    def test_get_rascunhos_permissao_negada_nao_autenticado(self):
+        from django.test import Client
+
+        client = Client()
+        response = client.get("/cronogramas-semanais/rascunhos/")
         assert response.status_code in [
             status.HTTP_401_UNAUTHORIZED,
             status.HTTP_403_FORBIDDEN,
