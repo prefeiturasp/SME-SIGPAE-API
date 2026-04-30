@@ -18,6 +18,7 @@ from sme_sigpae_api.escola.fixtures.factories.escola_factory import (
 )
 from sme_sigpae_api.medicao_inicial.api.serializers import (
     DadosLiquidacaoSerializer,
+    RelatorioFinanceiroSerializer,
 )
 from sme_sigpae_api.medicao_inicial.api.serializers_create import (
     DadosLiquidacaoUpdateSerializer,
@@ -27,7 +28,7 @@ from sme_sigpae_api.medicao_inicial.fixtures.factories.solicitacao_medicao_inici
     MedicaoFactory,
     SolicitacaoMedicaoInicialFactory,
 )
-from sme_sigpae_api.medicao_inicial.models import Medicao, ValorMedicao
+from sme_sigpae_api.medicao_inicial.models import Medicao, RelatorioFinanceiro, ValorMedicao
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.fixtures.factories.base_factory import (
     RecreioNasFeriasFactory,
 )
@@ -298,3 +299,27 @@ def test_finaliza_recreio_nas_ferias_envia_solicitacao_e_medicoes():
         for medicao in medicoes
     )
     processa_anexos.assert_called_once_with(solicitacao)
+
+
+@pytest.mark.django_db
+def test_atualizar_status_relatorio_financeiro(
+    relatorio_financeiro_cei,
+):
+    assert relatorio_financeiro_cei.status == "RELATORIO_FINANCEIRO_GERADO"
+
+    payload = {
+        "status": "EM_ANALISE",
+    }
+
+    serializer_update = RelatorioFinanceiroSerializer(
+        instance=relatorio_financeiro_cei,
+        data=payload,
+        partial=True,
+    )
+
+    assert serializer_update.is_valid(), serializer_update.errors
+
+    relatorio_atualizado = serializer_update.save()
+    relatorio_atualizado.refresh_from_db()
+
+    assert relatorio_atualizado.status == "EM_ANALISE"
