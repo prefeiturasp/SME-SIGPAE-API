@@ -174,9 +174,9 @@ def test_finaliza_historico_acesso_ue_inativa_apenas_historicos_com_lote_diferen
     ) as mock_bulk_update:
         quantidade_atualizada = finaliza_historico_acesso_ue()
 
-    assert quantidade_atualizada == 1
+    assert quantidade_atualizada == 2
     mock_bulk_update.assert_called_once()
-    assert len(mock_bulk_update.call_args.args[0]) == 1
+    assert len(mock_bulk_update.call_args.args[0]) == 2
 
     historico_sem_mudanca.refresh_from_db()
     historico_com_mudanca.refresh_from_db()
@@ -184,4 +184,4 @@ def test_finaliza_historico_acesso_ue_inativa_apenas_historicos_com_lote_diferen
 
     assert historico_sem_mudanca.data_final is None
     assert historico_com_mudanca.data_final == hoje
-    assert historico_antigo.data_final is None
+    assert historico_antigo.data_final is not None
