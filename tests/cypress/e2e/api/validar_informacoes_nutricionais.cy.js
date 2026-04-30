@@ -1,13 +1,13 @@
-﻿describe('Validar rotas de InformaÃ§Ãµes Nutricionais da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_codae')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de Informações Nutricionais da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_codae')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context('Rota api/informacoes-nutricionais/', () => {
-		it('Validar GET com sucesso de InformaÃ§Ãµes Nutricionais', () => {
+		it('Validar GET com sucesso de Informações Nutricionais', () => {
 			var uuid = ''
 			cy.consultar_informacoes_nutricionais(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -31,7 +31,7 @@
 			})
 		})
 
-		it('Validar GET com sucesso de InformaÃ§Ãµes Nutricionais Com UUID VÃ¡lido', () => {
+		it('Validar GET com sucesso de Informações Nutricionais Com UUID Válido', () => {
 			var uuid = ''
 			var uuid_response = ''
 			cy.consultar_informacoes_nutricionais(uuid).then((response) => {
@@ -54,14 +54,14 @@
 			})
 		})
 
-		it('Validar GET com sucesso de InformaÃ§Ãµes Nutricionais Com UUID InvÃ¡lido', () => {
+		it('Validar GET com sucesso de Informações Nutricionais Com UUID Inválido', () => {
 			var uuid = '3ac751ee-f95d-4d5b-80da-437506b1906j'
 			cy.consultar_informacoes_nutricionais(uuid).then((response) => {
 				expect(response.status).to.eq(404)
 			})
 		})
 
-		it('Validar GET com sucesso de InformaÃ§Ãµes Nutricionais Agrupadas', () => {
+		it('Validar GET com sucesso de Informações Nutricionais Agrupadas', () => {
 			cy.consultar_informacoes_nutricionais_agrupadas().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -82,7 +82,7 @@
 			})
 		})
 
-		it('Validar GET com sucesso de InformaÃ§Ãµes Nutricionais Ordenadas', () => {
+		it('Validar GET com sucesso de Informações Nutricionais Ordenadas', () => {
 			cy.consultar_informacoes_nutricionais_ordenadas().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
@@ -103,4 +103,3 @@
 		})
 	})
 })
-

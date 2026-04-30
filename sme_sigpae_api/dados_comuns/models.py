@@ -137,7 +137,10 @@ class LogSolicitacoesUsuario(
         OCORRENCIA_EXCLUIDA_PELA_ESCOLA,
         CODAE_INATIVOU,
         CANCELADO_ENCERRAMENTO_MATRICULA,
-    ) = range(110)
+        CRONOGRAMA_SEMANAL_CRIADO,
+        CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
+        CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
+    ) = range(113)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -250,6 +253,12 @@ class LogSolicitacoesUsuario(
         (CRONOGRAMA_CRIADO, "Cronograma Criado"),
         (CRONOGRAMA_ENVIADO_AO_FORNECEDOR, "Assinado e Enviado ao Fornecedor"),
         (CRONOGRAMA_ASSINADO_PELO_FORNECEDOR, "Assinado Fornecedor"),
+        (CRONOGRAMA_SEMANAL_CRIADO, "Cronograma Criado"),
+        (
+            CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
+            "Cronograma Semanal Enviado ao Fornecedor",
+        ),
+        (CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE, "Fornecedor Ciente"),
         (FORNECEDOR_SOLICITA_ALTERACAO_CRONOGRAMA, "Solicitada Alteração"),
         (SUSPENSO_EM_ALGUNS_EDITAIS, "Suspenso em alguns editais"),
         (ATIVO_EM_ALGUNS_EDITAIS, "Ativo em alguns editais"),

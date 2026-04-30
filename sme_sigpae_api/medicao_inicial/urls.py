@@ -1,6 +1,9 @@
 from django.urls import include, path
 from rest_framework import routers
 
+from sme_sigpae_api.medicao_inicial.historico_acesso_ue.api import (
+    viewsets as historico_acesso_ue_viewsets,
+)
 from sme_sigpae_api.medicao_inicial.recreio_nas_ferias.api import (
     viewsets as recreio_nas_ferias_viewsets,
 )
@@ -49,7 +52,14 @@ router.register(
     recreio_nas_ferias_viewsets.RecreioNasFeriasViewSet,
     basename="recreio-nas-ferias",
 )
-router.register("dados-liquidacao", viewsets.DadosLiquidacaoViewSet, basename="dados-liquidacao")
+router.register(
+    "historico-acesso-ue",
+    historico_acesso_ue_viewsets.HistoricoAcessoUEViewSet,
+    basename="historico-acesso-ue",
+)
+router.register(
+    "dados-liquidacao", viewsets.DadosLiquidacaoViewSet, basename="dados-liquidacao"
+)
 
 urlpatterns = [
     path("medicao-inicial/", include(router.urls)),

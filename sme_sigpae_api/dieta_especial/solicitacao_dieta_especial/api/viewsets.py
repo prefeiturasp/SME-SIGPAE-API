@@ -2,7 +2,7 @@ import json
 import uuid as uuid_generator
 from collections import defaultdict
 from copy import deepcopy
-from datetime import date, datetime
+from datetime import datetime
 
 from django.core.exceptions import ValidationError as coreValidation
 from django.db import transaction
@@ -10,7 +10,6 @@ from django.db.models import (
     Case,
     CharField,
     Count,
-    F,
     OuterRef,
     Q,
     Subquery,
@@ -24,26 +23,14 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 from xworkflows import InvalidTransitionError
 
+from sme_sigpae_api.dados_comuns import constants
 from sme_sigpae_api.dados_comuns.api.paginations import HistoricoDietasPagination
-from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
-    atualiza_historico_protocolo,
-)
-from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
-    Anexo,
-    MotivoAlteracaoUE,
-    MotivoNegacao,
-    SolicitacaoDietaEspecial,
-)
-from sme_sigpae_api.escola.models import Escola
-from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
-
-from ...dados_comuns import constants
-from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ...dados_comuns.models import LogSolicitacoesUsuario
-from ...dados_comuns.permissions import (
+from sme_sigpae_api.dados_comuns.fluxo_status import DietaEspecialWorkflow
+from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
+from sme_sigpae_api.dados_comuns.permissions import (
     PermissaoHistoricoDietasEspeciais,
     PermissaoParaRecuperarDietaEspecial,
     PermissaoRelatorioDietasEspeciais,
@@ -53,74 +40,35 @@ from ...dados_comuns.permissions import (
     UsuarioEscolaDiretaParceira,
     UsuarioEscolaTercTotal,
 )
-from ...dados_comuns.services import enviar_email_codae_atualiza_protocolo
-from ...dados_comuns.utils import convert_dict_to_querydict
-from ...dieta_especial.tasks import gera_pdf_relatorio_dieta_especial_async
-from ...escola.models import (
-    Aluno,
-    DiretoriaRegional,
-    EscolaPeriodoEscolar,
-    Lote,
-    TipoGestao,
-)
-from ...paineis_consolidados.api.constants import FILTRO_CODIGO_EOL_ALUNO
-from ...relatorios.relatorios import (
-    relatorio_dieta_especial,
-    relatorio_dieta_especial_historico,
-    relatorio_dieta_especial_protocolo,
-    relatorio_quantitativo_classificacao_dieta_especial,
-    relatorio_quantitativo_diag_dieta_especial,
-    relatorio_quantitativo_diag_dieta_especial_somente_dietas_ativas,
-    relatorio_quantitativo_solic_dieta_especial,
-)
-from ...terceirizada.models import Contrato, Edital
-from ..forms import (
+from sme_sigpae_api.dados_comuns.services import enviar_email_codae_atualiza_protocolo
+from sme_sigpae_api.dados_comuns.utils import convert_dict_to_querydict
+from sme_sigpae_api.dieta_especial.forms import (
     NegaDietaEspecialForm,
-    PanoramaForm,
     RelatorioDietaForm,
     RelatorioQuantitativoSolicDietaEspForm,
     SolicitacoesAtivasInativasPorAlunoForm,
 )
-from ..protocolo_padrao.models import (
+from sme_sigpae_api.dieta_especial.gera_historico_protocolo import (
+    atualiza_historico_protocolo,
+)
+from sme_sigpae_api.dieta_especial.protocolo_padrao.api.serializers import (
+    AlimentoSerializer,
+)
+from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
 )
-from ..solicitacao_dieta_especial.models import (
-    AlergiaIntolerancia,
-    ClassificacaoDieta,
-)
-from ..tasks import (
-    gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
-    gera_pdf_relatorio_historico_dietas_especiais_async,
-    gera_pdf_relatorio_recreio_nas_ferias_async,
-    gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
-    gera_xlsx_relatorio_historico_dietas_especiais_async,
-    gera_xlsx_relatorio_recreio_nas_ferias_async,
-)
-from ..utils import (
-    ProtocoloPadraoPagination,
-    RelatorioPagination,
-    filtra_relatorio_recreio_nas_ferias,
-    filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
-    gera_dicionario_historico_dietas,
-    gerar_filtros_relatorio_historico,
-    trata_lotes_dict_duplicados,
-)
-from .filters import (
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.filters import (
     AlimentoFilter,
     DietaEspecialFilter,
     MotivoNegacaoFilter,
 )
-from .serializers import (
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers import (
     AlergiaIntoleranciaSerializer,
-    AlimentoSerializer,
     ClassificacaoDietaSerializer,
     MotivoAlteracaoUESerializer,
     MotivoNegacaoSerializer,
-    PanoramaSerializer,
-    ProtocoloPadraoDietaEspecialSerializer,
-    ProtocoloPadraoDietaEspecialSimplesSerializer,
     RelatorioQuantitativoSolicDietaEspSerializer,
     SolicitacaoDietaEspecialAutorizarSerializer,
     SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
@@ -131,13 +79,53 @@ from .serializers import (
     SolicitacoesAtivasInativasPorAlunoSerializer,
     UnidadeEducacionalSerializer,
 )
-from .serializers_create import (
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers_create import (
     AlteracaoUESerializer,
-    ProtocoloPadraoDietaEspecialSerializerCreate,
     SolicitacaoDietaEspecialCreateSerializer,
 )
-
-MSG_DRE_NAO_INFORMADA = "(DRE não informada)"
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    Anexo,
+    ClassificacaoDieta,
+    MotivoAlteracaoUE,
+    MotivoNegacao,
+    SolicitacaoDietaEspecial,
+)
+from sme_sigpae_api.dieta_especial.tasks import (
+    gera_pdf_relatorio_dieta_especial_async,
+    gera_pdf_relatorio_dietas_especiais_terceirizadas_async,
+    gera_pdf_relatorio_historico_dietas_especiais_async,
+    gera_pdf_relatorio_recreio_nas_ferias_async,
+    gera_xlsx_relatorio_dietas_especiais_terceirizadas_async,
+    gera_xlsx_relatorio_historico_dietas_especiais_async,
+    gera_xlsx_relatorio_recreio_nas_ferias_async,
+)
+from sme_sigpae_api.dieta_especial.utils import (
+    RelatorioPagination,
+    filtra_relatorio_recreio_nas_ferias,
+    filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
+    gera_dicionario_historico_dietas,
+    gerar_filtros_relatorio_historico,
+    trata_lotes_dict_duplicados,
+)
+from sme_sigpae_api.escola.models import (
+    Aluno,
+    DiretoriaRegional,
+    Escola,
+    Lote,
+    TipoGestao,
+)
+from sme_sigpae_api.paineis_consolidados.api.constants import FILTRO_CODIGO_EOL_ALUNO
+from sme_sigpae_api.paineis_consolidados.models import SolicitacoesCODAE
+from sme_sigpae_api.relatorios.relatorios import (
+    relatorio_dieta_especial,
+    relatorio_dieta_especial_historico,
+    relatorio_dieta_especial_protocolo,
+    relatorio_quantitativo_classificacao_dieta_especial,
+    relatorio_quantitativo_diag_dieta_especial,
+    relatorio_quantitativo_diag_dieta_especial_somente_dietas_ativas,
+    relatorio_quantitativo_solic_dieta_especial,
+)
 
 
 class SolicitacaoDietaEspecialViewSet(
@@ -167,63 +155,62 @@ class SolicitacaoDietaEspecialViewSet(
             )
         return super().get_queryset()
 
-    def get_permissions(self):  # noqa C901
-        if self.action == "list":
-            self.permission_classes = (
-                IsAuthenticated,
-                PermissaoParaRecuperarDietaEspecial,
-            )
-        elif self.action == "update":
-            self.permission_classes = (IsAdminUser, UsuarioCODAEDietaEspecial)
-        elif self.action == "retrieve":
-            self.permission_classes = (
-                IsAuthenticated,
-                PermissaoParaRecuperarDietaEspecial,
-            )
-        elif self.action == "create":
-            self.permission_classes = [
-                UsuarioEscolaTercTotal | UsuarioEscolaDiretaParceira
-            ]
-        elif self.action in [
-            "imprime_relatorio_dieta_especial",
-        ]:
-            self.permission_classes = (
-                IsAuthenticated,
-                PermissaoParaRecuperarDietaEspecial,
-            )
-        elif self.action == "relatorio_dieta_especial_terceirizada":
-            self.permission_classes = (
+    def get_permissions(self):
+        PERMISSAO_PADRAO = (
+            IsAuthenticated,
+            PermissaoParaRecuperarDietaEspecial,
+        )
+
+        permission_map = {
+            "list": PERMISSAO_PADRAO,
+            "retrieve": PERMISSAO_PADRAO,
+            "imprime_relatorio_dieta_especial": PERMISSAO_PADRAO,
+            "update": (
+                IsAdminUser,
+                UsuarioCODAEDietaEspecial,
+            ),
+            "create": [UsuarioEscolaTercTotal | UsuarioEscolaDiretaParceira],
+            "relatorio_dieta_especial_terceirizada": (
                 IsAuthenticated,
                 PermissaoRelatorioDietasEspeciais,
-            )
-        return super(SolicitacaoDietaEspecialViewSet, self).get_permissions()
+            ),
+        }
 
-    def get_serializer_class(self):  # noqa C901
-        if self.action == "create":
-            return SolicitacaoDietaEspecialCreateSerializer
-        elif self.action in ["autorizar", "atualiza_protocolo"]:
-            return SolicitacaoDietaEspecialAutorizarSerializer
-        elif self.action in ["update", "partial_update"]:
-            return SolicitacaoDietaEspecialUpdateSerializer
-        elif self.action in [
+        self.permission_classes = permission_map.get(
+            self.action, self.permission_classes
+        )
+
+        return super().get_permissions()
+
+    def get_serializer_class(self):
+        RELATORIOS_QUANTITATIVOS = {
             "relatorio_quantitativo_solic_dieta_esp",
             "relatorio_quantitativo_diag_dieta_esp",
             "relatorio_quantitativo_classificacao_dieta_esp",
-        ]:
+        }
+
+        AUTORIZACAO_ACTIONS = {"autorizar", "atualiza_protocolo"}
+        UPDATE_ACTIONS = {"update", "partial_update"}
+
+        if self.action in RELATORIOS_QUANTITATIVOS:
             return RelatorioQuantitativoSolicDietaEspSerializer
-        elif self.action == "relatorio_dieta_especial":
-            return SolicitacaoDietaEspecialSimplesSerializer
-        elif self.action == "relatorio_dieta_especial_terceirizada":
-            return SolicitacaoDietaEspecialRelatorioTercSerializer
-        elif self.action == "panorama_escola":
-            return PanoramaSerializer
-        elif self.action == "alteracao_ue":
-            return AlteracaoUESerializer
-        elif self.action == "relatorio-historico-dieta-especial":
-            return UnidadeEducacionalSerializer
-        elif self.action == "relatorio_recreio_nas_ferias":
-            return SolicitacaoDietaEspecialRecreioNasFeriasSerializer
-        return SolicitacaoDietaEspecialSerializer
+
+        if self.action in AUTORIZACAO_ACTIONS:
+            return SolicitacaoDietaEspecialAutorizarSerializer
+
+        if self.action in UPDATE_ACTIONS:
+            return SolicitacaoDietaEspecialUpdateSerializer
+
+        serializer_map = {
+            "create": SolicitacaoDietaEspecialCreateSerializer,
+            "relatorio_dieta_especial": SolicitacaoDietaEspecialSimplesSerializer,
+            "relatorio_dieta_especial_terceirizada": SolicitacaoDietaEspecialRelatorioTercSerializer,
+            "alteracao_ue": AlteracaoUESerializer,
+            "relatorio-historico-dieta-especial": UnidadeEducacionalSerializer,
+            "relatorio_recreio_nas_ferias": SolicitacaoDietaEspecialRecreioNasFeriasSerializer,
+        }
+
+        return serializer_map.get(self.action, SolicitacaoDietaEspecialSerializer)
 
     def atualiza_solicitacao(self, solicitacao, request):
         texto_html = atualiza_historico_protocolo(solicitacao, request.data)
@@ -1269,85 +1256,6 @@ class SolicitacaoDietaEspecialViewSet(
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=False, methods=["POST"], url_path="panorama-escola")
-    def panorama_escola(self, request):
-        # TODO: Mover essa rotina para o viewset escola simples, evitando esse
-        # form
-        form = PanoramaForm(self.request.data)
-        if not form.is_valid():
-            raise ValidationError(form.errors)
-
-        hoje = date.today()
-
-        filtros_gerais = Q(
-            escola__aluno__periodo_escolar=F("periodo_escolar"),
-            escola__aluno__escola=form.cleaned_data["escola"],
-            escola__aluno__dietas_especiais__ativo=True,
-            escola__aluno__dietas_especiais__status__in=[
-                DietaEspecialWorkflow.CODAE_AUTORIZADO,
-                DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-                DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
-            ],
-        )
-        filtros_data_dieta = (
-            Q(escola__aluno__dietas_especiais__data_termino__isnull=True)
-            | Q(escola__aluno__dietas_especiais__data_termino__gte=hoje)
-        ) & (
-            Q(escola__aluno__dietas_especiais__data_inicio__isnull=True)
-            & Q(escola__aluno__dietas_especiais__criado_em__date__lte=hoje)
-            | Q(escola__aluno__dietas_especiais__data_inicio__isnull=False)
-            & Q(escola__aluno__dietas_especiais__data_inicio__lte=hoje)
-        )
-
-        q_params = filtros_gerais & filtros_data_dieta
-
-        campos = [
-            "periodo_escolar__nome",
-            "horas_atendimento",
-            "quantidade_alunos",
-            "uuid",
-        ]
-        qs = (
-            EscolaPeriodoEscolar.objects.filter(
-                escola=form.cleaned_data["escola"], quantidade_alunos__gt=0
-            )
-            .values(*campos)
-            .annotate(
-                qtde_tipo_a=(
-                    Count(
-                        "id",
-                        filter=Q(
-                            escola__aluno__dietas_especiais__classificacao__nome="Tipo A"
-                        )
-                        & q_params,
-                    )
-                ),
-                qtde_enteral=(
-                    Count(
-                        "id",
-                        filter=Q(
-                            escola__aluno__dietas_especiais__classificacao__nome="Tipo A Enteral"
-                        )
-                        & q_params,
-                    )
-                ),
-                qtde_tipo_b=(
-                    Count(
-                        "id",
-                        filter=Q(
-                            escola__aluno__dietas_especiais__classificacao__nome="Tipo B"
-                        )
-                        & q_params,
-                    )
-                ),
-            )
-            .order_by(*campos)
-        )
-
-        serializer = self.get_serializer(qs, many=True)
-
-        return Response(serializer.data)
-
     @action(detail=False, methods=["POST"], url_path="alteracao-ue")
     def alteracao_ue(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -1381,7 +1289,7 @@ class SolicitacaoDietaEspecialViewSet(
             status=status.HTTP_200_OK,
         )
 
-    def build_texto(  # noqa: C901
+    def build_texto(
         self,
         lotes,
         classificacoes,
@@ -1390,71 +1298,54 @@ class SolicitacaoDietaEspecialViewSet(
         data_inicial,
         data_final,
     ):
-        filtros = ""
-        if lotes:
-            nomes_lotes = ", ".join(
-                [lote.nome for lote in Lote.objects.filter(uuid__in=lotes)]
-            )
-            if len(filtros) == 0:
-                filtros += f"{nomes_lotes}"
-            else:
-                filtros += f" | {nomes_lotes}"
+        partes = []
 
-        if classificacoes:
-            nomes_classificacoes = ", ".join(
-                [
-                    classificacao.nome
-                    for classificacao in ClassificacaoDieta.objects.filter(
-                        id__in=classificacoes
-                    )
-                ]
-            )
-            if len(filtros) == 0:
-                filtros += f"Classificação(ões) da dieta: {nomes_classificacoes}"
-            else:
-                filtros += f" | Classificação(ões) da dieta: {nomes_classificacoes}"
+        configs = [
+            (lotes, Lote, "uuid__in", "nome", None),
+            (
+                classificacoes,
+                ClassificacaoDieta,
+                "id__in",
+                "nome",
+                "Classificação(ões) da dieta",
+            ),
+            (
+                protocolos,
+                ProtocoloPadraoDietaEspecial,
+                "uuid__in",
+                "nome_protocolo",
+                "Protocolo(s) padrão(ões)",
+            ),
+            (
+                alergias_intolerancias,
+                AlergiaIntolerancia,
+                "id__in",
+                "descricao",
+                "Diagnóstico(s) da dieta",
+            ),
+        ]
 
-        if protocolos:
-            nomes_protocolos = ", ".join(
-                [
-                    protocolo.nome_protocolo
-                    for protocolo in ProtocoloPadraoDietaEspecial.objects.filter(
-                        uuid__in=protocolos
-                    )
-                ]
-            )
-            if len(filtros) == 0:
-                filtros += f"Protocolo(s) padrão(ões): {nomes_protocolos}"
-            else:
-                filtros += f" | Protocolo(s) padrão(ões): {nomes_protocolos}"
+        for valores, model, filtro, field, label in configs:
+            if not valores:
+                continue
 
-        if alergias_intolerancias:
-            nomes_alergias_intolerancias = ", ".join(
-                [
-                    alergia_intolerancia.descricao
-                    for alergia_intolerancia in AlergiaIntolerancia.objects.filter(
-                        id__in=alergias_intolerancias
-                    )
-                ]
+            nomes = model.objects.filter(**{filtro: valores}).values_list(
+                field, flat=True
             )
-            if len(filtros) == 0:
-                filtros += f"Diagnóstico(s) da dieta: {nomes_alergias_intolerancias}"
-            else:
-                filtros += f" | Diagnóstico(s) da dieta: {nomes_alergias_intolerancias}"
+            texto = ", ".join(nomes)
+
+            if label:
+                texto = f"{label}: {texto}"
+
+            partes.append(texto)
 
         if data_inicial:
-            if len(filtros) == 0:
-                filtros += f"Data inicial: {data_inicial}"
-            else:
-                filtros += f" | Data inicial: {data_inicial}"
+            partes.append(f"Data inicial: {data_inicial}")
 
         if data_final:
-            if len(filtros) == 0:
-                filtros += f"Data final: {data_final}"
-            else:
-                filtros += f" | Data final: {data_final}"
+            partes.append(f"Data final: {data_final}")
 
-        return filtros
+        return " | ".join(partes)
 
     @action(detail=False, methods=["GET"], url_path="exportar-pdf")
     def exportar_pdf(self, request):
@@ -1617,6 +1508,9 @@ class SolicitacaoDietaEspecialViewSet(
             )
         except ValidationError as e:
             return Response(dict(detail=e.messages[0]), status=HTTP_400_BAD_REQUEST)
+
+
+MSG_DRE_NAO_INFORMADA = "(DRE não informada)"
 
 
 class SolicitacoesAtivasInativasPorAlunoView(generics.ListAPIView):
@@ -2143,175 +2037,3 @@ class AlimentoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericV
 class MotivoAlteracaoUEViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = MotivoAlteracaoUE.objects.filter(ativo=True).order_by("nome")
     serializer_class = MotivoAlteracaoUESerializer
-
-
-class ProtocoloPadraoDietaEspecialViewSet(ModelViewSet):
-    lookup_field = "uuid"
-    permission_classes = (IsAuthenticated,)
-    queryset = ProtocoloPadraoDietaEspecial.objects.filter(ativo=True).order_by(
-        "nome_protocolo"
-    )
-    serializer_class = ProtocoloPadraoDietaEspecialSerializer
-    pagination_class = ProtocoloPadraoPagination
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = ("nome_protocolo", "status")
-
-    def get_serializer_class(self):
-        if self.action in ["create", "update"]:
-            return ProtocoloPadraoDietaEspecialSerializerCreate
-        return ProtocoloPadraoDietaEspecialSerializer
-
-    def get_queryset(self):
-        queryset = ProtocoloPadraoDietaEspecial.objects.filter(ativo=True)
-        if "editais[]" in self.request.query_params:
-            queryset = queryset.filter(
-                editais__uuid__in=self.request.query_params.getlist("editais[]")
-            ).distinct()
-        return queryset.order_by("nome_protocolo")
-
-    @action(detail=False, methods=["GET"], url_path="lista-status")
-    def lista_status(self, request):
-        list_status = ProtocoloPadraoDietaEspecial.STATUS_NOMES.keys()
-
-        return Response({"results": list_status})
-
-    @action(detail=False, methods=["GET"], url_path="nomes")
-    def nomes(self, request):
-        nomes = self.queryset.values_list("nome_protocolo", flat=True).distinct()
-
-        return Response({"results": nomes})
-
-    @action(detail=False, methods=["GET"], url_path="lista-protocolos-liberados")
-    def lista_protocolos_liberados(self, request):
-        dieta_uuid = request.query_params.get("dieta_especial_uuid", None)
-        solicitacao = SolicitacaoDietaEspecial.objects.get(uuid=dieta_uuid)
-        escola = solicitacao.escola
-        if escola.eh_parceira:
-            editais_uuid = Edital.objects.filter(numero__iexact="PARCEIRA").values_list(
-                "uuid", flat=True
-            )
-        else:
-            editais_uuid = Contrato.objects.filter(lotes__in=[escola.lote]).values_list(
-                "edital__uuid", flat=True
-            )
-        protocolos_liberados = (
-            self.get_queryset()
-            .filter(
-                status=ProtocoloPadraoDietaEspecial.STATUS_LIBERADO,
-                editais__uuid__in=editais_uuid,
-            )
-            .distinct()
-        )
-        response = {
-            "results": ProtocoloPadraoDietaEspecialSimplesSerializer(
-                protocolos_liberados, many=True
-            ).data
-        }
-        return Response(response)
-
-    @action(
-        detail=False, methods=["GET"], url_path="lista-protocolos-liberados-por-edital"
-    )
-    def lista_protocolos_liberados_por_edital(self, request):
-        edital_uuid = request.query_params.get("edital_uuid", None)
-        protocolos_liberados = self.get_queryset().filter(
-            status=ProtocoloPadraoDietaEspecial.STATUS_LIBERADO,
-            editais__uuid__in=[edital_uuid],
-        )
-        response = {
-            "results": ProtocoloPadraoDietaEspecialSimplesSerializer(
-                protocolos_liberados, many=True
-            ).data
-        }
-        return Response(response)
-
-    def criar_historico_editais(self, protocolo, validated_data):
-        historico = {}
-        changes = []
-
-        outras_informacoes = validated_data.get("outras_informacoes")
-
-        editais_antes = protocolo.editais.all()
-        editais_depois = Edital.objects.filter(
-            uuid__in=validated_data.get("editais_destino", [])
-        )
-        soma_todos_editais = editais_antes | editais_depois
-        diferenca = soma_todos_editais.distinct().difference(editais_antes)
-
-        if diferenca and diferenca.count() > 0:
-            changes.append(
-                {
-                    "field": "editais",
-                    "from": [
-                        edital.numero for edital in editais_antes.order_by("numero")
-                    ],
-                    "to": [
-                        edital.numero
-                        for edital in soma_todos_editais.distinct().order_by("numero")
-                    ],
-                }
-            )
-
-        if (protocolo.outras_informacoes != outras_informacoes) and (
-            outras_informacoes != ""
-        ):
-            changes.append(
-                {
-                    "field": "outras informacoes",
-                    "from": protocolo.outras_informacoes,
-                    "to": outras_informacoes,
-                }
-            )
-
-        if changes and len(changes) > 0:
-            historico["updated_at"] = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-            historico["user"] = {
-                "uuid": str(self.request.user.uuid),
-                "email": self.request.user.email,
-                "nome": self.request.user.nome,
-                "username": self.request.user.username,
-            }
-            historico["action"] = "UPDATE_VINCULOS"
-            historico["changes"] = changes
-        return historico
-
-    @action(detail=False, methods=["PUT"], url_path="atualizar-editais")
-    def atualizar_editais(self, request):
-        protocolos_padrao = request.data.get("protocolos_padrao", None)
-        editais_destino = request.data.get("editais_destino", None)
-        outras_informacoes = request.data.get("outras_informacoes", "")
-
-        validated_data = {
-            "editais_destino": editais_destino,
-            "outras_informacoes": outras_informacoes,
-        }
-
-        if protocolos_padrao and editais_destino:
-            editais = Edital.objects.filter(uuid__in=editais_destino)
-            protocolos = self.get_queryset().filter(uuid__in=protocolos_padrao)
-            for protocolo in protocolos:
-                historico = self.criar_historico_editais(protocolo, validated_data)
-                if len(historico) > 0:
-                    hist = (
-                        json.loads(protocolo.historico) if protocolo.historico else []
-                    )
-                    hist.append(historico)
-                    protocolo.historico = json.dumps(hist)
-
-                protocolo.outras_informacoes = outras_informacoes
-                protocolo.editais.add(*editais)
-                protocolo.save()
-            return Response(
-                {"results": "Protacolos relacionados com sucesso."},
-                status=status.HTTP_200_OK,
-            )
-        if not protocolos_padrao:
-            return Response(
-                {"results": "É necessário selecionar um Protocolo Padrão."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if not editais_destino:
-            return Response(
-                {"results": "É necessário selecionar um Edital."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )

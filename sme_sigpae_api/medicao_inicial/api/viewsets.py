@@ -12,7 +12,7 @@ from django_filters import rest_framework as filters
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
@@ -2368,7 +2368,13 @@ class ParametrizacaoFinanceiraViewSet(ModelViewSet):
 
 class RelatorioFinanceiroViewSet(ModelViewSet):
     lookup_field = "uuid"
-    permission_classes = [UsuarioMedicao]
+    permission_classes = [
+        UsuarioMedicao
+        | UsuarioCODAEGestaoAlimentacao
+        | UsuarioCODAEGabinete
+        | UsuarioCODAENutriManifestacao
+        | UsuarioDinutreDiretoria
+    ]
     queryset = RelatorioFinanceiro.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = RelatorioFinanceiroFilter
@@ -2379,7 +2385,13 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         detail=False,
         methods=["GET"],
         url_path="relatorio-consolidado/(?P<uuid_relatorio_financeiro>[^/.]+)",
-        permission_classes=[UsuarioMedicao],
+        permission_classes=[
+            UsuarioMedicao
+            | UsuarioCODAEGestaoAlimentacao
+            | UsuarioCODAEGabinete
+            | UsuarioCODAENutriManifestacao
+            | UsuarioDinutreDiretoria
+        ],
     )
     def relatorio_consolidado(self, _, uuid_relatorio_financeiro):
         try:
@@ -2424,6 +2436,13 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         detail=False,
         methods=["POST"],
         url_path="exportar-pdf/(?P<uuid_relatorio_financeiro>[^/.]+)",
+        permission_classes=[
+            UsuarioMedicao
+            | UsuarioCODAEGestaoAlimentacao
+            | UsuarioCODAEGabinete
+            | UsuarioCODAENutriManifestacao
+            | UsuarioDinutreDiretoria
+        ],
     )
     def relatorio_pdf(self, request, uuid_relatorio_financeiro):
         user = request.user.get_username()
@@ -2472,8 +2491,21 @@ class DadosLiquidacaoViewSet(ModelViewSet):
         - DadosLiquidacaoSerializer: Usado para leitura
         - DadosLiquidacaoUpdateSerializer: Usado para escrita
     """
-
     queryset = DadosLiquidacao.objects.all()
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            permission_classes = [
+                UsuarioMedicao
+                | UsuarioCODAEGestaoAlimentacao
+                | UsuarioCODAEGabinete
+                | UsuarioCODAENutriManifestacao
+                | UsuarioDinutreDiretoria
+            ]
+        else:
+            permission_classes = [UsuarioMedicao]
+
+        return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
         """

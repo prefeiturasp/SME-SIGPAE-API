@@ -11,7 +11,9 @@ from sme_sigpae_api.dados_comuns.api.serializers import (
 )
 from sme_sigpae_api.dados_comuns.models import LogSolicitacoesUsuario
 from sme_sigpae_api.dados_comuns.utils import converte_numero_em_mes
-from sme_sigpae_api.dieta_especial.api.serializers import EscolaSerializer
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers import (
+    EscolaSerializer,
+)
 from sme_sigpae_api.escola.api.serializers import (
     AlunoPeriodoParcialSimplesSerializer,
     DiretoriaRegionalSimplissimaSerializer,

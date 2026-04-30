@@ -1,0 +1,34 @@
+{% load static %}
+<div class="cabecalho-relatorio">
+  <div class="topo">
+    <div class="logo">
+      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
+    </div>
+
+    <div class="titulos">
+      <div class="linha-superior">
+        SECRETARIA MUNICIPAL DE EDUCAÇÃO | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR
+      </div>
+
+      <div class="titulo-principal">ATESTE FINANCEIRO - MEDIÇÃO INICIAL</div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="linha">
+      <div>REFERÊNCIA: <strong>{{ cabecalho.data_referencia }}</strong></div>
+
+      <div>
+        DATA DO RELATÓRIO:
+        <strong
+          >{{ cabecalho.data_geracao }} - {{ cabecalho.hora_geracao }}</strong
+        >
+      </div>
+    </div>
+
+    <div class="linha">
+      {{ cabecalho.dre_lote }}
+      <strong>- {{ cabecalho.grupo_unidade_escolar }}</strong>
+    </div>
+  </div>
+</div>

@@ -1,11 +1,13 @@
 from rest_framework import serializers
 
-from sme_sigpae_api.dieta_especial.api.serializers import CLASSIFICACAO_NOME_SOURCE
 from sme_sigpae_api.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
+)
+from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.api.serializers import (
+    CLASSIFICACAO_NOME_SOURCE,
 )
 from sme_sigpae_api.escola.api.serializers import (
     FaixaEtariaSerializer,

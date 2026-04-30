@@ -6,6 +6,7 @@ from faker import Faker
 from model_bakery import baker
 
 from sme_sigpae_api.dados_comuns.constants import (
+    ADMINISTRADOR_EMPRESA,
     COORDENADOR_CODAE_DILOG_LOGISTICA,
     DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
@@ -84,7 +85,9 @@ def client_autenticado_dilog_abastecimento(client, django_user_model):
 def cronograma_ponto_a_ponto_assinado(
     contrato_factory, empresa_factory, ficha_tecnica_factory
 ):
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
 
     empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
     contrato = contrato_factory(terceirizada=empresa)
@@ -106,7 +109,9 @@ def cronograma_ponto_a_ponto_assinado(
 def cronograma_ponto_a_ponto_nao_assinado(
     contrato_factory, empresa_factory, ficha_tecnica_factory
 ):
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
 
     empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
     contrato = contrato_factory(terceirizada=empresa)
@@ -128,7 +133,9 @@ def cronograma_ponto_a_ponto_nao_assinado(
 def cronograma_nao_ponto_a_ponto_assinado(
     contrato_factory, empresa_factory, ficha_tecnica_factory
 ):
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
 
     empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
     contrato = contrato_factory(terceirizada=empresa)
@@ -143,6 +150,41 @@ def cronograma_nao_ponto_a_ponto_assinado(
         empresa=empresa,
         ficha_tecnica=ficha,
         status=Cronograma.workflow_class.ASSINADO_CODAE,
+    )
+
+
+@pytest.fixture
+def cronograma_ponto_a_ponto_assinado_2(
+    contrato_factory, empresa_factory, ficha_tecnica_factory
+):
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
+
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+    contrato = contrato_factory(terceirizada=empresa)
+    ficha = ficha_tecnica_factory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    return baker.make(
+        Cronograma,
+        numero="005/2024A",
+        contrato=contrato,
+        empresa=empresa,
+        ficha_tecnica=ficha,
+        status=Cronograma.workflow_class.ASSINADO_CODAE,
+    )
+
+
+@pytest.fixture
+def cronograma_semanal_enviado_ao_fornecedor(cronograma_ponto_a_ponto_assinado):
+    from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+    return baker.make(
+        CronogramaSemanal,
+        cronograma_mensal=cronograma_ponto_a_ponto_assinado,
+        status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
     )
 
 
@@ -226,7 +268,9 @@ def payload_cronograma_semanal_com_programacoes(cronograma_ponto_a_ponto_assinad
 def cronograma_ponto_a_ponto_com_etapas(
     contrato_factory, empresa_factory, ficha_tecnica_factory
 ):
-    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+    from sme_sigpae_api.pre_recebimento.ficha_tecnica.models import (
+        FichaTecnicaDoProduto,
+    )
 
     empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
     contrato = contrato_factory(terceirizada=empresa)
@@ -262,3 +306,45 @@ def cronograma_ponto_a_ponto_com_etapas(
     )
 
     return cronograma
+
+
+@pytest.fixture
+def empresa_fornecedor(cronograma_ponto_a_ponto_assinado):
+    return cronograma_ponto_a_ponto_assinado.empresa
+
+
+@pytest.fixture
+def client_autenticado_vinculo_fornecedor(
+    client, django_user_model, empresa_fornecedor
+):
+    """
+    Retorna um client autenticado com perfil ADMINISTRADOR_EMPRESA vinculado a um fornecedor.
+    """
+    email = "fornecedor_test@teste.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional=str(fake.unique.random_int(min=100000, max=999999)),
+    )
+    perfil_fornecedor = baker.make("Perfil", nome=ADMINISTRADOR_EMPRESA, ativo=True)
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=empresa_fornecedor,
+        perfil=perfil_fornecedor,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
+def cronograma_semanal_outra_empresa(cronograma_ponto_a_ponto_assinado_2):
+    """Cronograma semanal vinculado a uma empresa diferente da do fornecedor padrão."""
+    return baker.make(
+        "pre_recebimento.CronogramaSemanal",
+        cronograma_mensal=cronograma_ponto_a_ponto_assinado_2,
+    )

@@ -1,8 +1,8 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 
-describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE', () => {
-	var usuario = Cypress.env('usuario_diretor_ue')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de Escola Solicitações da aplicação SIGPAE', () => {
+	var usuario = Cypress.config('usuario_diretor_ue')
+	var senha = Cypress.config('senha')
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -19,6 +19,10 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 					expect(response.body).to.have.property('previous')
 					expect(response.body).to.have.property('results')
 					expect(response.body.results).to.be.an('array')
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
 				},
 			)
 		})
@@ -31,88 +35,92 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0].status_atual).to.satisfy((value) => {
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado.status_atual).to.satisfy((value) => {
 					return value === 'INFORMADO' || value === 'CODAE_AUTORIZADO'
 				})
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
@@ -125,88 +133,92 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0].status_atual).to.satisfy((value) => {
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado.status_atual).to.satisfy((value) => {
 					return value === 'INFORMADO' || value === 'CODAE_AUTORIZADO'
 				})
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
@@ -218,88 +230,92 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0])
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado)
 					.to.have.property('status_atual')
 					.to.eq('ESCOLA_CANCELOU')
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
@@ -312,80 +328,84 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0].status_atual).to.satisfy((value) => {
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado.status_atual).to.satisfy((value) => {
 					return (
 						value === 'CANCELADO_ALUNO_NAO_PERTENCE_REDE' ||
 						value === 'CANCELADO_ALUNO_MUDOU_ESCOLA' ||
@@ -394,12 +414,12 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 						value === 'TERMINADA_AUTOMATICAMENTE_SISTEMA'
 					)
 				})
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
@@ -412,87 +432,91 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0]).to.have.property('status_atual').that
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado).to.have.property('status_atual').that
 					.exist
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
@@ -505,6 +529,10 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
 			})
 		})
 
@@ -516,91 +544,95 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0].status_atual).to.satisfy((value) => {
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado.status_atual).to.satisfy((value) => {
 					return (
 						value === 'CODAE_NEGOU_PEDIDO' ||
 						value === 'DRE_NAO_VALIDOU_PEDIDO_ESCOLA'
 					)
 				})
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
@@ -613,96 +645,100 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0].status_atual).to.satisfy((value) => {
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado.status_atual).to.satisfy((value) => {
 					return (
 						value === 'CODAE_NEGOU_PEDIDO' ||
 						value === 'CODAE_NEGOU_CANCELAMENTO' ||
 						value === 'CODAE_NEGOU_INATIVACAO'
 					)
 				})
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
-		it('Validar GET com sucesso de Dietas Pendentes de AutorizaÃ§Ã£o - ESCOLA', () => {
+		it('Validar GET com sucesso de Dietas Pendentes de Autorização - ESCOLA', () => {
 			var uuid = '3c32be8e-f191-468d-a4e2-3dd8751e5e7a'
 			cy.ue_consultar_pendentes_autorizacao_dieta(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -711,92 +747,95 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0])
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado)
 					.to.have.property('status_atual')
-					
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
-		it('Validar GET com sucesso de Pendentes de AutorizaÃ§Ã£o - ESCOLA', () => {
+		it('Validar GET com sucesso de Pendentes de Autorização - ESCOLA', () => {
 			cy.ue_consultar_pendentes_autorizacao().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('count')
@@ -804,80 +843,84 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
-				expect(response.body.results[0]).property('numero_alunos')
-				expect(response.body.results[0]).property('data_log')
-				expect(response.body.results[0]).to.have.property('id_externo')
-				expect(response.body.results[0]).to.have.property('escolas_quantidades')
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
+				expect(primeiroResultado).property('numero_alunos')
+				expect(primeiroResultado).property('data_log')
+				expect(primeiroResultado).to.have.property('id_externo')
+				expect(primeiroResultado).to.have.property('escolas_quantidades')
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'iniciais',
 				)
-				expect(response.body.results[0].tipo_unidade_escolar).to.have.property(
+				expect(primeiroResultado.tipo_unidade_escolar).to.have.property(
 					'uuid',
 				)
-				expect(response.body.results[0]).to.have.property('uuid').that.exist.and
+				expect(primeiroResultado).to.have.property('uuid').that.exist.and
 					.is.not.empty
-				expect(response.body.results[0])
+				expect(primeiroResultado)
 					.to.have.property('id')
 					.that.exist.and.is.greaterThan(0)
-				expect(response.body.results[0]).to.have.property('descricao').that
+				expect(primeiroResultado).to.have.property('descricao').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'descricao_dieta_especial',
 				).that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('prioridade').that
+				expect(primeiroResultado).to.have.property('prioridade').that
 					.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
 					.that.exist.and.is.not.empty
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property('data_evento')
-				expect(response.body.results[0]).to.have.property('data_evento_2')
-				expect(response.body.results[0]).to.have.property('data_evento_fim')
-				expect(response.body.results[0]).to.have.property('lote_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_iniciais')
-				expect(response.body.results[0]).to.have.property('escola_nome')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property('data_evento')
+				expect(primeiroResultado).to.have.property('data_evento_2')
+				expect(primeiroResultado).to.have.property('data_evento_fim')
+				expect(primeiroResultado).to.have.property('lote_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_iniciais')
+				expect(primeiroResultado).to.have.property('escola_nome')
+				expect(primeiroResultado).to.have.property(
 					'tipo_solicitacao_dieta',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_nome')
-				expect(response.body.results[0]).to.have.property('nome_aluno')
-				expect(response.body.results[0]).to.have.property('serie')
-				expect(response.body.results[0]).to.have.property('codigo_eol_aluno')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('terceirizada_nome')
+				expect(primeiroResultado).to.have.property('nome_aluno')
+				expect(primeiroResultado).to.have.property('serie')
+				expect(primeiroResultado).to.have.property('codigo_eol_aluno')
+				expect(primeiroResultado).to.have.property(
 					'aluno_nao_matriculado',
 				)
-				expect(response.body.results[0]).to.have.property('dieta_alterada_id')
-				expect(response.body.results[0]).to.have.property('classificacao_id')
-				expect(response.body.results[0]).to.have.property('ativo')
-				expect(response.body.results[0]).to.have.property('em_vigencia')
-				expect(response.body.results[0]).to.have.property('lote_uuid')
-				expect(response.body.results[0]).to.have.property('escola_uuid')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('dieta_alterada_id')
+				expect(primeiroResultado).to.have.property('classificacao_id')
+				expect(primeiroResultado).to.have.property('ativo')
+				expect(primeiroResultado).to.have.property('em_vigencia')
+				expect(primeiroResultado).to.have.property('lote_uuid')
+				expect(primeiroResultado).to.have.property('escola_uuid')
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'escola_tipo_gestao_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('escola_destino_uuid')
-				expect(response.body.results[0]).to.have.property('escola_destino_id')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('escola_destino_uuid')
+				expect(primeiroResultado).to.have.property('escola_destino_id')
+				expect(primeiroResultado).to.have.property(
 					'escola_destino_tipo_unidade_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'lote_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property(
 					'dre_escola_destino_uuid',
 				)
-				expect(response.body.results[0]).to.have.property('terceirizada_uuid')
-				expect(response.body.results[0]).to.have.property('tipo_doc')
-				expect(response.body.results[0]).to.have.property('desc_doc')
-				expect(response.body.results[0]).to.have.property('status_evento')
-				expect(response.body.results[0]).to.have.property('motivo')
-				expect(response.body.results[0].status_atual).to.satisfy((value) => {
+				expect(primeiroResultado).to.have.property('terceirizada_uuid')
+				expect(primeiroResultado).to.have.property('tipo_doc')
+				expect(primeiroResultado).to.have.property('desc_doc')
+				expect(primeiroResultado).to.have.property('status_evento')
+				expect(primeiroResultado).to.have.property('motivo')
+				expect(primeiroResultado.status_atual).to.satisfy((value) => {
 					return (
 						value === 'DRE_A_VALIDAR' ||
 						value === 'DRE_VALIDADO' ||
@@ -885,16 +928,16 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 						value === 'CODAE_A_AUTORIZAR'
 					)
 				})
-				expect(response.body.results[0]).to.have.property('conferido')
-				expect(response.body.results[0]).to.have.property(
+				expect(primeiroResultado).to.have.property('conferido')
+				expect(primeiroResultado).to.have.property(
 					'terceirizada_conferiu_gestao',
 				)
-				expect(response.body.results[0]).to.have.property('dre_nome')
-				expect(response.body.results[0]).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
+				expect(primeiroResultado).to.have.property('dre_nome')
 			})
 		})
 
-		it('Validar GET com sucesso de SolicitaÃ§Ãµes Detalhadas - ESCOLA', () => {
+		it('Validar GET com sucesso de Solicitações Detalhadas - ESCOLA', () => {
 			cy.ue_consultar_solicitacoes_detalhadas().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('data')
@@ -903,7 +946,7 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 			})
 		})
 
-		it('Validar GET com sucesso de Aguardando VigÃªncia Dieta - ESCOLA', () => {
+		it('Validar GET com sucesso de Aguardando Vigência Dieta - ESCOLA', () => {
 			var uuid = '3c32be8e-f191-468d-a4e2-3dd8751e5e7a'
 			cy.ue_consultar_aguardando_vigencia_dieta(uuid).then((response) => {
 				expect(response.status).to.eq(200)
@@ -912,6 +955,10 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.body).to.have.property('previous')
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
 			})
 		})
 
@@ -920,16 +967,23 @@ describe('Validar rotas de Escola SolicitaÃ§Ãµes da aplicaÃ§Ã£o SIGPAE',
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
 			})
 		})
 
-		it('Validar GET com sucesso de SuspensÃµes Autorizadas - ESCOLA', () => {
+		it('Validar GET com sucesso de Suspensões Autorizadas - ESCOLA', () => {
 			cy.ue_consultar_suspensoes_autorizadas().then((response) => {
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('results')
 				expect(response.body.results).to.be.an('array')
+				const primeiroResultado = response.body.results[0]
+				if (!primeiroResultado) {
+					return
+				}
 			})
 		})
 	})
 })
-

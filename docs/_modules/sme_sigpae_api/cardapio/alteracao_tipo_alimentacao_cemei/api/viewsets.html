@@ -110,13 +110,26 @@
     <span class="n">CodaeQuestionaTerceirizadaResponde</span><span class="p">,</span>
     <span class="n">TerceirizadaTomaCiencia</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Modelo responsável pelas Solicitações de Alterações do Tipo de Alimentação para Escolas CEMEI e CEU CEMEI.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ViewSet para Solicitações de Alteração do Tipo de Alimentação para escolas CEMEI e CEU CEMEI.</span>
+
+<span class="sd">    Herda o fluxo de aprovação completo de ``AlteracoesCardapioViewSet`` e</span>
+<span class="sd">    adiciona os mixins de transição de status específicos (</span>
+<span class="sd">    ``EscolaIniciaCancela``, ``DREValida``, ``CodaeAutoriza``,</span>
+<span class="sd">    ``CodaeQuestionaTerceirizadaResponde``, ``TerceirizadaTomaCiencia``).</span>
+<span class="sd">    O serializer de leitura é ``AlteracaoCardapioCEMEISerializer`` e o de</span>
+<span class="sd">    escrita é ``AlteracaoCardapioCEMEISerializerCreate``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AlteracoesCardapioCEMEIViewSet.get_serializer_class">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.get_serializer_class">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o serializer adequado à action executada.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: ``AlteracaoCardapioCEMEISerializerCreate`` para actions de</span>
+<span class="sd">            escrita (``create``, ``update``, ``partial_update``) e</span>
+<span class="sd">            ``AlteracaoCardapioCEMEISerializer`` para as demais.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">AlteracaoCardapioCEMEISerializerCreate</span>
         <span class="k">return</span> <span class="n">AlteracaoCardapioCEMEISerializer</span></div>
@@ -125,6 +138,16 @@
 <div class="viewcode-block" id="AlteracoesCardapioCEMEIViewSet.get_queryset">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets.AlteracoesCardapioCEMEIViewSet.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset de ``AlteracaoCardapioCEMEI`` filtrado por tipo de usuário.</span>
+
+<span class="sd">        Aplica filtros de instituição de acordo com o tipo do usuário autenticado</span>
+<span class="sd">        (escola, diretoria regional ou terceirizada). Permite filtro adicional</span>
+<span class="sd">        por ``status`` via query param.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.QuerySet: Queryset filtrado de</span>
+<span class="sd">            ``AlteracaoCardapioCEMEI``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">queryset</span> <span class="o">=</span> <span class="n">AlteracaoCardapioCEMEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">tipo_usuario</span> <span class="o">==</span> <span class="s2">&quot;escola&quot;</span><span class="p">:</span>
@@ -152,6 +175,19 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_diretoria_regional</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitações CEMEI visíveis pela Diretoria Regional autenticada.</span>
+
+<span class="sd">        Filtra opcionalmente por lote via query param ``lote``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (rest_framework.request.Request): Requisição HTTP.</span>
+<span class="sd">            filtro_aplicado (str): Filtro temporal aplicado. Padrão:</span>
+<span class="sd">                ``constants.SEM_FILTRO``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rest_framework.response.Response: JSON com chave ``results``</span>
+<span class="sd">            contendo a lista de solicitações serializadas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">diretoria_regional</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
         <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="p">(</span>
@@ -176,6 +212,20 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioCODAEGestaoAlimentacao</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_codae</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitações CEMEI visíveis pela CODAE autenticada.</span>
+
+<span class="sd">        Filtra opcionalmente por diretoria regional e lote via query params</span>
+<span class="sd">        ``diretoria_regional`` e ``lote``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (rest_framework.request.Request): Requisição HTTP.</span>
+<span class="sd">            filtro_aplicado (str): Filtro temporal aplicado. Padrão:</span>
+<span class="sd">                ``constants.SEM_FILTRO``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rest_framework.response.Response: JSON com chave ``results``</span>
+<span class="sd">            contendo a lista de solicitações serializadas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">codae</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
         <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">codae</span><span class="o">.</span><span class="n">alteracoes_cardapio_cemei_das_minhas_escolas</span><span class="p">(</span>
@@ -202,6 +252,16 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gera e retorna o relatório PDF da solicitação CEMEI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (rest_framework.request.Request): Requisição HTTP.</span>
+<span class="sd">            uuid (str, optional): UUID da solicitação. Preenchido</span>
+<span class="sd">                automaticamente pelo roteador.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.http.HttpResponse: Resposta HTTP com o relatório em PDF.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">relatorio_alteracao_alimentacao_cemei</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">())</span></div>
 </div>
 

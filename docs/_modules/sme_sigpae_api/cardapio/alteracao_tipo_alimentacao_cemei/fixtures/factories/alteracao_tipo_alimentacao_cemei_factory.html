@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
+<span></span><span class="sd">&quot;&quot;&quot;Factories para os modelos de Alteração do Tipo de Alimentação CEMEI.</span>
+
+<span class="sd">Utiliza ``factory_boy`` para criação de instâncias de teste dos modelos</span>
+<span class="sd">relacionados à alteração de cardápio para escolas do tipo CEMEI e CEU CEMEI.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory.django</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoModelFactory</span>
 
@@ -98,6 +104,12 @@
 <div class="viewcode-block" id="AlteracaoCardapioCEMEIFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory.AlteracaoCardapioCEMEIFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioCEMEIFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``AlteracaoCardapioCEMEI``.</span>
+
+<span class="sd">    Cria a escola solicitante, o motivo e os campos de rastreio (escola, lote,</span>
+<span class="sd">    DRE e terceirizada) via subfactories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">EscolaFactory</span><span class="p">)</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">MotivoAlteracaoCardapioFactory</span><span class="p">)</span>
     <span class="n">rastro_escola</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">EscolaFactory</span><span class="p">)</span>
@@ -113,6 +125,13 @@
 <div class="viewcode-block" id="SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI``.</span>
+
+<span class="sd">    Cria a instância com uma alteração CEMEI e um período escolar via</span>
+<span class="sd">    subfactories. Suporta adição de tipos de alimentação de origem e destino</span>
+<span class="sd">    via parâmetros ``tipos_alimentacao_de`` e ``tipos_alimentacao_para``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">AlteracaoCardapioCEMEIFactory</span><span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">PeriodoEscolarFactory</span><span class="p">)</span>
 
@@ -142,6 +161,14 @@
 <div class="viewcode-block" id="SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEIFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI``.</span>
+
+<span class="sd">    Cria a instância com uma alteração CEMEI e um período escolar via</span>
+<span class="sd">    subfactories. Suporta adição de tipos de alimentação de origem e destino</span>
+<span class="sd">    via parâmetros ``tipos_alimentacao_de`` e ``tipos_alimentacao_para``.</span>
+<span class="sd">    Diferentemente do lado CEI, não possui faixas etárias aninhadas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">AlteracaoCardapioCEMEIFactory</span><span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">PeriodoEscolarFactory</span><span class="p">)</span>
 
@@ -171,6 +198,12 @@
 <div class="viewcode-block" id="FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory.FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FaixaEtariaSubstituicaoAlimentacaoCEMEICEIFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``FaixaEtariaSubstituicaoAlimentacaoCEMEICEI``.</span>
+
+<span class="sd">    Associa automaticamente uma substituição CEI e uma faixa etária via</span>
+<span class="sd">    subfactories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">substituicao_alimentacao</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span>
         <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEIFactory</span>
     <span class="p">)</span>
@@ -184,6 +217,11 @@
 <div class="viewcode-block" id="DataIntervaloAlteracaoCardapioCEMEIFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories.alteracao_tipo_alimentacao_cemei_factory.DataIntervaloAlteracaoCardapioCEMEIFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DataIntervaloAlteracaoCardapioCEMEIFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``DataIntervaloAlteracaoCardapioCEMEI``.</span>
+
+<span class="sd">    Associa automaticamente uma ``AlteracaoCardapioCEMEI`` via subfactory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">alteracao_cardapio_cemei</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">AlteracaoCardapioCEMEIFactory</span><span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
