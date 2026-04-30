@@ -29,6 +29,7 @@ from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serialize
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
     CronogramaSemanalDetailSerializer,
     CronogramaSemanalListagemSerializer,
+    CronogramaSemanalRascunhosSerializer,
 )
 from sme_sigpae_api.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
@@ -51,6 +52,7 @@ class CronogramaSemanalViewSet(
     - PATCH /cronogramas-semanais/{uuid}/ - Atualiza cronograma semanal
     - PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/ - Assina e envia cronograma semanal
     - GET /cronogramas-semanais/cronogramas-mensal-assinados/ - Lista cronogramas mensal Ponto a Ponto assinados
+    - GET /cronogramas-semanais/rascunhos/ - Lista cronogramas semanais com status RASCUNHO
     - GET /cronogramas-semanais/{uuid}/ - Detalha cronograma semanal
     """
 
@@ -64,6 +66,7 @@ class CronogramaSemanalViewSet(
         "partial_update": [PermissaoParaCriarCronogramaSemanal],
         "cronogramas_mensal_assinados": [PermissaoParaCriarCronogramaSemanal],
         "fornecedor_ciente": [PermissaoParaDarCienciaCronogramaSemanal],
+        "rascunhos_listagem": [PermissaoParaCriarCronogramaSemanal],
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
@@ -75,17 +78,17 @@ class CronogramaSemanalViewSet(
         return CronogramaSemanal.objects.all().order_by("-alterado_em")
 
     def get_serializer_class(self):
-        if self.action == "rascunho":
-            return CronogramaSemanalRascunhoSerializer
-        if self.action in ["update", "partial_update"]:
-            return CronogramaSemanalRascunhoSerializer
-        if self.action == "assinar_e_enviar":
-            return CronogramaSemanalAssinarEEnviarSerializer
-        if self.action in ["retrieve", "fornecedor_ciente"]:
-            return CronogramaSemanalDetailSerializer
-        if self.action == "list":
-            return CronogramaSemanalListagemSerializer
-        return CronogramaSemanalListagemSerializer
+        serializer_map = {
+            "rascunho": CronogramaSemanalRascunhoSerializer,
+            "update": CronogramaSemanalRascunhoSerializer,
+            "partial_update": CronogramaSemanalRascunhoSerializer,
+            "assinar_e_enviar": CronogramaSemanalAssinarEEnviarSerializer,
+            "rascunhos_listagem": CronogramaSemanalRascunhosSerializer,
+            "retrieve": CronogramaSemanalDetailSerializer,
+            "fornecedor_ciente": CronogramaSemanalDetailSerializer,
+            "list": CronogramaSemanalListagemSerializer,
+        }
+        return serializer_map.get(self.action, CronogramaSemanalListagemSerializer)
 
     def list(self, request, *args, **kwargs):
         """
@@ -132,6 +135,27 @@ class CronogramaSemanalViewSet(
         instance = serializer.save()
         instance.salvar_log_cronograma_semanal_criado(usuario=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="rascunhos",
+        url_name="rascunhos_listagem",
+    )
+    def rascunhos_listagem(self, request):
+        """
+        Endpoint: GET /cronogramas-semanais/rascunhos/
+
+        Lista cronogramas semanais com status RASCUNHO.
+        Retorna uuid, numero e alterado_em de cada rascunho.
+        """
+        from sme_sigpae_api.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        queryset = self.get_queryset().filter(
+            status=CronogramaSemanalWorkflow.RASCUNHO
+        )
+        serializer = CronogramaSemanalRascunhosSerializer(queryset, many=True)
+        return Response({"results": serializer.data})
 
     @action(
         detail=False,

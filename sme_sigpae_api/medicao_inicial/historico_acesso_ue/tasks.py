@@ -37,7 +37,7 @@ def _obter_ids_escolas_com_historico_ativo_desde(data_referencia):
     """
     return set(
         HistoricoAcessoMedicaoInicialUE.objects.filter(
-            data_inicial__gte=data_referencia,
+            data_inicial__lte=data_referencia,
             data_final__isnull=True,
         ).values_list("escola_id", flat=True)
     )
