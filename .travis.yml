@@ -18,11 +18,11 @@ install:
 script:
   - pytest
   - flake8
-  - bandit -r sme_sigpae_api -ll
+  - bandit -r src -ll
 #TODO: com grafana ta dando bug. verificar ExportModelOperationsMixin
-#  - mypy sme_sigpae_api
+#  - mypy src
   - bash utility/verifica_import_relativo.sh
-  - isort --check-only sme_sigpae_api
+  - isort --check-only src
   - docker build -t marcelomaia/terceirizadas_backend .
   - docker run -d -p 8000:8000 marcelomaia/terceirizadas_backend python manage.py runserver --settings=config.settings.local
   - docker ps -a

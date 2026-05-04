@@ -9,10 +9,10 @@ import requests
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-# (sme_sigpae_api/config/settings/base.py - 3 = sme_sigpae_api/)
+# (src/config/settings/base.py - 3 = src/)
 
 ROOT_DIR = environ.Path(__file__) - 3
-APPS_DIR = ROOT_DIR.path("sme_sigpae_api")
+APPS_DIR = ROOT_DIR.path("src")
 
 env = environ.Env()
 
@@ -113,23 +113,23 @@ THIRD_PARTY_APPS = [
     "nested_inline",
 ]
 LOCAL_APPS = [
-    "sme_sigpae_api.perfil.apps.PerfilConfig",
-    "sme_sigpae_api.dados_comuns.apps.DadosComunsConfig",
-    "sme_sigpae_api.escola.apps.EscolaConfig",
-    "sme_sigpae_api.kit_lanche.apps.KitLancheConfig",
-    "sme_sigpae_api.inclusao_alimentacao.apps.InclusaoAlimentacaoConfig",
-    "sme_sigpae_api.cardapio.apps.CardapioConfig",
-    "sme_sigpae_api.terceirizada.apps.TerceirizadaConfig",
-    "sme_sigpae_api.paineis_consolidados.apps.PaineisConsolidadosConfig",
-    "sme_sigpae_api.dieta_especial.apps.DietaEspecialConfig",
-    "sme_sigpae_api.relatorios.apps.RelatoriosConfig",
-    "sme_sigpae_api.produto.apps.ProdutoConfig",
-    "sme_sigpae_api.lancamento_inicial.apps.LancamentoInicialConfig",
-    "sme_sigpae_api.logistica.apps.LogisticaConfig",
-    "sme_sigpae_api.medicao_inicial.apps.MedicaoInicialConfig",
-    "sme_sigpae_api.pre_recebimento.apps.PreRecebimentoConfig",
-    "sme_sigpae_api.recebimento.apps.RecebimentoConfig",
-    "sme_sigpae_api.imr.apps.ImrConfig",
+    "src.perfil.apps.PerfilConfig",
+    "src.dados_comuns.apps.DadosComunsConfig",
+    "src.escola.apps.EscolaConfig",
+    "src.kit_lanche.apps.KitLancheConfig",
+    "src.inclusao_alimentacao.apps.InclusaoAlimentacaoConfig",
+    "src.cardapio.apps.CardapioConfig",
+    "src.terceirizada.apps.TerceirizadaConfig",
+    "src.paineis_consolidados.apps.PaineisConsolidadosConfig",
+    "src.dieta_especial.apps.DietaEspecialConfig",
+    "src.relatorios.apps.RelatoriosConfig",
+    "src.produto.apps.ProdutoConfig",
+    "src.lancamento_inicial.apps.LancamentoInicialConfig",
+    "src.logistica.apps.LogisticaConfig",
+    "src.medicao_inicial.apps.MedicaoInicialConfig",
+    "src.pre_recebimento.apps.PreRecebimentoConfig",
+    "src.recebimento.apps.RecebimentoConfig",
+    "src.imr.apps.ImrConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -137,7 +137,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "sme_sigpae_api.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "src.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
-    "sme_sigpae_api.jwt_middleware.JWTAuthenticationMiddleware",
+    "src.jwt_middleware.JWTAuthenticationMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
 ]
 

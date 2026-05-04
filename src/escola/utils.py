@@ -1,0 +1,992 @@
+import logging
+import re
+from calendar import monthrange
+from datetime import date, datetime, timedelta
+from pathlib import Path
+from typing import Dict, List
+
+from django.db.models import Case, Q, Value, When
+from openpyxl import Workbook
+from rest_framework.pagination import PageNumberPagination
+
+from src.eol_servico.utils import EOLServicoSGP
+
+from ..dados_comuns.utils import get_ultimo_dia_mes
+from ..escola import models
+
+logger = logging.getLogger("sigpae.taskEscola")
+
+
+def meses_to_mes_e_ano_string(total_meses):
+    anos = total_meses // 12
+    meses = total_meses % 12
+
+    saida = ""
+
+    if anos > 0:
+        saida = f"{anos:02d} {'ano' if anos == 1 else 'anos'}"
+        if meses > 0:
+            saida += " e "
+
+    if anos == 0 or meses > 0:
+        saida += f"{meses:02d} {'mês' if meses == 1 else 'meses'}"
+
+    return saida
+
+
+def faixa_to_string(inicio, fim):
+    if fim - inicio == 1:
+        return meses_to_mes_e_ano_string(inicio)
+    if inicio == 0:
+        str_inicio = "0 meses"
+    else:
+        str_inicio = (
+            meses_to_mes_e_ano_string(inicio) if inicio >= 12 else f"{inicio:02d}"
+        )
+    str_fim = "06 anos" if fim == 72 else meses_to_mes_e_ano_string(fim - 1)
+
+    return f"{str_inicio} a {str_fim}"
+
+
+def string_to_faixa(faixa_str):
+    if "a" in faixa_str:
+        str_inicio, str_fim = faixa_str.split(" a ")
+    else:
+        str_inicio = str_fim = faixa_str
+
+    inicio = string_to_meses(str_inicio)
+    fim = (
+        string_to_meses(str_fim) + 1
+    )  # Adicionamos 1 porque a função faixa_to_string subtrai 1 do fim
+
+    return inicio, fim
+
+
+def string_to_meses(str_meses):
+    if "ano" in str_meses:
+        anos, restante = str_meses.split(" ano")
+        anos = int(anos)
+        meses = 0
+        if " e " in restante:
+            _, str_mes = restante.split(" e ")
+            meses = int(str_mes.split(" ")[0])
+        total_meses = anos * 12 + meses
+    else:
+        total_meses = int(str_meses.split(" ")[0])
+    return total_meses
+
+
+def remove_acentos(texto):
+    resultado = re.sub("[àáâãäå]", "a", texto)
+    resultado = re.sub("[èéêë]", "e", resultado)
+    resultado = re.sub("[ìíîï]", "i", resultado)
+    return resultado
+
+
+def update_datetime_LogAlunosMatriculadosPeriodoEscola():
+    from src.escola.models import LogAlunosMatriculadosPeriodoEscola
+
+    hoje = date.today()
+    logs_hoje = LogAlunosMatriculadosPeriodoEscola.objects.filter(criado_em__date=hoje)
+
+    for log in logs_hoje:
+        log.criado_em = log.criado_em - timedelta(days=1)
+        log.save()
+
+
+def registra_quantidade_matriculados(matriculas, ontem, tipo_turma):  # noqa C901
+    import ast
+
+    import pandas as pd
+
+    from src.escola.models import (
+        AlunosMatriculadosPeriodoEscola,
+        Escola,
+        LogAlunosMatriculadosPeriodoEscola,
+        PeriodoEscolar,
+    )
+
+    objs = []
+    matriculas = (
+        pd.DataFrame(matriculas).astype(str).drop_duplicates().to_dict("records")
+    )
+    for matricula in matriculas:
+        escola = Escola.objects.filter(codigo_eol=matricula["codigoEolEscola"]).first()
+        turnos = ast.literal_eval(matricula["turnos"])
+        periodos = []
+        for turno_resp in turnos:
+            turno = remove_acentos(turno_resp["turno"])
+            periodo = PeriodoEscolar.objects.filter(nome=turno.upper()).first()
+            if not periodo:
+                logger.debug(
+                    f'Periodo {turno_resp["turno"]} não encontrado na tabela de Períodos'
+                )
+                continue
+            periodos.append(periodo)
+            if tipo_turma == "REGULAR":
+                create_update_objeto_escola_periodo_escolar(
+                    escola, periodo, turno_resp["quantidade"]
+                )
+            matricula_sigpae = AlunosMatriculadosPeriodoEscola.objects.filter(
+                tipo_turma=tipo_turma, escola=escola, periodo_escolar=periodo
+            ).first()
+            if matricula_sigpae:
+                matricula_sigpae.quantidade_alunos = turno_resp["quantidade"]
+                objs.append(matricula_sigpae)
+            else:
+                AlunosMatriculadosPeriodoEscola.criar(
+                    escola=escola,
+                    periodo_escolar=periodo,
+                    quantidade_alunos=turno_resp["quantidade"],
+                    tipo_turma=tipo_turma,
+                )
+            LogAlunosMatriculadosPeriodoEscola.criar(
+                escola=escola,
+                periodo_escolar=periodo,
+                quantidade_alunos=turno_resp["quantidade"],
+                data=ontem,
+                tipo_turma=tipo_turma,
+            )
+
+        AlunosMatriculadosPeriodoEscola.objects.filter(
+            tipo_turma=tipo_turma, escola=escola
+        ).exclude(periodo_escolar__in=periodos).delete()
+    AlunosMatriculadosPeriodoEscola.objects.bulk_update(objs, ["quantidade_alunos"])
+    update_datetime_LogAlunosMatriculadosPeriodoEscola()
+
+
+def create_update_objeto_escola_periodo_escolar(
+    escola, periodo, quantidade_alunos_periodo
+):
+    from src.escola.models import EscolaPeriodoEscolar
+
+    escola_periodo, created = EscolaPeriodoEscolar.objects.get_or_create(
+        periodo_escolar=periodo, escola=escola
+    )
+    if escola_periodo.quantidade_alunos != quantidade_alunos_periodo:
+        escola_periodo.quantidade_alunos = quantidade_alunos_periodo
+        escola_periodo.save()
+
+
+def duplica_dia_anterior(dre, dois_dias_atras, ontem, tipo_turma_name):
+    from src.escola.models import LogAlunosMatriculadosPeriodoEscola
+
+    logs = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+        escola__diretoria_regional=dre,
+        criado_em__date=dois_dias_atras,
+        tipo_turma=tipo_turma_name,
+    )
+    for log in logs:
+        LogAlunosMatriculadosPeriodoEscola.criar(
+            escola=log.escola,
+            periodo_escolar=log.periodo_escolar,
+            quantidade_alunos=log.quantidade_alunos,
+            data=ontem,
+            tipo_turma=tipo_turma_name,
+        )
+    update_datetime_LogAlunosMatriculadosPeriodoEscola()
+
+
+def registro_quantidade_alunos_matriculados_por_escola_periodo(tipo_turma):
+    from src.escola.models import DiretoriaRegional
+
+    hoje = date.today()
+    ontem = hoje - timedelta(days=1)
+    dres = DiretoriaRegional.objects.all()
+    total = len(dres)
+    cont = 1
+    for dre in dres:
+        logger.debug(f"Processando {cont} de {total}")
+        logger.debug(
+            f"""Consultando matriculados da dre com Nome: {dre.nome}
+        e código eol: {dre.codigo_eol}, data: {hoje.strftime('%Y-%m-%d')} para o tipo turma {tipo_turma.name}"""
+        )
+        try:
+            resposta = EOLServicoSGP.matricula_por_escola(
+                codigo_eol=dre.codigo_eol,
+                data=hoje.strftime("%Y-%m-%d"),
+                tipo_turma=tipo_turma.value,
+            )
+            logger.debug(resposta)
+
+            registra_quantidade_matriculados(resposta, ontem, tipo_turma.name)
+        except Exception as e:
+            dois_dias_atras = ontem - timedelta(days=1)
+            duplica_dia_anterior(dre, dois_dias_atras, ontem, tipo_turma.name)
+            logger.error(
+                f"Houve um erro inesperado ao consultar a Diretoria Regional {dre} : {str(e)}; "
+                "as quantidades de alunos foram duplicadas do dia anterior"
+            )
+        cont += 1
+
+
+def processa_dias_letivos(
+    lista_dias_letivos: list[dict], escola, periodo_escolar=None
+) -> None:
+    """
+    Cria ou atualiza registros de `DiaCalendario` a partir da lista de dias letivos
+    retornados pelo SGP.
+
+    Para cada item da lista, a função:
+      1. Converte a data (string) para `datetime`.
+      2. Verifica se já existe um `DiaCalendario` correspondente à escola,
+         data e período escolar.
+      3. Se existir, atualiza o campo `dia_letivo`.
+      4. Se não existir, cria um novo registro.
+
+    O parâmetro `periodo_escolar` permite diferenciar dias letivos por turno
+    (ex.: NOITE). Quando `None`, os dias são tratados como período geral.
+
+    Args:
+        lista_dias_letivos (list[dict]): Lista de dicionários retornada pelo SGP contendo no mínimo:
+                - "data"     : str (ex.: "2025-05-12T00:00:00")
+                - "ehLetivo" : bool
+        escola (models.Escola):  Instância da escola para a qual os dias estão sendo processados.
+        periodo_escolar (models.PeriodoEscolar, optional): Período escolar ao qual os dias pertencem.
+            Quando None, representa período geral. Default: None.
+    """
+    from src.escola.models import DiaCalendario
+
+    for dia_dict in lista_dias_letivos:
+        data = datetime.strptime(dia_dict["data"], "%Y-%m-%dT00:00:00")
+        dia_calendario: DiaCalendario = DiaCalendario.objects.filter(
+            escola=escola,
+            data__year=data.year,
+            data__month=data.month,
+            data__day=data.day,
+            periodo_escolar=periodo_escolar,
+        ).first()
+        if not dia_calendario:
+            dia_calendario = DiaCalendario.objects.create(
+                escola=escola,
+                data=data,
+                dia_letivo=dia_dict["ehLetivo"],
+                periodo_escolar=periodo_escolar,
+            )
+        else:
+            dia_calendario.dia_letivo = dia_dict["ehLetivo"]
+            dia_calendario.save()
+
+
+def dias_letivos_gerais(escola, inicio: str, fim: str) -> None:
+    """
+    Consulta e processa os dias letivos gerais (turno da manhã como padrão) para uma escola.
+
+    Esta função consulta o NovoSGPServico para obter os dias letivos no intervalo
+    fornecido, considerando período específico (uso padrão 1 - MANHA). Em seguida,
+    envia o resultado para o processador de dias letivos.
+
+    Args:
+        escola (models.Escola): Instância da escola para a qual os dias letivos serão consultados.
+        inicio (str): Data inicial do intervalo no formato "YYYY-MM-DD".
+        fim (str): Data final do intervalo no formato "YYYY-MM-DD".
+    """
+    from src.escola.services import NovoSGPServico
+
+    try:
+        geral = NovoSGPServico.dias_letivos(
+            codigo_eol=escola.codigo_eol,
+            data_inicio=inicio,
+            data_fim=fim,
+        )
+        processa_dias_letivos(geral, escola)
+    except Exception as e:
+        logger.error(f"Erro ao buscar por turno MANHA para escola {escola} : {str(e)}")
+        logger.debug("Tentando buscar dias letivos no novo sgp para turno da tarde")
+        try:
+            resposta = NovoSGPServico.dias_letivos(
+                codigo_eol=escola.codigo_eol,
+                data_inicio=inicio,
+                data_fim=fim,
+                tipo_turno=3,
+            )
+            processa_dias_letivos(resposta, escola)
+        except Exception as e:
+            logger.error(
+                f"Erro ao buscar por turno TARDE para escola {escola} : {str(e)}"
+            )
+
+
+def dias_letivos_noturno(escola, inicio: str, fim: str, periodo_noite):
+    """
+    Consulta e processa os dias letivos do período NOTURNO (turno 5) de uma escola.
+
+    A consulta do período noturno só é realizada se:
+    1. A escola possuir o período "NOITE" cadastrado.
+    2. A escola tiver alunos matriculados nesse período.
+
+    Caso contrário, a função apenas registra logs informativos.
+
+    Args:
+        escola (models.Escola): Instância da escola que será consultada.
+        inicio (str): Data inicial do intervalo no formato "YYYY-MM-DD".
+        fim (str):  Data final do intervalo no formato "YYYY-MM-DD".
+        periodo_noite (models.PeriodoEscolar): Objeto do período "NOITE" previamente consultado.
+    """
+    from src.escola.models import AlunosMatriculadosPeriodoEscola
+    from src.escola.services import NovoSGPServico
+
+    try:
+        aluno_noite = AlunosMatriculadosPeriodoEscola.objects.get(
+            escola=escola, periodo_escolar=periodo_noite, tipo_turma="REGULAR"
+        )
+
+        if aluno_noite.quantidade_alunos == 0:
+            logger.debug("Escola possui período NOITE, mas sem alunos.")
+            return
+
+        periodo = NovoSGPServico.dias_letivos(
+            codigo_eol=escola.codigo_eol,
+            data_inicio=inicio,
+            data_fim=fim,
+            tipo_turno=5,
+        )
+        processa_dias_letivos(periodo, escola, periodo_escolar=periodo_noite)
+
+    except AlunosMatriculadosPeriodoEscola.DoesNotExist:
+        logger.debug("Escola sem período NOITE cadastrado.")
+    except Exception as e:
+        logger.error(f"Erro ao buscar por turno NOITE para escola {escola} : {str(e)}")
+
+
+def calendario_sgp(data_inicio=date.today(), lista_escolas=None):
+
+    import pandas as pd
+
+    from src.escola.models import Escola, PeriodoEscolar
+
+    escolas = (
+        Escola.objects.filter(nome__in=lista_escolas)
+        if lista_escolas
+        else Escola.objects.all()
+    )
+
+    total = len(escolas)
+    data_fim = None
+    data_inicio_formatada = data_inicio.strftime("%Y-%m-%d")
+    periodo_noite = PeriodoEscolar.objects.get(nome="NOITE")
+    for cont, escola in enumerate(escolas, 1):
+        logger.debug(f"Processando {cont} de {total}")
+        logger.debug(f"""Consultando dias letivos da escola com Nome: {escola.nome}
+        e código eol: {escola.codigo_eol}, data: {data_inicio_formatada}""")
+        try:
+            data_final = (data_inicio + pd.DateOffset(months=3)).date()
+            data_fim = data_final.strftime("%Y-%m-%d")
+
+            dias_letivos_gerais(escola, data_inicio_formatada, data_fim)
+            dias_letivos_noturno(escola, data_inicio_formatada, data_fim, periodo_noite)
+
+        except Exception as e:
+            logger.error(f"Erro ao buscar dados para escola {escola} : {str(e)}")
+
+
+class EscolaSimplissimaPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+
+
+def lotes_endpoint_filtrar_relatorio_alunos_matriculados(instituicao, Codae, Lote):
+    if isinstance(instituicao, Codae):
+        lotes = Lote.objects.all()
+    elif isinstance(instituicao, models.Escola):
+        lotes = Lote.objects.filter(escolas=instituicao)
+    else:
+        lotes = instituicao.lotes.filter(escolas__isnull=False)
+    return lotes
+
+
+def deletar_alunos_periodo_parcial_outras_escolas(escola, data_referencia):
+    from .models import AlunoPeriodoParcial
+
+    AlunoPeriodoParcial.objects.filter(
+        solicitacao_medicao_inicial__escola=escola,
+        solicitacao_medicao_inicial__mes=str(data_referencia.month).zfill(2),
+        solicitacao_medicao_inicial__ano=str(data_referencia.year),
+    ).exclude(aluno__escola__codigo_eol=escola.codigo_eol).delete()
+
+
+def eh_dia_sem_atividade_escolar(escola, data, alteracao):
+    from src.escola.models import DiaCalendario, DiaSuspensaoAtividades
+
+    try:
+        dia_calendario = DiaCalendario.objects.get(
+            escola=escola, data=data, periodo_escolar__isnull=True
+        )
+        eh_dia_letivo = dia_calendario.dia_letivo
+    except DiaCalendario.DoesNotExist:
+        eh_dia_letivo = True
+    eh_dia_de_suspensao = DiaSuspensaoAtividades.eh_dia_de_suspensao(escola, data)
+    periodos_escolares_alteracao = alteracao.substituicoes.values_list(
+        "periodo_escolar"
+    )
+    return (
+        (not eh_dia_letivo or eh_dia_de_suspensao)
+        and not escola.grupos_inclusoes.filter(
+            inclusoes_normais__cancelado=False,
+            inclusoes_normais__data=data,
+            quantidades_por_periodo__periodo_escolar__in=periodos_escolares_alteracao,
+            status="CODAE_AUTORIZADO",
+        ).exists()
+        and not escola.inclusoes_continuas.filter(
+            status="CODAE_AUTORIZADO",
+            data_inicial__lte=data,
+            data_final__gte=data,
+            quantidades_por_periodo__periodo_escolar__in=periodos_escolares_alteracao,
+            quantidades_por_periodo__cancelado=False,
+        )
+        .filter(
+            Q(quantidades_por_periodo__dias_semana__icontains=DiaCalendario.SABADO)
+            | Q(quantidades_por_periodo__dias_semana__icontains=DiaCalendario.DOMINGO)
+        )
+        .exists()
+    )
+
+
+def analise_alunos_dietas_somente_uma_data(
+    datetime_autorizacao, data_inicial, data_final, dieta, alunos_com_dietas_autorizadas
+):
+    from src.dados_comuns.models import LogSolicitacoesUsuario
+
+    if (
+        data_inicial is not None
+        and data_final is not None
+        and data_inicial == data_final
+    ):
+        if datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d") and (
+            (dieta.logs.last().status_evento == LogSolicitacoesUsuario.CODAE_AUTORIZOU)
+            or (
+                dieta.logs.last().status_evento
+                == LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL
+            )
+            or (
+                dieta.logs.last().status_evento
+                != LogSolicitacoesUsuario.CODAE_AUTORIZOU
+                and dieta.logs.last().criado_em
+                > datetime.strptime(data_inicial, "%Y-%m-%d")
+            )
+        ):
+            alunos_com_dietas_autorizadas.append(
+                {
+                    "aluno": dieta.aluno.nome,
+                    "tipo_dieta": dieta.classificacao.nome,
+                    "data_autorizacao": dieta.data_autorizacao,
+                }
+            )
+    return alunos_com_dietas_autorizadas
+
+
+def get_alunos_com_dietas_autorizadas(query_params, escola):
+    from src.dados_comuns.models import LogSolicitacoesUsuario
+    from src.dieta_especial.solicitacao_dieta_especial.models import (
+        SolicitacaoDietaEspecial,
+    )
+
+    solicitacoes_dietas_comuns = SolicitacaoDietaEspecial.objects.filter(
+        aluno__escola=escola, tipo_solicitacao="COMUM", ativo=True
+    )
+    dietas_com_log_autorizado = [
+        s
+        for s in solicitacoes_dietas_comuns
+        if s.logs.filter(status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU)
+    ]
+    data_inicial = query_params.get("data_inicial")
+    data_final = query_params.get("data_final")
+    alunos_com_dietas_autorizadas = []
+    for dieta in dietas_com_log_autorizado:
+        datetime_autorizacao = datetime.strptime(dieta.data_autorizacao, "%d/%m/%Y")
+        if data_inicial and data_final:
+            if (
+                datetime_autorizacao >= datetime.strptime(data_inicial, "%Y-%m-%d")
+                and datetime_autorizacao <= datetime.strptime(data_final, "%Y-%m-%d")
+            ) or (
+                datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d")
+                and (
+                    (
+                        dieta.logs.last().status_evento
+                        == LogSolicitacoesUsuario.CODAE_AUTORIZOU
+                    )
+                    or (
+                        dieta.logs.last().status_evento
+                        != LogSolicitacoesUsuario.CODAE_AUTORIZOU
+                        and dieta.logs.last().criado_em
+                        > datetime.strptime(data_inicial, "%Y-%m-%d")
+                    )
+                )
+            ):
+                alunos_com_dietas_autorizadas.append(
+                    {
+                        "aluno": dieta.aluno.nome,
+                        "tipo_dieta": dieta.classificacao.nome,
+                        "data_autorizacao": dieta.data_autorizacao,
+                    }
+                )
+        elif not data_inicial and not data_final:
+            mes_ano = query_params.get("mes_ano")
+            mes, ano = mes_ano.split("_")
+            _, num_dias = monthrange(
+                int(ano),
+                int(mes),
+            )
+            if (
+                datetime_autorizacao
+                >= datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
+                and datetime_autorizacao
+                <= datetime.strptime(f"{num_dias}/{mes}/{ano}", "%d/%m/%Y")
+            ) or (
+                datetime_autorizacao < datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
+                and (
+                    (
+                        dieta.logs.last().status_evento
+                        == LogSolicitacoesUsuario.CODAE_AUTORIZOU
+                    )
+                    or (
+                        dieta.logs.last().status_evento
+                        != LogSolicitacoesUsuario.CODAE_AUTORIZOU
+                        and dieta.logs.last().criado_em
+                        > datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
+                    )
+                )
+            ):
+                alunos_com_dietas_autorizadas.append(
+                    {
+                        "aluno": dieta.aluno.nome,
+                        "tipo_dieta": dieta.classificacao.nome,
+                        "data_autorizacao": dieta.data_autorizacao,
+                    }
+                )
+        alunos_com_dietas_autorizadas = analise_alunos_dietas_somente_uma_data(
+            datetime_autorizacao,
+            data_inicial,
+            data_final,
+            dieta,
+            alunos_com_dietas_autorizadas,
+        )
+    return alunos_com_dietas_autorizadas
+
+
+def trata_filtro_data_relatorio_controle_frequencia_pdf(
+    filtros, query_params, ano, mes, num_dias
+):
+    hoje = date.today()
+    ontem = hoje - timedelta(days=1)
+    mes_seguinte = False
+    _, _, dia_inicial = (
+        query_params.get("data_inicial").split("-")
+        if query_params.get("data_inicial")
+        else [None, None, None]
+    )
+    if int(mes) > hoje.month:
+        ultimo_dia_mes = get_ultimo_dia_mes(hoje)
+        filtros["data"] = (
+            f"{hoje.year}-{hoje.month}-{min(ontem.day, ultimo_dia_mes.day)}"
+        )
+        mes_seguinte = True
+    elif (
+        int(mes) == hoje.month
+        and query_params.get("data_inicial") == query_params.get("data_final")
+        and dia_inicial
+        and int(dia_inicial) >= hoje.day
+    ):
+        filtros["data"] = ontem
+    elif int(mes) == hoje.month and query_params.get(
+        "data_inicial"
+    ) != query_params.get("data_final"):
+        if dia_inicial and int(dia_inicial) >= hoje.day:
+            filtros["data"] = ontem
+        else:
+            filtros["data__gte"] = query_params.get("data_inicial")
+            data_final_str = query_params.get("data_final")
+            if data_final_str:
+                ano_f, mes_f, dia_f = data_final_str.split("-")
+                data_final_date = date(int(ano_f), int(mes_f), int(dia_f))
+                filtros["data__lte"] = str(min(data_final_date, ontem))
+            else:
+                filtros["data__lte"] = str(ontem)
+    else:
+        filtros["data__gte"] = query_params.get("data_inicial", f"{ano}-{mes}-{'01'}")
+        filtros["data__lte"] = query_params.get("data_final", f"{ano}-{mes}-{num_dias}")
+    return mes_seguinte
+
+
+def eh_mes_atual(query_params):
+    mes_ano = query_params.get("mes_ano")
+    mes, _ = mes_ano.split("_")
+    hoje = date.today()
+    return int(mes) == hoje.month
+
+
+def alunos_por_faixa_append(alunos_por_faixa, aluno):
+    if aluno not in alunos_por_faixa:
+        alunos_por_faixa.append(aluno)
+    return alunos_por_faixa
+
+
+def dias_append(dias, dia, alunos_por_dia):
+    return dias.append(
+        {
+            "dia": f"{dia:02d}",
+            "alunos_por_dia": alunos_por_dia,
+        }
+    )
+
+
+def aluno_pertence_a_escola(aluno, escola, data_inicial=None, data_final=None):
+    from .models import HistoricoMatriculaAluno
+
+    if aluno.escola_id == escola.id:
+        return True
+    historico_mais_recente = (
+        HistoricoMatriculaAluno.objects.filter(aluno=aluno)
+        .order_by("-data_inicio")
+        .first()
+    )
+    if historico_mais_recente is None or historico_mais_recente.escola_id != escola.id:
+        return False
+    if historico_mais_recente.data_fim is None:
+        return True
+    if data_inicial is not None and data_final is not None:
+        # Qualquer dia do intervalo [data_inicial, data_final] contido em
+        # [historico.data_inicio, historico.data_fim] → exibe o aluno.
+        return (
+            data_inicial <= historico_mais_recente.data_fim
+            and historico_mais_recente.data_inicio <= data_final
+        )
+    return False
+
+
+def trata_dados_futuro_mes_atual(
+    queryset_periodo_faixa,
+    log_periodo_faixa,
+    dias,
+    alunos_por_dia,
+    num_dias,
+    query_params,
+):
+    data_inicial = query_params.get("data_inicial")
+    data_final = query_params.get("data_final")
+    hoje = date.today()
+    if queryset_periodo_faixa.order_by("data").last().uuid == log_periodo_faixa.uuid:
+        if data_inicial and data_inicial == data_final:
+            ano, mes, dia_inicial = query_params.get("data_inicial").split("-")
+            datetime_inicial = date(int(ano), int(mes), int(dia_inicial))
+            if datetime_inicial >= hoje:
+                dias_append(dias, int(dia_inicial), alunos_por_dia)
+        else:
+            dia = log_periodo_faixa.data.day + 1
+            while int(dia) <= int(num_dias):
+                dias_append(dias, dia, alunos_por_dia)
+                dia += 1
+
+
+def _coleta_alunos_por_dia(
+    log_periodo_faixa,
+    alunos_por_dia,
+    alunos_por_faixa,
+    escola,
+    data_inicial=None,
+    data_final=None,
+):
+    for log_aluno_dia in log_periodo_faixa.logs_alunos_por_dia.all():
+        if escola and not aluno_pertence_a_escola(
+            log_aluno_dia.aluno, escola, data_inicial, data_final
+        ):
+            continue
+        data_nascimento = log_aluno_dia.aluno.data_nascimento
+        aluno = f"{log_aluno_dia.aluno.nome} - {data_nascimento.day:02d}/{data_nascimento.month:02d}/{data_nascimento.year}"
+        alunos_por_dia.append(aluno)
+        alunos_por_faixa_append(alunos_por_faixa, aluno)
+
+
+def _append_dias_mes_seguinte(dias, alunos_por_dia, query_params, num_dias):
+    dia = 1
+    if query_params.get("data_inicial"):
+        _, _, dia_inicial = query_params.get("data_inicial").split("-")
+        dia = int(dia_inicial)
+        num_dias = 1
+    if query_params.get("data_final"):
+        _, _, dia_final = query_params.get("data_final").split("-")
+        num_dias = int(dia_final)
+    while dia <= num_dias:
+        dias_append(dias, dia, alunos_por_dia)
+        dia += 1
+
+
+def trata_dados_futuro(
+    mes_atual,
+    log_periodo_faixa,
+    alunos_por_dia,
+    alunos_por_faixa,
+    dias,
+    query_params,
+    queryset_periodo,
+    queryset_periodo_faixa,
+    uuid_faixas,
+    escola=None,
+    data_inicial=None,
+    data_final=None,
+):
+    _coleta_alunos_por_dia(
+        log_periodo_faixa,
+        alunos_por_dia,
+        alunos_por_faixa,
+        escola,
+        data_inicial,
+        data_final,
+    )
+    mes_ano = query_params.get("mes_ano")
+    mes, ano = mes_ano.split("_")
+    _, num_dias = monthrange(int(ano), int(mes))
+    if mes_atual:
+        dias_append(dias, log_periodo_faixa.data.day, alunos_por_dia)
+        trata_dados_futuro_mes_atual(
+            queryset_periodo_faixa,
+            log_periodo_faixa,
+            dias,
+            alunos_por_dia,
+            num_dias,
+            query_params,
+        )
+    else:
+        _append_dias_mes_seguinte(dias, alunos_por_dia, query_params, num_dias)
+
+
+def _processa_log_periodo_faixa(
+    log_periodo_faixa,
+    mes_seguinte,
+    mes_atual,
+    alunos_por_faixa,
+    dias,
+    query_params,
+    queryset_periodo,
+    queryset_periodo_faixa,
+    uuid_faixas,
+    escola,
+    data_inicial_param,
+    data_final_param,
+):
+    alunos_por_dia = []
+    if mes_seguinte or mes_atual:
+        trata_dados_futuro(
+            mes_atual,
+            log_periodo_faixa,
+            alunos_por_dia,
+            alunos_por_faixa,
+            dias,
+            query_params,
+            queryset_periodo,
+            queryset_periodo_faixa,
+            uuid_faixas,
+            escola=escola,
+            data_inicial=data_inicial_param,
+            data_final=data_final_param,
+        )
+    else:
+        _coleta_alunos_por_dia(
+            log_periodo_faixa,
+            alunos_por_dia,
+            alunos_por_faixa,
+            escola,
+            data_inicial_param,
+            data_final_param,
+        )
+        dias_append(dias, log_periodo_faixa.data.day, alunos_por_dia)
+
+
+def formata_periodos_pdf_controle_frequencia(
+    qtd_matriculados, queryset, query_params, escola, mes_seguinte
+):
+    from .models import FaixaEtaria
+
+    mes, ano = query_params.get("mes_ano").split("_")
+    _, ultimo_dia_mes = monthrange(int(ano), int(mes))
+
+    data_inicial_str = query_params.get("data_inicial", f"{ano}-{mes}-01")
+    data_final_str = query_params.get("data_final", f"{ano}-{mes}-{ultimo_dia_mes:02d}")
+
+    ano_i, mes_i, dia_i = data_inicial_str.split("-")
+    data_inicial_param = date(int(ano_i), int(mes_i), int(dia_i))
+
+    ano_f, mes_f, dia_f = data_final_str.split("-")
+    data_final_param = date(int(ano_f), int(mes_f), int(dia_f))
+
+    periodos = []
+    mes_atual = eh_mes_atual(query_params)
+    for periodo_key in qtd_matriculados["periodos"].keys():
+        faixas = []
+        queryset_periodo = queryset.filter(periodo_escolar__nome=periodo_key)
+        uuid_faixas = list(
+            set(queryset_periodo.values_list("faixa_etaria__uuid", flat=True))
+        )
+        for uuid_faixa in uuid_faixas:
+            queryset_periodo_faixa = queryset_periodo.filter(
+                faixa_etaria__uuid=uuid_faixa
+            )
+            dias = []
+            alunos_por_faixa = []
+            for log_periodo_faixa in queryset_periodo_faixa:
+                _processa_log_periodo_faixa(
+                    log_periodo_faixa,
+                    mes_seguinte,
+                    mes_atual,
+                    alunos_por_faixa,
+                    dias,
+                    query_params,
+                    queryset_periodo,
+                    queryset_periodo_faixa,
+                    uuid_faixas,
+                    escola,
+                    data_inicial_param,
+                    data_final_param,
+                )
+            faixas.append(
+                {
+                    "nome_faixa": FaixaEtaria.objects.get(uuid=uuid_faixa).__str__(),
+                    "dias": dias,
+                    "alunos_por_faixa": alunos_por_faixa,
+                }
+            )
+        alunos_com_dietas_autorizadas = get_alunos_com_dietas_autorizadas(
+            query_params, escola
+        )
+        periodos.append(
+            {
+                "periodo": periodo_key,
+                "quantidade": qtd_matriculados["periodos"][periodo_key],
+                "faixas": faixas,
+                "alunos_com_dietas_autorizadas": alunos_com_dietas_autorizadas,
+            }
+        )
+    return periodos
+
+
+def ordena_faixas_por_idade(periodos: list) -> list:
+    ORDEM_FAIXA_ETARIA = {
+        "00 meses": 1,
+        "0 a 1 mês": 2,
+        "01 a 03 meses": 3,
+        "04 a 05 meses": 4,
+        "06 meses": 5,
+        "07 a 11 meses": 6,
+        "1 a 3 anos e 11 meses": 7,
+        "4 a 6 anos": 8,
+    }
+
+    for periodo in periodos:
+        periodo["faixas"] = sorted(
+            periodo["faixas"], key=lambda f: ORDEM_FAIXA_ETARIA.get(f["nome_faixa"], 99)
+        )
+    return periodos
+
+
+def ordenar_alunos_matriculados(queryset):
+    ordenacao = Case(
+        When(
+            tipo_turma=models.TipoTurma.REGULAR.name,
+            periodo_escolar__nome="MANHA",
+            then=Value(1),
+        ),
+        When(
+            tipo_turma=models.TipoTurma.REGULAR.name,
+            periodo_escolar__nome="TARDE",
+            then=Value(2),
+        ),
+        When(
+            tipo_turma=models.TipoTurma.REGULAR.name,
+            periodo_escolar__nome="INTEGRAL",
+            then=Value(3),
+        ),
+        When(
+            tipo_turma=models.TipoTurma.REGULAR.name,
+            periodo_escolar__nome="NOITE",
+            then=Value(4),
+        ),
+        When(
+            tipo_turma=models.TipoTurma.PROGRAMAS.name,
+            periodo_escolar__nome="MANHA",
+            then=Value(5),
+        ),
+        When(
+            tipo_turma=models.TipoTurma.PROGRAMAS.name,
+            periodo_escolar__nome="INTERMEDIARIO",
+            then=Value(6),
+        ),
+        When(
+            tipo_turma=models.TipoTurma.PROGRAMAS.name,
+            periodo_escolar__nome="TARDE",
+            then=Value(7),
+        ),
+        When(
+            tipo_turma=models.TipoTurma.PROGRAMAS.name,
+            periodo_escolar__nome="VESPERTINO",
+            then=Value(8),
+        ),
+        When(
+            tipo_turma=models.TipoTurma.PROGRAMAS.name,
+            periodo_escolar__nome="NOITE",
+            then=Value(9),
+        ),
+    )
+    queryset = queryset.annotate(ordering=ordenacao).order_by(
+        "escola__nome", "ordering"
+    )
+    return queryset
+
+
+def cria_arquivo_excel(caminho_arquivo: Path, dados: List[Dict[str, str]]):
+    """
+    Cria um arquivo Excel a partir dos dados fornecidos.
+    """
+    wb = Workbook()
+    ws = wb.active
+    ws.append(list(dados[0].keys()))
+    for row in dados:
+        ws.append(list(row.values()))
+    wb.save(caminho_arquivo)
+
+
+def datas_para_gerar_logs(escola, hoje: date | None = None) -> list[date]:
+    """
+    Retorna a lista de datas para as quais os logs devem ser gerados.
+    Normalmente: [ontem]
+    No último dia letivo do ano: [ontem, hoje]
+    """
+    DEZEMBRO = 12
+
+    hoje = hoje or date.today()
+    ontem = hoje - timedelta(days=1)
+
+    datas = [ontem]
+
+    if hoje.month == DEZEMBRO and hoje == escola.ultimo_dia_letivo:
+        datas.append(hoje)
+
+    return datas
+
+
+def duplica_logs_ultimo_dia_letivo(tipo_turma):
+    from src.escola.models import Escola, LogAlunosMatriculadosPeriodoEscola
+
+    DEZEMBRO = 12
+
+    hoje = date.today()
+    if hoje.month != DEZEMBRO:
+        return
+
+    ontem = date.today() - timedelta(days=1)
+
+    escolas = Escola.objects.all()
+    for escola in escolas:
+        if hoje != escola.ultimo_dia_letivo:
+            continue
+        logs_da_escola = escola.logs_alunos_matriculados_por_periodo.filter(
+            criado_em__date=ontem, tipo_turma=tipo_turma.name
+        )
+        for log in logs_da_escola:
+            LogAlunosMatriculadosPeriodoEscola.objects.create(
+                escola=escola,
+                tipo_turma=log.tipo_turma,
+                periodo_escolar=log.periodo_escolar,
+                quantidade_alunos=log.quantidade_alunos,
+                cei_ou_emei=log.cei_ou_emei,
+                infantil_ou_fundamental=log.infantil_ou_fundamental,
+            )

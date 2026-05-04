@@ -2,7 +2,7 @@ from secrets import randbelow
 
 from faker import Faker
 
-from sme_sigpae_api.dados_comuns.models import (
+from src.dados_comuns.models import (
     CategoriaPerguntaFrequente,
     PerguntaFrequente,
 )

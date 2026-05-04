@@ -13,7 +13,7 @@ echo "Atualizar dados com base na API do EOL em tempo real? (S/N)"
 read atualizacao_tempo_real
 
 ./manage.py migrate
-./manage.py loaddata sme_sigpae_api/**/fixtures/*.json
+./manage.py loaddata src/**/fixtures/*.json
 
 ./manage.py shell -c "from utility.carga_dados.escola import _2_escola_EMEF_EMEFM_EMEBS_CIEJA"
 ./manage.py shell -c "from utility.carga_dados.escola import _3_escola_EMEI"
@@ -61,6 +61,6 @@ if [ "$atualizacao_tempo_real" != "${atualizacao_tempo_real#[Ss]}" ]; then
 fi
 
 echo -e "${RED}Ativando/desativando dinamicamente o vínculo entre TipoUE e Períodos escolares${NC}"
-./manage.py shell -c "from sme_sigpae_api.cardapio.tasks import ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar; ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()"
+./manage.py shell -c "from src.cardapio.tasks import ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar; ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()"
 
 ./manage.py shell -c "from utility.carga_dados.escola import _15_cria_adms"

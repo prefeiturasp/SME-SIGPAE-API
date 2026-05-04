@@ -1,80 +1,80 @@
 base
 ====
 
-.. automodule:: sme_sigpae_api.cardapio.base
+.. automodule:: src.cardapio.base
    :members:
    :show-inheritance:
 
 admin
 -----
 
-.. automodule:: sme_sigpae_api.cardapio.base.admin
+.. automodule:: src.cardapio.base.admin
    :members:
    :show-inheritance:
 
 behaviors
 ---------
 
-.. automodule:: sme_sigpae_api.cardapio.base.behaviors
+.. automodule:: src.cardapio.base.behaviors
    :members:
    :show-inheritance:
 
 models
 ------
 
-.. automodule:: sme_sigpae_api.cardapio.base.models
+.. automodule:: src.cardapio.base.models
    :members:
    :show-inheritance:
 
 api
 ---
 
-.. automodule:: sme_sigpae_api.cardapio.base.api
+.. automodule:: src.cardapio.base.api
    :members:
    :show-inheritance:
 
 serializers
 ~~~~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.base.api.serializers
+.. automodule:: src.cardapio.base.api.serializers
    :members:
    :show-inheritance:
 
 serializers\_create
 ~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.base.api.serializers_create
+.. automodule:: src.cardapio.base.api.serializers_create
    :members:
    :show-inheritance:
 
 validators
 ~~~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.base.api.validators
+.. automodule:: src.cardapio.base.api.validators
    :members:
    :show-inheritance:
 
 viewsets
 ~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.base.api.viewsets
+.. automodule:: src.cardapio.base.api.viewsets
    :members:
    :show-inheritance:
 
 fixtures
 --------
 
-.. automodule:: sme_sigpae_api.cardapio.base.fixtures
+.. automodule:: src.cardapio.base.fixtures
    :members:
    :show-inheritance:
 
 fixtures/factories
 ~~~~~~~~~~~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.base.fixtures.factories
+.. automodule:: src.cardapio.base.fixtures.factories
    :members:
    :show-inheritance:
 
-.. automodule:: sme_sigpae_api.cardapio.base.fixtures.factories.base_factory
+.. automodule:: src.cardapio.base.fixtures.factories.base_factory
    :members:
    :show-inheritance:
