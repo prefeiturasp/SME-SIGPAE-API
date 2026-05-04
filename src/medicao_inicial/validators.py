@@ -52,17 +52,28 @@ calendario = BrazilSaoPauloCity()
 
 
 def get_lista_dias_letivos(solicitacao, escola, periodo_escolar=None):
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
     dias_letivos = DiaCalendario.objects.filter(
-        data__month=int(solicitacao.mes),
-        data__year=int(solicitacao.ano),
+        data__month=mes,
+        data__year=ano,
         escola=escola,
         dia_letivo=True,
         periodo_escolar=periodo_escolar,
     )
     dias_letivos = list(set(dias_letivos.values_list("data__day", flat=True)))
-    dias_letivos_uteis = filtrar_dias_letivos(
-        dias_letivos, int(solicitacao.mes), int(solicitacao.ano)
+    dias_letivos_uteis = filtrar_dias_letivos(dias_letivos, mes, ano)
+    dias_com_log = set(
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(
+            escola=escola,
+            criado_em__year=ano,
+            criado_em__month=mes,
+            tipo_turma="REGULAR",
+            quantidade_alunos__gt=0,
+            periodo_escolar__isnull=False,
+        ).values_list("criado_em__day", flat=True)
     )
+    dias_letivos_uteis = [dia for dia in dias_letivos_uteis if dia in dias_com_log]
     return [
         str(dia) if not len(str(dia)) == 1 else ("0" + str(dia))
         for dia in dias_letivos_uteis
@@ -3929,12 +3940,12 @@ def _all_periodos_zero(
         categoria: Instância de `CategoriaMedicao`.
 
     Returns:
-        bool: True se todos os períodos estão zero ou sem valor, False caso contrário.
+        bool: True se todos os períodos estão preenchidos com zero, False caso contrário.
     """
     for medicao in medicoes_periodos:
         key = (medicao.id, dia, categoria.id)
         valor = valores_periodos.get(key)
-        if valor is not None and valor != "0":
+        if valor is None or valor != "0":
             return False
     return True
 
@@ -4175,7 +4186,7 @@ def _programas_e_projetos_periodo_zero_emebs_necessita_erro_otimizado(
     for medicao in medicoes_periodos:
         key = (medicao.id, dia, categoria.id, infantil_ou_fundamental)
         valor = valores_periodos.get(key)
-        if valor is not None and valor != "0":
+        if valor is None or valor != "0":
             return False
 
     valor_programas = valores_programas.get(
