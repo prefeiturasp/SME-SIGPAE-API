@@ -224,3 +224,78 @@ def test_com_um_periodo_nao_zero_ok(
     erros = run_validator(validator, solicitacao)
 
     assert_sem_erro(erros)
+
+
+@pytest.mark.parametrize(
+    "validator, fixture_name, categoria_fixture, periodo_nome, extra",
+    [
+        (
+            validate_solicitacoes_programas_e_projetos,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_alimentacao",
+            "categoria_medicao",
+            "TARDE",
+            None,
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_dietas",
+            "categoria_medicao_dieta_a",
+            "TARDE",
+            None,
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos_emebs,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_alimentacao",
+            "categoria_medicao",
+            "TARDE",
+            {"infantil_ou_fundamental": "FUNDAMENTAL"},
+        ),
+        (
+            validate_solicitacoes_programas_e_projetos_emebs,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_emebs_dietas",
+            "categoria_medicao_dieta_a",
+            "TARDE",
+            {"infantil_ou_fundamental": "FUNDAMENTAL"},
+        ),
+        (
+            _validate_solicitacoes_programas_e_projetos_emei_cemei,
+            "solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao",
+            "categoria_medicao",
+            "Infantil TARDE",
+            None,
+        ),
+        (
+            _validate_solicitacoes_programas_e_projetos_emei_cemei,
+            "solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas",
+            "categoria_medicao_dieta_a",
+            "Infantil TARDE",
+            None,
+        ),
+    ],
+)
+def test_periodo_sem_lancamento_nao_gera_erro(
+    request, validator, fixture_name, categoria_fixture, periodo_nome, extra
+):
+    """Período sem valor lançado (None) não deve ser tratado como zero — não deve gerar erro."""
+    solicitacao = request.getfixturevalue(fixture_name)
+    categoria = request.getfixturevalue(categoria_fixture)
+
+    if solicitacao.escola.eh_cemei:
+        medicao_tarde = solicitacao.medicoes.filter(grupo__nome=periodo_nome).first()
+    else:
+        medicao_tarde = solicitacao.medicoes.filter(
+            periodo_escolar__nome=periodo_nome
+        ).first()
+
+    filtros = {
+        "nome_campo": "frequencia",
+        "dia": "14",
+        "categoria_medicao": categoria,
+    }
+    if extra:
+        filtros.update(extra)
+    medicao_tarde.valores_medicao.filter(**filtros).delete()
+
+    erros = run_validator(validator, solicitacao)
+
+    assert_sem_erro(erros)

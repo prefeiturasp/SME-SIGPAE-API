@@ -3929,12 +3929,12 @@ def _all_periodos_zero(
         categoria: Instância de `CategoriaMedicao`.
 
     Returns:
-        bool: True se todos os períodos estão zero ou sem valor, False caso contrário.
+        bool: True se todos os períodos estão preenchidos com zero, False caso contrário.
     """
     for medicao in medicoes_periodos:
         key = (medicao.id, dia, categoria.id)
         valor = valores_periodos.get(key)
-        if valor is not None and valor != "0":
+        if valor is None or valor != "0":
             return False
     return True
 
@@ -4175,7 +4175,7 @@ def _programas_e_projetos_periodo_zero_emebs_necessita_erro_otimizado(
     for medicao in medicoes_periodos:
         key = (medicao.id, dia, categoria.id, infantil_ou_fundamental)
         valor = valores_periodos.get(key)
-        if valor is not None and valor != "0":
+        if valor is None or valor != "0":
             return False
 
     valor_programas = valores_programas.get(
