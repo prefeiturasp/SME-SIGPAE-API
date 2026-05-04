@@ -5007,6 +5007,15 @@ def solicitacao_dias_letivos_escola(
             data=datetime.date(2025, 11, dia),
             dia_letivo=dia_letivo,
         )
+        log = baker.make(
+            "LogAlunosMatriculadosPeriodoEscola",
+            escola=escola,
+            periodo_escolar=periodo_escolar_noite,
+            tipo_turma=TipoTurma.REGULAR.name,
+            quantidade_alunos=25,
+        )
+        log.criado_em = datetime.datetime(2025, 11, dia, 12, 0)
+        log.save()
     return solicitacao
 
 
