@@ -7,12 +7,14 @@ def test_template_email_base():
     hidden_email = None
     solicitacao = 12234
     usuario = "ADMINISTRADOR CODAE"
+    nome_produto = "Arroz Tipo 1"
 
     dados_template = {
         "titulo": titulo,
         "hidden_email": hidden_email,
         "solicitacao": solicitacao,
         "usuario": usuario,
+        "nome_produto": nome_produto,
     }
     html = render_to_string(template, context=dados_template)
     assert isinstance(html, str)
@@ -25,6 +27,6 @@ def test_template_email_base():
         in html
     )
     assert (
-        f"O Fornecedor <strong>{usuario}</strong> Solicitou Alterações no Cronograma <strong>{solicitacao}</strong>"
+        f"O Fornecedor <strong>{usuario}</strong> Solicitou Alterações no Cronograma <strong>{solicitacao}</strong> de <strong>{nome_produto}</strong>"
         in html
     )
