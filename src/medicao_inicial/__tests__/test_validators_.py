@@ -2,9 +2,11 @@ import datetime
 
 import pytest
 from freezegun.api import freeze_time
+from model_bakery import baker
 
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.escola.models import TipoTurma
 from src.medicao_inicial.validators import (
     _validate_solicitacoes_programas_e_projetos_emei_cemei,
     get_lista_dias_letivos,
@@ -346,3 +348,109 @@ def test_obter_periodos_corretos_sem_periodo_notuno(
 
     assert "noite" in periodos
     assert periodos["noite"] == periodos["default"]
+
+
+def _make_solicitacao(escola, mes="11", ano="2025"):
+    return baker.make("SolicitacaoMedicaoInicial", mes=mes, ano=ano, escola=escola)
+
+
+def _make_dia_letivo(escola, dia, mes=11, ano=2025, periodo_escolar=None):
+    baker.make(
+        "DiaCalendario",
+        escola=escola,
+        periodo_escolar=periodo_escolar,
+        data=datetime.date(ano, mes, dia),
+        dia_letivo=True,
+    )
+
+
+def _make_log(
+    escola, periodo_escolar, dia, mes=11, ano=2025, quantidade=25, tipo_turma=None
+):
+    log = baker.make(
+        "LogAlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        periodo_escolar=periodo_escolar,
+        tipo_turma=tipo_turma or TipoTurma.REGULAR.name,
+        quantidade_alunos=quantidade,
+    )
+    log.criado_em = datetime.datetime(ano, mes, dia, 12, 0)
+    log.save()
+    return log
+
+
+def test_get_lista_dias_letivos_dia_com_log_valido_incluido(
+    escola, periodo_escolar_noite
+):
+    """Dia letivo com log REGULAR, quantidade > 0 e periodo_escolar preenchido é retornado."""
+    solicitacao = _make_solicitacao(escola)
+    _make_dia_letivo(escola, 3)
+    _make_log(escola, periodo_escolar_noite, 3)
+
+    dias = get_lista_dias_letivos(solicitacao, escola)
+
+    assert "03" in dias
+
+
+def test_get_lista_dias_letivos_dia_sem_log_excluido(escola):
+    """Dia letivo sem log correspondente não é retornado."""
+    solicitacao = _make_solicitacao(escola)
+    _make_dia_letivo(escola, 3)
+
+    dias = get_lista_dias_letivos(solicitacao, escola)
+
+    assert "03" not in dias
+
+
+def test_get_lista_dias_letivos_log_quantidade_zero_excluido(
+    escola, periodo_escolar_noite
+):
+    """Dia letivo com log de quantidade_alunos=0 não é retornado."""
+    solicitacao = _make_solicitacao(escola)
+    _make_dia_letivo(escola, 3)
+    _make_log(escola, periodo_escolar_noite, 3, quantidade=0)
+
+    dias = get_lista_dias_letivos(solicitacao, escola)
+
+    assert "03" not in dias
+
+
+def test_get_lista_dias_letivos_log_tipo_turma_nao_regular_excluido(
+    escola, periodo_escolar_noite
+):
+    """Dia letivo com log de tipo_turma != REGULAR não é retornado."""
+    solicitacao = _make_solicitacao(escola)
+    _make_dia_letivo(escola, 3)
+    _make_log(escola, periodo_escolar_noite, 3, tipo_turma="PROGRAMAS")
+
+    dias = get_lista_dias_letivos(solicitacao, escola)
+
+    assert "03" not in dias
+
+
+def test_get_lista_dias_letivos_log_de_outra_escola_excluido(
+    escola, periodo_escolar_noite
+):
+    """Dia letivo com log de outra escola não é retornado."""
+    outra_escola = baker.make("Escola")
+    solicitacao = _make_solicitacao(escola)
+    _make_dia_letivo(escola, 3)
+    _make_log(outra_escola, periodo_escolar_noite, 3)
+
+    dias = get_lista_dias_letivos(solicitacao, escola)
+
+    assert "03" not in dias
+
+
+def test_get_lista_dias_letivos_log_de_outro_mes_excluido(
+    escola, periodo_escolar_noite
+):
+    """Log do mesmo dia mas de mês diferente não conta."""
+    solicitacao = _make_solicitacao(escola)
+    _make_dia_letivo(escola, 3)
+    # Log existe para Outubro, para Novembro não
+    _make_log(escola, periodo_escolar_noite, 3, mes=10)
+
+    dias = get_lista_dias_letivos(solicitacao, escola)
+
+    assert "03" not in dias
