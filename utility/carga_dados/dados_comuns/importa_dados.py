@@ -1,6 +1,6 @@
-from sme_sigpae_api.dados_comuns.data.contatos import data_contatos
-from sme_sigpae_api.dados_comuns.data.templatemensagem import data_templatemensagem
-from sme_sigpae_api.dados_comuns.models import Contato, TemplateMensagem
+from src.dados_comuns.data.contatos import data_contatos
+from src.dados_comuns.data.templatemensagem import data_templatemensagem
+from src.dados_comuns.models import Contato, TemplateMensagem
 from utility.carga_dados.helper import ja_existe, progressbar
 
 

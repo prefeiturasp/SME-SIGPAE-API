@@ -4,8 +4,8 @@ import environ
 import numpy as np
 import pandas as pd
 
-from sme_sigpae_api.escola.models import Escola
-from sme_sigpae_api.perfil.models import Perfil, Usuario
+from src.escola.models import Escola
+from src.perfil.models import Perfil, Usuario
 from utility.carga_dados.escola.helper import bcolors, printa_pontinhos
 
 from .helper import coloca_zero_a_esquerda, cria_vinculo_de_perfil_usuario

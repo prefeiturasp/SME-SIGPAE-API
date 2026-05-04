@@ -8,19 +8,19 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
 from faker import Faker
 
-from sme_sigpae_api.dieta_especial.protocolo_padrao.models import (
+from src.dieta_especial.protocolo_padrao.models import (
     Alimento,
     SubstituicaoAlimento,
 )
-from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     Anexo,
     ClassificacaoDieta,
     MotivoNegacao,
     SolicitacaoDietaEspecial,
 )
-from sme_sigpae_api.escola.models import Aluno, Escola
-from sme_sigpae_api.perfil.models import Usuario
+from src.escola.models import Aluno, Escola
+from src.perfil.models import Usuario
 
 f = Faker("pt-br")
 f.seed(420)
@@ -130,9 +130,7 @@ def cria_solicitacoes_dieta_especial(qtd=50):
         )
     Aluno.objects.bulk_create(alunos)
 
-    with open(
-        "sme_sigpae_api/static/files/425-cuidado-area-de-teste.jpg", "rb"
-    ) as image_file:
+    with open("src/static/files/425-cuidado-area-de-teste.jpg", "rb") as image_file:
         test_file = SimpleUploadedFile(f.file_name(extension="jpg"), image_file.read())
 
     for index in range(qtd):

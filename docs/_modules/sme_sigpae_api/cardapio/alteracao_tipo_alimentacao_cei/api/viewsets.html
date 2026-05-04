@@ -97,11 +97,33 @@
 <div class="viewcode-block" id="AlteracoesCardapioCEIViewSet">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracoesCardapioCEIViewSet</span><span class="p">(</span><span class="n">AlteracoesCardapioViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ViewSet para gerenciar solicitacoes de Alteracao do Tipo de Alimentacao CEI.</span>
+
+<span class="sd">    Herda todas as actions de fluxo de ``AlteracoesCardapioViewSet`` (inicio de</span>
+<span class="sd">    pedido, validacao DRE, autorizacao CODAE, cancelamento, etc.) e sobrescreve</span>
+<span class="sd">    o queryset, os serializers e as actions de listagem por perfil para operar</span>
+<span class="sd">    sobre ``AlteracaoCardapioCEI``.</span>
+
+<span class="sd">    Tipos de unidade contemplados:</span>
+<span class="sd">        - CEI DIRET</span>
+<span class="sd">        - CEU CEI</span>
+<span class="sd">        - CCI/CIPS</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">queryset</span> <span class="o">=</span> <span class="n">AlteracaoCardapioCEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AlteracoesCardapioCEIViewSet.get_serializer_class">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.get_serializer_class">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a classe de serializer adequada para a acao atual.</span>
+
+<span class="sd">        - Para as acoes ``create``, ``update`` e ``partial_update``: utiliza</span>
+<span class="sd">          ``AlteracaoCardapioCEISerializerCreate``.</span>
+<span class="sd">        - Para as demais acoes: utiliza ``AlteracaoCardapioCEISerializer``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: Classe de serializer a ser utilizada na acao corrente.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">AlteracaoCardapioCEISerializerCreate</span>
         <span class="k">return</span> <span class="n">AlteracaoCardapioCEISerializer</span></div>
@@ -114,7 +136,18 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SOLICITACOES_DO_USUARIO</span><span class="p">,</span>
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEscolaTercTotal</span><span class="p">,),</span>
     <span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">minhas_solicitacoes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minhas_solicitacoes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitacoes de Alteracao de Tipo de Alimentacao CEI do usuario logado que estao em RASCUNHO.</span>
+<span class="sd">          - permissao: Escola terceirizada.</span>
+
+<span class="sd">        Os resultados sao paginados.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisicao HTTP contendo o usuario autenticado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com a lista de alteracoes de cardapio CEI em rascunho do usuario.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">alteracoes_cardapio_rascunho</span> <span class="o">=</span> <span class="n">AlteracaoCardapioCEI</span><span class="o">.</span><span class="n">get_rascunhos_do_usuario</span><span class="p">(</span>
             <span class="n">usuario</span>
@@ -131,8 +164,23 @@
         <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">PEDIDOS_CODAE</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">FILTRO_PADRAO_PEDIDOS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">[</span><span class="n">UsuarioCODAEGestaoAlimentacao</span><span class="p">],</span>
     <span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_codae</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
-        <span class="c1"># TODO: colocar regras de codae CODAE aqui...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_codae</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna todas as solicitacoes de Alteracao de Tipo de Alimentacao CEI para a CODAE:</span>
+<span class="sd">          - com status DRE_VALIDADO, para a CODAE autorizar, negar ou pedir questionamento a empresa do lote;</span>
+<span class="sd">          - utilizado em tela para dividir as solicitacoes por prioridade (proximas ao vencimento, prazo limite, prazo regular).</span>
+<span class="sd">          - permissao: CODAE Gestao de Alimentacao.</span>
+
+<span class="sd">        Filtra opcionalmente por diretoria regional e/ou lote via query params.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisicao HTTP. Aceita ``diretoria_regional`` e</span>
+<span class="sd">                ``lote`` como query params opcionais.</span>
+<span class="sd">            filtro_aplicado (str): Filtro de status aplicado as solicitacoes.</span>
+<span class="sd">                Padrao: ``constants.SEM_FILTRO``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Lista serializada das alteracoes de cardapio CEI encontradas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">codae</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
         <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">codae</span><span class="o">.</span><span class="n">alteracoes_cardapio_cei_das_minhas</span><span class="p">(</span><span class="n">filtro_aplicado</span><span class="p">)</span>
@@ -157,8 +205,23 @@
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_diretoria_regional</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span>
-    <span class="p">):</span>
-        <span class="c1"># TODO: colocar regras de DRE aqui...</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitacoes de Alteracao do Tipo de Alimentacao CEI das escolas vinculadas a DRE do usuario:</span>
+<span class="sd">          - com status DRE_A_VALIDAR, para a DRE validar ou nao validar;</span>
+<span class="sd">          - utilizado em tela para dividir as solicitacoes por prioridade (proximas ao vencimento, prazo limite, prazo regular).</span>
+<span class="sd">          - permissao: Diretoria Regional.</span>
+
+<span class="sd">        Filtra opcionalmente por lote via query param.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisicao HTTP contendo o usuario autenticado.</span>
+<span class="sd">                Aceita ``lote`` como query param opcional.</span>
+<span class="sd">            filtro_aplicado (str): Filtro de status aplicado as solicitacoes.</span>
+<span class="sd">                Padrao: ``constants.SEM_FILTRO``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Lista serializada das alteracoes de cardapio CEI encontradas para a DRE.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">dre</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
         <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">dre</span><span class="o">.</span><span class="n">alteracoes_cardapio_cei_das_minhas_escolas</span><span class="p">(</span>
@@ -180,8 +243,20 @@
         <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">PEDIDOS_TERCEIRIZADA</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">FILTRO_PADRAO_PEDIDOS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">[</span><span class="n">UsuarioEmpresaGenerico</span><span class="p">],</span>
     <span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_terceirizada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
-        <span class="c1"># TODO: colocar regras de Terceirizada aqui...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_terceirizada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitacoes de Alteracao do Tipo de Alimentacao CEI da terceirizada do usuario.</span>
+<span class="sd">          - permissao: empresa terceirizada.</span>
+
+<span class="sd">        Os resultados sao paginados.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisicao HTTP contendo o usuario autenticado.</span>
+<span class="sd">            filtro_aplicado (str): Filtro de status aplicado as solicitacoes.</span>
+<span class="sd">                Padrao: ``constants.SEM_FILTRO``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com a lista de alteracoes de cardapio CEI da terceirizada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">terceirizada</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
         <span class="n">alteracoes_cardapio</span> <span class="o">=</span> <span class="n">terceirizada</span><span class="o">.</span><span class="n">alteracoes_cardapio_cei_das_minhas</span><span class="p">(</span>
@@ -196,7 +271,17 @@
 <div class="viewcode-block" id="AlteracoesCardapioCEIViewSet.relatorio">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets.AlteracoesCardapioCEIViewSet.relatorio">[docs]</a>
     <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">RELATORIO</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gera e retorna o relatorio da Alteracao do Tipo de Alimentacao CEI em formato PDF.</span>
+<span class="sd">          - permissao: qualquer usuario autenticado com acesso a solicitacao.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisicao HTTP.</span>
+<span class="sd">            uuid (str, optional): UUID da instancia de ``AlteracaoCardapioCEI``. Padrao: None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HttpResponse: Resposta contendo o PDF do relatorio gerado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">relatorio_alteracao_cardapio_cei</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">solicitacao</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">())</span></div>
 </div>
 

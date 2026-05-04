@@ -1,14 +1,14 @@
 alteracao\_tipo\_alimentacao
 ============================
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao
    :members:
    :show-inheritance:
 
 admin
 -----
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.admin
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.admin
    :members:
    :show-inheritance:
    :exclude-members: list_display, list_filter, media, readonly_fields, search_fields, search_help_text
@@ -16,7 +16,7 @@ admin
 behaviors
 ---------
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.behaviors
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.behaviors
    :members:
    :show-inheritance:
    :exclude-members: EhAlteracaoCardapio
@@ -76,7 +76,7 @@ behaviors
 models
 ------
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.models
    :members:
    :show-inheritance:
    :exclude-members: 
@@ -97,6 +97,7 @@ models
       data_final,
       data_inicial,
       datas_intervalo,
+      DESCRICAO,
       escola,
       escola_id,
       foi_solicitado_fora_do_prazo,
@@ -763,63 +764,63 @@ models
 api
 ---
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.api
    :members:
    :show-inheritance:
 
-api/serializers
-~~~~~~~~~~~~~~~
+serializers
+~~~~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.api.serializers
    :members:
    :show-inheritance:
 
-api/serializers\_create
-~~~~~~~~~~~~~~~~~~~~~~~
+serializers\_create
+~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.api.serializers_create
    :members:
    :show-inheritance:
 
-api/validators
-~~~~~~~~~~~~~~
+validators
+~~~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.validators
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.api.validators
    :members:
    :show-inheritance:
 
-api/viewsets
-~~~~~~~~~~~~
+viewsets
+~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.viewsets
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.api.viewsets
    :members:
    :show-inheritance:
 
 fixtures
 --------
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.fixtures
    :members:
    :show-inheritance:
 
 fixtures/factories
 ~~~~~~~~~~~~~~~~~~
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.fixtures.factories
    :members:
    :show-inheritance:
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory
    :members:
    :show-inheritance:
 
 managers
 --------
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.managers
    :members:
    :show-inheritance:
 
-.. automodule:: sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers
+.. automodule:: src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers
    :members:
    :show-inheritance:

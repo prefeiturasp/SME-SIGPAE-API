@@ -1,17 +1,17 @@
 management
 ==========
 
-.. automodule:: sme_sigpae_api.cardapio.management
+.. automodule:: src.cardapio.management
    :members:
    :show-inheritance:
 
 commands
 --------
 
-.. automodule:: sme_sigpae_api.cardapio.management.commands
+.. automodule:: src.cardapio.management.commands
    :members:
    :show-inheritance:
 
-.. automodule:: sme_sigpae_api.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia
+.. automodule:: src.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia
    :members:
    :show-inheritance:

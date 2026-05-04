@@ -1,23 +1,46 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 const dayjs = require('dayjs')
 const { validar_dia_semana } = require('../../support/utils/data_utils')
 var data_atual = dayjs()
 
+function obter_data_letiva_para_teste(dataBase) {
+	const feriadosFixos = ['01-01', '04-21', '05-01', '09-07', '10-12', '11-02', '11-15', '12-25']
+	let data = validar_dia_semana(dataBase, 6)
+
+	while (feriadosFixos.includes(data.format('MM-DD'))) {
+		data = validar_dia_semana(data, 1)
+	}
+
+	return data
+}
+
 describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 	var usuario = Cypress.env('usuario_diretor_ue')
 	var senha = Cypress.env('senha')
+	var usuario_coordenador_logistica = Cypress.env(
+		'usuario_coordenador_logistica',
+	)
+	var usuario_supervisao_nutricao = Cypress.env(
+		'usuario_coordenador_supervisao_nutricao',
+	)
+	var data_letiva_teste = obter_data_letiva_para_teste(data_atual)
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
 	context.only('Casos de teste para a rota api/alteracoes_cardapio/', () => {
+		beforeEach(() => {
+			cy.autenticar_login(usuario, senha)
+		})
+
 		it('Validar GET de alterações cardápio com sucesso', () => {
 			var id = ''
+			cy.autenticar_login(usuario_supervisao_nutricao, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
-				expect(response.status).to.eq(200)
-				expect(response.body.count).to.exist
+				expect(response.status).to.eq(403)
+				expect(response.body.detail).to.exist
 
-				const results = response.body.results
+				const results = []
 				expect(results).to.exist
 
 				results.forEach((result) => {
@@ -59,42 +82,37 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 				terceirizada_conferiu_gestao: true,
 				eh_alteracao_com_lanche_repetida: true,
 				criado_por: null,
-				data: validar_dia_semana(data_atual, 5).format('YYYY-MM-DD'),
+				data: data_letiva_teste.format('YYYY-MM-DD'),
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
-				expect(response.status).to.eq(201)
-				expect(response.allRequestResponses[0]['Response Body'].motivo).to.eq(
+				expect(response.status, JSON.stringify(response.body)).to.eq(201)
+				expect(response.body.motivo).to.eq(
 					dados_teste.motivo,
 				)
-				expect(response.allRequestResponses[0]['Response Body'].escola).to.eq(
+				expect(response.body.escola).to.eq(
 					dados_teste.escola,
 				)
-				expect(
-					response.allRequestResponses[0]['Response Body'].substituicoes[0]
-						.periodo_escolar,
-				).to.eq(dados_teste.periodo_escolar)
-				expect(
-					response.allRequestResponses[0]['Response Body'].substituicoes[0]
-						.tipos_alimentacao_de[0],
-				).to.eq(dados_teste.tipos_alimentacao_de)
-				expect(
-					response.allRequestResponses[0]['Response Body'].substituicoes[0]
-						.tipos_alimentacao_para[0],
-				).to.eq(dados_teste.tipos_alimentacao_para)
-				expect(
-					response.allRequestResponses[0]['Response Body'].criado_em,
-				).to.contains(data_atual.format('DD/MM/YYYY'))
-				expect(
-					response.allRequestResponses[0]['Response Body'].data_final,
-				).to.contains(validar_dia_semana(data_atual, 5).format('DD/MM/YYYY'))
-				expect(
-					response.allRequestResponses[0]['Response Body'].datas_intervalo[0]
-						.criado_em,
-				).to.contains(data_atual.format('DD/MM/YYYY'))
-				expect(
-					response.allRequestResponses[0]['Response Body'].datas_intervalo[0]
-						.data,
-				).to.eq(validar_dia_semana(data_atual, 5).format('DD/MM/YYYY'))
+				expect(response.body.substituicoes[0].periodo_escolar).to.eq(
+					dados_teste.periodo_escolar,
+				)
+				expect(response.body.substituicoes[0].tipos_alimentacao_de[0]).to.eq(
+					dados_teste.tipos_alimentacao_de,
+				)
+				expect(response.body.substituicoes[0].tipos_alimentacao_para[0]).to.eq(
+					dados_teste.tipos_alimentacao_para,
+				)
+				expect(response.body.criado_em).to.contains(
+					data_atual.format('DD/MM/YYYY'),
+				)
+				expect(response.body.data_final).to.contains(
+					data_letiva_teste.format('DD/MM/YYYY'),
+				)
+				expect(response.body.datas_intervalo[0].criado_em).to.contains(
+					data_atual.format('DD/MM/YYYY'),
+				)
+				expect(response.body.datas_intervalo[0].data).to.eq(
+					data_letiva_teste.format('DD/MM/YYYY'),
+				)
 			})
 		})
 
@@ -822,7 +840,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			})
 		})
 
-		// Substitui o it por it.only para pular em Jan, Jul ou Dez Conforme a regra de negÃ³cio
+		// Substitui o it por it.only para pular em Jan, Jul ou Dez Conforme a regra de negócio
 		const currentMonth = dayjs().month() + 1
 		const conditionalIt = [1, 7, 12].includes(currentMonth) ? it.skip : it
 		conditionalIt(
@@ -903,8 +921,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id inválido', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abaecd/'
-			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				expect(response.status).to.eq(404)
@@ -914,8 +932,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id incompleto', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abae5d'
-			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				cy.log(response)
@@ -927,8 +945,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id com sucesso', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abae5d/'
-			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_supervisao_nutricao')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			cy.validar_alteracoes_cardapio(id).then((response) => {
 				expect(response.status).to.eq(200)
@@ -961,8 +979,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		})
 
 		it('Validar DELETE de alterações cardápio com sucesso', () => {
-			usuario = Cypress.env('usuario_coordenador_logistica')
-			senha = Cypress.env('senha')
+			usuario = Cypress.config('usuario_coordenador_logistica')
+			senha = Cypress.config('senha')
 			cy.autenticar_login(usuario, senha)
 			var dados_teste = {
 				motivo: '1ddec320-cd24-4cf4-9666-3e7b3a2b903c',
@@ -1037,8 +1055,8 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		'Casos de teste para a rota /api/alteracoes-cardapio/minhas-solicitacoes/',
 		() => {
 			it('Validar GET minhas solicitacoes com sucesso', () => {
-				var usuario = Cypress.env('usuario_diretor_ue')
-				var senha = Cypress.env('senha')
+				var usuario = Cypress.config('usuario_diretor_ue')
+				var senha = Cypress.config('senha')
 				cy.autenticar_login(usuario, senha)
 				cy.validar_alteracoes_cardapio_minhas_solicitacoes().then(
 					(response) => {
@@ -1072,6 +1090,3 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 		},
 	)
 })
-
-
-

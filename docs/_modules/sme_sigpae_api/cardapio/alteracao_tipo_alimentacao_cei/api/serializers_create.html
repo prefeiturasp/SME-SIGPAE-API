@@ -98,6 +98,18 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate</span><span class="p">(</span>
     <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a escrita de uma faixa etaria de substituicao de alimentacao CEI.</span>
+
+<span class="sd">    Recebe referencias por UUID para a substituicao de periodo escolar e para a</span>
+<span class="sd">    faixa etaria ao criar a solicitacao CEI.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente.</span>
+<span class="sd">        - Uso indireto em ``AlteracoesCardapioCEIViewSet``, aninhado em</span>
+<span class="sd">          ``SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate`` nas</span>
+<span class="sd">          actions ``create``, ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">substituicao_alimentacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -122,6 +134,18 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate</span><span class="p">(</span>
     <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerCreateBase</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a escrita completa de substituicoes por periodo escolar para CEI.</span>
+
+<span class="sd">    Complementa o serializer base com o tipo de alimentacao de destino (FK) e</span>
+<span class="sd">    as faixas etarias detalhadas, criando todos os relacionamentos vinculados.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente.</span>
+<span class="sd">        - Uso indireto em ``AlteracoesCardapioCEIViewSet``, aninhado em</span>
+<span class="sd">          ``AlteracaoCardapioCEISerializerCreate`` nas actions ``create``,</span>
+<span class="sd">          ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">alteracao_cardapio</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">AlteracaoCardapioCEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="p">)</span>
@@ -135,6 +159,17 @@
 <div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate.create">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate.create">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cria uma substituicao de alimentacao CEI com relacionamentos M2M e faixas etarias.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            validated_data (dict): Dados validados pelo serializer, incluindo</span>
+<span class="sd">                ``tipos_alimentacao_de`` e ``faixas_etarias``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SubstituicaoAlimentacaoNoPeriodoEscolarCEI: Instancia criada com</span>
+<span class="sd">            os tipos de alimentacao de origem vinculados e as faixas etarias</span>
+<span class="sd">            associadas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">faixas_etarias</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;faixas_etarias&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">tipos_alimentacao_de</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao_de&quot;</span><span class="p">)</span>
         <span class="n">substituicao_alimentacao</span> <span class="o">=</span> <span class="p">(</span>
@@ -161,6 +196,18 @@
 <div class="viewcode-block" id="AlteracaoCardapioCEISerializerCreate">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.AlteracaoCardapioCEISerializerCreate">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioCEISerializerCreate</span><span class="p">(</span><span class="n">AlteracaoCardapioSerializerCreateBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a criacao e atualizacao completas de alteracoes de cardapio CEI.</span>
+
+<span class="sd">    Valida datas e regras de negocio especificas para CEI (incluindo</span>
+<span class="sd">    duplicidade de RPL), resolve relacionamentos por UUID e cria as</span>
+<span class="sd">    substituicoes por periodo e faixa etaria associadas ao pedido.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``AlteracoesCardapioCEIViewSet``: retornado por</span>
+<span class="sd">          ``get_serializer_class()`` nas actions ``create``, ``update`` e</span>
+<span class="sd">          ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializerCreate</span><span class="p">(</span>
         <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
@@ -168,6 +215,19 @@
 <div class="viewcode-block" id="AlteracaoCardapioCEISerializerCreate.validate_data">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create.AlteracaoCardapioCEISerializerCreate.validate_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Aplica as validacoes de negocio especificas para a data da solicitacao CEI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (datetime.date): Data informada na solicitacao.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date: A mesma data recebida, apos passar pelas</span>
+<span class="sd">            validacoes de prazo, ano corrente e duplicidade de RPL.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValidationError: Quando a data viola alguma das regras de negocio</span>
+<span class="sd">                aplicadas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">deve_pedir_com_antecedencia</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">deve_ser_no_mesmo_ano_corrente</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>

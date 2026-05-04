@@ -5,7 +5,7 @@ from typing import Type, TypeVar
 from django.core.files import File
 from openpyxl import Workbook, load_workbook, styles
 
-from sme_sigpae_api.perfil.models import Usuario
+from src.perfil.models import Usuario
 
 T = TypeVar("T")
 

@@ -1,0 +1,43 @@
+<!doctype html>
+{% load index %} {% load sass_tags %} {% load safe_html_tags %}
+<html lang="pt-BR">
+  <head>
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/custom_bootstrap.scss' %}"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/relatorio_ateste_financeiro.scss' %}"
+      type="text/css"
+    />
+    <title>SIGPAE</title>
+  </head>
+
+  <body>
+    <div class="relatorio-financeiro">
+      {% include "relatorio_financeiro/componentes/cabecalho.html" with
+      cabecalho=cabecalho %} {% include
+      "relatorio_financeiro/componentes/tabela_alimentacao_cei.html" with
+      linhas=alimentacao.linhas faixasEtarias=faixasEtarias ordem="A"
+      total_atendimentos=alimentacao.total_atendimentos
+      valor_total=alimentacao.valor_total %} {% include
+      "relatorio_financeiro/componentes/tabela_dieta_cei.html" with
+      linhas=dieta_a.linhas faixasEtarias=faixasEtarias tipoDieta="TIPO A"
+      tipo_class="cor-tipo-a" ordem="B" total_consumo=dieta_a.total_consumo
+      valor_total=dieta_a.valor_total %} {% include
+      "relatorio_financeiro/componentes/tabela_dieta_cei.html" with
+      linhas=dieta_b.linhas faixasEtarias=faixasEtarias tipoDieta="TIPO B"
+      tipo_class="cor-tipo-b" ordem="C" total_consumo=dieta_b.total_consumo
+      valor_total=dieta_b.valor_total %} {% include
+      "relatorio_financeiro/componentes/consolidado_total.html" with
+      titulo='CONSOLIDADO TOTAL (A + B + C)' quantidade=consolidado.quantidade
+      valor=consolidado.valor valor_extenso=consolidado.valor_extenso %}
+    </div>
+    <div class="data-geracao">
+      Documento gerado em {{ cabecalho.data_geracao }} às {{
+      cabecalho.hora_geracao }}
+    </div>
+  </body>
+</html>

@@ -1,0 +1,110 @@
+import datetime
+
+import pytest
+from freezegun import freeze_time
+from model_bakery import baker
+
+from src.cardapio.inversao_dia_cardapio.api.serializers_create import (
+    InversaoCardapioSerializerCreate,
+)
+from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+
+pytestmark = pytest.mark.django_db
+
+
+@freeze_time("2019-10-14")
+def test_inversao_serializer_validators(inversao_card_params, tipo_alimentacao):
+    data_de, data_para, _, _ = inversao_card_params
+    serializer_obj = InversaoCardapioSerializerCreate()
+    cardapio_de = baker.make("cardapio.Cardapio", data=data_de)
+    cardapio_para = baker.make("cardapio.Cardapio", data=data_para)
+    tipo_ue = baker.make(
+        "escola.TipoUnidadeEscolar", cardapios=[cardapio_de, cardapio_para]
+    )
+    lote = baker.make("Lote")
+    escola = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
+    baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=True)
+    baker.make("escola.DiaCalendario", escola=escola, data=data_para, dia_letivo=True)
+    attrs = dict(
+        data_de=data_de,
+        data_para=data_para,
+        escola=escola,
+        tipos_alimentacao=[tipo_alimentacao],
+    )
+
+    response_de = serializer_obj.validate_data_de(data_de=data_de)
+    response_para = serializer_obj.validate_data_para(data_para=data_para)
+    response_geral = serializer_obj.validate(attrs=attrs)
+    assert response_de == data_de
+    assert response_para == data_para
+    assert response_geral == attrs
+
+
+@freeze_time("2019-10-15")
+def test_inversao_serializer_creators(inversao_card_params):
+    class FakeObject(object):
+        user = baker.make("perfil.Usuario")
+
+    data_de_cria, data_para, data_de_atualiza, data_para_atualiza = inversao_card_params
+    serializer_obj = InversaoCardapioSerializerCreate(context={"request": FakeObject})
+
+    cardapio1 = baker.make("cardapio.Cardapio", data=data_de_cria)
+    cardapio2 = baker.make("cardapio.Cardapio", data=data_para)
+    cardapio3 = baker.make("cardapio.Cardapio", data=data_de_atualiza)
+    cardapio4 = baker.make("cardapio.Cardapio", data=data_para_atualiza)
+
+    tipo_ue = baker.make(
+        "escola.TipoUnidadeEscolar",
+        cardapios=[cardapio1, cardapio2, cardapio3, cardapio4],
+    )
+    lote = baker.make("Lote")
+    escola1 = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
+    escola2 = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
+
+    validated_data_create = dict(
+        data_de=data_de_cria, data_para=data_para, escola=escola1
+    )
+    validated_data_update = dict(
+        data_de=data_de_atualiza, data_para=data_para_atualiza, escola=escola2
+    )
+
+    inversao_cardapio = serializer_obj.create(validated_data=validated_data_create)
+    assert isinstance(inversao_cardapio, InversaoCardapio)
+
+    assert inversao_cardapio.data_de_inversao == data_de_cria
+    assert inversao_cardapio.data_para_inversao == data_para
+    assert inversao_cardapio.escola == escola1
+
+    instance = serializer_obj.update(
+        instance=inversao_cardapio, validated_data=validated_data_update
+    )
+    assert isinstance(instance, InversaoCardapio)
+    assert inversao_cardapio.data_de_inversao == data_de_atualiza
+    assert inversao_cardapio.data_para_inversao == data_para_atualiza
+    assert inversao_cardapio.escola == escola2
+
+
+@freeze_time("2025-01-01")
+def test_inversao_serializer_falha_em_final_de_semana_nao_letivo(tipo_alimentacao):
+    # Sábado: 2025-01-04
+    data_de = datetime.date(2025, 1, 4)
+    data_para = datetime.date(2025, 1, 6)  # Segunda
+    serializer_obj = InversaoCardapioSerializerCreate()
+
+    escola = baker.make("escola.Escola")
+    # Sábado NÃO letivo
+    baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=False)
+
+    attrs = dict(
+        data_de=data_de,
+        data_para=data_para,
+        escola=escola,
+        tipos_alimentacao=[tipo_alimentacao],
+    )
+
+    from rest_framework.exceptions import ValidationError
+
+    with pytest.raises(
+        ValidationError, match=f'Dia {data_de.strftime("%d/%m/%Y")} não é um dia letivo'
+    ):
+        serializer_obj.validate(attrs=attrs)

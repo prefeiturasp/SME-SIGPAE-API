@@ -1,0 +1,1853 @@
+import datetime
+
+import pytest
+from django.utils import timezone
+from faker import Faker
+from model_bakery import baker
+
+from src.dados_comuns.constants import (
+    ADMINISTRADOR_GESTAO_PRODUTO,
+    COORDENADOR_CODAE_DILOG_LOGISTICA,
+    DILOG_ABASTECIMENTO,
+    DILOG_CRONOGRAMA,
+    DILOG_QUALIDADE,
+    DJANGO_ADMIN_PASSWORD,
+)
+from src.dados_comuns.fluxo_status import (
+    FichaTecnicaDoProdutoWorkflow,
+    LayoutDeEmbalagemWorkflow,
+)
+from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.utils import convert_base64_to_contentfile
+from src.terceirizada.models import Terceirizada
+
+from ..base.models import UnidadeMedida
+from ..ficha_tecnica.models import AnaliseFichaTecnica, FichaTecnicaDoProduto
+from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
+
+fake = Faker("pt_BR")
+
+
+@pytest.fixture
+def codae():
+    return baker.make("Codae")
+
+
+@pytest.fixture
+def modalidade():
+    return baker.make("Modalidade", nome="Pregão Eletrônico")
+
+
+@pytest.fixture
+def modalidade_chamada_publica():
+    return baker.make("Modalidade", nome="Chamada Pública")
+
+
+@pytest.fixture
+def modalidade_qualquer():
+    # Representa qualquer modalidade diferente de "Pregão Eletrônico" e "Chamada Pública"
+    return baker.make("Modalidade", nome="Qualquer")
+
+
+@pytest.fixture
+def contrato(modalidade):
+    return baker.make(
+        "Contrato",
+        numero="0003/2022",
+        processo="123",
+        numero_pregao="123456789",
+        modalidade=modalidade,
+    )
+
+
+@pytest.fixture
+def contrato_chamada_publica(modalidade_chamada_publica):
+    return baker.make(
+        "Contrato",
+        numero="0004/2022",
+        processo="124",
+        numero_pregao="987654321",
+        numero_chamada_publica="CP-2022-01",
+        modalidade=modalidade_chamada_publica,
+    )
+
+
+@pytest.fixture
+def contrato_qualquer(modalidade_qualquer):
+    return baker.make(
+        "Contrato",
+        numero="0002/2022",
+        processo="222",
+        numero_pregao="PE-2022-02",
+        numero_chamada_publica="CP-2022-02",
+        modalidade=modalidade_qualquer,
+    )
+
+
+@pytest.fixture
+def empresa(contrato):
+    return baker.make(
+        "Terceirizada",
+        nome_fantasia="Alimentos SA",
+        razao_social="Alimentos",
+        contratos=[contrato],
+        tipo_servico=Terceirizada.FORNECEDOR,
+    )
+
+
+@pytest.fixture
+def cronograma():
+    return baker.make(
+        "Cronograma",
+        numero="001/2022A",
+    )
+
+
+@pytest.fixture
+def cronograma_chamada_publica(contrato_chamada_publica):
+    return baker.make(
+        "Cronograma",
+        numero="003/2022A",
+        contrato=contrato_chamada_publica,
+    )
+
+
+@pytest.fixture
+def cronograma_rascunho(armazem, contrato, empresa):
+    return baker.make(
+        "Cronograma",
+        numero="002/2022A",
+        contrato=contrato,
+        armazem=armazem,
+        empresa=empresa,
+    )
+
+
+@pytest.fixture
+def cronograma_recebido(armazem, contrato, empresa):
+    return baker.make(
+        "Cronograma",
+        numero="002/2022A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_E_ENVIADO_AO_FORNECEDOR",
+    )
+
+
+@pytest.fixture
+def cronograma_qualquer(contrato_qualquer):
+    return baker.make(
+        "Cronograma",
+        numero="002/2022A",
+        contrato=contrato_qualquer,
+    )
+
+
+@pytest.fixture
+def etapa(cronograma):
+    return baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=1,
+        parte=1,
+    )
+
+
+@pytest.fixture
+def etapa_com_quantidade_e_data(cronograma):
+    return baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=1,
+        parte=1,
+        data_programada=timezone.now().date(),
+        quantidade=5.0,
+    )
+
+
+@pytest.fixture
+def programacao(cronograma):
+    return baker.make(
+        "ProgramacaoDoRecebimentoDoCronograma",
+        cronograma=cronograma,
+        data_programada="01/01/2022",
+    )
+
+
+@pytest.fixture
+def armazem():
+    return baker.make(
+        Terceirizada,
+        nome_fantasia="Alimentos SA",
+        tipo_servico=Terceirizada.DISTRIBUIDOR_ARMAZEM,
+    )
+
+
+@pytest.fixture
+def laboratorio():
+    return baker.make("Laboratorio", nome="Labo Test")
+
+
+@pytest.fixture
+def tipo_emabalagem_qld():
+    return baker.make("TipoEmbalagemQld", nome="CAIXA", abreviacao="CX")
+
+
+@pytest.fixture
+def cronograma_solicitado_alteracao(armazem, contrato, empresa):
+    return baker.make(
+        "Cronograma",
+        numero="00222/2022A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="SOLICITADO_ALTERACAO",
+    )
+
+
+@pytest.fixture
+def solicitacao_cronograma_em_analise(cronograma):
+    return baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        numero_solicitacao="00222/2022",
+        cronograma=cronograma,
+        status="EM_ANALISE",
+    )
+
+
+@pytest.fixture
+def solicitacao_cronograma_ciente(cronograma):
+    return baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        numero_solicitacao="00222/2022",
+        cronograma=cronograma,
+        status="CRONOGRAMA_CIENTE",
+    )
+
+
+@pytest.fixture
+def solicitacao_cronograma_aprovado_dilog_abastecimento(
+    cronograma_solicitado_alteracao,
+):
+    return baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        numero_solicitacao="00222/2022",
+        cronograma=cronograma_solicitado_alteracao,
+        status="APROVADO_DILOG_ABASTECIMENTO",
+    )
+
+
+@pytest.fixture
+def cronograma_assinado_fornecedor(armazem, contrato, empresa):
+    return baker.make(
+        "Cronograma",
+        numero="002/2022A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_FORNECEDOR",
+    )
+
+
+@pytest.fixture
+def cronograma_assinado_perfil_cronograma(armazem, contrato, empresa):
+    return baker.make(
+        "Cronograma",
+        numero="002/2022A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_E_ENVIADO_AO_FORNECEDOR",
+    )
+
+
+@pytest.fixture
+def cronograma_assinado_perfil_dilog_abastecimento(armazem, contrato, empresa):
+    return baker.make(
+        "Cronograma",
+        numero="003/2022A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_DILOG_ABASTECIMENTO",
+    )
+
+
+@pytest.fixture
+def cronograma_assinado_perfil_dilog(
+    armazem,
+    contrato,
+    empresa,
+    ficha_tecnica_factory,
+):
+    return baker.make(
+        "Cronograma",
+        numero="004/2022A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_CODAE",
+        ficha_tecnica=ficha_tecnica_factory(),
+    )
+
+
+@pytest.fixture
+def produto_arroz():
+    return baker.make("NomeDeProdutoEdital", nome="Arroz")
+
+
+@pytest.fixture
+def produto_macarrao():
+    return baker.make("NomeDeProdutoEdital", nome="Macarrão")
+
+
+@pytest.fixture
+def produto_feijao():
+    return baker.make("NomeDeProdutoEdital", nome="Feijão")
+
+
+@pytest.fixture
+def produto_acucar():
+    return baker.make("NomeDeProdutoEdital", nome="Açucar")
+
+
+@pytest.fixture
+def cronogramas_multiplos_status_com_log(
+    armazem, contrato, empresa, ficha_tecnica_factory
+):
+    c1 = baker.make(
+        "Cronograma",
+        numero="002/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_FORNECEDOR",
+        ficha_tecnica=ficha_tecnica_factory(),
+    )
+    c2 = baker.make(
+        "Cronograma",
+        numero="003/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_FORNECEDOR",
+        ficha_tecnica=ficha_tecnica_factory(),
+    )
+    c3 = baker.make(
+        "Cronograma",
+        numero="004/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_DILOG_ABASTECIMENTO",
+        ficha_tecnica=ficha_tecnica_factory(),
+    )
+    c4 = baker.make(
+        "Cronograma",
+        numero="005/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_DILOG_ABASTECIMENTO",
+        ficha_tecnica=ficha_tecnica_factory(),
+    )
+    c5 = baker.make(
+        "Cronograma",
+        numero="006/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_FORNECEDOR",
+        ficha_tecnica=ficha_tecnica_factory(),
+    )
+    c6 = baker.make(
+        "Cronograma",
+        numero="007/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="ASSINADO_CODAE",
+        ficha_tecnica=ficha_tecnica_factory(),
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=c1.uuid,
+        status_evento=59,  # CRONOGRAMA_ASSINADO_PELO_USUARIO_CRONOGRAMA
+        solicitacao_tipo=19,
+    )  # CRONOGRAMA
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=c2.uuid,
+        status_evento=59,  # CRONOGRAMA_ASSINADO_PELO_USUARIO_CRONOGRAMA
+        solicitacao_tipo=19,
+    )  # CRONOGRAMA
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=c3.uuid,
+        status_evento=69,  # CRONOGRAMA_ASSINADO_PELA_DILOG_ABASTECIMENTO
+        solicitacao_tipo=19,
+    )  # CRONOGRAMA
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=c4.uuid,
+        status_evento=69,  # CRONOGRAMA_ASSINADO_PELA_DILOG_ABASTECIMENTO
+        solicitacao_tipo=19,
+    )  # CRONOGRAMA
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=c5.uuid,
+        status_evento=59,  # CRONOGRAMA_ASSINADO_PELO_USUARIO_CRONOGRAMA
+        solicitacao_tipo=19,
+    )  # CRONOGRAMA
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=c6.uuid,
+        status_evento=70,  # CRONOGRAMA_ASSINADO_PELA_CODAE
+        solicitacao_tipo=19,
+    )  # CRONOGRAMA
+
+
+@pytest.fixture
+def cronogramas_multiplos_status_com_log_cronograma_ciente(armazem, contrato, empresa):
+    c1 = baker.make(
+        "Cronograma",
+        numero="002/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="SOLICITADO_ALTERACAO",
+    )
+    c2 = baker.make(
+        "Cronograma",
+        numero="003/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        armazem=armazem,
+        status="SOLICITADO_ALTERACAO",
+    )
+    s1 = baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        numero_solicitacao="00222/2022",
+        cronograma=c1,
+        status="CRONOGRAMA_CIENTE",
+    )
+    s2 = baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        numero_solicitacao="00223/2022",
+        cronograma=c2,
+        status="CRONOGRAMA_CIENTE",
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=s1.uuid,
+        status_evento=71,  # CRONOGRAMA_CIENTE_SOLICITACAO_ALTERACAO
+        solicitacao_tipo=20,
+    )  # CRONOGRAMA
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=s2.uuid,
+        status_evento=71,  # CRONOGRAMA_CIENTE_SOLICITACAO_ALTERACAO
+        solicitacao_tipo=20,
+    )  # CRONOGRAMA
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=c1.uuid,
+        status_evento=71,  # CRONOGRAMA_CIENTE_SOLICITACAO_ALTERACAO
+        solicitacao_tipo=19,
+    )  # CRONOGRAMA
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=c2.uuid,
+        status_evento=71,  # CRONOGRAMA_CIENTE_SOLICITACAO_ALTERACAO
+        solicitacao_tipo=19,
+    )  # CRONOGRAMA
+
+
+@pytest.fixture
+def unidade_medida_logistica():
+    return baker.make(UnidadeMedida, nome="UNIDADE TESTE", abreviacao="ut")
+
+
+@pytest.fixture
+def unidades_medida_logistica():
+    data = [
+        {"nome": f"UNIDADE TESTE {i}", "abreviacao": f"ut{i}"} for i in range(1, 21)
+    ]
+    objects = [baker.make(UnidadeMedida, **attrs) for attrs in data]
+    return objects
+
+
+@pytest.fixture
+def unidades_medida_reais_logistica():
+    data = [
+        {"nome": "KILOGRAMA", "abreviacao": "kg"},
+        {"nome": "LITRO", "abreviacao": "l"},
+    ]
+    objects = [baker.make(UnidadeMedida, **attrs) for attrs in data]
+    return objects
+
+
+@pytest.fixture
+def layout_de_embalagem(ficha_tecnica_perecivel_enviada_para_analise):
+    return baker.make(
+        "LayoutDeEmbalagem",
+        ficha_tecnica=ficha_tecnica_perecivel_enviada_para_analise,
+        observacoes="teste",
+    )
+
+
+@pytest.fixture
+def payload_layout_embalagem(
+    ficha_tecnica_perecivel_enviada_para_analise,
+    arquivo_base64,
+):
+    return {
+        "ficha_tecnica": str(ficha_tecnica_perecivel_enviada_para_analise.uuid),
+        "observacoes": "Imagine uma observação aqui.",
+        "tipos_de_embalagens": [
+            {
+                "tipo_embalagem": "PRIMARIA",
+                "imagens_do_tipo_de_embalagem": [
+                    {"arquivo": arquivo_base64, "nome": "Anexo1.jpg"},
+                    {"arquivo": arquivo_base64, "nome": "Anexo2.jpg"},
+                ],
+            },
+            {
+                "tipo_embalagem": "SECUNDARIA",
+                "imagens_do_tipo_de_embalagem": [
+                    {"arquivo": arquivo_base64, "nome": "Anexo1.jpg"}
+                ],
+            },
+        ],
+    }
+
+
+@pytest.fixture
+def tipo_de_embalagem_de_layout(layout_de_embalagem):
+    return baker.make(
+        "TipoDeEmbalagemDeLayout",
+        layout_de_embalagem=layout_de_embalagem,
+        tipo_embalagem="PRIMARIA",
+        status="APROVADO",
+        complemento_do_status="Teste de aprovacao",
+    )
+
+
+@pytest.fixture
+def lista_layouts_de_embalagem_enviados_para_analise(ficha_tecnica_factory, empresa):
+    layouts_cronograma_assinado_dilog_abastecimento = [
+        {
+            "ficha_tecnica": ficha_tecnica_factory(
+                status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+                empresa=empresa,
+            ),
+            "observacoes": f"Teste {i}",
+            "status": LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+        }
+        for i in range(1, 6)
+    ]
+
+    layouts_cronograma_assinado_dilog = [
+        {
+            "ficha_tecnica": ficha_tecnica_factory(
+                status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+                empresa=empresa,
+            ),
+            "observacoes": f"Teste {i}",
+            "status": LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+        }
+        for i in range(6, 16)
+    ]
+
+    data = (
+        layouts_cronograma_assinado_dilog
+        + layouts_cronograma_assinado_dilog_abastecimento
+    )
+
+    objects = [baker.make(LayoutDeEmbalagem, **attrs) for attrs in data]
+
+    return objects
+
+
+@pytest.fixture
+def lista_layouts_de_embalagem_aprovados(ficha_tecnica_factory, empresa):
+    layouts_cronograma_assinado_dilog_abastecimento = [
+        {
+            "ficha_tecnica": ficha_tecnica_factory(
+                status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+                empresa=empresa,
+            ),
+            "observacoes": f"Teste {i}",
+            "status": LayoutDeEmbalagemWorkflow.APROVADO,
+        }
+        for i in range(1, 6)
+    ]
+
+    layouts_cronograma_assinado_dilog = [
+        {
+            "ficha_tecnica": ficha_tecnica_factory(
+                status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+                empresa=empresa,
+            ),
+            "observacoes": f"Teste {i}",
+            "status": LayoutDeEmbalagemWorkflow.APROVADO,
+        }
+        for i in range(6, 16)
+    ]
+
+    data = (
+        layouts_cronograma_assinado_dilog
+        + layouts_cronograma_assinado_dilog_abastecimento
+    )
+
+    objects = [baker.make(LayoutDeEmbalagem, **attrs) for attrs in data]
+
+    return objects
+
+
+@pytest.fixture
+def lista_layouts_de_embalagem_solicitado_correcao(ficha_tecnica_factory, empresa):
+    layouts_cronograma_assinado_dilog_abastecimento = [
+        {
+            "ficha_tecnica": ficha_tecnica_factory(
+                status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+                empresa=empresa,
+            ),
+            "observacoes": f"Teste {i}",
+            "status": LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
+        }
+        for i in range(1, 6)
+    ]
+
+    layouts_cronograma_assinado_dilog = [
+        {
+            "ficha_tecnica": ficha_tecnica_factory(
+                status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+                empresa=empresa,
+            ),
+            "observacoes": f"Teste {i}",
+            "status": LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
+        }
+        for i in range(6, 16)
+    ]
+
+    data = (
+        layouts_cronograma_assinado_dilog
+        + layouts_cronograma_assinado_dilog_abastecimento
+    )
+
+    objects = [baker.make(LayoutDeEmbalagem, **attrs) for attrs in data]
+
+    return objects
+
+
+@pytest.fixture
+def lista_layouts_de_embalagem_com_tipo_embalagem(ficha_tecnica_factory, empresa):
+    dados_layouts = [
+        {
+            "ficha_tecnica": ficha_tecnica_factory(
+                status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+                empresa=empresa,
+            ),
+            "observacoes": f"Teste {i}",
+            "status": LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+        }
+        for i in range(1, 3)
+    ]
+
+    layouts = [baker.make(LayoutDeEmbalagem, **attrs) for attrs in dados_layouts]
+
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layouts[0],
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layouts[0],
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layouts[0],
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_TERCIARIA,
+    )
+
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layouts[1],
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layouts[1],
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
+    )
+
+    return layouts
+
+
+@pytest.fixture
+def lista_layouts_de_embalagem(
+    lista_layouts_de_embalagem_enviados_para_analise,
+    lista_layouts_de_embalagem_aprovados,
+    lista_layouts_de_embalagem_solicitado_correcao,
+):
+    return (
+        lista_layouts_de_embalagem_enviados_para_analise
+        + lista_layouts_de_embalagem_aprovados
+        + lista_layouts_de_embalagem_solicitado_correcao
+    )
+
+
+@pytest.fixture
+def layout_de_embalagem_para_correcao(ficha_tecnica_factory, empresa):
+    layout = baker.make(
+        LayoutDeEmbalagem,
+        ficha_tecnica=ficha_tecnica_factory(
+            status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            empresa=empresa,
+        ),
+        observacoes="Imagine uma observação aqui.",
+        status=LayoutDeEmbalagemWorkflow.SOLICITADO_CORRECAO,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layout,
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
+        status=TipoDeEmbalagemDeLayout.STATUS_REPROVADO,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layout,
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
+        status=TipoDeEmbalagemDeLayout.STATUS_APROVADO,
+    )
+
+    return layout
+
+
+@pytest.fixture
+def layout_de_embalagem_aprovado(ficha_tecnica_factory, empresa):
+    layout = baker.make(
+        LayoutDeEmbalagem,
+        ficha_tecnica=ficha_tecnica_factory(
+            status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            empresa=empresa,
+        ),
+        observacoes="Imagine uma observação aqui.",
+        status=LayoutDeEmbalagemWorkflow.APROVADO,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layout,
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
+        status=TipoDeEmbalagemDeLayout.STATUS_APROVADO,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layout,
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
+        status=TipoDeEmbalagemDeLayout.STATUS_APROVADO,
+    )
+    baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=layout.uuid,
+        status_evento=LogSolicitacoesUsuario.LAYOUT_CORRECAO_REALIZADA,
+        solicitacao_tipo=LogSolicitacoesUsuario.LAYOUT_DE_EMBALAGEM,
+    )
+
+    return layout
+
+
+@pytest.fixture
+def layout_de_embalagem_em_analise_com_correcao(ficha_tecnica_factory, empresa):
+    layout = baker.make(
+        LayoutDeEmbalagem,
+        ficha_tecnica=ficha_tecnica_factory(
+            status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            empresa=empresa,
+        ),
+        observacoes="Imagine uma observação aqui.",
+        status=LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layout,
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_PRIMARIA,
+        status=TipoDeEmbalagemDeLayout.STATUS_EM_ANALISE,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layout,
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_SECUNDARIA,
+        status=TipoDeEmbalagemDeLayout.STATUS_APROVADO,
+    )
+    baker.make(
+        TipoDeEmbalagemDeLayout,
+        layout_de_embalagem=layout,
+        tipo_embalagem=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_TERCIARIA,
+        status=TipoDeEmbalagemDeLayout.STATUS_EM_ANALISE,
+    )
+    baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=layout.uuid,
+        status_evento=LogSolicitacoesUsuario.LAYOUT_CORRECAO_REALIZADA,
+        solicitacao_tipo=LogSolicitacoesUsuario.LAYOUT_DE_EMBALAGEM,
+    )
+
+    return layout
+
+
+@pytest.fixture
+def payload_ficha_tecnica_rascunho(
+    produto_logistica_factory,
+    empresa,
+    marca_factory,
+    fabricante_factory,
+):
+    return {
+        "produto": str(produto_logistica_factory().uuid),
+        "marca": str(marca_factory().uuid),
+        "empresa": str(empresa.uuid),
+        "fabricante": {
+            "fabricante": str(fabricante_factory().uuid),
+        },
+        "envasador_distribuidor": {
+            "fabricante": str(fabricante_factory().uuid),
+        },
+        "categoria": FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
+        "tipo_entrega": FichaTecnicaDoProduto.ARMAZEM,
+        "pregao_chamada_publica": fake.pystr(max_chars=100),
+        "prazo_validade": "",
+        "numero_registro": "",
+        "mecanismo_controle": "",
+        "componentes_produto": "",
+        "ingredientes_alergenicos": "",
+        "lactose_detalhe": "",
+        "porcao": "",
+        "unidade_medida_porcao": "",
+        "valor_unidade_caseira": "",
+        "unidade_medida_caseira": "",
+        "informacoes_nutricionais": [],
+        "condicoes_de_conservacao": "",
+        "embalagem_primaria": "",
+        "embalagem_secundaria": "",
+        "material_embalagem_primaria": "",
+        "volume_embalagem_primaria": None,
+        "unidade_medida_volume_primaria": "",
+        "peso_liquido_embalagem_primaria": None,
+        "unidade_medida_primaria": "",
+        "peso_liquido_embalagem_secundaria": None,
+        "unidade_medida_secundaria": "",
+        "peso_embalagem_primaria_vazia": None,
+        "unidade_medida_primaria_vazia": "",
+        "peso_embalagem_secundaria_vazia": None,
+        "unidade_medida_secundaria_vazia": "",
+        "sistema_vedacao_embalagem_secundaria": "",
+        "nome_responsavel_tecnico": "",
+        "habilitacao": "",
+        "numero_registro_orgao": "",
+        "arquivo": "",
+        "modo_de_preparo": "",
+        "informacoes_adicionais": "",
+    }
+
+
+@pytest.fixture
+def payload_ficha_tecnica_pereciveis(
+    payload_ficha_tecnica_rascunho,
+    arquivo_pdf_base64,
+    unidade_medida_logistica,
+):
+    payload = {
+        **payload_ficha_tecnica_rascunho,
+        "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
+        "prazo_validade": fake.pystr(max_chars=150),
+        "numero_registro": fake.pystr(max_chars=150),
+        "organico": True,
+        "mecanismo_controle": FichaTecnicaDoProduto.MECANISMO_OPAC,
+        "componentes_produto": fake.pystr(max_chars=250),
+        "alergenicos": True,
+        "ingredientes_alergenicos": fake.pystr(max_chars=150),
+        "gluten": True,
+        "lactose": True,
+        "lactose_detalhe": fake.pystr(max_chars=150),
+        "porcao": fake.pystr(max_chars=100),
+        "unidade_medida_porcao": str(unidade_medida_logistica.uuid),
+        "valor_unidade_caseira": fake.pystr(max_chars=100),
+        "unidade_medida_caseira": str(unidade_medida_logistica.uuid),
+        "prazo_validade_descongelamento": fake.pystr(max_chars=50),
+        "condicoes_de_conservacao": fake.pystr(max_chars=150),
+        "temperatura_congelamento": 0,
+        "temperatura_veiculo": -fake.random_number() / 100,
+        "condicoes_de_transporte": fake.pystr(max_chars=150),
+        "embalagem_primaria": fake.pystr(max_chars=150),
+        "embalagem_secundaria": fake.pystr(max_chars=150),
+        "embalagens_de_acordo_com_anexo": True,
+        "material_embalagem_primaria": fake.pystr(max_chars=150),
+        "peso_liquido_embalagem_primaria": fake.random_number() / 100,
+        "unidade_medida_primaria": str(unidade_medida_logistica.uuid),
+        "peso_liquido_embalagem_secundaria": fake.random_number() / 100,
+        "unidade_medida_secundaria": str(unidade_medida_logistica.uuid),
+        "peso_embalagem_primaria_vazia": fake.random_number() / 100,
+        "unidade_medida_primaria_vazia": str(unidade_medida_logistica.uuid),
+        "peso_embalagem_secundaria_vazia": fake.random_number() / 100,
+        "unidade_medida_secundaria_vazia": str(unidade_medida_logistica.uuid),
+        "variacao_percentual": fake.random_number() / 100,
+        "sistema_vedacao_embalagem_secundaria": fake.pystr(max_chars=150),
+        "rotulo_legivel": True,
+        "nome_responsavel_tecnico": fake.pystr(max_chars=100),
+        "habilitacao": fake.pystr(max_chars=100),
+        "numero_registro_orgao": fake.pystr(max_chars=50),
+        "arquivo": arquivo_pdf_base64,
+        "password": DJANGO_ADMIN_PASSWORD,
+    }
+
+    payload.pop("volume_embalagem_primaria")
+    payload.pop("unidade_medida_volume_primaria")
+
+    return payload
+
+
+@pytest.fixture
+def payload_ficha_tecnica_nao_pereciveis(
+    payload_ficha_tecnica_pereciveis,
+    unidade_medida_logistica,
+):
+    payload = {
+        **payload_ficha_tecnica_pereciveis,
+        "categoria": FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        "produto_eh_liquido": True,
+        "volume_embalagem_primaria": fake.random_number() / 100,
+        "unidade_medida_volume_primaria": str(unidade_medida_logistica.uuid),
+    }
+
+    payload.pop("prazo_validade_descongelamento")
+    payload.pop("temperatura_congelamento")
+    payload.pop("temperatura_veiculo")
+    payload.pop("condicoes_de_transporte")
+    payload.pop("variacao_percentual")
+
+    return payload
+
+
+@pytest.fixture
+def ficha_tecnica_perecivel_enviada_para_analise(
+    payload_ficha_tecnica_pereciveis,
+    produto_logistica_factory,
+    empresa,
+    marca_factory,
+    fabricante_ficha_tecnica_factory,
+    arquivo_pdf_base64,
+    unidade_medida_logistica,
+):
+    fabricante = fabricante_ficha_tecnica_factory()
+    envasador = fabricante_ficha_tecnica_factory()
+    dados = {
+        **payload_ficha_tecnica_pereciveis,
+        "produto": produto_logistica_factory(),
+        "marca": marca_factory(),
+        "empresa": empresa,
+        "fabricante": fabricante,
+        "envasador_distribuidor": envasador,
+        "categoria": FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
+        "unidade_medida_porcao": unidade_medida_logistica,
+        "unidade_medida_primaria": unidade_medida_logistica,
+        "unidade_medida_secundaria": unidade_medida_logistica,
+        "unidade_medida_primaria_vazia": unidade_medida_logistica,
+        "unidade_medida_secundaria_vazia": unidade_medida_logistica,
+        "arquivo": convert_base64_to_contentfile(arquivo_pdf_base64),
+        "status": FichaTecnicaDoProduto.workflow_class.ENVIADA_PARA_ANALISE,
+    }
+
+    dados.pop("informacoes_nutricionais")
+    dados.pop("password")
+
+    return FichaTecnicaDoProduto.objects.create(**dados)
+
+
+@pytest.fixture
+def payload_analise_ficha_tecnica():
+    return {
+        "fabricante_envasador_conferido": True,
+        "fabricante_envasador_correcoes": "",
+        "detalhes_produto_conferido": True,
+        "detalhes_produto_correcoes": "",
+        "informacoes_nutricionais_conferido": True,
+        "informacoes_nutricionais_correcoes": "",
+        "conservacao_conferido": True,
+        "conservacao_correcoes": "",
+        "temperatura_e_transporte_conferido": True,
+        "temperatura_e_transporte_correcoes": "",
+        "armazenamento_conferido": True,
+        "armazenamento_correcoes": "",
+        "embalagem_e_rotulagem_conferido": True,
+        "embalagem_e_rotulagem_correcoes": "",
+        "responsavel_tecnico_conferido": True,
+        "responsavel_tecnico_correcoes": "",
+        "modo_preparo_conferido": True,
+        "modo_preparo_correcoes": "",
+        "outras_informacoes_conferido": True,
+    }
+
+
+@pytest.fixture
+def payload_atualizacao_ficha_tecnica(unidade_medida_logistica, arquivo_pdf_base64):
+    return {
+        "componentes_produto": fake.pystr(max_chars=250),
+        "alergenicos": True,
+        "ingredientes_alergenicos": fake.pystr(max_chars=150),
+        "gluten": True,
+        "porcao": fake.pystr(max_chars=100),
+        "unidade_medida_porcao": str(unidade_medida_logistica.uuid),
+        "valor_unidade_caseira": fake.pystr(max_chars=100),
+        "unidade_medida_caseira": str(unidade_medida_logistica.uuid),
+        "informacoes_nutricionais": [],
+        "condicoes_de_conservacao": fake.pystr(max_chars=150),
+        "embalagem_primaria": fake.pystr(max_chars=150),
+        "embalagem_secundaria": fake.pystr(max_chars=150),
+        "nome_responsavel_tecnico": fake.pystr(max_chars=100),
+        "habilitacao": fake.pystr(max_chars=100),
+        "numero_registro_orgao": fake.pystr(max_chars=50),
+        "arquivo": arquivo_pdf_base64,
+        "modo_de_preparo": fake.pystr(max_chars=50),
+        "informacoes_adicionais": fake.pystr(max_chars=50),
+    }
+
+
+@pytest.fixture
+def analise_ficha_tecnica(
+    ficha_tecnica_perecivel_enviada_para_analise,
+    payload_analise_ficha_tecnica,
+):
+    return AnaliseFichaTecnica.objects.create(
+        ficha_tecnica=ficha_tecnica_perecivel_enviada_para_analise,
+        **payload_analise_ficha_tecnica,
+    )
+
+
+@pytest.fixture
+def client_autenticado_vinculo_dilog_cronograma(client, django_user_model, codae):
+    email = "test@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_dilog_cronograma = baker.make(
+        "Perfil",
+        nome=DILOG_CRONOGRAMA,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_cronograma,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
+def client_autenticado_vinculo_dilog_qualidade(client, django_user_model, codae):
+    email = "test@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_dilog_qualidade = baker.make(
+        "Perfil",
+        nome=DILOG_QUALIDADE,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
+    )
+
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_qualidade,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
+def client_autenticado_dilog_abastecimento(client, django_user_model):
+    email = "dilogabastecimento@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional=str(fake.unique.random_int(min=100000, max=999999)),
+    )
+    perfil_dilog_abastecimento = baker.make(
+        "Perfil", nome=DILOG_ABASTECIMENTO, ativo=True
+    )
+    codae = baker.make("Codae")
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_abastecimento,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client
+
+
+@pytest.fixture
+def ficha_tecnica_com_erro(ficha_tecnica_perecivel_enviada_para_analise):
+    informacoes_nutricionais = baker.make(
+        "InformacoesNutricionaisFichaTecnica",
+        quantidade_porcao="abc",
+        ficha_tecnica=ficha_tecnica_perecivel_enviada_para_analise,
+        informacao_nutricional=baker.make(
+            "InformacaoNutricional",
+            tipo_nutricional=baker.make("TipoDeInformacaoNutricional", nome="CALORIA"),
+        ),
+    )
+    informacoes_nutricionais.save()
+    return ficha_tecnica_perecivel_enviada_para_analise
+
+
+@pytest.fixture
+def payload_base(produto_arroz, empresa, unidade_medida_logistica):
+    marca = baker.make("Marca")
+    return {
+        "produto": produto_arroz.uuid,
+        "marca": marca.uuid,
+        "categoria": FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        "tipo_entrega": FichaTecnicaDoProduto.ARMAZEM,
+        "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
+        "pregao_chamada_publica": "123",
+        "empresa": empresa.uuid,
+        "componentes_produto": "farinha, açúcar",
+        "alergenicos": False,
+        "gluten": False,
+        "lactose": False,
+        "porcao": "100g",
+        "unidade_medida_porcao": unidade_medida_logistica.uuid,
+        "valor_unidade_caseira": "1 unidade",
+        "unidade_medida_caseira": "g",
+        "informacoes_nutricionais": [],
+        "condicoes_de_conservacao": "em local seco",
+        "embalagem_primaria": "saco plástico",
+        "embalagem_secundaria": "caixa",
+        "embalagens_de_acordo_com_anexo": True,
+        "material_embalagem_primaria": "plástico",
+        "peso_liquido_embalagem_primaria": 1.0,
+        "unidade_medida_primaria": unidade_medida_logistica.uuid,
+        "peso_liquido_embalagem_secundaria": 10.0,
+        "unidade_medida_secundaria": unidade_medida_logistica.uuid,
+        "peso_embalagem_primaria_vazia": 0.1,
+        "unidade_medida_primaria_vazia": unidade_medida_logistica.uuid,
+        "peso_embalagem_secundaria_vazia": 0.2,
+        "unidade_medida_secundaria_vazia": unidade_medida_logistica.uuid,
+        "sistema_vedacao_embalagem_secundaria": "termo",
+        "rotulo_legivel": True,
+        "nome_responsavel_tecnico": "João",
+        "habilitacao": "CRN123",
+        "numero_registro_orgao": "456",
+        "arquivo": "file.pdf",
+        "organico": False,
+        "volume_embalagem_primaria": 5,
+        "unidade_medida_volume_primaria": unidade_medida_logistica.uuid,
+    }
+
+
+@pytest.fixture
+def payload_base_flv(produto_arroz, empresa):
+    return {
+        "produto": produto_arroz.uuid,
+        "categoria": FichaTecnicaDoProduto.CATEGORIA_FLV,
+        "tipo_entrega": FichaTecnicaDoProduto.PONTO_A_PONTO,
+        "programa": FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
+        "pregao_chamada_publica": "123",
+        "empresa": empresa.uuid,
+        "organico": False,
+        "especie_variedade": "Variedade X",
+        "nome_responsavel_tecnico": "João",
+        "habilitacao": "CRN123",
+        "numero_registro_orgao": "456",
+        "arquivo": "file.pdf",
+    }
+
+
+@pytest.fixture
+def ficha_tecnica_flv(produto_arroz, empresa):
+    """Fixture para ficha técnica de FLV"""
+    return baker.make(
+        "FichaTecnicaDoProduto",
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+        programa=FichaTecnicaDoProduto.ALIMENTACAO_ESCOLAR,
+        especie_variedade="Variedade X",
+        produto=produto_arroz,
+        pregao_chamada_publica="123",
+        empresa=empresa,
+    )
+
+
+@pytest.fixture
+def etapa_com_fichas_recebimento(unidade_medida_logistica, tipo_emabalagem_qld):
+    """Fixture para etapa com fichas de recebimento para teste do serializer"""
+    cronograma = baker.make(
+        "Cronograma",
+        numero="001/2023A",
+        qtd_total_programada=1000,
+        unidade_medida=unidade_medida_logistica,
+        tipo_embalagem_secundaria=tipo_emabalagem_qld,
+        empresa__nome_fantasia="Fornecedor Teste",
+        ficha_tecnica__produto__nome="Produto Teste",
+        ficha_tecnica__marca__nome="Marca Teste",
+    )
+
+    etapa = baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        numero_empenho="EMP001",
+        etapa=1,
+        parte=2,
+        qtd_total_empenho=500,
+        quantidade=300,
+        total_embalagens=10,
+        data_programada=timezone.now().date(),
+    )
+
+    # Ficha com ocorrência
+    baker.make(
+        "FichaDeRecebimento", etapa=etapa, houve_ocorrencia=True, status="ASSINADA"
+    )
+
+    # Ficha sem ocorrência
+    baker.make(
+        "FichaDeRecebimento", etapa=etapa, houve_ocorrencia=False, status="ASSINADA"
+    )
+
+    # Ficha de reposição
+    baker.make(
+        "FichaDeRecebimento",
+        etapa=etapa,
+        houve_ocorrencia=False,
+        reposicao_cronograma=baker.make("ReposicaoCronogramaFichaRecebimento"),
+    )
+
+    return etapa
+
+
+@pytest.fixture
+def etapa_sem_fichas_recebimento(unidade_medida_logistica, tipo_emabalagem_qld):
+    """Fixture para etapa sem fichas de recebimento"""
+    cronograma = baker.make(
+        "Cronograma",
+        unidade_medida=unidade_medida_logistica,
+        tipo_embalagem_secundaria=tipo_emabalagem_qld,
+    )
+
+    return baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=None,
+        parte=None,
+        qtd_total_empenho=1000,
+        quantidade=800,
+        total_embalagens=5,
+    )
+
+
+@pytest.fixture
+def cronograma_com_etapas_multiplas_situacoes(cronograma_factory):
+    """Fixture com cronograma que tem etapas com diferentes situações de fichas."""
+    cronograma = cronograma_factory.create()
+
+    # Etapa com ficha "Recebido" (sem ocorrência)
+    etapa_recebida = baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=1,
+        parte=1,
+    )
+    baker.make(
+        "FichaDeRecebimento",
+        etapa=etapa_recebida,
+        houve_ocorrencia=False,
+        status="ASSINADA",
+    )
+
+    # Etapa com ficha "Ocorrência" (com ocorrência)
+    etapa_ocorrencia = baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=2,
+        parte=1,
+    )
+    baker.make(
+        "FichaDeRecebimento",
+        etapa=etapa_ocorrencia,
+        houve_ocorrencia=True,
+        status="ASSINADA",
+    )
+
+    # Etapa sem fichas (A receber)
+    baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=3,
+        parte=1,
+    )
+
+    return cronograma
+
+
+@pytest.fixture
+def cronogramas_serialized_data():
+    """Dados serializados simulando cronogramas para testes."""
+    return [
+        {
+            "uuid": "123e4567-e89b-12d3-a456-426614174000",
+            "numero": "CR-001",
+            "etapas": [
+                {
+                    "uuid": "223e4567-e89b-12d3-a456-426614174000",
+                    "etapa": 1,
+                    "parte": 1,
+                    "data_programada": "15/01/2024",
+                    "quantidade": "1.000,00 kg",
+                    "foi_recebida": False,
+                    "fichas_recebimento": [],
+                },
+                {
+                    "uuid": "323e4567-e89b-12d3-a456-426614174000",
+                    "etapa": 2,
+                    "parte": 1,
+                    "data_programada": "15/02/2024",
+                    "quantidade": "500,50 L",
+                    "foi_recebida": True,
+                    "fichas_recebimento": [{"houve_ocorrencia": False}],
+                },
+            ],
+        }
+    ]
+
+
+@pytest.fixture
+def cronogramas_com_fichas_data():
+    """Dados serializados com fichas de recebimento para teste de filtros."""
+    return [
+        {
+            "uuid": "123e4567-e89b-12d3-a456-426614174000",
+            "numero": "CR-001",
+            "etapas": [
+                {
+                    "uuid": "223e4567-e89b-12d3-a456-426614174000",
+                    "etapa": 1,
+                    "parte": 1,
+                    "data_programada": "15/01/2024",
+                    "foi_recebida": True,
+                    "fichas_recebimento": [{"houve_ocorrencia": False}],
+                },
+                {
+                    "uuid": "323e4567-e89b-12d3-a456-426614174000",
+                    "etapa": 2,
+                    "parte": 1,
+                    "data_programada": "15/02/2024",
+                    "foi_recebida": False,
+                    "fichas_recebimento": [],
+                },
+            ],
+        }
+    ]
+
+
+@pytest.fixture(
+    params=[
+        ([], False, [], True),
+        ([], False, ["A Receber"], True),
+        ([], False, ["Recebido"], False),
+        ([{"situacao": "Recebido"}], True, [], False),
+        ([{"situacao": "Recebido"}], True, ["A Receber"], False),
+    ]
+)
+def parametros_deve_mostrar_linha_a_receber(request):
+    fichas_recebimento, foi_recebida, filtros_situacao, expected = request.param
+    return {
+        "fichas_recebimento": fichas_recebimento,
+        "foi_recebida": foi_recebida,
+        "filtros_situacao": filtros_situacao,
+        "expected": expected,
+    }
+
+
+@pytest.fixture
+def ficha_tecnica_leve_leite(ficha_tecnica_perecivel_enviada_para_analise):
+    ficha_tecnica_perecivel_enviada_para_analise.programa = (
+        FichaTecnicaDoProduto.LEVE_LEITE
+    )
+    ficha_tecnica_perecivel_enviada_para_analise.save()
+    return ficha_tecnica_perecivel_enviada_para_analise
+
+
+@pytest.fixture
+def cronograma_leve_leite(contrato, empresa, ficha_tecnica_leve_leite):
+    return baker.make(
+        "Cronograma",
+        numero="005/2023A",
+        contrato=contrato,
+        empresa=empresa,
+        ficha_tecnica=ficha_tecnica_leve_leite,
+        status="ASSINADO_CODAE",
+    )
+
+
+@pytest.fixture
+def documento_recebimento_leve_leite(cronograma_leve_leite):
+    return baker.make(
+        "DocumentoDeRecebimento",
+        cronograma=cronograma_leve_leite,
+        numero_laudo="LAU-2024-001-LEVE-LEITE",
+        status="ENVIADO_PARA_ANALISE",
+    )
+
+
+@pytest.fixture
+def documento_recebimento_alimentacao_escolar(cronograma_recebido):
+    return baker.make(
+        "DocumentoDeRecebimento",
+        cronograma=cronograma_recebido,
+        numero_laudo="LAU-2024-002-ALIMENTACAO",
+        status="ENVIADO_PARA_ANALISE",
+    )
+
+
+@pytest.fixture
+def layout_embalagem_leve_leite(ficha_tecnica_leve_leite):
+    return baker.make(
+        "LayoutDeEmbalagem",
+        ficha_tecnica=ficha_tecnica_leve_leite,
+        observacoes="Layout para programa Leve Leite",
+        status=LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,
+    )
+
+
+@pytest.fixture
+def user_codae_produto(django_user_model):
+    email = "test2@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888888"
+    )
+    perfil_admin_gestao_produto = baker.make(
+        "Perfil",
+        nome=ADMINISTRADOR_GESTAO_PRODUTO,
+        ativo=True,
+        uuid="41c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    hoje = datetime.date.today()
+    codae = baker.make("Codae")
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_admin_gestao_produto,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    return user
+
+
+@pytest.fixture
+def cronograma_para_alteracao(cronograma_factory):
+    from src.pre_recebimento.cronograma_entrega.models import Cronograma
+
+    cronograma = cronograma_factory()
+
+    cronograma.status = Cronograma.workflow_class.ALTERACAO_CODAE
+    cronograma.save(update_fields=["status"])
+
+    return cronograma
+
+
+@pytest.fixture
+def solicitacao_alteracao_cronograma(
+    cronograma_para_alteracao,
+    etapas_do_cronograma_factory,
+    user_codae_produto,
+):
+    from src.pre_recebimento.cronograma_entrega.models import (
+        ProgramacaoDoRecebimentoDoCronograma,
+        SolicitacaoAlteracaoCronograma,
+    )
+
+    cronograma = cronograma_para_alteracao
+
+    etapa_antiga = etapas_do_cronograma_factory(cronograma=cronograma)
+    etapa_nova = etapas_do_cronograma_factory(cronograma=cronograma)
+
+    solicitacao = SolicitacaoAlteracaoCronograma.objects.create(
+        cronograma=cronograma,
+        usuario_solicitante=user_codae_produto,
+        qtd_total_programada=123.0,
+        justificativa="teste",
+        numero_solicitacao=f"TESTE-{cronograma.id}",
+    )
+
+    solicitacao.etapas_antigas.set([etapa_antiga])
+    solicitacao.etapas_novas.set([etapa_nova])
+
+    prog = ProgramacaoDoRecebimentoDoCronograma.objects.create(
+        data_programada="22/08/2022 - Etapa 1 - Parte 1",
+        tipo_carga=ProgramacaoDoRecebimentoDoCronograma.PALETIZADA,
+    )
+    solicitacao.programacoes_novas.set([prog])
+
+    return solicitacao
+
+
+@pytest.fixture
+def client_user_autenticado_fornecedor(
+    client,
+    django_user_model,
+    empresa_factory,
+    perfil_factory,
+):
+    from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA
+    from src.perfil.models import Vinculo
+    from src.terceirizada.models import Terceirizada
+
+    email = "fornecedor@test.com"
+    password = "adminadmin"
+
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional="123456",
+    )
+
+    perfil = perfil_factory(nome=ADMINISTRADOR_EMPRESA)
+
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+
+    Vinculo.objects.create(
+        usuario=user,
+        instituicao=empresa,
+        perfil=perfil,
+        ativo=False,
+        data_inicial=None,
+        data_final=None,
+    )
+
+    client.force_login(user)
+
+    assert user.vinculo_atual is not None
+    assert user.eh_empresa is True
+    assert user.eh_fornecedor is True
+
+    return client, user
+
+
+@pytest.fixture
+def interrupcao_programada_entrega():
+    return baker.make(
+        "InterrupcaoProgramadaEntrega",
+        data=datetime.date.today(),
+        motivo="EMENDA",
+        tipo_calendario="ARMAZENAVEL",
+    )
+
+
+@pytest.fixture
+def interrupcao_programada_entrega_outros():
+    return baker.make(
+        "InterrupcaoProgramadaEntrega",
+        data=datetime.date.today() + datetime.timedelta(days=1),
+        motivo="OUTROS",
+        descricao_motivo="Motivo customizado para teste",
+        tipo_calendario="PONTO_A_PONTO",
+    )
+
+
+@pytest.fixture
+def payload_interrupcao_programada_entrega():
+    return {
+        "data": str(datetime.date.today() + datetime.timedelta(days=5)),
+        "motivo": "REUNIAO",
+        "tipo_calendario": "ARMAZENAVEL",
+    }
+
+
+@pytest.fixture
+def payload_interrupcao_programada_entrega_outros():
+    return {
+        "data": str(datetime.date.today() + datetime.timedelta(days=10)),
+        "motivo": "OUTROS",
+        "descricao_motivo": "Descrição do motivo customizado",
+        "tipo_calendario": "PONTO_A_PONTO",
+    }
+
+
+@pytest.fixture
+def ficha_tecnica_perecivel():
+    return baker.make(
+        FichaTecnicaDoProduto, categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS
+    )
+
+
+@pytest.fixture
+def ficha_tecnica_nao_perecivel():
+    return baker.make(
+        FichaTecnicaDoProduto, categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS
+    )
+
+
+@pytest.fixture
+def usuario():
+    from django.contrib.auth import get_user_model
+
+    return baker.make(get_user_model())
+
+
+@pytest.fixture
+def payload_analise_aprovada():
+    return {
+        "fabricante_envasador_conferido": True,
+        "fabricante_envasador_correcoes": "",
+        "detalhes_produto_conferido": True,
+        "detalhes_produto_correcoes": "",
+        "informacoes_nutricionais_conferido": True,
+        "informacoes_nutricionais_correcoes": "",
+        "conservacao_conferido": True,
+        "conservacao_correcoes": "",
+        "temperatura_e_transporte_conferido": True,
+        "temperatura_e_transporte_correcoes": "",
+        "armazenamento_conferido": True,
+        "armazenamento_correcoes": "",
+        "embalagem_e_rotulagem_conferido": True,
+        "embalagem_e_rotulagem_correcoes": "",
+        "responsavel_tecnico_conferido": True,
+        "responsavel_tecnico_correcoes": "",
+        "modo_preparo_conferido": True,
+        "modo_preparo_correcoes": "",
+        "outras_informacoes_conferido": True,
+        "aprovada": True,
+    }
+
+
+@pytest.fixture
+def payload_analise_flv_aprovada():
+    return {
+        "fabricante_envasador_conferido": True,
+        "fabricante_envasador_correcoes": "",
+        "detalhes_produto_conferido": True,
+        "detalhes_produto_correcoes": "",
+        "temperatura_e_transporte_conferido": True,
+        "temperatura_e_transporte_correcoes": "",
+        "responsavel_tecnico_conferido": True,
+        "responsavel_tecnico_correcoes": "",
+        "outras_informacoes_conferido": True,
+        "aprovada": True,
+    }
+
+
+@pytest.fixture
+def cronograma_ponto_a_ponto_assinado(
+    contrato_factory, empresa_factory, ficha_tecnica_factory
+):
+    from src.pre_recebimento.cronograma_entrega.models import Cronograma
+    from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+    contrato = contrato_factory(terceirizada=empresa)
+    ficha = ficha_tecnica_factory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    return baker.make(
+        Cronograma,
+        numero="001/2024A",
+        contrato=contrato,
+        empresa=empresa,
+        ficha_tecnica=ficha,
+        status=Cronograma.workflow_class.ASSINADO_CODAE,
+    )
+
+
+@pytest.fixture
+def cronograma_ponto_a_ponto_nao_assinado(
+    contrato_factory, empresa_factory, ficha_tecnica_factory
+):
+    from src.pre_recebimento.cronograma_entrega.models import Cronograma
+    from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+    contrato = contrato_factory(terceirizada=empresa)
+    ficha = ficha_tecnica_factory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    return baker.make(
+        Cronograma,
+        numero="002/2024A",
+        contrato=contrato,
+        empresa=empresa,
+        ficha_tecnica=ficha,
+        status=Cronograma.workflow_class.RASCUNHO,
+    )
+
+
+@pytest.fixture
+def cronograma_nao_ponto_a_ponto_assinado(
+    contrato_factory, empresa_factory, ficha_tecnica_factory
+):
+    from src.pre_recebimento.cronograma_entrega.models import Cronograma
+    from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+    contrato = contrato_factory(terceirizada=empresa)
+    ficha = ficha_tecnica_factory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
+        tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
+    )
+    return baker.make(
+        Cronograma,
+        numero="003/2024A",
+        contrato=contrato,
+        empresa=empresa,
+        ficha_tecnica=ficha,
+        status=Cronograma.workflow_class.ASSINADO_CODAE,
+    )
+
+
+@pytest.fixture
+def cronograma_semanal_rascunho(cronograma_ponto_a_ponto_assinado):
+    from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
+
+    return baker.make(
+        CronogramaSemanal,
+        cronograma_mensal=cronograma_ponto_a_ponto_assinado,
+        observacoes="Teste de observação",
+    )
+
+
+@pytest.fixture
+def programacao_entrega_semanal(cronograma_semanal_rascunho):
+    from src.pre_recebimento.cronograma_semanal.models import ProgramacaoEntregaSemanal
+
+    return baker.make(
+        ProgramacaoEntregaSemanal,
+        cronograma_semanal=cronograma_semanal_rascunho,
+        mes_programado="03/2026",
+        data_inicio=timezone.now().date(),
+        data_fim=timezone.now().date() + datetime.timedelta(days=5),
+        quantidade=100.0,
+    )
+
+
+@pytest.fixture
+def client_autenticado_coordenador_codae_dilog(client, django_user_model, codae):
+    email = "coordenador_codae_dilog@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="7777777"
+    )
+    perfil = baker.make(
+        "Perfil",
+        nome=COORDENADOR_CODAE_DILOG_LOGISTICA,
+        ativo=True,
+        uuid="51c20c8b-7e57-41ed-9433-ccb92e8afaf2",
+    )
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client, user
+
+
+@pytest.fixture
+def payload_cronograma_semanal_rascunho(cronograma_ponto_a_ponto_assinado):
+    return {
+        "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+        "observacoes": "Rascunho de teste",
+    }
+
+
+@pytest.fixture
+def payload_cronograma_semanal_com_programacoes(cronograma_ponto_a_ponto_assinado):
+    return {
+        "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+        "observacoes": "Rascunho com programações",
+        "programacoes": [
+            {
+                "mes_programado": "03/2026",
+                "data_inicio": "2026-03-01",
+                "data_fim": "2026-03-15",
+                "quantidade": 50.0,
+            },
+            {
+                "mes_programado": "04/2026",
+                "data_inicio": "2026-04-01",
+                "data_fim": "2026-04-15",
+                "quantidade": 30.0,
+            },
+        ],
+    }
+
+
+@pytest.fixture
+def cronograma_ponto_a_ponto_com_etapas(
+    contrato_factory, empresa_factory, ficha_tecnica_factory
+):
+    from src.pre_recebimento.cronograma_entrega.models import Cronograma
+    from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+    contrato = contrato_factory(terceirizada=empresa)
+    ficha = ficha_tecnica_factory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    cronograma = baker.make(
+        Cronograma,
+        numero="004/2024A",
+        contrato=contrato,
+        empresa=empresa,
+        ficha_tecnica=ficha,
+        status=Cronograma.workflow_class.ASSINADO_CODAE,
+        numero_empenho="EMP001",
+        qtd_total_empenho=1000.0,
+        custo_unitario_produto=5.50,
+    )
+
+    baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        data_programada="2026-03-01",
+        quantidade=500.0,
+        etapa=1,
+    )
+    baker.make(
+        "EtapasDoCronograma",
+        cronograma=cronograma,
+        data_programada="2026-04-01",
+        quantidade=500.0,
+        etapa=2,
+    )
+
+    return cronograma

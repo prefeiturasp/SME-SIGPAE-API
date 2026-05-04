@@ -1,0 +1,618 @@
+import datetime
+import json
+from unittest import TestCase
+from unittest.mock import MagicMock, patch
+
+import pytest
+from django.core.management import call_command
+from freezegun.api import freeze_time
+from requests.models import Response
+from rest_framework import status
+
+from src.escola.__tests__.conftest import mocked_response
+from src.escola.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    EscolaFactory,
+    HistoricoMatriculaAlunoFactory,
+    PeriodoEscolarFactory,
+)
+from src.escola.management.commands.atualiza_alunos_escolas import (
+    Command,
+    MaxRetriesExceeded,
+)
+from src.escola.models import Aluno, PeriodoEscolar
+
+
+class AtualizaAlunosEscolasCommandTest(TestCase):
+    def call_command(self, *args, **kwargs):
+        call_command(
+            "atualiza_alunos_escolas",
+            *args,
+            **kwargs,
+        )
+
+    def set_up_periodos_escolares(self):
+        self.periodo_escolar_manha = PeriodoEscolarFactory.create(
+            nome="MANHA", tipo_turno=1
+        )
+        PeriodoEscolarFactory.create(nome="INTERMEDIARIO", tipo_turno=2)
+        PeriodoEscolarFactory.create(nome="TARDE", tipo_turno=3)
+        PeriodoEscolarFactory.create(nome="VESPERTINO", tipo_turno=4)
+        PeriodoEscolarFactory.create(nome="NOITE", tipo_turno=5)
+        PeriodoEscolarFactory.create(nome="INTEGRAL", tipo_turno=6)
+
+    def setUp(self) -> None:
+        self.set_up_periodos_escolares()
+        self.escola = EscolaFactory.create(codigo_eol="000086")
+
+        with open(
+            "src/escola/__tests__/commands/mocks/mock_ue_000086_dados_alunos_2024.json",
+            "r",
+        ) as file:
+            self.mocked_response_dados_alunos = mocked_response(json.load(file), 200)
+
+        with open(
+            "src/escola/__tests__/commands/mocks/mock_ue_000086_dados_alunos_2025.json",
+            "r",
+        ) as file:
+            self.mocked_response_dados_alunos_prox_ano = mocked_response(
+                json.load(file), 200
+            )
+
+    def setup_escola2(self):
+        self.escola2 = EscolaFactory.create(codigo_eol="000094")
+
+        with open(
+            "src/escola/__tests__/commands/mocks/mock_ue_000094_dados_alunos_2025.json",
+            "r",
+        ) as file:
+            self.mocked_response_dados_alunos_2 = mocked_response(json.load(file), 200)
+
+    def setup_escola2_matricula_concluida(self):
+        self.escola2 = EscolaFactory.create(codigo_eol="000094")
+
+        with open(
+            "src/escola/__tests__/commands/mocks/mock_ue_000094_teste_matricula_concluido.json",
+            "r",
+        ) as file:
+            self.mocked_response_dados_alunos_2 = mocked_response(json.load(file), 200)
+
+    @freeze_time("2024-12-12")
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_command_atualiza_alunos_escolas_d_menos_2(
+        self, mock_get_response_alunos_por_escola
+    ) -> None:
+        self.setup_escola2()
+
+        AlunoFactory.create(
+            codigo_eol="7777777",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=self.escola,
+        )
+
+        aluno_9999999 = AlunoFactory.create(
+            codigo_eol="9999999",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=self.escola,
+        )
+        HistoricoMatriculaAlunoFactory.create(aluno=aluno_9999999, escola=self.escola)
+
+        AlunoFactory.create(
+            codigo_eol="8888888",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=self.escola2,
+        )
+
+        mock_get_response_alunos_por_escola.side_effect = [
+            self.mocked_response_dados_alunos,
+            mocked_response({}, 404),
+            self.mocked_response_dados_alunos_2,
+            mocked_response({}, 404),
+        ]
+        self.call_command()
+        assert Aluno.objects.count() == 4
+
+        aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
+        assert aluno_davi.nao_matriculado is False
+
+        assert aluno_davi.historico.count() == 2
+        historico_escola_000086 = aluno_davi.historico.get(escola=self.escola)
+        assert historico_escola_000086.data_fim is None
+
+        aluno_kimberlly = Aluno.objects.get(codigo_eol="8888888")
+        assert aluno_kimberlly.historico.exists() is True
+
+        aluno_theo = Aluno.objects.get(codigo_eol="9999999")
+        assert aluno_theo.historico.count() == 1
+        assert aluno_theo.historico.get().data_fim is not None
+
+        assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
+
+    @freeze_time("2024-12-12")
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_command_atualiza_alunos_escolas_d_menos_2_rematricula(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        self.setup_escola2_matricula_concluida()
+
+        AlunoFactory.create(
+            codigo_eol="7777777",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=self.escola,
+        )
+
+        mock_get_response_alunos_por_escola.side_effect = [
+            self.mocked_response_dados_alunos,
+            mocked_response({}, 404),
+            self.mocked_response_dados_alunos_2,
+            mocked_response({}, 404),
+        ]
+        self.call_command()
+        assert Aluno.objects.count() == 2
+
+        aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
+        assert aluno_davi.nao_matriculado is False
+        assert aluno_davi.escola == self.escola
+
+        assert aluno_davi.historico.count() == 2
+        historico_escola_000086 = aluno_davi.historico.get(escola=self.escola)
+        assert historico_escola_000086.data_fim is None
+
+        historico_escola_000094 = aluno_davi.historico.get(escola=self.escola2)
+        assert historico_escola_000094.data_fim is not None
+
+        assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
+
+    @freeze_time("2025-01-01")
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_command_atualiza_alunos_escolas_d_menos_1(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        self.setup_escola2()
+
+        aluno_9999999 = AlunoFactory.create(
+            codigo_eol="9999999",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=self.escola,
+        )
+        HistoricoMatriculaAlunoFactory.create(aluno=aluno_9999999, escola=self.escola)
+
+        AlunoFactory.create(
+            codigo_eol="8888888",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=self.escola,
+        )
+
+        AlunoFactory.create(
+            codigo_eol="6666666",
+            nome="MELISSA ALUNO TESTE",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=self.escola,
+        )
+
+        mock_get_response_alunos_por_escola.side_effect = [
+            self.mocked_response_dados_alunos,
+            mocked_response({}, 404),
+            self.mocked_response_dados_alunos_2,
+            mocked_response({}, 404),
+        ]
+        self.call_command()
+        assert Aluno.objects.count() == 4
+
+        aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
+        assert aluno_davi.nao_matriculado is False
+        assert aluno_davi.escola == self.escola2
+
+        assert aluno_davi.historico.count() == 2
+        historico_escola_000086 = aluno_davi.historico.get(escola=self.escola)
+        assert historico_escola_000086.data_fim is None
+
+        historico_escola_000094 = aluno_davi.historico.get(escola=self.escola2)
+        assert historico_escola_000094.data_fim is None
+
+        aluno_kimberlly = Aluno.objects.get(codigo_eol="8888888")
+        assert aluno_kimberlly.historico.exists() is True
+
+        aluno_theo = Aluno.objects.get(codigo_eol="9999999")
+        assert aluno_theo.historico.count() == 1
+        assert aluno_theo.historico.get().data_fim is not None
+
+        assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
+
+    @freeze_time("2025-01-01")
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_command_atualiza_alunos_escolas_d_menos_1_rematricula(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        self.setup_escola2_matricula_concluida()
+        mock_get_response_alunos_por_escola.side_effect = [
+            self.mocked_response_dados_alunos,
+            mocked_response({}, 404),
+            self.mocked_response_dados_alunos_2,
+            mocked_response({}, 404),
+        ]
+        self.call_command()
+        assert Aluno.objects.count() == 2
+
+        aluno_davi = Aluno.objects.get(nome="DAVI ALUNO TESTE")
+        assert aluno_davi.nao_matriculado is False
+        assert aluno_davi.escola == self.escola
+
+        assert aluno_davi.historico.count() == 2
+        historico_escola_000086 = aluno_davi.historico.get(escola=self.escola)
+        assert historico_escola_000086.data_fim is None
+
+        historico_escola_000094 = aluno_davi.historico.get(escola=self.escola2)
+        assert historico_escola_000094.data_fim is not None
+
+        assert Aluno.objects.filter(nome="ZOE ALUNA TESTE").exists() is False
+
+    @freeze_time("2025-01-01")
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_atualiza_dados_aluno_multiplos_registros_d_menos_1(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        """Testa se os dados do aluno são atualizados quando ele tem múltiplos
+        registros na mesma escola (ex: remanejamento interno).
+        Este cenário usa _trata_alunos_ativos_mais_de_um_resultado."""
+        escola = EscolaFactory.create(codigo_eol="000099")
+
+        periodo_tarde = PeriodoEscolar.objects.get(tipo_turno=3)
+
+        aluno_existente = AlunoFactory.create(
+            codigo_eol="5555555",
+            nome="NOME ANTIGO LUCAS",
+            serie="1A",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=escola,
+            data_nascimento="2015-01-01",
+            etapa=None,
+            ciclo=None,
+        )
+
+        with open(
+            "src/escola/__tests__/commands/mocks/mock_ue_000099_dados_alunos_atualiza_dados.json",
+            "r",
+        ) as file:
+            mock_data_escola = json.load(file)
+
+        def side_effect_fn(cod_eol, ano_param=None):
+            if cod_eol == "000099" and ano_param is None:
+                return mocked_response(mock_data_escola, 200)
+            return mocked_response({}, 404)
+
+        mock_get_response_alunos_por_escola.side_effect = side_effect_fn
+        self.call_command()
+
+        aluno_atualizado = Aluno.objects.get(codigo_eol="5555555")
+        assert aluno_atualizado.nome == "LUCAS ALUNO ATUALIZADO"
+        assert aluno_atualizado.serie == "5B"
+        assert aluno_atualizado.periodo_escolar == periodo_tarde
+        assert str(aluno_atualizado.data_nascimento) == "2019-05-15"
+        assert aluno_atualizado.etapa == 2
+        assert aluno_atualizado.ciclo == 3
+        assert aluno_atualizado.desc_etapa == "ENSINO FUNDAMENTAL"
+        assert aluno_atualizado.desc_ciclo == "ALFABETIZACAO"
+        assert aluno_atualizado.escola == escola
+        assert aluno_atualizado.nao_matriculado is False
+
+    @freeze_time("2025-01-01")
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_atualiza_dados_aluno_registro_unico_d_menos_1(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        """Testa se os dados do aluno são atualizados quando ele tem um único
+        registro na escola. Este cenário usa _trata_aluno_status_ativo."""
+        escola = EscolaFactory.create(codigo_eol="000099")
+
+        aluno_existente = AlunoFactory.create(
+            codigo_eol="4444444",
+            nome="NOME ANTIGO MARIA",
+            serie="2B",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=escola,
+            data_nascimento="2015-06-01",
+            etapa=None,
+            ciclo=None,
+        )
+
+        mock_data = [
+            {
+                "codigoAluno": 4444444,
+                "tipoTurno": 1,
+                "anoLetivo": 2025,
+                "nomeAluno": "MARIA ALUNA ATUALIZADA",
+                "nomeSocialAluno": None,
+                "codigoSituacaoMatricula": 1,
+                "situacaoMatricula": "Ativo",
+                "dataSituacao": "2025-02-01T10:09:54.24",
+                "dataNascimento": "2018-03-20T00:00:00",
+                "numeroAlunoChamada": "005",
+                "codigoTurma": 2651133,
+                "nomeResponsavel": None,
+                "tipoResponsavel": None,
+                "celularResponsavel": None,
+                "dataAtualizacaoContato": "0001-01-01T00:00:00",
+                "codigoTipoTurma": 1,
+                "turmaNome": "6A",
+                "etapaEnsino": 2,
+                "cicloEnsino": 3,
+                "descEtapaEnsino": "ENSINO FUNDAMENTAL",
+                "descCicloEnsino": "ALFABETIZACAO",
+                "dataAtualizacaoTabela": "0001-01-01T00:00:00",
+            }
+        ]
+
+        def side_effect_fn(cod_eol, ano_param=None):
+            if cod_eol == "000099" and ano_param is None:
+                return mocked_response(mock_data, 200)
+            return mocked_response({}, 404)
+
+        mock_get_response_alunos_por_escola.side_effect = side_effect_fn
+        self.call_command()
+
+        aluno_atualizado = Aluno.objects.get(codigo_eol="4444444")
+        assert aluno_atualizado.nome == "MARIA ALUNA ATUALIZADA"
+        assert aluno_atualizado.serie == "6A"
+        assert aluno_atualizado.periodo_escolar == self.periodo_escolar_manha
+        assert str(aluno_atualizado.data_nascimento) == "2018-03-20"
+        assert aluno_atualizado.etapa == 2
+        assert aluno_atualizado.ciclo == 3
+        assert aluno_atualizado.desc_etapa == "ENSINO FUNDAMENTAL"
+        assert aluno_atualizado.desc_ciclo == "ALFABETIZACAO"
+        assert aluno_atualizado.escola == escola
+        assert aluno_atualizado.nao_matriculado is False
+
+    @freeze_time("2025-01-01")
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_d_menos_1_cria_novo_historico_quando_historico_encerrado_e_aluno_ativo(
+        self,
+        mock_get_response_alunos_por_escola,
+    ) -> None:
+        """Testa que um novo histórico ativo é criado quando o aluno está ativo na
+        escola mas possui apenas histórico encerrado (data_fim != None).
+        Garante a correção do bug onde _lida_com_matricula_aluno_existente não
+        criava um novo histórico nesse cenário."""
+        escola = EscolaFactory.create(codigo_eol="000098")
+        aluno = AlunoFactory.create(
+            codigo_eol="3333333",
+            nome="ALUNO RETORNO TESTE",
+            periodo_escolar=self.periodo_escolar_manha,
+            escola=escola,
+            data_nascimento="2018-05-10",
+        )
+        HistoricoMatriculaAlunoFactory.create(
+            aluno=aluno,
+            escola=escola,
+            data_fim=datetime.date(2024, 12, 31),
+            codigo_situacao=5,
+        )
+
+        mock_data = [
+            {
+                "codigoAluno": 3333333,
+                "tipoTurno": 1,
+                "anoLetivo": 2025,
+                "nomeAluno": "ALUNO RETORNO TESTE",
+                "nomeSocialAluno": None,
+                "codigoSituacaoMatricula": 1,
+                "situacaoMatricula": "Ativo",
+                "dataSituacao": "2025-01-02T08:00:00",
+                "dataNascimento": "2018-05-10T00:00:00",
+                "numeroAlunoChamada": "001",
+                "codigoTurma": 9999001,
+                "nomeResponsavel": None,
+                "tipoResponsavel": None,
+                "celularResponsavel": None,
+                "dataAtualizacaoContato": "0001-01-01T00:00:00",
+                "codigoTipoTurma": 1,
+                "turmaNome": "3A",
+                "etapaEnsino": 2,
+                "cicloEnsino": 3,
+                "descEtapaEnsino": "ENSINO FUNDAMENTAL",
+                "descCicloEnsino": "ALFABETIZACAO",
+                "dataAtualizacaoTabela": "0001-01-01T00:00:00",
+            }
+        ]
+
+        def side_effect_fn(cod_eol, ano_param=None):
+            if cod_eol == "000098" and ano_param is None:
+                return mocked_response(mock_data, 200)
+            return mocked_response({}, 404)
+
+        mock_get_response_alunos_por_escola.side_effect = side_effect_fn
+        self.call_command()
+
+        aluno_atualizado = Aluno.objects.get(codigo_eol="3333333")
+        # Deve ter o histórico antigo (encerrado) + novo histórico ativo
+        assert aluno_atualizado.historico.count() == 2
+        assert aluno_atualizado.historico.filter(data_fim__isnull=True).exists()
+        assert aluno_atualizado.historico.filter(data_fim__isnull=False).count() == 1
+
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command._coleta_dados_em_paralelo"
+    )
+    @pytest.mark.django_db
+    def test_get_todos_os_registros_exclui_escolas_particulares(
+        self,
+        mock_coleta_dados,
+    ):
+        escola_publica = EscolaFactory.create(
+            codigo_eol="000111", tipo_unidade__iniciais="CEMEI"
+        )
+
+        escola_particular = EscolaFactory.create(
+            codigo_eol="000222", tipo_unidade__iniciais="ESC.PART."
+        )
+
+        mock_coleta_dados.return_value = []
+
+        command = Command()
+
+        command.get_todos_os_registros()
+
+        args, kwargs = mock_coleta_dados.call_args
+        escolas_passadas = args[0]
+
+        assert escola_publica.codigo_eol in escolas_passadas
+        assert escola_particular.codigo_eol not in escolas_passadas
+
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command._atualiza_alunos_da_escola"
+    )
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command._obtem_alunos_escola"
+    )
+    @pytest.mark.django_db
+    def test_d_menos_1_exclui_escolas_particulares(
+        self,
+        mock_obtem_alunos,
+        mock_atualiza_alunos_escola,
+    ):
+
+        escola_publica = EscolaFactory.create(
+            codigo_eol="000111", tipo_unidade__iniciais="EMEF"
+        )
+
+        escola_particular = EscolaFactory.create(
+            codigo_eol="000222", tipo_unidade__iniciais="ESC.PART."
+        )
+        mock_obtem_alunos.return_value = [{}]
+        command = Command()
+        command._atualiza_todas_as_escolas_d_menos_1()
+        escolas_processadas = [
+            call_args[0][0] for call_args in mock_atualiza_alunos_escola.call_args_list
+        ]
+        assert escola_publica in escolas_processadas
+        assert escola_particular not in escolas_processadas
+
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command._lida_com_matricula_aluno_existente_d_menos_2"
+    )
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_todos_os_registros"
+    )
+    @pytest.mark.django_db
+    def test_d_menos_2_exclui_escolas_particulares(
+        self,
+        mock_get_todos_os_registros,
+        mock_lida_matricula,
+    ):
+
+        escola_publica = EscolaFactory.create(
+            codigo_eol="000112", tipo_unidade__iniciais="EMEBS"
+        )
+        aluno_publica = AlunoFactory.create(
+            codigo_eol="9999988",
+            escola=escola_publica,
+            periodo_escolar=self.periodo_escolar_manha,
+        )
+        HistoricoMatriculaAlunoFactory.create(
+            aluno=aluno_publica, escola=escola_publica
+        )
+
+        escola_particular = EscolaFactory.create(
+            codigo_eol="000221", tipo_unidade__iniciais="ESC.PART."
+        )
+        aluno_particulas = AlunoFactory.create(
+            codigo_eol="8899999",
+            escola=escola_particular,
+            periodo_escolar=self.periodo_escolar_manha,
+        )
+        HistoricoMatriculaAlunoFactory.create(
+            aluno=aluno_particulas, escola=escola_particular
+        )
+
+        mock_get_todos_os_registros.return_value = [
+            {
+                "codigoAluno": aluno_publica.codigo_eol,
+                "codigoEolEscola": "000112",
+                "codigoTipoTurma": 1,
+                "codigoSituacaoMatricula": 1,
+                "dataNascimento": "2010-01-01T00:00:00",
+                "nomeAluno": "Teste",
+                "tipoTurno": 1,
+                "turmaNome": "7A",
+                "situacaoMatricula": "Sem continuidade",
+            },
+            {
+                "codigoAluno": aluno_particulas.codigo_eol,
+                "codigoEolEscola": "000221",
+                "codigoTipoTurma": 1,
+                "codigoSituacaoMatricula": 1,
+                "dataNascimento": "2010-01-01T00:00:00",
+                "nomeAluno": "Teste 2",
+                "tipoTurno": 1,
+                "turmaNome": "9A",
+                "situacaoMatricula": "Sem continuidade",
+            },
+        ]
+        command = Command()
+        command._atualiza_todas_as_escolas_d_menos_2()
+        escolas_usadas = [
+            call_args[0][1] for call_args in mock_lida_matricula.call_args_list
+        ]
+        assert escola_publica in escolas_usadas
+        assert escola_particular not in escolas_usadas
+
+
+class TestObtemAlunosEscola(TestCase):
+    def set_up_periodos_escolares(self):
+        PeriodoEscolarFactory.create(nome="MANHA", tipo_turno=1)
+        PeriodoEscolarFactory.create(nome="INTERMEDIARIO", tipo_turno=2)
+        PeriodoEscolarFactory.create(nome="TARDE", tipo_turno=3)
+        PeriodoEscolarFactory.create(nome="VESPERTINO", tipo_turno=4)
+        PeriodoEscolarFactory.create(nome="NOITE", tipo_turno=5)
+        PeriodoEscolarFactory.create(nome="INTEGRAL", tipo_turno=6)
+
+    def setUp(self) -> None:
+        self.set_up_periodos_escolares()
+        self.escola = EscolaFactory.create(codigo_eol="000086")
+        self.command = Command()
+
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_max_retries_exceeded(self, mock_get_response):
+        mock_response = MagicMock(spec=Response)
+        mock_response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        mock_response.json.return_value = {"error": "Service Unavailable"}
+        mock_response.text = "503 service unavailable"
+        mock_get_response.return_value = mock_response
+
+        with self.assertRaises(MaxRetriesExceeded) as context:
+            self.command._obtem_alunos_escola("000086")
+
+        self.assertEqual(mock_get_response.call_count, 10)
+        self.assertIn(
+            "Máximo de tentativas alcançada para a escola 000086",
+            str(context.exception),
+        )
+        assert Aluno.objects.count() == 0

@@ -1,11 +1,16 @@
-# language: pt
+Feature: Cadastro de Empresas
+  Como usuario Codae ou Cronograma
+  Preciso realizar o cadastro de empresas
+  Para que fiquem disponiveis no sistema
 
-Funcionalidade: Cadastro de Empresas
+  Background:
+    Given que acesso o sistema
 
-  Cenário: Cadastrar empresa com sucesso
-    Dado que acesso o sistema
-    E acesso o menu Cadastros > Empresas
-    Quando preencho os campos obrigatórios de cadastro da empresa
-    E clico no botão Salvar
-    E confirmo a ação no modal de confirmação
-    Então devo visualizar a mensagem "Empresa cadastrada com sucesso"
+  Scenario: Cadastro de empresa com sucesso
+    When acesso o menu Cadastros > Empresas
+    And preencho os campos obrigatorios de cadastro da empresa
+    And clico no botao Salvar
+    And confirmo a acao no modal de confirmacao
+    Then devo visualizar a mensagem "Empresa cadastrada com sucesso"
+    #teste
+    

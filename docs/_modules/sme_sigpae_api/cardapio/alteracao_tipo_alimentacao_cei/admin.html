@@ -80,6 +80,19 @@
 <div class="viewcode-block" id="SubstituicoesCEIInLine">
 <a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicoesCEIInLine</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">TabularInline</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inline do Django para substituições de alimentação no período escolar CEI.</span>
+
+<span class="sd">    Exibe e permite editar instâncias de</span>
+<span class="sd">    :class:`SubstituicaoAlimentacaoNoPeriodoEscolarCEI` diretamente no</span>
+<span class="sd">    formulário de :class:`AlteracaoCardapioCEI`.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model (Model): Modelo gerenciado pelo inline.</span>
+<span class="sd">            Valor: :class:`SubstituicaoAlimentacaoNoPeriodoEscolarCEI`.</span>
+<span class="sd">        extra (int): Número de formulários extras exibidos para novos registros.</span>
+<span class="sd">            Valor: ``1``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">model</span> <span class="o">=</span> <span class="n">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span>
     <span class="n">extra</span> <span class="o">=</span> <span class="mi">1</span></div>
 
@@ -89,6 +102,21 @@
 <a class="viewcode-back" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin">[docs]</a>
 <span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">AlteracaoCardapioCEI</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioCEIModelAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Admin do Django para solicitações de alteração do tipo de alimentação CEI.</span>
+
+<span class="sd">    Configura a listagem administrativa de :class:`AlteracaoCardapioCEI`,</span>
+<span class="sd">    exibindo o UUID, a data e o status de cada solicitação, habilitando filtro</span>
+<span class="sd">    por status e incorporando o inline de substituições no formulário de edição.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        inlines (list): Inlines exibidos no formulário de edição.</span>
+<span class="sd">            Valor: ``[SubstituicoesCEIInLine]``.</span>
+<span class="sd">        list_display (list[str]): Colunas exibidas na listagem do admin.</span>
+<span class="sd">            Valores: ``[&quot;uuid&quot;, &quot;data&quot;, &quot;status&quot;]``.</span>
+<span class="sd">        list_filter (list[str]): Filtros laterais disponíveis na listagem.</span>
+<span class="sd">            Valores: ``[&quot;status&quot;]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">SubstituicoesCEIInLine</span><span class="p">]</span>
     <span class="n">list_display</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">]</span>
     <span class="n">list_filter</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span></div>

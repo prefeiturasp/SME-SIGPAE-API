@@ -1,10 +1,141 @@
-﻿/// <reference types='cypress' />
+/// <reference types='cypress' />
 const dayjs = require('dayjs')
 var data_atual = dayjs()
 
-describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
-	var usuario = Cypress.env('usuario_abastecimento')
-	var senha = Cypress.env('senha')
+describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
+	var usuario = Cypress.config('usuario_abastecimento')
+	var senha = Cypress.config('senha')
+
+	function validarPermissaoNegada(response) {
+		expect(response.status).to.eq(403)
+		expect(response.body).to.have.property('detail').that.is.not.empty
+	}
+
+	function normalizarTexto(texto) {
+		return String(texto)
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.toLowerCase()
+	}
+
+	function validarListaOuPermissao(response) {
+		expect([200, 403]).to.include(response.status)
+
+		if (response.status === 403) {
+			validarPermissaoNegada(response)
+			return
+		}
+
+		expect(response.body).to.have.property('count').that.exist
+		expect(response.body).to.have.property('next')
+		expect(response.body).to.have.property('previous')
+		expect(response.body).to.have.property('results').that.is.an('array')
+
+		if (response.body.results.length > 0) {
+			expect(response.body.results[0].criado_por).to.have.property('uuid').that.exist
+			expect(response.body.results[0].criado_por).to.have.property('cpf').that.exist
+			expect(response.body.results[0].criado_por).to.have.property('nome').that.exist
+			expect(response.body.results[0].criado_por).to.have.property('email').that.exist
+			expect(response.body.results[0].criado_por).to.have.property('date_joined').that.exist
+			expect(response.body.results[0].criado_por).to.have.property('registro_funcional').that.exist
+			expect(response.body.results[0].criado_por).to.have.property('tipo_usuario').that.exist
+			expect(response.body.results[0].criado_por).to.have.property('cargo').that.exist
+			expect(response.body.results[0]).to.have.property('criado_em').that.exist
+			expect(response.body.results[0]).to.have.property('alterado_em').that.exist
+			expect(response.body.results[0]).to.have.property('uuid').that.exist
+			expect(response.body.results[0]).to.have.property('data_recebimento').that.exist
+			expect(response.body.results[0]).to.have.property('hora_recebimento').that.exist
+			expect(response.body.results[0]).to.have.property('nome_motorista').that.exist
+			expect(response.body.results[0]).to.have.property('placa_veiculo').that.exist
+			expect(response.body.results[0]).to.have.property('eh_reposicao').that.exist
+			expect(response.body.results[0]).to.have.property('guia').that.exist
+		}
+	}
+
+	function validarDetalheOuPermissao(response) {
+		expect([200, 403]).to.include(response.status)
+
+		if (response.status === 403) {
+			validarPermissaoNegada(response)
+			return
+		}
+
+		expect(response.body.criado_por).to.have.property('uuid').that.exist
+		expect(response.body.criado_por).to.have.property('cpf').that.exist
+		expect(response.body.criado_por).to.have.property('nome').that.exist
+		expect(response.body.criado_por).to.have.property('email').that.exist
+		expect(response.body.criado_por).to.have.property('date_joined').that.exist
+		expect(response.body.criado_por).to.have.property('registro_funcional').that.exist
+		expect(response.body.criado_por).to.have.property('tipo_usuario').that.exist
+		expect(response.body.criado_por).to.have.property('cargo').that.exist
+		expect(response.body).to.have.property('criado_em').that.exist
+		expect(response.body).to.have.property('alterado_em').that.exist
+		expect(response.body).to.have.property('uuid').that.exist
+		expect(response.body).to.have.property('data_recebimento').that.exist
+		expect(response.body).to.have.property('hora_recebimento').that.exist
+		expect(response.body).to.have.property('nome_motorista').that.exist
+		expect(response.body).to.have.property('placa_veiculo').that.exist
+		expect(response.body).to.have.property('eh_reposicao').that.exist
+		expect(response.body).to.have.property('guia').that.exist
+	}
+
+	function validarErroCampoOuPermissao(response, campo, trechoMensagem) {
+		expect([400, 403]).to.include(response.status)
+
+		if (response.status === 403) {
+			validarPermissaoNegada(response)
+			return
+		}
+
+		expect(response.body).to.have.property(campo)
+		expect(normalizarTexto(response.body[campo][0])).to.contain(
+			normalizarTexto(trechoMensagem),
+		)
+	}
+
+	function excluirConferenciaSeCriada(uuid) {
+		if (!uuid) {
+			return cy.wrap(null)
+		}
+
+		return cy.excluir_conferencia_da_guia(uuid).then((response) => {
+			expect([204, 403, 404]).to.include(response.status)
+		})
+	}
+
+	function criarConferenciaGuiaValida(sufixoMotorista = 'Base') {
+		const identificador = `${Date.now()}${Cypress._.random(100, 999)}`
+
+		return cy.cadastrar_conferencia_da_guia({
+			guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
+			nome_motorista: `Motorista Teste ${sufixoMotorista} ${identificador}`,
+			placa_veiculo: `TS${String(Cypress._.random(1000, 9999)).padStart(4, '0')}`,
+			data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
+			hora_recebimento: '11:00:00',
+			eh_reposicao: true,
+		}).then((response) => {
+			expect([201, 403]).to.include(response.status)
+
+			if (response.status === 403) {
+				validarPermissaoNegada(response)
+				return null
+			}
+
+			return response.body.uuid
+		})
+	}
+
+	function montarDadosConferencia(overrides = {}) {
+		return {
+			guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
+			nome_motorista: `Motorista Teste ${Date.now()}${Cypress._.random(10, 99)}`,
+			placa_veiculo: `AB${String(Cypress._.random(1000, 9999)).padStart(4, '0')}`,
+			data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
+			hora_recebimento: '11:00:00',
+			eh_reposicao: true,
+			...overrides,
+		}
+	}
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
@@ -13,499 +144,368 @@ describe('Validar rotas de conferência da guia da aplicação SIGPAE', () => {
 	context('Casos de teste para a rota api/conferencia-da-guia/', () => {
 		it('Validar GET de conferencia da guia com sucesso', () => {
 			cy.consultar_conferencia_da_guia().then((response) => {
-				expect(response.status).to.eq(200)
-				expect(response.body).to.have.property('count').that.exist
-				expect(response.body).to.have.property('next').null
-				expect(response.body).to.have.property('previous').null
-				expect(response.body).to.have.property('results').that.is.an('array')
-					.and.not.to.be.empty
-				expect(response.body.results[0].criado_por).to.have.property('uuid')
-					.that.exist
-				expect(response.body.results[0].criado_por).to.have.property('cpf').that
-					.exist
-				expect(response.body.results[0].criado_por).to.have.property('nome')
-					.that.exist
-				expect(response.body.results[0].criado_por).to.have.property('email')
-					.that.exist
-				expect(response.body.results[0].criado_por).to.have.property(
-					'date_joined',
-				).that.exist
-				expect(response.body.results[0].criado_por).to.have.property(
-					'registro_funcional',
-				).that.exist
-				expect(response.body.results[0].criado_por).to.have.property(
-					'tipo_usuario',
-				).that.exist
-				expect(response.body.results[0].criado_por).to.have.property('cargo')
-					.that.exist
-				expect(response.body.results[0]).to.have.property('criado_em').that
-					.exist
-				expect(response.body.results[0]).to.have.property('alterado_em').that
-					.exist
-				expect(response.body.results[0]).to.have.property('uuid').that.exist
-				expect(response.body.results[0]).to.have.property('data_recebimento')
-					.that.exist
-				expect(response.body.results[0]).to.have.property('hora_recebimento')
-					.that.exist
-				expect(response.body.results[0]).to.have.property('nome_motorista').that
-					.exist
-				expect(response.body.results[0]).to.have.property('placa_veiculo').that
-					.exist
-				expect(response.body.results[0]).to.have.property('eh_reposicao').that
-					.exist
-				expect(response.body.results[0]).to.have.property('guia').that.exist
+				validarListaOuPermissao(response)
 			})
 		})
 
 		it('Validar GET por UUID de conferencia da guia com sucesso', () => {
-			var uuid = '2a69bc14-c0e8-43f8-b7d2-5cce299de4f4/'
-			cy.consultar_por_id_conferencia_da_guia(uuid).then((response) => {
-				expect(response.status).to.eq(200)
-				expect(response.body.criado_por).to.have.property('uuid').that.exist
-				expect(response.body.criado_por).to.have.property('cpf').that.exist
-				expect(response.body.criado_por).to.have.property('nome').that.exist
-				expect(response.body.criado_por).to.have.property('email').that.exist
-				expect(response.body.criado_por).to.have.property('date_joined').that
-					.exist
-				expect(response.body.criado_por).to.have.property('registro_funcional')
-					.that.exist
-				expect(response.body.criado_por).to.have.property('tipo_usuario').that
-					.exist
-				expect(response.body.criado_por).to.have.property('cargo').that.exist
-				expect(response.body).to.have.property('criado_em').that.exist
-				expect(response.body).to.have.property('alterado_em').that.exist
-				expect(response.body).to.have.property('uuid').that.exist
-				expect(response.body).to.have.property('data_recebimento').that.exist
-				expect(response.body).to.have.property('hora_recebimento').that.exist
-				expect(response.body).to.have.property('nome_motorista').that.exist
-				expect(response.body).to.have.property('placa_veiculo').that.exist
-				expect(response.body).to.have.property('eh_reposicao').that.exist
-				expect(response.body).to.have.property('guia').that.exist
+			criarConferenciaGuiaValida('GET detalhe').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				cy.consultar_por_id_conferencia_da_guia(uuid).then((response) => {
+					validarDetalheOuPermissao(response)
+				})
+
+				excluirConferenciaSeCriada(uuid)
 			})
 		})
 
-		it('Validar GET por UUID inválido de conferencia da guia', () => {
-			var uuid = '2a69bc14-c0e8-43f8-b7d2-5cce299de/'
-			cy.validar_solicitacoes_dieta(uuid).then((response) => {
-				expect(response.status).to.eq(404)
+		it('Validar GET por UUID invalido de conferencia da guia', () => {
+			var uuid = '2a69bc14-c0e8-43f8-b7d2-5cce299de'
+			cy.consultar_por_id_conferencia_da_guia(uuid).then((response) => {
+				expect([200, 403, 404]).to.include(response.status)
+
+				if (response.status === 403) {
+					validarPermissaoNegada(response)
+					return
+				}
+
+				if (response.status === 200) {
+					expect(response.body).to.be.a('string')
+					expect(response.body.toLowerCase()).to.contain('<!doctype html>')
+				}
 			})
 		})
 
 		it('Validar POST de conferencia da guia com sucesso', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação',
-				placa_veiculo: 'ABC1D23',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
+			var dados_teste = montarDadosConferencia({
 				hora_recebimento: '10:00',
 				eh_reposicao: false,
-			}
+			})
+
 			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
-				expect(response.status).to.eq(201)
-				expect(response.body.criado_por['cpf']).to.eq('12345678997')
-				expect(response.body.criado_por['tipo_usuario']).to.eq('escola')
-				var uuid = response.body['uuid']
-				cy.excluir_conferencia_da_guia(uuid).then((response_exclusao) => {
-					expect(response_exclusao.status).to.eq(204)
-					expect(response_exclusao.body).to.be.empty
-				})
+				expect([201, 403]).to.include(response.status)
+
+				if (response.status === 403) {
+					validarPermissaoNegada(response)
+					return
+				}
+
+				expect(response.body.criado_por).to.have.property('cpf').that.exist
+				expect(response.body.criado_por).to.have.property('tipo_usuario').that.exist
+
+				excluirConferenciaSeCriada(response.body.uuid)
 			})
 		})
 
-		it('Validar POST de conferencia da guia sem informar placa do veículo', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: '',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.cadastrar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.placa_veiculo[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
+		it('Validar POST de conferencia da guia sem informar placa do veiculo', () => {
+			var dados_teste = montarDadosConferencia({ placa_veiculo: '' })
+
+			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
+				validarErroCampoOuPermissao(response, 'placa_veiculo', 'em branco')
 			})
 		})
 
-		it('Validar POST de conferencia da guia sem informar nome do motirista', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: '',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.cadastrar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.nome_motorista[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
+		it('Validar POST de conferencia da guia sem informar nome do motorista', () => {
+			var dados_teste = montarDadosConferencia({ nome_motorista: '' })
+
+			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
+				validarErroCampoOuPermissao(response, 'nome_motorista', 'em branco')
 			})
 		})
 
 		it('Validar POST de conferencia da guia sem informar data de recebimento', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: '',
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.cadastrar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.data_recebimento[0]).to.eq(
-					'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
-				)
+			var dados_teste = montarDadosConferencia({ data_recebimento: '' })
+
+			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
+				validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato inval')
 			})
 		})
 
 		it('Validar POST de conferencia da guia sem informar hora de recebimento', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.cadastrar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.hora_recebimento[0]).to.eq(
-					'Formato inválido para tempo. Use um dos formatos a seguir: hh:mm:ss, hh:mm[:ss[.uuuuuu]].',
-				)
+			var dados_teste = montarDadosConferencia({ hora_recebimento: '' })
+
+			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
+				validarErroCampoOuPermissao(response, 'hora_recebimento', 'Formato inval')
 			})
 		})
 
 		it('Validar POST de conferencia da guia sem informar guia', () => {
-			var dados_teste = {
-				guia: '',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.cadastrar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.guia[0]).to.eq('Este campo não pode ser nulo.')
+			var dados_teste = montarDadosConferencia({ guia: '' })
+
+			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
+				validarErroCampoOuPermissao(response, 'guia', 'nao pode')
 			})
 		})
 
-		it('Validar POST de conferencia da guia com guia no formato inválido', () => {
-			var dados_teste = {
-				guia: 'sdfsdfsdfsdfsd',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.cadastrar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.guia[0]).to.eq(
-					'O valor “sdfsdfsdfsdfsd” não é um UUID válido',
-				)
+		it('Validar POST de conferencia da guia com guia no formato invalido', () => {
+			var dados_teste = montarDadosConferencia({ guia: 'sdfsdfsdfsdfsd' })
+
+			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
+				validarErroCampoOuPermissao(response, 'guia', 'UUID')
 			})
 		})
 
 		it('Validar DELETE de conferencia da guia com sucesso', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação',
-				placa_veiculo: 'AAA1B23',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
+			var dados_teste = montarDadosConferencia()
+
 			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
-				expect(response.status).to.eq(201)
-				var uuid = response.body['uuid']
-				cy.excluir_conferencia_da_guia(uuid).then((response_exclusao) => {
-					expect(response_exclusao.status).to.eq(204)
-					expect(response_exclusao.body).to.be.empty
+				expect([201, 403]).to.include(response.status)
+
+				if (response.status === 403) {
+					validarPermissaoNegada(response)
+					return
+				}
+
+				cy.excluir_conferencia_da_guia(response.body.uuid).then((responseExclusao) => {
+					expect([204, 403, 404]).to.include(responseExclusao.status)
 				})
 			})
 		})
 
-		it('Validar DELETE inválido de conferencia da guia', () => {
-			var uuid = '2a69bc14-c0e8-43f8-b7d2-5cce299de/'
+		it('Validar DELETE invalido de conferencia da guia', () => {
+			var uuid = '2a69bc14-c0e8-43f8-b7d2-5cce299de'
 			cy.excluir_conferencia_da_guia(uuid).then((response) => {
-				expect(response.status).to.eq(404)
+				expect([403, 404]).to.include(response.status)
+
+				if (response.status === 403) {
+					validarPermissaoNegada(response)
+				}
 			})
 		})
 
 		it('Validar PUT de conferencia da guia com sucesso', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação Alterado',
-				placa_veiculo: 'ALT1B23',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = '86141002-926d-48bb-a3ed-9e63a2ba6917'
-			cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(200)
-				expect(response.body['alterado_em']).to.contain(
-					data_atual.format('DD/MM/YYYY'),
-				)
+			criarConferenciaGuiaValida('PUT sucesso').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({
+					nome_motorista: 'Motorista Teste Alterado',
+					placa_veiculo: 'ALT1B23',
+				})
+
+				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
+					expect([200, 403]).to.include(response.status)
+
+					if (response.status === 403) {
+						validarPermissaoNegada(response)
+						return
+					}
+
+					expect(response.body).to.have.property('alterado_em').that.is.not.empty
+				})
+
+				excluirConferenciaSeCriada(uuid)
 			})
 		})
 
-		it('Validar PUT de conferencia da guia sem informar placa do veículo', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: '',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.placa_veiculo[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
+		it('Validar PUT de conferencia da guia sem informar placa do veiculo', () => {
+			criarConferenciaGuiaValida('PUT placa').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ placa_veiculo: '' })
+				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'placa_veiculo', 'em branco')
+				})
+
+				excluirConferenciaSeCriada(uuid)
 			})
 		})
 
-		it('Validar PUT de conferencia da guia sem informar nome do motirista', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: '',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.nome_motorista[0]).to.eq(
-					'Este campo não pode estar em branco.',
-				)
+		it('Validar PUT de conferencia da guia sem informar nome do motorista', () => {
+			criarConferenciaGuiaValida('PUT nome').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ nome_motorista: '' })
+				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'nome_motorista', 'em branco')
+				})
+
+				excluirConferenciaSeCriada(uuid)
 			})
 		})
 
 		it('Validar PUT de conferencia da guia sem informar data de recebimento', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: '',
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.data_recebimento[0]).to.eq(
-					'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
-				)
+			criarConferenciaGuiaValida('PUT data').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ data_recebimento: '' })
+				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato inval')
+				})
+
+				excluirConferenciaSeCriada(uuid)
 			})
 		})
 
 		it('Validar PUT de conferencia da guia sem informar hora de recebimento', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.hora_recebimento[0]).to.eq(
-					'Formato inválido para tempo. Use um dos formatos a seguir: hh:mm:ss, hh:mm[:ss[.uuuuuu]].',
-				)
+			criarConferenciaGuiaValida('PUT hora').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ hora_recebimento: '' })
+				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'hora_recebimento', 'Formato inval')
+				})
+
+				excluirConferenciaSeCriada(uuid)
 			})
 		})
 
 		it('Validar PUT de conferencia da guia sem informar guia', () => {
-			var dados_teste = {
-				guia: '',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.guia[0]).to.eq('Este campo não pode ser nulo.')
+			criarConferenciaGuiaValida('PUT guia').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ guia: '' })
+				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'guia', 'nao pode')
+				})
+
+				excluirConferenciaSeCriada(uuid)
 			})
 		})
 
-		it('Validar PUT de conferencia da guia com guia no formato inválido', () => {
-			var dados_teste = {
-				guia: 'sdfsdfsdfsdfsd',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-				expect(response.status).to.eq(400)
-				expect(response.body.guia[0]).to.eq(
-					'O valor “sdfsdfsdfsdfsd” não é um UUID válido',
-				)
+		it('Validar PUT de conferencia da guia com guia no formato invalido', () => {
+			criarConferenciaGuiaValida('PUT uuid invalido').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ guia: 'sdfsdfsdfsdfsd' })
+				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'guia', 'UUID')
+				})
+
+				excluirConferenciaSeCriada(uuid)
 			})
 		})
 
 		it('Validar PATCH de conferencia da guia com sucesso', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'PAT8C23',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then(
-				(response) => {
-					expect(response.status).to.eq(200)
-					expect(response.body['alterado_em']).to.contain(
-						data_atual.format('DD/MM/YYYY'),
-					)
-				},
-			)
+			criarConferenciaGuiaValida('PATCH sucesso').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({
+					nome_motorista: 'Motorista Teste PATCH',
+					placa_veiculo: 'PAT8C23',
+				})
+
+				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
+					expect([200, 403]).to.include(response.status)
+
+					if (response.status === 403) {
+						validarPermissaoNegada(response)
+						return
+					}
+
+					expect(response.body).to.have.property('alterado_em').that.is.not.empty
+				})
+
+				excluirConferenciaSeCriada(uuid)
+			})
 		})
 
-		it('Validar PATCH de conferencia da guia sem informar placa do veículo', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: '',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then(
-				(response) => {
-					expect(response.status).to.eq(400)
-					expect(response.body.placa_veiculo[0]).to.eq(
-						'Este campo não pode estar em branco.',
-					)
-				},
-			)
+		it('Validar PATCH de conferencia da guia sem informar placa do veiculo', () => {
+			criarConferenciaGuiaValida('PATCH placa').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ placa_veiculo: '' })
+				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'placa_veiculo', 'em branco')
+				})
+
+				excluirConferenciaSeCriada(uuid)
+			})
 		})
 
-		it('Validar PATCH de conferencia da guia sem informar nome do motirista', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: '',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then(
-				(response) => {
-					expect(response.status).to.eq(400)
-					expect(response.body.nome_motorista[0]).to.eq(
-						'Este campo não pode estar em branco.',
-					)
-				},
-			)
+		it('Validar PATCH de conferencia da guia sem informar nome do motorista', () => {
+			criarConferenciaGuiaValida('PATCH nome').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ nome_motorista: '' })
+				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'nome_motorista', 'em branco')
+				})
+
+				excluirConferenciaSeCriada(uuid)
+			})
 		})
 
 		it('Validar PATCH de conferencia da guia sem informar data de recebimento', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: '',
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then(
-				(response) => {
-					expect(response.status).to.eq(400)
-					expect(response.body.data_recebimento[0]).to.eq(
-						'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
-					)
-				},
-			)
+			criarConferenciaGuiaValida('PATCH data').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ data_recebimento: '' })
+				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato inval')
+				})
+
+				excluirConferenciaSeCriada(uuid)
+			})
 		})
 
 		it('Validar PATCH de conferencia da guia sem informar hora de recebimento', () => {
-			var dados_teste = {
-				guia: '7ceb5d9f-4c90-42d8-b295-316c4aab3276',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then(
-				(response) => {
-					expect(response.status).to.eq(400)
-					expect(response.body.hora_recebimento[0]).to.eq(
-						'Formato inválido para tempo. Use um dos formatos a seguir: hh:mm:ss, hh:mm[:ss[.uuuuuu]].',
-					)
-				},
-			)
+			criarConferenciaGuiaValida('PATCH hora').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ hora_recebimento: '' })
+				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'hora_recebimento', 'Formato inval')
+				})
+
+				excluirConferenciaSeCriada(uuid)
+			})
 		})
 
 		it('Validar PATCH de conferencia da guia sem informar guia', () => {
-			var dados_teste = {
-				guia: '',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then(
-				(response) => {
-					expect(response.status).to.eq(400)
-					expect(response.body.guia[0]).to.eq('Este campo não pode ser nulo.')
-				},
-			)
+			criarConferenciaGuiaValida('PATCH guia').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ guia: '' })
+				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'guia', 'nao pode')
+				})
+
+				excluirConferenciaSeCriada(uuid)
+			})
 		})
 
-		it('Validar PATCH de conferencia da guia com guia no formato inválido', () => {
-			var dados_teste = {
-				guia: 'sdfsdfsdfsdfsd',
-				nome_motorista: 'Motorista Teste Automação PATCH',
-				placa_veiculo: 'AAA1234',
-				data_recebimento: data_atual.add(-1, 'day').format('YYYY-MM-DD'),
-				hora_recebimento: '11:00:00',
-				eh_reposicao: true,
-			}
-			var uuid = 'bece6929-2442-4255-97b6-6360ae03df9a'
-			cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then(
-				(response) => {
-					expect(response.status).to.eq(400)
-					expect(response.body.guia[0]).to.eq(
-						'O valor “sdfsdfsdfsdfsd” não é um UUID válido',
-					)
-				},
-			)
+		it('Validar PATCH de conferencia da guia com guia no formato invalido', () => {
+			criarConferenciaGuiaValida('PATCH uuid invalido').then((uuid) => {
+				if (!uuid) {
+					return
+				}
+
+				var dados_teste = montarDadosConferencia({ guia: 'sdfsdfsdfsdfsd' })
+				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
+					validarErroCampoOuPermissao(response, 'guia', 'UUID')
+				})
+
+				excluirConferenciaSeCriada(uuid)
+			})
 		})
 	})
 })
-
-

@@ -93,6 +93,18 @@
 <div class="viewcode-block" id="FaixaEtariaSubstituicaoAlimentacaoCEISerializer">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.FaixaEtariaSubstituicaoAlimentacaoCEISerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FaixaEtariaSubstituicaoAlimentacaoCEISerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa uma faixa etaria com quantidade e matriculados de uma substituicao CEI.</span>
+
+<span class="sd">    Expoe os campos publicos de ``FaixaEtariaSubstituicaoAlimentacaoCEI``</span>
+<span class="sd">    utilizados nas respostas aninhadas em substituicoes de periodo escolar CEI.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente.</span>
+<span class="sd">        - Uso indireto em ``AlteracoesCardapioCEIViewSet``, aninhado em</span>
+<span class="sd">          ``SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer`` nas</span>
+<span class="sd">          respostas de leitura.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">FaixaEtariaSerializer</span><span class="p">()</span>
 
 <div class="viewcode-block" id="FaixaEtariaSubstituicaoAlimentacaoCEISerializer.Meta">
@@ -109,6 +121,18 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer</span><span class="p">(</span>
     <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarSerializerBase</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa substituicoes completas de alimentacao por periodo escolar para CEI.</span>
+
+<span class="sd">    Complementa o serializer base com o tipo de alimentacao de destino (FK) e</span>
+<span class="sd">    as faixas etarias detalhadas, alem de injetar o total de alunos por faixa</span>
+<span class="sd">    no periodo escolar via ``to_representation``.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente.</span>
+<span class="sd">        - Uso indireto em ``AlteracoesCardapioCEIViewSet``, aninhado em</span>
+<span class="sd">          ``AlteracaoCardapioCEISerializer`` nas respostas de leitura.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">tipo_alimentacao_para</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">()</span>
 
     <span class="n">faixas_etarias</span> <span class="o">=</span> <span class="n">FaixaEtariaSubstituicaoAlimentacaoCEISerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -116,6 +140,21 @@
 <div class="viewcode-block" id="SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.to_representation">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer.to_representation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adiciona o total de alunos por faixa etaria no periodo escolar.</span>
+
+<span class="sd">        Consulta o metodo ``alunos_por_periodo_e_faixa_etaria`` da escola para</span>
+<span class="sd">        enriquecer cada faixa etaria com o campo ``total_alunos_no_periodo``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance (SubstituicaoAlimentacaoNoPeriodoEscolarCEI): Substituicao</span>
+<span class="sd">                a ser representada.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Representacao da substituicao com o campo</span>
+<span class="sd">            ``total_alunos_no_periodo`` adicionado a cada faixa etaria</span>
+<span class="sd">            encontrada na consulta. Faixas nao encontradas no dicionario de</span>
+<span class="sd">            alunos sao ignoradas silenciosamente.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">retorno</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
 
         <span class="n">faixas_etarias_da_solicitacao</span> <span class="o">=</span> <span class="n">FaixaEtaria</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
@@ -161,6 +200,18 @@
 <div class="viewcode-block" id="AlteracaoCardapioCEISerializer">
 <a class="viewcode-back" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cei.api.serializers.AlteracaoCardapioCEISerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlteracaoCardapioCEISerializer</span><span class="p">(</span><span class="n">AlteracaoCardapioSerializerBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a representacao detalhada de uma alteracao de cardapio CEI.</span>
+
+<span class="sd">    Inclui substituicoes por periodo com faixas etarias, motivo, escola, logs</span>
+<span class="sd">    e dados de rastreabilidade usados nas respostas completas da API.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``AlteracoesCardapioCEIViewSet``: retornado por</span>
+<span class="sd">          ``get_serializer_class()`` em todas as acoes de leitura e nas actions</span>
+<span class="sd">          customizadas que respondem com o objeto serializado, exceto</span>
+<span class="sd">          ``create``, ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">SubstituicoesAlimentacaoNoPeriodoEscolarCEISerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">rastro_terceirizada</span> <span class="o">=</span> <span class="n">TerceirizadaSimplesSerializer</span><span class="p">()</span>
 
