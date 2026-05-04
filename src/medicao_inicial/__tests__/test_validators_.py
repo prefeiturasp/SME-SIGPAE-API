@@ -350,11 +350,6 @@ def test_obter_periodos_corretos_sem_periodo_notuno(
     assert periodos["noite"] == periodos["default"]
 
 
-# ---------------------------------------------------------------------------
-# Tests for the LogAlunosMatriculadosPeriodoEscola guard in get_lista_dias_letivos
-# ---------------------------------------------------------------------------
-
-
 def _make_solicitacao(escola, mes="11", ano="2025"):
     return baker.make("SolicitacaoMedicaoInicial", mes=mes, ano=ano, escola=escola)
 
@@ -389,7 +384,7 @@ def test_get_lista_dias_letivos_dia_com_log_valido_incluido(
 ):
     """Dia letivo com log REGULAR, quantidade > 0 e periodo_escolar preenchido é retornado."""
     solicitacao = _make_solicitacao(escola)
-    _make_dia_letivo(escola, 3)  # Monday Nov 3 2025
+    _make_dia_letivo(escola, 3)
     _make_log(escola, periodo_escolar_noite, 3)
 
     dias = get_lista_dias_letivos(solicitacao, escola)
@@ -453,7 +448,7 @@ def test_get_lista_dias_letivos_log_de_outro_mes_excluido(
     """Log do mesmo dia mas de mês diferente não conta."""
     solicitacao = _make_solicitacao(escola)
     _make_dia_letivo(escola, 3)
-    # Log exists for October, not November
+    # Log existe para Outubro, para Novembro não
     _make_log(escola, periodo_escolar_noite, 3, mes=10)
 
     dias = get_lista_dias_letivos(solicitacao, escola)
