@@ -4731,7 +4731,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "url": url,
                 "usuario": user.nome,
                 "log_transicao": log_transicao,
-                "hidden_email": True,
+                "hidden_email": False,
             },
         )
 
