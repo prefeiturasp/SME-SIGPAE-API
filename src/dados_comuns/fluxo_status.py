@@ -5341,6 +5341,9 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "log_transicao": log_transicao,
                 "status_analise": status_analise,
                 "url_solicitacao_alteracao": url_solicitacao_alteracao,
+                "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
+                "razao_social": self.cronograma.empresa.razao_social,
+                "hidden_email": False,
             },
         )
 
