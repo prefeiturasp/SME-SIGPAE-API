@@ -17,7 +17,7 @@ from channels.auth import AuthMiddlewareStack  # noqa
 from channels.routing import ProtocolTypeRouter, URLRouter  # noqa
 from django.core.asgi import get_asgi_application  # noqa
 
-from sme_sigpae_api.dados_comuns.urls import ws_urlpatterns  # noqa
+from src.dados_comuns.urls import ws_urlpatterns  # noqa
 
 # Fetch Django ASGI application early to ensure AppRegistry is populated
 # before importing consumers and AuthMiddlewareStack that may import ORM

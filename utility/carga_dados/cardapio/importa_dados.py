@@ -1,17 +1,17 @@
 from secrets import randbelow
 
-from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
+from src.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
 )
-from sme_sigpae_api.cardapio.base.models import (
+from src.cardapio.base.models import (
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from sme_sigpae_api.cardapio.suspensao_alimentacao.models import MotivoSuspensao
-from sme_sigpae_api.dados_comuns.utils import secure_sample
-from sme_sigpae_api.escola.models import PeriodoEscolar, TipoUnidadeEscolar
+from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
+from src.dados_comuns.utils import secure_sample
+from src.escola.models import PeriodoEscolar, TipoUnidadeEscolar
 from utility.carga_dados.cardapio.data.motivos_alteracao_cardapio import (
     data_motivoalteracaocardapio,
 )

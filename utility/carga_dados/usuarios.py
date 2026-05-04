@@ -1,8 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.authtoken.models import Token
 
-from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
-from sme_sigpae_api.perfil.models import Usuario
+from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.perfil.models import Usuario
 from utility.carga_dados.escola.helper import bcolors
 from utility.carga_dados.helper import progressbar
 

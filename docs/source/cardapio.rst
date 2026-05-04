@@ -1,7 +1,7 @@
 cardapio
 ========
 
-.. automodule:: sme_sigpae_api.cardapio
+.. automodule:: src.cardapio
    :members:
    :show-inheritance:
 

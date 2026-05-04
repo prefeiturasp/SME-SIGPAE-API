@@ -1,16 +1,16 @@
-from sme_sigpae_api.dieta_especial.data.alergia_intolerancia import (
+from src.dieta_especial.data.alergia_intolerancia import (
     data_alergia_intolerancias,
 )
-from sme_sigpae_api.dieta_especial.data.alimentos import data_alimentos
-from sme_sigpae_api.dieta_especial.data.classificacao_dieta import (
+from src.dieta_especial.data.alimentos import data_alimentos
+from src.dieta_especial.data.classificacao_dieta import (
     data_classificacoes_dieta,
 )
-from sme_sigpae_api.dieta_especial.data.motivo_alteracao_ue import (
+from src.dieta_especial.data.motivo_alteracao_ue import (
     data_motivo_alteracao_ue,
 )
-from sme_sigpae_api.dieta_especial.data.motivo_negacao import data_motivo_negacoes
-from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
-from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+from src.dieta_especial.data.motivo_negacao import data_motivo_negacoes
+from src.dieta_especial.protocolo_padrao.models import Alimento
+from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
     MotivoAlteracaoUE,

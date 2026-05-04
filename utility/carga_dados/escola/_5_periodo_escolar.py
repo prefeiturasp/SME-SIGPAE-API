@@ -4,7 +4,7 @@ import environ
 import numpy as np
 import pandas as pd
 
-from sme_sigpae_api.escola.models import Escola, PeriodoEscolar
+from src.escola.models import Escola, PeriodoEscolar
 from utility.carga_dados.escola.helper import (
     bcolors,
     coloca_zero_a_esquerda,

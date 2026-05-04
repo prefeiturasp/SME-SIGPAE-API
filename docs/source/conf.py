@@ -287,7 +287,7 @@ latex_elements = {
 latex_documents = [
     (
         "index",
-        "sme_sigpae_api.tex",
+        "src.tex",
         "SME-SIGPAE-API Documentation",
         """Equipe SME""",
         "manual",
@@ -322,7 +322,7 @@ latex_documents = [
 man_pages = [
     (
         "index",
-        "sme_sigpae_api",
+        "src",
         "SME-SIGPAE-API Documentation",
         ["""Equipe SME"""],
         1,
@@ -341,7 +341,7 @@ man_pages = [
 texinfo_documents = [
     (
         "index",
-        "sme_sigpae_api",
+        "src",
         "SME-SIGPAE-API Documentation",
         """Equipe SME""",
         "SME-SIGPAE-API",
