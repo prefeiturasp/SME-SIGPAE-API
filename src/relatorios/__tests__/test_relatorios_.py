@@ -671,6 +671,9 @@ def test_relatorio_ficha_recebimento(
         in texto
     )
     assert ficha_recebimento_com_ocorrencia.observacao in texto
+    assert (
+        ficha_recebimento_com_ocorrencia.data_entrega.strftime("%d/%m/%Y") in texto
+    )
     assert "HOUVE OCORRÊNCIA(S) NO RECEBIMENTO: SIM" in texto
     assert "Faltaram 5 unidades do produto" in texto
 
@@ -709,6 +712,9 @@ def test_relatorio_ficha_recebimento(
         "Referente a ocorrência registrada nesta etapa, o Fornecedor optou por: REPOR OS PRODUTOS"
         in texto_reposicao
     )
+    assert (
+        ficha_recebimento_reposicao.data_entrega.strftime("%d/%m/%Y") in texto_reposicao
+    )
 
     # Teste para caso de Carta de Crédito
     pdf_response_carta_credito = get_pdf_ficha_recebimento(
@@ -721,6 +727,10 @@ def test_relatorio_ficha_recebimento(
     texto_carta_credito = extrair_texto_de_pdf(pdf_response_carta_credito.content)
 
     assert "FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO" in texto_carta_credito
+    assert (
+        ficha_recebimento_carta_credito.data_entrega.strftime("%d/%m/%Y")
+        in texto_carta_credito
+    )
 
 
 def test_relatorio_cronograma_entrega(cronograma):

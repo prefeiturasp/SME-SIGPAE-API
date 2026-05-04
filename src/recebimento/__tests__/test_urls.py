@@ -416,6 +416,9 @@ def test_gerar_pdf_ficha_recebimento_sem_tag_leve_leite(
 
     assert ficha_tecnica.material_embalagem_primaria in pdf_text
     assert ficha_tecnica.sistema_vedacao_embalagem_secundaria in pdf_text
+    assert (
+        ficha_completa_sem_tag.data_entrega.strftime("%d/%m/%Y") in pdf_text
+    )
 
 
 @freeze_time("2025-09-09")
@@ -464,6 +467,9 @@ def test_gerar_pdf_ficha_recebimento(
 
     assert ficha_tecnica.material_embalagem_primaria in pdf_text
     assert ficha_tecnica.sistema_vedacao_embalagem_secundaria in pdf_text
+    assert (
+        ficha_completa.data_entrega.strftime("%d/%m/%Y") in pdf_text
+    )
 
 
 def test_gerar_pdf_ficha_nao_encontrada(client_autenticado_qualidade):
