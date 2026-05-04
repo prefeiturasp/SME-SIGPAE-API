@@ -1,0 +1,312 @@
+import io
+import os
+from contextlib import redirect_stderr, redirect_stdout
+from unittest import mock
+
+import pytest
+from django.core.management import CommandError, call_command
+from django.test import override_settings
+
+pytestmark = pytest.mark.django_db
+
+
+@override_settings(DJANGO_ENV="development")
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_etec"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_programas_e_projetos"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_lanche_emergencial"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_kit_lanche"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_dietas_especiais"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_dietas_especiais"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_log_alunos_matriculados"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_log_alunos_matriculados"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
+)
+@mock.patch("src.escola.models.Escola.objects.get")
+def test_executa_com_sucesso(
+    mock_get_escola,
+    mock_obter_usuario,
+    mock_obter_escolas,
+    mock_habilitar_dias_letivos,
+    mock_remover_logs,
+    mock_incluir_logs,
+    mock_remover_dietas_especiais,
+    mock_incluir_dietas_especiais,
+    mock_solicitar_kit_lache,
+    mock_solicitar_lanche_emergencial,
+    mock_programas_e_projetos,
+    mock_etec,
+    user_diretor_escola,
+    usuario_da_dre,
+    escola,
+):
+    usuario, _ = user_diretor_escola
+    usuario_dre, _ = usuario_da_dre
+
+    escola_fake = mock.Mock()
+    escola_fake.nome = escola.nome
+    escola_fake.eh_cemei = False
+    escola_fake.eh_cei = False
+    escola_fake.eh_emebs = False
+    escola_fake.eh_emef = True
+    escola_fake.eh_ceu_gestao = False
+    escola_fake.eh_cmct = False
+    escola_fake.periodos_escolares.return_value.get.return_value = mock.Mock()
+
+    mock_get_escola.return_value = escola_fake
+    mock_obter_escolas.return_value = [
+        {
+            "tipo": "EMEF",
+            "nome_escola": escola.nome,
+            "email": usuario.email,
+            "periodos": ["MANHA"],
+            "usuario_dre": usuario_dre.email,
+        }
+    ]
+    mock_obter_usuario.return_value = usuario
+    mock_solicitar_kit_lache.return_value = "OK"
+    mock_solicitar_lanche_emergencial.return_value = "OK"
+    mock_programas_e_projetos.return_value = "OK"
+    mock_etec.return_value = "OK"
+
+    with open(os.devnull, "w") as devnull:
+        with redirect_stdout(devnull), redirect_stderr(devnull):
+            call_command(
+                "habilitar_lancamento_medicao_inicial", "--ano", "2024", "--mes", "5"
+            )
+
+    mock_get_escola.assert_called_once()
+
+    assert mock_obter_usuario.call_count == 2
+    mock_obter_usuario.assert_any_call(usuario.email)
+    mock_obter_usuario.assert_any_call(usuario_dre.email)
+
+    mock_obter_escolas.assert_called_once()
+    mock_habilitar_dias_letivos.assert_called_once()
+    mock_remover_logs.assert_called_once()
+    mock_incluir_logs.assert_called_once()
+    mock_remover_dietas_especiais.assert_called_once()
+    mock_incluir_dietas_especiais.assert_called_once()
+    mock_solicitar_kit_lache.assert_called_once()
+    mock_solicitar_lanche_emergencial.assert_called_once()
+    mock_programas_e_projetos.assert_called_once()
+    mock_etec.assert_called_once()
+
+
+@override_settings(DJANGO_ENV="production")
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
+)
+def test_nao_executa_em_producao(mock_obter_escolas):
+    out = io.StringIO()
+    with mock.patch.dict(os.environ, {"DJANGO_ENV": "production"}):
+        call_command(
+            "habilitar_lancamento_medicao_inicial",
+            "--ano",
+            "2024",
+            "--mes",
+            "5",
+            stdout=out,
+        )
+
+    assert "SÓ PODE EXECUTAR EM DESENVOLVIMENTO" in out.getvalue()
+    mock_obter_escolas.assert_not_called()
+
+
+@override_settings(DJANGO_ENV="development")
+def test_parametros_obrigatorios_nao_enviados_lanca_erro():
+    with pytest.raises(
+        CommandError, match="Error: the following arguments are required: --ano"
+    ):
+        call_command("habilitar_lancamento_medicao_inicial")
+
+    with pytest.raises(
+        CommandError, match="Error: the following arguments are required: --mes"
+    ):
+        call_command("habilitar_lancamento_medicao_inicial", "--ano", "2024")
+
+
+@override_settings(DJANGO_ENV="development")
+def test_mes_invalido_lanca_erro():
+    with pytest.raises(CommandError, match="Mês deve estar entre 1 e 12"):
+        call_command(
+            "habilitar_lancamento_medicao_inicial",
+            "--ano",
+            "2024",
+            "--mes",
+            "13",
+        )
+
+
+@override_settings(DJANGO_ENV="development")
+def test_data_kit_lanche_invalido_lanca_erro():
+    with pytest.raises(
+        CommandError, match="Dia do kit lanche deve estar entre 1 e 31 para 05/2024"
+    ):
+        call_command(
+            "habilitar_lancamento_medicao_inicial",
+            "--ano",
+            "2024",
+            "--mes",
+            "5",
+            "--data-kit-lanche",
+            "123",
+        )
+
+
+@override_settings(DJANGO_ENV="development")
+def test_data_lanche_emergencial_invalido_lanca_erro():
+    with pytest.raises(
+        CommandError,
+        match="Dia do lanche emergencial deve estar entre 1 e 31 para 05/2024",
+    ):
+        call_command(
+            "habilitar_lancamento_medicao_inicial",
+            "--ano",
+            "2024",
+            "--mes",
+            "5",
+            "--data-lanche-emergencial",
+            "123",
+        )
+
+
+@override_settings(DJANGO_ENV="development")
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.matriculados_por_escola_e_periodo_regulares"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.call_command"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
+)
+@mock.patch(
+    "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.calendario_sgp"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_dietas_especiais"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_dietas_especiais"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_kit_lanche"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_lanche_emergencial"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_programas_e_projetos"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_etec"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_log_alunos_matriculados"
+)
+@mock.patch(
+    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_log_alunos_matriculados"
+)
+@mock.patch("src.escola.models.Escola.objects.get")
+def test_executa_com_atualizar_escolas(
+    mock_get_escola,
+    mock_remover_logs,
+    mock_incluir_logs,
+    mock_etec,
+    mock_programas_e_projetos,
+    mock_solicitar_lanche_emergencial,
+    mock_solicitar_kit_lanche,
+    mock_remover_dietas_especiais,
+    mock_incluir_dietas_especiais,
+    mock_calendario_sgp,
+    mock_obter_usuario,
+    mock_obter_escolas,
+    mock_habilitar_dias_letivos,
+    mock_call_command,
+    mock_matriculados_task,
+    user_diretor_escola,
+    usuario_da_dre,
+    escola,
+):
+    usuario, _ = user_diretor_escola
+    usuario_dre, _ = usuario_da_dre
+
+    escola_fake = mock.Mock()
+    escola_fake.nome = escola.nome
+    escola_fake.eh_cemei = False
+    escola_fake.eh_cei = False
+    escola_fake.eh_emebs = False
+    escola_fake.eh_emef = True
+    escola_fake.eh_ceu_gestao = False
+    escola_fake.eh_cmct = False
+    escola_fake.periodos_escolares.return_value.get.return_value = mock.Mock()
+
+    mock_get_escola.return_value = escola_fake
+    mock_obter_escolas.return_value = [
+        {
+            "nome_escola": escola.nome,
+            "email": usuario.email,
+            "periodos": ["MANHA"],
+            "usuario_dre": usuario_dre.email,
+        }
+    ]
+    mock_obter_usuario.return_value = usuario
+    mock_solicitar_kit_lanche.return_value = "OK"
+    mock_solicitar_lanche_emergencial.return_value = "OK"
+    mock_programas_e_projetos.return_value = "OK"
+    mock_etec.return_value = "OK"
+
+    mock_call_command.reset_mock()
+    mock_matriculados_task.reset_mock()
+
+    with open(os.devnull, "w") as devnull:
+        with redirect_stdout(devnull), redirect_stderr(devnull):
+            call_command(
+                "habilitar_lancamento_medicao_inicial",
+                "--ano",
+                "2024",
+                "--mes",
+                "5",
+                "--atualizar-escolas",
+            )
+
+    mock_call_command.assert_called_once_with("atualiza_dados_escolas")
+    mock_matriculados_task.assert_called_once()
+    mock_habilitar_dias_letivos.assert_called_once()
+    mock_remover_logs.assert_called_once()
+    mock_incluir_logs.assert_called_once()
+    mock_remover_dietas_especiais.assert_called_once()
+    mock_incluir_dietas_especiais.assert_called_once()
+    mock_solicitar_kit_lanche.assert_called_once()
+    mock_solicitar_lanche_emergencial.assert_called_once()
+    mock_programas_e_projetos.assert_called_once()
+    mock_etec.assert_called_once()

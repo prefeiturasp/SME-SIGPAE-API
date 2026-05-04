@@ -1,10 +1,10 @@
-from sme_sigpae_api.inclusao_alimentacao.data.motivo_inclusao_continua import (
+from src.inclusao_alimentacao.data.motivo_inclusao_continua import (
     data_motivo_inclusao_continua,
 )
-from sme_sigpae_api.inclusao_alimentacao.data.motivo_inclusao_normal import (
+from src.inclusao_alimentacao.data.motivo_inclusao_normal import (
     data_motivo_inclusao_normal,
 )
-from sme_sigpae_api.inclusao_alimentacao.models import (
+from src.inclusao_alimentacao.models import (
     MotivoInclusaoContinua,
     MotivoInclusaoNormal,
 )

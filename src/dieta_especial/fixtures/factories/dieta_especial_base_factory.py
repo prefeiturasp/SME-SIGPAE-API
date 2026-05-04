@@ -1,0 +1,76 @@
+from factory import Sequence, SubFactory
+from factory.django import DjangoModelFactory
+from faker import Faker
+
+from src.dieta_especial.protocolo_padrao.models import (
+    Alimento,
+    ProtocoloPadraoDietaEspecial,
+    SubstituicaoAlimento,
+)
+from src.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
+    MotivoAlteracaoUE,
+    SolicitacaoDietaEspecial,
+)
+from src.escola.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    EscolaFactory,
+)
+
+fake = Faker("pt_BR")
+
+
+class ClassificacaoDietaFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Escola {n} - {fake.unique.name()}")
+
+    class Meta:
+        model = ClassificacaoDieta
+
+
+class SolicitacaoDietaEspecialFactory(DjangoModelFactory):
+    aluno = SubFactory(AlunoFactory)
+    rastro_escola = SubFactory(EscolaFactory)
+    escola_destino = SubFactory(EscolaFactory)
+    classificacao = SubFactory(ClassificacaoDietaFactory)
+
+    class Meta:
+        model = SolicitacaoDietaEspecial
+
+
+class MotivoAlteracaoUEFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Escola {n} - {fake.unique.name()}")
+
+    class Meta:
+        model = MotivoAlteracaoUE
+
+
+class AlergiaIntoleranciaFactory(DjangoModelFactory):
+    descricao = Sequence(lambda n: f"Alergia/Intolerância {n} - {fake.word()}")
+
+    class Meta:
+        model = AlergiaIntolerancia
+
+
+class AlimentoFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Alimento {n} - {fake.word()}")
+
+    class Meta:
+        model = Alimento
+
+
+class ProtocoloPadraoDietaEspecialFactory(DjangoModelFactory):
+    nome_protocolo = Sequence(lambda n: f"Protocolo {n} - {fake.word().upper()}")
+    status = "LIBERADO"
+
+    class Meta:
+        model = ProtocoloPadraoDietaEspecial
+
+
+class SubstituicaoAlimentoFactory(DjangoModelFactory):
+    solicitacao_dieta_especial = SubFactory(SolicitacaoDietaEspecialFactory)
+    alimento = SubFactory(AlimentoFactory)
+    tipo = "S"  # S para Substituição ou I para Isento
+
+    class Meta:
+        model = SubstituicaoAlimento
