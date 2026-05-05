@@ -73,6 +73,11 @@ class QuantidadePorPeriodo(
         blank=True,
         related_name="quantidades_por_periodo",
     )
+    encerrado_a_partir_de = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Data a partir da qual essa quantidade por período não é mais válida; todo o período entre data_inicial e esta data continua autorizado e foi fornecido pela empresa.",
+    )
 
     def __str__(self):
         qtd = self.tipos_alimentacao.count()
