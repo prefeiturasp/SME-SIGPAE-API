@@ -4,7 +4,7 @@
 {% block conteudo%}
 <p style="margin-bottom: 16px;">Olá!</p>
 <p style="text-align: center; margin-bottom: 56px;">
-  A <strong>CODAE</strong> {{ status_analise }} a Solicitação de Alteração do Cronograma nº <strong>{{ numero_cronograma }}</strong> de <strong>{{ nome_produto }}</strong>
+  A <strong>CODAE</strong> {{ status_analise|lower }} a Solicitação de Alteração do Cronograma nº <strong>{{ numero_cronograma }}</strong> de <strong>{{ nome_produto }}</strong>
   da <strong>{{razao_social}}</strong> em {{ log_transicao.criado_em|date:"d/m/Y" }}:
 </p>
 
