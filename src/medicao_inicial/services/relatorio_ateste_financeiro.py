@@ -294,7 +294,7 @@ def build_relatorio_financeiro_grupo_cei(
     parametrizacao,
     totais_consumo,
 ):
-    """Retorna dados para o relatório financeiro do grupo CEI.
+    """Retorna dados para o relatório financeiro do grupos por faixa etária (1 e 2).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
@@ -510,7 +510,7 @@ def build_relatorio_financeiro_grupo_emei(
     parametrizacao,
     totais_consumo,
 ):
-    """Gera os dados que serão exibidos no relatório financeiro para EMEI.
+    """Gera os dados que serão exibidos no relatório financeiro para grupo por tipo de alimentação (2, 3 e 6).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
@@ -520,7 +520,9 @@ def build_relatorio_financeiro_grupo_emei(
     Returns:
         dict: Estrutura completa do relatório.
     """
-    tipos_unidades = relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.all()
+    grupo_unidade = relatorio_financeiro.grupo_unidade_escolar
+    tipos_unidades = grupo_unidade.tipos_unidades.all()
+
 
     tipos_alimentacao = _obter_tipos_alimentacao_por_unidades(
         tipos_unidades.values_list("uuid", flat=True)
@@ -541,10 +543,11 @@ def build_relatorio_financeiro_grupo_emei(
         totais_consumo,
     )
 
+    lista_dietas_a = ["LANCHE", "LANCHE 4H", "REFEIÇÃO"] if grupo_unidade.nome.upper() != "GRUPO 6" else ["LANCHE 4H", "REFEIÇÃO"]
     tipos_dieta_a = [
         tipo
         for tipo in tipos_alimentacao
-        if tipo["nome"].upper() in ["LANCHE", "LANCHE 4H", "REFEIÇÃO"]
+        if tipo["nome"].upper() in lista_dietas_a
     ]
 
     dieta_a = _build_tabela_dieta_emei(
@@ -554,10 +557,11 @@ def build_relatorio_financeiro_grupo_emei(
         "TIPO A",
     )
 
+    lista_dietas_b = ["LANCHE", "LANCHE 4H"] if grupo_unidade.nome.upper() != "GRUPO 6" else ["LANCHE 4H"]
     tipos_dieta_b = [
         tipo
         for tipo in tipos_alimentacao
-        if tipo["nome"].upper() in ["LANCHE", "LANCHE 4H"]
+        if tipo["nome"].upper() in lista_dietas_b
     ]
 
     dieta_b = _build_tabela_dieta_emei(
