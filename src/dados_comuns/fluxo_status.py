@@ -4727,10 +4727,11 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
             context={
                 "titulo": f"Solicitação de Alteração do Cronograma {self.numero}",
                 "solicitacao": self.numero,
+                "nome_produto": self.ficha_tecnica.produto.nome,
                 "url": url,
                 "usuario": user.nome,
                 "log_transicao": log_transicao,
-                "hidden_email": True,
+                "hidden_email": False,
             },
         )
 

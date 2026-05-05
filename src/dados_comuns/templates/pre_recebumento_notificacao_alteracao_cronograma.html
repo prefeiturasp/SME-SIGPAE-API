@@ -1,13 +1,13 @@
 {% extends 'email_base.html' %}
 
 {% block conteudo %}
-    <p style="text-align: left;">
-        Olá! <br>
-        O Fornecedor <strong>{{ usuario }}</strong> Solicitou Alterações no Cronograma <strong>{{ solicitacao }}</strong> em {{log_transicao.criado_em|date:"d/m/Y"}}: <br>
+    <p style="margin-bottom: 16px;">Olá!</p>
+    <p style="margin-bottom: 56px;">
+        O Fornecedor <strong>{{ usuario }}</strong> Solicitou Alterações no Cronograma <strong>{{ solicitacao }}</strong> de <strong>{{ nome_produto }}</strong> em {{log_transicao.criado_em|date:"d/m/Y"}}: <br>
     </p>
     <u>
         <a href="{{ url }}">
-            Clique para acessar os detalhes da <strong>Solicitação de Alteração</strong>
+            Clique aqui para acessar os detalhes da Solicitação de Alteração
         </a>
     </u>
 {% endblock %}
