@@ -173,7 +173,7 @@ class VinculoTipoAlimentacaoViewSet(
                 periodos_escolares_inclusao_continua = PeriodoEscolar.objects.filter(
                     uuid__in=list(response.data["periodos"].values())
                 )
-        periodos_para_filtrar = escola.periodos_escolares(ano, pega_atualmente)
+        periodos_para_filtrar = escola.periodos_escolares(ano, mes, pega_atualmente)
 
         if periodos_escolares_inclusao_continua:
             periodos_para_filtrar = (

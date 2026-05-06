@@ -731,7 +731,7 @@ class Escola(
             escola__uuid=self.uuid, tipo_turma="REGULAR", quantidade_alunos__gte=1
         ).exists()
 
-    def periodos_escolares(self, ano=datetime.date.today().year, pega_atualmente=False):
+    def periodos_escolares(self, ano=datetime.date.today().year, mes=None, pega_atualmente=False):
         """Recupera periodos escolares da escola, desde que haja pelomenos um aluno para este período."""
 
         if self.tipo_unidade.tem_somente_integral_e_parcial:
@@ -750,12 +750,15 @@ class Escola(
                     escolas_periodos__quantidade_alunos__gt=0,
                 ).distinct()
             else:
+                filtro_logs = self.logs_alunos_matriculados_por_periodo.filter(
+                    tipo_turma="REGULAR",
+                    quantidade_alunos__gte=1,
+                    criado_em__year=ano,
+                )
+                if mes is not None:
+                    filtro_logs = filtro_logs.filter(criado_em__month=mes)
                 periodos = PeriodoEscolar.objects.filter(
-                    id__in=self.logs_alunos_matriculados_por_periodo.filter(
-                        tipo_turma="REGULAR",
-                        quantidade_alunos__gte=1,
-                        criado_em__year=ano,
-                    )
+                    id__in=filtro_logs
                     .values_list("periodo_escolar", flat=True)
                     .distinct()
                 )
