@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import timedelta
 
 from django.db.models import QuerySet
@@ -9,6 +10,9 @@ from src.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
     ValorMedicao,
 )
+from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
+from src.medicao_inicial.utils import get_name_campo
+from src.medicao_inicial.validators import checa_valor_observacao, erros_unicos
 
 
 def cria_valores_medicao_participantes_emef_emei(
@@ -213,3 +217,171 @@ def retorna_valor_para_log_dieta_autorizada(
         )
         valor = log.quantidade if log else 0
     return valor
+
+
+def validate_lancamento_alimentacoes_medicao_recreio(
+    solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
+) -> list:
+    """Valida o preenchimento das alimentações do recreio.
+
+    Verifica se todos os dias letivos do período do recreio possuem
+    lançamentos preenchidos para os grupos e alimentações esperadas.
+
+    Quando existem dias sem preenchimento e sem justificativa
+    de observação, adiciona erro à lista de erros.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação de medição inicial do recreio.
+        lista_erros (list): Lista acumulada de erros de validação.
+
+    Returns:
+        list: Lista de erros sem duplicidade.
+    """
+
+    recreio = solicitacao.recreio_nas_ferias
+    participantes = recreio.unidades_participantes.first()
+
+    tipos_alimentacao = participantes.tipos_alimentacao.filter(
+        categoria__nome__in=["Inscritos", "Colaboradores"]
+    )
+    tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
+    informacoes_alimentacao = {
+        "Recreio nas Férias": tipos_alimentacao_map.get("Inscritos", [])
+    }
+    if participantes.num_colaboradores > 0:
+        informacoes_alimentacao["Colaboradores"] = tipos_alimentacao_map.get(
+            "Colaboradores", []
+        )
+
+    grupos = list(informacoes_alimentacao.keys())
+
+    categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    dias_letivos_geral = gerar_dias_letivos_recreio(
+        recreio.data_inicio, recreio.data_fim
+    )
+    dias_letivos_geral_formatado = [f"{dia:02d}" for dia in dias_letivos_geral]
+
+    for grupo in grupos:
+        linhas_da_tabela = get_linhas_da_tabela_recreio(informacoes_alimentacao[grupo])
+        lista_erros = buscar_valores_lancamento_alimentacoes_recreio(
+            linhas_da_tabela,
+            solicitacao,
+            grupo,
+            dias_letivos_geral_formatado,
+            categoria_medicao,
+            lista_erros,
+        )
+    return erros_unicos(lista_erros)
+
+
+def agrupar_tipos_alimentacao_por_categoria(
+    tipos_alimentacao: QuerySet,
+) -> dict[str, list]:
+    """Agrupa tipos de alimentação por categoria.
+
+    Args:
+        tipos_alimentacao (QuerySet):
+            Queryset contendo os tipos de alimentação.
+
+    Returns:
+        dict[str, list]: Dicionário com os tipos de alimentação agrupados
+            pelo nome da categoria.
+    """
+    agrupados = defaultdict(list)
+
+    for tipo in tipos_alimentacao.select_related(
+        "categoria",
+        "tipo_alimentacao",
+    ):
+        agrupados[tipo.categoria.nome].append(tipo.tipo_alimentacao.nome)
+
+    return dict(agrupados)
+
+
+def get_linhas_da_tabela_recreio(alimentacoes: list[str]) -> list[str]:
+    """Monta as linhas esperadas da tabela de alimentações.
+
+    Adiciona os campos obrigatórios de participantes e frequência,
+    além das alimentações configuradas para o grupo.
+
+    Também adiciona os campos de repetição quando aplicável.
+
+    Args:
+        alimentacoes (list[str]): Lista de alimentações configuradas para o grupo.
+
+    Returns:
+        list[str]:   Lista contendo os nomes dos campos esperados na tabela de lançamento.
+    """
+    linhas_da_tabela = ["participantes", "frequencia"]
+    for alimentacao in alimentacoes:
+        nome_formatado = get_name_campo(alimentacao)
+        linhas_da_tabela.append(nome_formatado)
+        if nome_formatado == "refeicao":
+            linhas_da_tabela.append("repeticao_refeicao")
+        if nome_formatado == "sobremesa":
+            linhas_da_tabela.append("repeticao_sobremesa")
+    return linhas_da_tabela
+
+
+def buscar_valores_lancamento_alimentacoes_recreio(
+    linhas_da_tabela: list[str],
+    solicitacao: SolicitacaoMedicaoInicial,
+    grupo: str,
+    dias_letivos: list[str],
+    categoria_medicao: CategoriaMedicao,
+    lista_erros: list,
+) -> list:
+    """Valida os lançamentos das alimentações do recreio.
+
+    Verifica se todos os campos esperados da tabela possuem
+    valores preenchidos para todos os dias letivos do período.
+
+    Quando existem dias sem preenchimento e sem observação
+    justificando a ausência, adiciona erro na lista.
+
+    Args:
+        linhas_da_tabela (list[str]): Lista de campos esperados na tabela.
+        solicitacao (SolicitacaoMedicaoInicial):  Solicitação de medição inicial.
+        grupo (str):  Nome do grupo validado.
+        dias_letivos (list[str]):  Lista de dias letivos formatados.
+        categoria_medicao (CategoriaMedicao): Categoria de medição utilizada na validação.
+        lista_erros (list): Lista acumulada de erros.
+
+    Returns:
+        list: Lista atualizada de erros encontrados.
+    """
+    periodo_com_erro = False
+    for nome_campo in linhas_da_tabela:
+        valores_da_medicao = (
+            ValorMedicao.objects.filter(
+                medicao__solicitacao_medicao_inicial=solicitacao,
+                nome_campo=nome_campo,
+                medicao__grupo__nome=grupo,
+                dia__in=dias_letivos,
+                categoria_medicao=categoria_medicao,
+            )
+            .exclude(valor=None)
+            .values_list("dia", flat=True)
+        )
+        valores_da_medicao = list(set(valores_da_medicao))
+        if len(valores_da_medicao) != len(dias_letivos):
+            diferenca = list(set(dias_letivos) - set(valores_da_medicao))
+            for dia_sem_preenchimento in diferenca:
+                valor_observacao = ValorMedicao.objects.filter(
+                    medicao__solicitacao_medicao_inicial=solicitacao,
+                    nome_campo="observacao",
+                    medicao__grupo__nome=grupo,
+                    dia=dia_sem_preenchimento,
+                    categoria_medicao=categoria_medicao,
+                ).exclude(valor=None)
+                periodo_com_erro = checa_valor_observacao(
+                    valor_observacao, periodo_com_erro
+                )
+    if periodo_com_erro:
+        lista_erros.append(
+            {
+                "periodo_escolar": grupo,
+                "erro": "Restam dias a serem lançados nas alimentações.",
+            }
+        )
+    return lista_erros
