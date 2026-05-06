@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <title>SIGPAE</title>
+  </head>
+
+  <body>
+    <style>
+      @page {
+        size: A4;
+        margin-bottom: 2em;
+        @bottom-left {
+          background: #eeeeee;
+          color: #000000;
+          content: "";
+          font-size: 10px;
+          width: 100%;
+          padding: 1em 2em 4em 0;
+          margin-left: -2em;
+          margin-top: 1em;
+        }
+        @bottom-center {
+          background: #eeeeee;
+          color: #000000;
+          content: "Página " counter(page) "/" counter(pages);
+          padding: 1em 2em 4em 2em;
+          margin-top: 1em;
+          width: 30%;
+          font-size: 10px;
+          font-family: "Roboto", sans-serif;
+        }
+        @bottom-right {
+          background: #eeeeee;
+          color: #000000;
+          content: "Documento gerado em dt_file";
+          padding: 1em 1.5em 4em 2em;
+          margin-top: 1em;
+          margin-right: -2em;
+          font-size: 10px;
+          font-family: "Roboto", sans-serif;
+        }
+      }
+    </style>
+  </body>
+</html>
