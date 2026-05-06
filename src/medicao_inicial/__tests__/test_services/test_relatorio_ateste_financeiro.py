@@ -166,3 +166,80 @@ def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
     assert "CONSOLIDADO TOTAL (A + B + C)" in texto
     assert "QUANTIDADE SERVIDA (A+B+C):" in texto
     assert "VALOR DO FATURAMENTO TOTAL (A+B+C):" in texto
+
+
+@pytest.mark.django_db
+def test_build_relatorio_financeiro_grupo_cieja(
+    relatorio_financeiro_cieja,
+    parametrizacao_financeira_cieja,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+    grupo_unidade_escolar_cieja,
+    vinculo_alimentacao_cieja,
+):
+    TIPOS_ALIMENTACOES = [
+        tipo_alimentacao_lanche_4h,
+        tipo_alimentacao_refeicao,
+    ]
+
+    GRUPO_NOME = grupo_unidade_escolar_cieja.nome
+
+    totais_consumo = {
+        "ALIMENTAÇÃO": {
+            f"total_{normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower()}": valor
+            for tipo, valor in zip(TIPOS_ALIMENTACOES, [30, 60, 90])
+        },
+        "DIETA ESPECIAL - TIPO A": {
+            normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower(): valor
+            for tipo, valor in zip(TIPOS_ALIMENTACOES, [20, 40, 60])
+        },
+        "DIETA ESPECIAL - TIPO B": {
+            normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower(): valor
+            for tipo, valor in zip(TIPOS_ALIMENTACOES, [11, 22, 33])
+        },
+    }
+
+    resultado = build_relatorio_financeiro_grupo_emei(
+        relatorio_financeiro_cieja,
+        parametrizacao_financeira_cieja,
+        totais_consumo,
+    )
+
+    assert resultado["alimentacao"]["linhas"][0]["tipo"] == "REFEIÇÃO CIEJA E CMCT"
+
+    assert len(resultado["dieta_a"]["linhas"]) == 2
+    assert len(resultado["dieta_b"]["linhas"]) == 1
+
+    assert resultado["consolidado"]["quantidade"] == 161
+    assert resultado["consolidado"]["valor"] == Decimal("2365.40")
+
+    assert resultado["cabecalho"]["data_referencia"] == "MARÇO/2026"
+
+
+@pytest.mark.django_db
+def test_relatorio_ateste_financeiro_grupo_cieja_conteudo_pdf(
+    relatorio_financeiro_cieja,
+    parametrizacao_financeira_cieja,
+    vinculo_alimentacao_cieja,
+):
+    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
+        relatorio_financeiro_cieja,
+        parametrizacao_financeira_cieja,
+    )
+
+    texto = extrair_texto_de_pdf(pdf_bytes)
+
+    assert "MARÇO/2026" in texto
+
+    assert relatorio_financeiro_cieja.lote.nome.upper() in texto
+    assert relatorio_financeiro_cieja.lote.diretoria_regional.nome in texto
+
+    assert "Grupo 6" in texto
+    assert "(CIEJA, CMCT)" in texto
+
+    assert texto.count("REFEIÇÃO CIEJA E CMCT") == 2
+    assert texto.count("LANCHE 4H") == 3
+    assert "KIT LANCHE" in texto
+
+    assert "Página 1/1" in texto
+    assert "Documento gerado em " in texto
