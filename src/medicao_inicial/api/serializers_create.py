@@ -51,6 +51,10 @@ from src.medicao_inicial.models import (
     ValorMedicao,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
+from src.medicao_inicial.validators_recreio_nas_ferias import (
+    cria_valores_medicao_participantes_dietas_autorizadas_emef_emei,
+    cria_valores_medicao_participantes_emef_emei,
+)
 from src.perfil.models import Usuario
 from src.terceirizada.models import Contrato, Edital
 
@@ -1178,14 +1182,39 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
                 )
-            instance.ue_envia(user=self.context["request"].user)
-            anexos = self._process_anexos(instance)
-            if hasattr(instance, "ocorrencia"):
-                instance.ocorrencia.ue_envia(
-                    user=self.context["request"].user, anexos=anexos
-                )
-            for medicao in instance.medicoes.all():
-                medicao.ue_envia(user=self.context["request"].user)
+            self.cria_valores_medicao_recreio_emef_emei(instance)
+
+            lista_erros = [
+                {
+                    "periodo_escolar": "",
+                    "erro": "Restam dias a serem lançados nas alimentações.",
+                }
+            ]
+            if lista_erros:
+                raise serializers.ValidationError(lista_erros)
+
+            # instance.ue_envia(user=self.context["request"].user)
+            # anexos = self._process_anexos(instance)
+            # if hasattr(instance, "ocorrencia"):
+            #     instance.ocorrencia.ue_envia(
+            #         user=self.context["request"].user, anexos=anexos
+            #     )
+            # for medicao in instance.medicoes.all():
+            #     medicao.ue_envia(user=self.context["request"].user)
+
+    def cria_valores_medicao_recreio_emef_emei(
+        self, instance: SolicitacaoMedicaoInicial
+    ) -> None:
+        if (
+            not (instance.escola.eh_emef_emei_cieja or instance.escola.eh_ceu_gestao)
+            or instance.logs_salvos
+        ):
+            return
+
+        cria_valores_medicao_participantes_emef_emei(instance)
+        cria_valores_medicao_participantes_dietas_autorizadas_emef_emei(instance)
+        instance.logs_salvos = True
+        instance.save()
 
     class Meta:
         model = SolicitacaoMedicaoInicial
