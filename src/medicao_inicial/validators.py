@@ -1089,16 +1089,21 @@ def get_alimentacoes_permitidas(solicitacao, escola, periodo_escolar):
 
 
 def get_permissoes_especiais_da_solicitacao(solicitacao, escola, periodo_escolar):
-    data_referencia = datetime.date(int(solicitacao.ano), int(solicitacao.mes), 1)
+    ano = int(solicitacao.ano)
+    mes = int(solicitacao.mes)
+
+    inicio_mes = datetime.date(ano, mes, 1)
+    fim_mes = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
+
     permissoes_especiais = (
         PermissaoLancamentoEspecial.objects.filter(
             escola=escola,
             periodo_escolar=periodo_escolar,
         )
         .filter(
-            data_inicial__lte=data_referencia,
+            data_inicial__lte=fim_mes,
         )
-        .filter(Q(data_final__isnull=True) | Q(data_final__gte=data_referencia))
+        .filter(Q(data_final__isnull=True) | Q(data_final__gte=inicio_mes))
     )
     return permissoes_especiais
 
