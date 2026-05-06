@@ -2556,7 +2556,7 @@ def relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao):
     grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
 
     return html_to_pdf_file(
-        html_string,
+        html_string.replace("dt_file", f"{relatorio_cei["cabecalho"]["data_geracao"]} às {relatorio_cei["cabecalho"]["hora_geracao"]}"),
         f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )
@@ -2588,7 +2588,7 @@ def relatorio_ateste_financeiro_grupo_emei(relatorio_financeiro, parametrizacao)
     grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
 
     return html_to_pdf_file(
-        html_string,
+        html_string.replace("dt_file", f"{relatorio_emei["cabecalho"]["data_geracao"]} às {relatorio_emei["cabecalho"]["hora_geracao"]}"),
         f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )
