@@ -18,6 +18,7 @@ from src.medicao_inicial.utils import (
 
 ORDEM_PRIORIDADE = {
     "REFEIÇÃO": 0,
+    "REFEIÇÃO CIEJA E CMCT": 0,
     "LANCHE": 1,
     "LANCHE 4H": 2,
     "KIT LANCHE": 99,
