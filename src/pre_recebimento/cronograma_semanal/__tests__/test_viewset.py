@@ -630,3 +630,178 @@ class TestCronogramaSemanalViewSet:
             uuid_original=cronograma_semanal_enviado_ao_fornecedor.uuid,
             status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
         ).exists()
+
+    def test_patch_alterar_cronograma_sucesso(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 100.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_fornecedor_ciente.refresh_from_db()
+        assert (
+            cronograma_semanal_fornecedor_ciente.status
+            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+
+    def test_patch_alterar_cronograma_senha_invalida(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            {"password": "senha_invalida"},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "Assinatura do cronograma não foi validada" in str(response.json())
+
+    def test_patch_alterar_cronograma_sem_programacoes(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            {"password": DJANGO_ADMIN_PASSWORD},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_alterar_cronograma_status_invalido_rascunho(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        """Não deve ser possível alterar um cronograma que está como RASCUNHO."""
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 100.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_alterar_cronograma_status_invalido_enviado(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_enviado_ao_fornecedor,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        """Não deve ser possível alterar um cronograma que está como ENVIADO_AO_FORNECEDOR."""
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 100.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_alterar_cronograma_atualiza_programacoes(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-07",
+                    "quantidade": 30.0,
+                },
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-08",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 70.0,
+                },
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_fornecedor_ciente.refresh_from_db()
+        assert cronograma_semanal_fornecedor_ciente.programacoes.count() == 2
+
+    def test_patch_alterar_cronograma_permissao_negada_fornecedor(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_fornecedor_ciente,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        """Fornecedor não deve ter permissão para alterar cronograma."""
+        client, _ = client_autenticado_vinculo_fornecedor
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 100.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
