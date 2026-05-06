@@ -5342,6 +5342,9 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "log_transicao": log_transicao,
                 "status_analise": status_analise,
                 "url_solicitacao_alteracao": url_solicitacao_alteracao,
+                "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
+                "razao_social": self.cronograma.empresa.razao_social,
+                "hidden_email": False,
             },
         )
 
@@ -5544,11 +5547,13 @@ class FluxoLayoutDeEmbalagem(xwf_models.WorkflowEnabled, models.Model):
             )
 
             EmailENotificacaoService.enviar_email(
-                titulo=f"Layouts Pendentes de Aprovação\nFicha Técnica {numero_ficha}",
+                titulo=f"Layout Pendente de Aprovação\nFicha Técnica {numero_ficha}",
                 assunto=f"[SIGPAE] Layouts Pendentes de Aprovação | Ficha Técnica {numero_ficha}",
                 template="pre_recebimento_email_fornecedor_envia_layout_embalagem.html",
                 contexto_template={
                     "nome_empresa": nome_empresa,
+                    "razao_social": self.ficha_tecnica.empresa.razao_social,
+                    "nome_produto": self.ficha_tecnica.produto.nome,
                     "numero_ficha": numero_ficha,
                     "data_envio": data_envio,
                     "url_layout_embalagens": base_url + url_layout_embalagens,

@@ -2,16 +2,12 @@
 {% load email_templatetags %}
 
 {% block conteudo%}
-<p style="text-align: left">
-  Olá!
-
-  <br/><br/>
-
-  A <strong>CODAE</strong> {{ status_analise }} a Solicitação de Alteração do Cronograma <strong>{{ numero_cronograma }}</strong>, em {{ log_transicao.criado_em|date:"d/m/Y" }}:
+<p style="margin-bottom: 16px;">Olá!</p>
+<p style="text-align: center; margin-bottom: 56px;">
+  A <strong>CODAE</strong> {{ status_analise|lower }} a Solicitação de Alteração do Cronograma nº <strong>{{ numero_cronograma }}</strong> de <strong>{{ nome_produto }}</strong>
+  da <strong>{{nome_fantasia}} - {{razao_social}}</strong> em {{ log_transicao.criado_em|date:"d/m/Y" }}:
 </p>
 
-<br/><br/>
-
-<a href="{{ url_solicitacao_alteracao }}">Clique para acessar os detalhes do retorno da Solicitação de Alteração</a>
+<a href="{{ url_solicitacao_alteracao }}">Clique aqui para acessar os detalhes da Solicitação de Alteração</a>
 
 {% endblock %}
