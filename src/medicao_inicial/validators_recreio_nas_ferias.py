@@ -15,7 +15,7 @@ from src.medicao_inicial.utils import get_name_campo
 from src.medicao_inicial.validators import checa_valor_observacao, erros_unicos
 
 
-def cria_valores_medicao_participantes_emef_emei(
+def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
     instance: SolicitacaoMedicaoInicial,
 ) -> None:
     """Cria os valores de medição de participantes do Recreio nas Férias.
@@ -74,7 +74,7 @@ def cria_valores_medicao_participantes_emef_emei(
     ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
 
-def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei(
+def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao(
     instance: SolicitacaoMedicaoInicial,
 ) -> None:
     """Cria os valores de medição de dietas autorizadas do recreio.
