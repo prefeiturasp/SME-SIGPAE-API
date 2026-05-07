@@ -205,9 +205,13 @@ def test_validate_lancamento_alimentacoes_medicao_emebs(
     assert len(lista_erros) == 0
 
 
-def test_get_lista_dias_letivos_diurno(solicitacao_dias_letivos_escola, escola):
+def test_get_lista_dias_letivos_diurno(
+    solicitacao_dias_letivos_escola, escola, periodo_escolar_integral
+):
     dias_letivos = get_lista_dias_letivos(
-        solicitacao_dias_letivos_escola, escola, periodo_escolar=None
+        solicitacao_dias_letivos_escola,
+        escola,
+        periodo_escolar=periodo_escolar_integral,
     )
     assert len(dias_letivos) == 19
     assert dias_letivos == [
