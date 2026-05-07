@@ -1,8 +1,10 @@
+import datetime
 from collections import defaultdict
 from datetime import timedelta
 
 from django.db.models import QuerySet
 
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,
@@ -12,7 +14,12 @@ from src.medicao_inicial.models import (
 )
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
 from src.medicao_inicial.utils import get_name_campo
-from src.medicao_inicial.validators import checa_valor_observacao, erros_unicos
+from src.medicao_inicial.validators import (
+    checa_valor_observacao,
+    erros_unicos,
+    get_classificacoes_dietas,
+    lista_erros_com_periodo,
+)
 
 
 def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
@@ -262,7 +269,9 @@ def validate_lancamento_alimentacoes_medicao_recreio(
     dias_letivos_geral_formatado = [f"{dia:02d}" for dia in dias_letivos_geral]
 
     for grupo in grupos:
-        linhas_da_tabela = get_linhas_da_tabela_recreio(informacoes_alimentacao[grupo])
+        linhas_da_tabela = get_linhas_da_tabela_alimentacoes_recreio(
+            informacoes_alimentacao[grupo]
+        )
         lista_erros = buscar_valores_lancamento_alimentacoes_recreio(
             linhas_da_tabela,
             solicitacao,
@@ -298,7 +307,7 @@ def agrupar_tipos_alimentacao_por_categoria(
     return dict(agrupados)
 
 
-def get_linhas_da_tabela_recreio(alimentacoes: list[str]) -> list[str]:
+def get_linhas_da_tabela_alimentacoes_recreio(alimentacoes: list[str]) -> list[str]:
     """Monta as linhas esperadas da tabela de alimentações.
 
     Adiciona os campos obrigatórios de participantes e frequência,
@@ -385,3 +394,181 @@ def buscar_valores_lancamento_alimentacoes_recreio(
             }
         )
     return lista_erros
+
+
+def validate_lancamento_dietas_medicao_recreio(
+    solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
+):
+    escola = solicitacao.escola
+    recreio = solicitacao.recreio_nas_ferias
+    inicio_recreio = recreio.data_inicio
+    fim_recreio = recreio.data_fim
+    participantes = recreio.unidades_participantes.first()
+
+    logs = list(
+        escola.logs_dietas_autorizadas_recreio_ferias.filter(
+            data__gte=inicio_recreio,
+            data__lte=fim_recreio,
+        )
+        .values_list(
+            "data",
+            "classificacao_id",
+            "quantidade",
+        )
+        .distinct()
+        .order_by("data", "classificacao_id")
+    )
+
+    categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
+    cache_classificacoes = {
+        categoria.id: get_classificacoes_dietas(categoria) for categoria in categorias
+    }
+    medicao_recreio = solicitacao.medicoes.filter(
+        grupo__nome="Recreio nas Férias"
+    ).first()
+    dias_letivos_geral = gerar_dias_letivos_recreio(inicio_recreio, fim_recreio)
+    dias_letivos_geral_formatado = [f"{dia:02d}" for dia in dias_letivos_geral]
+
+    tipos_alimentacao = participantes.tipos_alimentacao.filter(
+        categoria__nome__in=["Inscritos"]
+    )
+    tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(
+        tipos_alimentacao
+    ).get("Inscritos", [])
+    valores_medicao = list(
+        set(
+            medicao_recreio.valores_medicao.filter(
+                categoria_medicao__in=categorias
+            ).values_list(
+                "dia",
+                "categoria_medicao_id",
+                "nome_campo",
+            )
+        )
+    )
+    valores_medicao.sort(key=lambda x: (int(x[0]), x[1]))
+
+    logs_indexados = defaultdict(int)
+
+    for (
+        data_log,
+        id_classificacao_dieta,
+        quantidade,
+    ) in logs:
+        chave = (
+            data_log,
+            id_classificacao_dieta,
+        )
+
+        logs_indexados[chave] += quantidade
+
+    valores_medicao_set = {
+        (
+            dia_medicao,
+            id_categoria_medicao,
+            nome_campo,
+        )
+        for (
+            nome_campo,
+            id_categoria_medicao,
+            dia_medicao,
+        ) in valores_medicao
+    }
+
+    for categoria in categorias:
+        classificacoes = cache_classificacoes.get(categoria.id)
+        nomes_campos = get_linhas_da_tabela_dieta_recreio(
+            tipos_alimentacao_map, categoria
+        )
+        for dia in dias_letivos_geral_formatado:
+
+            if lista_erros_com_periodo(lista_erros, medicao_recreio, "dietas"):
+                return erros_unicos(lista_erros)
+
+            periodo_com_erro = validate_lancamento_dietas(
+                dia,
+                categoria,
+                classificacoes,
+                valores_medicao_set,
+                nomes_campos,
+                solicitacao.mes,
+                solicitacao.ano,
+                logs_indexados,
+            )
+
+            if periodo_com_erro:
+                lista_erros.append(
+                    {
+                        "periodo_escolar": medicao_recreio.grupo.nome,
+                        "erro": "Restam dias a serem lançados nas dietas.",
+                    }
+                )
+
+    return erros_unicos(lista_erros)
+
+
+def validate_lancamento_dietas(
+    dia: str,
+    categoria: CategoriaMedicao,
+    classificacoes: list[ClassificacaoDieta],
+    valores_medicao_set: list,
+    nomes_campos: list[str],
+    mes: str,
+    ano: str,
+    logs_indexados,
+):
+    data_referencia = datetime.date(
+        int(ano),
+        int(mes),
+        int(dia),
+    )
+
+    classificacoes_ids = {classificacao.id for classificacao in classificacoes}
+
+    quantidade_total = sum(
+        logs_indexados.get(
+            (
+                data_referencia,
+                classificacao_id,
+            ),
+            0,
+        )
+        for classificacao_id in classificacoes_ids
+    )
+
+    if quantidade_total == 0:
+        return False
+
+    for nome_campo in nomes_campos:
+        valor_existe = (
+            nome_campo,
+            categoria.id,
+            dia,
+        ) in valores_medicao_set
+
+        if not valor_existe:
+            return True
+
+    return False
+
+
+def get_linhas_da_tabela_dieta_recreio(
+    alimentacoes: list[str], categoria: CategoriaMedicao
+) -> list[str]:
+    """_summary_
+
+    Args:
+        alimentacoes (list[str]): _description_
+        categoria (CategoriaMedicao): _description_
+
+    Returns:
+        list[str]: _description_
+    """
+    nomes_campos = ["frequencia"]
+    if "Lanche" in alimentacoes:
+        nomes_campos.append("lanche")
+    if "Lanche 4h" in alimentacoes:
+        nomes_campos.append("lanche_4h")
+    if "Refeição" in alimentacoes and "ENTERAL" in categoria.nome:
+        nomes_campos.append("refeicao")
+    return nomes_campos

@@ -55,6 +55,7 @@ from src.medicao_inicial.validators_recreio_nas_ferias import (
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
     cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
     validate_lancamento_alimentacoes_medicao_recreio,
+    validate_lancamento_dietas_medicao_recreio,
 )
 from src.perfil.models import Usuario
 from src.terceirizada.models import Contrato, Edital
@@ -1224,6 +1225,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_alimentacoes_medicao_recreio(
             instance, lista_erros
         )
+        lista_erros = validate_lancamento_dietas_medicao_recreio(instance, lista_erros)
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 
