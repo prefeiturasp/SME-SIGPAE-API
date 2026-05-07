@@ -6,14 +6,16 @@ def test_template_email_base():
     template = "pre_recebumento_notificacao_alteracao_cronograma.html"
     hidden_email = False
     solicitacao = 12234
-    usuario = "ADMINISTRADOR CODAE"
+    nome_usual = "ADMINISTRADOR"
+    razao_social = "CODAE"
     nome_produto = "Arroz Tipo 1"
 
     dados_template = {
         "titulo": titulo,
         "hidden_email": hidden_email,
         "solicitacao": solicitacao,
-        "usuario": usuario,
+        "nome_usual": nome_usual,
+        "razao_social": razao_social,
         "nome_produto": nome_produto,
     }
     html = render_to_string(template, context=dados_template)
@@ -27,7 +29,7 @@ def test_template_email_base():
         in html
     )
     assert (
-        f"O Fornecedor <strong>{usuario}</strong> Solicitou Alterações no Cronograma <strong>{solicitacao}</strong> de <strong>{nome_produto}</strong>"
+        f"O Fornecedor <strong>{nome_usual} - {razao_social}</strong> solicitou alterações no Cronograma nº <strong>{solicitacao}</strong> de <strong>{nome_produto}</strong>"
         in html
     )
-    assert "smecodaesigpae@sme.prefeitura.sp.gov.br"
+    assert "smecodaesigpae@sme.prefeitura.sp.gov.br" in html

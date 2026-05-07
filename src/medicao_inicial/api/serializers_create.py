@@ -241,7 +241,27 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         tipos_contagem_alimentacao = validated_data.pop(
             "tipos_contagem_alimentacao", []
         )
-        solicitacao = SolicitacaoMedicaoInicial.objects.create(**validated_data)
+
+        escola = validated_data.pop("escola")
+        mes = validated_data.pop("mes")
+        ano = validated_data.pop("ano")
+        recreio = validated_data.pop("recreio_nas_ferias", None)
+
+        solicitacao, criado = SolicitacaoMedicaoInicial.objects.get_or_create(
+            escola=escola,
+            mes=mes,
+            ano=ano,
+            recreio_nas_ferias=recreio,
+            defaults=validated_data,
+        )
+
+        if not criado:
+            raise serializers.ValidationError(
+                {
+                    "detail": "Já existe uma solicitação de medição inicial para esta escola, mês e ano."
+                }
+            )
+
         solicitacao.tipos_contagem_alimentacao.set(tipos_contagem_alimentacao)
         for responsavel in responsaveis_dict:
             Responsavel.objects.create(
@@ -250,7 +270,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 rf=responsavel.get("rf", ""),
             )
         if alunos_periodo_parcial:
-            escola_associada = validated_data.get("escola")
+            escola_associada = escola
             atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial)
             for aluno in alunos_periodo_parcial:
                 AlunoPeriodoParcial.objects.create(
