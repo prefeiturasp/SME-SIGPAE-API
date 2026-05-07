@@ -183,3 +183,31 @@ class CronogramaSemanalAssinarEEnviarSerializer(CronogramaSemanalRascunhoSeriali
             instance.inicia_fluxo(user=user)
 
         return instance
+
+
+class CronogramaSemanalAlterarSerializer(CronogramaSemanalAssinarEEnviarSerializer):
+    """
+    Serializer para alteração de CronogramaSemanal já enviado ao fornecedor.
+    Executa a transição alterar_cronograma (FORNECEDOR_CIENTE -> ENVIADO_AO_FORNECEDOR).
+    """
+
+    def update(self, instance, validated_data):
+        programacoes_data = validated_data.pop("programacoes", None)
+        user = self.context["request"].user
+
+        with transaction.atomic():
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+            if programacoes_data is not None:
+                instance.programacoes.all().delete()
+                programacoes = [
+                    ProgramacaoEntregaSemanal(cronograma_semanal=instance, **data)
+                    for data in programacoes_data
+                ]
+                ProgramacaoEntregaSemanal.objects.bulk_create(programacoes)
+
+            instance.alterar_cronograma(user=user)
+
+        return instance

@@ -211,26 +211,9 @@
   }
 }
 
-.data-geracao {
-  position: running(data-geracao);
-  font-size: 8px;
-  font-family: "Roboto", sans-serif;
-}
-
 @page {
   size: A4;
   margin: 5mm;
   padding-top: 3.6cm !important;
   padding-bottom: 0.5cm !important;
-
-  @bottom-center {
-    content: "Página " counter(page) " / " counter(pages);
-    padding-top: 5px;
-    font-size: 10px;
-    font-family: "Roboto", sans-serif;
-  }
-
-  @bottom-right {
-    content: element(data-geracao);
-  }
 }

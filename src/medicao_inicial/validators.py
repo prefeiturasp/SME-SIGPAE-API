@@ -196,7 +196,6 @@ def validate_lancamento_alimentacoes_medicao(solicitacao, lista_erros):
     tipo_unidade = escola.tipo_unidade
     categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
     dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
-
     for periodo_escolar in escola.periodos_escolares(solicitacao.ano):
         dias_letivos = (
             dias_letivos_geral["noite"]
@@ -219,7 +218,6 @@ def validate_lancamento_alimentacoes_medicao(solicitacao, lista_erros):
         )
         alimentacoes = alimentacoes_vinculadas + alimentacoes_permitidas
         linhas_da_tabela = get_linhas_da_tabela(alimentacoes)
-
         lista_erros = buscar_valores_lancamento_alimentacoes(
             linhas_da_tabela,
             solicitacao,
@@ -1091,21 +1089,22 @@ def get_alimentacoes_permitidas(solicitacao, escola, periodo_escolar):
 
 
 def get_permissoes_especiais_da_solicitacao(solicitacao, escola, periodo_escolar):
-    permissoes_especiais = PermissaoLancamentoEspecial.objects.filter(
-        Q(
-            data_inicial__month__lte=int(solicitacao.mes),
-            data_inicial__year=int(solicitacao.ano),
-            data_final=None,
-        )
-        | Q(
-            data_inicial__month__lte=int(solicitacao.mes),
-            data_inicial__year=int(solicitacao.ano),
-            data_final__year__gte=int(solicitacao.ano),
-        ),
-        escola=escola,
-        periodo_escolar=periodo_escolar,
-    )
+    ano = int(solicitacao.ano)
+    mes = int(solicitacao.mes)
 
+    inicio_mes = datetime.date(ano, mes, 1)
+    fim_mes = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+    permissoes_especiais = (
+        PermissaoLancamentoEspecial.objects.filter(
+            escola=escola,
+            periodo_escolar=periodo_escolar,
+        )
+        .filter(
+            data_inicial__lte=fim_mes,
+        )
+        .filter(Q(data_final__isnull=True) | Q(data_final__gte=inicio_mes))
+    )
     return permissoes_especiais
 
 
