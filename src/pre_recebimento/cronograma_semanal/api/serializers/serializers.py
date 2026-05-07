@@ -68,6 +68,68 @@ class CronogramaSemanalListagemSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class CronogramaSemanalCalendarioSerializer(serializers.ModelSerializer):
+    """
+    Serializer para exibição de Cronogramas Semanais no Calendário.
+    Filtrado por mês e ano via query params.
+    """
+
+    numero = serializers.CharField(source="cronograma_mensal.numero", read_only=True)
+    produto = serializers.CharField(
+        source="cronograma_mensal.ficha_tecnica.produto.nome", read_only=True
+    )
+    fornecedor = serializers.CharField(
+        source="cronograma_mensal.empresa.nome_fantasia", read_only=True
+    )
+    empenho = serializers.CharField(
+        source="cronograma_mensal.numero_empenho", read_only=True
+    )
+    local = serializers.CharField(
+        source="cronograma_mensal.armazem.nome_fantasia", read_only=True
+    )
+    unidade_medida = serializers.SerializerMethodField(read_only=True)
+    programacoes = serializers.SerializerMethodField(read_only=True)
+
+    def get_unidade_medida(self, obj):
+        if obj.cronograma_mensal and obj.cronograma_mensal.unidade_medida:
+            return obj.cronograma_mensal.unidade_medida.abreviacao
+        return "-"
+
+    def get_programacoes(self, obj):
+        mes = self.context.get("mes")
+        ano = self.context.get("ano")
+
+        programacoes = obj.programacoes.all()
+        if mes and ano:
+            programacoes = programacoes.filter(
+                data_inicio__month=mes,
+                data_inicio__year=ano,
+            )
+
+        return [
+            {
+                "data_inicio": p.data_inicio.strftime("%d/%m/%Y"),
+                "data_fim": p.data_fim.strftime("%d/%m/%Y"),
+                "quantidade": p.quantidade,
+            }
+            for p in programacoes
+        ]
+
+    class Meta:
+        model = CronogramaSemanal
+        fields = [
+            "uuid",
+            "numero",
+            "produto",
+            "fornecedor",
+            "empenho",
+            "local",
+            "unidade_medida",
+            "programacoes",
+        ]
+        read_only_fields = fields
+
+
 class ProgramacaoEntregaSemanalDetailSerializer(serializers.ModelSerializer):
     """Serializer para leitura de ProgramacaoEntregaSemanal"""
 
