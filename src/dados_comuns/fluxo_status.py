@@ -4730,6 +4730,12 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "nome_produto": self.ficha_tecnica.produto.nome,
                 "url": url,
                 "usuario": user.nome,
+                "nome_usual": (
+                    self.empresa.nome_fantasia if self.empresa else "-"
+                ),
+                "razao_social": (
+                    self.empresa.razao_social if self.empresa else "-"
+                ),
                 "log_transicao": log_transicao,
                 "hidden_email": False,
             },
