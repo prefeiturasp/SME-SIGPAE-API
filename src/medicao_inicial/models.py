@@ -479,6 +479,13 @@ class SolicitacaoMedicaoInicial(
             "ano",
             "recreio_nas_ferias",
         )
+        constraints = [
+            models.UniqueConstraint(
+                fields=["escola", "mes", "ano"],
+                condition=models.Q(recreio_nas_ferias__isnull=True),
+                name="unique_solicitacao_sem_recreio",
+            )
+        ]
         ordering = ("-ano", "-mes")
 
     def __str__(self):
