@@ -6132,6 +6132,7 @@ class CronogramaSemanalWorkflow(xwf_models.Workflow):
     transitions = (
         ("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),
         ("fornecedor_ciente", ENVIADO_AO_FORNECEDOR, FORNECEDOR_CIENTE),
+        ("alterar_cronograma", FORNECEDOR_CIENTE, ENVIADO_AO_FORNECEDOR)
     )
 
     initial_state = RASCUNHO
@@ -6176,6 +6177,15 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
         if user:
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
+                usuario=user,
+            )
+
+    @xworkflows.after_transition("alterar_cronograma")
+    def _alterar_cronograma_hook(self, *args, **kwargs):
+        user = kwargs.get("user")
+        if user:
+            self.salvar_log_transicao(
+                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
                 usuario=user,
             )
 

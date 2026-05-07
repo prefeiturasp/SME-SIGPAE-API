@@ -23,6 +23,7 @@ from src.pre_recebimento.cronograma_semanal.api.filters import (
     CronogramaSemanalFilter,
 )
 from src.pre_recebimento.cronograma_semanal.api.serializers.serializer_create import (
+    CronogramaSemanalAlterarSerializer,
     CronogramaSemanalAssinarEEnviarSerializer,
     CronogramaSemanalRascunhoSerializer,
 )
@@ -67,11 +68,18 @@ class CronogramaSemanalViewSet(
         "cronogramas_mensal_assinados": [PermissaoParaCriarCronogramaSemanal],
         "fornecedor_ciente": [PermissaoParaDarCienciaCronogramaSemanal],
         "rascunhos_listagem": [PermissaoParaCriarCronogramaSemanal],
+        "alterar_cronograma": [PermissaoParaCriarCronogramaSemanal],
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = CronogramaSemanalFilter
     pagination_class = PreRecebimentoPagination
+
+    def get_permissions(self):
+        permission_classes = self.permission_action_classes.get(
+            self.action, self.permission_classes
+        )
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         """Retorna queryset ordenado por data de alteração (mais recente primeiro)."""
@@ -83,6 +91,7 @@ class CronogramaSemanalViewSet(
             "update": CronogramaSemanalRascunhoSerializer,
             "partial_update": CronogramaSemanalRascunhoSerializer,
             "assinar_e_enviar": CronogramaSemanalAssinarEEnviarSerializer,
+            "alterar_cronograma": CronogramaSemanalAlterarSerializer,
             "rascunhos_listagem": CronogramaSemanalRascunhosSerializer,
             "retrieve": CronogramaSemanalDetailSerializer,
             "fornecedor_ciente": CronogramaSemanalDetailSerializer,
@@ -179,18 +188,11 @@ class CronogramaSemanalViewSet(
         )
         return Response(serializer.data)
 
-    @action(
-        detail=True,
-        methods=["patch"],
-        url_path="assinar-e-enviar",
-        url_name="assinar_e_enviar",
-    )
-    def assinar_e_enviar(self, request, uuid):
+    def _validar_senha_e_executar_serializador(self, request, uuid):
         """
-        Endpoint: PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/
-
-        Assina digitalmente e envia o cronograma semanal para aprovação.
-        Valida a senha do usuário e executa a transição inicia_fluxo do workflow.
+        Método auxiliar compartilhado entre assinar_e_enviar e alterar_cronograma.
+        Valida a senha do usuário, obtém o objeto, executa o serializer e retorna a Response.
+        O serializer (e portanto a transição do workflow) é determinado pela action atual.
         """
         usuario = request.user
         password = request.data.get("password")
@@ -203,20 +205,47 @@ class CronogramaSemanalViewSet(
 
         try:
             cronograma_semanal = self.get_object()
-            serializer = self.get_serializer(
-                cronograma_semanal,
-                data=request.data,
-            )
+            serializer = self.get_serializer(cronograma_semanal, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
         except Exception as e:
-            # Se a transição do workflow falhar (ex: status não é RASCUNHO),
-            # retorna erro 400
             return Response(
                 {"detail": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="assinar-e-enviar",
+        url_name="assinar_e_enviar",
+    )
+    def assinar_e_enviar(self, request, uuid):
+        """
+        Endpoint: PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/
+
+        Assina digitalmente e envia o cronograma semanal para aprovação.
+        Valida a senha do usuário e executa a transição inicia_fluxo do workflow
+        (RASCUNHO -> ENVIADO_AO_FORNECEDOR).
+        """
+        return self._validar_senha_e_executar_serializador(request, uuid)
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="alterar-cronograma",
+        url_name="alterar_cronograma",
+    )
+    def alterar_cronograma(self, request, uuid):
+        """
+        Endpoint: PATCH /cronogramas-semanais/{uuid}/alterar-cronograma/
+
+        Altera um cronograma semanal após o fornecedor ter dado ciência.
+        Valida a senha do usuário e executa a transição alterar_cronograma do workflow
+        (FORNECEDOR_CIENTE -> ENVIADO_AO_FORNECEDOR).
+        """
+        return self._validar_senha_e_executar_serializador(request, uuid)
 
     @action(
         detail=True,
