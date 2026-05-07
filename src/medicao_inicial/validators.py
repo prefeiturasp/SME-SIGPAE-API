@@ -70,7 +70,7 @@ def get_lista_dias_letivos(solicitacao, escola, periodo_escolar=None):
             criado_em__month=mes,
             tipo_turma="REGULAR",
             quantidade_alunos__gt=0,
-            periodo_escolar__isnull=False,
+            periodo_escolar=periodo_escolar,
         ).values_list("criado_em__day", flat=True)
     )
     dias_letivos_uteis = [dia for dia in dias_letivos_uteis if dia in dias_com_log]
@@ -195,10 +195,12 @@ def validate_lancamento_alimentacoes_medicao(solicitacao, lista_erros):
     escola = solicitacao.escola
     tipo_unidade = escola.tipo_unidade
     categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
-    dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
     for periodo_escolar in escola.periodos_escolares(
         ano=solicitacao.ano, mes=solicitacao.mes
     ):
+        dias_letivos_geral = obter_periodos_corretos(
+            solicitacao, escola, periodo_escolar
+        )
         dias_letivos = (
             dias_letivos_geral["noite"]
             if periodo_escolar.nome == "NOITE"
@@ -3752,7 +3754,9 @@ def checa_valor_medicao(valor_medicao, periodo_com_erro):
 
 
 def obter_periodos_corretos(
-    solicitacao: SolicitacaoMedicaoInicial, escola: Escola
+    solicitacao: SolicitacaoMedicaoInicial,
+    escola: Escola,
+    periodo_escolar: PeriodoEscolar = None,
 ) -> dict:
     """
     Obtém os dias letivos organizados por período escolar para uma solicitação de medição inicial.
@@ -3773,7 +3777,7 @@ def obter_periodos_corretos(
             - "noite": Lista de dias letivos específicos para o período noturno, se existir;
                      caso contrário, retorna os dias letivos padrão.
     """
-    dias_letivos_padrao = get_lista_dias_letivos(solicitacao, escola)
+    dias_letivos_padrao = get_lista_dias_letivos(solicitacao, escola, periodo_escolar)
     periodo_noite = escola.periodos_escolares(
         ano=solicitacao.ano, mes=solicitacao.mes
     ).filter(nome="NOITE")
