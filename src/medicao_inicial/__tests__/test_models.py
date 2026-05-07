@@ -1,7 +1,9 @@
 import datetime
 
 import pytest
+from django.db.utils import IntegrityError
 from model_bakery import baker
+from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 
 pytestmark = pytest.mark.django_db
 
@@ -278,3 +280,14 @@ def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
     )
 
     assert medicao.nome_periodo_grupo == "Recreio nas Férias - de 0 a 3 anos e 11 meses"
+
+
+def test_unique_constraint_sem_recreio(escola):
+    """Não deve permitir duas solicitações sem recreio para a mesma escola/mes/ano."""
+    SolicitacaoMedicaoInicial.objects.create(
+        escola=escola, mes="06", ano="2024",
+    )
+    with pytest.raises(IntegrityError):
+        SolicitacaoMedicaoInicial.objects.create(
+            escola=escola, mes="06", ano="2024",
+        )
