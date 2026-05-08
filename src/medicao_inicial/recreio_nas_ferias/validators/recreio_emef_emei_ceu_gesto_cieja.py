@@ -462,8 +462,8 @@ def validate_lancamento_dietas_medicao_recreio(
         nomes_campos = get_linhas_da_tabela_dieta_recreio(tipos_alimentacao, categoria)
         for dia in dias_letivos:
 
-            if lista_erros_com_periodo(lista_erros, medicao_recreio, "dietas"):
-                return erros_unicos(lista_erros)
+            # if lista_erros_com_periodo(lista_erros, medicao_recreio, "dietas"):
+            #     return erros_unicos(lista_erros)
 
             periodo_com_erro = validate_lancamento_dietas(
                 dia=dia,
@@ -483,9 +483,9 @@ def validate_lancamento_dietas_medicao_recreio(
                         "erro": "Restam dias a serem lançados nas dietas.",
                     }
                 )
-                return erros_unicos(
-                    lista_erros,
-                )
+                # return erros_unicos(
+                #     lista_erros,
+                # )
 
     return erros_unicos(lista_erros)
 
@@ -559,6 +559,7 @@ def validate_lancamento_dietas(
         ) in valores_medicao
 
         if not valor_existe:
+            print(f"{categoria.nome} - {nome_campo}: {dia}")
             return True
 
     return False
