@@ -140,7 +140,8 @@ class LogSolicitacoesUsuario(
         CRONOGRAMA_SEMANAL_CRIADO,
         CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
         CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
-    ) = range(113)
+        ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
+    ) = range(114)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -325,6 +326,7 @@ class LogSolicitacoesUsuario(
             CANCELADO_ENCERRAMENTO_MATRICULA,
             "Cancelamento por Encerramento de Matrícula",
         ),
+        (ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA, "Escola alterou"),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,
