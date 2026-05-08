@@ -399,12 +399,7 @@ def existe_inclusao_cancelada(solicitacao):
         if isinstance(solicitacao, dict)
         else solicitacao.inclusoes
     )
-    return (
-        status_ == "ESCOLA_CANCELOU"
-        or inclusoes_.filter(cancelado_justificativa__isnull=False)
-        .exclude(cancelado_justificativa="")
-        .exists()
-    )
+    return status_ == "ESCOLA_CANCELOU" or inclusoes_.filter(cancelado=True).exists()
 
 
 @register.filter
@@ -448,9 +443,7 @@ def inclusao_multiplos_cancelamentos(solicitacao):
 def inclusoes_canceladas(solicitacao):
     if solicitacao.status == "ESCOLA_CANCELOU":
         return solicitacao.inclusoes.all()
-    return solicitacao.inclusoes.filter(cancelado_justificativa__isnull=False).exclude(
-        cancelado_justificativa=""
-    )
+    return solicitacao.inclusoes.filter(cancelado=True)
 
 
 @register.filter
