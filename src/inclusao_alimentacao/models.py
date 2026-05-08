@@ -235,6 +235,10 @@ class InclusaoAlimentacaoContinua(
                     "observacao": quantidade_periodo.observacao,
                     "cancelado": quantidade_periodo.cancelado,
                     "cancelado_justificativa": quantidade_periodo.cancelado_justificativa,
+                    "encerrado_a_partir_de": quantidade_periodo.encerrado_a_partir_de,
+                    "linha_cancelada": quantidade_periodo.cancelado
+                    or bool(quantidade_periodo.encerrado_a_partir_de)
+                    or self.status == "ESCOLA_CANCELOU",
                 }
             )
         return qtd_periodo
@@ -244,6 +248,42 @@ class InclusaoAlimentacaoContinua(
         return self.quantidades_periodo.all().filter(cancelado=True).exists()
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
+        quantidades_periodo = self.quantidades_periodo_simples_dict
+        encerrado_dates = [
+            quantidade_periodo["encerrado_a_partir_de"]
+            for quantidade_periodo in quantidades_periodo
+            if quantidade_periodo["encerrado_a_partir_de"]
+        ]
+        todas_encerrada_mesma_data = (
+            bool(encerrado_dates)
+            and len(encerrado_dates) == len(quantidades_periodo)
+            and all(data == encerrado_dates[0] for data in encerrado_dates)
+        )
+        quantidades_com_encerramento = [
+            quantidade_periodo
+            for quantidade_periodo in quantidades_periodo
+            if quantidade_periodo["encerrado_a_partir_de"]
+        ]
+        historico_alteracao = []
+        logs_alteracao = self.logs.filter(
+            status_evento=LogSolicitacoesUsuario.ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA
+        ).order_by("criado_em")
+
+        for log in logs_alteracao:
+            historico_alteracao.append(
+                {
+                    "criado_em": log.criado_em,
+                    "status_evento_explicacao": log.status_evento_explicacao,
+                    "justificativa": log.justificativa,
+                    "quantidades": [
+                        quantidade_periodo
+                        for quantidade_periodo in quantidades_com_encerramento
+                        if quantidade_periodo["cancelado_justificativa"]
+                        == log.justificativa
+                    ],
+                }
+            )
+
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
@@ -255,12 +295,24 @@ class InclusaoAlimentacaoContinua(
             "motivo": self.motivo.nome,
             "outro_motivo": self.outro_motivo,
             "data_inclusao": self.data,
-            "quantidades_periodo": self.quantidades_periodo_simples_dict,
+            "data_encerramento_comum": (
+                encerrado_dates[0] if todas_encerrada_mesma_data else None
+            ),
+            "exibe_coluna_encerramento": bool(encerrado_dates)
+            and not todas_encerrada_mesma_data,
+            "historico_alteracao": historico_alteracao,
+            "historico_cancelamento": [
+                quantidade_periodo
+                for quantidade_periodo in quantidades_periodo
+                if quantidade_periodo["cancelado"]
+            ],
+            "quantidades_periodo": quantidades_periodo,
             "label_data": label_data,
             "data_log": data_log,
             "id_externo": self.id_externo,
             "existe_periodo_cancelado": self.existe_periodo_cancelado,
             "status": self.status,
+            "todas_encerrada_mesma_data": todas_encerrada_mesma_data,
         }
 
     @property
