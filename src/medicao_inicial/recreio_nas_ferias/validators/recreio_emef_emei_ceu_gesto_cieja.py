@@ -110,12 +110,16 @@ def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceuges
     )
     grupo = "Recreio nas Férias"
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
+    tipos_alimentacao = get_tipos_alimentacao_recreio(recreio)
+    categorias_validas = get_classificacoes_dietas_recreio(
+        categorias, tipos_alimentacao
+    )
 
     dias_totais = (fim_recreio - inicio_recreio).days
     for numero_dia in range(dias_totais + 1):
         data = inicio_recreio + timedelta(days=numero_dia)
         dia = data.day
-        for categoria in categorias:
+        for categoria in categorias_validas:
             medicao = instance.medicoes.get(grupo__nome=grupo)
             if checa_se_existe_ao_menos_um_log_quantidade_maior_que_0(
                 categoria, logs_do_recreio
@@ -438,9 +442,7 @@ def validate_lancamento_dietas_medicao_recreio(
         )
     ]
 
-    tipos_alimentacao = get_tipos_alimentacao_recreio(
-        recreio,
-    )
+    tipos_alimentacao = get_tipos_alimentacao_recreio(recreio)
     valores_medicao = get_valores_medicao_set(
         medicao_recreio,
         categorias,
@@ -450,20 +452,21 @@ def validate_lancamento_dietas_medicao_recreio(
         recreio.data_inicio,
         recreio.data_fim,
     )
+    categorias_validas = get_classificacoes_dietas_recreio(
+        categorias, tipos_alimentacao
+    )
     cache_classificacoes = {
-        categoria.id: get_classificacoes_dietas(
-            categoria,
-        )
-        for categoria in categorias
+        categoria.id: get_classificacoes_dietas(categoria)
+        for categoria in categorias_validas
     }
 
-    for categoria in categorias:
+    for categoria in categorias_validas:
         classificacoes = cache_classificacoes.get(categoria.id)
         nomes_campos = get_linhas_da_tabela_dieta_recreio(tipos_alimentacao, categoria)
         for dia in dias_letivos:
 
-            # if lista_erros_com_periodo(lista_erros, medicao_recreio, "dietas"):
-            #     return erros_unicos(lista_erros)
+            if lista_erros_com_periodo(lista_erros, medicao_recreio, "dietas"):
+                return erros_unicos(lista_erros)
 
             periodo_com_erro = validate_lancamento_dietas(
                 dia=dia,
@@ -483,9 +486,9 @@ def validate_lancamento_dietas_medicao_recreio(
                         "erro": "Restam dias a serem lançados nas dietas.",
                     }
                 )
-                # return erros_unicos(
-                #     lista_erros,
-                # )
+                return erros_unicos(
+                    lista_erros,
+                )
 
     return erros_unicos(lista_erros)
 
@@ -559,7 +562,6 @@ def validate_lancamento_dietas(
         ) in valores_medicao
 
         if not valor_existe:
-            print(f"{categoria.nome} - {nome_campo}: {dia}")
             return True
 
     return False
@@ -721,3 +723,62 @@ def get_valores_medicao_set(
     )
 
     return set(valores_medicao)
+
+
+def get_classificacoes_dietas_recreio(
+    categorias: list[CategoriaMedicao], lista_alimentacoes: list[str]
+) -> list[CategoriaMedicao]:
+    """
+    Filtra categorias de medição de dietas para recreio
+    com base nos tipos de alimentação disponíveis.
+
+    Regras:
+    - Remove categorias contendo "ENTERAL" quandonão existir:
+        - Lanche
+        - Lanche 4h
+        - Refeição
+
+    - Remove categorias contendo "DIETA ESPECIAL"quando não existir:
+        - Lanche
+        - Lanche 4h
+
+    - Categorias ENTERAL são preservadas na regra de remoção de "DIETA ESPECIAL"
+
+    Args:
+        categorias (list[CategoriaMedicao]):  Lista de categorias de medição disponíveis.
+        lista_alimentacoes (list[str]): Lista de alimentações habilitadas para a medição.
+
+    Returns:
+        list[CategoriaMedicao]: Lista de categorias filtradas conforme as regras de alimentação do recreio.
+    """
+
+    dicionario_alimentacao_dietas = {
+        "Lanche": "lanche",
+        "Lanche 4h": "lanche_4h",
+        "Refeição": "refeicao",
+    }
+    alimentacoes = {
+        dicionario_alimentacao_dietas[alimentacao]
+        for alimentacao in lista_alimentacoes
+        if alimentacao in dicionario_alimentacao_dietas
+    }
+
+    tem_lanche = "lanche" in alimentacoes or "lanche_4h" in alimentacoes
+    tem_refeicao = "refeicao" in alimentacoes
+
+    categorias_filtradas = []
+
+    for categoria in categorias:
+        nome = categoria.nome.upper()
+
+        tem_enteral = "ENTERAL" in nome
+        tem_dieta_especial = "DIETA ESPECIAL" in nome
+
+        if not tem_lanche and not tem_refeicao and tem_enteral:
+            continue
+
+        if not tem_lanche and tem_dieta_especial and not tem_enteral:
+            continue
+
+        categorias_filtradas.append(categoria)
+    return categorias_filtradas

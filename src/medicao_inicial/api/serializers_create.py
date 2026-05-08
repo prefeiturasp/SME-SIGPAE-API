@@ -50,13 +50,13 @@ from src.medicao_inicial.models import (
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
-from src.medicao_inicial.utils import process_anexos_from_request
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
     cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
     validate_lancamento_alimentacoes_medicao_recreio,
     validate_lancamento_dietas_medicao_recreio,
 )
+from src.medicao_inicial.utils import process_anexos_from_request
 from src.perfil.models import Usuario
 from src.terceirizada.models import Contrato, Edital
 
