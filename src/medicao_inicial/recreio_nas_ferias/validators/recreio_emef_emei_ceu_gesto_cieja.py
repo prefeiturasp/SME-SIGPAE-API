@@ -17,7 +17,6 @@ from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
 from src.medicao_inicial.utils import get_name_campo
 from src.medicao_inicial.validators import (
-    checa_valor_observacao,
     erros_unicos,
     get_classificacoes_dietas,
     lista_erros_com_periodo,
@@ -50,16 +49,21 @@ def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
         "Recreio nas Férias": participantes.num_inscritos,
         "Colaboradores": participantes.num_colaboradores,
     }
-    grupos = [grupo for grupo, quantidade in informacoes_participantes.items() if quantidade > 0]
+    grupos = [
+        grupo
+        for grupo, quantidade in informacoes_participantes.items()
+        if quantidade > 0
+    ]
 
     categoria = CategoriaMedicao.objects.get(nome=CATEGORIA_ALIMENTACAO_NOME)
     grupos_medicao_existentes = {
         medicao.grupo.nome: medicao
-        for medicao in instance.medicoes.filter(grupo__nome__in=grupos).select_related("grupo")
+        for medicao in instance.medicoes.filter(grupo__nome__in=grupos).select_related(
+            "grupo"
+        )
     }
     grupos_obj = {
-        grupo.nome: grupo
-        for grupo in GrupoMedicao.objects.filter(nome__in=grupos)
+        grupo.nome: grupo for grupo in GrupoMedicao.objects.filter(nome__in=grupos)
     }
 
     valores_medicao_a_criar = []
@@ -123,7 +127,9 @@ def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceuges
     grupo = "Recreio nas Férias"
     categorias = list(CategoriaMedicao.objects.filter(nome__icontains="dieta"))
     tipos_alimentacao = get_tipos_alimentacao_recreio(recreio)
-    categorias_validas = get_classificacoes_dietas_recreio(categorias, tipos_alimentacao)
+    categorias_validas = get_classificacoes_dietas_recreio(
+        categorias, tipos_alimentacao
+    )
     categorias_com_logs = [
         categoria
         for categoria in categorias_validas
@@ -138,8 +144,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceuges
         medicao.valores_medicao.filter(
             categoria_medicao__in=categorias_com_logs,
             nome_campo="dietas_autorizadas",
-        )
-        .values_list("categoria_medicao_id", "dia")
+        ).values_list("categoria_medicao_id", "dia")
     )
 
     valores_medicao_a_criar = []
@@ -153,7 +158,9 @@ def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceuges
             if (categoria.id, dia) in valores_existentes:
                 continue
 
-            valor = retorna_valor_para_log_dieta_autorizada(categoria, logs_por_dia, data)
+            valor = retorna_valor_para_log_dieta_autorizada(
+                categoria, logs_por_dia, data
+            )
             valores_medicao_a_criar.append(
                 ValorMedicao(
                     medicao=medicao,
