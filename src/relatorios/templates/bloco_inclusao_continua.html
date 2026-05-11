@@ -1,4 +1,5 @@
 {% load index %}
+{% load safe_html_tags %}
 {% block inclusao_alimentacao_continua %}
   <tr>
     <td colspan="6">
@@ -12,51 +13,84 @@
         <div class="col-3"><b># {{solicitacao.id_externo}}</b></div>
         <div class="col-3"><b>{{solicitacao.motivo}}</b></div>
         <div class="col-3"><b>{{solicitacao.data_inicial|formatar_data_solicitacoes_alimentacao}} -
-        {{solicitacao.data_final|formatar_data_solicitacoes_alimentacao}}</b></div>
+        {% if solicitacao.todas_encerrada_mesma_data %}
+          <span style="text-decoration: line-through;">{{solicitacao.data_final|formatar_data_solicitacoes_alimentacao}}</span>
+          <span>{{solicitacao.data_encerramento_comum|formatar_data_solicitacoes_alimentacao}}</span>
+        {% else %}
+          {{solicitacao.data_final|formatar_data_solicitacoes_alimentacao}}
+        {% endif %}</b></div>
         <div class="col-3"><b>{{solicitacao.data_log}}</b></div>
       </div>
       <div class="row mt-4 mb-2 mx-2">
-        <div class="col-3">Repetir:</div>
-        <div class="col-3">Período:</div>
+        {% if solicitacao.motivo != 'ETEC' %}
+          <div class="col-3">Repetir:</div>
+        {% endif %}
+        <div class="{% if solicitacao.exibe_coluna_encerramento %}col-2{% else %}col-3{% endif %}">Período:</div>
         <div class="col-3">Tipos de Alimentação:</div>
-        <div class="col-3">No de Alunos:</div>
+        <div class="{% if solicitacao.exibe_coluna_encerramento %}col-2{% else %}col-3{% endif %}">No de Alunos:</div>
+        {% if solicitacao.exibe_coluna_encerramento %}
+          <div class="col-2">Encerrado a partir de:</div>
+        {% endif %}
       </div>
       {% if solicitacao.quantidades_periodo %}
         {% for quantidade_periodo in solicitacao.quantidades_periodo %}
         <div class="row my-2 mx-2">
-          <div class="col-3 {% if quantidade_periodo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
+          {% if solicitacao.motivo != 'ETEC' %}
+          <div class="col-3 {% if quantidade_periodo.linha_cancelada %}dia-cancelado{% endif %}">
             <b>{{ quantidade_periodo.dias_semana }}</b>
           </div>
-          <div class="col-3 {% if quantidade_periodo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
+          {% endif %}
+          <div class="{% if solicitacao.exibe_coluna_encerramento %}col-2{% else %}col-3{% endif %} {% if quantidade_periodo.linha_cancelada %}dia-cancelado{% endif %}">
             <b>{{ quantidade_periodo.periodo }}</b>
           </div>
-          <div class="col-3 {% if quantidade_periodo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
+          <div class="col-3 {% if quantidade_periodo.linha_cancelada %}dia-cancelado{% endif %}">
             <b>{{ quantidade_periodo.tipos_alimentacao }}</b>
           </div>
-          <div class="col-3 {% if quantidade_periodo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
+          <div class="{% if solicitacao.exibe_coluna_encerramento %}col-2{% else %}col-3{% endif %} {% if quantidade_periodo.linha_cancelada %}dia-cancelado{% endif %}">
             <b>{{ quantidade_periodo.numero_alunos }}</b>
           </div>
+          {% if solicitacao.exibe_coluna_encerramento %}
+            <div class="col-2 encerrado-a-partir-relatorio-sol-alim">
+              <b>{{ quantidade_periodo.encerrado_a_partir_de|formatar_data_solicitacoes_alimentacao }}</b>
+            </div>
+          {% endif %}
           {% if quantidade_periodo.observacao and quantidade_periodo.observacao != "<p></p>" %}
-            <div class="col-12 {% if quantidade_periodo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} dia-cancelado{% endif %}">
+            <div class="col-12 {% if quantidade_periodo.linha_cancelada %}dia-cancelado{% endif %}">
               Observação: {{quantidade_periodo.observacao|striptags}}
             </div>
           {% endif %}
         </div>
         {% endfor %}
       {% endif %}
-      {% if solicitacao.existe_periodo_cancelado %}
+      {% if solicitacao.historico_cancelamento %}
         <div class="row mt-4 mb-2 mx-4">
           <b class="mb-2">Histórico de cancelamento:</b>
-          {% for quantidade_periodo in solicitacao.quantidades_periodo %}
-            {% if quantidade_periodo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %}
-              {% if quantidade_periodo.cancelado_justificativa %}
-                <div class="mb-1">
-                  <p class="cancelado_justificativa my-0">
-                    {{ quantidade_periodo.periodo }} - {{ quantidade_periodo.tipos_alimentacao }} - justificativa: {{ quantidade_periodo.cancelado_justificativa }}
-                  </p>
+          {% for quantidade_periodo in solicitacao.historico_cancelamento %}
+            <div class="mb-1">
+              <p class="cancelado_justificativa my-0">
+                {{ quantidade_periodo.periodo }} - {{ quantidade_periodo.tipos_alimentacao }} - {{ quantidade_periodo.numero_alunos }} - justificativa: {{ quantidade_periodo.cancelado_justificativa }}
+              </p>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if solicitacao.historico_alteracao %}
+        <div class="row mt-4 mb-2 mx-4">
+          <b class="mb-2">Histórico de alteração:</b>
+          {% for item in solicitacao.historico_alteracao %}
+            <div class="col-12">{{ item.criado_em|date:"d/m/Y H:i:s" }} - {{ item.status_evento_explicacao }} a data fim</div>
+            {% for quantidade in item.quantidades %}
+              <div class="col-12 mt-2">
+                {{ quantidade.periodo }} - {{ quantidade.tipos_alimentacao }} - {{ quantidade.numero_alunos }} - Encerramento previsto para:
+                {{ quantidade.encerrado_a_partir_de|formatar_data_solicitacoes_alimentacao }}
+              </div>
+              {% if item.justificativa %}
+                <div class="col-12 mt-2">
+                  <span style="font-weight: bold;">Justificativa:</span>
+                  {{ item.justificativa|safe_content }}
                 </div>
               {% endif %}
-            {% endif %}
+            {% endfor %}
           {% endfor %}
         </div>
       {% endif %}
