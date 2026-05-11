@@ -664,7 +664,7 @@ def build_relatorio_financeiro_grupo_cemei(
             {
                 **relatorio_emei["consolidado"],
                 "titulo": "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA (INF. A+INF. B+INF. C)",
+                "titulo_quantidade": "QUANTIDADE SERVIDA (INF. A+INF. B+INF. C):",
                 "titulo_valor": "VALOR DO FATURAMENTO TOTAL (INF. A+INF. B+INF. C):",
             },
             {    
