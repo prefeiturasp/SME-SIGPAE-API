@@ -166,7 +166,7 @@ class VinculoTipoAlimentacaoViewSet(
     ):
         mes = request.query_params.get("mes", None)
         periodos_escolares_inclusao_continua = None
-        if mes:
+        if mes and not escola.possui_alunos_regulares:
             periodoEscolarViewset = PeriodoEscolarViewSet()
             response = periodoEscolarViewset.inclusao_continua_por_mes(request)
             if response.data and response.data.get("periodos", None):
