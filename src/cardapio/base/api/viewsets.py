@@ -164,9 +164,9 @@ class VinculoTipoAlimentacaoViewSet(
     def trata_inclusao_continua_medicao_inicial(
         self, request, escola, ano, pega_atualmente
     ):
-        mes = request.query_params.get("mes", None)
+        mes = request.query_params.get("mes_inclusao_continua", None)
         periodos_escolares_inclusao_continua = None
-        if mes and not escola.possui_alunos_regulares:
+        if mes:
             periodoEscolarViewset = PeriodoEscolarViewSet()
             response = periodoEscolarViewset.inclusao_continua_por_mes(request)
             if response.data and response.data.get("periodos", None):
