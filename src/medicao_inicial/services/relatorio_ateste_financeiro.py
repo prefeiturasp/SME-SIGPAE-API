@@ -391,12 +391,11 @@ def _build_tabela_alimentacao_emei(
     linhas = []
 
     tabela = next(
-        (t for t in tabelas if t.nome == "Preço das Alimentações"),
+        (t for t in tabelas if "Preço das Alimentações" in t.nome and not t.periodo_escolar),
         None,
     )
 
     valores_tabela = tabela.valores.all() if tabela else []
-
     for tipo in tipos_alimentacao:
         valor_unitario = _buscar_valor_por_tipo(
             valores_tabela,
@@ -468,7 +467,7 @@ def _build_tabela_dieta_emei(
     linhas = []
 
     tabela = next(
-        (t for t in tabelas if tipo_dieta in t.nome.upper()),
+        (t for t in tabelas if tipo_dieta in t.nome.upper() and not t.periodo_escolar),
         None,
     )
 
@@ -605,4 +604,71 @@ def build_relatorio_financeiro_grupo_emei(
             relatorio_financeiro,
             tipos_unidades,
         ),
+    }
+
+
+#=========================================================
+# CEMEI
+#=========================================================
+def build_relatorio_financeiro_grupo_cemei(
+    relatorio_financeiro,
+    parametrizacao,
+    totais_consumo,
+):
+    """Retorna dados para o relatório financeiro do grupo CEMEI (tipo de alimentação e faixa etária).
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório.
+        parametrizacao (Model): Configuração contendo tabelas.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+
+    Returns:
+        dict: Estrutura completa do relatório.
+    """
+    relatorio_cei = build_relatorio_financeiro_grupo_cei(
+        relatorio_financeiro,
+        parametrizacao,
+        totais_consumo["FAIXA"],
+    )
+
+    relatorio_emei = build_relatorio_financeiro_grupo_emei(
+        relatorio_financeiro,
+        parametrizacao,
+        totais_consumo["TIPO"],
+    )
+
+    consolidado_total = {
+        "quantidade": relatorio_cei["consolidado"]["quantidade"] + relatorio_emei["consolidado"]["quantidade"],
+        "valor": relatorio_cei["consolidado"]["valor"] + relatorio_emei["consolidado"]["valor"],
+        "valor_extenso": num2words(
+            relatorio_cei["consolidado"]["valor"] + relatorio_emei["consolidado"]["valor"],
+            lang="pt_BR",
+            to="currency"
+        ),
+    }
+
+    return {
+        "cabecalho": relatorio_cei["cabecalho"],
+        "cei": relatorio_cei,
+        "emei": relatorio_emei,
+        "consolidados": [
+            {
+                **relatorio_cei["consolidado"],
+                "titulo": "CONSOLIDADO CEI (A + B + C)",
+                "titulo_quantidade": "QUANTIDADE SERVIDA (A+B+C):",
+                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (A+B+C):",
+            }, 
+            {
+                **relatorio_emei["consolidado"],
+                "titulo": "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
+                "titulo_quantidade": "QUANTIDADE SERVIDA (INF. A+INF. B+INF. C)",
+                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (INF. A+INF. B+INF. C):",
+            },
+            {    
+                **consolidado_total,
+                "titulo": "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
+                "titulo_quantidade": "QUANTIDADE SERVIDA:",
+                "titulo_valor": "VALOR DO FATURAMENTO TOTAL:",
+            },
+        ],
     }

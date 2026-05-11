@@ -5351,7 +5351,7 @@ def gerar_totais_consolidado(solicitacoes, tipo):
 
 
 def calcula_totais_consumo_por_grupo(
-    lote, grupo_unidade_escolar, mes, ano, tipo_calculo
+    lote, grupo_unidade_escolar, mes, ano, tipo_calculo=None
 ):
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
         mes=str(mes),
