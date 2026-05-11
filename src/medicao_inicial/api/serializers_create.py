@@ -50,6 +50,12 @@ from src.medicao_inicial.models import (
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
+    cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
+    cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
+    validate_lancamento_alimentacoes_medicao_recreio,
+    validate_lancamento_dietas_medicao_recreio,
+)
 from src.medicao_inicial.utils import process_anexos_from_request
 from src.perfil.models import Usuario
 from src.terceirizada.models import Contrato, Edital
@@ -1198,6 +1204,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
                 )
+            self.cria_valores_medicao_recreio_emef_emei_cieja_ceugestao(instance)
+            self.valida_finalizar_medicao_recreio_emef_emei_cieja_ceugestao(instance)
+
             instance.ue_envia(user=self.context["request"].user)
             anexos = self._process_anexos(instance)
             if hasattr(instance, "ocorrencia"):
@@ -1206,6 +1215,39 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 )
             for medicao in instance.medicoes.all():
                 medicao.ue_envia(user=self.context["request"].user)
+
+    def cria_valores_medicao_recreio_emef_emei_cieja_ceugestao(
+        self, instance: SolicitacaoMedicaoInicial
+    ) -> None:
+        if (
+            not (instance.escola.eh_emef_emei_cieja or instance.escola.eh_ceu_gestao)
+            or instance.logs_salvos
+        ):
+            return
+
+        cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(instance)
+        cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao(
+            instance
+        )
+        instance.logs_salvos = True
+        instance.save()
+
+    def valida_finalizar_medicao_recreio_emef_emei_cieja_ceugestao(
+        self, instance: SolicitacaoMedicaoInicial
+    ) -> None:
+        if (
+            not (instance.escola.eh_emef_emei_cieja or instance.escola.eh_ceu_gestao)
+            or instance.status
+            != SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+        ):
+            return
+        lista_erros = []
+        lista_erros = validate_lancamento_alimentacoes_medicao_recreio(
+            instance, lista_erros
+        )
+        lista_erros = validate_lancamento_dietas_medicao_recreio(instance, lista_erros)
+        if lista_erros:
+            raise serializers.ValidationError(lista_erros)
 
     class Meta:
         model = SolicitacaoMedicaoInicial
