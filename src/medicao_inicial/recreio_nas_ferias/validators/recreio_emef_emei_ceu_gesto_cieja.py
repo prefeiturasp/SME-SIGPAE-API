@@ -23,6 +23,11 @@ from src.medicao_inicial.validators import (
     lista_erros_com_periodo,
 )
 
+CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
+CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME = (
+    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+)
+
 
 def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
     instance: SolicitacaoMedicaoInicial,
@@ -38,47 +43,54 @@ def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
     Args:
         instance (SolicitacaoMedicaoInicial): Solicitação de medição inicial vinculada ao recreio.
     """
-    valores_medicao_a_criar = []
     recreio = instance.recreio_nas_ferias
-
     participantes = recreio.unidades_participantes.first()
+
     informacoes_participantes = {
         "Recreio nas Férias": participantes.num_inscritos,
         "Colaboradores": participantes.num_colaboradores,
     }
-    grupos = [
-        grupo
-        for grupo, quantidade in informacoes_participantes.items()
-        if quantidade > 0
-    ]
+    grupos = [grupo for grupo, quantidade in informacoes_participantes.items() if quantidade > 0]
 
-    categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    categoria = CategoriaMedicao.objects.get(nome=CATEGORIA_ALIMENTACAO_NOME)
+    grupos_medicao_existentes = {
+        medicao.grupo.nome: medicao
+        for medicao in instance.medicoes.filter(grupo__nome__in=grupos).select_related("grupo")
+    }
+    grupos_obj = {
+        grupo.nome: grupo
+        for grupo in GrupoMedicao.objects.filter(nome__in=grupos)
+    }
+
+    valores_medicao_a_criar = []
     inicio_recreio = recreio.data_inicio
     dias_totais = (recreio.data_fim - inicio_recreio).days
+
     for numero_dia in range(dias_totais + 1):
-        data = inicio_recreio + timedelta(days=numero_dia)
-        dia = data.day
+        dia = f"{(inicio_recreio + timedelta(days=numero_dia)).day:02d}"
         for grupo in grupos:
-            try:
-                medicao = instance.medicoes.get(grupo__nome=grupo)
-            except Medicao.DoesNotExist:
+            medicao = grupos_medicao_existentes.get(grupo)
+            if medicao is None:
                 medicao = Medicao.objects.create(
                     solicitacao_medicao_inicial=instance,
-                    grupo=GrupoMedicao.objects.get(nome=grupo),
+                    grupo=grupos_obj[grupo],
                 )
+                grupos_medicao_existentes[grupo] = medicao
+
             if not medicao.valores_medicao.filter(
                 categoria_medicao=categoria,
-                dia=f"{dia:02d}",
+                dia=dia,
                 nome_campo="participantes",
             ).exists():
-                valor_medicao = ValorMedicao(
-                    medicao=medicao,
-                    categoria_medicao=categoria,
-                    dia=f"{dia:02d}",
-                    nome_campo="participantes",
-                    valor=informacoes_participantes[grupo],
+                valores_medicao_a_criar.append(
+                    ValorMedicao(
+                        medicao=medicao,
+                        categoria_medicao=categoria,
+                        dia=dia,
+                        nome_campo="participantes",
+                        valor=informacoes_participantes[grupo],
+                    )
                 )
-                valores_medicao_a_criar.append(valor_medicao)
 
     ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
@@ -99,137 +111,164 @@ def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceuges
         instance (SolicitacaoMedicaoInicial): Solicitação de medição inicial vinculada ao recreio.
     """
     escola = instance.escola
-    valores_medicao_a_criar = []
     recreio = instance.recreio_nas_ferias
     inicio_recreio = recreio.data_inicio
     fim_recreio = recreio.data_fim
 
     logs_do_recreio = escola.logs_dietas_autorizadas_recreio_ferias.filter(
-        data__gte=inicio_recreio,
-        data__lte=fim_recreio,
+        data__range=[inicio_recreio, fim_recreio],
     )
+    logs_por_dia = indexar_logs_dieta_autorizadas_por_data(logs_do_recreio)
+
     grupo = "Recreio nas Férias"
-    categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
+    categorias = list(CategoriaMedicao.objects.filter(nome__icontains="dieta"))
     tipos_alimentacao = get_tipos_alimentacao_recreio(recreio)
-    categorias_validas = get_classificacoes_dietas_recreio(
-        categorias, tipos_alimentacao
+    categorias_validas = get_classificacoes_dietas_recreio(categorias, tipos_alimentacao)
+    categorias_com_logs = [
+        categoria
+        for categoria in categorias_validas
+        if _categoria_tem_logs_dieta_autorizada(categoria, logs_por_dia)
+    ]
+
+    if not categorias_com_logs:
+        return
+
+    medicao = instance.medicoes.get(grupo__nome=grupo)
+    valores_existentes = set(
+        medicao.valores_medicao.filter(
+            categoria_medicao__in=categorias_com_logs,
+            nome_campo="dietas_autorizadas",
+        )
+        .values_list("categoria_medicao_id", "dia")
     )
 
+    valores_medicao_a_criar = []
     dias_totais = (fim_recreio - inicio_recreio).days
+
     for numero_dia in range(dias_totais + 1):
         data = inicio_recreio + timedelta(days=numero_dia)
-        dia = data.day
-        for categoria in categorias_validas:
-            medicao = instance.medicoes.get(grupo__nome=grupo)
-            if checa_se_existe_ao_menos_um_log_quantidade_maior_que_0(
-                categoria, logs_do_recreio
-            ):
+        dia = f"{data.day:02d}"
+
+        for categoria in categorias_com_logs:
+            if (categoria.id, dia) in valores_existentes:
                 continue
-            if not medicao.valores_medicao.filter(
-                categoria_medicao=categoria,
-                dia=f"{dia:02d}",
-                nome_campo="dietas_autorizadas",
-            ).exists():
-                valor = retorna_valor_para_log_dieta_autorizada(
-                    categoria, logs_do_recreio, dia
-                )
-                valor_medicao = ValorMedicao(
+
+            valor = retorna_valor_para_log_dieta_autorizada(categoria, logs_por_dia, data)
+            valores_medicao_a_criar.append(
+                ValorMedicao(
                     medicao=medicao,
                     categoria_medicao=categoria,
-                    dia=f"{dia:02d}",
+                    dia=dia,
                     nome_campo="dietas_autorizadas",
                     valor=valor,
                 )
-                valores_medicao_a_criar.append(valor_medicao)
+            )
+
     ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
 
-def checa_se_existe_ao_menos_um_log_quantidade_maior_que_0(
-    categoria: CategoriaMedicao, logs_do_mes: QuerySet
-) -> bool:
-    """Verifica se existem logs com quantidade maior que zero.
+def indexar_logs_dieta_autorizadas_por_data(
+    logs_do_recreio: QuerySet,
+) -> dict[datetime.date, dict[str, int]]:
+    """Indexa logs de dietas autorizadas por data e nomenclatura da classificação.
 
-    Para categorias do tipo enteral/restrição de aminoácidos, considera
-    ambas as classificações no filtro.
+    Agrupa os logs por data, somando as quantidades para cada classificação de dieta
+    no dia correspondente. Os nomes das classificações são convertidos para minúsculas
+    para facilitar a busca.
 
     Args:
-        categoria (CategoriaMedicao):  Categoria de medição da dieta.
-        logs_do_mes (QuerySet): Queryset contendo os logs de dietas autorizadas.
+        logs_do_recreio (QuerySet): QuerySet contendo os logs de dietas autorizadas
+            para o período do recreio, com campos 'data', 'classificacao__nome' e 'quantidade'.
 
     Returns:
-        bool: ``True`` quando não existem logs válidos para a categoria.
-            ``False`` quando existem logs com quantidade maior que zero.
+        dict[datetime.date, dict[str, int]]: Dicionário indexado por data, onde cada
+            data mapeia para um dicionário de nomes de classificação (minúsculos) para
+            a soma das quantidades.
     """
-    if categoria == CategoriaMedicao.objects.get(
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    logs_por_dia = defaultdict(lambda: defaultdict(int))
+
+    for data_log, classificacao_nome, quantidade in logs_do_recreio.values_list(
+        "data",
+        "classificacao__nome",
+        "quantidade",
     ):
-        if not logs_do_mes.filter(
-            classificacao__nome__in=[
-                "Tipo A ENTERAL",
-                "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
-            ],
-            quantidade__gt=0,
-        ).exists():
-            return True
-    else:
-        if (
-            not logs_do_mes.filter(
-                classificacao__nome__icontains=categoria.nome.split(" - ")[1],
-                quantidade__gt=0,
+        logs_por_dia[data_log][classificacao_nome.lower()] += quantidade
+
+    return logs_por_dia
+
+
+def _categoria_tem_logs_dieta_autorizada(
+    categoria: CategoriaMedicao,
+    logs_por_dia: dict[datetime.date, dict[str, int]],
+) -> bool:
+    """Verifica se uma categoria de medição possui logs de dietas autorizadas nos dados indexados.
+
+    Para a categoria especial 'DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS',
+    verifica se há logs contendo 'tipo a enteral' ou 'tipo a restrição de aminoácidos'.
+    Para outras categorias, verifica se há logs contendo o termo extraído do nome da categoria,
+    excluindo 'enteral' e 'aminoácidos'.
+
+    Args:
+        categoria (CategoriaMedicao): A categoria de medição a ser verificada.
+        logs_por_dia (dict[datetime.date, dict[str, int]]): Dados indexados dos logs por data.
+
+    Returns:
+        bool: True se a categoria possui logs autorizados, False caso contrário.
+    """
+    if categoria.nome == CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME:
+        return any(
+            any(
+                "tipo a enteral" in nome or "tipo a restrição de aminoácidos" in nome
+                for nome in logs_por_dia_do_dia
             )
-            .exclude(classificacao__nome__icontains="enteral")
-            .exclude(classificacao__nome__icontains="aminoácidos")
-            .exists()
-        ):
-            return True
-    return False
+            for logs_por_dia_do_dia in logs_por_dia.values()
+        )
+
+    termo = categoria.nome.split(" - ")[1].lower()
+    return any(
+        any(
+            termo in nome and "enteral" not in nome and "aminoácidos" not in nome
+            for nome in logs_por_dia_do_dia
+        )
+        for logs_por_dia_do_dia in logs_por_dia.values()
+    )
 
 
 def retorna_valor_para_log_dieta_autorizada(
     categoria: CategoriaMedicao,
-    logs_do_mes: QuerySet,
-    dia: int,
+    logs_por_dia: dict[datetime.date, dict[str, int]],
+    data: datetime.date,
 ) -> int:
     """Retorna o valor total autorizado para a categoria e dia informados.
 
     Para categorias do tipo enteral/restrição de aminoácidos, realiza a soma
     das duas classificações.
 
-
     Args:
         categoria (CategoriaMedicao): Categoria de medição da dieta.
-        logs_do_mes (QuerySet): Queryset contendo os logs de dietas autorizadas.
-        dia (int): Dia do mês utilizado para filtrar os logs.
+        logs_por_dia (dict): Logs de dietas autorizadas indexados por data.
+        data (datetime.date): Data utilizada para filtrar os logs.
 
     Returns:
-        int:  Quantidade total autorizada para a categoria no dia informado.
+        int: Quantidade total autorizada para a categoria no dia informado.
     """
-    if categoria == CategoriaMedicao.objects.get(
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
-    ):
-        log_enteral = logs_do_mes.filter(
-            classificacao__nome__icontains="enteral",
-            data__day=dia,
-        ).first()
-        log_restricao_aminoacidos = logs_do_mes.filter(
-            classificacao__nome__icontains="aminoácidos",
-            data__day=dia,
-        ).first()
-        valor = (log_enteral.quantidade if log_enteral else 0) + (
-            log_restricao_aminoacidos.quantidade if log_restricao_aminoacidos else 0
+    logs_do_dia = logs_por_dia.get(data, {})
+    if categoria.nome == CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME:
+        return sum(
+            quantidade
+            for nome, quantidade in logs_do_dia.items()
+            if "tipo a enteral" in nome or "tipo a restrição de aminoácidos" in nome
         )
-    else:
-        log = (
-            logs_do_mes.filter(
-                classificacao__nome__icontains=categoria.nome.split(" - ")[1],
-                data__day=dia,
-            )
-            .exclude(classificacao__nome__icontains="enteral")
-            .exclude(classificacao__nome__icontains="aminoácidos")
-            .first()
-        )
-        valor = log.quantidade if log else 0
-    return valor
+
+    termo = categoria.nome.split(" - ")[1].lower()
+    return next(
+        (
+            quantidade
+            for nome, quantidade in logs_do_dia.items()
+            if termo in nome and "enteral" not in nome and "aminoácidos" not in nome
+        ),
+        0,
+    )
 
 
 def validate_lancamento_alimentacoes_medicao_recreio(
@@ -366,8 +405,22 @@ def buscar_valores_lancamento_alimentacoes_recreio(
         list: Lista atualizada de erros encontrados.
     """
     periodo_com_erro = False
+    dias_letivos_set = set(dias_letivos)
+
+    observacoes_dias = set(
+        ValorMedicao.objects.filter(
+            medicao__solicitacao_medicao_inicial=solicitacao,
+            nome_campo="observacao",
+            medicao__grupo__nome=grupo,
+            dia__in=dias_letivos,
+            categoria_medicao=categoria_medicao,
+        )
+        .exclude(valor=None)
+        .values_list("dia", flat=True)
+    )
+
     for nome_campo in linhas_da_tabela:
-        valores_da_medicao = (
+        valores_da_medicao = set(
             ValorMedicao.objects.filter(
                 medicao__solicitacao_medicao_inicial=solicitacao,
                 nome_campo=nome_campo,
@@ -378,20 +431,13 @@ def buscar_valores_lancamento_alimentacoes_recreio(
             .exclude(valor=None)
             .values_list("dia", flat=True)
         )
-        valores_da_medicao = list(set(valores_da_medicao))
-        if len(valores_da_medicao) != len(dias_letivos):
-            diferenca = list(set(dias_letivos) - set(valores_da_medicao))
-            for dia_sem_preenchimento in diferenca:
-                valor_observacao = ValorMedicao.objects.filter(
-                    medicao__solicitacao_medicao_inicial=solicitacao,
-                    nome_campo="observacao",
-                    medicao__grupo__nome=grupo,
-                    dia=dia_sem_preenchimento,
-                    categoria_medicao=categoria_medicao,
-                ).exclude(valor=None)
-                periodo_com_erro = checa_valor_observacao(
-                    valor_observacao, periodo_com_erro
-                )
+
+        if valores_da_medicao != dias_letivos_set:
+            dias_sem_preenchimento = dias_letivos_set - valores_da_medicao
+            for dia_sem_preenchimento in dias_sem_preenchimento:
+                if dia_sem_preenchimento not in observacoes_dias:
+                    periodo_com_erro = True
+
     if periodo_com_erro:
         lista_erros.append(
             {
