@@ -1,0 +1,53 @@
+<!doctype html>
+{% load index %} {% load sass_tags %} {% load safe_html_tags %}
+<html lang="pt-BR">
+  <head>
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/custom_bootstrap.scss' %}"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/relatorio_ateste_financeiro.scss' %}"
+      type="text/css"
+    />
+    <title>SIGPAE</title>
+  </head>
+
+  <body>
+    <div class="relatorio-financeiro">
+      {% include "relatorio_financeiro/componentes/tabela_alimentacao_cei.html"
+      with linhas=cei.alimentacao.linhas faixasEtarias=faixasEtarias ordem="A"
+      total_atendimentos=cei.alimentacao.total_atendimentos
+      valor_total=cei.alimentacao.valor_total %} {% include
+      "relatorio_financeiro/componentes/tabela_dieta_cei.html" with
+      linhas=cei.dieta_a.linhas faixasEtarias=faixasEtarias tipoDieta="TIPO A"
+      tipo_class="cor-tipo-a" ordem="B" total_consumo=cei.dieta_a.total_consumo
+      valor_total=cei.dieta_a.valor_total %} {% include
+      "relatorio_financeiro/componentes/tabela_dieta_cei.html" with
+      linhas=cei.dieta_b.linhas faixasEtarias=faixasEtarias tipoDieta="TIPO B"
+      tipo_class="cor-tipo-b" ordem="C" total_consumo=cei.dieta_b.total_consumo
+      valor_total=cei.dieta_b.valor_total %} {% include
+      "relatorio_financeiro/componentes/cabecalho.html" with cabecalho=cabecalho
+      %} {% include "relatorio_financeiro/componentes/tabela_alimentacao.html"
+      with linhas=emei.alimentacao.linhas ordem="INF. A"
+      total_atendimentos=emei.alimentacao.total_atendimentos
+      valor_total=emei.alimentacao.valor_total %} {% include
+      "relatorio_financeiro/componentes/tabela_dieta.html" with
+      linhas=emei.dieta_a.linhas tipoDieta="TIPO A" tipo_class="cor-tipo-a"
+      ordem="INF. B" total_consumo=emei.dieta_a.total_consumo
+      valor_total=dieta_a.valor_total %} {% include
+      "relatorio_financeiro/componentes/tabela_dieta.html" with
+      linhas=emei.dieta_b.linhas tipoDieta="TIPO B" tipo_class="cor-tipo-b"
+      ordem="INF. C" total_consumo=emei.dieta_b.total_consumo
+      valor_total=emei.dieta_b.valor_total %} {% for consolidado in consolidados
+      %} {% include "relatorio_financeiro/componentes/consolidado_total.html"
+      with titulo=consolidado.titulo quantidade=consolidado.quantidade
+      titulo_quantidade=consolidado.titulo_quantidade
+      titulo_valor=consolidado.titulo_valor valor=consolidado.valor
+      valor_extenso=consolidado.valor_extenso %} {% endfor %}
+    </div>
+    {% include "relatorio_financeiro/componentes/rodape.html" %}
+  </body>
+</html>
