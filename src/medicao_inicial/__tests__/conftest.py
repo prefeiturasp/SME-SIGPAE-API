@@ -449,9 +449,14 @@ def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
 @pytest.fixture
 def escola_cemei():
     terceirizada = baker.make("Terceirizada")
-    lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+    )
+    lote = baker.make(
+        "Lote", 
+        terceirizada=terceirizada,
+        nome="LOTE 2",
+        diretoria_regional=diretoria_regional,
     )
     tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
