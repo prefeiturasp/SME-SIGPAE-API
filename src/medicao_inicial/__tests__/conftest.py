@@ -6515,45 +6515,54 @@ def solicitacao_recreio_emef(
             classificacao=classificacao_dieta_tipo_a_enteral,
             quantidade=3,
         )
-        baker.make(
-            "ValorMedicao",
-            medicao=medicao_colaboradores,
-            categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-            nome_campo="dietas_autorizadas",
-            dia=dia,
-            valor=dieta.quantidade,
-        )
-        for campo in [
-            "frequencia",
-            "refeicao",
-            "repeticao_refeicao",
-            "sobremesa",
-            "repeticao_sobremesa",
-        ]:
-            baker.make(
-                "ValorMedicao",
-                medicao=medicao_recreio_nas_ferias,
-                categoria_medicao=categoria_medicao,
-                nome_campo=campo,
-                dia=dia,
-                valor="90",
-            )
+        if dia not in [
+            "13",
+            "14",
+            "20",
+            "21",
+            "25",
+            "27",
+            "28",
+        ]:  # Sabado, Domingo e Feriado
             baker.make(
                 "ValorMedicao",
                 medicao=medicao_colaboradores,
-                categoria_medicao=categoria_medicao,
-                nome_campo=campo,
+                categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                nome_campo="dietas_autorizadas",
                 dia=dia,
-                valor="20",
+                valor=dieta.quantidade,
             )
-            if campo in ["frequencia", "refeicao"]:
+            for campo in [
+                "frequencia",
+                "refeicao",
+                "repeticao_refeicao",
+                "sobremesa",
+                "repeticao_sobremesa",
+            ]:
                 baker.make(
                     "ValorMedicao",
                     medicao=medicao_recreio_nas_ferias,
-                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                    categoria_medicao=categoria_medicao,
                     nome_campo=campo,
                     dia=dia,
-                    valor=1,
+                    valor="90",
                 )
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_colaboradores,
+                    categoria_medicao=categoria_medicao,
+                    nome_campo=campo,
+                    dia=dia,
+                    valor="20",
+                )
+                if campo in ["frequencia", "refeicao"]:
+                    baker.make(
+                        "ValorMedicao",
+                        medicao=medicao_recreio_nas_ferias,
+                        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                        nome_campo=campo,
+                        dia=dia,
+                        valor=1,
+                    )
 
     return solicitacao_recreio_nas_ferias
