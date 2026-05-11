@@ -4730,6 +4730,12 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "nome_produto": self.ficha_tecnica.produto.nome,
                 "url": url,
                 "usuario": user.nome,
+                "nome_usual": (
+                    self.empresa.nome_fantasia if self.empresa else "-"
+                ),
+                "razao_social": (
+                    self.empresa.razao_social if self.empresa else "-"
+                ),
                 "log_transicao": log_transicao,
                 "hidden_email": False,
             },
@@ -5342,6 +5348,9 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "log_transicao": log_transicao,
                 "status_analise": status_analise,
                 "url_solicitacao_alteracao": url_solicitacao_alteracao,
+                "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
+                "razao_social": self.cronograma.empresa.razao_social,
+                "hidden_email": False,
             },
         )
 
@@ -5544,11 +5553,13 @@ class FluxoLayoutDeEmbalagem(xwf_models.WorkflowEnabled, models.Model):
             )
 
             EmailENotificacaoService.enviar_email(
-                titulo=f"Layouts Pendentes de Aprovação\nFicha Técnica {numero_ficha}",
+                titulo=f"Layout Pendente de Aprovação\nFicha Técnica {numero_ficha}",
                 assunto=f"[SIGPAE] Layouts Pendentes de Aprovação | Ficha Técnica {numero_ficha}",
                 template="pre_recebimento_email_fornecedor_envia_layout_embalagem.html",
                 contexto_template={
                     "nome_empresa": nome_empresa,
+                    "razao_social": self.ficha_tecnica.empresa.razao_social,
+                    "nome_produto": self.ficha_tecnica.produto.nome,
                     "numero_ficha": numero_ficha,
                     "data_envio": data_envio,
                     "url_layout_embalagens": base_url + url_layout_embalagens,
@@ -6121,6 +6132,7 @@ class CronogramaSemanalWorkflow(xwf_models.Workflow):
     transitions = (
         ("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),
         ("fornecedor_ciente", ENVIADO_AO_FORNECEDOR, FORNECEDOR_CIENTE),
+        ("alterar_cronograma", FORNECEDOR_CIENTE, ENVIADO_AO_FORNECEDOR)
     )
 
     initial_state = RASCUNHO
@@ -6165,6 +6177,15 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
         if user:
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
+                usuario=user,
+            )
+
+    @xworkflows.after_transition("alterar_cronograma")
+    def _alterar_cronograma_hook(self, *args, **kwargs):
+        user = kwargs.get("user")
+        if user:
+            self.salvar_log_transicao(
+                status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
                 usuario=user,
             )
 

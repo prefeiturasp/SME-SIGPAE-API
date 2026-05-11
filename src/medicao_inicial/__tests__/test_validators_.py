@@ -205,9 +205,13 @@ def test_validate_lancamento_alimentacoes_medicao_emebs(
     assert len(lista_erros) == 0
 
 
-def test_get_lista_dias_letivos_diurno(solicitacao_dias_letivos_escola, escola):
+def test_get_lista_dias_letivos_diurno(
+    solicitacao_dias_letivos_escola, escola, periodo_escolar_integral
+):
     dias_letivos = get_lista_dias_letivos(
-        solicitacao_dias_letivos_escola, escola, periodo_escolar=None
+        solicitacao_dias_letivos_escola,
+        escola,
+        periodo_escolar=periodo_escolar_integral,
     )
     assert len(dias_letivos) == 19
     assert dias_letivos == [
@@ -266,8 +270,11 @@ def test_obter_periodos_corretos_com_periodo_notuno(
     escola,
     vinculo_alimentacao_noturno,
     vinculo_alimentacao_integral,
+    periodo_escolar_integral,
 ):
-    periodos = obter_periodos_corretos(solicitacao_dias_letivos_escola, escola)
+    periodos = obter_periodos_corretos(
+        solicitacao_dias_letivos_escola, escola, periodo_escolar_integral
+    )
     assert isinstance(periodos, dict)
     assert len(periodos) == 2
 
@@ -317,9 +324,14 @@ def test_obter_periodos_corretos_com_periodo_notuno(
 
 
 def test_obter_periodos_corretos_sem_periodo_notuno(
-    solicitacao_dias_letivos_escola, escola, vinculo_alimentacao_integral
+    solicitacao_dias_letivos_escola,
+    escola,
+    vinculo_alimentacao_integral,
+    periodo_escolar_integral,
 ):
-    periodos = obter_periodos_corretos(solicitacao_dias_letivos_escola, escola)
+    periodos = obter_periodos_corretos(
+        solicitacao_dias_letivos_escola, escola, periodo_escolar_integral
+    )
     assert isinstance(periodos, dict)
     assert len(periodos) == 2
 
@@ -384,10 +396,10 @@ def test_get_lista_dias_letivos_dia_com_log_valido_incluido(
 ):
     """Dia letivo com log REGULAR, quantidade > 0 e periodo_escolar preenchido é retornado."""
     solicitacao = _make_solicitacao(escola)
-    _make_dia_letivo(escola, 3)
+    _make_dia_letivo(escola, 3, periodo_escolar=periodo_escolar_noite)
     _make_log(escola, periodo_escolar_noite, 3)
 
-    dias = get_lista_dias_letivos(solicitacao, escola)
+    dias = get_lista_dias_letivos(solicitacao, escola, periodo_escolar_noite)
 
     assert "03" in dias
 

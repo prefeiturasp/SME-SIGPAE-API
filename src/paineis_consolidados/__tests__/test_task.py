@@ -1,5 +1,6 @@
 import io
 import os
+import re
 import tempfile
 import uuid
 from datetime import datetime
@@ -11,6 +12,7 @@ from faker import Faker
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.paineis_consolidados.api import constants
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.paineis_consolidados.tasks import (
@@ -406,3 +408,173 @@ def test_build_pdf():
     assert "SIGPAE - RELATÓRIO DE solicitações de alimentação".lower() in texto
     assert datetime.now().strftime("%d/%m/%Y") in texto
     assert texto.count("autorizados") == 2
+
+
+def test_build_pdf_inclusao_continua_exibe_coluna_encerramento_historicos_e_nao_traceja_valor(
+    escola_factory,
+    motivo_inclusao_continua_factory,
+    inclusao_alimentacao_continua_factory,
+    quantidade_por_periodo_factory,
+    tipo_alimentacao_factory,
+    periodo_escolar_factory,
+    usuario_factory,
+    log_solicitacoes_usuario_factory,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "src.paineis_consolidados.tasks.html_to_pdf_file",
+        lambda html_string, *_args, **_kwargs: html_string,
+    )
+
+    escola = escola_factory.create(nome="EMEF PERICLES EUGENIO DA SILVA RAMOS")
+    motivo = motivo_inclusao_continua_factory.create(
+        nome="Programas/Projetos Contínuos"
+    )
+    periodo_integral = periodo_escolar_factory.create(nome="INTEGRAL")
+    periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
+    tipo_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+    tipo_refeicao = tipo_alimentacao_factory.create(nome="Refeição")
+    tipo_lanche_4h = tipo_alimentacao_factory.create(nome="Lanche 4h")
+    usuario = usuario_factory.create()
+
+    inclusao = inclusao_alimentacao_continua_factory.create(
+        escola=escola,
+        motivo=motivo,
+        rastro_escola=escola,
+        rastro_dre=escola.diretoria_regional,
+        rastro_lote=escola.lote,
+        rastro_terceirizada=escola.lote.terceirizada,
+        data_inicial=datetime(2026, 5, 12).date(),
+        data_final=datetime(2026, 12, 31).date(),
+        status="CODAE_AUTORIZADO",
+    )
+
+    quantidade_por_periodo_factory.create(
+        inclusao_alimentacao_continua=inclusao,
+        grupo_inclusao_normal=None,
+        periodo_escolar=periodo_integral,
+        numero_alunos=40,
+        tipos_alimentacao=[tipo_lanche],
+        dias_semana=[0, 1, 2, 3],
+        encerrado_a_partir_de=datetime(2026, 5, 21).date(),
+        cancelado_justificativa="Encerramento do projeto no período integral.",
+    )
+    quantidade_por_periodo_factory.create(
+        inclusao_alimentacao_continua=inclusao,
+        grupo_inclusao_normal=None,
+        periodo_escolar=periodo_integral,
+        numero_alunos=21,
+        tipos_alimentacao=[tipo_refeicao],
+        dias_semana=[1, 2, 3],
+        cancelado=True,
+        cancelado_justificativa="",
+    )
+    quantidade_por_periodo_factory.create(
+        inclusao_alimentacao_continua=inclusao,
+        grupo_inclusao_normal=None,
+        periodo_escolar=periodo_tarde,
+        numero_alunos=2,
+        tipos_alimentacao=[tipo_lanche_4h],
+        dias_semana=[2, 3],
+        encerrado_a_partir_de=datetime(2026, 5, 30).date(),
+        cancelado_justificativa="Encerramento do projeto no período da tarde.",
+    )
+
+    log_alteracao_1 = log_solicitacoes_usuario_factory.create(
+        uuid_original=inclusao.uuid,
+        usuario=usuario,
+        solicitacao_tipo=LogSolicitacoesUsuario.INCLUSAO_ALIMENTACAO_CONTINUA,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
+        justificativa="Encerramento do projeto no período integral.",
+    )
+    log_alteracao_1.criado_em = datetime(2026, 5, 6, 17, 22, 51)
+    log_alteracao_1.save(update_fields=["criado_em"])
+
+    log_alteracao_2 = log_solicitacoes_usuario_factory.create(
+        uuid_original=inclusao.uuid,
+        usuario=usuario,
+        solicitacao_tipo=LogSolicitacoesUsuario.INCLUSAO_ALIMENTACAO_CONTINUA,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
+        justificativa="Encerramento do projeto no período da tarde.",
+    )
+    log_alteracao_2.criado_em = datetime(2026, 5, 8, 10, 9, 56)
+    log_alteracao_2.save(update_fields=["criado_em"])
+
+    solicitacao_dict = inclusao.solicitacao_dict_para_relatorio(
+        "de Autorização", "08/05/2026", escola
+    )
+    html_string = build_pdf([solicitacao_dict], "AUTORIZADOS")
+
+    assert "Encerrado a partir de:" in html_string
+    assert "Histórico de alteração:" in html_string
+    assert "Histórico de cancelamento:" in html_string
+    assert (
+        "INTEGRAL - Lanche - 40 - Encerramento previsto para:\n                21/05/2026"
+        in html_string
+    )
+    assert "INTEGRAL - Refeição - 21 - justificativa:" in html_string
+    assert re.search(
+        r'class="col-2 encerrado-a-partir-relatorio-sol-alim">\s*<b>21/05/2026</b>\s*</div>',
+        html_string,
+    )
+    assert "encerrado-a-partir-relatorio-sol-alim dia-cancelado" not in html_string
+    assert "#c0392b" not in html_string
+
+
+def test_build_pdf_inclusao_continua_destaca_data_final_quando_todas_quantidades_encerram_mesma_data(
+    escola_factory,
+    motivo_inclusao_continua_factory,
+    inclusao_alimentacao_continua_factory,
+    quantidade_por_periodo_factory,
+    tipo_alimentacao_factory,
+    periodo_escolar_factory,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "src.paineis_consolidados.tasks.html_to_pdf_file",
+        lambda html_string, *_args, **_kwargs: html_string,
+    )
+
+    escola = escola_factory.create(nome="EMEF PERICLES EUGENIO DA SILVA RAMOS")
+    motivo = motivo_inclusao_continua_factory.create(
+        nome="Programas/Projetos Contínuos"
+    )
+    periodo_integral = periodo_escolar_factory.create(nome="INTEGRAL")
+    periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
+    tipo_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+
+    inclusao = inclusao_alimentacao_continua_factory.create(
+        escola=escola,
+        motivo=motivo,
+        rastro_escola=escola,
+        rastro_dre=escola.diretoria_regional,
+        rastro_lote=escola.lote,
+        rastro_terceirizada=escola.lote.terceirizada,
+        data_inicial=datetime(2026, 5, 12).date(),
+        data_final=datetime(2026, 12, 31).date(),
+        status="CODAE_AUTORIZADO",
+    )
+
+    for periodo in [periodo_integral, periodo_tarde]:
+        quantidade_por_periodo_factory.create(
+            inclusao_alimentacao_continua=inclusao,
+            grupo_inclusao_normal=None,
+            periodo_escolar=periodo,
+            numero_alunos=10,
+            tipos_alimentacao=[tipo_lanche],
+            dias_semana=[1, 2, 3],
+            encerrado_a_partir_de=datetime(2026, 5, 21).date(),
+            cancelado_justificativa="Encerramento geral",
+        )
+
+    solicitacao_dict = inclusao.solicitacao_dict_para_relatorio(
+        "de Autorização", "08/05/2026", escola
+    )
+    html_string = build_pdf([solicitacao_dict], "AUTORIZADOS")
+
+    assert "Encerrado a partir de:" not in html_string
+    assert (
+        '<span style="text-decoration: line-through;">31/12/2026</span>' in html_string
+    )
+    assert "<span>21/05/2026</span>" in html_string
+    assert "#c0392b" not in html_string

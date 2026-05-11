@@ -230,6 +230,15 @@ def solicitacao_cronograma_ciente(cronograma):
 def solicitacao_cronograma_aprovado_dilog_abastecimento(
     cronograma_solicitado_alteracao,
 ):
+    produto = baker.make("NomeDeProdutoEdital", nome="Açucar")
+    ficha_tecnica = baker.make(
+        "FichaTecnicaDoProduto",
+        produto=produto,
+        empresa=baker.make("Terceirizada", razao_social="Razao Social LTDA"),
+    )
+    cronograma_solicitado_alteracao.ficha_tecnica = ficha_tecnica
+    cronograma_solicitado_alteracao.save()
+
     return baker.make(
         "SolicitacaoAlteracaoCronograma",
         numero_solicitacao="00222/2022",

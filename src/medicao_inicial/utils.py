@@ -5424,10 +5424,9 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
     escola_cemei = solicitacao.escola.eh_cemei
     todas_dietas = CategoriaMedicao.objects.filter(nome__icontains="DIETA")
     periodos_escolares = [
-        f"INFANTIL {periodo.nome}" if escola_cemei else periodo.nome
+        f"Infantil {periodo.nome}" if escola_cemei else periodo.nome
         for periodo in solicitacao.escola.periodos_escolares(ano=int(solicitacao.ano))
     ]
-
     alimentacoes = []
     dietas = {dieta.nome: [] for dieta in todas_dietas}
     mapa_dias = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -5441,7 +5440,6 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
             lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         )
     resultado = {"alimentacoes": alimentacoes, "dietas": dietas}
-
     medicoes_regulares = (
         Medicao.objects.filter(
             solicitacao_medicao_inicial=solicitacao,

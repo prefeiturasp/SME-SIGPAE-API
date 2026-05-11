@@ -111,15 +111,22 @@ def criar_nova_solicitacao(solicitacao_anterior, escola, data_hoje):
         "escola": escola,
         "ano": data_hoje.year,
         "mes": f"{data_hoje.month:02d}",
+        "recreio_nas_ferias": None,
+    }
+    defaults = {
         "criado_por": solicitacao_anterior.criado_por,
         "ue_possui_alunos_periodo_parcial": solicitacao_anterior.ue_possui_alunos_periodo_parcial,
     }
 
-    solicitacao_mes_atual = SolicitacaoMedicaoInicial.objects.create(**attrs)
-    solicitacao_mes_atual.tipos_contagem_alimentacao.set(
-        solicitacao_anterior.tipos_contagem_alimentacao.all()
+    solicitacao_mes_atual, created = SolicitacaoMedicaoInicial.objects.get_or_create(
+        **attrs, defaults=defaults
     )
-    solicitacao_mes_atual.save()
+
+    if created:
+        solicitacao_mes_atual.tipos_contagem_alimentacao.set(
+            solicitacao_anterior.tipos_contagem_alimentacao.all()
+        )
+
     return solicitacao_mes_atual
 
 
@@ -511,7 +518,7 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
             )
 
         grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome
-        if grupo_nome.upper() == "GRUPO 1":
+        if "GRUPO 1" in grupo_nome.upper():
             arquivo = relatorio_ateste_financeiro_grupo_cei(
                 relatorio_financeiro, parametrizacao
             )
