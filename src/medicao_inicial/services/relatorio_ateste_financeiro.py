@@ -178,6 +178,7 @@ def _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo):
                 t
                 for t in tabelas
                 if t.nome == "Preço das Alimentações"
+                and t.periodo_escolar
                 and t.periodo_escolar.nome == periodo
             ),
             None,
@@ -244,7 +245,9 @@ def _build_tabela_dieta_cei(tabelas, faixas_etarias, totais_consumo, tipo_dieta)
             (
                 t
                 for t in tabelas
-                if tipo_dieta in t.nome.upper() and t.periodo_escolar.nome == periodo
+                if tipo_dieta in t.nome.upper()
+                and t.periodo_escolar
+                and t.periodo_escolar.nome == periodo
             ),
             None,
         )
