@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+import datetime
 from math import ceil
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -151,7 +151,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
             qs = sorted(
                 query_set.filter(status__in=workflow).distinct().all(),
                 key=lambda x: (
-                    x.log_mais_recente.criado_em if x.log_mais_recente else datetime.min
+                    x.log_mais_recente.criado_em if x.log_mais_recente else "-criado_em"
                 ),
                 reverse=True,
             )
