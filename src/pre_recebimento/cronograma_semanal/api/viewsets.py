@@ -140,6 +140,56 @@ class CronogramaSemanalViewSet(
 
     @action(
         detail=False,
+        methods=["get"],
+        url_path="calendario",
+        url_name="calendario",
+    )
+    def calendario(self, request):
+        """
+        Lista cronogramas semanais para exibição no calendário.
+        Filtra as programações pelo mês e ano informados via query params.
+        """
+        mes = request.query_params.get("mes")
+        ano = request.query_params.get("ano")
+
+        if not mes or not ano:
+            return Response(
+                {"detail": "Os parâmetros 'mes' e 'ano' são obrigatórios."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            mes = int(mes)
+            ano = int(ano)
+        except ValueError:
+            return Response(
+                {"detail": "Os parâmetros 'mes' e 'ano' devem ser números inteiros."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        queryset = (
+            CronogramaSemanal.objects.select_related(
+                "cronograma_mensal",
+                "cronograma_mensal__ficha_tecnica__produto",
+                "cronograma_mensal__empresa",
+                "cronograma_mensal__armazem",
+                "cronograma_mensal__unidade_medida",
+            )
+            .prefetch_related("programacoes")
+            .filter(programacoes__data_inicio__month=mes, programacoes__data_inicio__year=ano)
+            .exclude(status="RASCUNHO")
+            .distinct()
+        )
+
+        serializer = CronogramaSemanalCalendarioSerializer(
+            queryset,
+            many=True,
+            context={"mes": mes, "ano": ano, "request": request},
+        )
+        return Response(serializer.data)
+
+    @action(
+        detail=False,
         methods=["post"],
         url_path="rascunho",
         url_name="rascunho",
