@@ -24,6 +24,7 @@ from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_emei,
+    build_relatorio_financeiro_grupo_cemei,
 )
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -106,6 +107,54 @@ ARQUIVO_MARCA_DAGUA_PRELIMINAR = "preliminar.pdf"
 def valida_request_method_get(request):
     if request and request.method != "GET":
         return HttpResponseNotAllowed()
+
+
+def _build_contexto_relatorio_inclusao_alimentacao_continua(solicitacao):
+    quantidades_periodo = list(
+        solicitacao.quantidades_por_periodo.all()
+        .select_related("periodo_escolar")
+        .prefetch_related("tipos_alimentacao")
+    )
+    encerrado_dates = [
+        quantidade.encerrado_a_partir_de
+        for quantidade in quantidades_periodo
+        if quantidade.encerrado_a_partir_de
+    ]
+    todas_encerrada_mesma_data = (
+        bool(encerrado_dates)
+        and len(encerrado_dates) == len(quantidades_periodo)
+        and all(data == encerrado_dates[0] for data in encerrado_dates)
+    )
+    quantidades_com_encerramento = [
+        quantidade
+        for quantidade in quantidades_periodo
+        if quantidade.encerrado_a_partir_de
+    ]
+    historico_alteracao = []
+    logs_alteracao = solicitacao.logs.filter(
+        status_evento=LogSolicitacoesUsuario.ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA
+    )
+
+    for log in logs_alteracao:
+        historico_alteracao.append(
+            {
+                "log": log,
+                "quantidades": [
+                    quantidade
+                    for quantidade in quantidades_com_encerramento
+                    if quantidade.cancelado_justificativa == log.justificativa
+                ],
+            }
+        )
+
+    return {
+        "data_encerramento_geral": (
+            encerrado_dates[0] if todas_encerrada_mesma_data else None
+        ),
+        "historico_alteracao": historico_alteracao,
+        "quantidades_periodo": quantidades_periodo,
+        "todas_encerrada_mesma_data": todas_encerrada_mesma_data,
+    }
 
 
 def relatorio_kit_lanche_unificado(request, solicitacao):
@@ -747,6 +796,9 @@ def relatorio_inclusao_alimentacao_continua(request, solicitacao):
     escola = solicitacao.rastro_escola
     escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
+    contexto_inclusao_continua = (
+        _build_contexto_relatorio_inclusao_alimentacao_continua(solicitacao)
+    )
     html_string = render_to_string(
         "solicitacao_inclusao_alimentacao_continua.html",
         {
@@ -756,6 +808,7 @@ def relatorio_inclusao_alimentacao_continua(request, solicitacao):
             "width": get_width(constants.FLUXO_INCLUSAO_ALIMENTACAO, solicitacao.logs),
             "logs": formata_logs(logs),
             "week": {"D": 6, "S": 0, "T": 1, "Q": 2, "Qi": 3, "Sx": 4, "Sb": 5},
+            **contexto_inclusao_continua,
         },
     )
     return html_to_pdf_response(
@@ -2615,6 +2668,37 @@ def relatorio_ateste_financeiro_grupo_emei(relatorio_financeiro, parametrizacao)
             "dt_file",
             f"{relatorio_emei["cabecalho"]["data_geracao"]} às {relatorio_emei["cabecalho"]["hora_geracao"]}",
         ),
+        f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
+        is_async=True,
+    )
+
+
+def relatorio_ateste_financeiro_grupo_cemei(relatorio_financeiro, parametrizacao):
+    totais_consumo = calcula_totais_consumo_por_grupo(
+        relatorio_financeiro.lote,
+        relatorio_financeiro.grupo_unidade_escolar,
+        relatorio_financeiro.mes,
+        relatorio_financeiro.ano,
+    )
+
+    relatorio_cemei = build_relatorio_financeiro_grupo_cemei(
+        relatorio_financeiro,
+        parametrizacao,
+        totais_consumo,
+    )
+
+    html_string = render_to_string(
+        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html",
+        {
+            **relatorio_cemei,
+            "relatorio": relatorio_financeiro,
+        },
+    )
+
+    grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
+
+    return html_to_pdf_file(
+        html_string.replace("dt_file", f"{relatorio_cemei["cabecalho"]["data_geracao"]} às {relatorio_cemei["cabecalho"]["hora_geracao"]}"),
         f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )

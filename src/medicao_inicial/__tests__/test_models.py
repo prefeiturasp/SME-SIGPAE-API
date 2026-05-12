@@ -1,7 +1,10 @@
 import datetime
+from unittest.mock import patch
 
 import pytest
+from django.db.utils import IntegrityError
 from model_bakery import baker
+from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 
 pytestmark = pytest.mark.django_db
 
@@ -278,3 +281,54 @@ def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
     )
 
     assert medicao.nome_periodo_grupo == "Recreio nas Férias - de 0 a 3 anos e 11 meses"
+
+
+def test_unique_constraint_sem_recreio(escola):
+    """Não deve permitir duas solicitações sem recreio para a mesma escola/mes/ano."""
+    SolicitacaoMedicaoInicial.objects.create(
+        escola=escola, mes="06", ano="2024",
+    )
+    with pytest.raises(IntegrityError):
+        SolicitacaoMedicaoInicial.objects.create(
+            escola=escola, mes="06", ano="2024",
+        )
+
+
+def test_cria_medicoes_dos_periodos_passa_mes_para_periodos_escolares(
+    solicitacao_medicao_inicial_factory,
+):
+    """Verifica que cria_medicoes_dos_periodos chama periodos_escolares com ano e mes."""
+    solicitacao = solicitacao_medicao_inicial_factory(mes="03", ano="2024")
+
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+
+    with patch.object(
+        solicitacao.escola,
+        "periodos_escolares",
+        return_value=[periodo_manha, periodo_tarde],
+    ) as mock_periodos:
+        solicitacao.cria_medicoes_dos_periodos()
+
+        # Deve chamar periodos_escolares com o mes como inteiro
+        mock_periodos.assert_called_once_with("2024", 3)
+
+        # Deve criar Medicao para cada periodo retornado
+        assert solicitacao.medicoes.count() == 2
+
+
+def test_cria_medicoes_dos_periodos_nao_cria_quando_sem_periodos(
+    solicitacao_medicao_inicial_factory,
+):
+    """Verifica que cria_medicoes_dos_periodos nao cria medicoes quando nao ha periodos."""
+    solicitacao = solicitacao_medicao_inicial_factory(mes="03", ano="2024")
+
+    with patch.object(
+        solicitacao.escola,
+        "periodos_escolares",
+        return_value=[],
+    ) as mock_periodos:
+        solicitacao.cria_medicoes_dos_periodos()
+
+        mock_periodos.assert_called_once_with("2024", 3)
+        assert solicitacao.medicoes.count() == 0
