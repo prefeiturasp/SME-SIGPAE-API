@@ -6526,7 +6526,7 @@ def solicitacao_recreio_emef(
         ]:  # Sabado, Domingo e Feriado
             baker.make(
                 "ValorMedicao",
-                medicao=medicao_colaboradores,
+                medicao=medicao_recreio_nas_ferias,
                 categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
                 nome_campo="dietas_autorizadas",
                 dia=dia,
