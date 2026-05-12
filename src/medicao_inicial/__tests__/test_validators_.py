@@ -4,6 +4,9 @@ import pytest
 from freezegun.api import freeze_time
 from model_bakery import baker
 
+from src.cardapio.base.models import (
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import TipoTurma
@@ -91,6 +94,98 @@ def test_validate_solicitacoes_programas_e_projetos(
     lista_erros = validate_solicitacoes_programas_e_projetos(
         solicitacao_medicao_inicial_teste_salvar_logs, lista_erros
     )
+    assert len(lista_erros) == 0
+
+
+def test_validate_solicitacoes_programas_e_projetos_ignora_tipo_encerrado_por_quantidade_periodo(
+    solicitacao_medicao_inicial_teste_salvar_logs,
+    tipo_alimentacao_lanche_4h,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    classificacao_dieta_tipo_a,
+):
+    solicitacao = solicitacao_medicao_inicial_teste_salvar_logs
+    data_validacao = datetime.date(2023, 9, 15)
+    dia = f"{data_validacao.day:02d}"
+
+    solicitacao.escola.calendario.filter(data=data_validacao).update(dia_letivo=True)
+
+    inclusao = solicitacao.escola.inclusoes_alimentacao_continua.exclude(
+        motivo__nome="ETEC"
+    ).get()
+    qp_encerrado = inclusao.quantidades_por_periodo.order_by("id").first()
+    qp_encerrado.tipos_alimentacao.set([tipo_alimentacao_lanche_4h])
+    qp_encerrado.encerrado_a_partir_de = datetime.date(2023, 9, 14)
+    qp_encerrado.save()
+
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
+        periodo_escolar=qp_encerrado.periodo_escolar,
+        tipo_unidade_escolar=solicitacao.escola.tipo_unidade,
+    ).tipos_alimentacao.add(tipo_alimentacao_lanche_4h)
+
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+    medicao_programas.valores_medicao.filter(
+        nome_campo="lanche_4h",
+        dia=dia,
+        categoria_medicao=categoria_medicao,
+    ).delete()
+
+    baker.make(
+        "LogQuantidadeDietasAutorizadas",
+        data=data_validacao,
+        escola=solicitacao.escola,
+        classificacao=classificacao_dieta_tipo_a,
+        quantidade=10,
+        periodo_escolar=None,
+    )
+    for nome_campo in ["frequencia", "lanche"]:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_programas,
+            nome_campo=nome_campo,
+            dia=dia,
+            categoria_medicao=categoria_medicao_dieta_a,
+            valor="10",
+        )
+
+    lista_erros = validate_solicitacoes_programas_e_projetos(solicitacao, [])
+
+    assert len(lista_erros) == 0
+
+
+def test_validate_solicitacoes_etec_ignora_tipo_encerrado_por_quantidade_periodo(
+    solicitacao_medicao_inicial_teste_salvar_logs,
+    tipo_alimentacao_lanche_4h,
+    categoria_medicao,
+):
+    solicitacao = solicitacao_medicao_inicial_teste_salvar_logs
+    data_validacao = datetime.date(2023, 9, 12)
+    dia = f"{data_validacao.day:02d}"
+
+    solicitacao.escola.calendario.filter(data=data_validacao).update(dia_letivo=True)
+
+    inclusao = solicitacao.escola.inclusoes_alimentacao_continua.get(
+        motivo__nome="ETEC"
+    )
+    qp_encerrado = inclusao.quantidades_por_periodo.order_by("id").first()
+    qp_encerrado.tipos_alimentacao.set([tipo_alimentacao_lanche_4h])
+    qp_encerrado.encerrado_a_partir_de = datetime.date(2023, 9, 11)
+    qp_encerrado.save()
+
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
+        periodo_escolar=qp_encerrado.periodo_escolar,
+        tipo_unidade_escolar=solicitacao.escola.tipo_unidade,
+    ).tipos_alimentacao.add(tipo_alimentacao_lanche_4h)
+
+    medicao_etec = solicitacao.get_medicao_etec
+    medicao_etec.valores_medicao.filter(
+        nome_campo="lanche_4h",
+        dia=dia,
+        categoria_medicao=categoria_medicao,
+    ).delete()
+
+    lista_erros = validate_solicitacoes_etec(solicitacao, [])
+
     assert len(lista_erros) == 0
 
 
@@ -205,9 +300,13 @@ def test_validate_lancamento_alimentacoes_medicao_emebs(
     assert len(lista_erros) == 0
 
 
-def test_get_lista_dias_letivos_diurno(solicitacao_dias_letivos_escola, escola):
+def test_get_lista_dias_letivos_diurno(
+    solicitacao_dias_letivos_escola, escola, periodo_escolar_integral
+):
     dias_letivos = get_lista_dias_letivos(
-        solicitacao_dias_letivos_escola, escola, periodo_escolar=None
+        solicitacao_dias_letivos_escola,
+        escola,
+        periodo_escolar=periodo_escolar_integral,
     )
     assert len(dias_letivos) == 19
     assert dias_letivos == [
@@ -266,8 +365,11 @@ def test_obter_periodos_corretos_com_periodo_notuno(
     escola,
     vinculo_alimentacao_noturno,
     vinculo_alimentacao_integral,
+    periodo_escolar_integral,
 ):
-    periodos = obter_periodos_corretos(solicitacao_dias_letivos_escola, escola)
+    periodos = obter_periodos_corretos(
+        solicitacao_dias_letivos_escola, escola, periodo_escolar_integral
+    )
     assert isinstance(periodos, dict)
     assert len(periodos) == 2
 
@@ -317,9 +419,14 @@ def test_obter_periodos_corretos_com_periodo_notuno(
 
 
 def test_obter_periodos_corretos_sem_periodo_notuno(
-    solicitacao_dias_letivos_escola, escola, vinculo_alimentacao_integral
+    solicitacao_dias_letivos_escola,
+    escola,
+    vinculo_alimentacao_integral,
+    periodo_escolar_integral,
 ):
-    periodos = obter_periodos_corretos(solicitacao_dias_letivos_escola, escola)
+    periodos = obter_periodos_corretos(
+        solicitacao_dias_letivos_escola, escola, periodo_escolar_integral
+    )
     assert isinstance(periodos, dict)
     assert len(periodos) == 2
 
@@ -384,10 +491,10 @@ def test_get_lista_dias_letivos_dia_com_log_valido_incluido(
 ):
     """Dia letivo com log REGULAR, quantidade > 0 e periodo_escolar preenchido é retornado."""
     solicitacao = _make_solicitacao(escola)
-    _make_dia_letivo(escola, 3)
+    _make_dia_letivo(escola, 3, periodo_escolar=periodo_escolar_noite)
     _make_log(escola, periodo_escolar_noite, 3)
 
-    dias = get_lista_dias_letivos(solicitacao, escola)
+    dias = get_lista_dias_letivos(solicitacao, escola, periodo_escolar_noite)
 
     assert "03" in dias
 

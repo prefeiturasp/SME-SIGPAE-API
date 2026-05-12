@@ -54,9 +54,11 @@
     </section>
 
     <section class="flex">
+      {% if not cronograma.ponto_a_ponto %}
       <div class="dados-empresa">
         <b>Responsável:</b> {{empresa.responsavel_nome}}
       </div>
+      {% endif %}
       <div class="dados-empresa">
         <b>Telefone:</b> {{empresa.responsavel_telefone}}
       </div>

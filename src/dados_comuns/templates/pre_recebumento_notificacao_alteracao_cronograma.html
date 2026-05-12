@@ -3,7 +3,7 @@
 {% block conteudo %}
     <p style="margin-bottom: 16px;">Olá!</p>
     <p style="margin-bottom: 56px;">
-        O Fornecedor <strong>{{ usuario }}</strong> Solicitou Alterações no Cronograma <strong>{{ solicitacao }}</strong> de <strong>{{ nome_produto }}</strong> em {{log_transicao.criado_em|date:"d/m/Y"}}: <br>
+        O Fornecedor <strong>{{ nome_usual }} - {{ razao_social }}</strong> solicitou alterações no Cronograma nº <strong>{{ solicitacao }}</strong> de <strong>{{ nome_produto }}</strong> em {{log_transicao.criado_em|date:"d/m/Y"}}.
     </p>
     <u>
         <a href="{{ url }}">

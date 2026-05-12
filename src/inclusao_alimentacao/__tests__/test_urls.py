@@ -791,6 +791,98 @@ def test_url_endpoint_inclusao_continua_escola_cancela(
     }
 
 
+@freeze_time("2018-12-01")
+def test_url_endpoint_inclusao_continua_escola_encerra_periodo_parcial(
+    client_autenticado_vinculo_escola_inclusao,
+    inclusao_alimentacao_continua_codae_autorizado,
+):
+    """Encerrar apenas um período: salva encerrado_a_partir_de e justificativa,
+    cria log ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA e mantém CODAE_AUTORIZADO."""
+    from ...dados_comuns.models import LogSolicitacoesUsuario
+
+    assert (
+        inclusao_alimentacao_continua_codae_autorizado.status
+        == PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO
+    )
+    data = {
+        "justificativa": "Projeto encerrado no período",
+        "encerrado_a_partir_de": "15/12/2018",
+        "quantidades_periodo": [
+            {"uuid": "6337d4a4-f2e0-475f-9400-24f2db660741", "cancelado": True},
+            {"uuid": "6f16b41d-151e-4f82-a0d0-43921a9edabe", "cancelado": False},
+        ],
+    }
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao_alimentacao_continua_codae_autorizado.uuid}/"
+        f"{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data=data,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO
+
+    qtd_alterada = next(
+        q
+        for q in response.json()["quantidades_periodo"]
+        if q["uuid"] == "6337d4a4-f2e0-475f-9400-24f2db660741"
+    )
+    assert qtd_alterada["encerrado_a_partir_de"] == "15/12/2018"
+    assert qtd_alterada["cancelado_justificativa"] == "Projeto encerrado no período"
+
+    qtd_inalterada = next(
+        q
+        for q in response.json()["quantidades_periodo"]
+        if q["uuid"] == "6f16b41d-151e-4f82-a0d0-43921a9edabe"
+    )
+    assert qtd_inalterada["encerrado_a_partir_de"] is None
+
+    assert LogSolicitacoesUsuario.objects.filter(
+        uuid_original=inclusao_alimentacao_continua_codae_autorizado.uuid,
+        status_evento=LogSolicitacoesUsuario.ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
+        justificativa="Projeto encerrado no período",
+    ).exists()
+
+
+@freeze_time("2018-12-01")
+def test_url_endpoint_inclusao_continua_escola_encerra_todos_periodos(
+    client_autenticado_vinculo_escola_inclusao,
+    inclusao_alimentacao_continua_codae_autorizado,
+):
+    """Encerrar todos os períodos com a mesma data: todos recebem encerrado_a_partir_de,
+    status permanece CODAE_AUTORIZADO e um único log é criado."""
+    from ...dados_comuns.models import LogSolicitacoesUsuario
+
+    data = {
+        "justificativa": "Fim do projeto em todas as turmas",
+        "encerrado_a_partir_de": "31/12/2018",
+        "quantidades_periodo": [
+            {"uuid": "6337d4a4-f2e0-475f-9400-24f2db660741", "cancelado": True},
+            {"uuid": "6f16b41d-151e-4f82-a0d0-43921a9edabe", "cancelado": True},
+        ],
+    }
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao_alimentacao_continua_codae_autorizado.uuid}/"
+        f"{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data=data,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["status"] == PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO
+
+    for qtd in response.json()["quantidades_periodo"]:
+        assert qtd["encerrado_a_partir_de"] == "31/12/2018"
+        assert qtd["cancelado_justificativa"] == "Fim do projeto em todas as turmas"
+        assert qtd["cancelado"] is False
+
+    assert (
+        LogSolicitacoesUsuario.objects.filter(
+            uuid_original=inclusao_alimentacao_continua_codae_autorizado.uuid,
+            status_evento=LogSolicitacoesUsuario.ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
+        ).count()
+        == 1
+    )
+
+
 def test_url_endpoint_inclusao_continua_minhas_solicitacoes(
     client_autenticado_vinculo_escola_inclusao, inclusao_alimentacao_continua
 ):

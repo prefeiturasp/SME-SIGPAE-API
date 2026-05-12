@@ -1090,6 +1090,31 @@ def test_url_relatorio_cronograma_authorized(
     assert response.status_code == status.HTTP_200_OK
 
 
+def test_url_relatorio_cronograma_ponto_a_ponto_flv_conteudo(
+    client_autenticado_dilog_abastecimento,
+    cronograma_ponto_a_ponto_com_etapas,
+):
+    response = client_autenticado_dilog_abastecimento.get(
+        f"/cronogramas/{str(cronograma_ponto_a_ponto_com_etapas.uuid)}/gerar-pdf-cronograma/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["Content-Type"] == "application/pdf"
+
+    pdf_reader = PdfReader(BytesIO(response.content))
+    pdf_text = "\n".join(page.extract_text() for page in pdf_reader.pages)
+
+    assert "PONTO A PONTO" in pdf_text
+    assert cronograma_ponto_a_ponto_com_etapas.ficha_tecnica.produto.nome in pdf_text
+    assert "Nº do Empenho" in pdf_text
+    assert "Quantidade Total do Empenho" in pdf_text
+    assert "Custo Unitário do Produto" in pdf_text
+    assert "Quantidade Total do Produto" in pdf_text
+
+    assert "Total de Embalagens" not in pdf_text
+    assert "Embalagem Primária" not in pdf_text
+
+
 def test_url_unidades_medida_listar(
     client_autenticado_dilog_cronograma, unidades_medida_logistica
 ):

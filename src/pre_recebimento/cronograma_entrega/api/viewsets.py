@@ -84,7 +84,10 @@ from src.pre_recebimento.tasks import (
     gerar_relatorio_cronogramas_pdf_async,
     gerar_relatorio_cronogramas_xlsx_async,
 )
-from src.relatorios.relatorios import get_pdf_cronograma
+from src.relatorios.relatorios import (
+    get_pdf_cronograma,
+    get_pdf_cronograma_ponto_a_ponto_flv,
+)
 
 from ....dados_comuns.models import LogSolicitacoesUsuario
 from .validators import valida_parametros_calendario
@@ -445,6 +448,9 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-cronograma")
     def gerar_pdf_cronograma(self, request, uuid=None):
         cronograma = self.get_object()
+
+        if cronograma.ponto_a_ponto:
+            return get_pdf_cronograma_ponto_a_ponto_flv(request, cronograma)
 
         return get_pdf_cronograma(request, cronograma)
 

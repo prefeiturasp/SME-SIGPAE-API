@@ -565,25 +565,42 @@ class InclusaoAlimentacaoContinuaViewSet(
         url_path=constants.ESCOLA_CANCELA,
     )
     def escola_cancela_pedido(self, request, uuid=None):
+        from ...dados_comuns.models import LogSolicitacoesUsuario
+
         obj = self.get_object()
         quantidades_periodo = request.data.get("quantidades_periodo", [])
         justificativa = request.data.get("justificativa", "")
+        encerrado_a_partir_de_str = request.data.get("encerrado_a_partir_de", None)
         try:
-            uuids_a_cancelar = [
+            uuids_selecionados = [
                 qtd_periodo["uuid"]
                 for qtd_periodo in quantidades_periodo
                 if qtd_periodo["cancelado"]
             ]
-            if len(uuids_a_cancelar) == obj.quantidades_periodo.count():
-                obj.cancelar_pedido(user=request.user, justificativa=justificativa)
-                obj.quantidades_periodo.filter(uuid__in=uuids_a_cancelar).exclude(
-                    cancelado=True
-                ).update(cancelado=True, cancelado_justificativa=justificativa)
-            elif uuids_a_cancelar:
-                services.enviar_email_ue_cancelar_pedido_parcialmente(obj)
-                obj.quantidades_periodo.filter(uuid__in=uuids_a_cancelar).exclude(
-                    cancelado=True
-                ).update(cancelado=True, cancelado_justificativa=justificativa)
+            if encerrado_a_partir_de_str:
+                encerrado_a_partir_de = datetime.datetime.strptime(
+                    encerrado_a_partir_de_str, "%d/%m/%Y"
+                ).date()
+                obj.quantidades_periodo.filter(uuid__in=uuids_selecionados).update(
+                    encerrado_a_partir_de=encerrado_a_partir_de,
+                    cancelado_justificativa=justificativa,
+                )
+                obj.salvar_log_transicao(
+                    status_evento=LogSolicitacoesUsuario.ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
+                    usuario=request.user,
+                    justificativa=justificativa,
+                )
+            else:
+                if len(uuids_selecionados) == obj.quantidades_periodo.count():
+                    obj.cancelar_pedido(user=request.user, justificativa=justificativa)
+                    obj.quantidades_periodo.filter(uuid__in=uuids_selecionados).exclude(
+                        cancelado=True
+                    ).update(cancelado=True, cancelado_justificativa=justificativa)
+                elif uuids_selecionados:
+                    services.enviar_email_ue_cancelar_pedido_parcialmente(obj)
+                    obj.quantidades_periodo.filter(uuid__in=uuids_selecionados).exclude(
+                        cancelado=True
+                    ).update(cancelado=True, cancelado_justificativa=justificativa)
             serializer = self.get_serializer(obj)
             return Response(serializer.data)
         except InvalidTransitionError as e:
