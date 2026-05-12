@@ -5,10 +5,13 @@ from model_bakery import baker
 
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
+    _categoria_tem_logs_dieta_autorizada,
     agrupar_tipos_alimentacao_por_categoria,
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
     cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
+    get_classificacoes_dietas_recreio,
     get_linhas_da_tabela_alimentacoes_recreio,
+    get_linhas_da_tabela_dieta_recreio,
     indexar_logs_dieta_autorizadas_por_data,
     retorna_valor_para_log_dieta_autorizada,
     validate_lancamento_alimentacoes_medicao_recreio,
@@ -298,3 +301,183 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_gera_erro_sem_observac
     for esperado in erros_esperados:
         assert esperado in lista_erros, f"Elemento {esperado} não encontrado"
         
+        
+def test_validate_lancamento_alimentacoes_medicao_recreio_sem_colaboradores(
+    solicitacao_recreio_emef,
+):
+    participantes = (
+        solicitacao_recreio_emef.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participantes.num_colaboradores = 0
+    participantes.save()
+
+    ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
+        medicao__grupo__nome="Colaboradores",
+    ).delete()
+
+    lista_erros = []
+
+    validate_lancamento_alimentacoes_medicao_recreio(
+        solicitacao_recreio_emef,
+        lista_erros,
+    )
+
+    assert lista_erros == []
+    
+def test_cria_valores_medicao_participantes_nao_duplica_registros(
+    solicitacao_recreio_emef,
+):
+    quantidade_antes = ValorMedicao.objects.count()
+
+    cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
+        solicitacao_recreio_emef
+    )
+
+    quantidade_depois_primeira_execucao = ValorMedicao.objects.count()
+
+    cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
+        solicitacao_recreio_emef
+    )
+
+    quantidade_depois_segunda_execucao = ValorMedicao.objects.count()
+
+    assert (
+        quantidade_depois_primeira_execucao
+        == quantidade_depois_segunda_execucao
+    )
+
+    assert quantidade_depois_segunda_execucao >= quantidade_antes
+    
+    
+def test_cria_valores_dietas_nao_cria_sem_logs(
+    solicitacao_recreio_emef,
+):
+    escola = solicitacao_recreio_emef.escola
+
+    escola.logs_dietas_autorizadas_recreio_ferias.all().delete()
+
+    ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
+        nome_campo="dietas_autorizadas",
+    ).delete()
+
+    cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao(
+        solicitacao_recreio_emef
+    )
+
+    assert not ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
+        nome_campo="dietas_autorizadas",
+    ).exists()
+    
+def test_indexar_logs_dieta_autorizadas_por_data_soma_quantidades(solicitacao_recreio_emef):
+    escola = solicitacao_recreio_emef.escola
+    recreio = solicitacao_recreio_emef.recreio_nas_ferias
+    inicio_recreio = recreio.data_inicio
+    fim_recreio = recreio.data_fim
+
+    logs_do_recreio = escola.logs_dietas_autorizadas_recreio_ferias.filter(
+        data__range=[inicio_recreio, fim_recreio],
+    )
+
+    resultado = indexar_logs_dieta_autorizadas_por_data(
+        logs_do_recreio
+    )
+
+    assert resultado[datetime.date(2025, 12, 10)]["tipo a enteral"] == 3
+    
+
+def test_get_linhas_sem_refeicao_nao_adiciona_repeticao():
+    resultado = get_linhas_da_tabela_alimentacoes_recreio(
+        ["Lanche"]
+    )
+
+    assert resultado == [
+        "participantes",
+        "frequencia",
+        "lanche",
+    ]
+    
+def test_get_linhas_adiciona_repeticao_sobremesa():
+    resultado = get_linhas_da_tabela_alimentacoes_recreio(
+        ["Sobremesa"]
+    )
+
+    assert resultado == [
+        "participantes",
+        "frequencia",
+        "sobremesa",
+        "repeticao_sobremesa",
+    ]
+    
+def test_retorna_valor_para_log_dieta_autorizada_enteral_sem_logs(
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+):
+    resultado = retorna_valor_para_log_dieta_autorizada(
+        categoria_medicao_dieta_a_enteral_aminoacidos,
+        {},
+        datetime.date(2025, 12, 10),
+    )
+
+    assert resultado == 0
+    
+    
+def test_cria_medicao_quando_grupo_nao_existe(
+    solicitacao_recreio_emef,
+):
+    solicitacao_recreio_emef.medicoes.all().delete()
+
+    cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
+        solicitacao_recreio_emef
+    )
+
+    assert solicitacao_recreio_emef.medicoes.exists()
+    
+def test_get_linhas_da_tabela_dieta_recreio_com_todas_alimentacoes(
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+):
+    resultado = get_linhas_da_tabela_dieta_recreio(
+        ["Lanche", "Lanche 4h", "Refeição"],
+        categoria_medicao_dieta_a_enteral_aminoacidos,
+    )
+
+    assert resultado == [
+        "frequencia",
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+    ]
+    
+def test_categoria_tem_logs_dieta_autorizada_categoria_comum_retorna_true(
+    categoria_medicao_dieta_b,
+):
+    logs_por_dia = {
+        datetime.date(2025, 12, 10): {
+            "tipo b": 4,
+        }
+    }
+    resultado = _categoria_tem_logs_dieta_autorizada(
+        categoria_medicao_dieta_b,
+        logs_por_dia,
+    )
+
+    assert resultado is True
+    
+def test_get_classificacoes_dietas_recreio_remove_enteral_sem_lanche_e_sem_refeicao(
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_dieta_b,
+):
+    categorias = [
+        categoria_medicao_dieta_a_enteral_aminoacidos,
+        categoria_medicao_dieta_b,
+    ]
+
+    resultado = get_classificacoes_dietas_recreio(
+        categorias,
+        [],
+    )
+
+    assert categoria_medicao_dieta_a_enteral_aminoacidos not in resultado
+    assert categoria_medicao_dieta_b not in resultado
