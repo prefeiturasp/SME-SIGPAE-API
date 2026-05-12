@@ -898,7 +898,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
     )
     assert rows[1] == (
-        "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CEMEI",
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE - LOTE 2 - CEMEI",
         None,
         None,
         None,
@@ -2371,7 +2371,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_cemei(
     assert "BT3:BV3" in str(merged_ranges)
     assert "BW3:BX3" in str(merged_ranges)
 
-    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CEMEI"
+    assert sheet["A2"].value == "ABRIL/2025 - DIRETORIA REGIONAL TESTE - LOTE 2 - CEMEI"
     assert sheet["A2"].alignment.horizontal == "center"
     assert sheet["A2"].alignment.vertical == "center"
     assert sheet["A2"].font.bold is True
@@ -2511,7 +2511,7 @@ def test_formata_filtros_unidade_cemei(mock_query_params_excel_cemei):
     tipos_unidades = ["CEMEI"]
     filtros = _formata_filtros(mock_query_params_excel_cemei, tipos_unidades)
     assert isinstance(filtros, str)
-    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE -  - CEMEI"
+    assert filtros == "Abril/2025 - DIRETORIA REGIONAL TESTE - LOTE 2 - CEMEI"
 
 
 def test_formata_filtros_unidade_emebs(mock_query_params_excel_emebs):

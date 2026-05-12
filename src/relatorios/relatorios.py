@@ -24,6 +24,7 @@ from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_emei,
+    build_relatorio_financeiro_grupo_cemei,
 )
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -2647,6 +2648,37 @@ def relatorio_ateste_financeiro_grupo_emei(relatorio_financeiro, parametrizacao)
             "dt_file",
             f"{relatorio_emei["cabecalho"]["data_geracao"]} às {relatorio_emei["cabecalho"]["hora_geracao"]}",
         ),
+        f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
+        is_async=True,
+    )
+
+
+def relatorio_ateste_financeiro_grupo_cemei(relatorio_financeiro, parametrizacao):
+    totais_consumo = calcula_totais_consumo_por_grupo(
+        relatorio_financeiro.lote,
+        relatorio_financeiro.grupo_unidade_escolar,
+        relatorio_financeiro.mes,
+        relatorio_financeiro.ano,
+    )
+
+    relatorio_cemei = build_relatorio_financeiro_grupo_cemei(
+        relatorio_financeiro,
+        parametrizacao,
+        totais_consumo,
+    )
+
+    html_string = render_to_string(
+        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html",
+        {
+            **relatorio_cemei,
+            "relatorio": relatorio_financeiro,
+        },
+    )
+
+    grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
+
+    return html_to_pdf_file(
+        html_string.replace("dt_file", f"{relatorio_cemei["cabecalho"]["data_geracao"]} às {relatorio_cemei["cabecalho"]["hora_geracao"]}"),
         f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )
