@@ -1107,7 +1107,8 @@ def test_url_relatorio_cronograma_ponto_a_ponto_flv_conteudo(
 
     assert "PONTO A PONTO" in pdf_text
     assert cronograma_ponto_a_ponto_com_etapas.ficha_tecnica.produto.nome in pdf_text
-    assert cronograma_ponto_a_ponto_com_etapas.numero_empenho in pdf_text
+    assert "Nº do Empenho" in pdf_text
+    assert "Quantidade Total do Empenho" in pdf_text
     assert "Custo Unitário do Produto" in pdf_text
     assert "Quantidade Total do Produto" in pdf_text
 
