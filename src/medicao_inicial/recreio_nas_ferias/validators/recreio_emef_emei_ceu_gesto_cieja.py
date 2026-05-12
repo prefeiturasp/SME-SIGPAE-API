@@ -429,7 +429,7 @@ def buscar_valores_lancamento_alimentacoes_recreio(
 
         if valores_da_medicao != dias_letivos_set:
             dias_sem_preenchimento = dias_letivos_set - valores_da_medicao
-            if len(dias_sem_preenchimento) > 0:        
+            if len(dias_sem_preenchimento) > 0:
                 periodo_com_erro = True
 
     if periodo_com_erro:

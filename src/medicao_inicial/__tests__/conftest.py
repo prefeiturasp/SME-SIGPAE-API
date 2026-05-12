@@ -464,7 +464,7 @@ def escola_cemei():
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     lote = baker.make(
-        "Lote", 
+        "Lote",
         terceirizada=terceirizada,
         nome="LOTE 2",
         diretoria_regional=diretoria_regional,
@@ -6158,7 +6158,11 @@ def vinculo_alimentacao_emei(
         "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         tipo_unidade_escolar=tipo_unidade_escolar_emei,
     )
-    for tipo in (tipo_alimentacao_refeicao, tipo_alimentacao_lanche, tipo_alimentacao_lanche_4h):
+    for tipo in (
+        tipo_alimentacao_refeicao,
+        tipo_alimentacao_lanche,
+        tipo_alimentacao_lanche_4h,
+    ):
         vinculo_alimentacao.tipos_alimentacao.add(tipo)
     vinculo_alimentacao.save()
 
@@ -6442,7 +6446,11 @@ def vinculo_alimentacao_cemei(
         "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         tipo_unidade_escolar=tipo_unidade_escolar_cemei,
     )
-    for tipo in [tipo_alimentacao_refeicao, tipo_alimentacao_lanche, tipo_alimentacao_lanche_4h]:
+    for tipo in [
+        tipo_alimentacao_refeicao,
+        tipo_alimentacao_lanche,
+        tipo_alimentacao_lanche_4h,
+    ]:
         vinculo_alimentacao.tipos_alimentacao.add(tipo)
     vinculo_alimentacao.save()
 
