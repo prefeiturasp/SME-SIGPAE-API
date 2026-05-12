@@ -1,0 +1,11 @@
+{% extends 'email_base.html' %}
+{% load email_templatetags %}
+
+{% block conteudo%}
+<p style="text-align: left">
+  Olá! A <strong>CODAE</strong> criou o Cronograma <strong> Nº {{ numero_cronograma }}</strong> em {{ data_evento }}: <a href="{{ url_detalhe_cronograma }}">Clique aqui para acessar o cronograma</a>.
+</p>
+
+<br/><br/>
+
+{% endblock %}
