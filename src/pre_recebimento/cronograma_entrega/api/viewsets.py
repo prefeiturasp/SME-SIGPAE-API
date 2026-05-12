@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 from math import ceil
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -148,7 +148,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
             qs = sorted(
                 query_set.filter(status__in=workflow).distinct().all(),
                 key=lambda x: (
-                    x.log_mais_recente.criado_em if x.log_mais_recente else "-criado_em"
+                    x.log_mais_recente.criado_em if x.log_mais_recente else datetime.min
                 ),
                 reverse=True,
             )
@@ -885,8 +885,11 @@ class InterrupcaoProgramadaEntregaViewSet(
         qs = super().get_queryset()
         mes = self.request.query_params.get("mes")
         ano = self.request.query_params.get("ano")
+        motivo = self.request.query_params.getlist("motivo[]")
         if mes and ano:
             qs = qs.filter(data__month=mes, data__year=ano)
+        if motivo:
+            qs = qs.filter(motivo__in=motivo)
         return qs
 
     @action(detail=False, methods=["GET"], url_path="motivos")
