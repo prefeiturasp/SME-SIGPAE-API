@@ -15,6 +15,7 @@ from src.medicao_inicial.models import (
     Medicao,
     ParametrizacaoFinanceira,
     TipoValorParametrizacaoFinanceira,
+    ValorMedicao,
 )
 
 
@@ -2898,3 +2899,78 @@ def test_endpoint_atualizar_relatorio_financeiro_status_incorreto(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_finaliza_medicao_recreio_emef(
+    client_autenticado_adm_da_escola,
+    escola,
+    solicitacao_recreio_emef,
+    responsavel,
+    tipo_contagem_alimentacao,
+):
+    data_update = {
+        "escola": str(escola.uuid),
+        "tipo_contagem_alimentacoes": str(tipo_contagem_alimentacao.uuid),
+        "com_ocorrencias": False,
+        "finaliza_medicao": True,
+    }
+    response = client_autenticado_adm_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_recreio_emef.uuid}/",
+        content_type="application/json",
+        data=data_update,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()
+    assert "logs" in json
+    assert len(json["logs"]) == 1
+    assert json["logs"][0]["status_evento_explicacao"] == "Enviado pela UE"
+
+
+def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento(
+    client_autenticado_adm_da_escola,
+    escola,
+    solicitacao_recreio_emef,
+    responsavel,
+    tipo_contagem_alimentacao,
+):
+
+    valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
+        nome_campo="refeicao",
+        dia="17",
+    )
+    assert valores.count() == 3
+    valores.delete()
+    assert valores.count() == 0
+
+    data_update = {
+        "escola": str(escola.uuid),
+        "tipo_contagem_alimentacoes": str(tipo_contagem_alimentacao.uuid),
+        "com_ocorrencias": False,
+        "finaliza_medicao": True,
+    }
+    response = client_autenticado_adm_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_recreio_emef.uuid}/",
+        content_type="application/json",
+        data=data_update,
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    json = response.json()
+    erros_esperados = [
+        {
+            "erro": "Restam dias a serem lançados nas alimentações.",
+            "periodo_escolar": "Colaboradores",
+        },
+        {
+            "erro": "Restam dias a serem lançados nas dietas.",
+            "periodo_escolar": "Recreio nas Férias",
+        },
+        {
+            "erro": "Restam dias a serem lançados nas alimentações.",
+            "periodo_escolar": "Recreio nas Férias",
+        },
+    ]
+
+    for esperado in erros_esperados:
+        assert esperado in json, f"Elemento {esperado} não encontrado"

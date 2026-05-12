@@ -414,18 +414,6 @@ def buscar_valores_lancamento_alimentacoes_recreio(
     periodo_com_erro = False
     dias_letivos_set = set(dias_letivos)
 
-    observacoes_dias = set(
-        ValorMedicao.objects.filter(
-            medicao__solicitacao_medicao_inicial=solicitacao,
-            nome_campo="observacao",
-            medicao__grupo__nome=grupo,
-            dia__in=dias_letivos,
-            categoria_medicao=categoria_medicao,
-        )
-        .exclude(valor=None)
-        .values_list("dia", flat=True)
-    )
-
     for nome_campo in linhas_da_tabela:
         valores_da_medicao = set(
             ValorMedicao.objects.filter(
@@ -441,9 +429,8 @@ def buscar_valores_lancamento_alimentacoes_recreio(
 
         if valores_da_medicao != dias_letivos_set:
             dias_sem_preenchimento = dias_letivos_set - valores_da_medicao
-            for dia_sem_preenchimento in dias_sem_preenchimento:
-                if dia_sem_preenchimento not in observacoes_dias:
-                    periodo_com_erro = True
+            if len(dias_sem_preenchimento) > 0:
+                periodo_com_erro = True
 
     if periodo_com_erro:
         lista_erros.append(
@@ -786,7 +773,7 @@ def get_classificacoes_dietas_recreio(
     com base nos tipos de alimentação disponíveis.
 
     Regras:
-    - Remove categorias contendo "ENTERAL" quandonão existir:
+    - Remove categorias contendo "ENTERAL" quando não existir:
         - Lanche
         - Lanche 4h
         - Refeição
