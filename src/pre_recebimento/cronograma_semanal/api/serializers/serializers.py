@@ -84,9 +84,6 @@ class CronogramaSemanalCalendarioSerializer(serializers.ModelSerializer):
     empenho = serializers.CharField(
         source="cronograma_mensal.numero_empenho", read_only=True
     )
-    local = serializers.CharField(
-        source="cronograma_mensal.armazem.nome_fantasia", read_only=True
-    )
     unidade_medida = serializers.SerializerMethodField(read_only=True)
     programacoes = serializers.SerializerMethodField(read_only=True)
 
@@ -123,7 +120,6 @@ class CronogramaSemanalCalendarioSerializer(serializers.ModelSerializer):
             "produto",
             "fornecedor",
             "empenho",
-            "local",
             "unidade_medida",
             "programacoes",
         ]
