@@ -1102,8 +1102,7 @@ def test_url_relatorio_cronograma_ponto_a_ponto_flv_conteudo(
     assert response.headers["Content-Type"] == "application/pdf"
 
     pdf_reader = PdfReader(BytesIO(response.content))
-    page = pdf_reader.pages[0]
-    pdf_text = page.extract_text()
+    pdf_text = "\n".join(page.extract_text() for page in pdf_reader.pages)
 
     assert "PONTO A PONTO" in pdf_text
     assert cronograma_ponto_a_ponto_com_etapas.ficha_tecnica.produto.nome in pdf_text
