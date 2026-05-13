@@ -72,7 +72,6 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">admin</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Cardapio</span><span class="p">,</span>
     <span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">,</span>
     <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">,</span>
     <span class="n">MotivoDRENaoValida</span><span class="p">,</span>
@@ -125,15 +124,6 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentacaoModelAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
     <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;periodo_escolar__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;tipo_unidade_escolar__iniciais&quot;</span><span class="p">,</span> <span class="s2">&quot;ativo&quot;</span><span class="p">)</span>
     <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">ComboVinculoLine</span><span class="p">]</span></div>
-
-
-
-<div class="viewcode-block" id="CardapioAdmin">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.CardapioAdmin">[docs]</a>
-<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Cardapio</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">CardapioAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
-    <span class="n">list_display</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span> <span class="s2">&quot;ativo&quot;</span><span class="p">]</span>
-    <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;criado_em&quot;</span><span class="p">]</span></div>
 
 
 

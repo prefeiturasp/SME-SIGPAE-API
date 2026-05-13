@@ -89,12 +89,12 @@
             <span class="nb">super</span><span class="p">(</span><span class="n">InversaoCardapioDestaSemanaManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
             <span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
             <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">Q</span><span class="p">(</span><span class="n">cardapio_de__data__range</span><span class="o">=</span><span class="p">(</span><span class="n">data_limite_inicial</span><span class="p">,</span> <span class="n">data_limite_final</span><span class="p">))</span>
-                <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">cardapio_para__data__range</span><span class="o">=</span><span class="p">(</span><span class="n">data_limite_inicial</span><span class="p">,</span> <span class="n">data_limite_final</span><span class="p">))</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">data_de_inversao__range</span><span class="o">=</span><span class="p">(</span><span class="n">data_limite_inicial</span><span class="p">,</span> <span class="n">data_limite_final</span><span class="p">))</span>
+                <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">data_para_inversao__range</span><span class="o">=</span><span class="p">(</span><span class="n">data_limite_inicial</span><span class="p">,</span> <span class="n">data_limite_final</span><span class="p">))</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">cardapio_de__data__gte</span><span class="o">=</span><span class="n">data_limite_inicial</span><span class="p">,</span>
-                <span class="n">cardapio_para__data__gte</span><span class="o">=</span><span class="n">data_limite_inicial</span><span class="p">,</span>
+                <span class="n">data_de_inversao__gte</span><span class="o">=</span><span class="n">data_limite_inicial</span><span class="p">,</span>
+                <span class="n">data_para_inversao__gte</span><span class="o">=</span><span class="n">data_limite_inicial</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
 </div>
@@ -113,12 +113,12 @@
             <span class="nb">super</span><span class="p">(</span><span class="n">InversaoCardapioDesteMesManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
             <span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
             <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">Q</span><span class="p">(</span><span class="n">cardapio_de__data__range</span><span class="o">=</span><span class="p">(</span><span class="n">data_limite_inicial</span><span class="p">,</span> <span class="n">data_limite_final</span><span class="p">))</span>
-                <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">cardapio_para__data__range</span><span class="o">=</span><span class="p">(</span><span class="n">data_limite_inicial</span><span class="p">,</span> <span class="n">data_limite_final</span><span class="p">))</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">data_de_inversao__range</span><span class="o">=</span><span class="p">(</span><span class="n">data_limite_inicial</span><span class="p">,</span> <span class="n">data_limite_final</span><span class="p">))</span>
+                <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">data_para_inversao__range</span><span class="o">=</span><span class="p">(</span><span class="n">data_limite_inicial</span><span class="p">,</span> <span class="n">data_limite_final</span><span class="p">))</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">cardapio_de__data__gte</span><span class="o">=</span><span class="n">data_limite_inicial</span><span class="p">,</span>
-                <span class="n">cardapio_para__data__gte</span><span class="o">=</span><span class="n">data_limite_inicial</span><span class="p">,</span>
+                <span class="n">data_de_inversao__gte</span><span class="o">=</span><span class="n">data_limite_inicial</span><span class="p">,</span>
+                <span class="n">data_para_inversao__gte</span><span class="o">=</span><span class="n">data_limite_inicial</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
 </div>
@@ -135,7 +135,7 @@
         <span class="k">return</span> <span class="p">(</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">InversaoCardapioVencidaManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
             <span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">cardapio_de__data__lt</span><span class="o">=</span><span class="n">hoje</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">cardapio_para__data__lt</span><span class="o">=</span><span class="n">hoje</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">data_de_inversao__lt</span><span class="o">=</span><span class="n">hoje</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">data_para_inversao__lt</span><span class="o">=</span><span class="n">hoje</span><span class="p">))</span>
             <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
                 <span class="n">status__in</span><span class="o">=</span><span class="p">[</span>
                     <span class="n">PedidoAPartirDaEscolaWorkflow</span><span class="o">.</span><span class="n">RASCUNHO</span><span class="p">,</span>

@@ -75,12 +75,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemLabelDeTiposDeAlimentacao</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Ativavel</span><span class="p">,</span>
-    <span class="n">CriadoEm</span><span class="p">,</span>
-    <span class="n">Descritivel</span><span class="p">,</span>
     <span class="n">Nomeavel</span><span class="p">,</span>
     <span class="n">Posicao</span><span class="p">,</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
-    <span class="n">TemData</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -250,45 +247,6 @@
         <span class="n">unique_together</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;periodo_escolar&quot;</span><span class="p">,</span> <span class="s2">&quot;tipo_unidade_escolar&quot;</span><span class="p">]]</span>
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Vínculo tipo alimentação&quot;</span>
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Vínculos tipo alimentação&quot;</span></div>
-
-
-
-<div class="viewcode-block" id="Cardapio">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.Cardapio">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Cardapio</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;cardapio&quot;</span><span class="p">),</span>
-    <span class="n">Descritivel</span><span class="p">,</span>
-    <span class="n">Ativavel</span><span class="p">,</span>
-    <span class="n">TemData</span><span class="p">,</span>
-    <span class="n">TemChaveExterna</span><span class="p">,</span>
-    <span class="n">CriadoEm</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cardápio escolar.</span>
-
-<span class="sd">    tem 1 data pra acontecer ex (26/06)</span>
-<span class="sd">    tem 1 lista de tipos de alimentação (Dejejum, Colação, Almoço, LANCHE DE 4 HS OU 8 HS;</span>
-<span class="sd">    LANCHE DE 5HS OU 6 HS; REFEIÇÃO).</span>
-
-<span class="sd">    !!!OBS!!! PARA CEI varia por faixa de idade.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">TipoAlimentacao</span><span class="p">)</span>
-    <span class="n">edital</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">&quot;terceirizada.Edital&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;editais&quot;</span>
-    <span class="p">)</span>
-
-    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">tipos_unidade_escolar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipos_unidade_escolar</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">descricao</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">  - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">descricao</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Cardápio&quot;</span>
-        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Cardápios&quot;</span></div>
 
 
 
