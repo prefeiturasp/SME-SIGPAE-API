@@ -1,4 +1,5 @@
 import pytest
+from model_bakery import baker
 
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaMensalAssinadoSerializer,
@@ -13,7 +14,9 @@ from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
     CronogramaSemanalDetailSerializer,
     CronogramaSemanalListagemSerializer,
     ProgramacaoEntregaSemanalDetailSerializer,
+    CronogramaSemanalCalendarioSerializer,
 )
+from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
 pytestmark = pytest.mark.django_db
 
@@ -619,3 +622,41 @@ class TestCronogramaSemanalRascunhosSerializer:
         data = serializer.data
         assert data["uuid"] == str(cronograma_semanal_rascunho.uuid)
         assert data["numero"] == cronograma_semanal_rascunho.cronograma_mensal.numero
+
+    def test_programacoes_filtradas_por_mes_ano(
+        self, cronograma_semanal_com_programacao_marco
+    ):
+        baker.make(
+            "pre_recebimento.ProgramacaoEntregaSemanal",
+            cronograma_semanal=cronograma_semanal_com_programacao_marco,
+            data_inicio="2026-04-01",
+            data_fim="2026-04-15",
+            quantidade=99.0,
+        )
+        serializer = CronogramaSemanalCalendarioSerializer(
+            cronograma_semanal_com_programacao_marco,
+            context={"mes": 3, "ano": 2026},
+        )
+        programacoes = serializer.data["programacoes"]
+        assert len(programacoes) == 1
+        assert programacoes[0]["data_inicio"] == "01/03/2026"
+
+    def test_programacoes_vazia_quando_mes_sem_dados(
+        self, cronograma_semanal_com_programacao_marco
+    ):
+        serializer = CronogramaSemanalCalendarioSerializer(
+            cronograma_semanal_com_programacao_marco,
+            context={"mes": 12, "ano": 2026},
+        )
+        assert serializer.data["programacoes"] == []
+
+    def test_unidade_medida_retorna_abreviacao(
+        self, cronograma_semanal_com_programacao_marco
+    ):
+        serializer = CronogramaSemanalCalendarioSerializer(
+            cronograma_semanal_com_programacao_marco,
+            context={"mes": 3, "ano": 2026},
+        )
+        unidade = serializer.data["unidade_medida"]
+        assert unidade is not None
+        assert isinstance(unidade, str)

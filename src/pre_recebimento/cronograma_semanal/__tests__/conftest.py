@@ -276,6 +276,25 @@ def payload_cronograma_semanal_com_programacoes(cronograma_ponto_a_ponto_assinad
 
 
 @pytest.fixture
+def cronograma_semanal_com_programacao_marco(cronograma_ponto_a_ponto_assinado):
+    from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+    semanal = baker.make(
+        CronogramaSemanal,
+        cronograma_mensal=cronograma_ponto_a_ponto_assinado,
+        status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+    )
+    baker.make(
+        "pre_recebimento.ProgramacaoEntregaSemanal",
+        cronograma_semanal=semanal,
+        data_inicio="2026-03-01",
+        data_fim="2026-03-15",
+        quantidade=50.0,
+    )
+    return semanal
+
+
+@pytest.fixture
 def cronograma_ponto_a_ponto_com_etapas(
     contrato_factory, empresa_factory, ficha_tecnica_factory
 ):

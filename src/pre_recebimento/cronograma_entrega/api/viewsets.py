@@ -891,8 +891,11 @@ class InterrupcaoProgramadaEntregaViewSet(
         qs = super().get_queryset()
         mes = self.request.query_params.get("mes")
         ano = self.request.query_params.get("ano")
+        motivo = self.request.query_params.getlist("motivo[]")
         if mes and ano:
             qs = qs.filter(data__month=mes, data__year=ano)
+        if motivo:
+            qs = qs.filter(motivo__in=motivo)
         return qs
 
     @action(detail=False, methods=["GET"], url_path="motivos")
