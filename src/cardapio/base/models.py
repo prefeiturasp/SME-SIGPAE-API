@@ -12,17 +12,34 @@ from src.dados_comuns.behaviors import (
 class TipoAlimentacao(
     ExportModelOperationsMixin("tipo_alimentacao"), Nomeavel, TemChaveExterna, Posicao
 ):
-    """Compõe parte do cardápio.
+    """Representa um tipo de alimentação que pode compor o cardápio escolar.
 
-    Dejejum
-    Colação
-    Almoço
-    Refeição
-    Sobremesa
-    Lanche 4 horas
-    Lanche 5 horas
-    Lanche 6 horas
-    Lanche Emergencial
+    Os registros deste modelo são reutilizados em vínculos com período escolar,
+    configurações de horário por unidade educacional e solicitações que
+    dependem do tipo de alimentação servido.
+
+    Tipos cadastrados:
+        - Desjejum
+        - Colação
+        - Almoço
+        - Refeição
+        - Sobremesa
+        - Lanche
+        - Lanche 4h
+        - Lanche Emergencial
+
+    Tipos de alimentação de CEI:
+        - Desjejum
+        - Colação
+        - Almoço
+        - Refeição da Tarde
+
+    Tipos de alimentação de EMEF/EMEI/CIEJA, etc:
+        - Refeição
+        - Sobremesa
+        - Lanche
+        - Lanche 4h
+        - Lanche Emergencial
     """
 
     LANCHE_EMERGENCIAL = "Lanche Emergencial"
@@ -42,6 +59,13 @@ class TipoAlimentacao(
 
 
 class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
+    """Define a faixa de horário de um tipo de alimentação em uma escola.
+
+    O cadastro relaciona uma escola, um período escolar e um tipo de
+    alimentação a uma janela de atendimento. Os vínculos opcionais preservam a
+    compatibilidade com registros legados e permitem configurações parciais.
+    """
+
     hora_inicial = models.TimeField(auto_now=False, auto_now_add=False)
     hora_final = models.TimeField(auto_now=False, auto_now_add=False)
     escola = models.ForeignKey(
@@ -63,15 +87,17 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
     Ativavel,
     TemChaveExterna,
 ):
-    """Vincular vários tipos de alimentação a um periodo e tipo de U.E.
+    """Relaciona tipos de alimentação permitidos a um período escolar e tipo de U.E.
 
-    Dado o tipo_unidade_escolar (EMEI, EMEF...) e
-    em seguida o periodo_escolar(MANHA, TARDE..),
-    trazer os tipos de alimentação que podem ser servidos.
-    Ex.: Para CEI(creche) pela manhã (período) faz sentido ter mingau e não café da tarde.
+    O vínculo funciona como uma regra de negócio do cardápio, definindo quais
+    tipos de alimentação podem ser servidos para uma combinação específica de
+    tipo de unidade escolar e período escolar.
+
+    Exemplos:
+        - Uma CEI no período da MANHA pode servir Desjejum, Colação e Almoço.
+        - Uma EMEF no período INTEGRAL pode servir Refeição, Sobremesa, Lanche, Lanche 4h e Lanche Emergencial.
     """
 
-    # TODO: Refatorar para usar EscolaPeriodoEscolar
     tipo_unidade_escolar = models.ForeignKey(
         "escola.TipoUnidadeEscolar", null=True, on_delete=models.DO_NOTHING
     )
@@ -94,13 +120,15 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
 class MotivoDRENaoValida(
     ExportModelOperationsMixin("motivo_dre_nao_valida"), Nomeavel, TemChaveExterna
 ):
-    """Usado em conjunto com Solicitações que passam por validação da DRE.
+    """Armazena motivos usados pela DRE para não validar uma solicitação no módulo de Gestão de Alimentação.
+
+    Os registros deste modelo são exibidos quando uma solicitação que passa
+    pela Diretoria Regional de Educação é invalidada.
 
     Exemplos:
         - Em desacordo com o contrato
         - Preenchimento incorreto
         - Outro
-
     """
 
     def __str__(self):
