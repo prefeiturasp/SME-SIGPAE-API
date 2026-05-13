@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        (
+            "kit_lanche",
+            "0014_faixasquantidadeskitlancheceidacemei_solicitacaokitlancheceidacemei_solicitacaokitlanchecemei_solici",
+        ),
         ("paineis_consolidados", "0021_solicitacoes"),
     ]
 

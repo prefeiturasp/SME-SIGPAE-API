@@ -8,6 +8,12 @@ class Migration(migrations.Migration):
     dependencies = [
         ("cardapio", "0051_remove_alteracao_cardapio_lanche_repetida"),
         ("escola", "0081_remove_tipounidadeescolar_cardapios"),
+        ("inclusao_alimentacao", "0041_quantidadeporperiodo_encerrado_a_partir_de"),
+        (
+            "kit_lanche",
+            "0024_alter_faixaetariasolicitacaokitlancheceiavulsa_matriculados_quando_criado_and_more",
+        ),
+        ("paineis_consolidados", "0042_solicitacoes"),
     ]
 
     operations = [
