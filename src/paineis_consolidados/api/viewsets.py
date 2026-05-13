@@ -2,6 +2,7 @@ import datetime
 
 from django.db.models.query import QuerySet
 from rest_framework import status, viewsets
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -99,14 +100,59 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
             and not uuids_repetidos.add(solicitacao.uuid)
         ]
 
+    def _get_unique_queryset(self, query_set):
+        """Aplica DISTINCT ON (uuid) no banco para garantir uma linha por uuid.
+        
+        Usa PostgreSQL DISTINCT ON, que é mais performático que carregar
+        todas as linhas em memória e deduplicar em Python.
+        """
+        return query_set.distinct("uuid").order_by("uuid", "-data_log")
+
+    def _prefetch_tipo_unidades(self, records):
+        """Faz batch lookup de TipoUnidadeEscolar para evitar N+1 queries."""
+        from ...escola.models import TipoUnidadeEscolar
+
+        uuids = set()
+        for obj in records:
+            if obj.escola_tipo_unidade_uuid:
+                uuids.add(str(obj.escola_tipo_unidade_uuid))
+
+        if not uuids:
+            return {}
+
+        return {
+            str(tu.uuid): {"iniciais": tu.iniciais, "uuid": str(tu.uuid)}
+            for tu in TipoUnidadeEscolar.objects.filter(uuid__in=uuids)
+        }
+
+    def _build_serializer_context(self, records=None):
+        """Constrói context do serializer com dados pré-carregados."""
+        context = {"request": getattr(self, "request", None)}
+        if records is not None:
+            context["tipo_unidades"] = self._prefetch_tipo_unidades(records)
+        return context
+
     def _retorno_base(self, query_set, sem_paginacao=None):
-        sem_uuid_repetido = self.remove_duplicados_do_query_set(query_set)
         if sem_paginacao:
-            serializer = self.get_serializer(sem_uuid_repetido, many=True)
+            distinct_qs = self._get_unique_queryset(query_set)
+            records = list(distinct_qs)
+            context = self._build_serializer_context(records)
+            serializer = self.get_serializer(records, many=True, context=context)
             return Response({"results": serializer.data})
-        page = self.paginate_queryset(sem_uuid_repetido)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+
+        # DISTINCT ON (uuid) no banco para evitar carregar tudo em memória
+        distinct_qs = self._get_unique_queryset(query_set)
+        page = self.paginate_queryset(distinct_qs)
+
+        if page is not None:
+            # O DISTINCT ON ordena por uuid; reordenamos para manter
+            # o padrão esperado (mais recente primeiro)
+            page.sort(key=lambda x: x.data_log or datetime.datetime.min, reverse=True)
+            context = self._build_serializer_context(page)
+            serializer = self.get_serializer(page, many=True, context=context)
+            return self.get_paginated_response(serializer.data)
+
+        return Response({"results": []})
 
     def _agrupar_solicitacoes(self, tipo_visao: str, query_set: QuerySet):
         if tipo_visao == TIPO_VISAO_SOLICITACOES:
@@ -131,7 +177,8 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
 
     def _agrupa_por_tipo_visao(self, tipo_visao: str, query_set: QuerySet) -> dict:
         sumario = {}  # type: dict
-        query_set = self.remove_duplicados_do_query_set(query_set)
+        # DISTINCT ON (uuid) no banco em vez de dedup em Python
+        query_set = self._get_unique_queryset(query_set)
         descricao_prioridade = self._agrupar_solicitacoes(tipo_visao, query_set)
         for nome_objeto, prioridade in descricao_prioridade:
             if nome_objeto == "Inclusão de Alimentação Contínua":
@@ -359,6 +406,8 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         queryset = model.map_queryset_por_status(
             status, instituicao_uuid=instituicao_uuid
         )
+        # Clear field-specific DISTINCT ON to allow custom ORDER BY (e.g. escola_nome)
+        queryset = queryset.distinct()
         # filtra por datas
         periodo_datas = {
             "data_evento": request.data.get("de", None),

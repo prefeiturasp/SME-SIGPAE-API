@@ -288,11 +288,17 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         tipo_solicitacao = query_params.get("tipo_solicitacao")
         if not tipo_solicitacao:
             return queryset
-        if tipo_solicitacao == "KIT_LANCHE":
-            queryset = queryset.filter(desc_doc__icontains="Kit Lanche").exclude(
-                desc_doc__icontains="Unificado"
-            )
-        else:
+        # Mapeia "KIT_LANCHE" (exibido ao usuário) para o grupo "KIT_LANCHE_AVULSA"
+        map_key = "KIT_LANCHE_AVULSA" if tipo_solicitacao == "KIT_LANCHE" else tipo_solicitacao
+        try:
+            tipo_doc_values = cls.map_queryset_por_tipo_doc([map_key])
+            if tipo_doc_values:
+                queryset = queryset.filter(tipo_doc__in=tipo_doc_values)
+            else:
+                # Fallback para valores individuais de tipo_doc não encontrados no mapeador de grupo
+                queryset = queryset.filter(tipo_doc=map_key)
+        except KeyError:
+            # Fallback: prefixo do nome de exibição ao usuário, ex.: "Inclusão de", "Alteração"
             queryset = queryset.filter(desc_doc__icontains=tipo_solicitacao)
         return queryset
 
@@ -675,7 +681,6 @@ class SolicitacoesNutrisupervisao(MoldeConsolidado):
     AUTORIZADOS_EVENTO = [
         LogSolicitacoesUsuario.CODAE_AUTORIZOU,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
-        LogSolicitacoesUsuario.INICIO_FLUXO,
     ]
 
     CANCELADOS_STATUS = [
@@ -713,12 +718,18 @@ class SolicitacoesNutrisupervisao(MoldeConsolidado):
     def get_autorizados(cls, **kwargs):
         return (
             cls.objects.filter(
-                status_evento__in=cls.AUTORIZADOS_EVENTO,
-                status_atual__in=cls.AUTORIZADOS_STATUS,
+                Q(
+                    status_evento__in=cls.AUTORIZADOS_EVENTO,
+                    status_atual__in=cls.AUTORIZADOS_STATUS,
+                )
+                | Q(
+                    status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+                    status_atual=InformativoPartindoDaEscolaWorkflow.INFORMADO,
+                ),
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -729,8 +740,8 @@ class SolicitacoesNutrisupervisao(MoldeConsolidado):
                 status_atual__in=cls.NEGADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -741,8 +752,8 @@ class SolicitacoesNutrisupervisao(MoldeConsolidado):
                 status_atual__in=cls.CANCELADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
 
@@ -759,7 +770,6 @@ class SolicitacoesNutrimanifestacao(MoldeConsolidado):
     AUTORIZADOS_EVENTO = [
         LogSolicitacoesUsuario.CODAE_AUTORIZOU,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
-        LogSolicitacoesUsuario.INICIO_FLUXO,
     ]
 
     CANCELADOS_STATUS = [
@@ -778,12 +788,18 @@ class SolicitacoesNutrimanifestacao(MoldeConsolidado):
     def get_autorizados(cls, **kwargs):
         return (
             cls.objects.filter(
-                status_evento__in=cls.AUTORIZADOS_EVENTO,
-                status_atual__in=cls.AUTORIZADOS_STATUS,
+                Q(
+                    status_evento__in=cls.AUTORIZADOS_EVENTO,
+                    status_atual__in=cls.AUTORIZADOS_STATUS,
+                )
+                | Q(
+                    status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+                    status_atual=InformativoPartindoDaEscolaWorkflow.INFORMADO,
+                ),
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -794,8 +810,8 @@ class SolicitacoesNutrimanifestacao(MoldeConsolidado):
                 status_atual__in=cls.NEGADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -806,8 +822,8 @@ class SolicitacoesNutrimanifestacao(MoldeConsolidado):
                 status_atual__in=cls.CANCELADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
 
@@ -834,7 +850,6 @@ class SolicitacoesCODAE(MoldeConsolidado):
     AUTORIZADOS_EVENTO = [
         LogSolicitacoesUsuario.CODAE_AUTORIZOU,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
-        LogSolicitacoesUsuario.INICIO_FLUXO,
     ]
 
     CANCELADOS_STATUS = [
@@ -1005,12 +1020,18 @@ class SolicitacoesCODAE(MoldeConsolidado):
     def get_autorizados(cls, **kwargs):
         return (
             cls.objects.filter(
-                status_evento__in=cls.AUTORIZADOS_EVENTO,
-                status_atual__in=cls.AUTORIZADOS_STATUS,
+                Q(
+                    status_evento__in=cls.AUTORIZADOS_EVENTO,
+                    status_atual__in=cls.AUTORIZADOS_STATUS,
+                )
+                | Q(
+                    status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+                    status_atual=InformativoPartindoDaEscolaWorkflow.INFORMADO,
+                ),
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1021,8 +1042,8 @@ class SolicitacoesCODAE(MoldeConsolidado):
                 status_atual__in=cls.NEGADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1033,19 +1054,15 @@ class SolicitacoesCODAE(MoldeConsolidado):
                 status_atual__in=cls.CANCELADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
     def get_questionamentos(cls, **kwargs):
-        return (
-            cls.objects.filter(
-                status_atual=PedidoAPartirDaEscolaWorkflow.CODAE_QUESTIONADO,
-                status_evento=LogSolicitacoesUsuario.CODAE_QUESTIONOU,
-            )
-            .distinct()
-            .order_by("-data_log")
+        return cls.objects.filter(
+            status_atual=PedidoAPartirDaEscolaWorkflow.CODAE_QUESTIONADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_QUESTIONOU,
         )
 
     #
@@ -1140,7 +1157,6 @@ class SolicitacoesEscola(MoldeConsolidado):
     AUTORIZADOS_EVENTO = [
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
         LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-        LogSolicitacoesUsuario.INICIO_FLUXO,
     ]
 
     CANCELADOS_STATUS = [
@@ -1350,8 +1366,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 status_evento__in=cls.PENDENTES_EVENTO,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1371,8 +1387,6 @@ class SolicitacoesEscola(MoldeConsolidado):
 
     @classmethod
     def get_autorizados(cls, **kwargs):
-        from django.db.models import Q
-
         from src.kit_lanche.models import SolicitacaoKitLancheUnificada
 
         escola_uuid = kwargs.get("escola_uuid")
@@ -1385,12 +1399,20 @@ class SolicitacoesEscola(MoldeConsolidado):
         return (
             cls.objects.filter(
                 Q(escola_uuid=escola_uuid) | Q(uuid__in=uuids_solicitacao_unificadas),
-                status_atual__in=cls.AUTORIZADOS_STATUS,
-                status_evento__in=cls.AUTORIZADOS_EVENTO,
+            )
+            .filter(
+                Q(
+                    status_evento__in=cls.AUTORIZADOS_EVENTO,
+                    status_atual__in=cls.AUTORIZADOS_STATUS,
+                )
+                | Q(
+                    status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+                    status_atual=InformativoPartindoDaEscolaWorkflow.INFORMADO,
+                ),
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1403,8 +1425,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 escola_uuid=escola_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1426,8 +1448,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 status_atual__in=cls.CANCELADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
         uuids_solicitacao_unificadas_canceladas_parcialmente = list(
             SolicitacaoKitLancheUnificada.objects.filter(
@@ -1442,8 +1464,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 status_evento__in=cls.AUTORIZADOS_EVENTO,
                 tipo_doc=cls.TP_SOL_KIT_LANCHE_UNIFICADA,
             )
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
         return cancelados | kit_lanche_unificados_parcialmente_cancelados
 
@@ -1541,7 +1563,6 @@ class SolicitacoesDRE(MoldeConsolidado):
     AUTORIZADOS_EVENTO = [
         LogSolicitacoesUsuario.CODAE_AUTORIZOU,
         LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
-        LogSolicitacoesUsuario.INICIO_FLUXO,
     ]
 
     CANCELADOS_STATUS = [
@@ -1723,8 +1744,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1738,8 +1759,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1752,8 +1773,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1776,13 +1797,19 @@ class SolicitacoesDRE(MoldeConsolidado):
         dre_uuid = kwargs.get("dre_uuid")
         return (
             cls.objects.filter(
-                status_evento__in=cls.AUTORIZADOS_EVENTO,
-                status_atual__in=cls.AUTORIZADOS_STATUS,
+                Q(
+                    status_evento__in=cls.AUTORIZADOS_EVENTO,
+                    status_atual__in=cls.AUTORIZADOS_STATUS,
+                )
+                | Q(
+                    status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+                    status_atual=InformativoPartindoDaEscolaWorkflow.INFORMADO,
+                ),
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1795,8 +1822,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -1809,8 +1836,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     #
@@ -2035,6 +2062,16 @@ class SolicitacoesTerceirizada(MoldeConsolidado):
             .order_by("-data_log")
         )
 
+    AUTORIZADOS_STATUS = [
+        PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+        PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
+        InformativoPartindoDaEscolaWorkflow.INFORMADO,
+    ]
+    AUTORIZADOS_EVENTO = [
+        LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
+    ]
+
     @classmethod
     def get_questionamentos(cls, **kwargs):
         terceirizada_uuid = kwargs.get("terceirizada_uuid")
@@ -2069,21 +2106,19 @@ class SolicitacoesTerceirizada(MoldeConsolidado):
         terceirizada_uuid = kwargs.get("terceirizada_uuid")
         return (
             cls.objects.filter(
-                status_evento__in=[
-                    LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-                    LogSolicitacoesUsuario.INICIO_FLUXO,
-                    LogSolicitacoesUsuario.TERCEIRIZADA_TOMOU_CIENCIA,
-                ],
-                status_atual__in=[
-                    PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
-                    PedidoAPartirDaEscolaWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-                    InformativoPartindoDaEscolaWorkflow.INFORMADO,
-                ],
+                Q(
+                    status_evento__in=cls.AUTORIZADOS_EVENTO,
+                    status_atual__in=cls.AUTORIZADOS_STATUS,
+                )
+                | Q(
+                    status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+                    status_atual=InformativoPartindoDaEscolaWorkflow.INFORMADO,
+                ),
                 terceirizada_uuid=terceirizada_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -2096,8 +2131,8 @@ class SolicitacoesTerceirizada(MoldeConsolidado):
                 terceirizada_uuid=terceirizada_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct()
-            .order_by("-data_log")
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
@@ -2116,8 +2151,8 @@ class SolicitacoesTerceirizada(MoldeConsolidado):
                 terceirizada_uuid=terceirizada_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .order_by("-data_log")
-            .distinct()
+            .distinct("uuid")
+            .order_by("uuid", "-data_log")
         )
 
     @classmethod
