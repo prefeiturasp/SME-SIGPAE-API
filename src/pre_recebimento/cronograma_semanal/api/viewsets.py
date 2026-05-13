@@ -151,6 +151,7 @@ class CronogramaSemanalViewSet(
         """
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+        status_filter = request.query_params.get("status")
 
         if not mes or not ano:
             return Response(
@@ -180,6 +181,9 @@ class CronogramaSemanalViewSet(
             .exclude(status="RASCUNHO")
             .distinct()
         )
+
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
 
         serializer = CronogramaSemanalCalendarioSerializer(
             queryset,
