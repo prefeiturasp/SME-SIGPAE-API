@@ -9,6 +9,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_ges
     agrupar_tipos_alimentacao_por_categoria,
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
     cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
+    existe_colaborador,
     get_classificacoes_dietas_recreio,
     get_linhas_da_tabela_alimentacoes_recreio,
     get_linhas_da_tabela_dieta_recreio,
@@ -487,3 +488,93 @@ def test_get_classificacoes_dietas_recreio_remove_enteral_sem_lanche_e_sem_refei
 
     assert categoria_medicao_dieta_a_enteral_aminoacidos not in resultado
     assert categoria_medicao_dieta_b not in resultado
+
+
+def test_existe_colaborador_retorna_false_quando_nao_tem_colaboradores(
+    solicitacao_recreio_emef,
+):
+    participante = (
+        solicitacao_recreio_emef.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participante.num_colaboradores = 0
+    participante.save()
+
+    assert existe_colaborador(participante) is False
+
+
+def test_existe_colaborador_retorna_false_quando_nao_tem_tipos_alimentacao_com_colaboradores(
+    solicitacao_recreio_emef,
+):
+    participante = (
+        solicitacao_recreio_emef.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+
+    assert participante.num_colaboradores > 0
+    assert existe_colaborador(participante) is False
+
+
+def test_cria_valores_medicao_participantes_emef_emei_cieja_ceugestao_sem_tipo_alimentacao_colaboradores(
+    solicitacao_recreio_emef,
+):
+    participante = (
+        solicitacao_recreio_emef.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+
+    assert participante.num_colaboradores > 0
+    assert existe_colaborador(participante) is False
+
+    ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
+        medicao__grupo__nome="Recreio nas Férias",
+        nome_campo="participantes",
+    ).delete()
+    ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
+        medicao__grupo__nome="Colaboradores",
+        nome_campo="participantes",
+    ).delete()
+
+    cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
+        solicitacao_recreio_emef
+    )
+
+    participantes_valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
+        medicao__grupo__nome="Recreio nas Férias",
+        nome_campo="participantes",
+    )
+    colaboradores_valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
+        medicao__grupo__nome="Colaboradores",
+        nome_campo="participantes",
+    )
+
+    assert participantes_valores.exists()
+    assert colaboradores_valores.count() == 0
+
+
+def test_validate_lancamento_alimentacoes_medicao_recreio_ignora_colaboradores_sem_tipo_alimentacao(
+    solicitacao_recreio_emef,
+):
+    participante = (
+        solicitacao_recreio_emef.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+
+    assert participante.num_colaboradores > 0
+    assert existe_colaborador(participante) is False
+
+    lista_erros = []
+
+    validate_lancamento_alimentacoes_medicao_recreio(
+        solicitacao_recreio_emef,
+        lista_erros,
+    )
+
+    assert lista_erros == []
