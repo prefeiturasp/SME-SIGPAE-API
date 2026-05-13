@@ -11,6 +11,7 @@ from src.dados_comuns.permissions import (
     PermissaoParaCriarCronogramaSemanal,
     PermissaoParaDarCienciaCronogramaSemanal,
     PermissaoParaVisualizarCronogramaSemanal,
+    PermissaoParaVisualizarCalendarioCronograma,
 )
 from src.pre_recebimento.base.api.paginations import (
     PreRecebimentoPagination,
@@ -67,10 +68,11 @@ class CronogramaSemanalViewSet(
         "create": [PermissaoParaCriarCronogramaSemanal],
         "update": [PermissaoParaCriarCronogramaSemanal],
         "partial_update": [PermissaoParaCriarCronogramaSemanal],
-        "cronogramas_mensal_assinados": [PermissaoParaCriarCronogramaSemanal],
+        "cronogramas_mensal_assinados": [PermissaoParaVisualizarCronogramaSemanal],
         "fornecedor_ciente": [PermissaoParaDarCienciaCronogramaSemanal],
         "rascunhos_listagem": [PermissaoParaCriarCronogramaSemanal],
         "alterar_cronograma": [PermissaoParaCriarCronogramaSemanal],
+        "calendario": [PermissaoParaVisualizarCalendarioCronograma]
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
