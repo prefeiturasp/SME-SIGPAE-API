@@ -266,7 +266,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">trata_inclusao_continua_medicao_inicial</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ano</span><span class="p">,</span> <span class="n">pega_atualmente</span>
     <span class="p">):</span>
-        <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes_inclusao_continua&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">periodos_escolares_inclusao_continua</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">mes</span><span class="p">:</span>
             <span class="n">periodoEscolarViewset</span> <span class="o">=</span> <span class="n">PeriodoEscolarViewSet</span><span class="p">()</span>
@@ -275,7 +275,7 @@
                 <span class="n">periodos_escolares_inclusao_continua</span> <span class="o">=</span> <span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
                     <span class="n">uuid__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
                 <span class="p">)</span>
-        <span class="n">periodos_para_filtrar</span> <span class="o">=</span> <span class="n">escola</span><span class="o">.</span><span class="n">periodos_escolares</span><span class="p">(</span><span class="n">ano</span><span class="p">,</span> <span class="n">pega_atualmente</span><span class="p">)</span>
+        <span class="n">periodos_para_filtrar</span> <span class="o">=</span> <span class="n">escola</span><span class="o">.</span><span class="n">periodos_escolares</span><span class="p">(</span><span class="n">ano</span><span class="p">,</span> <span class="n">mes</span><span class="p">,</span> <span class="n">pega_atualmente</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">periodos_escolares_inclusao_continua</span><span class="p">:</span>
             <span class="n">periodos_para_filtrar</span> <span class="o">=</span> <span class="p">(</span>
