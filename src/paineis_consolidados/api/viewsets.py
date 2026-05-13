@@ -2,7 +2,6 @@ import datetime
 
 from django.db.models.query import QuerySet
 from rest_framework import status, viewsets
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -102,7 +101,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
 
     def _get_unique_queryset(self, query_set):
         """Aplica DISTINCT ON (uuid) no banco para garantir uma linha por uuid.
-        
+
         Usa PostgreSQL DISTINCT ON, que é mais performático que carregar
         todas as linhas em memória e deduplicar em Python.
         """
