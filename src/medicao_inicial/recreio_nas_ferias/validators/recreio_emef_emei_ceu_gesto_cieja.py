@@ -13,7 +13,10 @@ from src.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
     ValorMedicao,
 )
-from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
+from src.medicao_inicial.recreio_nas_ferias.models import (
+    RecreioNasFerias,
+    RecreioNasFeriasUnidadeParticipante,
+)
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
 from src.medicao_inicial.utils import get_name_campo
 from src.medicao_inicial.validators import (
@@ -47,13 +50,11 @@ def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
 
     informacoes_participantes = {
         "Recreio nas Férias": participantes.num_inscritos,
-        "Colaboradores": participantes.num_colaboradores,
     }
-    grupos = [
-        grupo
-        for grupo, quantidade in informacoes_participantes.items()
-        if quantidade > 0
-    ]
+    if existe_colaborador(participantes):
+        informacoes_participantes["Colaboradores"] = participantes.num_colaboradores
+
+    grupos = list(informacoes_participantes.keys())
 
     categoria = CategoriaMedicao.objects.get(nome=CATEGORIA_ALIMENTACAO_NOME)
     grupos_medicao_existentes = {
@@ -307,7 +308,7 @@ def validate_lancamento_alimentacoes_medicao_recreio(
     informacoes_alimentacao = {
         "Recreio nas Férias": tipos_alimentacao_map.get("Inscritos", [])
     }
-    if participantes.num_colaboradores > 0:
+    if existe_colaborador(participantes):
         informacoes_alimentacao["Colaboradores"] = tipos_alimentacao_map.get(
             "Colaboradores", []
         )
@@ -822,3 +823,32 @@ def get_classificacoes_dietas_recreio(
 
         categorias_filtradas.append(categoria)
     return categorias_filtradas
+
+
+def existe_colaborador(participantes: RecreioNasFeriasUnidadeParticipante) -> bool:
+    """Verifica se existem colaboradores ativos no recreio.
+
+    Retorna ``True`` quando a unidade participante possui número de
+    colaboradores maior que zero e pelo menos um tipo de alimentação
+    associado à categoria "Colaboradores". Caso contrário, retorna ``False``.
+
+    Args:
+        participantes (RecreioNasFeriasUnidadeParticipante): Instância de
+            participante da unidade escolar no Recreio nas Férias.
+
+    Returns:
+        bool: ``True`` se houver colaboradores com alimentação configurada;
+            ``False`` caso contrário.
+    """
+    if participantes.num_colaboradores > 0:
+        tipos_alimentacao = participantes.tipos_alimentacao.filter(
+            categoria__nome__in=["Colaboradores"]
+        )
+        tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(
+            tipos_alimentacao
+        )
+        alimentacoes_colaboradores = tipos_alimentacao_map.get("Colaboradores", [])
+        if len(alimentacoes_colaboradores) > 0:
+            return True
+
+    return False
