@@ -179,6 +179,50 @@ def test_inclusoes_continuas_autorizadas(
     )
 
 
+def test_inclusoes_continuas_autorizadas_respeitam_encerramento_por_periodo(
+    client_autenticado_escola_paineis_consolidados,
+    escola,
+    inclusao_alimentacao_continua_com_encerramento_por_periodo,
+):
+    client, usuario = client_autenticado_escola_paineis_consolidados
+
+    response_mes_04 = client.get(
+        f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
+        f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=04&ano=2023"
+        "&periodos_escolares[]=INTEGRAL&periodos_escolares[]=TARDE&tipo_doc=INC_ALIMENTA_CONTINUA"
+    )
+
+    assert response_mes_04.status_code == status.HTTP_200_OK
+
+    dias_integral_mes_04 = sorted(
+        int(resultado["dia"])
+        for resultado in response_mes_04.data["results"]
+        if resultado["periodo"] == "INTEGRAL"
+    )
+    dias_tarde_mes_04 = sorted(
+        int(resultado["dia"])
+        for resultado in response_mes_04.data["results"]
+        if resultado["periodo"] == "TARDE"
+    )
+
+    assert dias_integral_mes_04 == list(range(1, 11))
+    assert dias_tarde_mes_04 == list(range(1, 31))
+
+    response_mes_05 = client.get(
+        f"/escola-solicitacoes/{INCLUSOES_AUTORIZADAS}/"
+        f"?escola_uuid={escola.uuid}&tipo_solicitacao=Inclusão de&mes=05&ano=2023"
+        "&periodos_escolares[]=INTEGRAL&periodos_escolares[]=TARDE&tipo_doc=INC_ALIMENTA_CONTINUA"
+    )
+
+    assert response_mes_05.status_code == status.HTTP_200_OK
+    assert all(
+        resultado["periodo"] == "TARDE" for resultado in response_mes_05.data["results"]
+    )
+    assert len(response_mes_05.data["results"]) == 31
+    assert response_mes_05.data["results"][0]["dia"] == "01"
+    assert response_mes_05.data["results"][-1]["dia"] == "31"
+
+
 def test_inclusoes_cei_autorizadas(
     client_autenticado_escola_paineis_consolidados, escola, inclusao_alimentacao_cei
 ):

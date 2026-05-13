@@ -2227,6 +2227,26 @@ def get_pdf_cronograma(request, cronograma):
     )
 
 
+def get_pdf_cronograma_ponto_a_ponto_flv(request, cronograma):
+    logs = cronograma.logs
+    html_string = render_to_string(
+        "pre_recebimento/cronogramas/cronograma_flv.html",
+        {
+            "empresa": cronograma.empresa,
+            "contrato": cronograma.contrato,
+            "cronograma": cronograma,
+            "etapas": cronograma.etapas.all(),
+            "programacoes": cronograma.programacoes_de_recebimento.all(),
+            "logs": logs,
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    return html_to_pdf_response(
+        html_string.replace("dt_file", data_arquivo),
+        f"cronograma_flv_{cronograma.numero}.pdf",
+    )
+
+
 def get_pdf_ficha_tecnica(request, ficha):
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnica.objects.filter(
         ficha_tecnica=ficha

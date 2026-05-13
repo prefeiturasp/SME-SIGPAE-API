@@ -1002,6 +1002,44 @@ def inclusao_alimentacao_continua_varios_meses(escola, periodo_escolar_manha):
 
 
 @pytest.fixture
+def inclusao_alimentacao_continua_com_encerramento_por_periodo(
+    escola, periodo_escolar_integral, periodo_escolar_tarde
+):
+    data_inicial = datetime.date(2023, 4, 1)
+    data_final = datetime.date(2023, 5, 31)
+    inclusao_continua = baker.make(
+        InclusaoAlimentacaoContinua,
+        data_inicial=data_inicial,
+        data_final=data_final,
+        escola=escola,
+        rastro_escola=escola,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=inclusao_continua.uuid,
+        status_evento=1,
+        solicitacao_tipo=7,
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        numero_alunos=40,
+        inclusao_alimentacao_continua=inclusao_continua,
+        periodo_escolar=periodo_escolar_integral,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+        encerrado_a_partir_de=datetime.date(2023, 4, 10),
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        numero_alunos=20,
+        inclusao_alimentacao_continua=inclusao_continua,
+        periodo_escolar=periodo_escolar_tarde,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    return inclusao_continua
+
+
+@pytest.fixture
 def periodo_escolar_integral():
     return baker.make("PeriodoEscolar", nome="INTEGRAL")
 
