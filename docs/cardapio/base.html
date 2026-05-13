@@ -55,12 +55,11 @@
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoModelAdmin</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="#behaviors">behaviors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.base.models">models</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.MotivoDRENaoValida"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.TipoAlimentacao"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.MotivoDRENaoValida"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.base.api">api</a><ul>
@@ -155,203 +154,68 @@
 </dd></dl>
 
 </section>
-<section id="behaviors">
-<h2>behaviors<a class="headerlink" href="#behaviors" title="Link to this heading"></a></h2>
-</section>
 <section id="module-src.cardapio.base.models">
 <span id="models"></span><h2>models<a class="headerlink" href="#module-src.cardapio.base.models" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hora_inicial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hora_final</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_alimentacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.escola">
-<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.escola" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.escola_id">
-<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.escola_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.hora_final">
-<span class="sig-name descname"><span class="pre">hora_final</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.hora_final" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.hora_inicial">
-<span class="sig-name descname"><span class="pre">hora_inicial</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.hora_inicial" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.periodo_escolar" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.periodo_escolar_id">
-<span class="sig-name descname"><span class="pre">periodo_escolar_id</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.periodo_escolar_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.tipo_alimentacao">
-<span class="sig-name descname"><span class="pre">tipo_alimentacao</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.tipo_alimentacao" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.tipo_alimentacao_id">
-<span class="sig-name descname"><span class="pre">tipo_alimentacao_id</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.tipo_alimentacao_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivoDRENaoValida</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#MotivoDRENaoValida"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('motivo_dre_nao_valida')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Nomeavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
-<p>Usado em conjunto com Solicitações que passam por validação da DRE.</p>
-<dl class="simple">
-<dt>Exemplos:</dt><dd><ul class="simple">
-<li><p>Em desacordo com o contrato</p></li>
-<li><p>Preenchimento incorreto</p></li>
-<li><p>Outro</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.nome">
-<span class="sig-name descname"><span class="pre">nome</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.nome" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoAlimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#TipoAlimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('tipo_alimentacao')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Nomeavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Posicao</span></code></p>
-<p>Compõe parte do cardápio.</p>
-<p>Dejejum
-Colação
-Almoço
-Refeição
-Sobremesa
-Lanche 4 horas
-Lanche 5 horas
-Lanche 6 horas
-Lanche Emergencial</p>
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+<p>Representa um tipo de alimentação que pode compor o cardápio escolar.</p>
+<p>Os registros deste modelo são reutilizados em vínculos com período escolar,
+configurações de horário por unidade educacional e solicitações que
+dependem do tipo de alimentação servido.</p>
+<dl class="simple">
+<dt>Tipos cadastrados:</dt><dd><ul class="simple">
+<li><p>Desjejum</p></li>
+<li><p>Colação</p></li>
+<li><p>Almoço</p></li>
+<li><p>Refeição</p></li>
+<li><p>Sobremesa</p></li>
+<li><p>Lanche</p></li>
+<li><p>Lanche 4h</p></li>
+<li><p>Lanche Emergencial</p></li>
+</ul>
+</dd>
+<dt>Tipos de alimentação de CEI:</dt><dd><ul class="simple">
+<li><p>Desjejum</p></li>
+<li><p>Colação</p></li>
+<li><p>Almoço</p></li>
+<li><p>Refeição da Tarde</p></li>
+</ul>
+</dd>
+<dt>Tipos de alimentação de EMEF/EMEI/CIEJA, etc:</dt><dd><ul class="simple">
+<li><p>Refeição</p></li>
+<li><p>Sobremesa</p></li>
+<li><p>Lanche</p></li>
+<li><p>Lanche 4h</p></li>
+<li><p>Lanche Emergencial</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.nome">
+<span class="sig-name descname"><span class="pre">nome</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.nome" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Nome legível do tipo de alimentação exibido em cadastros, vínculos e solicitações.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.LANCHE_4H">
-<span class="sig-name descname"><span class="pre">LANCHE_4H</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Lanche</span> <span class="pre">4h'</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.LANCHE_4H" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.posicao">
+<span class="sig-name descname"><span class="pre">posicao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.posicao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Posição usada para ordenar os tipos de alimentação nas telas e regras do cardápio.</p>
+</dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.LANCHE_EMERGENCIAL">
-<span class="sig-name descname"><span class="pre">LANCHE_EMERGENCIAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Lanche</span> <span class="pre">Emergencial'</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.LANCHE_EMERGENCIAL" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.vinculos">
+<span class="sig-name descname"><span class="pre">vinculos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.vinculos" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa M:N com <a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><code class="xref py py-class docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></code></a>.</p>
+<p>Reúne os vínculos de período escolar e tipo de unidade escolar em que esse tipo de alimentação pode ser servido.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -409,13 +273,6 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.nome">
-<span class="sig-name descname"><span class="pre">nome</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.nome" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.objects">
 <span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.objects" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -449,13 +306,6 @@ a many-to-many relation.</p>
 instances.</p>
 <p>Most of the implementation is delegated to a dynamically defined manager
 class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.posicao">
-<span class="sig-name descname"><span class="pre">posicao</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.posicao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -663,11 +513,6 @@ instances.</p>
 class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.substituicoes_periodo_escolar">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">substituicoes_periodo_escolar</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.substituicoes_periodo_escolar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.suspensoes_periodo_escolar">
 <span class="sig-name descname"><span class="pre">suspensoes_periodo_escolar</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.suspensoes_periodo_escolar" title="Link to this definition"></a></dt>
@@ -706,20 +551,83 @@ many-to-one relation.</p>
 class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
+<p>Define a faixa de horário de um tipo de alimentação em uma escola.</p>
+<p>O cadastro relaciona uma escola, um período escolar e um tipo de
+alimentação a uma janela de atendimento. Os vínculos opcionais preservam a
+compatibilidade com registros legados e permitem configurações parciais.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.vinculos">
-<span class="sig-name descname"><span class="pre">vinculos</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.vinculos" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.hora_inicial">
+<span class="sig-name descname"><span class="pre">hora_inicial</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.time</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.hora_inicial" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Horário inicial em que o tipo de alimentação pode ser ofertado.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.hora_final">
+<span class="sig-name descname"><span class="pre">hora_final</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.time</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.hora_final" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Horário final da janela de atendimento configurada.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Escola</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.escola" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Escola à qual a configuração de horário se aplica. Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> em cadastros legados.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.tipo_alimentacao">
+<span class="sig-name descname"><span class="pre">tipo_alimentacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cardapio.TipoAlimentacao</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.tipo_alimentacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Tipo de alimentação atendido pela faixa de horário configurada.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.periodo_escolar">
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.PeriodoEscolar</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.periodo_escolar" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Período escolar em que a faixa de horário é válida.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.periodo_escolar_id">
+<span class="sig-name descname"><span class="pre">periodo_escolar_id</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.periodo_escolar_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.tipo_alimentacao_id">
+<span class="sig-name descname"><span class="pre">tipo_alimentacao_id</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.tipo_alimentacao_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.uuid" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
 </dd></dl>
 
 </dd></dl>
@@ -728,28 +636,45 @@ class built by <code class="docutils literal notranslate"><span class="pre">crea
 <dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('vinculo_alimentacao_periodo_escolar_tipo_ue')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Ativavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
-<p>Vincular vários tipos de alimentação a um periodo e tipo de U.E.</p>
-<p>Dado o tipo_unidade_escolar (EMEI, EMEF…) e
-em seguida o periodo_escolar(MANHA, TARDE..),
-trazer os tipos de alimentação que podem ser servidos.
-Ex.: Para CEI(creche) pela manhã (período) faz sentido ter mingau e não café da tarde.</p>
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+<p>Relaciona tipos de alimentação permitidos a um período escolar e tipo de U.E.</p>
+<p>O vínculo funciona como uma regra de negócio do cardápio, definindo quais
+tipos de alimentação podem ser servidos para uma combinação específica de
+tipo de unidade escolar e período escolar.</p>
+<dl class="simple">
+<dt>Exemplos:</dt><dd><ul class="simple">
+<li><p>Uma CEI no período da MANHA pode servir Desjejum, Colação e Almoço.</p></li>
+<li><p>Uma EMEF no período INTEGRAL pode servir Refeição, Sobremesa, Lanche, Lanche 4h e Lanche Emergencial.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.ativo">
+<span class="sig-name descname"><span class="pre">ativo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.ativo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Indica se o vínculo está habilitado para uso nas regras vigentes do cardápio.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.ativo">
-<span class="sig-name descname"><span class="pre">ativo</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.ativo" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
+<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipo_unidade_escolar">
+<span class="sig-name descname"><span class="pre">tipo_unidade_escolar</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.TipoUnidadeEscolar</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipo_unidade_escolar" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Tipo de unidade escolar ao qual a regra de alimentação se aplica.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.periodo_escolar">
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.PeriodoEscolar</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.periodo_escolar" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Período escolar coberto pelo vínculo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipos_alimentacao">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.cardapio.base.models.TipoAlimentacao" title="src.cardapio.base.models.TipoAlimentacao"><span class="pre">TipoAlimentacao</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipos_alimentacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação M:N com os tipos de alimentação autorizados para a combinação de período escolar e tipo de unidade escolar.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -765,35 +690,9 @@ object the first time, the query is executed.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.periodo_escolar" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.periodo_escolar_id">
 <span class="sig-name descname"><span class="pre">periodo_escolar_id</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.periodo_escolar_id" title="Link to this definition"></a></dt>
 <dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipo_unidade_escolar">
-<span class="sig-name descname"><span class="pre">tipo_unidade_escolar</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipo_unidade_escolar" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipo_unidade_escolar_id">
@@ -801,24 +700,53 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipos_alimentacao">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.tipos_alimentacao" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.uuid" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivoDRENaoValida</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#MotivoDRENaoValida"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('motivo_dre_nao_valida')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Nomeavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
+<p>Armazena motivos usados pela DRE para não validar uma solicitação no módulo de Gestão de Alimentação.</p>
+<p>Os registros deste modelo são exibidos quando uma solicitação que passa
+pela Diretoria Regional de Educação é invalidada.</p>
+<dl class="simple">
+<dt>Exemplos:</dt><dd><ul class="simple">
+<li><p>Em desacordo com o contrato</p></li>
+<li><p>Preenchimento incorreto</p></li>
+<li><p>Outro</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.nome">
+<span class="sig-name descname"><span class="pre">nome</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.nome" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.uuid" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.MotivoDRENaoValida.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.base.models.MotivoDRENaoValida.uuid" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
