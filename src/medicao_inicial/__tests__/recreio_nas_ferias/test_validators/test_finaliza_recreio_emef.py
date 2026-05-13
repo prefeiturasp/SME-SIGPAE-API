@@ -490,7 +490,6 @@ def test_get_classificacoes_dietas_recreio_remove_enteral_sem_lanche_e_sem_refei
     assert categoria_medicao_dieta_b not in resultado
 
 
-
 def test_existe_colaborador_retorna_false_quando_nao_tem_colaboradores(
     solicitacao_recreio_emef,
 ):
