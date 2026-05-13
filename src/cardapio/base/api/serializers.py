@@ -1,10 +1,8 @@
 from rest_framework import serializers
 
 from src.cardapio.base.models import (
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     MotivoDRENaoValida,
-    SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -27,76 +25,6 @@ class TipoAlimentacaoSimplesSerializer(serializers.ModelSerializer):
         fields = (
             "uuid",
             "nome",
-        )
-
-
-class SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer(
-    serializers.ModelSerializer
-):
-    tipos_alimentacao = TipoAlimentacaoSimplesSerializer(many=True)
-    combo = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=True,
-        queryset=ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.all(),
-    )
-
-    class Meta:
-        model = SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE
-        fields = (
-            "uuid",
-            "tipos_alimentacao",
-            "combo",
-            "label",
-        )
-
-
-class CombosVinculoTipoAlimentoSimplesSerializer(serializers.ModelSerializer):
-    tipos_alimentacao = TipoAlimentacaoSimplesSerializer(many=True)
-    substituicoes = SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer(many=True)
-    vinculo = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=True,
-        queryset=VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.all(),
-    )
-    label = serializers.SerializerMethodField()
-
-    def get_label(self, obj):
-        label = ""
-        for tipo_alimentacao in obj.tipos_alimentacao.all():
-            if len(label) == 0:
-                label += tipo_alimentacao.nome
-            else:
-                label += f" e {tipo_alimentacao.nome}"
-        return label
-
-    class Meta:
-        model = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE
-        fields = (
-            "uuid",
-            "tipos_alimentacao",
-            "vinculo",
-            "substituicoes",
-            "label",
-        )
-
-
-class CombosVinculoTipoAlimentoSimplissimaSerializer(serializers.ModelSerializer):
-    label = serializers.SerializerMethodField()
-
-    def get_label(self, obj):
-        label = ""
-        for tipo_alimentacao in obj.tipos_alimentacao.all():
-            if len(label) == 0:
-                label += tipo_alimentacao.nome
-            else:
-                label += f" e {tipo_alimentacao.nome}"
-        return label
-
-    class Meta:
-        model = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE
-        fields = (
-            "uuid",
-            "label",
         )
 
 

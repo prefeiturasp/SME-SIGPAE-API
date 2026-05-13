@@ -69,16 +69,6 @@ router.register(
     "Vínculos de tipo de alimentação no periodo escolar e tipo de u.e",
 )
 router.register(
-    "combos-vinculos-tipo-alimentacao-u-e-periodo-escolar",
-    base_viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet,
-    "Combos dos vínculos de tipo de alimentação no periodo escolar e tipo de u.e",
-)
-router.register(
-    "substituicoes-combos-vinculos-tipo-alimentacao-u-e-periodo-escolar",
-    base_viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet,
-    "Substituições dos combos dos vínculos de tipo de alimentação no periodo escolar e tipo de u.e",
-)
-router.register(
     "horario-do-combo-tipo-de-alimentacao-por-unidade-escolar",
     base_viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet,
     "horario-do-combo-tipo-de-alimentacao-por-unidade-escolar",

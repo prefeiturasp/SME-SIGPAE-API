@@ -8,25 +8,19 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from src.cardapio.base.api.serializers import (
-    CombosVinculoTipoAlimentoSimplesSerializer,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer,
     MotivoDRENaoValidaSerializer,
-    SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer,
     TipoAlimentacaoSerializer,
     TipoUnidadeEscolarAgrupadoSerializer,
     VinculoTipoAlimentoSimplesSerializer,
 )
 from src.cardapio.base.api.serializers_create import (
-    ComboDoVinculoTipoAlimentoSimplesSerializerCreate,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate,
-    SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate,
     VinculoTipoAlimentoCreateSerializer,
 )
 from src.cardapio.base.models import (
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     MotivoDRENaoValida,
-    SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -291,64 +285,6 @@ class VinculoTipoAlimentacaoViewSet(
         if self.action in ["create", "update", "partial_update"]:
             return VinculoTipoAlimentoCreateSerializer
         return VinculoTipoAlimentoSimplesSerializer
-
-
-class CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    GenericViewSet,
-):
-    lookup_field = "uuid"
-    serializer_class = CombosVinculoTipoAlimentoSimplesSerializer
-    queryset = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return ComboDoVinculoTipoAlimentoSimplesSerializerCreate
-        return CombosVinculoTipoAlimentoSimplesSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not instance.pode_excluir():
-            return Response(
-                data={
-                    "detail": "Não pode excluir, o combo já tem movimentação no sistema"
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    GenericViewSet,
-):
-    lookup_field = "uuid"
-    serializer_class = SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer
-    queryset = SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate
-        return SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not instance.pode_excluir():
-            return Response(
-                data={
-                    "detail": "Não pode excluir, o combo já tem movimentação no sistema"
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class MotivosDRENaoValidaViewSet(viewsets.ReadOnlyModelViewSet):

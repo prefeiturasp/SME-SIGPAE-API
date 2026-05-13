@@ -4,8 +4,6 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
 )
 from src.cardapio.base.models import (
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -45,10 +43,8 @@ from src.produto.models import (
 )
 from src.terceirizada.models import Contrato, Edital, Terceirizada
 from utility.carga_dados.cardapio.importa_dados import (
-    cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue,
     cria_motivoalteracaocardapio,
     cria_motivosuspensao,
-    cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue,
     cria_tipo_alimentacao,
     cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar,
 )
@@ -334,39 +330,6 @@ def test_cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escola
     cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()
     assert (
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.count() == 42
-    )
-
-
-def test_cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue():
-    assert ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count() == 0
-    arquivo = "csv/escola_dre_codae_EMEF_EMEFM_EMEBS_CIEJA.csv"
-    cria_tipo_unidade_escolar(arquivo)
-    cria_tipo_alimentacao()
-    cria_periodo_escolar()
-    cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()
-    vinculos = (
-        VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.count()
-    )
-    cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()
-    minimo = 7 * vinculos
-    maximo = 12 * vinculos
-    assert minimo < ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count() < maximo
-
-
-def test_cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue():
-    assert SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count() == 0
-    arquivo = "csv/escola_dre_codae_EMEF_EMEFM_EMEBS_CIEJA.csv"
-    cria_tipo_unidade_escolar(arquivo)
-    cria_tipo_alimentacao()
-    cria_periodo_escolar()
-    cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar()
-    cria_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()
-
-    combos = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
-    cria_substituicao_do_combo_do_vinculo_tipo_alimentacao_periodo_tipo_ue()
-    assert (
-        SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
-        == combos
     )
 
 

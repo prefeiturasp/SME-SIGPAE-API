@@ -5,9 +5,7 @@ from src.cardapio.base.api.validators import (
     hora_inicio_nao_pode_ser_maior_que_hora_final,
 )
 from src.cardapio.base.models import (
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
-    SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -104,57 +102,3 @@ class VinculoTipoAlimentoCreateSerializer(serializers.ModelSerializer):
             "tipo_unidade_escolar",
             "periodo_escolar",
         )
-
-
-class ComboDoVinculoTipoAlimentoSimplesSerializerCreate(serializers.ModelSerializer):
-    tipos_alimentacao = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=True,
-        many=True,
-        queryset=TipoAlimentacao.objects.all(),
-    )
-
-    vinculo = serializers.SlugRelatedField(
-        required=False,
-        slug_field="uuid",
-        queryset=VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.all(),
-    )
-
-    def validate_tipos_alimentacao(self, tipos_alimentacao):
-        campo_nao_pode_ser_nulo(
-            tipos_alimentacao,
-            mensagem="tipos_alimentacao deve ter ao menos um elemento",
-        )
-        return tipos_alimentacao
-
-    class Meta:
-        model = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE
-        fields = ("uuid", "tipos_alimentacao", "vinculo")
-
-
-class SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate(
-    serializers.ModelSerializer
-):
-    tipos_alimentacao = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=True,
-        many=True,
-        queryset=TipoAlimentacao.objects.all(),
-    )
-
-    combo = serializers.SlugRelatedField(
-        required=False,
-        slug_field="uuid",
-        queryset=ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.all(),
-    )
-
-    def validate_tipos_alimentacao(self, tipos_alimentacao):
-        campo_nao_pode_ser_nulo(
-            tipos_alimentacao,
-            mensagem="tipos_alimentacao deve ter ao menos um elemento",
-        )
-        return tipos_alimentacao
-
-    class Meta:
-        model = SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE
-        fields = ("uuid", "tipos_alimentacao", "combo")

@@ -1,7 +1,6 @@
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 
-from src.cardapio.base.behaviors import TemLabelDeTiposDeAlimentacao
 from src.dados_comuns.behaviors import (
     Ativavel,
     Nomeavel,
@@ -57,72 +56,6 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
 
     def __str__(self):
         return f"{self.tipo_alimentacao.nome} DE: {self.hora_inicial} ATE: {self.hora_final}"
-
-
-class ComboDoVinculoTipoAlimentacaoPeriodoTipoUE(
-    ExportModelOperationsMixin("substituicoes_vinculo_alimentacao"),
-    TemChaveExterna,
-    TemLabelDeTiposDeAlimentacao,
-):
-    tipos_alimentacao = models.ManyToManyField(
-        "TipoAlimentacao",
-        related_name="%(app_label)s_%(class)s_possibilidades",
-        help_text="Tipos de alimentacao do combo.",
-        blank=True,
-    )
-    vinculo = models.ForeignKey(
-        "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="combos",
-    )
-
-    def pode_excluir(self):
-        # TODO: incrementar esse método,  impedir exclusão se tiver
-        # solicitações em cima desse combo também.
-        return not self.substituicoes.exists()
-
-    def __str__(self):
-        tipos_alimentacao_nome = [
-            nome for nome in self.tipos_alimentacao.values_list("nome", flat=True)
-        ]
-        return f"TiposAlim.: {tipos_alimentacao_nome}"
-
-    class Meta:
-        verbose_name = "Combo do vínculo tipo alimentação"
-        verbose_name_plural = "Combos do vínculo tipo alimentação"
-
-
-class SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE(
-    TemChaveExterna, TemLabelDeTiposDeAlimentacao
-):
-    tipos_alimentacao = models.ManyToManyField(
-        "TipoAlimentacao",
-        related_name="%(app_label)s_%(class)s_possibilidades",
-        help_text="Tipos de alimentacao das substituições dos combos.",
-        blank=True,
-    )
-    combo = models.ForeignKey(
-        "ComboDoVinculoTipoAlimentacaoPeriodoTipoUE",
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="substituicoes",
-    )
-
-    def pode_excluir(self):
-        # TODO: incrementar esse método,  impedir exclusão se tiver
-        # solicitações em cima dessa substituição do combo.
-        return True
-
-    def __str__(self):
-        tipos_alimentacao_nome = [
-            nome for nome in self.tipos_alimentacao.values_list("nome", flat=True)
-        ]
-        return f"TiposAlim.:{tipos_alimentacao_nome}"
-
-    class Meta:
-        verbose_name = "Substituição do combo do vínculo tipo alimentação"
-        verbose_name_plural = "Substituições do  combos do vínculo tipo alimentação"
 
 
 class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
