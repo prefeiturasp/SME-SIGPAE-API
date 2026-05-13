@@ -4730,12 +4730,8 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "nome_produto": self.ficha_tecnica.produto.nome,
                 "url": url,
                 "usuario": user.nome,
-                "nome_usual": (
-                    self.empresa.nome_fantasia if self.empresa else "-"
-                ),
-                "razao_social": (
-                    self.empresa.razao_social if self.empresa else "-"
-                ),
+                "nome_usual": (self.empresa.nome_fantasia if self.empresa else "-"),
+                "razao_social": (self.empresa.razao_social if self.empresa else "-"),
                 "log_transicao": log_transicao,
                 "hidden_email": False,
             },
@@ -6132,7 +6128,7 @@ class CronogramaSemanalWorkflow(xwf_models.Workflow):
     transitions = (
         ("inicia_fluxo", RASCUNHO, ENVIADO_AO_FORNECEDOR),
         ("fornecedor_ciente", ENVIADO_AO_FORNECEDOR, FORNECEDOR_CIENTE),
-        ("alterar_cronograma", FORNECEDOR_CIENTE, ENVIADO_AO_FORNECEDOR)
+        ("alterar_cronograma", FORNECEDOR_CIENTE, ENVIADO_AO_FORNECEDOR),
     )
 
     initial_state = RASCUNHO
@@ -6170,6 +6166,7 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
                 status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
                 usuario=user,
             )
+            self._envia_email_criacao_cronograma_semanal()
 
     @xworkflows.after_transition("fornecedor_ciente")
     def _fornecedor_ciente_hook(self, *args, **kwargs):
@@ -6188,6 +6185,29 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
                 status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
                 usuario=user,
             )
+
+    def _envia_email_criacao_cronograma_semanal(self):
+        url_detalhe_cronograma = (
+            f"{base_url}/pre-recebimento/detalhe-cronograma-semanal?uuid={self.uuid}"
+        )
+        contexto = {
+            "numero_cronograma": self.numero,
+            "data_evento": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+            "url_detalhe_cronograma": url_detalhe_cronograma,
+        }
+        destinatarios = (
+            PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
+                self.cronograma_mensal, somente_email=True
+            )
+        )
+
+        EmailENotificacaoService.enviar_email(
+            titulo=f"Cronograma Criado: Nº {self.numero}",
+            assunto=f"[SIGPAE] Ciência do cronograma Nº {self.numero}",
+            template="pre_recebimento_email_criacao_cronograma_semanal.html",
+            contexto_template=contexto,
+            destinatarios=destinatarios,
+        )
 
     class Meta:
         abstract = True
