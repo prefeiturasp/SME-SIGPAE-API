@@ -453,7 +453,7 @@ def _build_tabela_alimentacao_emei(
         alimentacao_nome = tipo["nome"].upper()
         linhas.append(
             {
-                "tipo": f"{alimentacao_nome} CIEJA E CMCT" if grupo_nome == "GRUPO 2" and alimentacao_nome == "REFEIÇÃO" else alimentacao_nome,
+                "tipo": f"{alimentacao_nome} CIEJA E CMCT" if grupo_nome == "GRUPO 6" and alimentacao_nome == "REFEIÇÃO" else alimentacao_nome,
                 "valor_unitario": valor_unitario,
                 "valor_reajuste": valor_reajuste,
                 "total_unitario": total_unitario,
@@ -541,7 +541,7 @@ def _build_tabela_dieta_emei(
         dieta_nome = tipo["nome"].upper()
         linhas.append(
             {
-                "tipo": f"{dieta_nome} CIEJA E CMCT" if grupo_nome == "GRUPO 2" and dieta_nome == "REFEIÇÃO" else dieta_nome,
+                "tipo": f"{dieta_nome} CIEJA E CMCT" if grupo_nome == "GRUPO 6" and dieta_nome == "REFEIÇÃO" else dieta_nome,
                 "valor_unitario": valor_unitario,
                 "valor_acrescimo": valor_acrescimo,
                 "total_unitario": total_unitario,
@@ -576,8 +576,10 @@ def build_relatorio_financeiro_grupo_emei(
     """
     grupo_unidade = relatorio_financeiro.grupo_unidade_escolar
     tipos_unidades = grupo_unidade.tipos_unidades.all()
-    eh_cieja = "GRUPO 6" in grupo_unidade.nome.upper()
-    eh_emef = "GRUPO 4" in grupo_unidade.nome.upper()
+    grupo_nome = grupo_unidade.nome.upper()
+
+    eh_cieja = "GRUPO 6" in grupo_nome
+    eh_emef = "GRUPO 4" in grupo_nome
 
     tipos_alimentacao = _obter_tipos_alimentacao_por_unidades(
         tipos_unidades.values_list("uuid", flat=True)
@@ -619,7 +621,7 @@ def build_relatorio_financeiro_grupo_emei(
         tabelas,
         tipos_alimentacao,
         totais_consumo,
-        grupo_unidade.nome,
+        grupo_nome,
     )
 
     lista_dietas_a = ["LANCHE", "LANCHE 4H", "REFEIÇÃO"] if not eh_cieja else ["LANCHE 4H", "REFEIÇÃO"]
@@ -636,7 +638,7 @@ def build_relatorio_financeiro_grupo_emei(
         tipos_dieta_a,
         totais_consumo,
         "TIPO A",
-        grupo_unidade.nome,
+        grupo_nome,
     )
 
     lista_dietas_b = ["LANCHE", "LANCHE 4H"] if not eh_cieja else ["LANCHE 4H"]
@@ -652,7 +654,7 @@ def build_relatorio_financeiro_grupo_emei(
         tipos_dieta_b,
         totais_consumo,
         "TIPO B",
-        grupo_unidade.nome,
+        grupo_nome,
     )
 
     consolidado = _build_consolidado_total(
