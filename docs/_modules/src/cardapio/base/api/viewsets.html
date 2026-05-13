@@ -79,25 +79,19 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.viewsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericViewSet</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CombosVinculoTipoAlimentoSimplesSerializer</span><span class="p">,</span>
     <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span><span class="p">,</span>
     <span class="n">MotivoDRENaoValidaSerializer</span><span class="p">,</span>
-    <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span><span class="p">,</span>
     <span class="n">TipoAlimentacaoSerializer</span><span class="p">,</span>
     <span class="n">TipoUnidadeEscolarAgrupadoSerializer</span><span class="p">,</span>
     <span class="n">VinculoTipoAlimentoSimplesSerializer</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.api.serializers_create</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ComboDoVinculoTipoAlimentoSimplesSerializerCreate</span><span class="p">,</span>
     <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate</span><span class="p">,</span>
-    <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate</span><span class="p">,</span>
     <span class="n">VinculoTipoAlimentoCreateSerializer</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">,</span>
     <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">,</span>
     <span class="n">MotivoDRENaoValida</span><span class="p">,</span>
-    <span class="n">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">,</span>
     <span class="n">TipoAlimentacao</span><span class="p">,</span>
     <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="p">,</span>
 <span class="p">)</span>
@@ -399,82 +393,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">VinculoTipoAlimentoCreateSerializer</span>
         <span class="k">return</span> <span class="n">VinculoTipoAlimentoSimplesSerializer</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">
-<a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet</span><span class="p">(</span>
-    <span class="n">mixins</span><span class="o">.</span><span class="n">RetrieveModelMixin</span><span class="p">,</span>
-    <span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
-    <span class="n">mixins</span><span class="o">.</span><span class="n">CreateModelMixin</span><span class="p">,</span>
-    <span class="n">mixins</span><span class="o">.</span><span class="n">DestroyModelMixin</span><span class="p">,</span>
-    <span class="n">GenericViewSet</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
-    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">CombosVinculoTipoAlimentoSimplesSerializer</span>
-    <span class="n">queryset</span> <span class="o">=</span> <span class="n">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-
-<div class="viewcode-block" id="CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">
-<a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;create&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ComboDoVinculoTipoAlimentoSimplesSerializerCreate</span>
-        <span class="k">return</span> <span class="n">CombosVinculoTipoAlimentoSimplesSerializer</span></div>
-
-
-<div class="viewcode-block" id="CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">
-<a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pode_excluir</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Não pode excluir, o combo já tem movimentação no sistema&quot;</span>
-                <span class="p">},</span>
-                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">perform_destroy</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_204_NO_CONTENT</span><span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">
-<a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet</span><span class="p">(</span>
-    <span class="n">mixins</span><span class="o">.</span><span class="n">RetrieveModelMixin</span><span class="p">,</span>
-    <span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
-    <span class="n">mixins</span><span class="o">.</span><span class="n">CreateModelMixin</span><span class="p">,</span>
-    <span class="n">mixins</span><span class="o">.</span><span class="n">DestroyModelMixin</span><span class="p">,</span>
-    <span class="n">GenericViewSet</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
-    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span>
-    <span class="n">queryset</span> <span class="o">=</span> <span class="n">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-
-<div class="viewcode-block" id="SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">
-<a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;create&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate</span>
-        <span class="k">return</span> <span class="n">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span></div>
-
-
-<div class="viewcode-block" id="SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">
-<a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pode_excluir</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Não pode excluir, o combo já tem movimentação no sistema&quot;</span>
-                <span class="p">},</span>
-                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">perform_destroy</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_204_NO_CONTENT</span><span class="p">)</span></div>
 </div>
 
 

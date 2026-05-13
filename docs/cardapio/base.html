@@ -51,23 +51,14 @@
 <li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao_cemei.html">alteracao_tipo_alimentacao_cemei</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">base</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.base.admin">admin</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin"><code class="docutils literal notranslate"><span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.ComboVinculoLine"><code class="docutils literal notranslate"><span class="pre">ComboVinculoLine</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.SubstituicaoComboInline"><code class="docutils literal notranslate"><span class="pre">SubstituicaoComboInline</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin"><code class="docutils literal notranslate"><span class="pre">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacaoAdmin</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoModelAdmin</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.base.behaviors">behaviors</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao"><code class="docutils literal notranslate"><span class="pre">TemLabelDeTiposDeAlimentacao</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l4"><a class="reference internal" href="#behaviors">behaviors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.base.models">models</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="docutils literal notranslate"><span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.MotivoDRENaoValida"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="docutils literal notranslate"><span class="pre">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.TipoAlimentacao"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></code></a></li>
 </ul>
@@ -127,97 +118,6 @@
 <section id="module-src.cardapio.base.admin">
 <span id="admin"></span><h2>admin<a class="headerlink" href="#module-src.cardapio.base.admin" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.filter_horizontal">
-<span class="sig-name descname"><span class="pre">filter_horizontal</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('tipos_alimentacao',)</span></span><a class="headerlink" href="#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.filter_horizontal" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.inlines">
-<span class="sig-name descname"><span class="pre">inlines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'src.cardapio.base.admin.SubstituicaoComboInline'&gt;]</span></span><a class="headerlink" href="#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.inlines" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.media">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.media" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.readonly_fields">
-<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('vinculo',)</span></span><a class="headerlink" href="#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.readonly_fields" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.search_fields">
-<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('vinculo__tipo_unidade_escolar__iniciais',)</span></span><a class="headerlink" href="#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.search_fields" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboVinculoLine">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ComboVinculoLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#ComboVinculoLine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.ComboVinculoLine" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TabularInline</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboVinculoLine.extra">
-<span class="sig-name descname"><span class="pre">extra</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#src.cardapio.base.admin.ComboVinculoLine.extra" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboVinculoLine.media">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.base.admin.ComboVinculoLine.media" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.ComboVinculoLine.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.base.admin.ComboVinculoLine.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.SubstituicaoComboInline">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoComboInline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#SubstituicaoComboInline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.SubstituicaoComboInline" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TabularInline</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.SubstituicaoComboInline.extra">
-<span class="sig-name descname"><span class="pre">extra</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></span><a class="headerlink" href="#src.cardapio.base.admin.SubstituicaoComboInline.extra" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.SubstituicaoComboInline.media">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.base.admin.SubstituicaoComboInline.media" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.SubstituicaoComboInline.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.base.admin.SubstituicaoComboInline.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.list_display">
-<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('__str__',)</span></span><a class="headerlink" href="#src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.list_display" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.media">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUEModelAdmin.media" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.admin.TipoAlimentacaoAdmin">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoAlimentacaoAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#TipoAlimentacaoAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
@@ -243,11 +143,6 @@
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculoTipoAlimentacaoModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#VinculoTipoAlimentacaoModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin.inlines">
-<span class="sig-name descname"><span class="pre">inlines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'src.cardapio.base.admin.ComboVinculoLine'&gt;]</span></span><a class="headerlink" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin.inlines" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin.list_filter">
 <span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('periodo_escolar__nome',</span> <span class="pre">'tipo_unidade_escolar__iniciais',</span> <span class="pre">'ativo')</span></span><a class="headerlink" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin.list_filter" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -260,124 +155,11 @@
 </dd></dl>
 
 </section>
-<section id="module-src.cardapio.base.behaviors">
-<span id="behaviors"></span><h2>behaviors<a class="headerlink" href="#module-src.cardapio.base.behaviors" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TemLabelDeTiposDeAlimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/behaviors.html#TemLabelDeTiposDeAlimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao.Meta">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/behaviors.html#TemLabelDeTiposDeAlimentacao.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao.Meta" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao.Meta.abstract">
-<span class="sig-name descname"><span class="pre">abstract</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao.Meta.abstract" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao.label">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">label</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao.label" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="behaviors">
+<h2>behaviors<a class="headerlink" href="#behaviors" title="Link to this heading"></a></h2>
 </section>
 <section id="module-src.cardapio.base.models">
 <span id="models"></span><h2>models<a class="headerlink" href="#module-src.cardapio.base.models" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vinculo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#ComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('substituicoes_vinculo_alimentacao')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <a class="reference internal" href="#src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao" title="src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemLabelDeTiposDeAlimentacao</span></code></a></p>
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir">
-<span class="sig-name descname"><span class="pre">pode_excluir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.substituicoes">
-<span class="sig-name descname"><span class="pre">substituicoes</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.substituicoes" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the reverse side of a
-many-to-one relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.tipos_alimentacao">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.tipos_alimentacao" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.vinculo">
-<span class="sig-name descname"><span class="pre">vinculo</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.vinculo" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.vinculo_id">
-<span class="sig-name descname"><span class="pre">vinculo_id</span></span><a class="headerlink" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.vinculo_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hora_inicial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hora_final</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_alimentacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar" title="Link to this definition"></a></dt>
@@ -537,82 +319,6 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <a class="reference internal" href="#src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao" title="src.cardapio.base.behaviors.TemLabelDeTiposDeAlimentacao"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemLabelDeTiposDeAlimentacao</span></code></a></p>
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.combo">
-<span class="sig-name descname"><span class="pre">combo</span></span><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.combo" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.combo_id">
-<span class="sig-name descname"><span class="pre">combo_id</span></span><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.combo_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir">
-<span class="sig-name descname"><span class="pre">pode_excluir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.tipos_alimentacao">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.tipos_alimentacao" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoAlimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/models.html#TipoAlimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('tipo_alimentacao')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Nomeavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Posicao</span></code></p>
@@ -646,38 +352,6 @@ Lanche Emergencial</p>
 <dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.MultipleObjectsReturned">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.MultipleObjectsReturned" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.cardapio_combodovinculotipoalimentacaoperiodotipoue_possibilidades">
-<span class="sig-name descname"><span class="pre">cardapio_combodovinculotipoalimentacaoperiodotipoue_possibilidades</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.cardapio_combodovinculotipoalimentacaoperiodotipoue_possibilidades" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.cardapio_substituicaodocombodovinculotipoalimentacaoperiodotipoue_possibilidades">
-<span class="sig-name descname"><span class="pre">cardapio_substituicaodocombodovinculotipoalimentacaoperiodotipoue_possibilidades</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.cardapio_substituicaodocombodovinculotipoalimentacaoperiodotipoue_possibilidades" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1079,21 +753,6 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.combos">
-<span class="sig-name descname"><span class="pre">combos</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.combos" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the reverse side of a
-many-to-one relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.id">
 <span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.id" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
@@ -1172,62 +831,6 @@ object the first time, the query is executed.</p>
 <section id="module-src.cardapio.base.api.serializers">
 <span id="serializers"></span><h3>serializers<a class="headerlink" href="#module-src.cardapio.base.api.serializers" title="Link to this heading"></a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CombosVinculoTipoAlimentoSimplesSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#CombosVinculoTipoAlimentoSimplesSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.Meta">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#CombosVinculoTipoAlimentoSimplesSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.Meta" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.Meta.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'tipos_alimentacao',</span> <span class="pre">'vinculo',</span> <span class="pre">'substituicoes',</span> <span class="pre">'label')</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.Meta.fields" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.Meta.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.Meta.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.get_label">
-<span class="sig-name descname"><span class="pre">get_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#CombosVinculoTipoAlimentoSimplesSerializer.get_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer.get_label" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CombosVinculoTipoAlimentoSimplissimaSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#CombosVinculoTipoAlimentoSimplissimaSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.Meta">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#CombosVinculoTipoAlimentoSimplissimaSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.Meta" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.Meta.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'label')</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.Meta.fields" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.Meta.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.Meta.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.get_label">
-<span class="sig-name descname"><span class="pre">get_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#CombosVinculoTipoAlimentoSimplissimaSerializer.get_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplissimaSerializer.get_label" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
@@ -1267,29 +870,6 @@ object the first time, the query is executed.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer.Meta.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer.Meta.model" title="Link to this definition"></a></dt>
 <dd><p>alias of <a class="reference internal" href="#src.cardapio.base.models.MotivoDRENaoValida" title="src.cardapio.base.models.MotivoDRENaoValida"><code class="xref py py-class docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'tipos_alimentacao',</span> <span class="pre">'combo',</span> <span class="pre">'label')</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta.fields" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer.Meta.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -1413,34 +993,6 @@ object the first time, the query is executed.</p>
 <section id="module-src.cardapio.base.api.serializers_create">
 <span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-src.cardapio.base.api.serializers_create" title="Link to this heading"></a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ComboDoVinculoTipoAlimentoSimplesSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#ComboDoVinculoTipoAlimentoSimplesSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate.Meta">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#ComboDoVinculoTipoAlimentoSimplesSerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate.Meta" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate.Meta.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'tipos_alimentacao',</span> <span class="pre">'vinculo')</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate.Meta.fields" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate.Meta.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate.Meta.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="src.cardapio.base.models.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate.validate_tipos_alimentacao">
-<span class="sig-name descname"><span class="pre">validate_tipos_alimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tipos_alimentacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#ComboDoVinculoTipoAlimentoSimplesSerializerCreate.validate_tipos_alimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.ComboDoVinculoTipoAlimentoSimplesSerializerCreate.validate_tipos_alimentacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
@@ -1492,34 +1044,6 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.validate">
 <span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.validate" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.Meta">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.Meta" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.Meta.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'tipos_alimentacao',</span> <span class="pre">'combo')</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.Meta.fields" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.Meta.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.Meta.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE" title="src.cardapio.base.models.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.validate_tipos_alimentacao">
-<span class="sig-name descname"><span class="pre">validate_tipos_alimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tipos_alimentacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.validate_tipos_alimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate.validate_tipos_alimentacao" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1577,43 +1101,6 @@ estiver cadastrado, só será possivel atualizar o objeto HorarioDoComboDoTipoDe
 <section id="module-src.cardapio.base.api.viewsets">
 <span id="viewsets"></span><h3>viewsets<a class="headerlink" href="#module-src.cardapio.base.api.viewsets" title="Link to this heading"></a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrieveModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ListModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CreateModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DestroyModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">
-<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">
-<span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.lookup_field">
-<span class="sig-name descname"><span class="pre">lookup_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uuid'</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.lookup_field" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.queryset">
-<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE&gt;</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.queryset" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.serializer_class">
-<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.serializer_class" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer" title="src.cardapio.base.api.serializers.CombosVinculoTipoAlimentoSimplesSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">CombosVinculoTipoAlimentoSimplesSerializer</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code></p>
@@ -1668,43 +1155,6 @@ serializations depending on the incoming request.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.MotivosDRENaoValidaViewSet.serializer_class">
 <span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.MotivosDRENaoValidaViewSet.serializer_class" title="Link to this definition"></a></dt>
 <dd><p>alias of <a class="reference internal" href="#src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer" title="src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MotivoDRENaoValidaSerializer</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrieveModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ListModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CreateModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DestroyModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy">
-<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.destroy" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class">
-<span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.lookup_field">
-<span class="sig-name descname"><span class="pre">lookup_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uuid'</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.lookup_field" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.queryset">
-<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE&gt;</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.queryset" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.serializer_class">
-<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet.serializer_class" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer" title="src.cardapio.base.api.serializers.SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
