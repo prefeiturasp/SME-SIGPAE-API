@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from src.cardapio.base.api.serializers import (
-    CardapioSerializer,
     CombosVinculoTipoAlimentoSimplesSerializer,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer,
     MotivoDRENaoValidaSerializer,
@@ -18,14 +17,12 @@ from src.cardapio.base.api.serializers import (
     VinculoTipoAlimentoSimplesSerializer,
 )
 from src.cardapio.base.api.serializers_create import (
-    CardapioCreateSerializer,
     ComboDoVinculoTipoAlimentoSimplesSerializerCreate,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate,
     SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate,
     VinculoTipoAlimentoCreateSerializer,
 )
 from src.cardapio.base.models import (
-    Cardapio,
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     MotivoDRENaoValida,
@@ -42,17 +39,6 @@ from src.inclusao_alimentacao.models import (
     InclusaoAlimentacaoNormal,
     QuantidadePorPeriodo,
 )
-
-
-class CardapioViewSet(viewsets.ModelViewSet):
-    lookup_field = "uuid"
-    serializer_class = CardapioSerializer
-    queryset = Cardapio.objects.all().order_by("data")
-
-    def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
-            return CardapioCreateSerializer
-        return CardapioSerializer
 
 
 class TipoAlimentacaoViewSet(viewsets.ModelViewSet):

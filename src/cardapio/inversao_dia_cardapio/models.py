@@ -1,7 +1,6 @@
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 
-from src.cardapio.base.models import Cardapio
 from src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers import (
     InversaoCardapioDestaSemanaManager,
     InversaoCardapioDesteMesManager,
@@ -60,21 +59,6 @@ class InversaoCardapio(
     alunos_da_cemei_2 = models.CharField(
         "Alunos da CEMEI", blank=True, default="", max_length=50
     )
-
-    cardapio_de = models.ForeignKey(
-        Cardapio,
-        on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True,
-        related_name="cardapio_de",
-    )
-    cardapio_para = models.ForeignKey(
-        Cardapio,
-        on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True,
-        related_name="cardapio_para",
-    )
     escola = models.ForeignKey(
         "escola.Escola", blank=True, null=True, on_delete=models.DO_NOTHING
     )
@@ -92,30 +76,25 @@ class InversaoCardapio(
 
     @property
     def datas(self):
-        if self.cardapio_de:
-            datas = self.cardapio_de.data.strftime(FORMATO_DATA_BR)
-        else:
-            datas = self.data_de_inversao.strftime(FORMATO_DATA_BR)
+        datas = self.data_de.strftime(FORMATO_DATA_BR) if self.data_de else ""
         if self.data_de_inversao_2:
             datas += "<br />" + self.data_de_inversao_2.strftime(FORMATO_DATA_BR)
         return datas
 
     @property
     def data_de(self):
-        return (
-            self.cardapio_de.data if self.cardapio_de else self.data_de_inversao or None
-        )
+        return self.data_de_inversao or None
 
     @property
     def data_para(self):
-        return (
-            self.cardapio_para.data
-            if self.cardapio_para
-            else self.data_para_inversao or None
-        )
+        return self.data_para_inversao or None
 
     @property
     def data(self):
+        if self.data_de is None:
+            return self.data_para
+        if self.data_para is None:
+            return self.data_de
         return self.data_para if self.data_para < self.data_de else self.data_de
 
     @property
@@ -195,8 +174,8 @@ class InversaoCardapio(
 
     def __str__(self):
         return (
-            f"Inversão de Cardápio \nDe: {self.cardapio_de or self.data_de_inversao} \n"
-            f"Para: {self.cardapio_para or self.data_para_inversao}"
+            f"Inversão de Cardápio \nDe: {self.data_de_inversao} \n"
+            f"Para: {self.data_para_inversao}"
         )
 
     class Meta:

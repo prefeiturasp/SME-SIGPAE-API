@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from src.cardapio.base.models import (
-    Cardapio,
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     MotivoDRENaoValida,
@@ -40,12 +39,6 @@ class ComboVinculoLine(admin.TabularInline):
 class VinculoTipoAlimentacaoModelAdmin(admin.ModelAdmin):
     list_filter = ("periodo_escolar__nome", "tipo_unidade_escolar__iniciais", "ativo")
     inlines = [ComboVinculoLine]
-
-
-@admin.register(Cardapio)
-class CardapioAdmin(admin.ModelAdmin):
-    list_display = ["data", "criado_em", "ativo"]
-    ordering = ["data", "criado_em"]
 
 
 @admin.register(TipoAlimentacao)

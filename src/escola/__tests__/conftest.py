@@ -58,11 +58,7 @@ def periodo_escolar_noite():
 
 @pytest.fixture
 def tipo_unidade_escolar():
-    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
-    return baker.make(
-        models.TipoUnidadeEscolar, iniciais="EMEF", cardapios=[cardapio1, cardapio2]
-    )
+    return baker.make(models.TipoUnidadeEscolar, iniciais="EMEF")
 
 
 @pytest.fixture

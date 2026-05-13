@@ -23,8 +23,8 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
-    build_relatorio_financeiro_grupo_emei,
     build_relatorio_financeiro_grupo_cemei,
+    build_relatorio_financeiro_grupo_emei,
 )
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -1158,16 +1158,8 @@ def relatorio_inversao_dia_de_cardapio(request, solicitacao):
     escola = solicitacao.rastro_escola
     escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
-    data_de = (
-        solicitacao.cardapio_de.data
-        if solicitacao.cardapio_de
-        else solicitacao.data_de_inversao
-    )
-    data_para = (
-        solicitacao.cardapio_para.data
-        if solicitacao.cardapio_para
-        else solicitacao.data_para_inversao
-    )
+    data_de = solicitacao.data_de
+    data_para = solicitacao.data_para
     html_string = render_to_string(
         "solicitacao_inversao_de_cardapio.html",
         {
@@ -2698,7 +2690,10 @@ def relatorio_ateste_financeiro_grupo_cemei(relatorio_financeiro, parametrizacao
     grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
 
     return html_to_pdf_file(
-        html_string.replace("dt_file", f"{relatorio_cemei["cabecalho"]["data_geracao"]} às {relatorio_cemei["cabecalho"]["hora_geracao"]}"),
+        html_string.replace(
+            "dt_file",
+            f"{relatorio_cemei["cabecalho"]["data_geracao"]} às {relatorio_cemei["cabecalho"]["hora_geracao"]}",
+        ),
         f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )

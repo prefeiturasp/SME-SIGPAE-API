@@ -262,12 +262,9 @@ def users_admin_escola(client, django_user_model, request, tipo_gestao):
         uuid="7da9acec-48e1-430c-8a5c-1f1efc666fad",
         codigo_eol=987656,
     )
-    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
         iniciais=f.name()[:10],
-        cardapios=[cardapio1, cardapio2],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
     escola = baker.make(
@@ -353,12 +350,9 @@ def users_diretor_escola(client, django_user_model, request, usuario_2, tipo_ges
         uuid="7da9acec-48e1-430c-8a5c-1f1efc666fad",
         codigo_eol=987656,
     )
-    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
         iniciais="EMEF",
-        cardapios=[cardapio1, cardapio2],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
     escola = baker.make(
@@ -726,12 +720,9 @@ def usuarios_pendentes_confirmacao(request, perfil, tipo_gestao):
         uuid="7da9acec-48e1-430c-8a5c-1f1efc666fad",
         codigo_eol=987656,
     )
-    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
         iniciais="EMEF",
-        cardapios=[cardapio1, cardapio2],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
     escola = baker.make(

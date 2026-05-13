@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from src.cardapio.base.models import (
-    Cardapio,
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     MotivoDRENaoValida,
@@ -12,10 +11,8 @@ from src.cardapio.base.models import (
 from src.escola.api.serializers import (
     EscolaListagemSimplesSelializer,
     PeriodoEscolarSimplesSerializer,
-    TipoUnidadeEscolarSerializer,
     TipoUnidadeEscolarSerializerSimples,
 )
-from src.terceirizada.api.serializers.serializers import EditalSerializer
 
 
 class TipoAlimentacaoSerializer(serializers.ModelSerializer):
@@ -150,22 +147,6 @@ class VinculoTipoAlimentoPeriodoSerializer(serializers.ModelSerializer):
             "nome",
             "tipos_alimentacao",
         )
-
-
-class CardapioSimplesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cardapio
-        exclude = ("id",)
-
-
-class CardapioSerializer(serializers.ModelSerializer):
-    tipos_alimentacao = TipoAlimentacaoSerializer(many=True, read_only=True)
-    tipos_unidade_escolar = TipoUnidadeEscolarSerializer(many=True, read_only=True)
-    edital = EditalSerializer()
-
-    class Meta:
-        model = Cardapio
-        exclude = ("id",)
 
 
 class MotivoDRENaoValidaSerializer(serializers.ModelSerializer):

@@ -25,7 +25,6 @@ from src.cardapio.suspensao_alimentacao_cei.api import (
 )
 
 router = routers.DefaultRouter()
-router.register("cardapios", base_viewsets.CardapioViewSet, "Cardápios")
 router.register(
     "tipos-alimentacao", base_viewsets.TipoAlimentacaoViewSet, "Tipos de Alimentação"
 )

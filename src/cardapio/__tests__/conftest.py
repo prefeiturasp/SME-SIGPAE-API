@@ -238,13 +238,7 @@ def template_mensagem_alteracao_cardapio():
 
 @pytest.fixture
 def tipo_unidade_escolar():
-    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
-    return baker.make(
-        "TipoUnidadeEscolar",
-        iniciais=fake.name()[:10],
-        cardapios=[cardapio1, cardapio2],
-    )
+    return baker.make("TipoUnidadeEscolar", iniciais=fake.name()[:10])
 
 
 @pytest.fixture
@@ -271,36 +265,6 @@ def faixas_etarias_ativas():
 
 
 @pytest.fixture
-def cardapio_valido():
-    cardapio_valido = baker.make(
-        "Cardapio",
-        id=1,
-        data=datetime.date(2019, 11, 29),
-        uuid="7a4ec98a-18a8-4d0a-b722-1da8f99aaf4b",
-        descricao="lorem ipsum",
-    )
-    return cardapio_valido
-
-
-@pytest.fixture
-def cardapio_valido2():
-    cardapio_valido2 = baker.make(
-        "Cardapio",
-        id=2,
-        data=datetime.date(2019, 12, 15),
-        uuid="7a4ec98a-18a8-4d0a-b722-1da8f99aaf4c",
-    )
-    return cardapio_valido2
-
-
-@pytest.fixture
-def cardapio_valido3():
-    data = datetime.datetime.now() + datetime.timedelta(days=6)
-    cardapio_valido = baker.make("Cardapio", id=22, data=data.date())
-    return cardapio_valido
-
-
-@pytest.fixture
 def motivo_alteracao_cardapio():
     return baker.make(MotivoAlteracaoCardapio, nome="Aniversariantes do mês")
 
@@ -324,8 +288,6 @@ def usuario_vinculo_escola_cardapio(
     django_user_model,
     escola,
     template_mensagem_alteracao_cardapio,
-    cardapio_valido2,
-    cardapio_valido3,
 ):
     email = "test@test.com"
     rf = "1888888"
@@ -346,8 +308,8 @@ def usuario_vinculo_escola_cardapio(
     )
     baker.make(
         InversaoCardapio,
-        cardapio_de=cardapio_valido2,
-        cardapio_para=cardapio_valido3,
+        data_de_inversao=datetime.date(2019, 12, 15),
+        data_para_inversao=datetime.date(2019, 12, 21),
         criado_por=user,
         criado_em=datetime.date(2019, 12, 12),
         escola=escola,

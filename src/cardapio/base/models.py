@@ -4,12 +4,9 @@ from django_prometheus.models import ExportModelOperationsMixin
 from src.cardapio.base.behaviors import TemLabelDeTiposDeAlimentacao
 from src.dados_comuns.behaviors import (
     Ativavel,
-    CriadoEm,
-    Descritivel,
     Nomeavel,
     Posicao,
     TemChaveExterna,
-    TemData,
 )
 
 
@@ -159,42 +156,6 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
         unique_together = [["periodo_escolar", "tipo_unidade_escolar"]]
         verbose_name = "Vínculo tipo alimentação"
         verbose_name_plural = "Vínculos tipo alimentação"
-
-
-class Cardapio(
-    ExportModelOperationsMixin("cardapio"),
-    Descritivel,
-    Ativavel,
-    TemData,
-    TemChaveExterna,
-    CriadoEm,
-):
-    """Cardápio escolar.
-
-    tem 1 data pra acontecer ex (26/06)
-    tem 1 lista de tipos de alimentação (Dejejum, Colação, Almoço, LANCHE DE 4 HS OU 8 HS;
-    LANCHE DE 5HS OU 6 HS; REFEIÇÃO).
-
-    !!!OBS!!! PARA CEI varia por faixa de idade.
-    """
-
-    tipos_alimentacao = models.ManyToManyField(TipoAlimentacao)
-    edital = models.ForeignKey(
-        "terceirizada.Edital", on_delete=models.DO_NOTHING, related_name="editais"
-    )
-
-    @property  # type: ignore
-    def tipos_unidade_escolar(self):
-        return self.tipos_unidade_escolar
-
-    def __str__(self):
-        if self.descricao:
-            return f"{self.data}  - {self.descricao}"
-        return f"{self.data}"
-
-    class Meta:
-        verbose_name = "Cardápio"
-        verbose_name_plural = "Cardápios"
 
 
 class MotivoDRENaoValida(

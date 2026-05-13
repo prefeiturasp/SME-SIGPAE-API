@@ -11,7 +11,6 @@ from ...cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioC
 from ..validators import (
     campo_deve_ser_deste_tipo,
     campo_nao_pode_ser_nulo,
-    deve_existir_cardapio,
     deve_pedir_com_antecedencia,
     deve_ser_dia_letivo_e_dia_da_semana,
     deve_ser_no_mesmo_ano_corrente,
@@ -117,14 +116,6 @@ def test_nao_pode_ser_feriado_raise_error(dias_nao_uteis):
 def test_nao_pode_ser_feriado_valor_valido(dias_uteis):
     dia, _ = dias_uteis
     assert nao_pode_ser_feriado(dia) is None
-
-
-def test_nao_existe_cardapio(dias_sem_cardapio, escola):
-    with pytest.raises(
-        ValidationError,
-        match=f'Escola não possui cardápio para esse dia: {dias_sem_cardapio.strftime("%d-%m-%Y")}',
-    ):
-        deve_existir_cardapio(escola, dias_sem_cardapio)
 
 
 @freeze_time("2025-01-01")  # Quarta-feira (feriado)

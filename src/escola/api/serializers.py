@@ -153,7 +153,7 @@ class TipoUnidadeEscolarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TipoUnidadeEscolar
-        exclude = ("id", "cardapios")
+        exclude = ("id",)
 
 
 class LogAlunosMatriculadosPeriodoEscolaSerializer(serializers.ModelSerializer):
@@ -190,7 +190,7 @@ class DiaCalendarioSerializer(serializers.ModelSerializer):
 class TipoUnidadeEscolarSerializerSimples(serializers.ModelSerializer):
     class Meta:
         model = TipoUnidadeEscolar
-        exclude = ("id", "cardapios", "periodos_escolares")
+        exclude = ("id", "periodos_escolares")
 
 
 class FaixaIdadeEscolarSerializer(serializers.ModelSerializer):

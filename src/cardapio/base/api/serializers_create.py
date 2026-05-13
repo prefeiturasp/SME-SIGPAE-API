@@ -5,7 +5,6 @@ from src.cardapio.base.api.validators import (
     hora_inicio_nao_pode_ser_maior_que_hora_final,
 )
 from src.cardapio.base.models import (
-    Cardapio,
     ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
@@ -15,12 +14,8 @@ from src.cardapio.base.models import (
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import (
     campo_nao_pode_ser_nulo,
-    nao_pode_ser_feriado,
-    nao_pode_ser_no_passado,
-    objeto_nao_deve_ter_duplicidade,
 )
 from src.escola.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
-from src.terceirizada.models import Edital
 
 
 class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate(
@@ -76,32 +71,6 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate(
             "tipo_alimentacao",
             "periodo_escolar",
         )
-
-
-class CardapioCreateSerializer(serializers.ModelSerializer):
-    tipos_alimentacao = serializers.SlugRelatedField(
-        slug_field="uuid",
-        many=True,
-        required=True,
-        queryset=TipoAlimentacao.objects.all(),
-    )
-    edital = serializers.SlugRelatedField(
-        slug_field="uuid", required=True, queryset=Edital.objects.all()
-    )
-
-    def validate_data(self, data):
-        nao_pode_ser_no_passado(data)
-        nao_pode_ser_feriado(data)
-        objeto_nao_deve_ter_duplicidade(
-            Cardapio,
-            mensagem="Já existe um cardápio cadastrado com esta data",
-            data=data,
-        )
-        return data
-
-    class Meta:
-        model = Cardapio
-        exclude = ("id",)
 
 
 class VinculoTipoAlimentoCreateSerializer(serializers.ModelSerializer):
