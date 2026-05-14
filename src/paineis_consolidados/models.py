@@ -460,7 +460,9 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
             data_limite = datetime.date.today() - datetime.timedelta(
                 days=int(query_params.get("periodo"))
             )
-            queryset = queryset.filter(data_evento__gte=data_limite)
+            queryset = queryset.filter(
+                Q(data_evento__gte=data_limite) | Q(data_evento__isnull=True)
+            )
         if query_params.get("busca"):
             queryset = queryset.filter(
                 Q(uuid__icontains=query_params.get("busca"))
@@ -728,8 +730,8 @@ class SolicitacoesNutrisupervisao(MoldeConsolidado):
                 ),
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -740,8 +742,8 @@ class SolicitacoesNutrisupervisao(MoldeConsolidado):
                 status_atual__in=cls.NEGADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -752,8 +754,8 @@ class SolicitacoesNutrisupervisao(MoldeConsolidado):
                 status_atual__in=cls.CANCELADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
 
@@ -798,8 +800,8 @@ class SolicitacoesNutrimanifestacao(MoldeConsolidado):
                 ),
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -810,8 +812,8 @@ class SolicitacoesNutrimanifestacao(MoldeConsolidado):
                 status_atual__in=cls.NEGADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -822,8 +824,8 @@ class SolicitacoesNutrimanifestacao(MoldeConsolidado):
                 status_atual__in=cls.CANCELADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
 
@@ -1030,8 +1032,8 @@ class SolicitacoesCODAE(MoldeConsolidado):
                 ),
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1042,8 +1044,8 @@ class SolicitacoesCODAE(MoldeConsolidado):
                 status_atual__in=cls.NEGADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1054,8 +1056,8 @@ class SolicitacoesCODAE(MoldeConsolidado):
                 status_atual__in=cls.CANCELADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1366,8 +1368,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 status_evento__in=cls.PENDENTES_EVENTO,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1411,8 +1413,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 ),
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1425,8 +1427,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 escola_uuid=escola_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1448,8 +1450,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 status_atual__in=cls.CANCELADOS_STATUS,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
         uuids_solicitacao_unificadas_canceladas_parcialmente = list(
             SolicitacaoKitLancheUnificada.objects.filter(
@@ -1464,8 +1466,8 @@ class SolicitacoesEscola(MoldeConsolidado):
                 status_evento__in=cls.AUTORIZADOS_EVENTO,
                 tipo_doc=cls.TP_SOL_KIT_LANCHE_UNIFICADA,
             )
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
         return cancelados | kit_lanche_unificados_parcialmente_cancelados
 
@@ -1744,8 +1746,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1759,8 +1761,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1773,8 +1775,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1808,8 +1810,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1822,8 +1824,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -1836,8 +1838,8 @@ class SolicitacoesDRE(MoldeConsolidado):
                 dre_uuid=dre_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     #
@@ -2117,8 +2119,8 @@ class SolicitacoesTerceirizada(MoldeConsolidado):
                 terceirizada_uuid=terceirizada_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -2131,8 +2133,8 @@ class SolicitacoesTerceirizada(MoldeConsolidado):
                 terceirizada_uuid=terceirizada_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
@@ -2151,8 +2153,8 @@ class SolicitacoesTerceirizada(MoldeConsolidado):
                 terceirizada_uuid=terceirizada_uuid,
             )
             .exclude(tipo_doc=cls.TP_SOL_DIETA_ESPECIAL)
-            .distinct("uuid")
-            .order_by("uuid", "-data_log")
+            .distinct()
+            .order_by("-data_log")
         )
 
     @classmethod
