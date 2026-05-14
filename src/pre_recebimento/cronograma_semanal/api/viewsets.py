@@ -11,6 +11,7 @@ from src.dados_comuns.permissions import (
     PermissaoParaCriarCronogramaSemanal,
     PermissaoParaDarCienciaCronogramaSemanal,
     PermissaoParaVisualizarCronogramaSemanal,
+    PermissaoParaVisualizarCalendarioCronograma,
 )
 from src.pre_recebimento.base.api.paginations import (
     PreRecebimentoPagination,
@@ -31,6 +32,7 @@ from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
     CronogramaSemanalDetailSerializer,
     CronogramaSemanalListagemSerializer,
     CronogramaSemanalRascunhosSerializer,
+    CronogramaSemanalCalendarioSerializer,
 )
 from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
@@ -55,6 +57,7 @@ class CronogramaSemanalViewSet(
     - GET /cronogramas-semanais/cronogramas-mensal-assinados/ - Lista cronogramas mensal Ponto a Ponto assinados
     - GET /cronogramas-semanais/rascunhos/ - Lista cronogramas semanais com status RASCUNHO
     - GET /cronogramas-semanais/{uuid}/ - Detalha cronograma semanal
+    - GET /cronogramas-semanais/calendario/
     """
 
     queryset = CronogramaSemanal.objects.all()
@@ -65,10 +68,11 @@ class CronogramaSemanalViewSet(
         "create": [PermissaoParaCriarCronogramaSemanal],
         "update": [PermissaoParaCriarCronogramaSemanal],
         "partial_update": [PermissaoParaCriarCronogramaSemanal],
-        "cronogramas_mensal_assinados": [PermissaoParaCriarCronogramaSemanal],
+        "cronogramas_mensal_assinados": [PermissaoParaVisualizarCronogramaSemanal],
         "fornecedor_ciente": [PermissaoParaDarCienciaCronogramaSemanal],
         "rascunhos_listagem": [PermissaoParaCriarCronogramaSemanal],
         "alterar_cronograma": [PermissaoParaCriarCronogramaSemanal],
+        "calendario": [PermissaoParaVisualizarCalendarioCronograma]
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
@@ -83,7 +87,16 @@ class CronogramaSemanalViewSet(
 
     def get_queryset(self):
         """Retorna queryset ordenado por data de alteração (mais recente primeiro)."""
-        return CronogramaSemanal.objects.all().order_by("-alterado_em")
+        return (
+            CronogramaSemanal.objects.select_related(
+                "cronograma_mensal",
+                "cronograma_mensal__ficha_tecnica",
+                "cronograma_mensal__ficha_tecnica__produto",
+                "cronograma_mensal__empresa",
+            )
+            .prefetch_related("programacoes")
+            .order_by("-alterado_em")
+        )
 
     def get_serializer_class(self):
         serializer_map = {
@@ -96,6 +109,7 @@ class CronogramaSemanalViewSet(
             "retrieve": CronogramaSemanalDetailSerializer,
             "fornecedor_ciente": CronogramaSemanalDetailSerializer,
             "list": CronogramaSemanalListagemSerializer,
+            "calendario": CronogramaSemanalCalendarioSerializer,
         }
         return serializer_map.get(self.action, CronogramaSemanalListagemSerializer)
 
@@ -124,6 +138,60 @@ class CronogramaSemanalViewSet(
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="calendario",
+        url_name="calendario",
+    )
+    def calendario(self, request):
+        """
+        Lista cronogramas semanais para exibição no calendário.
+        Filtra as programações pelo mês e ano informados via query params.
+        """
+        mes = request.query_params.get("mes")
+        ano = request.query_params.get("ano")
+        status_filter = request.query_params.get("status")
+
+        if not mes or not ano:
+            return Response(
+                {"detail": "Os parâmetros 'mes' e 'ano' são obrigatórios."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            mes = int(mes)
+            ano = int(ano)
+        except ValueError:
+            return Response(
+                {"detail": "Os parâmetros 'mes' e 'ano' devem ser números inteiros."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        queryset = (
+            CronogramaSemanal.objects.select_related(
+                "cronograma_mensal",
+                "cronograma_mensal__ficha_tecnica__produto",
+                "cronograma_mensal__empresa",
+                "cronograma_mensal__armazem",
+                "cronograma_mensal__unidade_medida",
+            )
+            .prefetch_related("programacoes")
+            .filter(programacoes__data_inicio__month=mes, programacoes__data_inicio__year=ano)
+            .exclude(status="RASCUNHO")
+            .distinct()
+        )
+
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+
+        serializer = CronogramaSemanalCalendarioSerializer(
+            queryset,
+            many=True,
+            context={"mes": mes, "ano": ano, "request": request},
+        )
         return Response(serializer.data)
 
     @action(
