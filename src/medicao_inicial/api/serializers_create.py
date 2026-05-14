@@ -435,17 +435,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         for dia in range(1, quantidade_dias_mes + 1):
             for periodo_escolar in periodos_escolares:
-                try:
-                    medicao = instance.medicoes.get(
-                        periodo_escolar__nome=periodo_escolar
-                    )
-                except Medicao.DoesNotExist:
-                    medicao = Medicao.objects.create(
-                        solicitacao_medicao_inicial=instance,
-                        periodo_escolar=PeriodoEscolar.objects.get(
-                            nome=periodo_escolar
-                        ),
-                    )
+                medicao, _ = Medicao.objects.get_or_create(
+                    solicitacao_medicao_inicial=instance,
+                    periodo_escolar=PeriodoEscolar.objects.get(
+                        nome=periodo_escolar
+                    ),
+                )
                 if not medicao.valores_medicao.filter(
                     categoria_medicao=categoria,
                     dia=f"{dia:02d}",
@@ -514,17 +509,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             periodos_escolares.append("PARCIAL")
         for dia in range(1, quantidade_dias_mes + 1):
             for periodo_escolar in periodos_escolares:
-                try:
-                    medicao = instance.medicoes.get(
-                        periodo_escolar__nome=periodo_escolar
-                    )
-                except Medicao.DoesNotExist:
-                    medicao = Medicao.objects.create(
-                        solicitacao_medicao_inicial=instance,
-                        periodo_escolar=PeriodoEscolar.objects.get(
-                            nome=periodo_escolar
-                        ),
-                    )
+                medicao, _ = Medicao.objects.get_or_create(
+                    solicitacao_medicao_inicial=instance,
+                    periodo_escolar=PeriodoEscolar.objects.get(
+                        nome=periodo_escolar
+                    ),
+                )
                 valores_medicao_a_criar = self.analisa_periodos_por_dia_matriculados(
                     logs_do_mes,
                     dia,
