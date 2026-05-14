@@ -6211,7 +6211,6 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
         usuarios = PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
             self.cronograma_mensal
         )
-        print(usuarios)
         contexto_notificacao = {
             "numero_cronograma": self.numero,
             "data_evento": data_evento,

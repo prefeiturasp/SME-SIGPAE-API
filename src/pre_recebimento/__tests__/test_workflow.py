@@ -17,10 +17,15 @@ def test_deve_enviar_email_ao_iniciar_fluxo(
     mock_usuarios_vinculados,
     cronograma_semanal_rascunho,
     client_autenticado_vinculo_dilog_cronograma,
+    client_user_autenticado_fornecedor,
 ):
     _, usuario = client_autenticado_vinculo_dilog_cronograma
+    _, fornecedor = client_user_autenticado_fornecedor
 
-    mock_usuarios_vinculados.return_value = ["teste@empresa.com"]
+    mock_usuarios_vinculados.side_effect = [
+        [fornecedor.email],
+        [fornecedor],
+    ]
 
     cronograma_semanal_rascunho.inicia_fluxo(user=usuario)
 
@@ -37,7 +42,7 @@ def test_deve_enviar_email_ao_iniciar_fluxo(
         == f"[SIGPAE] Ciência do cronograma Nº {cronograma_semanal_rascunho.numero}"
     )
     assert kwargs["template"] == "pre_recebimento_email_criacao_cronograma_semanal.html"
-    assert kwargs["destinatarios"] == ["teste@empresa.com"]
+    assert kwargs["destinatarios"] == [fornecedor.email]
 
     contexto = kwargs["contexto_template"]
 
@@ -59,10 +64,16 @@ def test_deve_salvar_log_ao_iniciar_fluxo(
     mock_usuarios_vinculados,
     cronograma_semanal_rascunho,
     client_autenticado_vinculo_dilog_cronograma,
+    client_user_autenticado_fornecedor,
 ):
     _, usuario = client_autenticado_vinculo_dilog_cronograma
 
-    mock_usuarios_vinculados.return_value = ["teste@empresa.com"]
+    _, fornecedor = client_user_autenticado_fornecedor
+
+    mock_usuarios_vinculados.side_effect = [
+        [fornecedor.email],
+        [fornecedor],
+    ]
 
     cronograma_semanal_rascunho.inicia_fluxo(user=usuario)
 
