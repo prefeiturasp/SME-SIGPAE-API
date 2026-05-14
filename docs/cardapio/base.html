@@ -51,6 +51,8 @@
 <li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao_cemei.html">alteracao_tipo_alimentacao_cemei</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">base</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.base.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.MotivoDRENaoValidaAdmin"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValidaAdmin</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacaoAdmin</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoModelAdmin</span></code></a></li>
 </ul>
@@ -117,22 +119,82 @@
 <section id="module-src.cardapio.base.admin">
 <span id="admin"></span><h2>admin<a class="headerlink" href="#module-src.cardapio.base.admin" title="Link to this heading"></a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Django para horarios de tipos de alimentacao por escola.</p>
+<p>Disponibiliza o cadastro administrativo de
+<code class="xref py py-class docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></code> com o
+comportamento padrao do Django Admin, permitindo consultar e editar as
+faixas de horario configuradas para cada escola, periodo escolar e tipo de
+alimentacao.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.cardapio.base.admin.MotivoDRENaoValidaAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivoDRENaoValidaAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#MotivoDRENaoValidaAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.MotivoDRENaoValidaAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Django para motivos usados pela DRE ao nao validar solicitacoes.</p>
+<p>Mantem o cadastro administrativo de <code class="xref py py-class docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code> com o
+comportamento padrao do Django Admin, sem customizacoes adicionais de
+listagem ou formulario.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="src.cardapio.base.admin.MotivoDRENaoValidaAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.base.admin.MotivoDRENaoValidaAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.admin.TipoAlimentacaoAdmin">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoAlimentacaoAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#TipoAlimentacaoAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Django para os tipos de alimentacao do cardapio.</p>
+<p>Configura a tela administrativa de <code class="xref py py-class docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code>, habilitando
+busca por nome e mantendo o UUID apenas para leitura no formulario de
+edicao.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.admin.TipoAlimentacaoAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><a class="headerlink" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd><p>Campos consultados pela busca textual do admin.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;nome&quot;,)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.admin.TipoAlimentacaoAdmin.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><a class="headerlink" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd><p>Campos somente leitura no formulario.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;uuid&quot;,)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.base.admin.TipoAlimentacaoAdmin.media">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin.media" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.TipoAlimentacaoAdmin.readonly_fields">
-<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',)</span></span><a class="headerlink" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',)</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.base.admin.TipoAlimentacaoAdmin.search_fields">
-<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('nome',)</span></span><a class="headerlink" href="#src.cardapio.base.admin.TipoAlimentacaoAdmin.search_fields" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('nome',)</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -141,9 +203,26 @@
 <dt class="sig sig-object py" id="src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculoTipoAlimentacaoModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/admin.html#VinculoTipoAlimentacaoModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Django para vinculos de tipo de alimentacao por periodo e U.E.</p>
+<p>Configura a listagem administrativa de
+<code class="xref py py-class docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></code>,
+disponibilizando filtros por periodo escolar, tipo de unidade escolar e
+status de ativacao do vinculo.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin.list_filter">
-<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('periodo_escolar__nome',</span> <span class="pre">'tipo_unidade_escolar__iniciais',</span> <span class="pre">'ativo')</span></span><a class="headerlink" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin.list_filter" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_filter</span></span><a class="headerlink" href="#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd><p>Filtros laterais disponiveis na listagem.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;periodo_escolar__nome&quot;,</span> <span class="pre">&quot;tipo_unidade_escolar__iniciais&quot;,</span> <span class="pre">&quot;ativo&quot;)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('periodo_escolar__nome',</span> <span class="pre">'tipo_unidade_escolar__iniciais',</span> <span class="pre">'ativo')</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -820,14 +899,14 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id5"><span class="problematic" id="id6">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>

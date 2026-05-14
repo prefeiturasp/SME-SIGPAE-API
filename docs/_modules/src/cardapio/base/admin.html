@@ -83,6 +83,18 @@
 <a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin">[docs]</a>
 <span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentacaoModelAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Admin do Django para vinculos de tipo de alimentacao por periodo e U.E.</span>
+
+<span class="sd">    Configura a listagem administrativa de</span>
+<span class="sd">    :class:`VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar`,</span>
+<span class="sd">    disponibilizando filtros por periodo escolar, tipo de unidade escolar e</span>
+<span class="sd">    status de ativacao do vinculo.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        list_filter (tuple[str, ...]): Filtros laterais disponiveis na listagem.</span>
+<span class="sd">            Valores: ``(&quot;periodo_escolar__nome&quot;, &quot;tipo_unidade_escolar__iniciais&quot;, &quot;ativo&quot;)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;periodo_escolar__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;tipo_unidade_escolar__iniciais&quot;</span><span class="p">,</span> <span class="s2">&quot;ativo&quot;</span><span class="p">)</span></div>
 
 
@@ -91,13 +103,50 @@
 <a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.TipoAlimentacaoAdmin">[docs]</a>
 <span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">TipoAlimentacao</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Admin do Django para os tipos de alimentacao do cardapio.</span>
+
+<span class="sd">    Configura a tela administrativa de :class:`TipoAlimentacao`, habilitando</span>
+<span class="sd">    busca por nome e mantendo o UUID apenas para leitura no formulario de</span>
+<span class="sd">    edicao.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        search_fields (tuple[str, ...]): Campos consultados pela busca textual do admin.</span>
+<span class="sd">            Valores: ``(&quot;nome&quot;,)``.</span>
+<span class="sd">        readonly_fields (tuple[str, ...]): Campos somente leitura no formulario.</span>
+<span class="sd">            Valores: ``(&quot;uuid&quot;,)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,)</span>
     <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,)</span></div>
 
 
 
-<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">MotivoDRENaoValida</span><span class="p">)</span>
-<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">)</span>
+<div class="viewcode-block" id="MotivoDRENaoValidaAdmin">
+<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.MotivoDRENaoValidaAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">MotivoDRENaoValida</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoDRENaoValidaAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Admin do Django para motivos usados pela DRE ao nao validar solicitacoes.</span>
+
+<span class="sd">    Mantem o cadastro administrativo de :class:`MotivoDRENaoValida` com o</span>
+<span class="sd">    comportamento padrao do Django Admin, sem customizacoes adicionais de</span>
+<span class="sd">    listagem ou formulario.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin">
+<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Admin do Django para horarios de tipos de alimentacao por escola.</span>
+
+<span class="sd">    Disponibiliza o cadastro administrativo de</span>
+<span class="sd">    :class:`HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar` com o</span>
+<span class="sd">    comportamento padrao do Django Admin, permitindo consultar e editar as</span>
+<span class="sd">    faixas de horario configuradas para cada escola, periodo escolar e tipo de</span>
+<span class="sd">    alimentacao.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
 </pre></div>
 
            </div>
