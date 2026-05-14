@@ -1,5 +1,6 @@
 import datetime
 
+from django.db.models import Max
 from django.db.models.query import QuerySet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -139,14 +140,22 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(records, many=True, context=context)
             return Response({"results": serializer.data})
 
-        # DISTINCT ON (uuid) no banco para evitar carregar tudo em memória
-        distinct_qs = self._get_unique_queryset(query_set)
-        page = self.paginate_queryset(distinct_qs)
+        # UUIDs ordenados pelo data_log mais recente para paginação correta
+        # .distinct()/.order_by() limpa o DISTINCT ON (uuid) específico do campo upstream
+        # que entraria em conflito com annotate() — limitação do ORM do Django.
+        uuids = (
+            query_set.order_by().distinct()
+            .values("uuid")
+            .annotate(max_log=Max("data_log"))
+            .order_by("-max_log")
+            .values_list("uuid", flat=True)
+        )
+        page_uuids = self.paginate_queryset(uuids)
 
-        if page is not None:
-            # O DISTINCT ON ordena por uuid; reordenamos para manter
-            # o padrão esperado (mais recente primeiro)
-            page.sort(key=lambda x: x.data_log or datetime.datetime.min, reverse=True)
+        if page_uuids is not None:
+            # Busca linhas completas para os UUIDs paginados
+            page = query_set.filter(uuid__in=page_uuids).order_by("-data_log")
+            page = self.remove_duplicados_do_query_set(page)
             context = self._build_serializer_context(page)
             serializer = self.get_serializer(page, many=True, context=context)
             return self.get_paginated_response(serializer.data)
@@ -405,7 +414,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         queryset = model.map_queryset_por_status(
             status, instituicao_uuid=instituicao_uuid
         )
-        # Clear field-specific DISTINCT ON to allow custom ORDER BY (e.g. escola_nome)
+        # Limpa o DISTINCT ON específico do campo para permitir ORDER BY personalizado (ex.: escola_nome)
         queryset = queryset.distinct()
         # filtra por datas
         periodo_datas = {
