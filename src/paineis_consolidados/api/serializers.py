@@ -3,7 +3,7 @@ import datetime
 from rest_framework import serializers
 
 from ...dados_comuns.utils import remove_tags_html_from_string
-from ...escola.models import Escola, TipoUnidadeEscolar
+from ...escola.models import Escola
 from ...kit_lanche.api.serializers.serializers import EscolaQuantidadeSerializerSimples
 from ..models import SolicitacoesCODAE
 from ..utils.utils import get_dias_inclusao
@@ -38,7 +38,7 @@ class SolicitacoesSerializer(serializers.ModelSerializer):
         return None
 
     def get_numero_alunos(self, obj):
-        return obj.get_raw_model.objects.get(uuid=obj.uuid).numero_alunos
+        return obj.numero_alunos
 
     def get_descricao(self, obj):
         uuid = str(obj.uuid)
@@ -59,14 +59,9 @@ class SolicitacoesSerializer(serializers.ModelSerializer):
             return None
 
     def get_tipo_unidade_escolar(self, obj):
-        tipo_unidade = TipoUnidadeEscolar.objects.filter(
-            uuid=obj.escola_tipo_unidade_uuid
-        )
-        if tipo_unidade:
-            return {
-                "iniciais": tipo_unidade.first().iniciais,
-                "uuid": tipo_unidade.first().uuid,
-            }
+        tipo_unidades = self.context.get("tipo_unidades")
+        if tipo_unidades is not None:
+            return tipo_unidades.get(str(obj.escola_tipo_unidade_uuid))
         return None
 
     class Meta:
