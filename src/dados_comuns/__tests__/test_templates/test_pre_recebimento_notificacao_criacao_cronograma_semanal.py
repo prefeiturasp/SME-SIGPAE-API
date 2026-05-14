@@ -19,4 +19,3 @@ def test_template_email_base():
     assert "foi criado pela CODAE em 20/11/2025" in html
 
     assert "<strong>" in html
-
