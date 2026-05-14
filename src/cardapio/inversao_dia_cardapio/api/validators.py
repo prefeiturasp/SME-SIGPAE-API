@@ -16,12 +16,6 @@ def nao_pode_existir_solicitacao_igual_para_mesma_escola(
     inversao_cardapio = (
         InversaoCardapio.objects.filter(
             Q(
-                cardapio_de__data=data_de,
-                cardapio_para__data=data_para,
-                escola=escola,
-                tipos_alimentacao__in=tipos_alimentacao,
-            )
-            | Q(
                 data_de_inversao=data_de,
                 data_para_inversao=data_para,
                 escola=escola,

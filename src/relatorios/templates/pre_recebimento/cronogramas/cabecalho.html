@@ -20,7 +20,11 @@
     </section>
     <div class="info mt-2 border border-dark">
 			<div class="row">
-				<div class="col pt-2 pb-2 grow-2"> Nº do Cronograma de Entrega: </div>
+        {% if cronograma.cronograma_mensal %}
+				  <div class="col pt-2 pb-2 grow-2"> Nº do Cronograma Semanal: </div>
+        {% else %}
+          <div class="col pt-2 pb-2 grow-2"> Nº do Cronograma de Entrega: </div>
+        {% endif %}
 				<div class="col pt-2 pb-2 grow-2"> Nº do Pregão/Chamada Pública: </div>
         <div class="col pt-2 pb-2 grow-2"> Nº do Processo SEI: </div>
 			</div>
@@ -54,9 +58,11 @@
     </section>
 
     <section class="flex">
+      {% if not cronograma.ponto_a_ponto %}
       <div class="dados-empresa">
         <b>Responsável:</b> {{empresa.responsavel_nome}}
       </div>
+      {% endif %}
       <div class="dados-empresa">
         <b>Telefone:</b> {{empresa.responsavel_telefone}}
       </div>

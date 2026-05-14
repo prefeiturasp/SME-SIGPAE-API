@@ -12,14 +12,6 @@ from src.escola.models import (
 )
 
 
-@pytest.fixture
-def label_tipos_alimentacao():
-    model = baker.make("SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE")
-    tipo_vegetariano = baker.make("TipoAlimentacao", nome="Vegetariano")
-    tipo_vegano = baker.make("TipoAlimentacao", nome="Vegano")
-    return model, tipo_vegetariano, tipo_vegano
-
-
 @pytest.fixture(
     params=[
         # data inicio, data fim, esperado

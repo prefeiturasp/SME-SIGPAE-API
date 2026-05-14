@@ -35,9 +35,6 @@
       titulo='CONSOLIDADO TOTAL (A + B + C)' quantidade=consolidado.quantidade
       valor=consolidado.valor valor_extenso=consolidado.valor_extenso %}
     </div>
-    <div class="data-geracao">
-      Documento gerado em {{ cabecalho.data_geracao }} às {{
-      cabecalho.hora_geracao }}
-    </div>
+    {% include "relatorio_financeiro/componentes/rodape.html" %}
   </body>
 </html>

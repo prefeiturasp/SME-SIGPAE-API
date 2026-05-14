@@ -173,14 +173,12 @@ def template_mensagem_inversao_cardapio():
 
 
 @pytest.fixture
-def inversao_dia_cardapio(
-    cardapio_valido2, cardapio_valido3, template_mensagem_inversao_cardapio, escola
-):
+def inversao_dia_cardapio(template_mensagem_inversao_cardapio, escola):
     return baker.make(
         InversaoCardapio,
         criado_em=datetime.date(2019, 12, 12),
-        cardapio_de=cardapio_valido2,
-        cardapio_para=cardapio_valido3,
+        data_de_inversao=datetime.date(2019, 12, 15),
+        data_para_inversao=datetime.date(2019, 12, 21),
         escola=escola,
         rastro_escola=escola,
         rastro_dre=escola.diretoria_regional,
@@ -190,16 +188,14 @@ def inversao_dia_cardapio(
 
 @pytest.fixture
 def inversao_dia_cardapio_outra_dre(
-    cardapio_valido2,
-    cardapio_valido3,
     template_mensagem_inversao_cardapio,
     escola_dre_guaianases,
 ):
     return baker.make(
         InversaoCardapio,
         criado_em=datetime.date(2019, 12, 12),
-        cardapio_de=cardapio_valido2,
-        cardapio_para=cardapio_valido3,
+        data_de_inversao=datetime.date(2019, 12, 15),
+        data_para_inversao=datetime.date(2019, 12, 21),
         escola=escola_dre_guaianases,
         rastro_escola=escola_dre_guaianases,
         rastro_dre=escola_dre_guaianases.diretoria_regional,
@@ -235,7 +231,7 @@ def inversao_dia_cardapio_codae_autorizado(inversao_dia_cardapio):
 
 
 @pytest.fixture
-def inversao_dia_cardapio2(cardapio_valido, cardapio_valido2, escola):
+def inversao_dia_cardapio2(escola):
     baker.make(
         TemplateMensagem,
         assunto="TESTE INVERSAO CARDAPIO",
@@ -245,20 +241,18 @@ def inversao_dia_cardapio2(cardapio_valido, cardapio_valido2, escola):
     return baker.make(
         InversaoCardapio,
         uuid="98dc7cb7-7a38-408d-907c-c0f073ca2d13",
-        cardapio_de=cardapio_valido,
-        cardapio_para=cardapio_valido2,
+        data_de_inversao=datetime.date(2019, 11, 29),
+        data_para_inversao=datetime.date(2019, 12, 15),
         escola=escola,
     )
 
 
 @pytest.fixture
 def inversao_cardapio_serializer(escola):
-    cardapio_de = baker.make("cardapio.Cardapio")
-    cardapio_para = baker.make("cardapio.Cardapio")
     inversao_cardapio = baker.make(
         InversaoCardapio,
-        cardapio_de=cardapio_de,
-        cardapio_para=cardapio_para,
+        data_de_inversao=datetime.date(2019, 10, 10),
+        data_para_inversao=datetime.date(2019, 10, 12),
         escola=escola,
     )
     return InversaoCardapioSerializer(inversao_cardapio)

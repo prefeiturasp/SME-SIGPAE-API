@@ -16,12 +16,10 @@ def test_nao_pode_existir_solicitacao_igual_para_mesma_escola_exception(
     datas_inversao_deste_mes, escola, tipo_alimentacao
 ):
     data_de, data_para, _ = datas_inversao_deste_mes
-    cardapio_de = baker.make("Cardapio", data=data_de)
-    cardapio_para = baker.make("Cardapio", data=data_para)
     inversao = baker.make(
         InversaoCardapio,
-        cardapio_de=cardapio_de,
-        cardapio_para=cardapio_para,
+        data_de_inversao=data_de,
+        data_para_inversao=data_para,
         status=InversaoCardapio.workflow_class.DRE_A_VALIDAR,
         escola=escola,
     )

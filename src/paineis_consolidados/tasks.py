@@ -2,6 +2,7 @@ import datetime
 import io
 import logging
 import re
+from pathlib import Path
 
 import numpy as np
 from celery import shared_task
@@ -26,6 +27,9 @@ from ..relatorios.utils import html_to_pdf_file
 from .api import constants
 
 logger = logging.getLogger(__name__)
+LOGO_SIGPAE_PATH = (
+    Path(__file__).resolve().parents[1] / "static/images/logo-sigpae-light.png"
+)
 
 
 def build_subtitulo(
@@ -105,6 +109,11 @@ def cria_nova_linha(df, index, model_obj, qt_periodo, observacoes):
     nova_linha = df.iloc[index].copy()
     nova_linha["data_evento"] = formata_data(model_obj)
     nova_linha["dia_semana"] = qt_periodo.dias_semana_display()
+    nova_linha["encerrado_a_partir_de"] = (
+        qt_periodo.encerrado_a_partir_de.strftime("%d/%m/%Y")
+        if qt_periodo.encerrado_a_partir_de
+        else "-"
+    )
     nova_linha["periodo_inclusao"] = qt_periodo.periodo_escolar.nome
     nova_linha["observacoes"] = (
         qt_periodo.cancelado_justificativa if qt_periodo.cancelado else observacoes
@@ -181,6 +190,7 @@ def nomes_colunas(worksheet, status_, LINHAS, COLUNAS, single_cell_format):
         "Tipo de Solicitação",
         "ID da Solicitação",
         "Data do Evento",
+        "Encerrado a partir de",
         "Dia da semana",
         "Período",
         "Tipo de Alimentação",
@@ -228,6 +238,19 @@ def aplica_fundo_amarelo_tipo2(
         qts_periodos = model_obj.quantidades_periodo.all()
         if idx < len(qts_periodos):
             qt_periodo = qts_periodos[idx]
+            if qt_periodo.encerrado_a_partir_de:
+                row_idx = LINHAS[constants.ROW_IDX_HEADER_CAMPOS] + 1 + index
+                strike_format = workbook.add_format()
+                strike_format.set_font_strikeout()
+                cell_format = workbook.add_format({"align": "left"})
+                worksheet.write_rich_string(
+                    row_idx,
+                    COLUNAS[constants.COL_IDX_DATA_EVENTO],
+                    f"{model_obj.data_inicial.strftime('%d/%m/%Y')} - ",
+                    strike_format,
+                    model_obj.data_final.strftime("%d/%m/%Y"),
+                    cell_format,
+                )
             if qt_periodo.cancelado:
                 worksheet.write(
                     LINHAS[constants.ROW_IDX_HEADER_CAMPOS] + 1 + index,
@@ -289,6 +312,7 @@ def build_xlsx(
         constants.COL_IDX_TIPO_DE_SOLICITACAO,
         constants.COL_IDX_ID_SOLICITACAO,
         constants.COL_IDX_DATA_EVENTO,
+        constants.COL_IDX_ENCERRADO_A_PARTIR_DE,
         constants.COL_IDX_DIA_DA_SEMANA,
         constants.COL_IDX_PERIODO,
         constants.COL_IDX_TIPO_DE_ALIMENTACAO,
@@ -304,7 +328,12 @@ def build_xlsx(
     with pd.ExcelWriter(output, engine="xlsxwriter") as xlwriter:
         df = pd.DataFrame(serializer.data)
 
-        novas_colunas = ["dia_semana", "periodo_inclusao", "tipo_alimentacao"]
+        novas_colunas = [
+            "encerrado_a_partir_de",
+            "dia_semana",
+            "periodo_inclusao",
+            "tipo_alimentacao",
+        ]
         for i, nova_coluna in enumerate(novas_colunas):
             df.insert(constants.COL_IDX_DATA_EVENTO + i, nova_coluna, "-")
 
@@ -342,13 +371,15 @@ def build_xlsx(
             "C:C": 40,
             "D:D": 30,
             "E:E": 15,
-            "F:G": 30,
-            "H:H": 10,
-            "I:J": 30,
-            "K:K": 13,
-            "L:L": 15,
-            "M:M": 30,
-            "N:N": 20,
+            "F:F": 30,
+            "G:G": 18,
+            "H:H": 30,
+            "I:I": 10,
+            "J:K": 30,
+            "L:L": 13,
+            "M:M": 15,
+            "N:N": 30,
+            "O:O": 20,
         }
         for col, width in columns_width.items():
             worksheet.set_column(col, width)
@@ -367,7 +398,7 @@ def build_xlsx(
             unidades_educacionais,
         )
         worksheet.merge_range(LINHAS[1], 0, LINHAS[2], len_cols, subtitulo, cell_format)
-        worksheet.insert_image("A1", "src/static/images/logo-sigpae-light.png")
+        worksheet.insert_image("A1", str(LOGO_SIGPAE_PATH))
 
         nomes_colunas(worksheet, status_, LINHAS, COLUNAS, single_cell_format)
 

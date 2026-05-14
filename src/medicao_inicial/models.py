@@ -129,7 +129,7 @@ class SolicitacaoMedicaoInicial(
         )
 
     def cria_medicoes_dos_periodos(self) -> None:
-        periodos_escolares = self.escola.periodos_escolares(self.ano)
+        periodos_escolares = self.escola.periodos_escolares(self.ano, int(self.mes))
         if not periodos_escolares:
             return
         for periodo_escolar in periodos_escolares:
@@ -479,6 +479,13 @@ class SolicitacaoMedicaoInicial(
             "ano",
             "recreio_nas_ferias",
         )
+        constraints = [
+            models.UniqueConstraint(
+                fields=["escola", "mes", "ano"],
+                condition=models.Q(recreio_nas_ferias__isnull=True),
+                name="unique_solicitacao_sem_recreio",
+            )
+        ]
         ordering = ("-ano", "-mes")
 
     def __str__(self):

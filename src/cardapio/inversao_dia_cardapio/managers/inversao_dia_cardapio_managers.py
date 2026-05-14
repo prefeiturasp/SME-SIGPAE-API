@@ -14,12 +14,12 @@ class InversaoCardapioDestaSemanaManager(models.Manager):
             super(InversaoCardapioDestaSemanaManager, self)
             .get_queryset()
             .filter(
-                Q(cardapio_de__data__range=(data_limite_inicial, data_limite_final))
-                | Q(cardapio_para__data__range=(data_limite_inicial, data_limite_final))
+                Q(data_de_inversao__range=(data_limite_inicial, data_limite_final))
+                | Q(data_para_inversao__range=(data_limite_inicial, data_limite_final))
             )
             .filter(
-                cardapio_de__data__gte=data_limite_inicial,
-                cardapio_para__data__gte=data_limite_inicial,
+                data_de_inversao__gte=data_limite_inicial,
+                data_para_inversao__gte=data_limite_inicial,
             )
         )
 
@@ -32,12 +32,12 @@ class InversaoCardapioDesteMesManager(models.Manager):
             super(InversaoCardapioDesteMesManager, self)
             .get_queryset()
             .filter(
-                Q(cardapio_de__data__range=(data_limite_inicial, data_limite_final))
-                | Q(cardapio_para__data__range=(data_limite_inicial, data_limite_final))
+                Q(data_de_inversao__range=(data_limite_inicial, data_limite_final))
+                | Q(data_para_inversao__range=(data_limite_inicial, data_limite_final))
             )
             .filter(
-                cardapio_de__data__gte=data_limite_inicial,
-                cardapio_para__data__gte=data_limite_inicial,
+                data_de_inversao__gte=data_limite_inicial,
+                data_para_inversao__gte=data_limite_inicial,
             )
         )
 
@@ -48,7 +48,7 @@ class InversaoCardapioVencidaManager(models.Manager):
         return (
             super(InversaoCardapioVencidaManager, self)
             .get_queryset()
-            .filter(Q(cardapio_de__data__lt=hoje) | Q(cardapio_para__data__lt=hoje))
+            .filter(Q(data_de_inversao__lt=hoje) | Q(data_para_inversao__lt=hoje))
             .filter(
                 status__in=[
                     PedidoAPartirDaEscolaWorkflow.RASCUNHO,

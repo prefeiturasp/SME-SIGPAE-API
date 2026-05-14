@@ -16,7 +16,14 @@
       <tr>
         <td>{{ solicitacao.motivo.nome }}</td>
         <td>{{ solicitacao.data_inicial }}</td>
-        <td>{{ solicitacao.data_final }}</td>
+        <td>
+          {% if todas_encerrada_mesma_data %}
+            <span style="text-decoration: line-through;">{{ solicitacao.data_final }}</span>
+            <span style="color: #c0392b;">{{ data_encerramento_geral|formatar_data_solicitacoes_alimentacao }}</span>
+          {% else %}
+            {{ solicitacao.data_final }}
+          {% endif %}
+        </td>
       </tr>
     </table>
     <div class="tabela-sem-borda">
@@ -32,8 +39,8 @@
           </tr>
         </thead>
         <tbody>
-        {% for quantidade_periodo in solicitacao.quantidades_por_periodo.all %}
-          <tr class="sem-border-bottom {% if quantidade_periodo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %} cancelado{% endif %}">
+        {% for quantidade_periodo in quantidades_periodo %}
+          <tr class="sem-border-bottom {% if quantidade_periodo.cancelado or quantidade_periodo.encerrado_a_partir_de or solicitacao.status == 'ESCOLA_CANCELOU' %} cancelado{% endif %}">
             {% if solicitacao.motivo.nome != 'ETEC'%}
               <td style="width: 30%" class="weekly">
                 {% for key, value in week.items %}
@@ -53,12 +60,18 @@
             <td>{{ quantidade_periodo.tipos_alimentacao.all | concatena_label }}</td>
             <td>{{ quantidade_periodo.numero_alunos }}</td>
           </tr>
-          <tr class="{% if quantidade_periodo.cancelado_justificativa or solicitacao.status == 'ESCOLA_CANCELOU' %}cancelado{% endif %}">
+          <tr class="{% if quantidade_periodo.cancelado or solicitacao.status == 'ESCOLA_CANCELOU' %}cancelado{% endif %}">
             <td colspan="2">
               <p>Observações:</p>
               <p>{{ quantidade_periodo.observacao | safe_content }}</p>
+              {% if quantidade_periodo.encerrado_a_partir_de and not todas_encerrada_mesma_data %}
+                <p style="color: #c0392b; font-weight: bold; text-decoration: none;">
+                  Encerramento previsto para:
+                  {{ quantidade_periodo.encerrado_a_partir_de|formatar_data_solicitacoes_alimentacao }}
+                </p>
+              {% endif %}
             </td>
-            {% if quantidade_periodo.cancelado_justificativa or solicitacao.status == 'ESCOLA_CANCELOU' %}
+            {% if quantidade_periodo.cancelado_justificativa and not quantidade_periodo.encerrado_a_partir_de or solicitacao.status == 'ESCOLA_CANCELOU' %}
               <td colspan="2" style="text-decoration: none">
                 <p>Justificativa: {{ quantidade_periodo.cancelado_justificativa | safe_content }}</p>
               </td>
@@ -71,6 +84,7 @@
       {% include "bloco_observacoes.html" %}
       {% include "bloco_historico_questionamento_com_data.html" %}
       {% include "bloco_historico_cancelamento_inclusao.html" %}
+      {% include "bloco_historico_alteracao_inclusao_continua.html" %}
       {% if solicitacao.status == 'ESCOLA_CANCELOU' %}
         {% include "bloco_historico_cancelamento.html" %}
       {% endif %}

@@ -1,3 +1,10 @@
+"""Viewsets da API base do modulo de cardapio.
+
+Expoe endpoints para consulta e manutencao de tipos de alimentacao, horarios
+por escola, vinculos de periodo/tipo de unidade escolar e motivos de nao
+validacao usados pela DRE.
+"""
+
 import datetime
 
 from django.core.exceptions import ValidationError
@@ -8,28 +15,19 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from src.cardapio.base.api.serializers import (
-    CardapioSerializer,
-    CombosVinculoTipoAlimentoSimplesSerializer,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer,
     MotivoDRENaoValidaSerializer,
-    SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer,
     TipoAlimentacaoSerializer,
     TipoUnidadeEscolarAgrupadoSerializer,
     VinculoTipoAlimentoSimplesSerializer,
 )
 from src.cardapio.base.api.serializers_create import (
-    CardapioCreateSerializer,
-    ComboDoVinculoTipoAlimentoSimplesSerializerCreate,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate,
-    SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate,
     VinculoTipoAlimentoCreateSerializer,
 )
 from src.cardapio.base.models import (
-    Cardapio,
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     MotivoDRENaoValida,
-    SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -44,30 +42,41 @@ from src.inclusao_alimentacao.models import (
 )
 
 
-class CardapioViewSet(viewsets.ModelViewSet):
-    lookup_field = "uuid"
-    serializer_class = CardapioSerializer
-    queryset = Cardapio.objects.all().order_by("data")
-
-    def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
-            return CardapioCreateSerializer
-        return CardapioSerializer
-
-
 class TipoAlimentacaoViewSet(viewsets.ModelViewSet):
+    """Expoe o CRUD de tipos de alimentacao da base de cardapio.
+
+    Utiliza ``TipoAlimentacaoSerializer`` em todas as acoes padrao do
+    ``ModelViewSet`` e identifica instancias pelo campo ``uuid``.
+    """
+
     lookup_field = "uuid"
     serializer_class = TipoAlimentacaoSerializer
     queryset = TipoAlimentacao.objects.all()
 
 
 class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet(viewsets.ModelViewSet):
+    """Gerencia horarios de tipos de alimentacao configurados por escola.
+
+    Disponibiliza leitura, criacao, atualizacao e uma action customizada para
+    listar os horarios associados a uma escola especifica.
+    """
+
     lookup_field = "uuid"
     serializer_class = HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer
     queryset = HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.objects.all()
 
     @action(detail=False, url_path="escola/(?P<escola_uuid>[^/.]+)")
     def filtro_por_escola(self, request, escola_uuid=None):
+        """Lista horarios cadastrados para a escola informada.
+
+        Args:
+            request (Request): Requisicao HTTP recebida pela action.
+            escola_uuid (str | None): UUID da escola usado como filtro.
+
+        Returns:
+            Response: Resposta paginada com os horarios encontrados para a
+            escola.
+        """
         combos = HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.objects.filter(
             escola__uuid=escola_uuid
         )
@@ -76,6 +85,13 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet(viewsets.ModelVi
         return self.get_paginated_response(serializer.data)
 
     def get_serializer_class(self):
+        """Seleciona o serializer de leitura ou escrita conforme a acao.
+
+        Returns:
+            type: ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate``
+            nas acoes de escrita; caso contrario,
+            ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer``.
+        """
         if self.action in ["create", "update", "partial_update"]:
             return HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate
         return HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer
@@ -87,6 +103,13 @@ class VinculoTipoAlimentacaoViewSet(
     mixins.ListModelMixin,
     GenericViewSet,
 ):
+    """Gerencia vinculos ativos entre tipo de U.E., periodo e alimentacoes.
+
+    Alem das acoes padrao de leitura e escrita, expoe endpoints customizados
+    para filtrar vinculos por escola, por tipo de unidade e por cenarios
+    especificos de inclusao de alimentacao.
+    """
+
     lookup_field = "uuid"
     serializer_class = VinculoTipoAlimentoSimplesSerializer
     queryset = (
@@ -100,6 +123,16 @@ class VinculoTipoAlimentacaoViewSet(
         url_path="tipo_unidade_escolar/(?P<tipo_unidade_escolar_uuid>[^/.]+)",
     )
     def filtro_por_tipo_ue(self, request, tipo_unidade_escolar_uuid=None):
+        """Lista vinculos ativos de um tipo especifico de unidade escolar.
+
+        Args:
+            request (Request): Requisicao HTTP recebida pela action.
+            tipo_unidade_escolar_uuid (str | None): UUID do tipo de unidade
+                escolar filtrado.
+
+        Returns:
+            Response: Resposta paginada com os vinculos encontrados.
+        """
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 tipo_unidade_escolar__uuid=tipo_unidade_escolar_uuid, ativo=True
@@ -112,6 +145,24 @@ class VinculoTipoAlimentacaoViewSet(
     def get_vinculos_inclusoes_evento_especifico(
         self, mes, ano, tipo_solicitacao, escola
     ):
+        """Busca vinculos necessarios para inclusoes de Evento Especifico.
+
+        Considera inclusoes normais autorizadas por Evento Especifico e cruza
+        os periodos obtidos com os vinculos da escola para montar o conjunto de
+        vinculos elegiveis.
+
+        Args:
+            mes (str | int): Mes de referencia da consulta.
+            ano (str | int): Ano de referencia da consulta.
+            tipo_solicitacao (str | None): Parametro mantido por compatibilidade
+                com a assinatura da chamada.
+            escola (Escola): Escola utilizada na filtragem dos grupos e
+                vinculos.
+
+        Returns:
+            QuerySet[VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar]:
+            Vinculos compatíveis com o cenario consultado.
+        """
         gupos_uuids = (
             InclusaoAlimentacaoNormal.objects.filter(
                 data__month=int(mes),
@@ -150,6 +201,15 @@ class VinculoTipoAlimentacaoViewSet(
         url_path=f"{constants.VINCULOS_INCLUSOES_EVENTO_ESPECIFICO_AUTORIZADAS}",
     )
     def vinculos_inclusoes_evento_especifico_autorizadas(self, request):
+        """Retorna vinculos usados em inclusoes autorizadas de Evento Especifico.
+
+        Args:
+            request (Request): Requisicao HTTP com ``escola_uuid``, ``mes``,
+                ``ano`` e ``tipo_solicitacao`` em ``query_params``.
+
+        Returns:
+            Response: Lista serializada dos vinculos encontrados.
+        """
         escola_uuid = request.query_params.get("escola_uuid")
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
@@ -164,7 +224,24 @@ class VinculoTipoAlimentacaoViewSet(
     def trata_inclusao_continua_medicao_inicial(
         self, request, escola, ano, pega_atualmente
     ):
-        mes = request.query_params.get("mes", None)
+        """Calcula os periodos escolares a considerar na inclusao continua.
+
+        Combina os periodos escolares da escola com os periodos extras
+        retornados pelo endpoint de inclusao continua, quando o mes e enviado
+        na requisicao.
+
+        Args:
+            request (Request): Requisicao HTTP com os filtros atuais.
+            escola (Escola): Escola cujos periodos serao avaliados.
+            ano (str | int): Ano de referencia para consulta dos periodos.
+            pega_atualmente (bool | str): Indicador usado pelo metodo
+                ``periodos_escolares`` da escola.
+
+        Returns:
+            QuerySet[PeriodoEscolar]: Periodos resultantes da combinacao entre
+            o calendario regular da escola e a inclusao continua, quando houver.
+        """
+        mes = request.query_params.get("mes_inclusao_continua", None)
         periodos_escolares_inclusao_continua = None
         if mes:
             periodoEscolarViewset = PeriodoEscolarViewSet()
@@ -173,7 +250,7 @@ class VinculoTipoAlimentacaoViewSet(
                 periodos_escolares_inclusao_continua = PeriodoEscolar.objects.filter(
                     uuid__in=list(response.data["periodos"].values())
                 )
-        periodos_para_filtrar = escola.periodos_escolares(ano, pega_atualmente)
+        periodos_para_filtrar = escola.periodos_escolares(ano, mes, pega_atualmente)
 
         if periodos_escolares_inclusao_continua:
             periodos_para_filtrar = (
@@ -183,6 +260,20 @@ class VinculoTipoAlimentacaoViewSet(
 
     @action(detail=False, url_path="escola/(?P<escola_uuid>[^/.]+)")
     def filtro_por_escola(self, request, escola_uuid=None):
+        """Lista vinculos aplicaveis a uma escola em uma data de referencia.
+
+        Para escolas CEMEI, monta uma ordenacao especial por unidade e periodo.
+        Nos demais casos, filtra pelos periodos da escola e pela unidade
+        historica valida na data consultada.
+
+        Args:
+            request (Request): Requisicao HTTP com filtros opcionais como
+                ``mes``, ``ano`` e ``pega_atualmente``.
+            escola_uuid (str | None): UUID da escola consultada.
+
+        Returns:
+            Response: Resposta paginada com os vinculos ordenados para a escola.
+        """
         escola = Escola.objects.get(uuid=escola_uuid)
         mes = request.query_params.get("mes", datetime.date.today().month)
         ano = request.query_params.get("ano", datetime.date.today().year)
@@ -258,6 +349,16 @@ class VinculoTipoAlimentacaoViewSet(
         methods=["put"],
     )
     def atualizar_lista_de_vinculos(self, request):
+        """Atualiza em lote os tipos de alimentacao de uma lista de vinculos.
+
+        Args:
+            request (Request): Requisicao HTTP cujo corpo deve conter a chave
+                ``vinculos`` com UUIDs e listas de ``tipos_alimentacao``.
+
+        Returns:
+            Response: Resposta paginada com os vinculos atualizados, ou erro 400
+            quando o payload obrigatorio nao e informado.
+        """
         try:
             if "vinculos" not in request.data:
                 raise AssertionError("vinculos é um parâmetro obrigatório")
@@ -283,6 +384,16 @@ class VinculoTipoAlimentacaoViewSet(
 
     @action(detail=False, methods=["GET"], url_path="motivo_inclusao_especifico")
     def motivo_inclusao_especifico(self, request):
+        """Lista vinculos permitidos para o motivo de inclusao especifico.
+
+        Args:
+            request (Request): Requisicao HTTP que deve informar
+                ``tipo_unidade_escolar_iniciais`` em ``query_params``.
+
+        Returns:
+            Response: Lista serializada dos vinculos filtrados ou erro 400
+            quando o parametro obrigatorio nao e enviado.
+        """
         try:
             tipo_unidade_escolar_iniciais = request.query_params.get(
                 "tipo_unidade_escolar_iniciais", ""
@@ -302,79 +413,42 @@ class VinculoTipoAlimentacaoViewSet(
             return Response({"detail": e}, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_class(self):
+        """Seleciona o serializer de escrita ou leitura conforme a acao.
+
+        Returns:
+            type: ``VinculoTipoAlimentoCreateSerializer`` nas acoes de escrita;
+            caso contrario, ``VinculoTipoAlimentoSimplesSerializer``.
+        """
         if self.action in ["create", "update", "partial_update"]:
             return VinculoTipoAlimentoCreateSerializer
         return VinculoTipoAlimentoSimplesSerializer
 
 
-class CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    GenericViewSet,
-):
-    lookup_field = "uuid"
-    serializer_class = CombosVinculoTipoAlimentoSimplesSerializer
-    queryset = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return ComboDoVinculoTipoAlimentoSimplesSerializerCreate
-        return CombosVinculoTipoAlimentoSimplesSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not instance.pode_excluir():
-            return Response(
-                data={
-                    "detail": "Não pode excluir, o combo já tem movimentação no sistema"
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    GenericViewSet,
-):
-    lookup_field = "uuid"
-    serializer_class = SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer
-    queryset = SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializerCreate
-        return SubstituicaoDoComboVinculoTipoAlimentoSimplesSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not instance.pode_excluir():
-            return Response(
-                data={
-                    "detail": "Não pode excluir, o combo já tem movimentação no sistema"
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class MotivosDRENaoValidaViewSet(viewsets.ReadOnlyModelViewSet):
+    """Expoe consulta somente leitura dos motivos de nao validacao da DRE."""
+
     lookup_field = "uuid"
     queryset = MotivoDRENaoValida.objects.all()
     serializer_class = MotivoDRENaoValidaSerializer
 
 
 class VinculosPorTipoUnidadeEscolarViewSet(mixins.ListModelMixin, GenericViewSet):
+    """Lista vinculos ativos agrupados por tipo de unidade escolar.
+
+    Usa um serializer agregador para montar a resposta final a partir dos
+    vinculos e seus relacionamentos pre-carregados.
+    """
+
     def list(self, request):
-        """
-        Lista todos os tipos de UE com seus períodos e tipos de alimentação
+        """Lista todos os tipos de U.E. com seus periodos e alimentacoes.
+
+        Args:
+            request (Request): Requisicao HTTP recebida pela action ``list``.
+
+        Returns:
+            Response: Resposta no formato ``{"results": [...]}`` contendo os
+            tipos de unidade escolar agrupados com seus periodos e tipos de
+            alimentacao.
         """
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(

@@ -4798,10 +4798,13 @@
             <span class="n">context</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;titulo&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Solicitação de Alteração do Cronograma </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;solicitacao&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero</span><span class="p">,</span>
+                <span class="s2">&quot;nome_produto&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
                 <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
                 <span class="s2">&quot;usuario&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                <span class="s2">&quot;nome_usual&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;razao_social&quot;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">razao_social</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
                 <span class="s2">&quot;log_transicao&quot;</span><span class="p">:</span> <span class="n">log_transicao</span><span class="p">,</span>
-                <span class="s2">&quot;hidden_email&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;hidden_email&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -4962,8 +4965,9 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_migrar_fichas_para_etapas_novas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etapas_antigas</span><span class="p">,</span> <span class="n">etapas_novas</span><span class="p">):</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">src.recebimento.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FichaDeRecebimento</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">src.recebimento.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FichaDeRecebimento</span>
 
         <span class="k">for</span> <span class="n">indice</span><span class="p">,</span> <span class="n">etapa_antiga</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">etapas_antigas</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
@@ -4973,7 +4977,9 @@
                     <span class="sa">f</span><span class="s2">&quot;Não foi possível migrar todas as fichas de recebimento. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;A etapa de índice </span><span class="si">{</span><span class="n">indice</span><span class="si">}</span><span class="s2"> não possui correspondente nas novas etapas.&quot;</span>
                 <span class="p">)</span>
-            <span class="n">FichaDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">etapa</span><span class="o">=</span><span class="n">etapa_antiga</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">etapa</span><span class="o">=</span><span class="n">etapa_nova</span><span class="p">)</span>
+            <span class="n">FichaDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">etapa</span><span class="o">=</span><span class="n">etapa_antiga</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">etapa</span><span class="o">=</span><span class="n">etapa_nova</span>
+            <span class="p">)</span>
             <span class="n">etapa_antiga</span><span class="o">.</span><span class="n">cronograma</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">etapa_antiga</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">update_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cronograma&quot;</span><span class="p">])</span>
 
@@ -4981,6 +4987,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_finaliza_solicitacao_alteracao_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">transaction</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
         <span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">SolicitacaoAlteracaoCronograma</span><span class="p">,</span>
         <span class="p">)</span>
@@ -4991,7 +4998,9 @@
         <span class="k">if</span> <span class="n">solicitacao_uuid</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">transaction</span><span class="o">.</span><span class="n">atomic</span><span class="p">():</span>
-                    <span class="n">solicitacao</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">solicitacao_uuid</span><span class="p">)</span>
+                    <span class="n">solicitacao</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="n">uuid</span><span class="o">=</span><span class="n">solicitacao_uuid</span>
+                    <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">qtd_total_programada</span> <span class="o">=</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">qtd_total_programada</span>
 
                     <span class="n">etapas_antigas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">solicitacao</span><span class="o">.</span><span class="n">etapas_antigas</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
@@ -5001,7 +5010,9 @@
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">etapas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">etapas_novas</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">solicitacao</span><span class="o">.</span><span class="n">programacoes_novas</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                        <span class="n">solicitacao</span><span class="o">.</span><span class="n">programacoes_novas</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                    <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
@@ -5404,6 +5415,9 @@
                 <span class="s2">&quot;log_transicao&quot;</span><span class="p">:</span> <span class="n">log_transicao</span><span class="p">,</span>
                 <span class="s2">&quot;status_analise&quot;</span><span class="p">:</span> <span class="n">status_analise</span><span class="p">,</span>
                 <span class="s2">&quot;url_solicitacao_alteracao&quot;</span><span class="p">:</span> <span class="n">url_solicitacao_alteracao</span><span class="p">,</span>
+                <span class="s2">&quot;nome_produto&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                <span class="s2">&quot;razao_social&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">razao_social</span><span class="p">,</span>
+                <span class="s2">&quot;hidden_email&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -5606,11 +5620,13 @@
             <span class="p">)</span>
 
             <span class="n">EmailENotificacaoService</span><span class="o">.</span><span class="n">enviar_email</span><span class="p">(</span>
-                <span class="n">titulo</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Layouts Pendentes de Aprovação</span><span class="se">\n</span><span class="s2">Ficha Técnica </span><span class="si">{</span><span class="n">numero_ficha</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">titulo</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Layout Pendente de Aprovação</span><span class="se">\n</span><span class="s2">Ficha Técnica </span><span class="si">{</span><span class="n">numero_ficha</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">assunto</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;[SIGPAE] Layouts Pendentes de Aprovação | Ficha Técnica </span><span class="si">{</span><span class="n">numero_ficha</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">template</span><span class="o">=</span><span class="s2">&quot;pre_recebimento_email_fornecedor_envia_layout_embalagem.html&quot;</span><span class="p">,</span>
                 <span class="n">contexto_template</span><span class="o">=</span><span class="p">{</span>
                     <span class="s2">&quot;nome_empresa&quot;</span><span class="p">:</span> <span class="n">nome_empresa</span><span class="p">,</span>
+                    <span class="s2">&quot;razao_social&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">razao_social</span><span class="p">,</span>
+                    <span class="s2">&quot;nome_produto&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
                     <span class="s2">&quot;numero_ficha&quot;</span><span class="p">:</span> <span class="n">numero_ficha</span><span class="p">,</span>
                     <span class="s2">&quot;data_envio&quot;</span><span class="p">:</span> <span class="n">data_envio</span><span class="p">,</span>
                     <span class="s2">&quot;url_layout_embalagens&quot;</span><span class="p">:</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">url_layout_embalagens</span><span class="p">,</span>
@@ -6183,6 +6199,7 @@
     <span class="n">transitions</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s2">&quot;inicia_fluxo&quot;</span><span class="p">,</span> <span class="n">RASCUNHO</span><span class="p">,</span> <span class="n">ENVIADO_AO_FORNECEDOR</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;fornecedor_ciente&quot;</span><span class="p">,</span> <span class="n">ENVIADO_AO_FORNECEDOR</span><span class="p">,</span> <span class="n">FORNECEDOR_CIENTE</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;alterar_cronograma&quot;</span><span class="p">,</span> <span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span> <span class="n">ENVIADO_AO_FORNECEDOR</span><span class="p">),</span>
     <span class="p">)</span>
 
     <span class="n">initial_state</span> <span class="o">=</span> <span class="n">RASCUNHO</span>
@@ -6220,6 +6237,7 @@
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_notificar_criacao_cronograma_ponto_a_ponto</span><span class="p">()</span>
 
     <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">&quot;fornecedor_ciente&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fornecedor_ciente_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -6229,6 +6247,70 @@
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
             <span class="p">)</span>
+
+    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">&quot;alterar_cronograma&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_alterar_cronograma_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
+                <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR</span><span class="p">,</span>
+                <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_notificar_criacao_cronograma_ponto_a_ponto</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Envia email e notificação aos usuários vinculados à empresa informando</span>
+<span class="sd">        a criação de um cronograma semanal de pré-recebimento.</span>
+
+<span class="sd">        O método:</span>
+<span class="sd">        - monta os contextos utilizados nos templates;</span>
+<span class="sd">        - envia email aos destinatários vinculados;</span>
+<span class="sd">        - cria notificações internas para os usuários relacionados;</span>
+<span class="sd">        - disponibiliza link de acesso ao detalhe do cronograma.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url_detalhe_cronograma</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/pre-recebimento/detalhe-cronograma-semanal?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero</span>
+        <span class="n">data_evento</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+        <span class="n">nome_produto</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cronograma_mensal</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="n">destinatarios</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">PartesInteressadasService</span><span class="o">.</span><span class="n">usuarios_vinculados_a_empresa_do_objeto</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cronograma_mensal</span><span class="p">,</span> <span class="n">somente_email</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">usuarios</span> <span class="o">=</span> <span class="n">PartesInteressadasService</span><span class="o">.</span><span class="n">usuarios_vinculados_a_empresa_do_objeto</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cronograma_mensal</span>
+        <span class="p">)</span>
+        <span class="n">contexto_notificacao</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero</span><span class="p">,</span>
+            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="n">data_evento</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">:</span> <span class="n">nome_produto</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">contexto_email</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">:</span> <span class="n">numero_cronograma</span><span class="p">,</span>
+            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="n">data_evento</span><span class="p">,</span>
+            <span class="s2">&quot;url_detalhe_cronograma&quot;</span><span class="p">:</span> <span class="n">url_detalhe_cronograma</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">EmailENotificacaoService</span><span class="o">.</span><span class="n">enviar_email</span><span class="p">(</span>
+            <span class="n">titulo</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cronograma Criado: Nº </span><span class="si">{</span><span class="n">numero_cronograma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">assunto</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;[SIGPAE] Ciência do cronograma Nº </span><span class="si">{</span><span class="n">numero_cronograma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">template</span><span class="o">=</span><span class="s2">&quot;pre_recebimento_email_criacao_cronograma_semanal.html&quot;</span><span class="p">,</span>
+            <span class="n">contexto_template</span><span class="o">=</span><span class="n">contexto_email</span><span class="p">,</span>
+            <span class="n">destinatarios</span><span class="o">=</span><span class="n">destinatarios</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">EmailENotificacaoService</span><span class="o">.</span><span class="n">enviar_notificacao</span><span class="p">(</span>
+            <span class="n">template</span><span class="o">=</span><span class="s2">&quot;pre_recebimento_notificacao_criacao_cronograma_semanal.html&quot;</span><span class="p">,</span>
+            <span class="n">contexto_template</span><span class="o">=</span><span class="n">contexto_notificacao</span><span class="p">,</span>
+            <span class="n">titulo_notificacao</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cronograma Ponto a Ponto </span><span class="si">{</span><span class="n">numero_cronograma</span><span class="si">}</span><span class="s2"> – </span><span class="si">{</span><span class="n">nome_produto</span><span class="si">}</span><span class="s2"> criado pela CODAE.&quot;</span><span class="p">,</span>
+            <span class="n">tipo_notificacao</span><span class="o">=</span><span class="n">Notificacao</span><span class="o">.</span><span class="n">TIPO_NOTIFICACAO_ALERTA</span><span class="p">,</span>
+            <span class="n">categoria_notificacao</span><span class="o">=</span><span class="n">Notificacao</span><span class="o">.</span><span class="n">CATEGORIA_NOTIFICACAO_CRIACAO_CRONOGRAMA_PONTO_A_PONTO</span><span class="p">,</span>
+            <span class="n">link_acesse_aqui</span><span class="o">=</span><span class="n">url_detalhe_cronograma</span><span class="p">,</span>
+            <span class="n">usuarios</span><span class="o">=</span><span class="n">usuarios</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span>

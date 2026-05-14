@@ -16,11 +16,7 @@ pytestmark = pytest.mark.django_db
 def test_inversao_serializer_validators(inversao_card_params, tipo_alimentacao):
     data_de, data_para, _, _ = inversao_card_params
     serializer_obj = InversaoCardapioSerializerCreate()
-    cardapio_de = baker.make("cardapio.Cardapio", data=data_de)
-    cardapio_para = baker.make("cardapio.Cardapio", data=data_para)
-    tipo_ue = baker.make(
-        "escola.TipoUnidadeEscolar", cardapios=[cardapio_de, cardapio_para]
-    )
+    tipo_ue = baker.make("escola.TipoUnidadeEscolar")
     lote = baker.make("Lote")
     escola = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
     baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=True)
@@ -48,15 +44,7 @@ def test_inversao_serializer_creators(inversao_card_params):
     data_de_cria, data_para, data_de_atualiza, data_para_atualiza = inversao_card_params
     serializer_obj = InversaoCardapioSerializerCreate(context={"request": FakeObject})
 
-    cardapio1 = baker.make("cardapio.Cardapio", data=data_de_cria)
-    cardapio2 = baker.make("cardapio.Cardapio", data=data_para)
-    cardapio3 = baker.make("cardapio.Cardapio", data=data_de_atualiza)
-    cardapio4 = baker.make("cardapio.Cardapio", data=data_para_atualiza)
-
-    tipo_ue = baker.make(
-        "escola.TipoUnidadeEscolar",
-        cardapios=[cardapio1, cardapio2, cardapio3, cardapio4],
-    )
+    tipo_ue = baker.make("escola.TipoUnidadeEscolar")
     lote = baker.make("Lote")
     escola1 = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)
     escola2 = baker.make("escola.Escola", tipo_unidade=tipo_ue, lote=lote)

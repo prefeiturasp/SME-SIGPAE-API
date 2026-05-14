@@ -28,7 +28,7 @@ from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_fac
     MedicaoFactory,
     SolicitacaoMedicaoInicialFactory,
 )
-from src.medicao_inicial.models import Medicao, RelatorioFinanceiro, ValorMedicao
+from src.medicao_inicial.models import Medicao, RelatorioFinanceiro, ValorMedicao, CategoriaMedicao
 from src.medicao_inicial.recreio_nas_ferias.fixtures.factories.base_factory import (
     RecreioNasFeriasFactory,
 )
@@ -319,3 +319,104 @@ def test_atualizar_status_relatorio_financeiro(
     relatorio_atualizado.refresh_from_db()
 
     assert relatorio_atualizado.status == "EM_ANALISE"
+
+
+def test_medicao_get_or_create_nao_duplica():
+    """Verifica que get_or_create não cria Medicao duplicadas (regressão race condition)."""
+    solicitacao = baker.make("SolicitacaoMedicaoInicial")
+    periodo = baker.make("PeriodoEscolar", nome="MANHA")
+
+    medicao1, created1 = Medicao.objects.get_or_create(
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=periodo,
+    )
+    assert created1 is True
+    assert Medicao.objects.count() == 1
+
+    medicao2, created2 = Medicao.objects.get_or_create(
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=periodo,
+    )
+    assert created2 is False
+    assert Medicao.objects.count() == 1
+    assert medicao2.pk == medicao1.pk
+
+
+def test_cria_valores_medicao_logs_matriculados_emef_emei_nao_duplica(
+    escola, periodo_escolar
+):
+    """Verifica que método EMEF/EMEI não duplica Medicao ao ser chamado 2x."""
+    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+
+    AlunosMatriculadosPeriodoEscolaFactory(
+        escola=escola,
+        tipo_turma="REGULAR",
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=100,
+    )
+    log = LogAlunosMatriculadosPeriodoEscolaFactory(
+        escola=escola,
+        tipo_turma="REGULAR",
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=100,
+    )
+    log.criado_em = date(2022, 12, 1)
+    log.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=12,
+        ano=2022,
+        escola=escola,
+        rastro_lote=escola.lote,
+    )
+
+    serializer = SolicitacaoMedicaoInicialCreateSerializer()
+    serializer.cria_valores_medicao_logs_alunos_matriculados_emef_emei(solicitacao)
+
+    total = solicitacao.medicoes.count()
+    assert total > 0
+
+    serializer.cria_valores_medicao_logs_alunos_matriculados_emef_emei(solicitacao)
+
+    assert solicitacao.medicoes.count() == total
+
+
+def test_cria_valores_medicao_logs_matriculados_cei_nao_duplica(
+    escola_cei, periodo_escolar
+):
+    """Verifica que método CEI não duplica Medicao ao ser chamado 2x."""
+    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+
+    AlunosMatriculadosPeriodoEscolaFactory(
+        escola=escola_cei,
+        tipo_turma="REGULAR",
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=100,
+    )
+    log = LogAlunosMatriculadosPeriodoEscolaFactory(
+        escola=escola_cei,
+        tipo_turma="REGULAR",
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=100,
+    )
+    log.criado_em = date(2022, 12, 1)
+    log.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=12,
+        ano=2022,
+        escola=escola_cei,
+        rastro_lote=escola_cei.lote,
+    )
+
+    serializer = SolicitacaoMedicaoInicialCreateSerializer()
+    serializer.cria_valores_medicao_logs_alunos_matriculados_cei(solicitacao)
+
+    total = solicitacao.medicoes.count()
+    assert total > 0
+
+    serializer.cria_valores_medicao_logs_alunos_matriculados_cei(solicitacao)
+
+    assert solicitacao.medicoes.count() == total

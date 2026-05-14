@@ -5,7 +5,6 @@ from freezegun import freeze_time
 from model_bakery import baker
 from xworkflows import InvalidTransitionError
 
-from src.cardapio.base.models import Cardapio
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.escola.models import Escola
 
@@ -14,8 +13,8 @@ pytestmark = pytest.mark.django_db
 
 def test_inversao_dia_cardapio(inversao_dia_cardapio):
     assert isinstance(inversao_dia_cardapio.escola, Escola)
-    assert isinstance(inversao_dia_cardapio.cardapio_de, Cardapio)
-    assert isinstance(inversao_dia_cardapio.cardapio_para, Cardapio)
+    assert inversao_dia_cardapio.data_de == datetime.date(2019, 12, 15)
+    assert inversao_dia_cardapio.data_para == datetime.date(2019, 12, 21)
     assunto, template_html = inversao_dia_cardapio.template_mensagem
     assert assunto == "TESTE INVERSAO CARDAPIO"
     assert "RASCUNHO" in template_html

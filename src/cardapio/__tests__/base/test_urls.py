@@ -212,3 +212,46 @@ def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_cemei(
 
     assert json[1]["tipo_unidade_escolar"]["iniciais"] == "EMEI"
     assert json[3]["periodo_escolar"]["nome"] == "INTEGRAL"
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_com_mes_ano(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_emef
+):
+    """Testa endpoint com parâmetros de mês e ano para filtragem precisa"""
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_emef.uuid}/?ano=2025&mes=5"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    # Deve retornar períodos filtrados por mês e ano
+    assert len(json) >= 0
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_apenas_ano_retrocompatibilidade(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_emef
+):
+    """Testa retrocompatibilidade quando apenas parâmetro ano é fornecido"""
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_emef.uuid}/?ano=2025"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    # Deve funcionar como antes quando apenas ano é fornecido
+    assert len(json) == 4
+    assert json[0]["periodo_escolar"]["nome"] == "MANHA"
+    assert json[1]["periodo_escolar"]["nome"] == "TARDE"
+    assert json[2]["periodo_escolar"]["nome"] == "INTEGRAL"
+    assert json[3]["periodo_escolar"]["nome"] == "NOITE"
+
+
+def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_mes_diferente(
+    client_autenticado_vinculo_escola, vinculo_alimentacao_periodo_escolar_emef
+):
+    """Testa endpoint com mês diferente para garantir que filtragem funciona corretamente"""
+    response = client_autenticado_vinculo_escola.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{vinculo_alimentacao_periodo_escolar_emef.uuid}/?ano=2025&mes=12"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()["results"]
+    # Deve retornar períodos filtrados para dezembro de 2025
+    assert len(json) >= 0

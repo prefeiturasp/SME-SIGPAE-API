@@ -50,6 +50,12 @@ from src.medicao_inicial.models import (
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
+    cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
+    cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
+    validate_lancamento_alimentacoes_medicao_recreio,
+    validate_lancamento_dietas_medicao_recreio,
+)
 from src.medicao_inicial.utils import process_anexos_from_request
 from src.perfil.models import Usuario
 from src.terceirizada.models import Contrato, Edital
@@ -241,7 +247,27 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         tipos_contagem_alimentacao = validated_data.pop(
             "tipos_contagem_alimentacao", []
         )
-        solicitacao = SolicitacaoMedicaoInicial.objects.create(**validated_data)
+
+        escola = validated_data.pop("escola")
+        mes = validated_data.pop("mes")
+        ano = validated_data.pop("ano")
+        recreio = validated_data.pop("recreio_nas_ferias", None)
+
+        solicitacao, criado = SolicitacaoMedicaoInicial.objects.get_or_create(
+            escola=escola,
+            mes=mes,
+            ano=ano,
+            recreio_nas_ferias=recreio,
+            defaults=validated_data,
+        )
+
+        if not criado:
+            raise serializers.ValidationError(
+                {
+                    "detail": "Já existe uma solicitação de medição inicial para esta escola, mês e ano."
+                }
+            )
+
         solicitacao.tipos_contagem_alimentacao.set(tipos_contagem_alimentacao)
         for responsavel in responsaveis_dict:
             Responsavel.objects.create(
@@ -250,7 +276,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 rf=responsavel.get("rf", ""),
             )
         if alunos_periodo_parcial:
-            escola_associada = validated_data.get("escola")
+            escola_associada = escola
             atualiza_alunos_periodo_parcial(solicitacao, alunos_periodo_parcial)
             for aluno in alunos_periodo_parcial:
                 AlunoPeriodoParcial.objects.create(
@@ -409,17 +435,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         for dia in range(1, quantidade_dias_mes + 1):
             for periodo_escolar in periodos_escolares:
-                try:
-                    medicao = instance.medicoes.get(
-                        periodo_escolar__nome=periodo_escolar
-                    )
-                except Medicao.DoesNotExist:
-                    medicao = Medicao.objects.create(
-                        solicitacao_medicao_inicial=instance,
-                        periodo_escolar=PeriodoEscolar.objects.get(
-                            nome=periodo_escolar
-                        ),
-                    )
+                medicao, _ = Medicao.objects.get_or_create(
+                    solicitacao_medicao_inicial=instance,
+                    periodo_escolar=PeriodoEscolar.objects.get(
+                        nome=periodo_escolar
+                    ),
+                )
                 if not medicao.valores_medicao.filter(
                     categoria_medicao=categoria,
                     dia=f"{dia:02d}",
@@ -488,17 +509,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             periodos_escolares.append("PARCIAL")
         for dia in range(1, quantidade_dias_mes + 1):
             for periodo_escolar in periodos_escolares:
-                try:
-                    medicao = instance.medicoes.get(
-                        periodo_escolar__nome=periodo_escolar
-                    )
-                except Medicao.DoesNotExist:
-                    medicao = Medicao.objects.create(
-                        solicitacao_medicao_inicial=instance,
-                        periodo_escolar=PeriodoEscolar.objects.get(
-                            nome=periodo_escolar
-                        ),
-                    )
+                medicao, _ = Medicao.objects.get_or_create(
+                    solicitacao_medicao_inicial=instance,
+                    periodo_escolar=PeriodoEscolar.objects.get(
+                        nome=periodo_escolar
+                    ),
+                )
                 valores_medicao_a_criar = self.analisa_periodos_por_dia_matriculados(
                     logs_do_mes,
                     dia,
@@ -1178,6 +1194,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
                 )
+            self.cria_valores_medicao_recreio_emef_emei_cieja_ceugestao(instance)
+            self.valida_finalizar_medicao_recreio_emef_emei_cieja_ceugestao(instance)
+
             instance.ue_envia(user=self.context["request"].user)
             anexos = self._process_anexos(instance)
             if hasattr(instance, "ocorrencia"):
@@ -1186,6 +1205,39 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 )
             for medicao in instance.medicoes.all():
                 medicao.ue_envia(user=self.context["request"].user)
+
+    def cria_valores_medicao_recreio_emef_emei_cieja_ceugestao(
+        self, instance: SolicitacaoMedicaoInicial
+    ) -> None:
+        if (
+            not (instance.escola.eh_emef_emei_cieja or instance.escola.eh_ceu_gestao)
+            or instance.logs_salvos
+        ):
+            return
+
+        cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(instance)
+        cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao(
+            instance
+        )
+        instance.logs_salvos = True
+        instance.save()
+
+    def valida_finalizar_medicao_recreio_emef_emei_cieja_ceugestao(
+        self, instance: SolicitacaoMedicaoInicial
+    ) -> None:
+        if (
+            not (instance.escola.eh_emef_emei_cieja or instance.escola.eh_ceu_gestao)
+            or instance.status
+            != SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+        ):
+            return
+        lista_erros = []
+        lista_erros = validate_lancamento_alimentacoes_medicao_recreio(
+            instance, lista_erros
+        )
+        lista_erros = validate_lancamento_dietas_medicao_recreio(instance, lista_erros)
+        if lista_erros:
+            raise serializers.ValidationError(lista_erros)
 
     class Meta:
         model = SolicitacaoMedicaoInicial
