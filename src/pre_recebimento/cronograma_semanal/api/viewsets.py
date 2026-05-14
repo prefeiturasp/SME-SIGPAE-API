@@ -7,6 +7,7 @@ from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
     USUARIO_EMPRESA,
 )
+from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
 from src.dados_comuns.permissions import (
     PermissaoParaCriarCronogramaSemanal,
     PermissaoParaDarCienciaCronogramaSemanal,
@@ -350,5 +351,13 @@ class CronogramaSemanalViewSet(
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-cronograma")
     def gerar_pdf_cronograma(self, request, uuid=None):
         cronograma = self.get_object()
+
+        if cronograma.status != CronogramaSemanalWorkflow.FORNECEDOR_CIENTE:
+            return Response(
+                {
+                    "detail": "O PDF só pode ser gerado para cronogramas no status Fornecedor Ciente."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         return get_pdf_cronograma_semanal(request, cronograma)
