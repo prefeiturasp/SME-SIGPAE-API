@@ -1,3 +1,10 @@
+"""Serializers da subapp base do modulo de cardapio.
+
+Reune serializers de leitura usados para expor tipos de alimentacao,
+configuracoes de horario por escola, vinculos de periodo/tipo de unidade e
+motivos de nao validacao da DRE.
+"""
+
 from rest_framework import serializers
 
 from src.cardapio.base.models import (
@@ -14,12 +21,41 @@ from src.escola.api.serializers import (
 
 
 class TipoAlimentacaoSerializer(serializers.ModelSerializer):
+    """Serializa tipos de alimentacao com sua representacao completa de leitura.
+
+    Expoe os campos publicos de ``TipoAlimentacao`` usados na API base e em
+    serializers aninhados que retornam os tipos de alimentacao permitidos para
+    horarios e vinculos.
+
+    Viewsets que utilizam este serializer:
+            - ``TipoAlimentacaoViewSet``: uso direto como ``serializer_class`` nas
+                acoes padrao do ``ModelViewSet``.
+            - ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet``: uso
+                indireto, aninhado em
+                ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer``.
+            - ``VinculoTipoAlimentacaoViewSet``: uso indireto, aninhado em
+                ``VinculoTipoAlimentoSimplesSerializer`` e
+                ``VinculoTipoAlimentoPeriodoSerializer``.
+    """
+
     class Meta:
         model = TipoAlimentacao
         exclude = ("id",)
 
 
 class TipoAlimentacaoSimplesSerializer(serializers.ModelSerializer):
+    """Serializa uma visao resumida dos tipos de alimentacao.
+
+    Retorna apenas UUID e nome, sendo usado quando o payload precisa listar os
+    tipos de alimentacao vinculados a um periodo escolar sem incluir todos os
+    campos do modelo.
+
+    Viewsets que utilizam este serializer:
+        - Nenhum diretamente.
+        - Uso indireto em ``VinculosPorTipoUnidadeEscolarViewSet``, por meio de
+          ``TipoUnidadeEscolarAgrupadoSerializer``.
+    """
+
     class Meta:
         model = TipoAlimentacao
         fields = (
@@ -31,6 +67,16 @@ class TipoAlimentacaoSimplesSerializer(serializers.ModelSerializer):
 class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer(
     serializers.ModelSerializer
 ):
+    """Serializa horarios configurados para tipos de alimentacao por escola.
+
+    Retorna a faixa de horario com os relacionamentos de escola, tipo de
+    alimentacao e periodo escolar ja expandidos por serializers simples.
+
+    Viewsets que utilizam este serializer:
+        - ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet``:
+          retornado por ``get_serializer_class()`` nas acoes de leitura.
+    """
+
     escola = EscolaListagemSimplesSelializer()
     tipo_alimentacao = TipoAlimentacaoSerializer()
     periodo_escolar = PeriodoEscolarSimplesSerializer()
@@ -48,6 +94,16 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer(
 
 
 class VinculoTipoAlimentoSimplesSerializer(serializers.ModelSerializer):
+    """Serializa um vinculo ativo entre periodo, tipo de U.E. e alimentacoes.
+
+    Retorna o tipo de unidade escolar, o periodo escolar e a colecao de tipos
+    de alimentacao autorizados para aquela combinacao.
+
+    Viewsets que utilizam este serializer:
+        - ``VinculoTipoAlimentacaoViewSet``: uso direto como
+          ``serializer_class`` nas acoes de leitura.
+    """
+
     tipo_unidade_escolar = TipoUnidadeEscolarSerializerSimples()
     periodo_escolar = PeriodoEscolarSimplesSerializer()
     tipos_alimentacao = TipoAlimentacaoSerializer(many=True, read_only=True)
@@ -63,10 +119,30 @@ class VinculoTipoAlimentoSimplesSerializer(serializers.ModelSerializer):
 
 
 class VinculoTipoAlimentoPeriodoSerializer(serializers.ModelSerializer):
+    """Serializa vinculos agrupando o periodo pelo nome exibivel.
+
+    Converte o periodo escolar em um campo textual ``nome`` e retorna os tipos
+    de alimentacao relacionados para compor respostas resumidas por periodo.
+
+    Viewsets que utilizam este serializer:
+        - Nenhum diretamente no modulo.
+        - Pode ser reutilizado por endpoints que precisem expor vinculos por
+          periodo escolar em formato resumido.
+    """
+
     nome = serializers.SerializerMethodField()
     tipos_alimentacao = TipoAlimentacaoSerializer(many=True, read_only=True)
 
     def get_nome(self, obj):
+        """Retorna o nome do periodo escolar associado ao vinculo.
+
+        Args:
+            obj (VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar):
+                Vinculo serializado.
+
+        Returns:
+            str: Nome do periodo escolar relacionado ao vinculo.
+        """
         return obj.periodo_escolar.nome
 
     class Meta:
@@ -78,12 +154,33 @@ class VinculoTipoAlimentoPeriodoSerializer(serializers.ModelSerializer):
 
 
 class MotivoDRENaoValidaSerializer(serializers.ModelSerializer):
+    """Serializa os motivos usados pela DRE para nao validar solicitacoes.
+
+    Expoe os campos publicos de ``MotivoDRENaoValida`` para consumo em listas e
+    seletores da API.
+
+    Viewsets que utilizam este serializer:
+        - ``MotivosDRENaoValidaViewSet``: uso direto como ``serializer_class``
+          nas acoes de listagem e detalhamento.
+    """
+
     class Meta:
         model = MotivoDRENaoValida
         exclude = ("id",)
 
 
 class TipoUnidadeEscolarAgrupadoSerializer(serializers.Serializer):
+    """Serializa tipos de unidade escolar agrupados com seus vinculos.
+
+    Recebe uma estrutura agregada em memoria contendo o tipo de unidade e os
+    vinculos associados e monta a resposta final com periodos escolares e tipos
+    de alimentacao permitidos.
+
+    Viewsets que utilizam este serializer:
+        - ``VinculosPorTipoUnidadeEscolarViewSet``: uso direto na action
+          ``list``.
+    """
+
     uuid = serializers.UUIDField()
     iniciais = serializers.CharField()
     ativo = serializers.BooleanField()
@@ -92,6 +189,16 @@ class TipoUnidadeEscolarAgrupadoSerializer(serializers.Serializer):
     periodos_escolares = serializers.SerializerMethodField()
 
     def get_periodos_escolares(self, obj):
+        """Monta os periodos escolares agrupados para um tipo de unidade.
+
+        Args:
+            obj (dict): Dicionario agregado contendo a chave ``vinculos`` com
+                os vinculos do tipo de unidade escolar.
+
+        Returns:
+            list[dict]: Lista de periodos escolares com UUID, nome e tipos de
+            alimentacao serializados.
+        """
         vinculos = obj.get("vinculos", [])
         periodos_data = []
 
@@ -109,6 +216,16 @@ class TipoUnidadeEscolarAgrupadoSerializer(serializers.Serializer):
 
     @staticmethod
     def agrupar_vinculos_por_tipo_ue(vinculos):
+        """Agrupa vinculos ativos pelo UUID do tipo de unidade escolar.
+
+        Args:
+            vinculos (Iterable[VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar]):
+                Vinculos a serem agrupados.
+
+        Returns:
+            list[dict]: Lista ordenada por iniciais contendo os dados do tipo
+            de unidade escolar e a colecao de vinculos correspondente.
+        """
         from collections import defaultdict
 
         agrupados = defaultdict(list)
