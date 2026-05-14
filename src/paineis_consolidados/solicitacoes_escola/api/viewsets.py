@@ -992,6 +992,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
         query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
+        query_set = query_set.distinct()
         query_set = query_set.filter(
             Q(data_evento__month=mes, data_evento__year=ano)
             | Q(data_evento__lt=primeiro_dia_mes, data_evento_2__gte=primeiro_dia_mes)
