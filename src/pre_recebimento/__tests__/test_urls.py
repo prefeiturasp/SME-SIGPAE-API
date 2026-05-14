@@ -2688,7 +2688,7 @@ def test_url_documentos_de_recebimento_fornecedor_corrige_validacao(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # testa validação sem arquivos de documentos
+    # testa correção apenas com Laudo (documentos extras são opcionais)
     dados_correcao_sem_documentos = {
         "tipos_de_documentos": [
             {
@@ -2707,7 +2707,7 @@ def test_url_documentos_de_recebimento_fornecedor_corrige_validacao(
         data=json.dumps(dados_correcao_sem_documentos),
     )
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_200_OK
 
     # testa validação com payload incompleto
     dados_correcao_sem_arquivos = {

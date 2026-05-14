@@ -263,12 +263,13 @@ class TipoDeDocumentoDeRecebimentoCorrecaoSerializer(serializers.ModelSerializer
 
 class DocumentoDeRecebimentoCorrecaoSerializer(serializers.ModelSerializer):
     tipos_de_documentos = TipoDeDocumentoDeRecebimentoCorrecaoSerializer(
-        many=True, required=True
+        many=True, required=False
     )
 
     def validate(self, attrs):
         tipos_documentos_recebidos = [
-            dados["tipo_documento"] for dados in attrs["tipos_de_documentos"]
+            dados["tipo_documento"]
+            for dados in attrs.get("tipos_de_documentos", [])
         ]
         if (
             TipoDeDocumentoDeRecebimento.TIPO_DOC_LAUDO
@@ -277,20 +278,6 @@ class DocumentoDeRecebimentoCorrecaoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {
                     "tipos_de_documentos": "É obrigatório pelo menos um documento do tipo Laudo."
-                }
-            )
-
-        choices_tipos_documentos = set(
-            [choice[0] for choice in TipoDeDocumentoDeRecebimento.TIPO_DOC_CHOICES]
-        )
-        if len(choices_tipos_documentos.intersection(tipos_documentos_recebidos)) < 2:
-            raise serializers.ValidationError(
-                {
-                    "tipos_de_documentos": (
-                        "É obrigatório pelo menos um documento do tipo Laudo"
-                        + " e um documento de algum dos tipos"
-                        + f' {", ".join(choices_tipos_documentos)}.'
-                    )
                 }
             )
 
