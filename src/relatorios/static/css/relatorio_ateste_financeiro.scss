@@ -131,10 +131,18 @@
     background-color: #67a37e !important;
   }
 
+  .titulo-tabela {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0b8a5a;
+    margin-bottom: 5px;
+    font-family: "Roboto", sans-serif;
+  }
+
   .consolidado-total {
     width: 100%;
-    padding: 12px 24px;
-    font-family: Arial, Helvetica, sans-serif;
+    padding: 10px 24px;
+    font-family: "Roboto", sans-serif;
     color: #1b1b1b;
 
     page-break-inside: avoid;
@@ -142,11 +150,11 @@
     .consolidado-titulo {
       display: flex;
       align-items: flex-end;
-      gap: 12px;
+      gap: 10px;
       font-size: 14px;
       font-weight: 700;
       color: #0b8a5a;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .consolidado-conteudo {
@@ -174,7 +182,7 @@
     .caixa {
       background: #eef0f5;
       border-radius: 6px;
-      padding: 14px 16px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       border: 1px solid #cfd4dd;

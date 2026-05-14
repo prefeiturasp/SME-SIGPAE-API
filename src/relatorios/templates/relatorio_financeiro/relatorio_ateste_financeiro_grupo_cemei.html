@@ -30,23 +30,28 @@
       tipo_class="cor-tipo-b" ordem="C" total_consumo=cei.dieta_b.total_consumo
       valor_total=cei.dieta_b.valor_total %} {% include
       "relatorio_financeiro/componentes/cabecalho.html" with cabecalho=cabecalho
-      %} {% include "relatorio_financeiro/componentes/tabela_alimentacao.html"
-      with linhas=emei.alimentacao.linhas ordem="INF. A"
-      total_atendimentos=emei.alimentacao.total_atendimentos
-      valor_total=emei.alimentacao.valor_total %} {% include
-      "relatorio_financeiro/componentes/tabela_dieta.html" with
-      linhas=emei.dieta_a.linhas tipoDieta="TIPO A" tipo_class="cor-tipo-a"
-      ordem="INF. B" total_consumo=emei.dieta_a.total_consumo
-      valor_total=emei.dieta_a.valor_total %} {% include
-      "relatorio_financeiro/componentes/tabela_dieta.html" with
-      linhas=emei.dieta_b.linhas tipoDieta="TIPO B" tipo_class="cor-tipo-b"
-      ordem="INF. C" total_consumo=emei.dieta_b.total_consumo
-      valor_total=emei.dieta_b.valor_total %} {% for consolidado in consolidados
-      %} {% include "relatorio_financeiro/componentes/consolidado_total.html"
-      with titulo=consolidado.titulo quantidade=consolidado.quantidade
-      titulo_quantidade=consolidado.titulo_quantidade
-      titulo_valor=consolidado.titulo_valor valor=consolidado.valor
-      valor_extenso=consolidado.valor_extenso %} {% endfor %}
+      %}
+      <div class="tabela-alimentacao">
+        <h2 class="titulo-tabela">Alimentações TURMA INFANTIL da CEMEI</h2>
+        {% include "relatorio_financeiro/componentes/tabela_alimentacao.html"
+        with linhas=emei.alimentacao.linhas ordem="INF. A"
+        total_atendimentos=emei.alimentacao.total_atendimentos
+        valor_total=emei.alimentacao.valor_total %} {% include
+        "relatorio_financeiro/componentes/tabela_dieta.html" with
+        linhas=emei.dieta_a.linhas tipoDieta="TIPO A" tipo_class="cor-tipo-a"
+        ordem="INF. B" total_consumo=emei.dieta_a.total_consumo
+        valor_total=emei.dieta_a.valor_total %} {% include
+        "relatorio_financeiro/componentes/tabela_dieta.html" with
+        linhas=emei.dieta_b.linhas tipoDieta="TIPO B" tipo_class="cor-tipo-b"
+        ordem="INF. C" total_consumo=emei.dieta_b.total_consumo
+        valor_total=emei.dieta_b.valor_total %} {% for consolidado in
+        consolidados %} {% include
+        "relatorio_financeiro/componentes/consolidado_total.html" with
+        titulo=consolidado.titulo quantidade=consolidado.quantidade
+        titulo_quantidade=consolidado.titulo_quantidade
+        titulo_valor=consolidado.titulo_valor valor=consolidado.valor
+        valor_extenso=consolidado.valor_extenso %} {% endfor %}
+      </div>
     </div>
     {% include "relatorio_financeiro/componentes/rodape.html" %}
   </body>

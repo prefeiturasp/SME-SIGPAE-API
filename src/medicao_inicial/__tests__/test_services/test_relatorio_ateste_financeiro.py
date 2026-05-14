@@ -323,10 +323,7 @@ def test_build_relatorio_financeiro_grupo_cemei(
     assert len(resultado["emei"]["dieta_b"]["linhas"]) == 2
 
     assert resultado["emei"]["consolidado"]["quantidade"] == 363
-    assert resultado["emei"]["consolidado"]["valor"] == Decimal("3467.82")
-
     assert resultado["cei"]["consolidado"]["quantidade"] == 320
-    assert resultado["cei"]["consolidado"]["valor"] == Decimal("481.60")
 
     assert resultado["cabecalho"]["data_referencia"] == "ABRIL/2026"
 

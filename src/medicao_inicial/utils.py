@@ -5933,7 +5933,7 @@ def _formata_refeicao_emef(chave, dieta=False):
     return f"{prefixo}{dieta_prefixo}{grupo_emef}"
 
 
-def normalizar_nome_campo(nome_campo, grupo_nome, dieta=False):
+def normalizar_nome_campo(nome_campo, grupo_nome="", dieta=False):
     """
     Normaliza o nome de um campo para comparação com a tabela de parametrização.
 
