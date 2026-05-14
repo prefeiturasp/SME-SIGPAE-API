@@ -6166,7 +6166,7 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
                 status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
                 usuario=user,
             )
-            self._envia_email_criacao_cronograma_semanal()
+            self._notificar_criacao_cronograma_ponto_a_ponto()
 
     @xworkflows.after_transition("fornecedor_ciente")
     def _fornecedor_ciente_hook(self, *args, **kwargs):
@@ -6186,27 +6186,59 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
             )
 
-    def _envia_email_criacao_cronograma_semanal(self):
+    def _notificar_criacao_cronograma_ponto_a_ponto(self) -> None:
+        """
+        Envia email e notificação aos usuários vinculados à empresa informando
+        a criação de um cronograma semanal de pré-recebimento.
+
+        O método:
+        - monta os contextos utilizados nos templates;
+        - envia email aos destinatários vinculados;
+        - cria notificações internas para os usuários relacionados;
+        - disponibiliza link de acesso ao detalhe do cronograma.
+        """
         url_detalhe_cronograma = (
             f"{base_url}/pre-recebimento/detalhe-cronograma-semanal?uuid={self.uuid}"
         )
-        contexto = {
-            "numero_cronograma": self.numero,
-            "data_evento": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
-            "url_detalhe_cronograma": url_detalhe_cronograma,
-        }
+        numero_cronograma = self.numero
+        data_evento = self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+        nome_produto = self.cronograma_mensal.ficha_tecnica.produto.nome
         destinatarios = (
             PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
                 self.cronograma_mensal, somente_email=True
             )
         )
+        usuarios = PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
+            self.cronograma_mensal
+        )
+        contexto_notificacao = {
+            "numero_cronograma": self.numero,
+            "data_evento": data_evento,
+            "nome_produto": nome_produto,
+        }
+
+        contexto_email = {
+            "numero_cronograma": numero_cronograma,
+            "data_evento": data_evento,
+            "url_detalhe_cronograma": url_detalhe_cronograma,
+        }
 
         EmailENotificacaoService.enviar_email(
-            titulo=f"Cronograma Criado: Nº {self.numero}",
-            assunto=f"[SIGPAE] Ciência do cronograma Nº {self.numero}",
+            titulo=f"Cronograma Criado: Nº {numero_cronograma}",
+            assunto=f"[SIGPAE] Ciência do cronograma Nº {numero_cronograma}",
             template="pre_recebimento_email_criacao_cronograma_semanal.html",
-            contexto_template=contexto,
+            contexto_template=contexto_email,
             destinatarios=destinatarios,
+        )
+
+        EmailENotificacaoService.enviar_notificacao(
+            template="pre_recebimento_notificacao_criacao_cronograma_semanal.html",
+            contexto_template=contexto_notificacao,
+            titulo_notificacao=f"Cronograma Ponto a Ponto {numero_cronograma} – {nome_produto} criado pela CODAE.",
+            tipo_notificacao=Notificacao.TIPO_NOTIFICACAO_ALERTA,
+            categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_CRIACAO_CRONOGRAMA_PONTO_A_PONTO,
+            link_acesse_aqui=url_detalhe_cronograma,
+            usuarios=usuarios,
         )
 
     class Meta:
