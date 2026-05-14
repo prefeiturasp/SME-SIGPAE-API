@@ -46,7 +46,10 @@ from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
 
 MODEL_MEDICAO_RESPONSAVEL = "medicao_inicial.Responsavel"
 PROGRAMAS_E_PROOJETOS = "PROGRAMAS E PROJETOS"
+
 PRECO_DAS_ALIMENTACOES = "Preço das Alimentações"
+TABELA_DIETA_A = "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos"
+TABELA_DIETA_B = "Dietas Tipo B"
 
 
 @pytest.fixture
@@ -2066,20 +2069,15 @@ def solicitacao_medicao_inicial_sem_arquivo(escola):
 
 
 @pytest.fixture
-def parametrizacao_financeira_emef(
-    edital,
-    escola,
+def grupo_unidade_escolar_emef(
     tipo_unidade_escolar,
     tipo_unidade_escolar_ceu_emef,
     tipo_unidade_escolar_emefm,
     tipo_unidade_escolar_ceu_gestao,
-    tipo_alimentacao_lanche,
-    tipo_alimentacao_lanche_4h,
 ):
-    grupo_unidade_escolar = baker.make(
+    return baker.make(
         "GrupoUnidadeEscolar",
         nome="Grupo 4",
-        uuid="2a7f9d61-8e7b-44a3-9e7e-8ac22a92f1c4",
         tipos_unidades=[
             tipo_unidade_escolar,
             tipo_unidade_escolar_ceu_emef,
@@ -2088,11 +2086,21 @@ def parametrizacao_financeira_emef(
         ],
     )
 
+
+@pytest.fixture
+def parametrizacao_financeira_emef(
+    edital,
+    escola,
+    grupo_unidade_escolar_emef,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+):
     parametrizacao_financeira = baker.make(
         "ParametrizacaoFinanceira",
         edital=edital,
         lote=escola.lote,
-        grupo_unidade_escolar=grupo_unidade_escolar,
+        grupo_unidade_escolar=grupo_unidade_escolar_emef,
         data_inicial="2025-10-01",
         data_final="2025-10-30",
         legenda="Parametrização Financeira: Legenda Inicial",
@@ -2107,7 +2115,7 @@ def parametrizacao_financeira_emef(
 
     tabela_dieta_a = baker.make(
         "ParametrizacaoFinanceiraTabela",
-        nome="Tarde",
+        nome=TABELA_DIETA_A,
         periodo_escolar=None,
         parametrizacao_financeira=parametrizacao_financeira,
     )
@@ -2120,6 +2128,26 @@ def parametrizacao_financeira_emef(
     tipo_acrescimo = TipoValorParametrizacaoFinanceira.objects.get(nome="ACRESCIMO")
 
     for tipo_valor in [tipo_unitario, tipo_reajuste]:
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_precos,
+            nome_campo="refeicao",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            tipo_valor=tipo_valor,
+            valor="21.00",
+        )
+
+        baker.make(
+            "ParametrizacaoFinanceiraTabelaValor",
+            tabela=tabela_precos,
+            nome_campo="refeicao_-_eja",
+            faixa_etaria=None,
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            tipo_valor=tipo_valor,
+            valor="25.00",
+        )
+
         baker.make(
             "ParametrizacaoFinanceiraTabelaValor",
             tabela=tabela_precos,
@@ -6744,3 +6772,37 @@ def solicitacao_recreio_emef(
                     )
 
     return solicitacao_recreio_nas_ferias
+
+
+@pytest.fixture
+def vinculo_alimentacao_emef(
+    tipo_unidade_escolar_emefm,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+):
+    vinculo_alimentacao = baker.make(
+        "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        tipo_unidade_escolar=tipo_unidade_escolar_emefm,
+    )
+    for tipo in [
+        tipo_alimentacao_refeicao,
+        tipo_alimentacao_lanche,
+        tipo_alimentacao_lanche_4h,
+    ]:
+        vinculo_alimentacao.tipos_alimentacao.add(tipo)
+    vinculo_alimentacao.save()
+
+
+@pytest.fixture
+def relatorio_financeiro_emef(
+    escola_emefm,
+    grupo_unidade_escolar_emef,
+):
+    return baker.make(
+        "RelatorioFinanceiro",
+        grupo_unidade_escolar=grupo_unidade_escolar_emef,
+        lote=escola_emefm.lote,
+        mes="10",
+        ano="2025",
+    )
