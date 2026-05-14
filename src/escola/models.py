@@ -410,9 +410,6 @@ class TipoUnidadeEscolar(
 ):
     """EMEF, CIEJA, EMEI, EMEBS, CEI, CEMEI..."""
 
-    cardapios = models.ManyToManyField(
-        "cardapio.Cardapio", blank=True, related_name="tipos_unidade_escolar"
-    )
     periodos_escolares = models.ManyToManyField(
         "escola.PeriodoEscolar", blank=True, related_name="tipos_unidade_escolar"
     )
@@ -429,13 +426,6 @@ class TipoUnidadeEscolar(
     @property
     def eh_cei(self):
         return self.iniciais in LISTA_TIPOS_UNIDADES
-
-    def get_cardapio(self, data):
-        # TODO: ter certeza que tem so um cardapio por dia por tipo de u.e.
-        try:
-            return self.cardapios.get(data=data)
-        except ObjectDoesNotExist:
-            return None
 
     def __str__(self):
         return self.iniciais
@@ -731,7 +721,9 @@ class Escola(
             escola__uuid=self.uuid, tipo_turma="REGULAR", quantidade_alunos__gte=1
         ).exists()
 
-    def periodos_escolares(self, ano=datetime.date.today().year, mes=None, pega_atualmente=False):
+    def periodos_escolares(
+        self, ano=datetime.date.today().year, mes=None, pega_atualmente=False
+    ):
         """Recupera periodos escolares da escola, desde que haja pelomenos um aluno para este período."""
 
         if self.tipo_unidade.tem_somente_integral_e_parcial:
@@ -758,9 +750,9 @@ class Escola(
                 if mes is not None:
                     filtro_logs = filtro_logs.filter(criado_em__month=mes)
                 periodos = PeriodoEscolar.objects.filter(
-                    id__in=filtro_logs
-                    .values_list("periodo_escolar", flat=True)
-                    .distinct()
+                    id__in=filtro_logs.values_list(
+                        "periodo_escolar", flat=True
+                    ).distinct()
                 )
         return periodos
 
@@ -1013,9 +1005,6 @@ class Escola(
     @property
     def grupos_inclusoes(self):
         return self.grupos_inclusoes_normais
-
-    def get_cardapio(self, data):
-        return self.tipo_unidade.get_cardapio(data)
 
     @property
     def inclusoes_continuas(self):

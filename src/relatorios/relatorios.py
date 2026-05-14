@@ -1158,16 +1158,8 @@ def relatorio_inversao_dia_de_cardapio(request, solicitacao):
     escola = solicitacao.rastro_escola
     escola = _aplica_nome_historico_escola(escola, solicitacao.data)
     logs = solicitacao.logs
-    data_de = (
-        solicitacao.cardapio_de.data
-        if solicitacao.cardapio_de
-        else solicitacao.data_de_inversao
-    )
-    data_para = (
-        solicitacao.cardapio_para.data
-        if solicitacao.cardapio_para
-        else solicitacao.data_para_inversao
-    )
+    data_de = solicitacao.data_de
+    data_para = solicitacao.data_para
     html_string = render_to_string(
         "solicitacao_inversao_de_cardapio.html",
         {

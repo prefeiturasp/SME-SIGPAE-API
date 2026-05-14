@@ -419,12 +419,9 @@ def client_autenticado_vinculo_escola(client, django_user_model):
         nome="DIRETORIA REGIONAL IPIRANGA",
         uuid="7da9acec-48e1-430c-8a5c-1f1efc666fad",
     )
-    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
         iniciais=f.name()[:10],
-        cardapios=[cardapio1, cardapio2],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
     tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")

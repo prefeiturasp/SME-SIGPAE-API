@@ -151,14 +151,6 @@ def valida_duplicidade_solicitacoes_cemei(attrs):
     return True
 
 
-def deve_existir_cardapio(escola, data: datetime.date):
-    if not escola.get_cardapio(data):
-        raise serializers.ValidationError(
-            f'Escola não possui cardápio para esse dia: {data.strftime("%d-%m-%Y")}'
-        )
-    return True
-
-
 def deve_ser_dia_letivo_e_dia_da_semana(escola, data: datetime.date):
     """Valida que a data é um dia letivo da escola.
 

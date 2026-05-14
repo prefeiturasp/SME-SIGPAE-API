@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from src.cardapio.base.api.serializers import (
-    CardapioSimplesSerializer,
     TipoAlimentacaoSimplesSerializer,
 )
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
@@ -13,8 +12,6 @@ from src.terceirizada.api.serializers.serializers import (
 
 
 class InversaoCardapioSerializer(serializers.ModelSerializer):
-    cardapio_de = CardapioSimplesSerializer()
-    cardapio_para = CardapioSimplesSerializer()
     escola = EscolaSimplesSerializer()
     id_externo = serializers.CharField()
     prioridade = serializers.CharField()
@@ -38,9 +35,4 @@ class InversaoCardapioSimpleserializer(serializers.ModelSerializer):
 
     class Meta:
         model = InversaoCardapio
-        exclude = (
-            "id",
-            "criado_por",
-            "cardapio_de",
-            "cardapio_para",
-        )
+        exclude = ("id", "criado_por")

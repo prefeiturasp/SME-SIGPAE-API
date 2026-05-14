@@ -25,7 +25,6 @@ from src.cardapio.suspensao_alimentacao_cei.api import (
 )
 
 router = routers.DefaultRouter()
-router.register("cardapios", base_viewsets.CardapioViewSet, "Cardápios")
 router.register(
     "tipos-alimentacao", base_viewsets.TipoAlimentacaoViewSet, "Tipos de Alimentação"
 )
@@ -68,16 +67,6 @@ router.register(
     "vinculos-tipo-alimentacao-u-e-periodo-escolar",
     base_viewsets.VinculoTipoAlimentacaoViewSet,
     "Vínculos de tipo de alimentação no periodo escolar e tipo de u.e",
-)
-router.register(
-    "combos-vinculos-tipo-alimentacao-u-e-periodo-escolar",
-    base_viewsets.CombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet,
-    "Combos dos vínculos de tipo de alimentação no periodo escolar e tipo de u.e",
-)
-router.register(
-    "substituicoes-combos-vinculos-tipo-alimentacao-u-e-periodo-escolar",
-    base_viewsets.SubstituicaoDoCombosDoVinculoTipoAlimentacaoPeriodoTipoUEViewSet,
-    "Substituições dos combos dos vínculos de tipo de alimentação no periodo escolar e tipo de u.e",
 )
 router.register(
     "horario-do-combo-tipo-de-alimentacao-por-unidade-escolar",

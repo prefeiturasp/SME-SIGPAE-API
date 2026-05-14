@@ -72,34 +72,47 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemLabelDeTiposDeAlimentacao</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Ativavel</span><span class="p">,</span>
-    <span class="n">CriadoEm</span><span class="p">,</span>
-    <span class="n">Descritivel</span><span class="p">,</span>
     <span class="n">Nomeavel</span><span class="p">,</span>
     <span class="n">Posicao</span><span class="p">,</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
-    <span class="n">TemData</span><span class="p">,</span>
 <span class="p">)</span>
 
 
 <div class="viewcode-block" id="TipoAlimentacao">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.TipoAlimentacao">[docs]</a>
+<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.models.TipoAlimentacao">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacao</span><span class="p">(</span>
     <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;tipo_alimentacao&quot;</span><span class="p">),</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">Posicao</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compõe parte do cardápio.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representa um tipo de alimentação que pode compor o cardápio escolar.</span>
 
-<span class="sd">    Dejejum</span>
-<span class="sd">    Colação</span>
-<span class="sd">    Almoço</span>
-<span class="sd">    Refeição</span>
-<span class="sd">    Sobremesa</span>
-<span class="sd">    Lanche 4 horas</span>
-<span class="sd">    Lanche 5 horas</span>
-<span class="sd">    Lanche 6 horas</span>
-<span class="sd">    Lanche Emergencial</span>
+<span class="sd">    Os registros deste modelo são reutilizados em vínculos com período escolar,</span>
+<span class="sd">    configurações de horário por unidade educacional e solicitações que</span>
+<span class="sd">    dependem do tipo de alimentação servido.</span>
+
+<span class="sd">    Tipos cadastrados:</span>
+<span class="sd">        - Desjejum</span>
+<span class="sd">        - Colação</span>
+<span class="sd">        - Almoço</span>
+<span class="sd">        - Refeição</span>
+<span class="sd">        - Sobremesa</span>
+<span class="sd">        - Lanche</span>
+<span class="sd">        - Lanche 4h</span>
+<span class="sd">        - Lanche Emergencial</span>
+
+<span class="sd">    Tipos de alimentação de CEI:</span>
+<span class="sd">        - Desjejum</span>
+<span class="sd">        - Colação</span>
+<span class="sd">        - Almoço</span>
+<span class="sd">        - Refeição da Tarde</span>
+
+<span class="sd">    Tipos de alimentação de EMEF/EMEI/CIEJA, etc:</span>
+<span class="sd">        - Refeição</span>
+<span class="sd">        - Sobremesa</span>
+<span class="sd">        - Lanche</span>
+<span class="sd">        - Lanche 4h</span>
+<span class="sd">        - Lanche Emergencial</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">LANCHE_EMERGENCIAL</span> <span class="o">=</span> <span class="s2">&quot;Lanche Emergencial&quot;</span>
@@ -120,8 +133,15 @@
 
 
 <div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar">[docs]</a>
+<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">(</span><span class="n">TemChaveExterna</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define a faixa de horário de um tipo de alimentação em uma escola.</span>
+
+<span class="sd">    O cadastro relaciona uma escola, um período escolar e um tipo de</span>
+<span class="sd">    alimentação a uma janela de atendimento. Os vínculos opcionais preservam a</span>
+<span class="sd">    compatibilidade com registros legados e permitem configurações parciais.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">hora_inicial</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto_now_add</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">hora_final</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto_now_add</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
@@ -139,100 +159,24 @@
 
 
 
-<div class="viewcode-block" id="ComboDoVinculoTipoAlimentacaoPeriodoTipoUE">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;substituicoes_vinculo_alimentacao&quot;</span><span class="p">),</span>
-    <span class="n">TemChaveExterna</span><span class="p">,</span>
-    <span class="n">TemLabelDeTiposDeAlimentacao</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
-        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span>
-        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(app_label)s</span><span class="s2">_</span><span class="si">%(class)s</span><span class="s2">_possibilidades&quot;</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Tipos de alimentacao do combo.&quot;</span><span class="p">,</span>
-        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">vinculo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">&quot;VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar&quot;</span><span class="p">,</span>
-        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
-        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;combos&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-<div class="viewcode-block" id="ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">pode_excluir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># TODO: incrementar esse método,  impedir exclusão se tiver</span>
-        <span class="c1"># solicitações em cima desse combo também.</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">tipos_alimentacao_nome</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">nome</span> <span class="k">for</span> <span class="n">nome</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;TiposAlim.: </span><span class="si">{</span><span class="n">tipos_alimentacao_nome</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Combo do vínculo tipo alimentação&quot;</span>
-        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Combos do vínculo tipo alimentação&quot;</span></div>
-
-
-
-<div class="viewcode-block" id="SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE</span><span class="p">(</span>
-    <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemLabelDeTiposDeAlimentacao</span>
-<span class="p">):</span>
-    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
-        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span>
-        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(app_label)s</span><span class="s2">_</span><span class="si">%(class)s</span><span class="s2">_possibilidades&quot;</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Tipos de alimentacao das substituições dos combos.&quot;</span><span class="p">,</span>
-        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">combo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">&quot;ComboDoVinculoTipoAlimentacaoPeriodoTipoUE&quot;</span><span class="p">,</span>
-        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
-        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-<div class="viewcode-block" id="SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.pode_excluir">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">pode_excluir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># TODO: incrementar esse método,  impedir exclusão se tiver</span>
-        <span class="c1"># solicitações em cima dessa substituição do combo.</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">tipos_alimentacao_nome</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">nome</span> <span class="k">for</span> <span class="n">nome</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;TiposAlim.:</span><span class="si">{</span><span class="n">tipos_alimentacao_nome</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Substituição do combo do vínculo tipo alimentação&quot;</span>
-        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Substituições do  combos do vínculo tipo alimentação&quot;</span></div>
-
-
-
 <div class="viewcode-block" id="VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">[docs]</a>
+<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="p">(</span>
     <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;vinculo_alimentacao_periodo_escolar_tipo_ue&quot;</span><span class="p">),</span>
     <span class="n">Ativavel</span><span class="p">,</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Vincular vários tipos de alimentação a um periodo e tipo de U.E.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Relaciona tipos de alimentação permitidos a um período escolar e tipo de U.E.</span>
 
-<span class="sd">    Dado o tipo_unidade_escolar (EMEI, EMEF...) e</span>
-<span class="sd">    em seguida o periodo_escolar(MANHA, TARDE..),</span>
-<span class="sd">    trazer os tipos de alimentação que podem ser servidos.</span>
-<span class="sd">    Ex.: Para CEI(creche) pela manhã (período) faz sentido ter mingau e não café da tarde.</span>
+<span class="sd">    O vínculo funciona como uma regra de negócio do cardápio, definindo quais</span>
+<span class="sd">    tipos de alimentação podem ser servidos para uma combinação específica de</span>
+<span class="sd">    tipo de unidade escolar e período escolar.</span>
+
+<span class="sd">    Exemplos:</span>
+<span class="sd">        - Uma CEI no período da MANHA pode servir Desjejum, Colação e Almoço.</span>
+<span class="sd">        - Uma EMEF no período INTEGRAL pode servir Refeição, Sobremesa, Lanche, Lanche 4h e Lanche Emergencial.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># TODO: Refatorar para usar EscolaPeriodoEscolar</span>
     <span class="n">tipo_unidade_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="s2">&quot;escola.TipoUnidadeEscolar&quot;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
     <span class="p">)</span>
@@ -253,57 +197,20 @@
 
 
 
-<div class="viewcode-block" id="Cardapio">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.Cardapio">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Cardapio</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;cardapio&quot;</span><span class="p">),</span>
-    <span class="n">Descritivel</span><span class="p">,</span>
-    <span class="n">Ativavel</span><span class="p">,</span>
-    <span class="n">TemData</span><span class="p">,</span>
-    <span class="n">TemChaveExterna</span><span class="p">,</span>
-    <span class="n">CriadoEm</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cardápio escolar.</span>
-
-<span class="sd">    tem 1 data pra acontecer ex (26/06)</span>
-<span class="sd">    tem 1 lista de tipos de alimentação (Dejejum, Colação, Almoço, LANCHE DE 4 HS OU 8 HS;</span>
-<span class="sd">    LANCHE DE 5HS OU 6 HS; REFEIÇÃO).</span>
-
-<span class="sd">    !!!OBS!!! PARA CEI varia por faixa de idade.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">TipoAlimentacao</span><span class="p">)</span>
-    <span class="n">edital</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">&quot;terceirizada.Edital&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;editais&quot;</span>
-    <span class="p">)</span>
-
-    <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">tipos_unidade_escolar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipos_unidade_escolar</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">descricao</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">  - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">descricao</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Cardápio&quot;</span>
-        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Cardápios&quot;</span></div>
-
-
-
 <div class="viewcode-block" id="MotivoDRENaoValida">
-<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.admin.MotivoDRENaoValida">[docs]</a>
+<a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.models.MotivoDRENaoValida">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivoDRENaoValida</span><span class="p">(</span>
     <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;motivo_dre_nao_valida&quot;</span><span class="p">),</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Usado em conjunto com Solicitações que passam por validação da DRE.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Armazena motivos usados pela DRE para não validar uma solicitação no módulo de Gestão de Alimentação.</span>
+
+<span class="sd">    Os registros deste modelo são exibidos quando uma solicitação que passa</span>
+<span class="sd">    pela Diretoria Regional de Educação é invalidada.</span>
 
 <span class="sd">    Exemplos:</span>
 <span class="sd">        - Em desacordo com o contrato</span>
 <span class="sd">        - Preenchimento incorreto</span>
 <span class="sd">        - Outro</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

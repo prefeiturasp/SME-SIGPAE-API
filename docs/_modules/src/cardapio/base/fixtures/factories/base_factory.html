@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.base.fixtures.factories.base_factory</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
+<span></span><span class="sd">&quot;&quot;&quot;Factories para os modelos base do modulo de cardapio.</span>
+
+<span class="sd">Utiliza ``factory_boy`` para criar instancias de teste dos modelos de tipos de</span>
+<span class="sd">alimentacao e de vinculos entre periodo escolar e tipo de unidade escolar.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">SubFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory.django</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoModelFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">faker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Faker</span>
@@ -89,6 +95,12 @@
 <div class="viewcode-block" id="TipoAlimentacaoFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/base.html#src.cardapio.base.fixtures.factories.base_factory.TipoAlimentacaoFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``TipoAlimentacao``.</span>
+
+<span class="sd">    Gera instancias com nome unico combinando uma sequencia numerica com um</span>
+<span class="sd">    valor produzido pelo Faker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">nome</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;nome - </span><span class="si">{</span><span class="n">fake</span><span class="o">.</span><span class="n">unique</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -101,11 +113,26 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory</span><span class="p">(</span>
     <span class="n">DjangoModelFactory</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar``.</span>
+
+<span class="sd">    Cria automaticamente o tipo de unidade escolar e o periodo escolar via</span>
+<span class="sd">    subfactories. Suporta adicionar tipos de alimentacao relacionados pelo</span>
+<span class="sd">    parametro ``tipos_alimentacao``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">tipo_unidade_escolar</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">TipoUnidadeEscolarFactory</span><span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">PeriodoEscolarFactory</span><span class="p">)</span>
 
     <span class="nd">@factory</span><span class="o">.</span><span class="n">post_generation</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="p">,</span> <span class="n">extracted</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adiciona os tipos de alimentacao ao vinculo apos a criacao.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            create (bool): Indica se a instancia foi persistida no banco.</span>
+<span class="sd">            extracted: Colecao de tipos de alimentacao a associar, ou</span>
+<span class="sd">                ``None``.</span>
+<span class="sd">            **kwargs: Argumentos adicionais ignorados pelo hook.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
             <span class="k">return</span>
 

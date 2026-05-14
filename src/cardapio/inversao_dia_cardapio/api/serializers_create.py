@@ -106,10 +106,6 @@ class InversaoCardapioSerializerCreate(serializers.ModelSerializer):
         data_para = validated_data.pop("data_para")
         data_de_2 = validated_data.pop("data_de_2", None)
         data_para_2 = validated_data.pop("data_para_2", None)
-        if instance.cardapio_de or instance.cardapio_para:
-            instance.cardapio_de = None
-            instance.cardapio_para = None
-            instance.save()
         validated_data["data_de_inversao"] = data_de
         validated_data["data_para_inversao"] = data_para
         validated_data["data_de_inversao_2"] = data_de_2
