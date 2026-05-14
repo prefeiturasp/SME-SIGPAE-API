@@ -352,3 +352,82 @@ def test_relatorio_ateste_financeiro_grupo_cemei_conteudo_pdf(
     assert "REFEIÇÃO" in texto
     assert "LANCHE" in texto
     assert "LANCHE 4H" in texto
+
+
+@pytest.mark.django_db
+def test_build_relatorio_financeiro_grupo_emef(
+    relatorio_financeiro_emef,
+    parametrizacao_financeira_emef,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+    grupo_unidade_escolar_emef,
+    vinculo_alimentacao_emef,
+):
+    TIPOS_ALIMENTACOES = [
+        tipo_alimentacao_lanche.nome,
+        tipo_alimentacao_lanche_4h.nome,
+        tipo_alimentacao_refeicao.nome,
+        "Refeição EJA"
+    ]
+
+    GRUPO_NOME = grupo_unidade_escolar_emef.nome
+
+    valores_por_tipo = {
+        "ALIMENTAÇÃO": [68, 78, 88, 98],
+        "DIETA ESPECIAL - TIPO A": [65, 75, 85, 95],
+        "DIETA ESPECIAL - TIPO B": [69, 79, 89, 99],
+    }
+
+    totais_consumo = {
+        chave: {
+            (
+                f"total_{normalizar_nome_campo(tipo, GRUPO_NOME).lower()}"
+                if chave == "ALIMENTAÇÃO"
+                else normalizar_nome_campo(tipo, GRUPO_NOME).lower()
+            ): valor
+            for tipo, valor in zip(TIPOS_ALIMENTACOES, valores)
+        }
+        for chave, valores in valores_por_tipo.items()
+    }
+
+    resultado = build_relatorio_financeiro_grupo_emei(
+        relatorio_financeiro_emef,
+        parametrizacao_financeira_emef,
+        totais_consumo,
+    )
+
+    for tipo in ["REFEIÇÃO - EJA", "KIT LANCHE"]:
+        assert any(
+            linha.get("tipo") == tipo
+            for linha in resultado["alimentacao"]["linhas"]
+        )
+
+    assert resultado["cabecalho"]["grupo_unidade_escolar"] == "Grupo 4 (CEU EMEF, CEU GESTAO, EMEF, EMEFM)"
+    assert resultado["cabecalho"]["data_referencia"] == "OUTUBRO/2025"
+
+
+@pytest.mark.django_db
+def test_relatorio_ateste_financeiro_grupo_emef_conteudo_pdf(
+    relatorio_financeiro_emef,
+    parametrizacao_financeira_emef,
+    vinculo_alimentacao_emef,
+):
+    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
+        relatorio_financeiro_emef,
+        parametrizacao_financeira_emef,
+    )
+
+    texto = extrair_texto_de_pdf(pdf_bytes)
+
+    assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
+    assert "OUTUBRO/2025" in texto
+
+    assert relatorio_financeiro_emef.lote.nome.upper() in texto
+    assert relatorio_financeiro_emef.lote.diretoria_regional.nome in texto
+
+    assert "Grupo 4" in texto
+    assert "(CEU EMEF, CEU GESTAO, EMEF, EMEFM)" in texto
+
+    assert "REFEIÇÃO" in texto
+    assert "REFEIÇÃO - EJA" in texto
