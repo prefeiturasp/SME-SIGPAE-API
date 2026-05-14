@@ -6237,7 +6237,7 @@
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_envia_email_criacao_cronograma_semanal</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_notificar_criacao_cronograma_ponto_a_ponto</span><span class="p">()</span>
 
     <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">&quot;fornecedor_ciente&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fornecedor_ciente_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -6257,27 +6257,59 @@
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_envia_email_criacao_cronograma_semanal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_notificar_criacao_cronograma_ponto_a_ponto</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Envia email e notificação aos usuários vinculados à empresa informando</span>
+<span class="sd">        a criação de um cronograma semanal de pré-recebimento.</span>
+
+<span class="sd">        O método:</span>
+<span class="sd">        - monta os contextos utilizados nos templates;</span>
+<span class="sd">        - envia email aos destinatários vinculados;</span>
+<span class="sd">        - cria notificações internas para os usuários relacionados;</span>
+<span class="sd">        - disponibiliza link de acesso ao detalhe do cronograma.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">url_detalhe_cronograma</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/pre-recebimento/detalhe-cronograma-semanal?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-        <span class="n">contexto</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero</span><span class="p">,</span>
-            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;url_detalhe_cronograma&quot;</span><span class="p">:</span> <span class="n">url_detalhe_cronograma</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero</span>
+        <span class="n">data_evento</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+        <span class="n">nome_produto</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cronograma_mensal</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
         <span class="n">destinatarios</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">PartesInteressadasService</span><span class="o">.</span><span class="n">usuarios_vinculados_a_empresa_do_objeto</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cronograma_mensal</span><span class="p">,</span> <span class="n">somente_email</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
         <span class="p">)</span>
+        <span class="n">usuarios</span> <span class="o">=</span> <span class="n">PartesInteressadasService</span><span class="o">.</span><span class="n">usuarios_vinculados_a_empresa_do_objeto</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cronograma_mensal</span>
+        <span class="p">)</span>
+        <span class="n">contexto_notificacao</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numero</span><span class="p">,</span>
+            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="n">data_evento</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">:</span> <span class="n">nome_produto</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">contexto_email</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">:</span> <span class="n">numero_cronograma</span><span class="p">,</span>
+            <span class="s2">&quot;data_evento&quot;</span><span class="p">:</span> <span class="n">data_evento</span><span class="p">,</span>
+            <span class="s2">&quot;url_detalhe_cronograma&quot;</span><span class="p">:</span> <span class="n">url_detalhe_cronograma</span><span class="p">,</span>
+        <span class="p">}</span>
 
         <span class="n">EmailENotificacaoService</span><span class="o">.</span><span class="n">enviar_email</span><span class="p">(</span>
-            <span class="n">titulo</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cronograma Criado: Nº </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">assunto</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;[SIGPAE] Ciência do cronograma Nº </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">titulo</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cronograma Criado: Nº </span><span class="si">{</span><span class="n">numero_cronograma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">assunto</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;[SIGPAE] Ciência do cronograma Nº </span><span class="si">{</span><span class="n">numero_cronograma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">template</span><span class="o">=</span><span class="s2">&quot;pre_recebimento_email_criacao_cronograma_semanal.html&quot;</span><span class="p">,</span>
-            <span class="n">contexto_template</span><span class="o">=</span><span class="n">contexto</span><span class="p">,</span>
+            <span class="n">contexto_template</span><span class="o">=</span><span class="n">contexto_email</span><span class="p">,</span>
             <span class="n">destinatarios</span><span class="o">=</span><span class="n">destinatarios</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">EmailENotificacaoService</span><span class="o">.</span><span class="n">enviar_notificacao</span><span class="p">(</span>
+            <span class="n">template</span><span class="o">=</span><span class="s2">&quot;pre_recebimento_notificacao_criacao_cronograma_semanal.html&quot;</span><span class="p">,</span>
+            <span class="n">contexto_template</span><span class="o">=</span><span class="n">contexto_notificacao</span><span class="p">,</span>
+            <span class="n">titulo_notificacao</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cronograma Ponto a Ponto </span><span class="si">{</span><span class="n">numero_cronograma</span><span class="si">}</span><span class="s2"> – </span><span class="si">{</span><span class="n">nome_produto</span><span class="si">}</span><span class="s2"> criado pela CODAE.&quot;</span><span class="p">,</span>
+            <span class="n">tipo_notificacao</span><span class="o">=</span><span class="n">Notificacao</span><span class="o">.</span><span class="n">TIPO_NOTIFICACAO_ALERTA</span><span class="p">,</span>
+            <span class="n">categoria_notificacao</span><span class="o">=</span><span class="n">Notificacao</span><span class="o">.</span><span class="n">CATEGORIA_NOTIFICACAO_CRIACAO_CRONOGRAMA_PONTO_A_PONTO</span><span class="p">,</span>
+            <span class="n">link_acesse_aqui</span><span class="o">=</span><span class="n">url_detalhe_cronograma</span><span class="p">,</span>
+            <span class="n">usuarios</span><span class="o">=</span><span class="n">usuarios</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>

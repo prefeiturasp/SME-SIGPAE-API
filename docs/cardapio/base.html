@@ -1584,12 +1584,22 @@ alimentacao.</p>
 </section>
 <section id="module-src.cardapio.base.fixtures">
 <span id="fixtures"></span><h2>fixtures<a class="headerlink" href="#module-src.cardapio.base.fixtures" title="Link to this heading"></a></h2>
+<p>Fixtures da subapp base de cardapio.</p>
+<p>Agrupa arquivos de apoio para carga de dados e factories usados nos testes da
+subapp base.</p>
 <section id="module-src.cardapio.base.fixtures.factories">
 <span id="fixtures-factories"></span><h3>fixtures/factories<a class="headerlink" href="#module-src.cardapio.base.fixtures.factories" title="Link to this heading"></a></h3>
-<dl class="py class" id="module-src.cardapio.base.fixtures.factories.base_factory">
+<p>Factories de teste da subapp base de cardapio.</p>
+<p id="module-src.cardapio.base.fixtures.factories.base_factory">Factories para os modelos base do modulo de cardapio.</p>
+<p>Utiliza <code class="docutils literal notranslate"><span class="pre">factory_boy</span></code> para criar instancias de teste dos modelos de tipos de
+alimentacao e de vinculos entre periodo escolar e tipo de unidade escolar.</p>
+<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.fixtures.factories.base_factory.TipoAlimentacaoFactory">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoAlimentacaoFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/fixtures/factories/base_factory.html#TipoAlimentacaoFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.fixtures.factories.base_factory.TipoAlimentacaoFactory" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<p>Factory para o modelo <code class="docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code>.</p>
+<p>Gera instancias com nome unico combinando uma sequencia numerica com um
+valor produzido pelo Faker.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.fixtures.factories.base_factory.TipoAlimentacaoFactory.nome">
 <span class="sig-name descname"><span class="pre">nome</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.Sequence</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.base.fixtures.factories.base_factory.TipoAlimentacaoFactory.nome" title="Link to this definition"></a></dt>
@@ -1601,6 +1611,10 @@ alimentacao.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.fixtures.factories.base_factory.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/fixtures/factories/base_factory.html#VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.fixtures.factories.base_factory.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<p>Factory para o modelo <code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></code>.</p>
+<p>Cria automaticamente o tipo de unidade escolar e o periodo escolar via
+subfactories. Suporta adicionar tipos de alimentacao relacionados pelo
+parametro <code class="docutils literal notranslate"><span class="pre">tipos_alimentacao</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.fixtures.factories.base_factory.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory.periodo_escolar">
 <span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(PeriodoEscolarFactory)</span></span><a class="headerlink" href="#src.cardapio.base.fixtures.factories.base_factory.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory.periodo_escolar" title="Link to this definition"></a></dt>
