@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.utils import timezone
 from freezegun.api import freeze_time
 from rest_framework import status
 
@@ -37,6 +38,8 @@ class TestEndpointsPainelGerencialAlimentacao:
         usuario,
         status,
         status_evento,
+        data="2025-01-14",
+        log_criado_em=None,
     ):
         grupo_inclusao_alimentacao_normal = (
             GrupoInclusaoAlimentacaoNormalFactory.create(
@@ -48,17 +51,21 @@ class TestEndpointsPainelGerencialAlimentacao:
             )
         )
         InclusaoAlimentacaoNormalFactory.create(
-            data="2025-01-14", grupo_inclusao=grupo_inclusao_alimentacao_normal
+            data=data, grupo_inclusao=grupo_inclusao_alimentacao_normal
         )
         QuantidadePorPeriodoFactory.create(
             grupo_inclusao_normal=grupo_inclusao_alimentacao_normal,
             inclusao_alimentacao_continua=None,
         )
-        LogSolicitacoesUsuarioFactory.create(
+        log = LogSolicitacoesUsuarioFactory.create(
             uuid_original=grupo_inclusao_alimentacao_normal.uuid,
             status_evento=status_evento,
             usuario=usuario,
         )
+        if log_criado_em:
+            LogSolicitacoesUsuario.objects.filter(pk=log.pk).update(
+                criado_em=log_criado_em
+            )
 
     def test_pendentes_autorizacao_secao_pendencias(
         self,
@@ -154,6 +161,28 @@ class TestEndpointsPainelGerencialAlimentacao:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 1
+
+    def test_autorizados_filtra_por_data_log_recente(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            data="2025-01-14",
+            log_criado_em=timezone.make_aware(datetime.datetime(2025, 1, 1, 10, 0)),
+        )
+
+        response = client.get(
+            "/codae-solicitacoes/autorizados/?limit=6&offset=0&periodo=7"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 0
 
 
 @pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados")

@@ -4,6 +4,7 @@ import operator
 
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from ..cardapio.alteracao_tipo_alimentacao.api.serializers import (
     AlteracaoCardapioSerializer,
@@ -289,7 +290,11 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
         if not tipo_solicitacao:
             return queryset
         # Mapeia "KIT_LANCHE" (exibido ao usuário) para o grupo "KIT_LANCHE_AVULSA"
-        map_key = "KIT_LANCHE_AVULSA" if tipo_solicitacao == "KIT_LANCHE" else tipo_solicitacao
+        map_key = (
+            "KIT_LANCHE_AVULSA"
+            if tipo_solicitacao == "KIT_LANCHE"
+            else tipo_solicitacao
+        )
         try:
             tipo_doc_values = cls.map_queryset_por_tipo_doc([map_key])
             if tipo_doc_values:
@@ -457,12 +462,10 @@ class MoldeConsolidado(models.Model, TemPrioridade, TemIdentificadorExternoAmiga
     @classmethod
     def busca_filtro(cls, queryset, query_params, **kwargs):
         if query_params.get("periodo"):
-            data_limite = datetime.date.today() - datetime.timedelta(
+            data_limite = timezone.now() - datetime.timedelta(
                 days=int(query_params.get("periodo"))
             )
-            queryset = queryset.filter(
-                Q(data_evento__gte=data_limite) | Q(data_evento__isnull=True)
-            )
+            queryset = queryset.filter(data_log__gte=data_limite)
         if query_params.get("busca"):
             queryset = queryset.filter(
                 Q(uuid__icontains=query_params.get("busca"))
