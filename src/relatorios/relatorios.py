@@ -23,8 +23,8 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
-    build_relatorio_financeiro_grupo_emei,
     build_relatorio_financeiro_grupo_cemei,
+    build_relatorio_financeiro_grupo_emei,
 )
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -2247,6 +2247,26 @@ def get_pdf_cronograma_ponto_a_ponto_flv(request, cronograma):
     )
 
 
+def get_pdf_cronograma_semanal(request, cronograma):
+    logs = cronograma.logs
+    html_string = render_to_string(
+        "pre_recebimento/cronogramas/cronograma_semanal.html",
+        {
+            "empresa": cronograma.cronograma_mensal.empresa,
+            "contrato": cronograma.cronograma_mensal.contrato,
+            "cronograma": cronograma,
+            "cronograma_mensal": cronograma.cronograma_mensal,
+            "programacoes": cronograma.programacoes.all(),
+            "logs": logs,
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    return html_to_pdf_response(
+        html_string.replace("dt_file", data_arquivo),
+        f"cronograma_semanal_{cronograma.numero}.pdf",
+    )
+
+
 def get_pdf_ficha_tecnica(request, ficha):
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnica.objects.filter(
         ficha_tecnica=ficha
@@ -2698,7 +2718,10 @@ def relatorio_ateste_financeiro_grupo_cemei(relatorio_financeiro, parametrizacao
     grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
 
     return html_to_pdf_file(
-        html_string.replace("dt_file", f"{relatorio_cemei["cabecalho"]["data_geracao"]} às {relatorio_cemei["cabecalho"]["hora_geracao"]}"),
+        html_string.replace(
+            "dt_file",
+            f"{relatorio_cemei["cabecalho"]["data_geracao"]} às {relatorio_cemei["cabecalho"]["hora_geracao"]}",
+        ),
         f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )
