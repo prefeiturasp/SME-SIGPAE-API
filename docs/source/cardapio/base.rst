@@ -241,7 +241,28 @@ models
 .. autoclass:: HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar
    :members:
    :show-inheritance:
-   :exclude-members: DoesNotExist, MultipleObjectsReturned, escola, hora_final, hora_inicial, periodo_escolar, tipo_alimentacao
+   :exclude-members: DoesNotExist, MultipleObjectsReturned, escola, escola_id, hora_final, hora_inicial, id, objects, periodo_escolar, periodo_escolar_id, tipo_alimentacao, tipo_alimentacao_id, uuid
+
+   .. attribute:: id
+      :type: int
+
+      **Descrição:**
+      Chave primária inteira criada automaticamente pelo Django para identificar a configuração de horário.
+
+   .. attribute:: uuid
+      :type: uuid.UUID
+
+      **Origem:**
+      ``dados_comuns/behaviors.py``
+
+      **Descrição:**
+      Identificador externo único da configuração de horário, usado em integrações e endpoints que expõem UUID.
+
+   .. attribute:: objects
+      :type: django.db.models.manager.Manager[HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar]
+
+      **Descrição:**
+      Manager padrão do modelo, usado para construir consultas como ``all()``, ``filter()`` e ``get()``.
 
    .. attribute:: hora_inicial
       :type: datetime.time
@@ -261,11 +282,23 @@ models
       **Descrição:**
       Escola à qual a configuração de horário se aplica. Pode ser ``None`` em cadastros legados.
 
+   .. attribute:: escola_id
+      :type: int | None
+
+      **Descrição:**
+      Chave estrangeira inteira da escola associada ao registro. Espelha o campo ``escola`` e pode ficar nula em cadastros legados.
+
    .. attribute:: tipo_alimentacao
       :type: cardapio.TipoAlimentacao | None
 
       **Descrição:**
       Tipo de alimentação atendido pela faixa de horário configurada.
+
+   .. attribute:: tipo_alimentacao_id
+      :type: int | None
+
+      **Descrição:**
+      Chave estrangeira inteira do tipo de alimentação configurado para a faixa de horário.
 
    .. attribute:: periodo_escolar
       :type: escola.PeriodoEscolar | None
@@ -273,10 +306,37 @@ models
       **Descrição:**
       Período escolar em que a faixa de horário é válida.
 
+   .. attribute:: periodo_escolar_id
+      :type: int | None
+
+      **Descrição:**
+      Chave estrangeira inteira do período escolar ao qual a faixa de horário está vinculada.
+
 .. autoclass:: VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
    :members:
    :show-inheritance:
-   :exclude-members: ativo, DoesNotExist, MultipleObjectsReturned, periodo_escolar, tipo_unidade_escolar, tipos_alimentacao
+   :exclude-members: ativo, DoesNotExist, id, MultipleObjectsReturned, objects, periodo_escolar, periodo_escolar_id, tipo_unidade_escolar, tipo_unidade_escolar_id, tipos_alimentacao, uuid
+
+   .. attribute:: id
+      :type: int
+
+      **Descrição:**
+      Chave primária inteira criada automaticamente pelo Django para identificar o vínculo.
+
+   .. attribute:: uuid
+      :type: uuid.UUID
+
+      **Origem:**
+      ``dados_comuns/behaviors.py``
+
+      **Descrição:**
+      Identificador externo único do vínculo, usado em integrações e endpoints que expõem UUID.
+
+   .. attribute:: objects
+      :type: django.db.models.manager.Manager[VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar]
+
+      **Descrição:**
+      Manager padrão do modelo, usado para construir consultas como ``all()``, ``filter()`` e ``get()``.
 
    .. attribute:: ativo
       :type: bool
@@ -293,11 +353,23 @@ models
       **Descrição:**
       Tipo de unidade escolar ao qual a regra de alimentação se aplica.
 
+   .. attribute:: tipo_unidade_escolar_id
+      :type: int | None
+
+      **Descrição:**
+      Chave estrangeira inteira do tipo de unidade escolar associado ao vínculo.
+
    .. attribute:: periodo_escolar
       :type: escola.PeriodoEscolar | None
 
       **Descrição:**
       Período escolar coberto pelo vínculo.
+
+   .. attribute:: periodo_escolar_id
+      :type: int | None
+
+      **Descrição:**
+      Chave estrangeira inteira do período escolar coberto pelo vínculo.
 
    .. attribute:: tipos_alimentacao
       :type: django.db.models.QuerySet[TipoAlimentacao]
@@ -308,7 +380,28 @@ models
 .. autoclass:: MotivoDRENaoValida
    :members:
    :show-inheritance:
-   :exclude-members: DoesNotExist, MultipleObjectsReturned, nome
+   :exclude-members: DoesNotExist, id, MultipleObjectsReturned, nome, objects, uuid
+
+   .. attribute:: id
+      :type: int
+
+      **Descrição:**
+      Chave primária inteira criada automaticamente pelo Django para identificar o motivo.
+
+   .. attribute:: uuid
+      :type: uuid.UUID
+
+      **Origem:**
+      ``dados_comuns/behaviors.py``
+
+      **Descrição:**
+      Identificador externo único do motivo, usado em integrações e endpoints que expõem UUID.
+
+   .. attribute:: objects
+      :type: django.db.models.manager.Manager[MotivoDRENaoValida]
+
+      **Descrição:**
+      Manager padrão do modelo, usado para construir consultas como ``all()``, ``filter()`` e ``get()``.
 
    .. attribute:: nome
       :type: str
