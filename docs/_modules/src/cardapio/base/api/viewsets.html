@@ -69,7 +69,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.base.api.viewsets</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span></span><span class="sd">&quot;&quot;&quot;Viewsets da API base do modulo de cardapio.</span>
+
+<span class="sd">Expoe endpoints para consulta e manutencao de tipos de alimentacao, horarios</span>
+<span class="sd">por escola, vinculos de periodo/tipo de unidade escolar e motivos de nao</span>
+<span class="sd">validacao usados pela DRE.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Case</span><span class="p">,</span> <span class="n">IntegerField</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">When</span>
@@ -109,6 +116,12 @@
 <div class="viewcode-block" id="TipoAlimentacaoViewSet">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.TipoAlimentacaoViewSet">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expoe o CRUD de tipos de alimentacao da base de cardapio.</span>
+
+<span class="sd">    Utiliza ``TipoAlimentacaoSerializer`` em todas as acoes padrao do</span>
+<span class="sd">    ``ModelViewSet`` e identifica instancias pelo campo ``uuid``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span>
     <span class="n">queryset</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
@@ -118,6 +131,12 @@
 <div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gerencia horarios de tipos de alimentacao configurados por escola.</span>
+
+<span class="sd">    Disponibiliza leitura, criacao, atualizacao e uma action customizada para</span>
+<span class="sd">    listar os horarios associados a uma escola especifica.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span>
     <span class="n">queryset</span> <span class="o">=</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -126,6 +145,16 @@
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.filtro_por_escola">[docs]</a>
     <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;escola/(?P&lt;escola_uuid&gt;[^/.]+)&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">filtro_por_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">escola_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista horarios cadastrados para a escola informada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisicao HTTP recebida pela action.</span>
+<span class="sd">            escola_uuid (str | None): UUID da escola usado como filtro.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com os horarios encontrados para a</span>
+<span class="sd">            escola.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">combos</span> <span class="o">=</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">escola__uuid</span><span class="o">=</span><span class="n">escola_uuid</span>
         <span class="p">)</span>
@@ -137,6 +166,13 @@
 <div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.get_serializer_class">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.get_serializer_class">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Seleciona o serializer de leitura ou escrita conforme a acao.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate``</span>
+<span class="sd">            nas acoes de escrita; caso contrario,</span>
+<span class="sd">            ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate</span>
         <span class="k">return</span> <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span></div>
@@ -152,6 +188,13 @@
     <span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
     <span class="n">GenericViewSet</span><span class="p">,</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gerencia vinculos ativos entre tipo de U.E., periodo e alimentacoes.</span>
+
+<span class="sd">    Alem das acoes padrao de leitura e escrita, expoe endpoints customizados</span>
+<span class="sd">    para filtrar vinculos por escola, por tipo de unidade e por cenarios</span>
+<span class="sd">    especificos de inclusao de alimentacao.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">VinculoTipoAlimentoSimplesSerializer</span>
     <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
@@ -167,6 +210,16 @@
         <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;tipo_unidade_escolar/(?P&lt;tipo_unidade_escolar_uuid&gt;[^/.]+)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">filtro_por_tipo_ue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">tipo_unidade_escolar_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista vinculos ativos de um tipo especifico de unidade escolar.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisicao HTTP recebida pela action.</span>
+<span class="sd">            tipo_unidade_escolar_uuid (str | None): UUID do tipo de unidade</span>
+<span class="sd">                escolar filtrado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com os vinculos encontrados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
                 <span class="n">tipo_unidade_escolar__uuid</span><span class="o">=</span><span class="n">tipo_unidade_escolar_uuid</span><span class="p">,</span> <span class="n">ativo</span><span class="o">=</span><span class="kc">True</span>
@@ -182,6 +235,24 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_vinculos_inclusoes_evento_especifico</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">mes</span><span class="p">,</span> <span class="n">ano</span><span class="p">,</span> <span class="n">tipo_solicitacao</span><span class="p">,</span> <span class="n">escola</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Busca vinculos necessarios para inclusoes de Evento Especifico.</span>
+
+<span class="sd">        Considera inclusoes normais autorizadas por Evento Especifico e cruza</span>
+<span class="sd">        os periodos obtidos com os vinculos da escola para montar o conjunto de</span>
+<span class="sd">        vinculos elegiveis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mes (str | int): Mes de referencia da consulta.</span>
+<span class="sd">            ano (str | int): Ano de referencia da consulta.</span>
+<span class="sd">            tipo_solicitacao (str | None): Parametro mantido por compatibilidade</span>
+<span class="sd">                com a assinatura da chamada.</span>
+<span class="sd">            escola (Escola): Escola utilizada na filtragem dos grupos e</span>
+<span class="sd">                vinculos.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet[VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar]:</span>
+<span class="sd">            Vinculos compatíveis com o cenario consultado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gupos_uuids</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">InclusaoAlimentacaoNormal</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
                 <span class="n">data__month</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mes</span><span class="p">),</span>
@@ -223,6 +294,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constants</span><span class="o">.</span><span class="n">VINCULOS_INCLUSOES_EVENTO_ESPECIFICO_AUTORIZADAS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vinculos_inclusoes_evento_especifico_autorizadas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna vinculos usados em inclusoes autorizadas de Evento Especifico.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisicao HTTP com ``escola_uuid``, ``mes``,</span>
+<span class="sd">                ``ano`` e ``tipo_solicitacao`` em ``query_params``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Lista serializada dos vinculos encontrados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">escola_uuid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;escola_uuid&quot;</span><span class="p">)</span>
         <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">)</span>
         <span class="n">ano</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ano&quot;</span><span class="p">)</span>
@@ -240,6 +320,23 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">trata_inclusao_continua_medicao_inicial</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ano</span><span class="p">,</span> <span class="n">pega_atualmente</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calcula os periodos escolares a considerar na inclusao continua.</span>
+
+<span class="sd">        Combina os periodos escolares da escola com os periodos extras</span>
+<span class="sd">        retornados pelo endpoint de inclusao continua, quando o mes e enviado</span>
+<span class="sd">        na requisicao.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisicao HTTP com os filtros atuais.</span>
+<span class="sd">            escola (Escola): Escola cujos periodos serao avaliados.</span>
+<span class="sd">            ano (str | int): Ano de referencia para consulta dos periodos.</span>
+<span class="sd">            pega_atualmente (bool | str): Indicador usado pelo metodo</span>
+<span class="sd">                ``periodos_escolares`` da escola.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet[PeriodoEscolar]: Periodos resultantes da combinacao entre</span>
+<span class="sd">            o calendario regular da escola e a inclusao continua, quando houver.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes_inclusao_continua&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">periodos_escolares_inclusao_continua</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">mes</span><span class="p">:</span>
@@ -262,6 +359,20 @@
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.filtro_por_escola">[docs]</a>
     <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;escola/(?P&lt;escola_uuid&gt;[^/.]+)&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">filtro_por_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">escola_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista vinculos aplicaveis a uma escola em uma data de referencia.</span>
+
+<span class="sd">        Para escolas CEMEI, monta uma ordenacao especial por unidade e periodo.</span>
+<span class="sd">        Nos demais casos, filtra pelos periodos da escola e pela unidade</span>
+<span class="sd">        historica valida na data consultada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisicao HTTP com filtros opcionais como</span>
+<span class="sd">                ``mes``, ``ano`` e ``pega_atualmente``.</span>
+<span class="sd">            escola_uuid (str | None): UUID da escola consultada.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com os vinculos ordenados para a escola.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">escola</span> <span class="o">=</span> <span class="n">Escola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
         <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
         <span class="n">ano</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ano&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
@@ -340,6 +451,16 @@
         <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;put&quot;</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">atualizar_lista_de_vinculos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atualiza em lote os tipos de alimentacao de uma lista de vinculos.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisicao HTTP cujo corpo deve conter a chave</span>
+<span class="sd">                ``vinculos`` com UUIDs e listas de ``tipos_alimentacao``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com os vinculos atualizados, ou erro 400</span>
+<span class="sd">            quando o payload obrigatorio nao e informado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;vinculos&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;vinculos é um parâmetro obrigatório&quot;</span><span class="p">)</span>
@@ -368,6 +489,16 @@
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.motivo_inclusao_especifico">[docs]</a>
     <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;motivo_inclusao_especifico&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">motivo_inclusao_especifico</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista vinculos permitidos para o motivo de inclusao especifico.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisicao HTTP que deve informar</span>
+<span class="sd">                ``tipo_unidade_escolar_iniciais`` em ``query_params``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Lista serializada dos vinculos filtrados ou erro 400</span>
+<span class="sd">            quando o parametro obrigatorio nao e enviado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">tipo_unidade_escolar_iniciais</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                 <span class="s2">&quot;tipo_unidade_escolar_iniciais&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
@@ -390,6 +521,12 @@
 <div class="viewcode-block" id="VinculoTipoAlimentacaoViewSet.get_serializer_class">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.get_serializer_class">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Seleciona o serializer de escrita ou leitura conforme a acao.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: ``VinculoTipoAlimentoCreateSerializer`` nas acoes de escrita;</span>
+<span class="sd">            caso contrario, ``VinculoTipoAlimentoSimplesSerializer``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">VinculoTipoAlimentoCreateSerializer</span>
         <span class="k">return</span> <span class="n">VinculoTipoAlimentoSimplesSerializer</span></div>
@@ -400,6 +537,8 @@
 <div class="viewcode-block" id="MotivosDRENaoValidaViewSet">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.MotivosDRENaoValidaViewSet">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivosDRENaoValidaViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ReadOnlyModelViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expoe consulta somente leitura dos motivos de nao validacao da DRE.&quot;&quot;&quot;</span>
+
     <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
     <span class="n">queryset</span> <span class="o">=</span> <span class="n">MotivoDRENaoValida</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MotivoDRENaoValidaSerializer</span></div>
@@ -409,11 +548,24 @@
 <div class="viewcode-block" id="VinculosPorTipoUnidadeEscolarViewSet">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.VinculosPorTipoUnidadeEscolarViewSet">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculosPorTipoUnidadeEscolarViewSet</span><span class="p">(</span><span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span> <span class="n">GenericViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lista vinculos ativos agrupados por tipo de unidade escolar.</span>
+
+<span class="sd">    Usa um serializer agregador para montar a resposta final a partir dos</span>
+<span class="sd">    vinculos e seus relacionamentos pre-carregados.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="VinculosPorTipoUnidadeEscolarViewSet.list">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.viewsets.VinculosPorTipoUnidadeEscolarViewSet.list">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Lista todos os tipos de UE com seus períodos e tipos de alimentação</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista todos os tipos de U.E. com seus periodos e alimentacoes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisicao HTTP recebida pela action ``list``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta no formato ``{&quot;results&quot;: [...]}`` contendo os</span>
+<span class="sd">            tipos de unidade escolar agrupados com seus periodos e tipos de</span>
+<span class="sd">            alimentacao.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>

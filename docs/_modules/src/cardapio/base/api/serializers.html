@@ -69,7 +69,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.base.api.serializers</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span></span><span class="sd">&quot;&quot;&quot;Serializers da subapp base do modulo de cardapio.</span>
+
+<span class="sd">Reune serializers de leitura usados para expor tipos de alimentacao,</span>
+<span class="sd">configuracoes de horario por escola, vinculos de periodo/tipo de unidade e</span>
+<span class="sd">motivos de nao validacao da DRE.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span><span class="p">,</span>
@@ -87,11 +94,28 @@
 <div class="viewcode-block" id="TipoAlimentacaoSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoAlimentacaoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serializa tipos de alimentacao com sua representacao completa de leitura.</span>
+
+<span class="sd">        Expoe os campos publicos de ``TipoAlimentacao`` usados na API base e em</span>
+<span class="sd">        serializers aninhados que retornam os tipos de alimentacao permitidos para</span>
+<span class="sd">        horarios e vinculos.</span>
+
+<span class="sd">        Viewsets que utilizam este serializer:</span>
+<span class="sd">                - ``TipoAlimentacaoViewSet``: uso direto como ``serializer_class`` nas</span>
+<span class="sd">                    acoes padrao do ``ModelViewSet``.</span>
+<span class="sd">                - ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet``: uso</span>
+<span class="sd">                    indireto, aninhado em</span>
+<span class="sd">                    ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer``.</span>
+<span class="sd">                - ``VinculoTipoAlimentacaoViewSet``: uso indireto, aninhado em</span>
+<span class="sd">                    ``VinculoTipoAlimentoSimplesSerializer`` e</span>
+<span class="sd">                    ``VinculoTipoAlimentoPeriodoSerializer``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="TipoAlimentacaoSerializer.Meta">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoAlimentacaoSerializer.Meta">[docs]</a>
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span>
-        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+        <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span>
+                <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
 </div>
 
 
@@ -99,6 +123,18 @@
 <div class="viewcode-block" id="TipoAlimentacaoSimplesSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoAlimentacaoSimplesSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa uma visao resumida dos tipos de alimentacao.</span>
+
+<span class="sd">    Retorna apenas UUID e nome, sendo usado quando o payload precisa listar os</span>
+<span class="sd">    tipos de alimentacao vinculados a um periodo escolar sem incluir todos os</span>
+<span class="sd">    campos do modelo.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente.</span>
+<span class="sd">        - Uso indireto em ``VinculosPorTipoUnidadeEscolarViewSet``, por meio de</span>
+<span class="sd">          ``TipoUnidadeEscolarAgrupadoSerializer``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="TipoAlimentacaoSimplesSerializer.Meta">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoAlimentacaoSimplesSerializer.Meta">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -116,6 +152,16 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span><span class="p">(</span>
     <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa horarios configurados para tipos de alimentacao por escola.</span>
+
+<span class="sd">    Retorna a faixa de horario com os relacionamentos de escola, tipo de</span>
+<span class="sd">    alimentacao e periodo escolar ja expandidos por serializers simples.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet``:</span>
+<span class="sd">          retornado por ``get_serializer_class()`` nas acoes de leitura.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaListagemSimplesSelializer</span><span class="p">()</span>
     <span class="n">tipo_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">()</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">PeriodoEscolarSimplesSerializer</span><span class="p">()</span>
@@ -139,6 +185,16 @@
 <div class="viewcode-block" id="VinculoTipoAlimentoSimplesSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.VinculoTipoAlimentoSimplesSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentoSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa um vinculo ativo entre periodo, tipo de U.E. e alimentacoes.</span>
+
+<span class="sd">    Retorna o tipo de unidade escolar, o periodo escolar e a colecao de tipos</span>
+<span class="sd">    de alimentacao autorizados para aquela combinacao.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``VinculoTipoAlimentacaoViewSet``: uso direto como</span>
+<span class="sd">          ``serializer_class`` nas acoes de leitura.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">tipo_unidade_escolar</span> <span class="o">=</span> <span class="n">TipoUnidadeEscolarSerializerSimples</span><span class="p">()</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">PeriodoEscolarSimplesSerializer</span><span class="p">()</span>
     <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -160,12 +216,32 @@
 <div class="viewcode-block" id="VinculoTipoAlimentoPeriodoSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentoPeriodoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa vinculos agrupando o periodo pelo nome exibivel.</span>
+
+<span class="sd">    Converte o periodo escolar em um campo textual ``nome`` e retorna os tipos</span>
+<span class="sd">    de alimentacao relacionados para compor respostas resumidas por periodo.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - Nenhum diretamente no modulo.</span>
+<span class="sd">        - Pode ser reutilizado por endpoints que precisem expor vinculos por</span>
+<span class="sd">          periodo escolar em formato resumido.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">nome</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
     <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="VinculoTipoAlimentoPeriodoSerializer.get_nome">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer.get_nome">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_nome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o nome do periodo escolar associado ao vinculo.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj (VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar):</span>
+<span class="sd">                Vinculo serializado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Nome do periodo escolar relacionado ao vinculo.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span></div>
 
 
@@ -184,6 +260,16 @@
 <div class="viewcode-block" id="MotivoDRENaoValidaSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivoDRENaoValidaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa os motivos usados pela DRE para nao validar solicitacoes.</span>
+
+<span class="sd">    Expoe os campos publicos de ``MotivoDRENaoValida`` para consumo em listas e</span>
+<span class="sd">    seletores da API.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``MotivosDRENaoValidaViewSet``: uso direto como ``serializer_class``</span>
+<span class="sd">          nas acoes de listagem e detalhamento.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="MotivoDRENaoValidaSerializer.Meta">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer.Meta">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -196,6 +282,17 @@
 <div class="viewcode-block" id="TipoUnidadeEscolarAgrupadoSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TipoUnidadeEscolarAgrupadoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa tipos de unidade escolar agrupados com seus vinculos.</span>
+
+<span class="sd">    Recebe uma estrutura agregada em memoria contendo o tipo de unidade e os</span>
+<span class="sd">    vinculos associados e monta a resposta final com periodos escolares e tipos</span>
+<span class="sd">    de alimentacao permitidos.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``VinculosPorTipoUnidadeEscolarViewSet``: uso direto na action</span>
+<span class="sd">          ``list``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">uuid</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">()</span>
     <span class="n">iniciais</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
     <span class="n">ativo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">()</span>
@@ -206,6 +303,16 @@
 <div class="viewcode-block" id="TipoUnidadeEscolarAgrupadoSerializer.get_periodos_escolares">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer.get_periodos_escolares">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_periodos_escolares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Monta os periodos escolares agrupados para um tipo de unidade.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj (dict): Dicionario agregado contendo a chave ``vinculos`` com</span>
+<span class="sd">                os vinculos do tipo de unidade escolar.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[dict]: Lista de periodos escolares com UUID, nome e tipos de</span>
+<span class="sd">            alimentacao serializados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vinculos</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vinculos&quot;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="n">periodos_data</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -226,6 +333,16 @@
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer.agrupar_vinculos_por_tipo_ue">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">agrupar_vinculos_por_tipo_ue</span><span class="p">(</span><span class="n">vinculos</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Agrupa vinculos ativos pelo UUID do tipo de unidade escolar.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            vinculos (Iterable[VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar]):</span>
+<span class="sd">                Vinculos a serem agrupados.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[dict]: Lista ordenada por iniciais contendo os dados do tipo</span>
+<span class="sd">            de unidade escolar e a colecao de vinculos correspondente.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
         <span class="n">agrupados</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>

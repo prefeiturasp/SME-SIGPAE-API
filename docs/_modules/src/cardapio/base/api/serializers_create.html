@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.base.api.serializers_create</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span></span><span class="sd">&quot;&quot;&quot;Serializers de escrita da subapp base do modulo de cardapio.</span>
+
+<span class="sd">Centraliza a criacao e atualizacao de horarios por escola e de vinculos entre</span>
+<span class="sd">tipo de unidade escolar, periodo escolar e tipos de alimentacao.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.api.validators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">escola_nao_pode_cadastrar_dois_combos_iguais</span><span class="p">,</span>
@@ -92,6 +98,18 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate</span><span class="p">(</span>
     <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a escrita de horarios de tipos de alimentacao por escola.</span>
+
+<span class="sd">    Resolve os relacionamentos por UUID, valida a consistencia da faixa de</span>
+<span class="sd">    horario e impede a criacao de combinacoes duplicadas para a mesma escola,</span>
+<span class="sd">    tipo de alimentacao e periodo escolar.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet``:</span>
+<span class="sd">          retornado por ``get_serializer_class()`` nas acoes ``create``,</span>
+<span class="sd">          ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">hora_inicial</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">TimeField</span><span class="p">()</span>
     <span class="n">hora_final</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">TimeField</span><span class="p">()</span>
 
@@ -110,6 +128,19 @@
 <div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.validate">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.validate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Valida a ordem cronologica da faixa de horario informada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attrs (dict): Dados normalizados pelo serializer antes da</span>
+<span class="sd">                persistencia.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Os atributos recebidos apos a validacao.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValidationError: Quando ``hora_inicial`` e maior ou igual a</span>
+<span class="sd">                ``hora_final``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hora_inicial</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;hora_inicial&quot;</span><span class="p">]</span>
         <span class="n">hora_final</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;hora_final&quot;</span><span class="p">]</span>
         <span class="n">hora_inicio_nao_pode_ser_maior_que_hora_final</span><span class="p">(</span><span class="n">hora_inicial</span><span class="p">,</span> <span class="n">hora_final</span><span class="p">)</span>
@@ -119,6 +150,19 @@
 <div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.create">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.create">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cria um horario validando duplicidade por escola e periodo.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            validated_data (dict): Dados validados da configuracao de horario.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar: Instancia</span>
+<span class="sd">            criada.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValidationError: Quando ja existe um horario para a mesma</span>
+<span class="sd">                combinacao de escola, tipo de alimentacao e periodo escolar.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">escola</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;escola&quot;</span><span class="p">)</span>
         <span class="n">tipo_alimentacao</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tipo_alimentacao&quot;</span><span class="p">)</span>
         <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;periodo_escolar&quot;</span><span class="p">)</span>
@@ -136,6 +180,17 @@
 <div class="viewcode-block" id="HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.update">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.update">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atualiza um horario existente com os dados recebidos.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance (HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar):</span>
+<span class="sd">                Instancia a ser atualizada.</span>
+<span class="sd">            validated_data (dict): Dados validados da requisicao.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar: Instancia</span>
+<span class="sd">            atualizada e salva.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">update_instance_from_dict</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">instance</span></div>
@@ -160,6 +215,17 @@
 <div class="viewcode-block" id="VinculoTipoAlimentoCreateSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a escrita de vinculos entre periodo, tipo de U.E. e alimentacoes.</span>
+
+<span class="sd">    Resolve por UUID o tipo de unidade escolar, o periodo escolar e a lista de</span>
+<span class="sd">    tipos de alimentacao autorizados para a combinacao editada.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``VinculoTipoAlimentacaoViewSet``: retornado por</span>
+<span class="sd">          ``get_serializer_class()`` nas acoes ``create``, ``update`` e</span>
+<span class="sd">          ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">tipo_unidade_escolar</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">TipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="p">)</span>
@@ -174,6 +240,18 @@
 <div class="viewcode-block" id="VinculoTipoAlimentoCreateSerializer.update">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer.update">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atualiza um vinculo e substitui seus tipos de alimentacao.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance (VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar):</span>
+<span class="sd">                Instancia a ser atualizada.</span>
+<span class="sd">            validated_data (dict): Dados validados contendo os campos do</span>
+<span class="sd">                vinculo e a lista ``tipos_alimentacao``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar:</span>
+<span class="sd">            Instancia atualizada e salva.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tipos_alimentacao&quot;</span><span class="p">)</span>
         <span class="n">update_instance_from_dict</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tipos_alimentacao</span><span class="p">)</span>
@@ -184,6 +262,18 @@
 <div class="viewcode-block" id="VinculoTipoAlimentoCreateSerializer.validate_tipos_alimentacao">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer.validate_tipos_alimentacao">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_tipos_alimentacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tipos_alimentacao</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Garante que a lista de tipos de alimentacao nao seja nula.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tipos_alimentacao (list[TipoAlimentacao]): Tipos de alimentacao</span>
+<span class="sd">                resolvidos pelo campo ``SlugRelatedField``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[TipoAlimentacao]: A mesma lista validada.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValidationError: Quando o campo e informado como nulo.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">campo_nao_pode_ser_nulo</span><span class="p">(</span><span class="n">tipos_alimentacao</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tipos_alimentacao</span></div>
 

@@ -707,12 +707,27 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 </section>
 <section id="module-src.cardapio.base.api">
 <span id="api"></span><h2>api<a class="headerlink" href="#module-src.cardapio.base.api" title="Link to this heading"></a></h2>
+<p>Camada de API da subapp base de cardapio.</p>
 <section id="module-src.cardapio.base.api.serializers">
 <span id="serializers"></span><h3>serializers<a class="headerlink" href="#module-src.cardapio.base.api.serializers" title="Link to this heading"></a></h3>
+<p>Serializers da subapp base do modulo de cardapio.</p>
+<p>Reune serializers de leitura usados para expor tipos de alimentacao,
+configuracoes de horario por escola, vinculos de periodo/tipo de unidade e
+motivos de nao validacao da DRE.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa horarios configurados para tipos de alimentacao por escola.</p>
+<p>Retorna a faixa de horario com os relacionamentos de escola, tipo de
+alimentacao e periodo escolar ja expandidos por serializers simples.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet</span></code>:
+retornado por <code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> nas acoes de leitura.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer.Meta" title="Link to this definition"></a></dt>
@@ -736,6 +751,16 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivoDRENaoValidaSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#MotivoDRENaoValidaSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa os motivos usados pela DRE para nao validar solicitacoes.</p>
+<p>Expoe os campos publicos de <code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code> para consumo em listas e
+seletores da API.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MotivosDRENaoValidaViewSet</span></code>: uso direto como <code class="docutils literal notranslate"><span class="pre">serializer_class</span></code>
+nas acoes de listagem e detalhamento.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#MotivoDRENaoValidaSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.MotivoDRENaoValidaSerializer.Meta" title="Link to this definition"></a></dt>
@@ -759,6 +784,32 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.TipoAlimentacaoSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoAlimentacaoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#TipoAlimentacaoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.TipoAlimentacaoSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa tipos de alimentacao com sua representacao completa de leitura.</p>
+<p>Expoe os campos publicos de <code class="docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code> usados na API base e em
+serializers aninhados que retornam os tipos de alimentacao permitidos para
+horarios e vinculos.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">TipoAlimentacaoViewSet</span></code>: uso direto como <code class="docutils literal notranslate"><span class="pre">serializer_class</span></code> nas</dt><dd><p>acoes padrao do <code class="docutils literal notranslate"><span class="pre">ModelViewSet</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet</span></code>: uso</dt><dd><p>indireto, aninhado em
+<code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoViewSet</span></code>: uso indireto, aninhado em</dt><dd><p><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentoSimplesSerializer</span></code> e
+<code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentoPeriodoSerializer</span></code>.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.TipoAlimentacaoSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#TipoAlimentacaoSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.TipoAlimentacaoSerializer.Meta" title="Link to this definition"></a></dt>
@@ -782,6 +833,18 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.TipoAlimentacaoSimplesSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoAlimentacaoSimplesSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#TipoAlimentacaoSimplesSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.TipoAlimentacaoSimplesSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa uma visao resumida dos tipos de alimentacao.</p>
+<p>Retorna apenas UUID e nome, sendo usado quando o payload precisa listar os
+tipos de alimentacao vinculados a um periodo escolar sem incluir todos os
+campos do modelo.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente.</p></li>
+<li><p>Uso indireto em <code class="docutils literal notranslate"><span class="pre">VinculosPorTipoUnidadeEscolarViewSet</span></code>, por meio de
+<code class="docutils literal notranslate"><span class="pre">TipoUnidadeEscolarAgrupadoSerializer</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.TipoAlimentacaoSimplesSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#TipoAlimentacaoSimplesSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.TipoAlimentacaoSimplesSerializer.Meta" title="Link to this definition"></a></dt>
@@ -805,15 +868,53 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoUnidadeEscolarAgrupadoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#TipoUnidadeEscolarAgrupadoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Serializer</span></code></p>
+<p>Serializa tipos de unidade escolar agrupados com seus vinculos.</p>
+<p>Recebe uma estrutura agregada em memoria contendo o tipo de unidade e os
+vinculos associados e monta a resposta final com periodos escolares e tipos
+de alimentacao permitidos.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">VinculosPorTipoUnidadeEscolarViewSet</span></code>: uso direto na action
+<code class="docutils literal notranslate"><span class="pre">list</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer.agrupar_vinculos_por_tipo_ue">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">agrupar_vinculos_por_tipo_ue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vinculos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#TipoUnidadeEscolarAgrupadoSerializer.agrupar_vinculos_por_tipo_ue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer.agrupar_vinculos_por_tipo_ue" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Agrupa vinculos ativos pelo UUID do tipo de unidade escolar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vinculos</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><em>VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</em></a><em>]</em>) – Vinculos a serem agrupados.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista ordenada por iniciais contendo os dados do tipo
+de unidade escolar e a colecao de vinculos correspondente.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer.get_periodos_escolares">
 <span class="sig-name descname"><span class="pre">get_periodos_escolares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#TipoUnidadeEscolarAgrupadoSerializer.get_periodos_escolares"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.TipoUnidadeEscolarAgrupadoSerializer.get_periodos_escolares" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Monta os periodos escolares agrupados para um tipo de unidade.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<em>dict</em>) – Dicionario agregado contendo a chave <code class="docutils literal notranslate"><span class="pre">vinculos</span></code> com
+os vinculos do tipo de unidade escolar.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista de periodos escolares com UUID, nome e tipos de
+alimentacao serializados.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -821,6 +922,17 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculoTipoAlimentoPeriodoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#VinculoTipoAlimentoPeriodoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa vinculos agrupando o periodo pelo nome exibivel.</p>
+<p>Converte o periodo escolar em um campo textual <code class="docutils literal notranslate"><span class="pre">nome</span></code> e retorna os tipos
+de alimentacao relacionados para compor respostas resumidas por periodo.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p>Nenhum diretamente no modulo.</p></li>
+<li><p>Pode ser reutilizado por endpoints que precisem expor vinculos por
+periodo escolar em formato resumido.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#VinculoTipoAlimentoPeriodoSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer.Meta" title="Link to this definition"></a></dt>
@@ -841,7 +953,19 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer.get_nome">
 <span class="sig-name descname"><span class="pre">get_nome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#VinculoTipoAlimentoPeriodoSerializer.get_nome"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.VinculoTipoAlimentoPeriodoSerializer.get_nome" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna o nome do periodo escolar associado ao vinculo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><em>VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</em></a>) – Vinculo serializado.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Nome do periodo escolar relacionado ao vinculo.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -849,6 +973,16 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.VinculoTipoAlimentoSimplesSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculoTipoAlimentoSimplesSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#VinculoTipoAlimentoSimplesSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.VinculoTipoAlimentoSimplesSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa um vinculo ativo entre periodo, tipo de U.E. e alimentacoes.</p>
+<p>Retorna o tipo de unidade escolar, o periodo escolar e a colecao de tipos
+de alimentacao autorizados para aquela combinacao.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoViewSet</span></code>: uso direto como
+<code class="docutils literal notranslate"><span class="pre">serializer_class</span></code> nas acoes de leitura.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers.VinculoTipoAlimentoSimplesSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers.html#VinculoTipoAlimentoSimplesSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers.VinculoTipoAlimentoSimplesSerializer.Meta" title="Link to this definition"></a></dt>
@@ -871,10 +1005,25 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 </section>
 <section id="module-src.cardapio.base.api.serializers_create">
 <span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-src.cardapio.base.api.serializers_create" title="Link to this heading"></a></h3>
+<p>Serializers de escrita da subapp base do modulo de cardapio.</p>
+<p>Centraliza a criacao e atualizacao de horarios por escola e de vinculos entre
+tipo de unidade escolar, periodo escolar e tipos de alimentacao.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa a escrita de horarios de tipos de alimentacao por escola.</p>
+<p>Resolve os relacionamentos por UUID, valida a consistencia da faixa de
+horario e impede a criacao de combinacoes duplicadas para a mesma escola,
+tipo de alimentacao e periodo escolar.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet</span></code>:
+retornado por <code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> nas acoes <code class="docutils literal notranslate"><span class="pre">create</span></code>,
+<code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.Meta" title="Link to this definition"></a></dt>
@@ -895,35 +1044,67 @@ Nome legível do motivo usado pela DRE para não validar uma solicitação.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.create" title="Link to this definition"></a></dt>
-<dd><p>We have a bit of extra checking around this in order to provide
-descriptive messages when something goes wrong, but this method is
-essentially just:</p>
-<blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)</p>
-</div></blockquote>
-<p>If there are many to many fields present on the instance then they
-cannot be set until the model is instantiated, in which case the
-implementation is like so:</p>
-<blockquote>
-<div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id5"><span class="problematic" id="id6">**</span></a>validated_data)
-instance.example_relationship = example_relationship
-return instance</p>
-</div></blockquote>
-<p>The default implementation also does not handle nested relationships.
-If you want to support writable nested relationships you’ll need
-to write an explicit <cite>.create()</cite> method.</p>
+<dd><p>Cria um horario validando duplicidade por escola e periodo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados da configuracao de horario.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia
+criada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar" title="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando ja existe um horario para a mesma
+    combinacao de escola, tipo de alimentacao e periodo escolar.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Atualiza um horario existente com os dados recebidos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instance</strong> (<a class="reference internal" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar" title="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><em>HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</em></a>) – Instancia a ser atualizada.</p></li>
+<li><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados da requisicao.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia
+atualizada e salva.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar" title="src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.validate">
 <span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate.validate" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida a ordem cronologica da faixa de horario informada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attrs</strong> (<em>dict</em>) – Dados normalizados pelo serializer antes da
+persistencia.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Os atributos recebidos apos a validacao.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando <code class="docutils literal notranslate"><span class="pre">hora_inicial</span></code> e maior ou igual a
+    <code class="docutils literal notranslate"><span class="pre">hora_final</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -931,6 +1112,17 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculoTipoAlimentoCreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#VinculoTipoAlimentoCreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa a escrita de vinculos entre periodo, tipo de U.E. e alimentacoes.</p>
+<p>Resolve por UUID o tipo de unidade escolar, o periodo escolar e a lista de
+tipos de alimentacao autorizados para a combinacao editada.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoViewSet</span></code>: retornado por
+<code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> nas acoes <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e
+<code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#VinculoTipoAlimentoCreateSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer.Meta" title="Link to this definition"></a></dt>
@@ -951,51 +1143,151 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#VinculoTipoAlimentoCreateSerializer.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Atualiza um vinculo e substitui seus tipos de alimentacao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instance</strong> (<a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><em>VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</em></a>) – Instancia a ser atualizada.</p></li>
+<li><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados contendo os campos do
+vinculo e a lista <code class="docutils literal notranslate"><span class="pre">tipos_alimentacao</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instancia atualizada e salva.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer.validate_tipos_alimentacao">
 <span class="sig-name descname"><span class="pre">validate_tipos_alimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tipos_alimentacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/serializers_create.html#VinculoTipoAlimentoCreateSerializer.validate_tipos_alimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.serializers_create.VinculoTipoAlimentoCreateSerializer.validate_tipos_alimentacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Garante que a lista de tipos de alimentacao nao seja nula.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tipos_alimentacao</strong> (<em>list</em><em>[</em><a class="reference internal" href="#src.cardapio.base.models.TipoAlimentacao" title="src.cardapio.base.models.TipoAlimentacao"><em>TipoAlimentacao</em></a><em>]</em>) – Tipos de alimentacao
+resolvidos pelo campo <code class="docutils literal notranslate"><span class="pre">SlugRelatedField</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A mesma lista validada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#src.cardapio.base.models.TipoAlimentacao" title="src.cardapio.base.models.TipoAlimentacao">TipoAlimentacao</a>]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando o campo e informado como nulo.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-src.cardapio.base.api.validators">
 <span id="validators"></span><h3>validators<a class="headerlink" href="#module-src.cardapio.base.api.validators" title="Link to this heading"></a></h3>
+<p>Validadores de negocio da API base de cardapio.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cardapio.base.api.validators.escola_nao_pode_cadastrar_dois_combos_iguais">
 <span class="sig-name descname"><span class="pre">escola_nao_pode_cadastrar_dois_combos_iguais</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_alimentacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/validators.html#escola_nao_pode_cadastrar_dois_combos_iguais"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.validators.escola_nao_pode_cadastrar_dois_combos_iguais" title="Link to this definition"></a></dt>
-<dd><p>Se o horário de tipo de alimentação já estiver cadastrado para a Escola e Período escolar, deve retornar erro.</p>
-<p>Pois para cada tipo de alimentação só é possivel registrar um intervalo de horario, caso o tipo de alimentação já
-estiver cadastrado, só será possivel atualizar o objeto HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar.</p>
+<dd><p>Impede a criacao de horarios duplicados para a mesma combinacao.</p>
+<p>Garante que cada escola tenha no maximo um horario cadastrado para um
+determinado tipo de alimentacao em um mesmo periodo escolar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>escola</strong> (<em>Escola</em>) – Escola dona da configuracao.</p></li>
+<li><p><strong>tipo_alimentacao</strong> (<a class="reference internal" href="#src.cardapio.base.models.TipoAlimentacao" title="src.cardapio.base.models.TipoAlimentacao"><em>TipoAlimentacao</em></a>) – Tipo de alimentacao configurado.</p></li>
+<li><p><strong>periodo_escolar</strong> (<em>PeriodoEscolar</em>) – Periodo escolar da configuracao.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> quando nao existe duplicidade para a combinacao.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando ja existe um horario com a mesma escola, tipo
+    de alimentacao e periodo escolar.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cardapio.base.api.validators.hora_inicio_nao_pode_ser_maior_que_hora_final">
 <span class="sig-name descname"><span class="pre">hora_inicio_nao_pode_ser_maior_que_hora_final</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hora_inicial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hora_final</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/validators.html#hora_inicio_nao_pode_ser_maior_que_hora_final"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.validators.hora_inicio_nao_pode_ser_maior_que_hora_final" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida se o horario inicial e anterior ao horario final.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hora_inicial</strong> (<em>datetime.time</em>) – Horario inicial informado.</p></li>
+<li><p><strong>hora_final</strong> (<em>datetime.time</em>) – Horario final informado.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> quando a faixa de horario e valida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando <code class="docutils literal notranslate"><span class="pre">hora_inicial</span></code> e maior ou igual a
+    <code class="docutils literal notranslate"><span class="pre">hora_final</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-src.cardapio.base.api.viewsets">
 <span id="viewsets"></span><h3>viewsets<a class="headerlink" href="#module-src.cardapio.base.api.viewsets" title="Link to this heading"></a></h3>
+<p>Viewsets da API base do modulo de cardapio.</p>
+<p>Expoe endpoints para consulta e manutencao de tipos de alimentacao, horarios
+por escola, vinculos de periodo/tipo de unidade escolar e motivos de nao
+validacao usados pela DRE.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code></p>
+<p>Gerencia horarios de tipos de alimentacao configurados por escola.</p>
+<p>Disponibiliza leitura, criacao, atualizacao e uma action customizada para
+listar os horarios associados a uma escola especifica.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.filtro_por_escola">
 <span class="sig-name descname"><span class="pre">filtro_por_escola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola_uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.filtro_por_escola"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.filtro_por_escola" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Lista horarios cadastrados para a escola informada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisicao HTTP recebida pela action.</p></li>
+<li><p><strong>escola_uuid</strong> (<em>str</em><em> | </em><em>None</em>) – UUID da escola usado como filtro.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com os horarios encontrados para a
+escola.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.get_serializer_class">
 <span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
+<dd><p>Seleciona o serializer de leitura ou escrita conforme a acao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate</span></code>
+nas acoes de escrita; caso contrario,
+<code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1020,6 +1312,7 @@ serializations depending on the incoming request.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.MotivosDRENaoValidaViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivosDRENaoValidaViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#MotivosDRENaoValidaViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.MotivosDRENaoValidaViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ReadOnlyModelViewSet</span></code></p>
+<p>Expoe consulta somente leitura dos motivos de nao validacao da DRE.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.MotivosDRENaoValidaViewSet.lookup_field">
 <span class="sig-name descname"><span class="pre">lookup_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uuid'</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.MotivosDRENaoValidaViewSet.lookup_field" title="Link to this definition"></a></dt>
@@ -1042,6 +1335,9 @@ serializations depending on the incoming request.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.TipoAlimentacaoViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoAlimentacaoViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#TipoAlimentacaoViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.TipoAlimentacaoViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code></p>
+<p>Expoe o CRUD de tipos de alimentacao da base de cardapio.</p>
+<p>Utiliza <code class="docutils literal notranslate"><span class="pre">TipoAlimentacaoSerializer</span></code> em todas as acoes padrao do
+<code class="docutils literal notranslate"><span class="pre">ModelViewSet</span></code> e identifica instancias pelo campo <code class="docutils literal notranslate"><span class="pre">uuid</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.TipoAlimentacaoViewSet.lookup_field">
 <span class="sig-name descname"><span class="pre">lookup_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uuid'</span></span><a class="headerlink" href="#src.cardapio.base.api.viewsets.TipoAlimentacaoViewSet.lookup_field" title="Link to this definition"></a></dt>
@@ -1064,35 +1360,115 @@ serializations depending on the incoming request.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculoTipoAlimentacaoViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrieveModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ListModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
+<p>Gerencia vinculos ativos entre tipo de U.E., periodo e alimentacoes.</p>
+<p>Alem das acoes padrao de leitura e escrita, expoe endpoints customizados
+para filtrar vinculos por escola, por tipo de unidade e por cenarios
+especificos de inclusao de alimentacao.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.atualizar_lista_de_vinculos">
 <span class="sig-name descname"><span class="pre">atualizar_lista_de_vinculos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet.atualizar_lista_de_vinculos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.atualizar_lista_de_vinculos" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Atualiza em lote os tipos de alimentacao de uma lista de vinculos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Requisicao HTTP cujo corpo deve conter a chave
+<code class="docutils literal notranslate"><span class="pre">vinculos</span></code> com UUIDs e listas de <code class="docutils literal notranslate"><span class="pre">tipos_alimentacao</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com os vinculos atualizados, ou erro 400
+quando o payload obrigatorio nao e informado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.filtro_por_escola">
 <span class="sig-name descname"><span class="pre">filtro_por_escola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola_uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet.filtro_por_escola"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.filtro_por_escola" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Lista vinculos aplicaveis a uma escola em uma data de referencia.</p>
+<p>Para escolas CEMEI, monta uma ordenacao especial por unidade e periodo.
+Nos demais casos, filtra pelos periodos da escola e pela unidade
+historica valida na data consultada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisicao HTTP com filtros opcionais como
+<code class="docutils literal notranslate"><span class="pre">mes</span></code>, <code class="docutils literal notranslate"><span class="pre">ano</span></code> e <code class="docutils literal notranslate"><span class="pre">pega_atualmente</span></code>.</p></li>
+<li><p><strong>escola_uuid</strong> (<em>str</em><em> | </em><em>None</em>) – UUID da escola consultada.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com os vinculos ordenados para a escola.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.filtro_por_tipo_ue">
 <span class="sig-name descname"><span class="pre">filtro_por_tipo_ue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_unidade_escolar_uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet.filtro_por_tipo_ue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.filtro_por_tipo_ue" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Lista vinculos ativos de um tipo especifico de unidade escolar.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisicao HTTP recebida pela action.</p></li>
+<li><p><strong>tipo_unidade_escolar_uuid</strong> (<em>str</em><em> | </em><em>None</em>) – UUID do tipo de unidade
+escolar filtrado.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com os vinculos encontrados.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.get_serializer_class">
 <span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
+<dd><p>Seleciona o serializer de escrita ou leitura conforme a acao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentoCreateSerializer</span></code> nas acoes de escrita;
+caso contrario, <code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentoSimplesSerializer</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.get_vinculos_inclusoes_evento_especifico">
 <span class="sig-name descname"><span class="pre">get_vinculos_inclusoes_evento_especifico</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ano</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_solicitacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet.get_vinculos_inclusoes_evento_especifico"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.get_vinculos_inclusoes_evento_especifico" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Busca vinculos necessarios para inclusoes de Evento Especifico.</p>
+<p>Considera inclusoes normais autorizadas por Evento Especifico e cruza
+os periodos obtidos com os vinculos da escola para montar o conjunto de
+vinculos elegiveis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mes</strong> (<em>str</em><em> | </em><em>int</em>) – Mes de referencia da consulta.</p></li>
+<li><p><strong>ano</strong> (<em>str</em><em> | </em><em>int</em>) – Ano de referencia da consulta.</p></li>
+<li><p><strong>tipo_solicitacao</strong> (<em>str</em><em> | </em><em>None</em>) – Parametro mantido por compatibilidade
+com a assinatura da chamada.</p></li>
+<li><p><strong>escola</strong> (<em>Escola</em>) – Escola utilizada na filtragem dos grupos e
+vinculos.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Vinculos compatíveis com o cenario consultado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QuerySet[<a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</a>]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.lookup_field">
@@ -1102,7 +1478,21 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.motivo_inclusao_especifico">
 <span class="sig-name descname"><span class="pre">motivo_inclusao_especifico</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet.motivo_inclusao_especifico"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.motivo_inclusao_especifico" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Lista vinculos permitidos para o motivo de inclusao especifico.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Requisicao HTTP que deve informar
+<code class="docutils literal notranslate"><span class="pre">tipo_unidade_escolar_iniciais</span></code> em <code class="docutils literal notranslate"><span class="pre">query_params</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada dos vinculos filtrados ou erro 400
+quando o parametro obrigatorio nao e enviado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.queryset">
@@ -1118,12 +1508,47 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.trata_inclusao_continua_medicao_inicial">
 <span class="sig-name descname"><span class="pre">trata_inclusao_continua_medicao_inicial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ano</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pega_atualmente</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet.trata_inclusao_continua_medicao_inicial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.trata_inclusao_continua_medicao_inicial" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calcula os periodos escolares a considerar na inclusao continua.</p>
+<p>Combina os periodos escolares da escola com os periodos extras
+retornados pelo endpoint de inclusao continua, quando o mes e enviado
+na requisicao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisicao HTTP com os filtros atuais.</p></li>
+<li><p><strong>escola</strong> (<em>Escola</em>) – Escola cujos periodos serao avaliados.</p></li>
+<li><p><strong>ano</strong> (<em>str</em><em> | </em><em>int</em>) – Ano de referencia para consulta dos periodos.</p></li>
+<li><p><strong>pega_atualmente</strong> (<em>bool</em><em> | </em><em>str</em>) – Indicador usado pelo metodo
+<code class="docutils literal notranslate"><span class="pre">periodos_escolares</span></code> da escola.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Periodos resultantes da combinacao entre
+o calendario regular da escola e a inclusao continua, quando houver.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QuerySet[PeriodoEscolar]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.vinculos_inclusoes_evento_especifico_autorizadas">
 <span class="sig-name descname"><span class="pre">vinculos_inclusoes_evento_especifico_autorizadas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculoTipoAlimentacaoViewSet.vinculos_inclusoes_evento_especifico_autorizadas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculoTipoAlimentacaoViewSet.vinculos_inclusoes_evento_especifico_autorizadas" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna vinculos usados em inclusoes autorizadas de Evento Especifico.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Requisicao HTTP com <code class="docutils literal notranslate"><span class="pre">escola_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">mes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ano</span></code> e <code class="docutils literal notranslate"><span class="pre">tipo_solicitacao</span></code> em <code class="docutils literal notranslate"><span class="pre">query_params</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada dos vinculos encontrados.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1131,10 +1556,26 @@ serializations depending on the incoming request.</p>
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculosPorTipoUnidadeEscolarViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VinculosPorTipoUnidadeEscolarViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculosPorTipoUnidadeEscolarViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculosPorTipoUnidadeEscolarViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ListModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
+<p>Lista vinculos ativos agrupados por tipo de unidade escolar.</p>
+<p>Usa um serializer agregador para montar a resposta final a partir dos
+vinculos e seus relacionamentos pre-carregados.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.base.api.viewsets.VinculosPorTipoUnidadeEscolarViewSet.list">
 <span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/base/api/viewsets.html#VinculosPorTipoUnidadeEscolarViewSet.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.base.api.viewsets.VinculosPorTipoUnidadeEscolarViewSet.list" title="Link to this definition"></a></dt>
-<dd><p>Lista todos os tipos de UE com seus períodos e tipos de alimentação</p>
+<dd><p>Lista todos os tipos de U.E. com seus periodos e alimentacoes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Requisicao HTTP recebida pela action <code class="docutils literal notranslate"><span class="pre">list</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta no formato <code class="docutils literal notranslate"><span class="pre">{&quot;results&quot;:</span> <span class="pre">[...]}</span></code> contendo os
+tipos de unidade escolar agrupados com seus periodos e tipos de
+alimentacao.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
