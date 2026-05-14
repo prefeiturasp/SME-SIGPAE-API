@@ -7,11 +7,12 @@ from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
     USUARIO_EMPRESA,
 )
+from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
 from src.dados_comuns.permissions import (
     PermissaoParaCriarCronogramaSemanal,
     PermissaoParaDarCienciaCronogramaSemanal,
-    PermissaoParaVisualizarCronogramaSemanal,
     PermissaoParaVisualizarCalendarioCronograma,
+    PermissaoParaVisualizarCronogramaSemanal,
 )
 from src.pre_recebimento.base.api.paginations import (
     PreRecebimentoPagination,
@@ -29,12 +30,15 @@ from src.pre_recebimento.cronograma_semanal.api.serializers.serializer_create im
     CronogramaSemanalRascunhoSerializer,
 )
 from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
+    CronogramaSemanalCalendarioSerializer,
     CronogramaSemanalDetailSerializer,
     CronogramaSemanalListagemSerializer,
     CronogramaSemanalRascunhosSerializer,
-    CronogramaSemanalCalendarioSerializer,
 )
 from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
+from src.relatorios.relatorios import (
+    get_pdf_cronograma_semanal,
+)
 
 
 class CronogramaSemanalViewSet(
@@ -72,7 +76,7 @@ class CronogramaSemanalViewSet(
         "fornecedor_ciente": [PermissaoParaDarCienciaCronogramaSemanal],
         "rascunhos_listagem": [PermissaoParaCriarCronogramaSemanal],
         "alterar_cronograma": [PermissaoParaCriarCronogramaSemanal],
-        "calendario": [PermissaoParaVisualizarCalendarioCronograma]
+        "calendario": [PermissaoParaVisualizarCalendarioCronograma],
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
@@ -179,7 +183,10 @@ class CronogramaSemanalViewSet(
                 "cronograma_mensal__unidade_medida",
             )
             .prefetch_related("programacoes")
-            .filter(programacoes__data_inicio__month=mes, programacoes__data_inicio__year=ano)
+            .filter(
+                programacoes__data_inicio__month=mes,
+                programacoes__data_inicio__year=ano,
+            )
             .exclude(status="RASCUNHO")
             .distinct()
         )
@@ -340,3 +347,17 @@ class CronogramaSemanalViewSet(
                 {"detail": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @action(detail=True, methods=["GET"], url_path="gerar-pdf-cronograma")
+    def gerar_pdf_cronograma(self, request, uuid=None):
+        cronograma = self.get_object()
+
+        if cronograma.status != CronogramaSemanalWorkflow.FORNECEDOR_CIENTE:
+            return Response(
+                {
+                    "detail": "O PDF só pode ser gerado para cronogramas no status Fornecedor Ciente."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return get_pdf_cronograma_semanal(request, cronograma)

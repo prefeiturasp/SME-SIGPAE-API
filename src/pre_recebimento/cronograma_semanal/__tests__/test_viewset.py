@@ -1,6 +1,9 @@
+from io import BytesIO
+
 import pytest
 from django.test import Client
 from model_bakery import baker
+from pypdf import PdfReader
 from rest_framework import status
 
 from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
@@ -848,3 +851,43 @@ class TestCronogramaSemanalViewSet:
         client, _ = client_autenticado_vinculo_dilog_cronograma
         response = client.get("/cronogramas-semanais/calendario/?mes=abc&ano=xyz")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_gerar_pdf_apenas_para_fornecedor_ciente(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_semanal_enviado_ao_fornecedor,
+        cronograma_semanal_fornecedor_ciente,
+    ):
+        """PDF deve ser gerado somente para cronogramas no status FORNECEDOR_CIENTE."""
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        # RASCUNHO — deve retornar 400
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/gerar-pdf-cronograma/"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        # ENVIADO_AO_FORNECEDOR — deve retornar 400
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/gerar-pdf-cronograma/"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        # FORNECEDOR_CIENTE — deve retornar 200 com PDF
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/gerar-pdf-cronograma/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.headers["Content-Type"] == "application/pdf"
+
+        pdf_reader = PdfReader(BytesIO(response.content))
+        pdf_text = "\n".join(page.extract_text() for page in pdf_reader.pages)
+
+        assert "PONTO A PONTO" in pdf_text
+        assert "Nº do Empenho" in pdf_text
+        assert "Quantidade Total do Empenho" in pdf_text
+        assert "Custo Unitário do Produto" in pdf_text
+
+        # Colunas exclusivas do template Mensal não devem aparecer no template semanal
+        assert "Etapa" not in pdf_text or "Data Programada" in pdf_text

@@ -372,6 +372,23 @@ def get_assinatura_codae(logs):
     ).last()
 
 
+# LOGS CRONOGRAMA SEMANAL
+
+
+@register.simple_tag
+def get_assinatura_cronograma_semanal(logs):
+    return logs.filter(
+        status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR
+    ).last()
+
+
+@register.simple_tag
+def get_assinatura_fornecedor_cronograma_semanal(logs):
+    return logs.filter(
+        status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE
+    ).last()
+
+
 # LOGS FICHA TECNICA
 
 
