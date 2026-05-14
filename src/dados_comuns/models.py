@@ -565,6 +565,7 @@ class Notificacao(models.Model):
     CATEGORIA_NOTIFICACAO_ALTERACAO_CRONOGRAMA = "ALTERACAO_CRONOGRAMA"
     CATEGORIA_NOTIFICACAO_LAYOUT_DE_EMBALAGENS = "LAYOUT_DE_EMBALAGENS"
     CATEGORIA_NOTIFICACAO_DOCUMENTOS_DE_RECEBIMENTO = "DOCUMENTOS_DE_RECEBIMENTO"
+    CATEGORIA_NOTIFICACAO_CRIACAO_CRONOGRAMA_PONTO_A_PONTO = "CRONOGRAMA_PONTO_A_PONTO"
 
     CATEGORIA_NOTIFICACAO_NOMES = {
         CATEGORIA_NOTIFICACAO_REQUISICAO_DE_ENTREGA: "Requisição de entrega",
@@ -575,6 +576,7 @@ class Notificacao(models.Model):
         CATEGORIA_NOTIFICACAO_ALTERACAO_CRONOGRAMA: "Alteração do Cronograma",
         CATEGORIA_NOTIFICACAO_LAYOUT_DE_EMBALAGENS: "Layout de Embalagens",
         CATEGORIA_NOTIFICACAO_DOCUMENTOS_DE_RECEBIMENTO: "Documentos de Recebimento",
+        CATEGORIA_NOTIFICACAO_CRIACAO_CRONOGRAMA_PONTO_A_PONTO: "Assinatura do Cronograma Ponto a Ponto"
     }
 
     CATEGORIA_NOTIFICACAO_CHOICES = (
@@ -616,6 +618,10 @@ class Notificacao(models.Model):
                 CATEGORIA_NOTIFICACAO_DOCUMENTOS_DE_RECEBIMENTO
             ],
         ),
+        (
+            CATEGORIA_NOTIFICACAO_CRIACAO_CRONOGRAMA_PONTO_A_PONTO,
+            CATEGORIA_NOTIFICACAO_NOMES[CATEGORIA_NOTIFICACAO_CRIACAO_CRONOGRAMA_PONTO_A_PONTO]
+        )
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -649,7 +655,7 @@ class Notificacao(models.Model):
 
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
-    link = models.CharField("Link", max_length=100, default="", blank=True)
+    link = models.CharField("Link", max_length=200, default="", blank=True)
 
     requisicao = models.ForeignKey(
         "logistica.SolicitacaoRemessa",
