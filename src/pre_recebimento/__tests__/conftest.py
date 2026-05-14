@@ -6,12 +6,14 @@ from faker import Faker
 from model_bakery import baker
 
 from src.dados_comuns.constants import (
+    ADMINISTRADOR_EMPRESA,
     ADMINISTRADOR_GESTAO_PRODUTO,
     COORDENADOR_CODAE_DILOG_LOGISTICA,
     DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_QUALIDADE,
     DJANGO_ADMIN_PASSWORD,
+    USUARIO_EMPRESA,
 )
 from src.dados_comuns.fluxo_status import (
     FichaTecnicaDoProdutoWorkflow,
@@ -19,6 +21,7 @@ from src.dados_comuns.fluxo_status import (
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import convert_base64_to_contentfile
+from src.perfil.models import Vinculo
 from src.terceirizada.models import Terceirizada
 
 from ..base.models import UnidadeMedida
@@ -1525,15 +1528,47 @@ def solicitacao_alteracao_cronograma(
 
 
 @pytest.fixture
+def client_user_autenticado_fornecedor_usuario(
+    client,
+    django_user_model,
+    empresa_factory,
+    perfil_factory,
+):
+
+    email = "funcionario_fornecedor@test.com"
+    password = "adminadmin"
+
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional="6123457",
+    )
+
+    perfil = perfil_factory(nome=USUARIO_EMPRESA)
+
+    empresa = empresa_factory(tipo_servico=Terceirizada.FORNECEDOR)
+
+    Vinculo.objects.create(
+        usuario=user,
+        instituicao=empresa,
+        perfil=perfil,
+        ativo=False,
+        data_inicial=None,
+        data_final=None,
+    )
+
+    client.force_login(user)
+    return client, user
+
+
+@pytest.fixture
 def client_user_autenticado_fornecedor(
     client,
     django_user_model,
     empresa_factory,
     perfil_factory,
 ):
-    from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA
-    from src.perfil.models import Vinculo
-    from src.terceirizada.models import Terceirizada
 
     email = "fornecedor@test.com"
     password = "adminadmin"
