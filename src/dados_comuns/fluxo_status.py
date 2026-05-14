@@ -6187,6 +6187,16 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             )
 
     def _notificar_criacao_cronograma_ponto_a_ponto(self) -> None:
+        """
+        Envia email e notificação aos usuários vinculados à empresa informando
+        a criação de um cronograma semanal de pré-recebimento.
+
+        O método:
+        - monta os contextos utilizados nos templates;
+        - envia email aos destinatários vinculados;
+        - cria notificações internas para os usuários relacionados;
+        - disponibiliza link de acesso ao detalhe do cronograma.
+        """
         url_detalhe_cronograma = (
             f"{base_url}/pre-recebimento/detalhe-cronograma-semanal?uuid={self.uuid}"
         )
@@ -6198,16 +6208,14 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
                 self.cronograma_mensal, somente_email=True
             )
         )
-        usuarios = (
-            PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
-                self.cronograma_mensal
-            )
+        usuarios = PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
+            self.cronograma_mensal
         )
         print(usuarios)
         contexto_notificacao = {
             "numero_cronograma": self.numero,
             "data_evento": data_evento,
-            "nome_produto": nome_produto
+            "nome_produto": nome_produto,
         }
 
         contexto_email = {
@@ -6221,7 +6229,7 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             assunto=f"[SIGPAE] Ciência do cronograma Nº {numero_cronograma}",
             template="pre_recebimento_email_criacao_cronograma_semanal.html",
             contexto_template=contexto_email,
-            destinatarios=destinatarios
+            destinatarios=destinatarios,
         )
 
         EmailENotificacaoService.enviar_notificacao(
@@ -6231,7 +6239,7 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             tipo_notificacao=Notificacao.TIPO_NOTIFICACAO_ALERTA,
             categoria_notificacao=Notificacao.CATEGORIA_NOTIFICACAO_CRIACAO_CRONOGRAMA_PONTO_A_PONTO,
             link_acesse_aqui=url_detalhe_cronograma,
-            usuarios=usuarios
+            usuarios=usuarios,
         )
 
     class Meta:
