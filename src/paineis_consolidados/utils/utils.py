@@ -18,12 +18,29 @@ from src.inclusao_alimentacao.models import (
 from src.terceirizada.models import Terceirizada
 
 
+def get_data_evento_final_periodo(periodo, data_evento_final_padrao):
+    return (
+        periodo.encerrado_a_partir_de
+        if getattr(periodo, "encerrado_a_partir_de", None)
+        and not getattr(periodo, "cancelado", False)
+        else data_evento_final_padrao
+    )
+
+
 def formata_resultado_inclusoes_etec_autorizadas(dia, mes, ano, inclusao):
     if (
         get_ultimo_dia_mes(datetime.date(int(ano), int(mes), 1)) < datetime.date.today()
         or dia < datetime.date.today().day
     ):
+        data_referencia = datetime.date(int(ano), int(mes), int(dia))
         for qp in inclusao.quantidades_por_periodo.all():
+            if getattr(qp, "cancelado", False):
+                continue
+
+            data_evento_final = get_data_evento_final_periodo(qp, inclusao.data_final)
+            if data_referencia > data_evento_final:
+                continue
+
             alimentacoes = ", ".join(
                 [
                     unicodedata.normalize("NFD", alimentacao.nome.replace(" ", "_"))
@@ -175,11 +192,7 @@ def criar_dict_dias_inclusoes_continuas(
 def tratar_inclusao_continua(escola, mes, ano, periodo, inclusao, return_dict):
     primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
     ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
-    data_evento_final = (
-        periodo.encerrado_a_partir_de
-        if getattr(periodo, "encerrado_a_partir_de", None) and not periodo.cancelado
-        else inclusao.data_evento_2
-    )
+    data_evento_final = get_data_evento_final_periodo(periodo, inclusao.data_evento_2)
 
     data_inicio_no_mes = max(inclusao.data_evento, primeiro_dia_mes)
     data_evento_final_no_mes = min(data_evento_final, ultimo_dia_mes)
