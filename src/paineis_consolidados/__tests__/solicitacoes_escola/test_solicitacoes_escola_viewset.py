@@ -38,8 +38,10 @@ from src.escola.fixtures.factories.escola_factory import (
 from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     DiasMotivosInclusaoDeAlimentacaoCEMEIFactory,
     GrupoInclusaoAlimentacaoNormalFactory,
+    InclusaoAlimentacaoContinuaFactory,
     InclusaoAlimentacaoNormalFactory,
     InclusaoDeAlimentacaoCEMEIFactory,
+    MotivoInclusaoContinuaFactory,
     QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadePorPeriodoFactory,
@@ -705,6 +707,81 @@ class TestEndpointInclusoesAutorizadas:
                 "eh_parcial_integral": False,
                 "faixas_etarias": [str(self.faixa_etaria.uuid)],
             }
+        ]
+
+
+@pytest.mark.usefixtures("client_autenticado_escola_paineis_consolidados", "escola")
+@freeze_time("2025-02-05")
+class TestEndpointInclusoesETecAutorizadas:
+    def test_inclusoes_etec_autorizadas_respeita_encerrado_a_partir_de(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        periodo_noite = PeriodoEscolarFactory.create(nome="NOITE")
+        refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
+        motivo_etec = MotivoInclusaoContinuaFactory.create(nome="ETEC")
+
+        inclusao = InclusaoAlimentacaoContinuaFactory.create(
+            escola=escola,
+            motivo=motivo_etec,
+            rastro_escola=escola,
+            rastro_lote=escola.lote,
+            rastro_dre=escola.diretoria_regional,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            data_inicial="2025-02-01",
+            data_final="2025-02-10",
+        )
+        QuantidadePorPeriodoFactory.create(
+            grupo_inclusao_normal=None,
+            inclusao_alimentacao_continua=inclusao,
+            periodo_escolar=periodo_noite,
+            numero_alunos=10,
+            encerrado_a_partir_de="2025-02-03",
+            tipos_alimentacao=[refeicao],
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=inclusao.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            usuario=usuario,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/inclusoes-etec-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&mes=02"
+            f"&ano=2025"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+        results = response.json()["results"]
+        for result in results:
+            result.pop("inclusao_id_externo")
+
+        assert results == [
+            {
+                "dia": "01",
+                "periodo": "NOITE",
+                "alimentacoes": "refeicao",
+                "tipos_alimentacao": ["Refeição"],
+                "numero_alunos": 10,
+            },
+            {
+                "dia": "02",
+                "periodo": "NOITE",
+                "alimentacoes": "refeicao",
+                "tipos_alimentacao": ["Refeição"],
+                "numero_alunos": 10,
+            },
+            {
+                "dia": "03",
+                "periodo": "NOITE",
+                "alimentacoes": "refeicao",
+                "tipos_alimentacao": ["Refeição"],
+                "numero_alunos": 10,
+            },
         ]
 
 
