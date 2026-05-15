@@ -892,10 +892,15 @@ class InterrupcaoProgramadaEntregaViewSet(
         mes = self.request.query_params.get("mes")
         ano = self.request.query_params.get("ano")
         motivo = self.request.query_params.getlist("motivo[]")
+        tipo_calendario = self.request.query_params.getlist("tipo_calendario[]")
+
         if mes and ano:
             qs = qs.filter(data__month=mes, data__year=ano)
         if motivo:
             qs = qs.filter(motivo__in=motivo)
+        if tipo_calendario:
+            qs = qs.filter(tipo_calendario__in=tipo_calendario)
+
         return qs
 
     @action(detail=False, methods=["GET"], url_path="motivos")
