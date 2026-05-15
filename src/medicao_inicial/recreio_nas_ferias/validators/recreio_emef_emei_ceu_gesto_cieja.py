@@ -14,7 +14,6 @@ from src.medicao_inicial.models import (
     ValorMedicao,
 )
 from src.medicao_inicial.recreio_nas_ferias.models import (
-    RecreioNasFerias,
     RecreioNasFeriasUnidadeParticipante,
 )
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
@@ -46,7 +45,9 @@ def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
         instance (SolicitacaoMedicaoInicial): Solicitação de medição inicial vinculada ao recreio.
     """
     recreio = instance.recreio_nas_ferias
-    participantes = recreio.unidades_participantes.filter(unidade_educacional=instance.escola).first()
+    participantes = recreio.unidades_participantes.filter(
+        unidade_educacional=instance.escola
+    ).first()
 
     informacoes_participantes = {
         "Recreio nas Férias": participantes.num_inscritos,
@@ -299,7 +300,9 @@ def validate_lancamento_alimentacoes_medicao_recreio(
     """
 
     recreio = solicitacao.recreio_nas_ferias
-    participantes = recreio.unidades_participantes.filter(unidade_educacional=solicitacao.escola).first()
+    participantes = recreio.unidades_participantes.filter(
+        unidade_educacional=solicitacao.escola
+    ).first()
 
     tipos_alimentacao = participantes.tipos_alimentacao.filter(
         categoria__nome__in=["Inscritos", "Colaboradores"]
@@ -640,7 +643,6 @@ def get_linhas_da_tabela_dieta_recreio(
 
 def get_tipos_alimentacao_recreio(
     solicitacao: SolicitacaoMedicaoInicial,
-    
 ) -> list[str]:
     """Retorna os tipos de alimentação dos inscritos no recreio.
 
@@ -655,7 +657,9 @@ def get_tipos_alimentacao_recreio(
         list[str]: Lista contendo os tipos de alimentação dos inscritos.
     """
     recreio = solicitacao.recreio_nas_ferias
-    participantes = recreio.unidades_participantes.filter(unidade_educacional=solicitacao.escola).first()
+    participantes = recreio.unidades_participantes.filter(
+        unidade_educacional=solicitacao.escola
+    ).first()
 
     tipos_alimentacao = participantes.tipos_alimentacao.filter(
         categoria__nome="Inscritos",
