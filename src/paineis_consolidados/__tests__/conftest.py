@@ -423,28 +423,28 @@ def alteracoes_cardapio_dre(escola2):
     return alteracao_cardapio_1, alteracao_cardapio_2, alteracao_cardapio_3
 
 
-@freeze_time("2020-02-03")  # Segunda
 @pytest.fixture
 def alteracoes_cardapio_dre_atual(escola2):
-    alteracao_cardapio_1 = baker.make(
-        AlteracaoCardapio,
-        escola=escola2,
-        criado_em=datetime.date(2019, 3, 1),
-        data_inicial=datetime.date.today() + datetime.timedelta(days=1),
-    )
-    alteracao_cardapio_2 = baker.make(
-        AlteracaoCardapio,
-        escola=escola2,
-        criado_em=datetime.date(2019, 2, 10),
-        data_inicial=datetime.date.today() + datetime.timedelta(days=5),
-    )
-    alteracao_cardapio_3 = baker.make(
-        AlteracaoCardapio,
-        escola=escola2,
-        criado_em=datetime.date(2019, 1, 20),
-        data_inicial=datetime.date.today() + datetime.timedelta(days=20),
-    )
-    return alteracao_cardapio_1, alteracao_cardapio_2, alteracao_cardapio_3
+    with freeze_time("2020-02-03"):  # Segunda
+        alteracao_cardapio_1 = baker.make(
+            AlteracaoCardapio,
+            escola=escola2,
+            criado_em=datetime.date(2019, 3, 1),
+            data_inicial=datetime.date.today() + datetime.timedelta(days=1),
+        )
+        alteracao_cardapio_2 = baker.make(
+            AlteracaoCardapio,
+            escola=escola2,
+            criado_em=datetime.date(2019, 2, 10),
+            data_inicial=datetime.date.today() + datetime.timedelta(days=5),
+        )
+        alteracao_cardapio_3 = baker.make(
+            AlteracaoCardapio,
+            escola=escola2,
+            criado_em=datetime.date(2019, 1, 20),
+            data_inicial=datetime.date.today() + datetime.timedelta(days=20),
+        )
+        return alteracao_cardapio_1, alteracao_cardapio_2, alteracao_cardapio_3
 
 
 @pytest.fixture
