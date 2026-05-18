@@ -211,64 +211,66 @@ def aluno():
     )
 
 
-@freeze_time("2025-12-10")
 @pytest.fixture
 def solicitacao_dieta_especial_a_autorizar(
     client, escola, template_mensagem_dieta_especial, usuario_escola, aluno
 ):
-    user, password = usuario_escola
-    # client.login(username=user.email, password=password)
+    with freeze_time("2025-12-10"):
+        user, password = usuario_escola
+        # client.login(username=user.email, password=password)
 
-    solic = baker.make(
-        SolicitacaoDietaEspecial,
-        escola_destino=escola,
-        rastro_escola=escola,
-        rastro_terceirizada=escola.lote.terceirizada,
-        aluno=aluno,
-        ativo=False,
-        criado_por=user,
-        criado_em="2025-12-10",
-    )
-    solic.inicia_fluxo(user=user)
-    log = solic.logs.filter(status_evento=LogSolicitacoesUsuario.INICIO_FLUXO).last()
-    log.criado_em = "2025-12-10"
-    log.save()
+        solic = baker.make(
+            SolicitacaoDietaEspecial,
+            escola_destino=escola,
+            rastro_escola=escola,
+            rastro_terceirizada=escola.lote.terceirizada,
+            aluno=aluno,
+            ativo=False,
+            criado_por=user,
+            criado_em="2025-12-10",
+        )
+        solic.inicia_fluxo(user=user)
+        log = solic.logs.filter(
+            status_evento=LogSolicitacoesUsuario.INICIO_FLUXO
+        ).last()
+        log.criado_em = "2025-12-10"
+        log.save()
 
-    return solic
+        return solic
 
 
-@freeze_time("2025-12-20")
 @pytest.fixture
 def solicitacao_dieta_especial_autorizada(
     client, escola, solicitacao_dieta_especial_a_autorizar
 ):
-    email = "terceirizada@admin.com"
-    password = DJANGO_ADMIN_PASSWORD
-    rf = "4545454"
-    user = Usuario.objects.create_user(
-        username=email, password=password, email=email, registro_funcional=rf
-    )
-    client.login(username=email, password=password)
+    with freeze_time("2025-12-20"):
+        email = "terceirizada@admin.com"
+        password = DJANGO_ADMIN_PASSWORD
+        rf = "4545454"
+        user = Usuario.objects.create_user(
+            username=email, password=password, email=email, registro_funcional=rf
+        )
+        client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
-    baker.make(
-        "perfil.Vinculo",
-        usuario=user,
-        instituicao=escola.lote.terceirizada,
-        perfil=perfil,
-        data_inicial="2024-12-20",
-        ativo=True,
-    )
+        perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+        baker.make(
+            "perfil.Vinculo",
+            usuario=user,
+            instituicao=escola.lote.terceirizada,
+            perfil=perfil,
+            data_inicial="2024-12-20",
+            ativo=True,
+        )
 
-    solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
-    log = solicitacao_dieta_especial_a_autorizar.logs.filter(
-        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
-    ).last()
-    log.criado_em = "2025-12-20"
-    log.save()
-    solicitacao_dieta_especial_a_autorizar.ativo = True
-    solicitacao_dieta_especial_a_autorizar.save()
-    return solicitacao_dieta_especial_a_autorizar
+        solicitacao_dieta_especial_a_autorizar.codae_autoriza(user=user)
+        log = solicitacao_dieta_especial_a_autorizar.logs.filter(
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
+        ).last()
+        log.criado_em = "2025-12-20"
+        log.save()
+        solicitacao_dieta_especial_a_autorizar.ativo = True
+        solicitacao_dieta_especial_a_autorizar.save()
+        return solicitacao_dieta_especial_a_autorizar
 
 
 @pytest.fixture
