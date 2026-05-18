@@ -5,8 +5,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.http import QueryDict
 from freezegun.api import freeze_time
+from model_bakery import baker
 
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
+from ...escola.models import Aluno, FaixaEtaria
 from ...terceirizada.models import Edital
 from ..solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 from ..tasks.utils.logs import (
@@ -112,6 +114,50 @@ def test_gera_logs_dietas_escolas_cei(
     assert [log for log in logs if log.classificacao.nome == "Tipo A"][
         0
     ].quantidade == 2
+
+
+@freeze_time("2025-05-05")
+def test_gera_logs_dietas_escolas_cei_usa_data_referencia_na_faixa_etaria(
+    escola_cei,
+    classificacoes_dietas,
+    periodo_escolar_integral,
+    log_aluno_integral_cei,
+    log_alunos_matriculados_integral_cei,
+):
+    faixa_ate_3_anos = baker.make(FaixaEtaria, inicio=0, fim=48, ativo=True)
+    baker.make(FaixaEtaria, inicio=48, fim=72, ativo=True)
+
+    aluno = baker.make(
+        Aluno,
+        nome="Aluno Faixa Fronteira",
+        codigo_eol="654321",
+        data_nascimento=datetime.date(2021, 5, 5),
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_integral,
+    )
+    dieta = baker.make(
+        SolicitacaoDietaEspecial,
+        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+        aluno=aluno,
+        rastro_escola=escola_cei,
+        escola_destino=escola_cei,
+        classificacao=classificacoes_dietas[0],
+    )
+
+    logs = gera_logs_dietas_escolas_cei(
+        escola_cei,
+        SolicitacaoDietaEspecial.objects.filter(pk=dieta.pk),
+        datetime.date(2025, 5, 4),
+    )
+
+    logs_com_quantidade = [
+        log
+        for log in logs
+        if log.classificacao == classificacoes_dietas[0] and log.quantidade == 1
+    ]
+
+    assert len(logs_com_quantidade) == 1
+    assert logs_com_quantidade[0].faixa_etaria == faixa_ate_3_anos
 
 
 def test_gera_logs_dietas_escolas_cemei(
