@@ -12,11 +12,16 @@ from src.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
     ValorMedicao,
 )
+from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
+    agrupar_tipos_alimentacao_por_categoria,
+    buscar_valores_lancamento_alimentacoes_recreio,
     existe_colaborador,
     get_classificacoes_dietas_recreio,
+    get_linhas_da_tabela_alimentacoes_recreio,
     get_tipos_alimentacao_recreio,
 )
+from src.medicao_inicial.validators import erros_unicos
 
 CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
 CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME = (
@@ -320,3 +325,216 @@ def retorna_valor_para_log_dieta_autorizada_cei(
             quantidade for nome, quantidade in logs_do_dia.items() if "tipo a" in nome
         )
     return next((quantidade for _, quantidade in logs_do_dia.items()), 0)
+
+
+def validate_lancamento_alimentacoes_medicao_recreio_cei(
+    solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
+) -> list:
+    """ "Valida os lançamentos das alimentações da medição do Recreio nas Férias para CEI.
+
+    Realiza a validação dos lançamentos de alimentações dos participantes do
+    grupo ``Recreio nas Férias`` e, quando existirem colaboradores na unidade,
+    também valida os lançamentos do grupo ``Colaboradores``.
+
+    As validações consideram os dias letivos do período do recreio e os tipos
+    de alimentação configurados para cada categoria.
+
+    Os erros encontrados durante as validações são acumulados e retornados sem
+    duplicidades.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação de medição inicial
+            vinculada ao Recreio nas Férias.
+
+        lista_erros (list): Lista acumulada de erros encontrados durante as
+            validações.
+
+    Returns:
+        list: Lista de erros sem duplicidades após a validação dos lançamentos
+            das alimentações do recreio.
+    """
+    recreio = solicitacao.recreio_nas_ferias
+    participantes = recreio.unidades_participantes.filter(
+        unidade_educacional=solicitacao.escola
+    ).first()
+
+    tipos_alimentacao = participantes.tipos_alimentacao.filter(
+        categoria__nome__in=["Inscritos", "Colaboradores"]
+    )
+    tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
+    categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    dias_letivos_geral = gerar_dias_letivos_recreio(
+        recreio.data_inicio, recreio.data_fim
+    )
+    dias_letivos_geral_formatado = [f"{dia:02d}" for dia in dias_letivos_geral]
+
+    informacoes_inscritos = {
+        "solicitacao": solicitacao,
+        "dias_letivos": dias_letivos_geral_formatado,
+        "categoria_alimentacao": categoria_medicao,
+    }
+
+    lista_erros = validate_lancamento_alimentacoes_inscritos(
+        informacoes_inscritos, lista_erros
+    )
+    if existe_colaborador(participantes):
+        alimentacao_colaboradores = tipos_alimentacao_map.get("Colaboradores", [])
+        informacoes_colaboradores = {
+            "alimentacoes": alimentacao_colaboradores,
+            "solicitacao": solicitacao,
+            "dias_letivos": dias_letivos_geral_formatado,
+            "categoria_alimentacao": categoria_medicao,
+        }
+        lista_erros = validate_lancamento_alimentacoes_colaboradores(
+            informacoes_colaboradores, lista_erros
+        )
+
+    return erros_unicos(lista_erros)
+
+
+def validate_lancamento_alimentacoes_inscritos(
+    informacoes_inscritos, lista_erros: list
+) -> list:
+    """Valida os lançamentos das alimentações dos inscritos do Recreio nas Férias.
+
+    Verifica se todos os lançamentos esperados das alimentações por faixa
+    etária foram preenchidos para os dias letivos informados no grupo
+    ``Recreio nas Férias``.
+
+    Os erros encontrados durante a validação são adicionados à lista e, ao
+    final, são retornados sem duplicidades.
+
+    Args:
+        informacoes_inscritos (dict): Dicionário contendo as informações
+            necessárias para validação dos inscritos, incluindo:
+            - ``solicitacao``: solicitação de medição inicial;
+            - ``dias_letivos``: lista de dias letivos formatados;
+            - ``categoria_alimentacao``: categoria de medição utilizada na
+            validação.
+
+        lista_erros (list): Lista acumulada de erros encontrados durante as
+            validações.
+
+    Returns:
+        list: Lista de erros sem duplicidades após a validação dos
+            lançamentos das alimentações dos inscritos.
+    """
+
+    solicitacao = informacoes_inscritos.get("solicitacao")
+    dias_letivos = informacoes_inscritos.get("dias_letivos")
+    categoria_alimentacao = informacoes_inscritos.get("categoria_alimentacao")
+
+    lista_erros = buscar_valores_lancamento_alimentacoes_faixa_etaria(
+        solicitacao,
+        "Recreio nas Férias",
+        dias_letivos,
+        categoria_alimentacao,
+        lista_erros,
+    )
+    return erros_unicos(lista_erros)
+
+
+def validate_lancamento_alimentacoes_colaboradores(
+    informacoes_colaboradores: dict, lista_erros: list
+) -> list:
+    """Valida os lançamentos das alimentações do grupo de colaboradores.
+
+    Obtém as linhas esperadas da tabela de alimentações do recreio e verifica
+    se todos os lançamentos necessários do grupo ``Colaboradores`` foram
+    preenchidos para os dias letivos informados.
+
+    Os erros encontrados durante a validação são adicionados à lista e, ao
+    final, são retornados sem duplicidades.
+
+    Args:
+        informacoes_colaboradores (dict): Dicionário contendo as informações
+            necessárias para validação dos colaboradores, incluindo:
+            - ``alimentacoes``: dados das alimentações configuradas;
+            - ``solicitacao``: solicitação de medição inicial;
+            - ``dias_letivos``: lista de dias letivos formatados;
+            - ``categoria_alimentacao``: categoria de medição utilizada na
+            validação.
+
+        lista_erros (list): Lista acumulada de erros encontrados durante as
+            validações.
+
+
+    Returns:
+        list: Lista de erros sem duplicidades após a validação dos
+            lançamentos das alimentações dos colaboradores.
+
+    """
+    alimentacoes = informacoes_colaboradores.get("alimentacoes")
+    solicitacao = informacoes_colaboradores.get("solicitacao")
+    dias_letivos = informacoes_colaboradores.get("dias_letivos")
+    categoria_alimentacao = informacoes_colaboradores.get("categoria_alimentacao")
+
+    linhas_da_tabela = get_linhas_da_tabela_alimentacoes_recreio(alimentacoes)
+    lista_erros = buscar_valores_lancamento_alimentacoes_recreio(
+        linhas_da_tabela,
+        solicitacao,
+        "Colaboradores",
+        dias_letivos,
+        categoria_alimentacao,
+        lista_erros,
+    )
+    return erros_unicos(lista_erros)
+
+
+def buscar_valores_lancamento_alimentacoes_faixa_etaria(
+    solicitacao: SolicitacaoMedicaoInicial,
+    grupo: str,
+    dias_letivos: list[str],
+    categoria_medicao: CategoriaMedicao,
+    lista_erros: list,
+) -> list:
+    """Valida os lançamentos das alimentações do recreio por faixa etária.
+
+    Verifica se existem valores preenchidos para todos os dias letivos do
+    período, considerando cada faixa etária ativa para o grupo e categoria
+    informados.
+
+    Quando existem dias sem preenchimento para alguma faixa etária e sem
+    observação justificando a ausência, adiciona erro na lista.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial):  Solicitação de medição inicial.
+        grupo (str):  Nome do grupo validado.
+        dias_letivos (list[str]):  Lista de dias letivos formatados.
+        categoria_medicao (CategoriaMedicao): Categoria de medição utilizada na validação.
+        lista_erros (list): Lista acumulada de erros.
+
+    Returns:
+        list: Lista atualizada de erros encontrados.
+    """
+    periodo_com_erro = False
+    dias_letivos_set = set(dias_letivos)
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+
+    for faixa in faixas:
+        valores_da_medicao = set(
+            ValorMedicao.objects.filter(
+                medicao__solicitacao_medicao_inicial=solicitacao,
+                nome_campo="frequencia",
+                medicao__grupo__nome=grupo,
+                dia__in=dias_letivos,
+                categoria_medicao=categoria_medicao,
+                faixa_etaria=faixa,
+            )
+            .exclude(valor=None)
+            .values_list("dia", flat=True)
+        )
+
+        if valores_da_medicao != dias_letivos_set:
+            dias_sem_preenchimento = dias_letivos_set - valores_da_medicao
+            if len(dias_sem_preenchimento) > 0:
+                periodo_com_erro = True
+
+    if periodo_com_erro:
+        lista_erros.append(
+            {
+                "periodo_escolar": grupo,
+                "erro": "Restam dias a serem lançados nas alimentações.",
+            }
+        )
+    return lista_erros
