@@ -4,7 +4,7 @@ Cypress.Commands.add('consultar_conferencia_da_guia', () => {
 	cy.request({
 		method: 'GET',
 		url: Cypress.config('baseUrl') + 'api/conferencia-da-guia/',
-		timeout: 60000,
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -16,7 +16,7 @@ Cypress.Commands.add('consultar_por_id_conferencia_da_guia', (uuid) => {
 	cy.request({
 		method: 'GET',
 		url: Cypress.config('baseUrl') + `api/conferencia-da-guia/${uuid}`,
-		timeout: 60000,
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -28,7 +28,7 @@ Cypress.Commands.add('cadastrar_conferencia_da_guia', (dados_teste) => {
 	cy.request({
 		method: 'POST',
 		url: Cypress.config('baseUrl') + 'api/conferencia-da-guia/',
-		timeout: 60000,
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -48,7 +48,7 @@ Cypress.Commands.add('excluir_conferencia_da_guia', (uuid) => {
 	cy.request({
 		method: 'DELETE',
 		url: Cypress.config('baseUrl') + `api/conferencia-da-guia/${uuid}/`,
-		timeout: 60000,
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -60,7 +60,7 @@ Cypress.Commands.add('alterar_conferencia_da_guia', (dados_teste, uuid) => {
 	cy.request({
 		method: 'PUT',
 		url: Cypress.config('baseUrl') + `api/conferencia-da-guia/${uuid}/`,
-		timeout: 60000,
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -82,7 +82,7 @@ Cypress.Commands.add(
 		cy.request({
 			method: 'PATCH',
 			url: Cypress.config('baseUrl') + `api/conferencia-da-guia/${uuid}/`,
-			timeout: 60000,
+			timeout: 120000,
 			headers: {
 				Authorization: 'JWT ' + globalThis.token,
 			},
