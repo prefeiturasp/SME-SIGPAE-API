@@ -224,6 +224,33 @@ class TestLogsRecreioNasFerias:
         assert total == 5
 
     @freeze_time("2025-01-15")
+    def test_logs_escola_cei_recreio_ferias_usa_data_referencia_na_faixa(self):
+        escola = self.setup_escola_cei()
+
+        aluno = AlunoFactory.create(
+            escola=escola,
+            periodo_escolar=self.periodo_integral,
+            data_nascimento=datetime.date(2021, 1, 15),
+        )
+        self.criar_dieta_recreio_comum(aluno, self.classificacao_tipo_a)
+
+        dietas = SolicitacaoDietaEspecial.objects.filter(escola_destino=escola)
+        logs = gera_logs_dietas_recreio_ferias_escolas_cei(
+            escola,
+            dietas,
+            datetime.date(2025, 1, 14),
+        )
+
+        logs_com_quantidade = [
+            log
+            for log in logs
+            if log.classificacao == self.classificacao_tipo_a and log.quantidade == 1
+        ]
+
+        assert len(logs_com_quantidade) == 1
+        assert logs_com_quantidade[0].faixa_etaria == self.faixa_2a_a_3a11m
+
+    @freeze_time("2025-01-15")
     def test_logs_escola_cemei_recreio_ferias(self):
         escola = self.setup_escola_cemei()
 
