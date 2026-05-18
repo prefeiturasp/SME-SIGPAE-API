@@ -58,11 +58,7 @@ def periodo_escolar_noite():
 
 @pytest.fixture
 def tipo_unidade_escolar():
-    cardapio1 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 11))
-    cardapio2 = baker.make("cardapio.Cardapio", data=datetime.date(2019, 10, 15))
-    return baker.make(
-        models.TipoUnidadeEscolar, iniciais="EMEF", cardapios=[cardapio1, cardapio2]
-    )
+    return baker.make(models.TipoUnidadeEscolar, iniciais="EMEF")
 
 
 @pytest.fixture
@@ -1051,31 +1047,31 @@ def alteracao_cardapio(escola):
     )
 
 
-@freeze_time("2025-01-01")
 @pytest.fixture
 def dieta_codae_autorizou(aluno, escola):
-    aluno.nome = "Antônio"
-    aluno.save()
-    classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
-    solicitacao_dieta = baker.make(
-        "SolicitacaoDietaEspecial",
-        rastro_escola=escola,
-        aluno=aluno,
-        classificacao=classificacao,
-        tipo_solicitacao="COMUM",
-    )
-    solicitacao_dieta.criado_em = datetime.date(2025, 1, 1)
-    solicitacao_dieta.save()
+    with freeze_time("2025-01-01"):
+        aluno.nome = "Antônio"
+        aluno.save()
+        classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
+        solicitacao_dieta = baker.make(
+            "SolicitacaoDietaEspecial",
+            rastro_escola=escola,
+            aluno=aluno,
+            classificacao=classificacao,
+            tipo_solicitacao="COMUM",
+        )
+        solicitacao_dieta.criado_em = datetime.date(2025, 1, 1)
+        solicitacao_dieta.save()
 
-    log = baker.make(
-        "LogSolicitacoesUsuario",
-        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-        uuid_original=solicitacao_dieta.uuid,
-    )
-    log.criado_em = datetime.date(2025, 1, 1)
-    log.save()
+        log = baker.make(
+            "LogSolicitacoesUsuario",
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            uuid_original=solicitacao_dieta.uuid,
+        )
+        log.criado_em = datetime.date(2025, 1, 1)
+        log.save()
 
-    return solicitacao_dieta
+        return solicitacao_dieta
 
 
 @pytest.fixture

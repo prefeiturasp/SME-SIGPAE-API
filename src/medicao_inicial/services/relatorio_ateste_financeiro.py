@@ -18,8 +18,11 @@ from src.medicao_inicial.utils import (
 
 ORDEM_PRIORIDADE = {
     "REFEIÇÃO": 0,
-    "LANCHE": 1,
-    "LANCHE 4H": 2,
+    "REFEIÇÃO CIEJA E CMCT": 0,
+    "REFEIÇÃO - CEU EMEF, CEU GESTÃO, EMEF, EMEFM": 0,
+    "REFEIÇÃO - EJA": 1,
+    "LANCHE": 2,
+    "LANCHE 4H": 3,
     "KIT LANCHE": 99,
 }
 
@@ -53,7 +56,7 @@ def _buscar_valor_por_faixa(valores, faixa_uuid, tipo):
     return Decimal("0") if valor is None else to_decimal_safe(valor)
 
 
-def _buscar_valor_por_tipo(valores, tipo_uuid, tipo_valor):
+def _buscar_valor_por_tipo(valores, tipo_alimentacao, tipo_valor):
     """Busca valor com base no tipo de alimentação.
 
     A busca funciona em dois cenários:
@@ -64,6 +67,7 @@ def _buscar_valor_por_tipo(valores, tipo_uuid, tipo_valor):
         valores (Iterable): Coleção de objetos com valores.
         tipo_uuid (str): UUID ou identificador do tipo.
         tipo_valor (str): Tipo do valor ("UNITARIO", "REAJUSTE", "ACRESCIMO").
+        tipo_refeicao (str): Tipo de refeição (usado em caso de EMEF (EJA e Refeição normal)).
 
     Returns:
         Decimal: Valor encontrado ou Decimal("0").
@@ -71,18 +75,26 @@ def _buscar_valor_por_tipo(valores, tipo_uuid, tipo_valor):
     if not valores:
         return Decimal("0")
 
+    tipo_refeicao = tipo_alimentacao.get("tipo_refeicao", "")
+
     valor = next(
         (
             v.valor
             for v in valores
             if (
                 (
-                    getattr(v, "tipo_alimentacao", None)
-                    and str(v.tipo_alimentacao.uuid) == str(tipo_uuid)
+                    tipo_refeicao
+                    and tipo_refeicao
+                    in normalizar_nome_campo(getattr(v, "nome_campo", "").lower())
+                )
+                or (
+                    not tipo_refeicao
+                    and getattr(v, "tipo_alimentacao", None)
+                    and str(v.tipo_alimentacao.uuid) == str(tipo_alimentacao["uuid"])
                 )
                 or (
                     not getattr(v, "tipo_alimentacao", None)
-                    and str(getattr(v, "nome_campo", "")) == str(tipo_uuid)
+                    and str(getattr(v, "nome_campo", "")) == "kit_lanche"
                 )
             )
             and v.tipo_valor
@@ -177,6 +189,7 @@ def _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo):
                 t
                 for t in tabelas
                 if t.nome == "Preço das Alimentações"
+                and t.periodo_escolar
                 and t.periodo_escolar.nome == periodo
             ),
             None,
@@ -243,7 +256,9 @@ def _build_tabela_dieta_cei(tabelas, faixas_etarias, totais_consumo, tipo_dieta)
             (
                 t
                 for t in tabelas
-                if tipo_dieta in t.nome.upper() and t.periodo_escolar.nome == periodo
+                if tipo_dieta in t.nome.upper()
+                and t.periodo_escolar
+                and t.periodo_escolar.nome == periodo
             ),
             None,
         )
@@ -294,7 +309,7 @@ def build_relatorio_financeiro_grupo_cei(
     parametrizacao,
     totais_consumo,
 ):
-    """Retorna dados para o relatório financeiro do grupo CEI.
+    """Retorna dados para o relatório financeiro do grupos por faixa etária (1 e 2).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
@@ -368,13 +383,19 @@ def _obter_tipos_alimentacao_por_unidades(uuids_unidades):
     return [{"uuid": uuid, "nome": nome} for uuid, nome in tipos_unicos.items()]
 
 
-def _build_tabela_alimentacao_emei(tabelas, tipos_alimentacao, totais_consumo):
+def _build_tabela_alimentacao_emei(
+    tabelas,
+    tipos_alimentacao,
+    totais_consumo,
+    grupo_nome=None,
+):
     """Retorna dados da tabela de alimentação para EMEI.
 
     Args:
         tabelas (QuerySet): Tabelas parametrizadas.
         tipos_alimentacao (list): Tipos de alimentação.
         totais_consumo (dict): Dados de totais de consumo e atendimento.
+        grupo_nome (str): Nome do grupo de unidade escolar.
 
     Returns:
         dict: Estrutura com linhas da tabela, total de atendimentos e valor total.
@@ -384,31 +405,44 @@ def _build_tabela_alimentacao_emei(tabelas, tipos_alimentacao, totais_consumo):
     linhas = []
 
     tabela = next(
-        (t for t in tabelas if t.nome == "Preço das Alimentações"),
+        (t for t in tabelas if "Preço das Alimentações" in t.nome and not t.periodo_escolar),
         None,
     )
 
     valores_tabela = tabela.valores.all() if tabela else []
-
     for tipo in tipos_alimentacao:
         valor_unitario = _buscar_valor_por_tipo(
             valores_tabela,
-            tipo["uuid"],
+            tipo,
             "UNITARIO",
         )
 
         valor_reajuste = _buscar_valor_por_tipo(
             valores_tabela,
-            tipo["uuid"],
+            tipo,
             "REAJUSTE",
         )
 
         total_unitario = valor_unitario + valor_reajuste
 
-        nome_normalizado = normalizar_nome_campo(tipo["nome"], "GRUPO 3").lower()
+        tipo_refeicao = tipo.get("tipo_refeicao")
+        if tipo_refeicao:
+            if tipo_refeicao == "eja":
+                nome_consumo = "refeicao_eja"
+            else:
+                nome_consumo = "refeicao"
+        else:
+            nome_consumo = normalizar_nome_campo(
+                tipo["nome"],
+                "GRUPO 3",
+            ).lower()
 
-        numero_atendimentos = totais_consumo.get("ALIMENTAÇÃO", {}).get(
-            f"total_{nome_normalizado}", 0
+        numero_atendimentos = totais_consumo.get(
+            "ALIMENTAÇÃO",
+            {},
+        ).get(
+            f"total_{nome_consumo}",
+            0,
         )
 
         valor_total = total_unitario * to_decimal_safe(numero_atendimentos)
@@ -416,9 +450,10 @@ def _build_tabela_alimentacao_emei(tabelas, tipos_alimentacao, totais_consumo):
         total_atendimentos += numero_atendimentos
         valor_total_geral += valor_total
 
+        alimentacao_nome = tipo["nome"].upper()
         linhas.append(
             {
-                "tipo": tipo["nome"].upper(),
+                "tipo": f"{alimentacao_nome} CIEJA E CMCT" if grupo_nome == "GRUPO 6" and alimentacao_nome == "REFEIÇÃO" else alimentacao_nome,
                 "valor_unitario": valor_unitario,
                 "valor_reajuste": valor_reajuste,
                 "total_unitario": total_unitario,
@@ -436,7 +471,13 @@ def _build_tabela_alimentacao_emei(tabelas, tipos_alimentacao, totais_consumo):
     }
 
 
-def _build_tabela_dieta_emei(tabelas, tipos_alimentacao, totais_consumo, tipo_dieta):
+def _build_tabela_dieta_emei(
+    tabelas,
+    tipos_alimentacao,
+    totais_consumo,
+    tipo_dieta,
+    grupo_nome=None,
+):
     """Retorna dados da tabela de dieta especial para EMEI.
 
     Args:
@@ -444,6 +485,7 @@ def _build_tabela_dieta_emei(tabelas, tipos_alimentacao, totais_consumo, tipo_di
         tipos_alimentacao (list): Tipos de alimentação.
         totais_consumo (dict): Dados de totais de consumo e atendimento.
         tipo_dieta (str): Tipo da dieta (A ou B).
+        grupo_nome (str): Nome do grupo de unidade escolar.
 
     Returns:
         dict: Estrutura com linhas da tabela, total de atendimentos e valor total.
@@ -453,7 +495,7 @@ def _build_tabela_dieta_emei(tabelas, tipos_alimentacao, totais_consumo, tipo_di
     linhas = []
 
     tabela = next(
-        (t for t in tabelas if tipo_dieta in t.nome.upper()),
+        (t for t in tabelas if tipo_dieta in t.nome.upper() and not t.periodo_escolar),
         None,
     )
 
@@ -462,32 +504,44 @@ def _build_tabela_dieta_emei(tabelas, tipos_alimentacao, totais_consumo, tipo_di
     for tipo in tipos_alimentacao:
         valor_unitario = _buscar_valor_por_tipo(
             valores_tabela,
-            tipo["uuid"],
+            tipo,
             "UNITARIO",
         )
 
         valor_acrescimo = _buscar_valor_por_tipo(
             valores_tabela,
-            tipo["uuid"],
+            tipo,
             "ACRESCIMO",
         )
 
         total_unitario = valor_unitario * (1 + (valor_acrescimo / 100))
 
-        nome_normalizado = normalizar_nome_campo(tipo["nome"], "GRUPO 3").lower()
+        tipo_refeicao = tipo.get("tipo_refeicao")
+        if tipo_refeicao:
+            if tipo_refeicao == "eja":
+                nome_consumo = "refeicao_eja"
+            else:
+                nome_consumo = "refeicao"
+        else:
+            nome_consumo = normalizar_nome_campo(
+                tipo["nome"],
+                grupo_nome,
+            ).lower()
+
         numero_consumo = totais_consumo.get(
             f"DIETA ESPECIAL - {tipo_dieta}",
             {},
-        ).get(nome_normalizado, 0)
+        ).get(nome_consumo, 0)
 
         valor_total = total_unitario * to_decimal_safe(numero_consumo)
 
         total_consumo += numero_consumo
         valor_total_geral += valor_total
 
+        dieta_nome = tipo["nome"].upper()
         linhas.append(
             {
-                "tipo": tipo["nome"].upper(),
+                "tipo": f"{dieta_nome} CIEJA E CMCT" if grupo_nome == "GRUPO 6" and dieta_nome == "REFEIÇÃO" else dieta_nome,
                 "valor_unitario": valor_unitario,
                 "valor_acrescimo": valor_acrescimo,
                 "total_unitario": total_unitario,
@@ -510,7 +564,7 @@ def build_relatorio_financeiro_grupo_emei(
     parametrizacao,
     totais_consumo,
 ):
-    """Gera os dados que serão exibidos no relatório financeiro para EMEI.
+    """Gera os dados que serão exibidos no relatório financeiro para grupo por tipo de alimentação (2, 3 e 6).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
@@ -520,11 +574,39 @@ def build_relatorio_financeiro_grupo_emei(
     Returns:
         dict: Estrutura completa do relatório.
     """
-    tipos_unidades = relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.all()
+    grupo_unidade = relatorio_financeiro.grupo_unidade_escolar
+    tipos_unidades = grupo_unidade.tipos_unidades.all()
+    grupo_nome = grupo_unidade.nome.upper()
+
+    eh_cieja = "GRUPO 6" in grupo_nome
+    eh_emef = "GRUPO 4" in grupo_nome
 
     tipos_alimentacao = _obter_tipos_alimentacao_por_unidades(
         tipos_unidades.values_list("uuid", flat=True)
     )
+
+    if eh_emef:
+        novos_tipos = []
+
+        for tipo in tipos_alimentacao:
+            if tipo["nome"].upper() == "REFEIÇÃO":
+                novos_tipos.extend(
+                    [
+                        {
+                            "uuid": tipo["uuid"],
+                            "nome": "REFEIÇÃO",
+                        },
+                        {
+                            "uuid": tipo["uuid"],
+                            "nome": "REFEIÇÃO - EJA",
+                            "tipo_refeicao": "eja",
+                        },
+                    ]
+                )
+            else:
+                novos_tipos.append(tipo)
+
+        tipos_alimentacao = novos_tipos
 
     tipos_alimentacao.append(
         {
@@ -539,12 +621,16 @@ def build_relatorio_financeiro_grupo_emei(
         tabelas,
         tipos_alimentacao,
         totais_consumo,
+        grupo_nome,
     )
+
+    lista_dietas_a = ["LANCHE", "LANCHE 4H", "REFEIÇÃO"] if not eh_cieja else ["LANCHE 4H", "REFEIÇÃO"]
 
     tipos_dieta_a = [
         tipo
         for tipo in tipos_alimentacao
-        if tipo["nome"].upper() in ["LANCHE", "LANCHE 4H", "REFEIÇÃO"]
+        if "REFEIÇÃO" in tipo["nome"].upper()
+        or tipo["nome"].upper() in lista_dietas_a
     ]
 
     dieta_a = _build_tabela_dieta_emei(
@@ -552,12 +638,15 @@ def build_relatorio_financeiro_grupo_emei(
         tipos_dieta_a,
         totais_consumo,
         "TIPO A",
+        grupo_nome,
     )
+
+    lista_dietas_b = ["LANCHE", "LANCHE 4H"] if not eh_cieja else ["LANCHE 4H"]
 
     tipos_dieta_b = [
         tipo
         for tipo in tipos_alimentacao
-        if tipo["nome"].upper() in ["LANCHE", "LANCHE 4H"]
+        if tipo["nome"].upper() in lista_dietas_b
     ]
 
     dieta_b = _build_tabela_dieta_emei(
@@ -565,6 +654,7 @@ def build_relatorio_financeiro_grupo_emei(
         tipos_dieta_b,
         totais_consumo,
         "TIPO B",
+        grupo_nome,
     )
 
     consolidado = _build_consolidado_total(
@@ -582,4 +672,71 @@ def build_relatorio_financeiro_grupo_emei(
             relatorio_financeiro,
             tipos_unidades,
         ),
+    }
+
+
+# =========================================================
+# CEMEI
+# =========================================================
+def build_relatorio_financeiro_grupo_cemei(
+    relatorio_financeiro,
+    parametrizacao,
+    totais_consumo,
+):
+    """Retorna dados para o relatório financeiro do grupo CEMEI (tipo de alimentação e faixa etária).
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório.
+        parametrizacao (Model): Configuração contendo tabelas.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+
+    Returns:
+        dict: Estrutura completa do relatório.
+    """
+    relatorio_cei = build_relatorio_financeiro_grupo_cei(
+        relatorio_financeiro,
+        parametrizacao,
+        totais_consumo["FAIXA"],
+    )
+
+    relatorio_emei = build_relatorio_financeiro_grupo_emei(
+        relatorio_financeiro,
+        parametrizacao,
+        totais_consumo["TIPO"],
+    )
+
+    consolidado_total = {
+        "quantidade": relatorio_cei["consolidado"]["quantidade"] + relatorio_emei["consolidado"]["quantidade"],
+        "valor": relatorio_cei["consolidado"]["valor"] + relatorio_emei["consolidado"]["valor"],
+        "valor_extenso": num2words(
+            relatorio_cei["consolidado"]["valor"] + relatorio_emei["consolidado"]["valor"],
+            lang="pt_BR",
+            to="currency"
+        ),
+    }
+
+    return {
+        "cabecalho": relatorio_cei["cabecalho"],
+        "cei": relatorio_cei,
+        "emei": relatorio_emei,
+        "consolidados": [
+            {
+                **relatorio_cei["consolidado"],
+                "titulo": "CONSOLIDADO CEI (A + B + C)",
+                "titulo_quantidade": "QUANTIDADE SERVIDA (A+B+C):",
+                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (A+B+C):",
+            },
+            {
+                **relatorio_emei["consolidado"],
+                "titulo": "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
+                "titulo_quantidade": "QUANTIDADE SERVIDA (INF. A+INF. B+INF. C):",
+                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (INF. A+INF. B+INF. C):",
+            },
+            {
+                **consolidado_total,
+                "titulo": "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
+                "titulo_quantidade": "QUANTIDADE SERVIDA:",
+                "titulo_valor": "VALOR DO FATURAMENTO TOTAL:",
+            },
+        ],
     }

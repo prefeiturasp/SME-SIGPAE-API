@@ -16,6 +16,8 @@ with open(sql_path, "r") as f:
 
 class Migration(migrations.Migration):
     dependencies = [
+        ("cardapio", "0031_suspensaoalimentacaodacei_terceirizada_conferiu_gestao"),
+        ("dieta_especial", "0047_auto_20220321_0955"),
         ("inclusao_alimentacao", "0023_auto_20220714_0722"),
         ("kit_lanche", "0012_auto_20220714_0817"),
     ]

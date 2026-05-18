@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ("escola", "0078_historicoescola"),
         ("paineis_consolidados", "0041_solicitacoes"),
     ]
 

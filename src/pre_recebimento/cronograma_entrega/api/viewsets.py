@@ -84,7 +84,10 @@ from src.pre_recebimento.tasks import (
     gerar_relatorio_cronogramas_pdf_async,
     gerar_relatorio_cronogramas_xlsx_async,
 )
-from src.relatorios.relatorios import get_pdf_cronograma
+from src.relatorios.relatorios import (
+    get_pdf_cronograma,
+    get_pdf_cronograma_ponto_a_ponto_flv,
+)
 
 from ....dados_comuns.models import LogSolicitacoesUsuario
 from .validators import valida_parametros_calendario
@@ -445,6 +448,9 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-cronograma")
     def gerar_pdf_cronograma(self, request, uuid=None):
         cronograma = self.get_object()
+
+        if cronograma.ponto_a_ponto:
+            return get_pdf_cronograma_ponto_a_ponto_flv(request, cronograma)
 
         return get_pdf_cronograma(request, cronograma)
 
@@ -885,8 +891,16 @@ class InterrupcaoProgramadaEntregaViewSet(
         qs = super().get_queryset()
         mes = self.request.query_params.get("mes")
         ano = self.request.query_params.get("ano")
+        motivo = self.request.query_params.getlist("motivo[]")
+        tipo_calendario = self.request.query_params.getlist("tipo_calendario[]")
+
         if mes and ano:
             qs = qs.filter(data__month=mes, data__year=ano)
+        if motivo:
+            qs = qs.filter(motivo__in=motivo)
+        if tipo_calendario:
+            qs = qs.filter(tipo_calendario__in=tipo_calendario)
+
         return qs
 
     @action(detail=False, methods=["GET"], url_path="motivos")

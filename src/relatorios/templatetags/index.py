@@ -372,6 +372,23 @@ def get_assinatura_codae(logs):
     ).last()
 
 
+# LOGS CRONOGRAMA SEMANAL
+
+
+@register.simple_tag
+def get_assinatura_cronograma_semanal(logs):
+    return logs.filter(
+        status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR
+    ).last()
+
+
+@register.simple_tag
+def get_assinatura_fornecedor_cronograma_semanal(logs):
+    return logs.filter(
+        status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE
+    ).last()
+
+
 # LOGS FICHA TECNICA
 
 
@@ -399,12 +416,7 @@ def existe_inclusao_cancelada(solicitacao):
         if isinstance(solicitacao, dict)
         else solicitacao.inclusoes
     )
-    return (
-        status_ == "ESCOLA_CANCELOU"
-        or inclusoes_.filter(cancelado_justificativa__isnull=False)
-        .exclude(cancelado_justificativa="")
-        .exists()
-    )
+    return status_ == "ESCOLA_CANCELOU" or inclusoes_.filter(cancelado=True).exists()
 
 
 @register.filter
@@ -448,9 +460,7 @@ def inclusao_multiplos_cancelamentos(solicitacao):
 def inclusoes_canceladas(solicitacao):
     if solicitacao.status == "ESCOLA_CANCELOU":
         return solicitacao.inclusoes.all()
-    return solicitacao.inclusoes.filter(cancelado_justificativa__isnull=False).exclude(
-        cancelado_justificativa=""
-    )
+    return solicitacao.inclusoes.filter(cancelado=True)
 
 
 @register.filter

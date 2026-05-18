@@ -1,4 +1,3 @@
-import calendar
 import datetime
 import unicodedata
 
@@ -19,12 +18,29 @@ from src.inclusao_alimentacao.models import (
 from src.terceirizada.models import Terceirizada
 
 
+def get_data_evento_final_periodo(periodo, data_evento_final_padrao):
+    return (
+        periodo.encerrado_a_partir_de
+        if getattr(periodo, "encerrado_a_partir_de", None)
+        and not getattr(periodo, "cancelado", False)
+        else data_evento_final_padrao
+    )
+
+
 def formata_resultado_inclusoes_etec_autorizadas(dia, mes, ano, inclusao):
     if (
         get_ultimo_dia_mes(datetime.date(int(ano), int(mes), 1)) < datetime.date.today()
         or dia < datetime.date.today().day
     ):
+        data_referencia = datetime.date(int(ano), int(mes), int(dia))
         for qp in inclusao.quantidades_por_periodo.all():
+            if getattr(qp, "cancelado", False):
+                continue
+
+            data_evento_final = get_data_evento_final_periodo(qp, inclusao.data_final)
+            if data_referencia > data_evento_final:
+                continue
+
             alimentacoes = ", ".join(
                 [
                     unicodedata.normalize("NFD", alimentacao.nome.replace(" ", "_"))
@@ -174,31 +190,18 @@ def criar_dict_dias_inclusoes_continuas(
 
 
 def tratar_inclusao_continua(escola, mes, ano, periodo, inclusao, return_dict):
-    data_evento_final_no_mes = None
-    if inclusao.data_evento.month != int(mes) and inclusao.data_evento_2.month == int(
-        mes
-    ):
-        # data_inicial fora e data_final dentro do mês analisado
-        i = datetime.date(int(ano), int(mes), 1).day
-        data_evento_final_no_mes = inclusao.data_evento_2.day
-    elif inclusao.data_evento.month == int(mes) and inclusao.data_evento_2.month != int(
-        mes
-    ):
-        # data_inicial dentro e data_final fora do mês analisado
-        i = inclusao.data_evento.day
-        data_evento_final_no_mes = (inclusao.data_evento + relativedelta(day=31)).day
-    elif inclusao.data_evento.month == int(mes) and inclusao.data_evento_2.month == int(
-        mes
-    ):
-        # data_inicial e data_final dentro do mês analisado
-        i = inclusao.data_evento.day
-        data_evento_final_no_mes = inclusao.data_evento_2.day
-    elif inclusao.data_evento.month != int(mes) and inclusao.data_evento_2.month != int(
-        mes
-    ):
-        # data_inicial e data_final fora do mês analisado
-        i = datetime.date(int(ano), int(mes), 1).day
-        data_evento_final_no_mes = calendar.monthrange(int(ano), int(mes))[1]
+    primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
+    ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+    data_evento_final = get_data_evento_final_periodo(periodo, inclusao.data_evento_2)
+
+    data_inicio_no_mes = max(inclusao.data_evento, primeiro_dia_mes)
+    data_evento_final_no_mes = min(data_evento_final, ultimo_dia_mes)
+
+    if data_evento_final_no_mes < data_inicio_no_mes:
+        return
+
+    i = data_inicio_no_mes.day
+    data_evento_final_no_mes = data_evento_final_no_mes.day
     if (
         escola.ultimo_dia_letivo
         and data_evento_final_no_mes == escola.ultimo_dia_letivo.day

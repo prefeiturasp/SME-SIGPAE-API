@@ -6,7 +6,6 @@ from django.contrib import admin
 from freezegun import freeze_time
 from model_bakery import baker
 
-from ...cardapio.base.models import Cardapio
 from ...dados_comuns.constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, SEM_FILTRO
 from ..admin import PlanilhaAtualizacaoTipoGestaoEscolaAdmin
 from ..models import (
@@ -35,9 +34,7 @@ pytestmark = pytest.mark.django_db
 def test_tipo_unidade_escolar(tipo_unidade_escolar):
     assert isinstance(str(tipo_unidade_escolar), str)
     assert tipo_unidade_escolar.iniciais is not None
-    assert tipo_unidade_escolar.cardapios.all() is not None
-    cardapio_do_dia = tipo_unidade_escolar.get_cardapio(data=datetime.date.today())
-    assert isinstance(cardapio_do_dia, Cardapio)
+    assert tipo_unidade_escolar.periodos_escolares.all() is not None
 
 
 def test_tipo_gestao(tipo_gestao):

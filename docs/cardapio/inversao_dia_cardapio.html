@@ -157,42 +157,6 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_de">
-<span class="sig-name descname"><span class="pre">cardapio_de</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_de" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_de_id">
-<span class="sig-name descname"><span class="pre">cardapio_de_id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_de_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_para">
-<span class="sig-name descname"><span class="pre">cardapio_para</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_para" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_para_id">
-<span class="sig-name descname"><span class="pre">cardapio_para_id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.cardapio_para_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza">
 <span class="sig-name descname"><span class="pre">codae_autoriza</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza" title="Link to this definition"></a></dt>
 <dd><p>NoOp function, ignores all arguments.</p>
@@ -600,7 +564,7 @@ object the first time, the query is executed.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta.exclude">
-<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'criado_por',</span> <span class="pre">'cardapio_de',</span> <span class="pre">'cardapio_para')</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta.exclude" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'criado_por')</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta.exclude" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">

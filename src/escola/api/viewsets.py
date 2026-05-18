@@ -414,13 +414,22 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
                 )
                 .filter(
                     data_inicial__lte=ultimo_dia_mes,
-                    data_final__gte=primeiro_dia_mes,
+                )
+                .filter(
+                    Q(
+                        quantidades_por_periodo__encerrado_a_partir_de__isnull=True,
+                        data_final__gte=primeiro_dia_mes,
+                    )
+                    | Q(
+                        quantidades_por_periodo__encerrado_a_partir_de__gte=primeiro_dia_mes
+                    )
                 )
                 .exclude(motivo__nome="ETEC")
                 .values_list(
                     "quantidades_por_periodo__periodo_escolar__nome",
                     "quantidades_por_periodo__periodo_escolar__uuid",
                 )
+                .distinct()
             )
             return Response({"periodos": periodos if len(periodos) else None})
         except ValidationError as e:

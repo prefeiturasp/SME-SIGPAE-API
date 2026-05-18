@@ -199,10 +199,6 @@
         <span class="n">data_para</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_para&quot;</span><span class="p">)</span>
         <span class="n">data_de_2</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_de_2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">data_para_2</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_para_2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">cardapio_de</span> <span class="ow">or</span> <span class="n">instance</span><span class="o">.</span><span class="n">cardapio_para</span><span class="p">:</span>
-            <span class="n">instance</span><span class="o">.</span><span class="n">cardapio_de</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">instance</span><span class="o">.</span><span class="n">cardapio_para</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
         <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;data_de_inversao&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_de</span>
         <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;data_para_inversao&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_para</span>
         <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;data_de_inversao_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_de_2</span>

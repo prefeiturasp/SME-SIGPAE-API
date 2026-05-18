@@ -423,28 +423,28 @@ def alteracoes_cardapio_dre(escola2):
     return alteracao_cardapio_1, alteracao_cardapio_2, alteracao_cardapio_3
 
 
-@freeze_time("2020-02-03")  # Segunda
 @pytest.fixture
 def alteracoes_cardapio_dre_atual(escola2):
-    alteracao_cardapio_1 = baker.make(
-        AlteracaoCardapio,
-        escola=escola2,
-        criado_em=datetime.date(2019, 3, 1),
-        data_inicial=datetime.date.today() + datetime.timedelta(days=1),
-    )
-    alteracao_cardapio_2 = baker.make(
-        AlteracaoCardapio,
-        escola=escola2,
-        criado_em=datetime.date(2019, 2, 10),
-        data_inicial=datetime.date.today() + datetime.timedelta(days=5),
-    )
-    alteracao_cardapio_3 = baker.make(
-        AlteracaoCardapio,
-        escola=escola2,
-        criado_em=datetime.date(2019, 1, 20),
-        data_inicial=datetime.date.today() + datetime.timedelta(days=20),
-    )
-    return alteracao_cardapio_1, alteracao_cardapio_2, alteracao_cardapio_3
+    with freeze_time("2020-02-03"):  # Segunda
+        alteracao_cardapio_1 = baker.make(
+            AlteracaoCardapio,
+            escola=escola2,
+            criado_em=datetime.date(2019, 3, 1),
+            data_inicial=datetime.date.today() + datetime.timedelta(days=1),
+        )
+        alteracao_cardapio_2 = baker.make(
+            AlteracaoCardapio,
+            escola=escola2,
+            criado_em=datetime.date(2019, 2, 10),
+            data_inicial=datetime.date.today() + datetime.timedelta(days=5),
+        )
+        alteracao_cardapio_3 = baker.make(
+            AlteracaoCardapio,
+            escola=escola2,
+            criado_em=datetime.date(2019, 1, 20),
+            data_inicial=datetime.date.today() + datetime.timedelta(days=20),
+        )
+        return alteracao_cardapio_1, alteracao_cardapio_2, alteracao_cardapio_3
 
 
 @pytest.fixture
@@ -1002,6 +1002,44 @@ def inclusao_alimentacao_continua_varios_meses(escola, periodo_escolar_manha):
 
 
 @pytest.fixture
+def inclusao_alimentacao_continua_com_encerramento_por_periodo(
+    escola, periodo_escolar_integral, periodo_escolar_tarde
+):
+    data_inicial = datetime.date(2023, 4, 1)
+    data_final = datetime.date(2023, 5, 31)
+    inclusao_continua = baker.make(
+        InclusaoAlimentacaoContinua,
+        data_inicial=data_inicial,
+        data_final=data_final,
+        escola=escola,
+        rastro_escola=escola,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=inclusao_continua.uuid,
+        status_evento=1,
+        solicitacao_tipo=7,
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        numero_alunos=40,
+        inclusao_alimentacao_continua=inclusao_continua,
+        periodo_escolar=periodo_escolar_integral,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+        encerrado_a_partir_de=datetime.date(2023, 4, 10),
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        numero_alunos=20,
+        inclusao_alimentacao_continua=inclusao_continua,
+        periodo_escolar=periodo_escolar_tarde,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    return inclusao_continua
+
+
+@pytest.fixture
 def periodo_escolar_integral():
     return baker.make("PeriodoEscolar", nome="INTEGRAL")
 
@@ -1339,6 +1377,7 @@ def dados_para_montar_excel():
         consts_pc.COL_IDX_TIPO_DE_SOLICITACAO,
         consts_pc.COL_IDX_ID_SOLICITACAO,
         consts_pc.COL_IDX_DATA_EVENTO,
+        consts_pc.COL_IDX_ENCERRADO_A_PARTIR_DE,
         consts_pc.COL_IDX_DIA_DA_SEMANA,
         consts_pc.COL_IDX_PERIODO,
         consts_pc.COL_IDX_TIPO_DE_ALIMENTACAO,
@@ -1365,13 +1404,15 @@ def dados_para_montar_excel():
         "C:C": 40,
         "D:D": 30,
         "E:E": 15,
-        "F:G": 30,
-        "H:H": 10,
-        "I:J": 30,
-        "K:K": 13,
-        "L:L": 15,
-        "M:M": 30,
-        "N:N": 20,
+        "F:F": 30,
+        "G:G": 18,
+        "H:H": 30,
+        "I:I": 10,
+        "J:K": 30,
+        "L:L": 13,
+        "M:M": 15,
+        "N:N": 30,
+        "O:O": 20,
     }
     for col, width in columns_width.items():
         worksheet.set_column(col, width)

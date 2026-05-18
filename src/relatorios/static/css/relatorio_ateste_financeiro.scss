@@ -69,6 +69,11 @@
     }
   }
 
+  .tabela-alimentacao {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
   .tabela-relatorio {
     width: 100%;
     max-width: 100%;
@@ -100,12 +105,17 @@
   .tabela-relatorio td:first-child,
   .tabela-relatorio th:first-child {
     text-align: center;
-    width: 32%;
+    width: 34%;
   }
 
-  .tabela-relatorio th:not(:first-child),
-  .tabela-relatorio td:not(:first-child) {
+  .tabela-relatorio th:not(:first-child):not(:last-child),
+  .tabela-relatorio td:not(:first-child):not(:last-child) {
     width: 12%;
+  }
+
+  .tabela-relatorio td:last-child,
+  .tabela-relatorio th:last-child {
+    width: 15%;
   }
 
   .linha-total td {
@@ -121,10 +131,18 @@
     background-color: #67a37e !important;
   }
 
+  .titulo-tabela {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0b8a5a;
+    margin-bottom: 5px;
+    font-family: "Roboto", sans-serif;
+  }
+
   .consolidado-total {
     width: 100%;
-    padding: 16px 24px;
-    font-family: Arial, Helvetica, sans-serif;
+    padding: 10px 24px;
+    font-family: "Roboto", sans-serif;
     color: #1b1b1b;
 
     page-break-inside: avoid;
@@ -132,11 +150,11 @@
     .consolidado-titulo {
       display: flex;
       align-items: flex-end;
-      gap: 12px;
+      gap: 10px;
       font-size: 14px;
       font-weight: 700;
       color: #0b8a5a;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
     }
 
     .consolidado-conteudo {
@@ -156,7 +174,7 @@
     }
 
     .bloco-titulo {
-      font-size: 12px !important;
+      font-size: 11.5px !important;
       font-weight: 700;
       color: #0b8a5a;
     }
@@ -164,7 +182,7 @@
     .caixa {
       background: #eef0f5;
       border-radius: 6px;
-      padding: 14px 16px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       border: 1px solid #cfd4dd;
@@ -211,26 +229,9 @@
   }
 }
 
-.data-geracao {
-  position: running(data-geracao);
-  font-size: 8px;
-  font-family: "Roboto", sans-serif;
-}
-
 @page {
   size: A4;
   margin: 5mm;
   padding-top: 3.6cm !important;
-  padding-bottom: 0.5cm !important;
-
-  @bottom-center {
-    content: "Página " counter(page) " / " counter(pages);
-    padding-top: 5px;
-    font-size: 10px;
-    font-family: "Roboto", sans-serif;
-  }
-
-  @bottom-right {
-    content: element(data-geracao);
-  }
+  padding-bottom: 0.1cm !important;
 }

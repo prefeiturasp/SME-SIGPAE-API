@@ -8,8 +8,6 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
 )
 from src.cardapio.base.models import (
-    ComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
-    SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE,
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -98,11 +96,6 @@ class CargaDadosCommandTest(TestCase):
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.count()
             == 0
         )
-        assert ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count() == 0
-        assert (
-            SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
-            == 0
-        )
         assert Vinculo.objects.count() == 0
         assert Marca.objects.count() == 0
         assert Fabricante.objects.count() == 0
@@ -147,15 +140,6 @@ class CargaDadosCommandTest(TestCase):
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.count()
         )
         assert vinculos == 91
-
-        combos = ComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
-        minimo_combo = 7 * vinculos
-        maximo_combo = 12 * vinculos
-        assert minimo_combo < combos < maximo_combo
-        assert (
-            SubstituicaoDoComboDoVinculoTipoAlimentacaoPeriodoTipoUE.objects.count()
-            == combos
-        )
         minino_produtos = len(data_produtos)
         maximo_produtos = len(data_produtos) + len(data_produtos_marcas)
         assert minino_produtos < Produto.objects.count() < maximo_produtos

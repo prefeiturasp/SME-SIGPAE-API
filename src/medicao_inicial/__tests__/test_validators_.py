@@ -4,6 +4,9 @@ import pytest
 from freezegun.api import freeze_time
 from model_bakery import baker
 
+from src.cardapio.base.models import (
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import TipoTurma
@@ -91,6 +94,98 @@ def test_validate_solicitacoes_programas_e_projetos(
     lista_erros = validate_solicitacoes_programas_e_projetos(
         solicitacao_medicao_inicial_teste_salvar_logs, lista_erros
     )
+    assert len(lista_erros) == 0
+
+
+def test_validate_solicitacoes_programas_e_projetos_ignora_tipo_encerrado_por_quantidade_periodo(
+    solicitacao_medicao_inicial_teste_salvar_logs,
+    tipo_alimentacao_lanche_4h,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    classificacao_dieta_tipo_a,
+):
+    solicitacao = solicitacao_medicao_inicial_teste_salvar_logs
+    data_validacao = datetime.date(2023, 9, 15)
+    dia = f"{data_validacao.day:02d}"
+
+    solicitacao.escola.calendario.filter(data=data_validacao).update(dia_letivo=True)
+
+    inclusao = solicitacao.escola.inclusoes_alimentacao_continua.exclude(
+        motivo__nome="ETEC"
+    ).get()
+    qp_encerrado = inclusao.quantidades_por_periodo.order_by("id").first()
+    qp_encerrado.tipos_alimentacao.set([tipo_alimentacao_lanche_4h])
+    qp_encerrado.encerrado_a_partir_de = datetime.date(2023, 9, 14)
+    qp_encerrado.save()
+
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
+        periodo_escolar=qp_encerrado.periodo_escolar,
+        tipo_unidade_escolar=solicitacao.escola.tipo_unidade,
+    ).tipos_alimentacao.add(tipo_alimentacao_lanche_4h)
+
+    medicao_programas = solicitacao.get_medicao_programas_e_projetos
+    medicao_programas.valores_medicao.filter(
+        nome_campo="lanche_4h",
+        dia=dia,
+        categoria_medicao=categoria_medicao,
+    ).delete()
+
+    baker.make(
+        "LogQuantidadeDietasAutorizadas",
+        data=data_validacao,
+        escola=solicitacao.escola,
+        classificacao=classificacao_dieta_tipo_a,
+        quantidade=10,
+        periodo_escolar=None,
+    )
+    for nome_campo in ["frequencia", "lanche"]:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_programas,
+            nome_campo=nome_campo,
+            dia=dia,
+            categoria_medicao=categoria_medicao_dieta_a,
+            valor="10",
+        )
+
+    lista_erros = validate_solicitacoes_programas_e_projetos(solicitacao, [])
+
+    assert len(lista_erros) == 0
+
+
+def test_validate_solicitacoes_etec_ignora_tipo_encerrado_por_quantidade_periodo(
+    solicitacao_medicao_inicial_teste_salvar_logs,
+    tipo_alimentacao_lanche_4h,
+    categoria_medicao,
+):
+    solicitacao = solicitacao_medicao_inicial_teste_salvar_logs
+    data_validacao = datetime.date(2023, 9, 12)
+    dia = f"{data_validacao.day:02d}"
+
+    solicitacao.escola.calendario.filter(data=data_validacao).update(dia_letivo=True)
+
+    inclusao = solicitacao.escola.inclusoes_alimentacao_continua.get(
+        motivo__nome="ETEC"
+    )
+    qp_encerrado = inclusao.quantidades_por_periodo.order_by("id").first()
+    qp_encerrado.tipos_alimentacao.set([tipo_alimentacao_lanche_4h])
+    qp_encerrado.encerrado_a_partir_de = datetime.date(2023, 9, 11)
+    qp_encerrado.save()
+
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
+        periodo_escolar=qp_encerrado.periodo_escolar,
+        tipo_unidade_escolar=solicitacao.escola.tipo_unidade,
+    ).tipos_alimentacao.add(tipo_alimentacao_lanche_4h)
+
+    medicao_etec = solicitacao.get_medicao_etec
+    medicao_etec.valores_medicao.filter(
+        nome_campo="lanche_4h",
+        dia=dia,
+        categoria_medicao=categoria_medicao,
+    ).delete()
+
+    lista_erros = validate_solicitacoes_etec(solicitacao, [])
+
     assert len(lista_erros) == 0
 
 

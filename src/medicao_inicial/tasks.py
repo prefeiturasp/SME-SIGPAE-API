@@ -37,6 +37,7 @@ from ..relatorios.relatorios import (
     obter_relatorio_da_unidade,
     relatorio_ateste_financeiro_grupo_cei,
     relatorio_ateste_financeiro_grupo_emei,
+    relatorio_ateste_financeiro_grupo_cemei,
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
     relatorio_solicitacao_medicao_por_escola_cei,
@@ -518,8 +519,12 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
             )
 
         grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome
-        if grupo_nome.upper() == "GRUPO 1":
+        if "GRUPO 1" in grupo_nome.upper():
             arquivo = relatorio_ateste_financeiro_grupo_cei(
+                relatorio_financeiro, parametrizacao
+            )
+        elif "GRUPO 2" in grupo_nome.upper():
+            arquivo = relatorio_ateste_financeiro_grupo_cemei(
                 relatorio_financeiro, parametrizacao
             )
         else:
