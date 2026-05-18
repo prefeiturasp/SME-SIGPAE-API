@@ -1361,6 +1361,24 @@ def mocked_response_get_dados_usuario_coresso_cieja_assist_coord_geral():
     }
 
 
+def mocked_response_get_dados_usuario_coresso_coordenador_polo():
+    return {
+        "rf": "1234567",
+        "cpf": "93697506064",
+        "email": "user@escola.com",
+        "cargos": [
+            {
+                "codigoCargo": 97,
+                "descricaoCargo": "COORDENADOR POLO UAB",
+                "codigoUnidade": "400158",
+                "descricaoUnidade": "CEI DIRET - JOSE DE MOURA, VER.",
+                "codigoDre": "108600",
+            }
+        ],
+        "nome": "RONALDO POLO",
+    }
+
+
 @pytest.fixture
 def usuario_administrador_contratos():
     usuario = baker.make("Usuario", username="testuser")
