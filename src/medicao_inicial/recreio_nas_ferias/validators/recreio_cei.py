@@ -257,24 +257,17 @@ def _categoria_tem_logs_dieta_autorizada_cei(
     Returns:
         bool: True se a categoria possui logs autorizados, False caso contrário.
     """
-    if categoria.nome == CATEGORIA_DIETA_TIPO_A:
-        return any(
-            any(
-                "tipo a" in nome
-                for logs_por_faixa in logs_por_dia_do_dia.values()
-                for nome in logs_por_faixa
-            )
-            for logs_por_dia_do_dia in logs_por_dia.values()
-        )
+    termo = (
+        "tipo a"
+        if categoria.nome == CATEGORIA_DIETA_TIPO_A
+        else categoria.nome.split(" - ")[1].lower()
+    )
 
-    termo = categoria.nome.split(" - ")[1].lower()
     return any(
-        any(
-            termo in nome
-            for logs_por_faixa in logs_por_dia_do_dia.values()
-            for nome in logs_por_faixa
-        )
-        for logs_por_dia_do_dia in logs_por_dia.values()
+        termo in nome
+        for logs_do_dia in logs_por_dia.values()
+        for logs_por_faixa in logs_do_dia.values()
+        for nome in logs_por_faixa
     )
 
 
