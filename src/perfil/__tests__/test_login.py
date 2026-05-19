@@ -1,6 +1,8 @@
+import datetime
 import json
 
 import pytest
+from model_bakery import baker
 from rest_framework import status
 
 from src.dados_comuns.constants import (
@@ -10,7 +12,7 @@ from src.dados_comuns.constants import (
 )
 from src.eol_servico.utils import EOLServicoSGP
 from src.escola.__tests__.conftest import mocked_response
-from src.escola.services import NovoSGPServicoLogado
+from src.escola.services import NovoSGPServicoLogado, NovoSGPServicoLogadoException
 from src.perfil.__tests__.conftest import (
     mocked_response_autentica_coresso_adm_ue,
     mocked_response_autentica_coresso_cogestor,
@@ -27,6 +29,7 @@ from src.perfil.__tests__.conftest import (
     mocked_response_get_dados_usuario_coresso_sem_acesso_automatico,
     mocked_response_get_dados_usuario_coresso_sem_email,
 )
+from src.perfil.api.login import LoginView
 from src.perfil.models import Usuario
 from src.perfil.services.autenticacao_service import AutenticacaoService
 from utility.carga_dados.perfil.importa_dados import (
@@ -34,6 +37,103 @@ from utility.carga_dados.perfil.importa_dados import (
 )
 
 pytestmark = pytest.mark.django_db
+
+
+def _cria_perfis_de_escola():
+    return {
+        DIRETOR_UE: baker.make("Perfil", nome=DIRETOR_UE, ativo=True),
+        ADMINISTRADOR_UE: baker.make("Perfil", nome=ADMINISTRADOR_UE, ativo=True),
+    }
+
+
+def _cria_usuario_escola_automatico(dados_usuario, nome_perfil, escola, perfis):
+    usuario = Usuario.objects.create_user(
+        nome=dados_usuario["nome"],
+        username=dados_usuario["rf"],
+        password=DJANGO_ADMIN_PASSWORD,
+        email=dados_usuario["email"],
+        registro_funcional=dados_usuario["rf"],
+        cpf=dados_usuario["cpf"],
+    )
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=escola,
+        perfil=perfis[nome_perfil],
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    return usuario
+
+
+def test_get_or_create_user_cria_usuario_quando_nao_existe_e_tem_acesso_automatico(
+    escola_cei, monkeypatch
+):
+    perfis = _cria_perfis_de_escola()
+
+    monkeypatch.setattr(
+        LoginView,
+        "cria_usuario_no_django_e_no_coresso",
+        lambda _, dados_usuario, nome_perfil: _cria_usuario_escola_automatico(
+            dados_usuario, nome_perfil, escola_cei, perfis
+        ),
+    )
+
+    usuario = LoginView().get_or_create_user(
+        mocked_response_get_dados_usuario_coresso()
+    )
+
+    assert usuario.username == "1234567"
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
+
+
+def test_get_or_create_user_lanca_erro_quando_nao_existe_e_nao_tem_acesso_automatico():
+    with pytest.raises(
+        NovoSGPServicoLogadoException,
+        match="Usuário não possui permissão de acesso ao SIGPAE",
+    ):
+        LoginView().get_or_create_user(
+            mocked_response_get_dados_usuario_coresso_sem_acesso_automatico()
+        )
+
+    assert not Usuario.objects.filter(username="1234567").exists()
+
+
+def test_login_coresso_cria_usuario_inexistente_e_realiza_login(
+    client, escola_cei, monkeypatch
+):
+    data = {"login": "1234567", "password": DJANGO_ADMIN_PASSWORD}
+    perfis = _cria_perfis_de_escola()
+
+    monkeypatch.setattr(
+        AutenticacaoService,
+        "autentica",
+        lambda p1, p2: mocked_response(
+            mocked_response_autentica_coresso_diretor(), 200
+        ),
+    )
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "get_dados_usuario",
+        lambda p1: mocked_response(mocked_response_get_dados_usuario_coresso(), 200),
+    )
+    monkeypatch.setattr(
+        LoginView,
+        "cria_usuario_no_django_e_no_coresso",
+        lambda _, dados_usuario, nome_perfil: _cria_usuario_escola_automatico(
+            dados_usuario, nome_perfil, escola_cei, perfis
+        ),
+    )
+
+    response = client.post(
+        "/login/", content_type="application/json", data=json.dumps(data)
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["token"]
+    usuario = Usuario.objects.get(username=data["login"])
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
+    assert usuario.check_password(data["password"])
 
 
 def test_login_coresso_diretor_sucesso(client_autenticado_da_escola, monkeypatch):
