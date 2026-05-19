@@ -4,7 +4,8 @@ from datetime import timedelta
 
 from django.db.models import QuerySet
 
-from src.escola.models import FaixaEtaria
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+from src.escola.models import Escola, FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,
@@ -21,7 +22,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_ges
     get_linhas_da_tabela_alimentacoes_recreio,
     get_tipos_alimentacao_recreio,
 )
-from src.medicao_inicial.validators import erros_unicos
+from src.medicao_inicial.validators import erros_unicos, lista_erros_com_periodo
 
 CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
 CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME = (
@@ -538,3 +539,298 @@ def buscar_valores_lancamento_alimentacoes_faixa_etaria(
             }
         )
     return lista_erros
+
+
+def validate_lancamento_dietas_medicao_recreio_cei(
+    solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
+) -> list:
+    """Valida os lançamentos de dietas do Recreio nas Férias para CEI.
+
+    Verifica se todas as dietas autorizadas possuem lançamentos preenchidos
+    na medição para todos os dias letivos do período do recreio, considerando
+    as faixas etárias ativas.
+
+    A validação considera:
+        - categorias de dieta cadastradas;
+        - classificações vinculadas às dietas;
+        - dias letivos do período;
+        - logs de dietas autorizadas indexados por data, classificação e faixa etária;
+        - valores lançados na medição por faixa etária.
+
+    Quando existem dietas autorizadas sem lançamento correspondente,
+    adiciona erro à lista e interrompe a validação do período.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação de medição inicial
+            vinculada ao recreio.
+
+        lista_erros (list): Lista acumulada de erros de validação.
+
+    Returns:
+        list: Lista de erros sem duplicidades.
+    """
+    recreio = solicitacao.recreio_nas_ferias
+    categorias = list(
+        CategoriaMedicao.objects.filter(
+            nome__in=[CATEGORIA_DIETA_TIPO_A, "DIETA ESPECIAL - TIPO B"]
+        )
+    )
+    medicao_recreio = solicitacao.medicoes.filter(
+        grupo__nome="Recreio nas Férias"
+    ).first()
+
+    dias_letivos = [
+        f"{dia:02d}"
+        for dia in gerar_dias_letivos_recreio(
+            recreio.data_inicio,
+            recreio.data_fim,
+        )
+    ]
+
+    tipos_alimentacao = get_tipos_alimentacao_recreio(solicitacao)
+    valores_medicao = get_valores_medicao_cei(
+        medicao_recreio,
+        categorias,
+    )
+    logs_indexados = get_logs_indexados_recreio_cei(
+        solicitacao.escola,
+        recreio.data_inicio,
+        recreio.data_fim,
+    )
+    categorias_validas = get_classificacoes_dietas_recreio(
+        categorias, tipos_alimentacao
+    )
+    cache_classificacoes = {
+        categoria.id: get_classificacoes_dietas_cei(categoria)
+        for categoria in categorias_validas
+    }
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for categoria in categorias_validas:
+        classificacoes = cache_classificacoes.get(categoria.id)
+        for dia in dias_letivos:
+            if lista_erros_com_periodo(lista_erros, medicao_recreio, "dietas"):
+                return erros_unicos(lista_erros)
+            for faixa in faixas:
+                periodo_com_erro = validate_lancamento_dietas_cei(
+                    dia=dia,
+                    categoria=categoria,
+                    classificacoes=classificacoes,
+                    valores_medicao=valores_medicao,
+                    mes=solicitacao.mes,
+                    ano=solicitacao.ano,
+                    logs_indexados=logs_indexados,
+                    faixa_etaria=faixa,
+                )
+
+                if periodo_com_erro:
+                    lista_erros.append(
+                        {
+                            "periodo_escolar": medicao_recreio.grupo.nome,
+                            "erro": "Restam dias a serem lançados nas dietas.",
+                        }
+                    )
+                    return erros_unicos(
+                        lista_erros,
+                    )
+
+    return erros_unicos(lista_erros)
+
+
+def get_valores_medicao_cei(
+    medicao: Medicao,
+    categorias: list[CategoriaMedicao],
+) -> set:
+    """Retorna os valores da medição indexados em formato de conjunto.
+
+    Busca os valores de medição vinculados às categorias informadas e retorna
+    uma estrutura otimizada para validações de existência durante o
+    processamento das dietas.
+
+    Cada item do conjunto contém:
+        - nome do campo;
+        - identificador da categoria de medição;
+        - dia do lançamento;
+        - identificador da faixa etária.
+
+    Args:
+        medicao (Medicao): Medição utilizada na busca dos valores lançados.
+
+        categorias (list[CategoriaMedicao]): Lista de categorias de medição
+            utilizadas no filtro.
+
+    Returns:
+        set: Conjunto contendo tuplas no formato:
+
+            ``(nome_campo, categoria_medicao_id, dia, faixa_etaria_id)``
+    """
+    valores_medicao = (
+        medicao.valores_medicao.filter(
+            categoria_medicao__in=categorias, nome_campo="frequencia"
+        )
+        .values_list("nome_campo", "categoria_medicao_id", "dia", "faixa_etaria")
+        .distinct()
+    )
+    return set(valores_medicao)
+
+
+def get_logs_indexados_recreio_cei(
+    escola: Escola,
+    inicio_recreio: datetime.date,
+    fim_recreio: datetime.date,
+) -> dict:
+    """Retorna os logs de dietas autorizadas indexados por data, classificação e faixa etária.
+
+    Busca os logs de dietas autorizadas da escola dentro do período do
+    recreio e agrupa as quantidades por data, classificação da dieta e
+    faixa etária.
+
+    A estrutura retornada é utilizada para otimizar consultas durante as
+    validações de lançamento das dietas.
+
+    Args:
+        escola (Escola): Escola utilizada na busca dos logs.
+
+        inicio_recreio (datetime.date): Data inicial do período do recreio.
+
+        fim_recreio (datetime.date): Data final do período do recreio.
+
+    Returns:
+        dict: Dicionário indexado por tupla contendo:
+
+            - data do log;
+            - identificador da classificação da dieta;
+            - identificador da faixa etária.
+
+            O valor armazenado representa a quantidade total registrada
+            para a combinação informada.
+    """
+    logs = (
+        escola.logs_dietas_autorizadas_recreio_ferias_cei.filter(
+            data__range=[
+                inicio_recreio,
+                fim_recreio,
+            ]
+        )
+        .values_list("data", "classificacao_id", "quantidade", "faixa_etaria")
+        .distinct()
+        .order_by(
+            "data",
+            "classificacao_id",
+        )
+    )
+
+    logs_indexados = defaultdict(int)
+
+    for data_log, classificacao_id, quantidade, faixa_etaria in logs:
+        logs_indexados[(data_log, classificacao_id, faixa_etaria)] += quantidade
+
+    return logs_indexados
+
+
+def validate_lancamento_dietas_cei(
+    dia: str,
+    categoria: CategoriaMedicao,
+    classificacoes: list[ClassificacaoDieta],
+    valores_medicao: dict,
+    mes: str,
+    ano: str,
+    logs_indexados: dict,
+    faixa_etaria: FaixaEtaria,
+) -> bool:
+    """Valida os lançamentos de dietas para um dia e faixa etária específicos.
+
+    Verifica se existem dietas autorizadas registradas nos logs para a
+    categoria, dia e faixa etária informados e valida se existe lançamento
+    correspondente na medição.
+
+    A validação considera:
+        - classificações vinculadas à categoria;
+        - quantidade total registrada nos logs;
+        - faixa etária do lançamento;
+        - valores lançados na medição.
+
+    Args:
+        dia (str): Dia validado no formato ``DD``.
+
+        categoria (CategoriaMedicao): Categoria de medição da dieta.
+
+        classificacoes (list[ClassificacaoDieta]): Lista de classificações
+            vinculadas à categoria.
+
+        valores_medicao (dict): Estrutura indexada contendo os valores
+            lançados na medição.
+
+        mes (str): Mês de referência da validação.
+
+        ano (str): Ano de referência da validação.
+
+        logs_indexados (dict): Estrutura indexada contendo os logs de
+            dietas autorizadas agrupados por data, classificação e faixa
+            etária.
+
+        faixa_etaria (FaixaEtaria): Faixa etária utilizada na validação.
+
+    Returns:
+        bool: ``True`` quando existe lançamento pendente.
+
+            ``False`` quando todos os lançamentos obrigatórios estão
+            preenchidos ou não existem dietas autorizadas para o dia e
+            faixa etária informados.
+    """
+    data_referencia = datetime.date(
+        int(ano),
+        int(mes),
+        int(dia),
+    )
+
+    classificacoes_ids = {classificacao.id for classificacao in classificacoes}
+
+    quantidade_total = sum(
+        logs_indexados.get(
+            (
+                data_referencia,
+                classificacao_id,
+                faixa_etaria.id,
+            ),
+            0,
+        )
+        for classificacao_id in classificacoes_ids
+    )
+
+    if quantidade_total == 0:
+        return False
+
+    valor_existe = ("frequencia", categoria.id, dia, faixa_etaria.id) in valores_medicao
+
+    if not valor_existe:
+        return True
+
+    return False
+
+
+def get_classificacoes_dietas_cei(
+    categoria: CategoriaMedicao,
+) -> list[ClassificacaoDieta]:
+    """Retorna as classificações de dietas vinculadas à categoria informada.
+
+    Para categorias do tipo ``Tipo A``, retorna todas as classificações cujo
+    nome contenha ``"Tipo A"``.
+
+    Para as demais categorias, utiliza o termo extraído do nome da categoria
+    para localizar as classificações correspondentes.
+
+    Args:
+        categoria (CategoriaMedicao): Categoria de medição utilizada na
+            busca das classificações.
+
+    Returns:
+        list[ClassificacaoDieta]: Lista de classificações de dietas
+            associadas à categoria informada.
+    """
+    if "Tipo A" in categoria.nome:
+        classificacoes = ClassificacaoDieta.objects.filter(nome__icontains="Tipo A")
+    else:
+        classificacoes = ClassificacaoDieta.objects.filter(
+            nome__icontains=categoria.nome.split(" - ")[1]
+        )
+    return classificacoes
