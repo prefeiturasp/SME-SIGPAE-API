@@ -22,6 +22,7 @@ from src.perfil.__tests__.conftest import (
     mocked_response_get_dados_usuario_coresso_cieja_coordenador_geral,
     mocked_response_get_dados_usuario_coresso_cogestor,
     mocked_response_get_dados_usuario_coresso_coordenador,
+    mocked_response_get_dados_usuario_coresso_coordenador_polo,
     mocked_response_get_dados_usuario_coresso_gestor,
     mocked_response_get_dados_usuario_coresso_sem_acesso_automatico,
     mocked_response_get_dados_usuario_coresso_sem_email,
@@ -267,6 +268,33 @@ def test_login_coresso_diretor_sem_vinculo_no_sigpae(
         EOLServicoSGP,
         "get_dados_usuario",
         lambda p1: mocked_response(mocked_response_get_dados_usuario_coresso(), 200),
+    )
+    response = client_autenticado_da_escola_sem_vinculo.post(
+        "/login/", content_type="application/json", data=json.dumps(data)
+    )
+    assert response.status_code == status.HTTP_200_OK
+    usuario = Usuario.objects.get(username=data["login"])
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
+
+
+def test_login_coresso_coordenador_polo_sem_vinculo_no_sigpae(
+    client_autenticado_da_escola_sem_vinculo, monkeypatch
+):
+    data = {"login": "1234567", "password": DJANGO_ADMIN_PASSWORD}
+
+    monkeypatch.setattr(
+        AutenticacaoService,
+        "autentica",
+        lambda p1, p2: mocked_response(
+            mocked_response_autentica_coresso_diretor(), 200
+        ),
+    )
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "get_dados_usuario",
+        lambda p1: mocked_response(
+            mocked_response_get_dados_usuario_coresso_coordenador_polo(), 200
+        ),
     )
     response = client_autenticado_da_escola_sem_vinculo.post(
         "/login/", content_type="application/json", data=json.dumps(data)
@@ -549,6 +577,34 @@ def test_login_coresso_cieja_assist_coord_geral_tem_vinculo_diretor_ue(
         "get_dados_usuario",
         lambda p1: mocked_response(
             mocked_response_get_dados_usuario_coresso_cieja_assist_coord_geral(), 200
+        ),
+    )
+    response = client_autenticado_da_escola.post(
+        "/login/", content_type="application/json", data=json.dumps(data)
+    )
+    assert response.status_code == status.HTTP_200_OK
+    usuario = Usuario.objects.get(username=data["login"])
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
+
+
+def test_login_coresso_coordenador_polo_tem_vinculo_diretor_ue(
+    client_autenticado_da_escola, monkeypatch
+):
+    """Usuário com descricaoCargo 'COORDENADOR POLO UAB' deve ter vínculo DIRETOR_UE."""
+    data = {"login": "1234567", "password": DJANGO_ADMIN_PASSWORD}
+
+    monkeypatch.setattr(
+        AutenticacaoService,
+        "autentica",
+        lambda p1, p2: mocked_response(
+            mocked_response_autentica_coresso_diretor(), 200
+        ),
+    )
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "get_dados_usuario",
+        lambda p1: mocked_response(
+            mocked_response_get_dados_usuario_coresso_coordenador_polo(), 200
         ),
     )
     response = client_autenticado_da_escola.post(

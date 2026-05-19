@@ -101,10 +101,15 @@ class LoginView(TokenObtainPairView):
         return dados_usuario
 
     def usuario_com_cargo_de_acesso_automatico(self, dados_usuario):
-        return dados_usuario["cargos"][0]["codigoCargo"] in [
-            cargo["codigo"]
-            for cargo in Perfil.cargos_diretor() + Perfil.cargos_adm_escola()
-        ]
+        return (
+            dados_usuario["cargos"][0]["codigoCargo"]
+            in [
+                cargo["codigo"]
+                for cargo in Perfil.cargos_diretor() + Perfil.cargos_adm_escola()
+            ]
+            or self.eh_cargo_diretor_cieja(dados_usuario)
+            or self.eh_cargo_coordenador_polo(dados_usuario)
+        )
 
     def eh_cargo_diretor_cieja(self, dados_usuario):
         desc_cargo = dados_usuario["cargos"][0]["descricaoCargo"].strip()
@@ -113,11 +118,17 @@ class LoginView(TokenObtainPairView):
             or "CIEJA ASSIST COORD GERAL" in desc_cargo
         )
 
+    def eh_cargo_coordenador_polo(self, dados_usuario):
+        desc_cargo = dados_usuario["cargos"][0]["descricaoCargo"].strip()
+        return "COORDENADOR POLO UAB" in desc_cargo
+
     def usuario_com_cargo_diretor(self, dados_usuario):
         codigo_cargo = dados_usuario["cargos"][0]["codigoCargo"]
-        return codigo_cargo in [
-            cargo["codigo"] for cargo in Perfil.cargos_diretor()
-        ] or self.eh_cargo_diretor_cieja(dados_usuario)
+        return (
+            codigo_cargo in [cargo["codigo"] for cargo in Perfil.cargos_diretor()]
+            or self.eh_cargo_diretor_cieja(dados_usuario)
+            or self.eh_cargo_coordenador_polo(dados_usuario)
+        )
 
     def usuario_com_cargo_automatico_adm_escola(self, dados_usuario):
         return dados_usuario["cargos"][0]["codigoCargo"] in [
