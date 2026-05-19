@@ -491,8 +491,7 @@ def buscar_valores_lancamento_alimentacoes_faixa_etaria(
     período, considerando cada faixa etária ativa para o grupo e categoria
     informados.
 
-    Quando existem dias sem preenchimento para alguma faixa etária e sem
-    observação justificando a ausência, adiciona erro na lista.
+    Quando existem dias sem preenchimento para alguma faixa etária, adiciona erro na lista.
 
     Args:
         solicitacao (SolicitacaoMedicaoInicial):  Solicitação de medição inicial.
@@ -506,22 +505,27 @@ def buscar_valores_lancamento_alimentacoes_faixa_etaria(
     """
     periodo_com_erro = False
     dias_letivos_set = set(dias_letivos)
-    faixas = FaixaEtaria.objects.filter(ativo=True)
 
-    for faixa in faixas:
-        valores_da_medicao = set(
-            ValorMedicao.objects.filter(
-                medicao__solicitacao_medicao_inicial=solicitacao,
-                nome_campo="frequencia",
-                medicao__grupo__nome=grupo,
-                dia__in=dias_letivos,
-                categoria_medicao=categoria_medicao,
-                faixa_etaria=faixa,
-            )
-            .exclude(valor=None)
-            .values_list("dia", flat=True)
+    valores = (
+        ValorMedicao.objects.filter(
+            medicao__solicitacao_medicao_inicial=solicitacao,
+            nome_campo="frequencia",
+            medicao__grupo__nome=grupo,
+            dia__in=dias_letivos,
+            categoria_medicao=categoria_medicao,
+            faixa_etaria__ativo=True,
         )
+        .exclude(valor=None)
+        .values_list("faixa_etaria_id", "dia")
+    )
 
+    valores_por_faixa = defaultdict(set)
+
+    for faixa_id, dia in valores:
+        valores_por_faixa[faixa_id].add(dia)
+
+    for faixa_id in FaixaEtaria.objects.filter(ativo=True).values_list("id", flat=True):
+        valores_da_medicao = valores_por_faixa[faixa_id]
         if valores_da_medicao != dias_letivos_set:
             dias_sem_preenchimento = dias_letivos_set - valores_da_medicao
             if len(dias_sem_preenchimento) > 0:
