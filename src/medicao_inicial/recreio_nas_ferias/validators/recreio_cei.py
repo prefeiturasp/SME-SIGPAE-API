@@ -25,9 +25,6 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_ges
 from src.medicao_inicial.validators import erros_unicos, lista_erros_com_periodo
 
 CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
-CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME = (
-    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
-)
 CATEGORIA_DIETA_TIPO_A = "DIETA ESPECIAL - TIPO A"
 
 
@@ -155,9 +152,6 @@ def cria_valores_medicao_participantes_dietas_autorizadas_cei(
             nome_campo="dietas_autorizadas",
         ).values_list("categoria_medicao_id", "dia", "faixa_etaria")
     )
-    resultados_ordenados = sorted(
-        valores_existentes, key=lambda x: (int(x[1]), x[2], x[0])
-    )
 
     valores_medicao_a_criar = []
     dias_totais = (fim_recreio - inicio_recreio).days
@@ -167,7 +161,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_cei(
         dia = f"{data.day:02d}"
         for categoria in categorias_com_logs:
             for faixa_etaria in faixas:
-                if (categoria.id, dia, faixa_etaria.id) in resultados_ordenados:
+                if (categoria.id, dia, faixa_etaria.id) in valores_existentes:
                     continue
                 valor = retorna_valor_para_log_dieta_autorizada_cei(
                     categoria, logs_por_dia, data, faixa_etaria
@@ -325,7 +319,9 @@ def retorna_valor_para_log_dieta_autorizada_cei(
         return sum(
             quantidade for nome, quantidade in logs_do_dia.items() if "tipo a" in nome
         )
-    return next((quantidade for _, quantidade in logs_do_dia.items()), 0)
+    termo = categoria.nome.split(" - ")[1].lower()
+
+    return sum(quantidade for nome, quantidade in logs_do_dia.items() if termo in nome)
 
 
 def validate_lancamento_alimentacoes_medicao_recreio_cei(
@@ -827,10 +823,11 @@ def get_classificacoes_dietas_cei(
         list[ClassificacaoDieta]: Lista de classificações de dietas
             associadas à categoria informada.
     """
-    if "Tipo A" in categoria.nome:
-        classificacoes = ClassificacaoDieta.objects.filter(nome__icontains="Tipo A")
-    else:
-        classificacoes = ClassificacaoDieta.objects.filter(
-            nome__icontains=categoria.nome.split(" - ")[1]
-        )
-    return classificacoes
+
+    termo = (
+        "Tipo A"
+        if categoria.nome == CATEGORIA_DIETA_TIPO_A
+        else categoria.nome.split(" - ")[1]
+    )
+
+    return ClassificacaoDieta.objects.filter(nome__icontains=termo)
