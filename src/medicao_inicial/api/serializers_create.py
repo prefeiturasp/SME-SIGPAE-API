@@ -1201,14 +1201,14 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             self.cria_valores_medicao_recreio_cei(instance)
             self.valida_finalizar_medicao_recreio_cei(instance)
 
-            # instance.ue_envia(user=self.context["request"].user)
-            # anexos = self._process_anexos(instance)
-            # if hasattr(instance, "ocorrencia"):
-            #     instance.ocorrencia.ue_envia(
-            #         user=self.context["request"].user, anexos=anexos
-            #     )
-            # for medicao in instance.medicoes.all():
-            #     medicao.ue_envia(user=self.context["request"].user)
+            instance.ue_envia(user=self.context["request"].user)
+            anexos = self._process_anexos(instance)
+            if hasattr(instance, "ocorrencia"):
+                instance.ocorrencia.ue_envia(
+                    user=self.context["request"].user, anexos=anexos
+                )
+            for medicao in instance.medicoes.all():
+                medicao.ue_envia(user=self.context["request"].user)
 
     def cria_valores_medicao_recreio_emef_emei_cieja_ceugestao(
         self, instance: SolicitacaoMedicaoInicial
