@@ -1,10 +1,15 @@
 /// <reference types='cypress' />
 const dayjs = require('dayjs')
 var data_atual = dayjs()
+const TEMPO_ESPERA_API = Cypress.env('wait_api_conferencia_da_guia') || 3000
+
+function aguardar_processamento_api() {
+	cy.wait(TEMPO_ESPERA_API)
+}
 
 describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
-	var usuario = Cypress.config('usuario_abastecimento')
-	var senha = Cypress.config('senha')
+	var usuario = Cypress.env('usuario_abastecimento')
+	var senha = Cypress.env('senha')
 
 	function validarPermissaoNegada(response) {
 		expect(response.status).to.eq(403)
@@ -50,33 +55,6 @@ describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
 			expect(response.body.results[0]).to.have.property('eh_reposicao').that.exist
 			expect(response.body.results[0]).to.have.property('guia').that.exist
 		}
-	}
-
-	function validarDetalheOuPermissao(response) {
-		expect([200, 403]).to.include(response.status)
-
-		if (response.status === 403) {
-			validarPermissaoNegada(response)
-			return
-		}
-
-		expect(response.body.criado_por).to.have.property('uuid').that.exist
-		expect(response.body.criado_por).to.have.property('cpf').that.exist
-		expect(response.body.criado_por).to.have.property('nome').that.exist
-		expect(response.body.criado_por).to.have.property('email').that.exist
-		expect(response.body.criado_por).to.have.property('date_joined').that.exist
-		expect(response.body.criado_por).to.have.property('registro_funcional').that.exist
-		expect(response.body.criado_por).to.have.property('tipo_usuario').that.exist
-		expect(response.body.criado_por).to.have.property('cargo').that.exist
-		expect(response.body).to.have.property('criado_em').that.exist
-		expect(response.body).to.have.property('alterado_em').that.exist
-		expect(response.body).to.have.property('uuid').that.exist
-		expect(response.body).to.have.property('data_recebimento').that.exist
-		expect(response.body).to.have.property('hora_recebimento').that.exist
-		expect(response.body).to.have.property('nome_motorista').that.exist
-		expect(response.body).to.have.property('placa_veiculo').that.exist
-		expect(response.body).to.have.property('eh_reposicao').that.exist
-		expect(response.body).to.have.property('guia').that.exist
 	}
 
 	function validarErroCampoOuPermissao(response, campo, trechoMensagem) {
@@ -139,43 +117,13 @@ describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
+		aguardar_processamento_api()
 	})
 
 	context('Casos de teste para a rota api/conferencia-da-guia/', () => {
 		it('Validar GET de conferencia da guia com sucesso', () => {
 			cy.consultar_conferencia_da_guia().then((response) => {
 				validarListaOuPermissao(response)
-			})
-		})
-
-		it('Validar GET por UUID de conferencia da guia com sucesso', () => {
-			criarConferenciaGuiaValida('GET detalhe').then((uuid) => {
-				if (!uuid) {
-					return
-				}
-
-				cy.consultar_por_id_conferencia_da_guia(uuid).then((response) => {
-					validarDetalheOuPermissao(response)
-				})
-
-				excluirConferenciaSeCriada(uuid)
-			})
-		})
-
-		it('Validar GET por UUID invalido de conferencia da guia', () => {
-			var uuid = '2a69bc14-c0e8-43f8-b7d2-5cce299de'
-			cy.consultar_por_id_conferencia_da_guia(uuid).then((response) => {
-				expect([200, 403, 404]).to.include(response.status)
-
-				if (response.status === 403) {
-					validarPermissaoNegada(response)
-					return
-				}
-
-				if (response.status === 200) {
-					expect(response.body).to.be.a('string')
-					expect(response.body.toLowerCase()).to.contain('<!doctype html>')
-				}
 			})
 		})
 

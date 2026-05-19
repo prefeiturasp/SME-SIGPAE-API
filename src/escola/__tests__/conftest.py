@@ -1047,31 +1047,31 @@ def alteracao_cardapio(escola):
     )
 
 
-@freeze_time("2025-01-01")
 @pytest.fixture
 def dieta_codae_autorizou(aluno, escola):
-    aluno.nome = "Antônio"
-    aluno.save()
-    classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
-    solicitacao_dieta = baker.make(
-        "SolicitacaoDietaEspecial",
-        rastro_escola=escola,
-        aluno=aluno,
-        classificacao=classificacao,
-        tipo_solicitacao="COMUM",
-    )
-    solicitacao_dieta.criado_em = datetime.date(2025, 1, 1)
-    solicitacao_dieta.save()
+    with freeze_time("2025-01-01"):
+        aluno.nome = "Antônio"
+        aluno.save()
+        classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
+        solicitacao_dieta = baker.make(
+            "SolicitacaoDietaEspecial",
+            rastro_escola=escola,
+            aluno=aluno,
+            classificacao=classificacao,
+            tipo_solicitacao="COMUM",
+        )
+        solicitacao_dieta.criado_em = datetime.date(2025, 1, 1)
+        solicitacao_dieta.save()
 
-    log = baker.make(
-        "LogSolicitacoesUsuario",
-        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
-        uuid_original=solicitacao_dieta.uuid,
-    )
-    log.criado_em = datetime.date(2025, 1, 1)
-    log.save()
+        log = baker.make(
+            "LogSolicitacoesUsuario",
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            uuid_original=solicitacao_dieta.uuid,
+        )
+        log.criado_em = datetime.date(2025, 1, 1)
+        log.save()
 
-    return solicitacao_dieta
+        return solicitacao_dieta
 
 
 @pytest.fixture

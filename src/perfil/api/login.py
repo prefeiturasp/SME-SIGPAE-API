@@ -101,10 +101,15 @@ class LoginView(TokenObtainPairView):
         return dados_usuario
 
     def usuario_com_cargo_de_acesso_automatico(self, dados_usuario):
-        return dados_usuario["cargos"][0]["codigoCargo"] in [
-            cargo["codigo"]
-            for cargo in Perfil.cargos_diretor() + Perfil.cargos_adm_escola()
-        ]
+        return (
+            dados_usuario["cargos"][0]["codigoCargo"]
+            in [
+                cargo["codigo"]
+                for cargo in Perfil.cargos_diretor() + Perfil.cargos_adm_escola()
+            ]
+            or self.eh_cargo_diretor_cieja(dados_usuario)
+            or self.eh_cargo_coordenador_polo(dados_usuario)
+        )
 
     def eh_cargo_diretor_cieja(self, dados_usuario):
         desc_cargo = dados_usuario["cargos"][0]["descricaoCargo"].strip()
@@ -113,11 +118,17 @@ class LoginView(TokenObtainPairView):
             or "CIEJA ASSIST COORD GERAL" in desc_cargo
         )
 
+    def eh_cargo_coordenador_polo(self, dados_usuario):
+        desc_cargo = dados_usuario["cargos"][0]["descricaoCargo"].strip()
+        return "COORDENADOR POLO UAB" in desc_cargo
+
     def usuario_com_cargo_diretor(self, dados_usuario):
         codigo_cargo = dados_usuario["cargos"][0]["codigoCargo"]
-        return codigo_cargo in [
-            cargo["codigo"] for cargo in Perfil.cargos_diretor()
-        ] or self.eh_cargo_diretor_cieja(dados_usuario)
+        return (
+            codigo_cargo in [cargo["codigo"] for cargo in Perfil.cargos_diretor()]
+            or self.eh_cargo_diretor_cieja(dados_usuario)
+            or self.eh_cargo_coordenador_polo(dados_usuario)
+        )
 
     def usuario_com_cargo_automatico_adm_escola(self, dados_usuario):
         return dados_usuario["cargos"][0]["codigoCargo"] in [
@@ -191,27 +202,58 @@ class LoginView(TokenObtainPairView):
         dados_usuario = self.get_dados_usuario_json(login)
         self.checa_se_mantem_acesso_e_ou_altera_dados(dados_usuario)
 
-    def checa_se_mantem_acesso_e_ou_altera_dados(self, dados_usuario):
-        hoje = datetime.date.today()
-        user = User.objects.get(username=dados_usuario["rf"])
-        if not user.existe_vinculo_ativo:
-            if not self.usuario_com_cargo_de_acesso_automatico(dados_usuario):
-                raise PermissionDenied(
-                    "Usuário não possui permissão de acesso ao SIGPAE"
-                )
-            elif self.usuario_com_cargo_diretor(dados_usuario):
-                perfil = Perfil.objects.get(nome=DIRETOR_UE)
-                self.cria_vinculo(user, hoje, dados_usuario, perfil)
-                return
-            elif self.usuario_com_cargo_automatico_adm_escola(dados_usuario):
-                perfil = Perfil.objects.get(nome=ADMINISTRADOR_UE)
-                self.cria_vinculo(user, hoje, dados_usuario, perfil)
-                return
-        vinculo_atual = user.vinculo_atual
-        if not self.eh_perfil_escola(vinculo_atual):
-            return
+    def get_or_create_user(self, dados_usuario):
+        rf = dados_usuario["rf"]
+
+        try:
+            return User.objects.get(username=rf)
+        except User.DoesNotExist:
+            self.checa_se_cria_usuario(dados_usuario)
+            return User.objects.get(username=rf)
+
+    def garante_acesso_automatico(self, user, dados_usuario, hoje):
+        if not self.usuario_com_cargo_de_acesso_automatico(dados_usuario):
+            raise PermissionDenied("Usuário não possui permissão de acesso ao SIGPAE")
+
+        perfil = self.get_perfil_automatico(dados_usuario)
+
+        if perfil:
+            self.cria_vinculo(user, hoje, dados_usuario, perfil)
+
+    def get_perfil_automatico(self, dados_usuario):
+        if self.usuario_com_cargo_diretor(dados_usuario):
+            return Perfil.objects.get(nome=DIRETOR_UE)
+
+        if self.usuario_com_cargo_automatico_adm_escola(dados_usuario):
+            return Perfil.objects.get(nome=ADMINISTRADOR_UE)
+
+        return None
+
+    def atualiza_perfil_escola(
+        self,
+        vinculo_atual,
+        dados_usuario,
+        user,
+        hoje,
+    ):
         self.se_diretor(vinculo_atual, dados_usuario, user, hoje)
         self.se_administrador(vinculo_atual, dados_usuario, user, hoje)
+
+    def checa_se_mantem_acesso_e_ou_altera_dados(self, dados_usuario):
+        hoje = datetime.date.today()
+
+        user = self.get_or_create_user(dados_usuario)
+
+        if not user.existe_vinculo_ativo:
+            self.garante_acesso_automatico(user, dados_usuario, hoje)
+            return
+
+        vinculo_atual = user.vinculo_atual
+
+        if not self.eh_perfil_escola(vinculo_atual):
+            return
+
+        self.atualiza_perfil_escola(vinculo_atual, dados_usuario, user, hoje)
 
     def validar_email(self, email):
         if not email:

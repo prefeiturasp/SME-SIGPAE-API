@@ -1334,61 +1334,61 @@ def usuario_com_pk():
     return user
 
 
-@freeze_time("2025-1-10")
 @pytest.fixture
 def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
-    aluno = baker.make(
-        Aluno,
-        nome="Roberto Alves da Silva",
-        codigo_eol="123456",
-        data_nascimento="2022-01-01",
-        escola=escola_cei,
-        periodo_escolar=periodo_escolar_integral,
-    )
-    dieta_alterada = baker.make(
-        SolicitacaoDietaEspecial,
-        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
-        ativo=True,
-        data_inicio=datetime.date.today(),
-        tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("COMUM"),
-        escola_destino=escola_cei,
-        aluno=aluno,
-        rastro_escola=escola_cei,
-    )
+    with freeze_time("2025-1-10"):
+        aluno = baker.make(
+            Aluno,
+            nome="Roberto Alves da Silva",
+            codigo_eol="123456",
+            data_nascimento="2022-01-01",
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+        )
+        dieta_alterada = baker.make(
+            SolicitacaoDietaEspecial,
+            status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+            ativo=True,
+            data_inicio=datetime.date.today(),
+            tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("COMUM"),
+            escola_destino=escola_cei,
+            aluno=aluno,
+            rastro_escola=escola_cei,
+        )
 
-    baker.make(
-        SolicitacaoDietaEspecial,
-        status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
-        ativo=False,
-        data_inicio=datetime.date.today(),
-        tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"),
-        dieta_alterada=dieta_alterada,
-        escola_destino=escola_cei,
-        aluno=aluno,
-        rastro_escola=escola_cei,
-    )
-    baker.make(
-        SolicitacaoDietaEspecial,
-        status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-        ativo=False,
-        data_inicio=datetime.date.today(),
-        tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"),
-        dieta_alterada=dieta_alterada,
-        escola_destino=escola_cei,
-        aluno=aluno,
-        rastro_escola=escola_cei,
-    )
-    baker.make(
-        SolicitacaoDietaEspecial,
-        status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
-        ativo=False,
-        data_inicio=datetime.date.today(),
-        tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("COMUM"),
-        dieta_alterada=dieta_alterada,
-        escola_destino=escola_cei,
-        aluno=aluno,
-        rastro_escola=escola_cei,
-    )
+        baker.make(
+            SolicitacaoDietaEspecial,
+            status=DietaEspecialWorkflow.CODAE_AUTORIZADO,
+            ativo=False,
+            data_inicio=datetime.date.today(),
+            tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"),
+            dieta_alterada=dieta_alterada,
+            escola_destino=escola_cei,
+            aluno=aluno,
+            rastro_escola=escola_cei,
+        )
+        baker.make(
+            SolicitacaoDietaEspecial,
+            status=DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
+            ativo=False,
+            data_inicio=datetime.date.today(),
+            tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"),
+            dieta_alterada=dieta_alterada,
+            escola_destino=escola_cei,
+            aluno=aluno,
+            rastro_escola=escola_cei,
+        )
+        baker.make(
+            SolicitacaoDietaEspecial,
+            status=DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
+            ativo=False,
+            data_inicio=datetime.date.today(),
+            tipo_solicitacao=constants.TIPO_SOLICITACAO_DIETA.get("COMUM"),
+            dieta_alterada=dieta_alterada,
+            escola_destino=escola_cei,
+            aluno=aluno,
+            rastro_escola=escola_cei,
+        )
 
 
 @pytest.fixture
