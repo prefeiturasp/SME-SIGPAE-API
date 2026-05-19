@@ -1,0 +1,67 @@
+<!doctype html>
+{% load index %} {% load sass_tags %} {% load safe_html_tags %}
+<html lang="pt-BR">
+  <head>
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/custom_bootstrap.scss' %}"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/relatorio_ateste_financeiro.scss' %}"
+      type="text/css"
+    />
+    <title>SIGPAE</title>
+  </head>
+
+  <body>
+    <div class="relatorio-financeiro">
+      <div>
+        <h2 class="titulo-tabela">Alimentações TURMA INFANTIL da EMEBS</h2>
+        {% include "relatorio_financeiro/componentes/cabecalho.html" with
+        cabecalho=cabecalho %} {% include
+        "relatorio_financeiro/componentes/tabela_alimentacao.html" with
+        linhas=infantil.alimentacao.linhas faixasEtarias=faixasEtarias ordem="A"
+        total_atendimentos=infantil.alimentacao.total_atendimentos
+        valor_total=infantil.alimentacao.valor_total %} {% include
+        "relatorio_financeiro/componentes/tabela_dieta.html" with
+        linhas=infantil.dieta_a.linhas faixasEtarias=faixasEtarias
+        tipoDieta="TIPO A" tipo_class="cor-tipo-a" ordem="B"
+        total_consumo=infantil.dieta_a.total_consumo
+        valor_total=infantil.dieta_a.valor_total %} {% include
+        "relatorio_financeiro/componentes/tabela_dieta.html" with
+        linhas=infantil.dieta_b.linhas faixasEtarias=faixasEtarias
+        tipoDieta="TIPO B" tipo_class="cor-tipo-b" ordem="C"
+        total_consumo=infantil.dieta_b.total_consumo
+        valor_total=infantil.dieta_b.valor_total %}
+      </div>
+      <div class="tabela-alimentacao">
+        <h2 class="titulo-tabela">Alimentações TURMA FUNDAMENTAL da EMEBS</h2>
+        {% include "relatorio_financeiro/componentes/cabecalho.html" with
+        cabecalho=cabecalho %} {% include
+        "relatorio_financeiro/componentes/tabela_alimentacao.html" with
+        linhas=fundamental.alimentacao.linhas faixasEtarias=faixasEtarias
+        ordem="A" total_atendimentos=fundamental.alimentacao.total_atendimentos
+        valor_total=fundamental.alimentacao.valor_total %} {% include
+        "relatorio_financeiro/componentes/tabela_dieta.html" with
+        linhas=fundamental.dieta_a.linhas faixasEtarias=faixasEtarias
+        tipoDieta="TIPO A" tipo_class="cor-tipo-a" ordem="B"
+        total_consumo=fundamental.dieta_a.total_consumo
+        valor_total=fundamental.dieta_a.valor_total %} {% include
+        "relatorio_financeiro/componentes/tabela_dieta.html" with
+        linhas=fundamental.dieta_b.linhas faixasEtarias=faixasEtarias
+        tipoDieta="TIPO B" tipo_class="cor-tipo-b" ordem="C"
+        total_consumo=fundamental.dieta_b.total_consumo
+        valor_total=fundamental.dieta_b.valor_total %} {% for consolidado in
+        consolidados %} {% include
+        "relatorio_financeiro/componentes/consolidado_total.html" with
+        titulo=consolidado.titulo quantidade=consolidado.quantidade
+        titulo_quantidade=consolidado.titulo_quantidade
+        titulo_valor=consolidado.titulo_valor valor=consolidado.valor
+        valor_extenso=consolidado.valor_extenso %} {% endfor %}
+      </div>
+    </div>
+    {% include "relatorio_financeiro/componentes/rodape.html" %}
+  </body>
+</html>
