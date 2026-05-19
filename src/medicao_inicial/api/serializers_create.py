@@ -50,7 +50,7 @@ from src.medicao_inicial.models import (
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
-from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei import (
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips import (
     cria_valores_medicao_participantes_cei,
     cria_valores_medicao_participantes_dietas_autorizadas_cei,
     validate_lancamento_alimentacoes_medicao_recreio_cei,
