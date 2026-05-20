@@ -1021,6 +1021,10 @@ def test_relatorio_historico_ocorrencias_renderiza_todos_os_tipos_de_logs(
     assert "DEVOLVIDO PARA AJUSTES PELA DRE" in html
     assert "Precisa ajustar o valor." in html
 
+    # --- Validação do Log de Correção para CODAE ---
+    assert "Corrigido para CODAE" in html
+    assert "Corrigido ocorrências" in html
+
     # --- Validação do Log de Aprovação (CODAE) ---
     assert "Aprovado pela CODAE" in html
 
