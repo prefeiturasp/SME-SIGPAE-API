@@ -124,7 +124,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_cei(
         data__range=[inicio_recreio, fim_recreio],
         faixa_etaria__isnull=False,
     )
-    logs_por_dia = indexar_logs_dieta_autorizadas_por_data(logs_do_recreio)
+    logs_por_dia = indexar_logs_dieta_autorizadas_por_data_e_faixa(logs_do_recreio)
 
     grupo = "Recreio nas Férias"
     categorias = list(
@@ -180,7 +180,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_cei(
     ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
 
-def indexar_logs_dieta_autorizadas_por_data(
+def indexar_logs_dieta_autorizadas_por_data_e_faixa(
     logs_do_recreio: QuerySet,
 ) -> dict[datetime.date, dict[str, int]]:
     """Indexa logs de dietas autorizadas por data, faixa etária e classificação.
