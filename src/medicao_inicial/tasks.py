@@ -35,14 +35,12 @@ from ..dados_comuns.utils import (
 from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
     obter_relatorio_da_unidade,
-    relatorio_ateste_financeiro_grupo_cei,
-    relatorio_ateste_financeiro_grupo_emei,
-    relatorio_ateste_financeiro_grupo_cemei,
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
     relatorio_solicitacao_medicao_por_escola_emebs,
+    gerar_relatorio_ateste_financeiro,
 )
 from .historico_acesso_ue import tasks as historico_acesso_ue_tasks
 from .models import (
@@ -52,6 +50,7 @@ from .models import (
     SolicitacaoMedicaoInicial,
 )
 from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
+from .services.relatorio_ateste_financeiro import obter_config_grupo
 
 cria_historico_acesso_ue = historico_acesso_ue_tasks.cria_historico_acesso_ue
 finaliza_historico_acesso_ue = historico_acesso_ue_tasks.finaliza_historico_acesso_ue
@@ -492,15 +491,26 @@ def exporta_relatorio_historico_correcoes_pdf(user, nome_arquivo, solicitacao_uu
     soft_time_limit=3000,
 )
 def gera_pdf_relatorio_financeiro_consolidado_async(
-    user, nome_arquivo, uuid_relatorio_financeiro
+    user,
+    nome_arquivo,
+    uuid_relatorio_financeiro,
 ):
-    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
-    obj_central_download = gera_objeto_na_central_download(
-        user=user, identificador=nome_arquivo
+    logger.info(
+        f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x"
     )
+
+    obj_central_download = gera_objeto_na_central_download(
+        user=user,
+        identificador=nome_arquivo,
+    )
+
     try:
-        relatorio_financeiro = RelatorioFinanceiro.objects.get(
-            uuid=uuid_relatorio_financeiro
+        relatorio_financeiro = (
+            RelatorioFinanceiro.objects.select_related(
+                "lote",
+                "grupo_unidade_escolar",
+            )
+            .get(uuid=uuid_relatorio_financeiro)
         )
 
         mes = int(relatorio_financeiro.mes)
@@ -509,32 +519,48 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         parametrizacao = ParametrizacaoFinanceira.objects.filter(
             lote=relatorio_financeiro.lote,
             grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
-            data_inicial__lte=datetime.date(ano, mes, calendar.monthrange(ano, mes)[1]),
+            data_inicial__lte=datetime.date(
+                ano,
+                mes,
+                calendar.monthrange(ano, mes)[1],
+            ),
             data_final__gte=datetime.date(ano, mes, 1),
         ).first()
 
         if not parametrizacao:
-            return Exception(
-                "Parametrização financeira não encontrada para o tipo de unidade e lote do relatório financeiro."
+            raise Exception(
+                "Parametrização financeira não encontrada "
+                "para o tipo de unidade e lote do relatório financeiro."
             )
 
-        grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome
-        if "GRUPO 1" in grupo_nome.upper():
-            arquivo = relatorio_ateste_financeiro_grupo_cei(
-                relatorio_financeiro, parametrizacao
-            )
-        elif "GRUPO 2" in grupo_nome.upper():
-            arquivo = relatorio_ateste_financeiro_grupo_cemei(
-                relatorio_financeiro, parametrizacao
-            )
-        else:
-            arquivo = relatorio_ateste_financeiro_grupo_emei(
-                relatorio_financeiro, parametrizacao
-            )
+        config = obter_config_grupo(
+            relatorio_financeiro.grupo_unidade_escolar.nome
+        )
 
-        atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
+        arquivo = gerar_relatorio_ateste_financeiro(
+            relatorio_financeiro=relatorio_financeiro,
+            parametrizacao=parametrizacao,
+            builder=config["builder"],
+            template=config["template"],
+            tipo_calculo=config["tipo_calculo"],
+        )
+
+        atualiza_central_download(
+            obj_central_download,
+            nome_arquivo,
+            arquivo,
+        )
+
     except Exception as e:
-        atualiza_central_download_com_erro(obj_central_download, str(e))
-        logger.error(f"Erro: {e}")
+        logger.exception(
+            "Erro ao gerar relatório financeiro consolidado"
+        )
 
-    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+        atualiza_central_download_com_erro(
+            obj_central_download,
+            str(e),
+        )
+
+    logger.info(
+        f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x"
+    )
