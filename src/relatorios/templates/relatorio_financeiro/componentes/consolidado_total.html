@@ -4,10 +4,7 @@
 
   <div class="consolidado-conteudo">
     <div class="bloco bloco-quantidade">
-      <span class="bloco-titulo">
-        {{ titulo_quantidade|default:"QUANTIDADE SERVIDA (A+B+C):" }}
-      </span>
-
+      <span class="bloco-titulo">QUANTIDADE SERVIDA:</span>
       <div class="caixa quantidade">
         <span class="valor">{{ quantidade|numero_para_milhar }}</span>
         <span class="unidade">ALIMENTAÇÕES</span>
@@ -15,10 +12,7 @@
     </div>
 
     <div class="bloco bloco-valor bloco-grande">
-      <span class="bloco-titulo">
-        {{ titulo_valor|default:"VALOR DO FATURAMENTO TOTAL (A+B+C):" }}
-      </span>
-
+      <span class="bloco-titulo">VALOR DO FATURAMENTO TOTAL:</span>
       <div class="caixa valor">
         <span class="valor">R$ {{ valor|agrupador_milhar_com_decimal }}</span>
         <span class="extenso">({{ valor_extenso }})</span>

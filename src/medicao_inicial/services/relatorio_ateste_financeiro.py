@@ -599,7 +599,7 @@ def build_relatorio_financeiro_grupo_emei(
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
-        tabelas (QuerySet): Tabelas parametrizadas.
+        tabelas (QuerySet): Conjunto de tabelas da parametrização financeira.
         totais_consumo (dict): Dados de totais de consumo e atendimento.
 
     Returns:
@@ -709,21 +709,19 @@ def build_relatorio_financeiro_grupo_emei(
 # =========================================================
 def build_relatorio_financeiro_grupo_cemei(
     relatorio_financeiro,
-    parametrizacao,
+    tabelas,
     totais_consumo,
 ):
     """Retorna dados para o relatório financeiro do grupo CEMEI (tipo de alimentação e faixa etária).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
-        parametrizacao (Model): Configuração contendo tabelas.
+        tabelas (QuerySet): Conjunto de tabelas da parametrização financeira.
         totais_consumo (dict): Dados de totais de consumo e atendimento.
 
     Returns:
         dict: Estrutura completa do relatório.
     """
-    tabelas = parametrizacao.tabelas.all()
-
     relatorio_cei = build_relatorio_financeiro_grupo_cei(
         relatorio_financeiro,
         tabelas.filter(periodo_escolar__isnull=False),
@@ -754,20 +752,14 @@ def build_relatorio_financeiro_grupo_cemei(
             {
                 **relatorio_cei["consolidado"],
                 "titulo": "CONSOLIDADO CEI (A + B + C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA (A+B+C):",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (A+B+C):",
             },
             {
                 **relatorio_emei["consolidado"],
                 "titulo": "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA (INF. A+INF. B+INF. C):",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (INF. A+INF. B+INF. C):",
             },
             {
                 **consolidado_total,
                 "titulo": "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA:",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL:",
             },
         ],
     }
@@ -778,21 +770,19 @@ def build_relatorio_financeiro_grupo_cemei(
 # =========================================================
 def build_relatorio_financeiro_grupo_emebs(
     relatorio_financeiro,
-    parametrizacao,
+    tabelas,
     totais_consumo,
 ):
     """Retorna dados para o relatório financeiro do grupo EMEBS (tipo de alimentação INFANTIL e FUNDAMENTAL).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
-        parametrizacao (Model): Configuração contendo tabelas.
+        tabelas (QuerySet): Conjunto de tabelas da parametrização financeira.
         totais_consumo (dict): Dados de totais de consumo e atendimento.
 
     Returns:
         dict: Estrutura completa do relatório.
     """
-    tabelas = parametrizacao.tabelas.all()
-
     tabelas_infantil = [
         tabela
         for tabela in tabelas
@@ -834,21 +824,15 @@ def build_relatorio_financeiro_grupo_emebs(
         "consolidados": [
             {
                 **relatorio_infantil["consolidado"],
-                "titulo": "CONSOLIDADO CEI (A + B + C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA (A+B+C):",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (A+B+C):",
+                "titulo": "CONSOLIDADO INFANTIL (INF. A + INF. B + INF. C)",
             },
             {
                 **relatorio_fundamental["consolidado"],
-                "titulo": "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA (INF. A+INF. B+INF. C):",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (INF. A+INF. B+INF. C):",
+                "titulo": "CONSOLIDADO FUNDAMENTAL (FUND. A + FUND. B + FUND. C)",
             },
             {
                 **consolidado_total,
-                "titulo": "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA:",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL:",
+                "titulo": "CONSOLIDADO TOTAL (INF. A + INF. B + INF. C + FUND. A + FUND. B + FUND. C)",
             },
         ],
     }
