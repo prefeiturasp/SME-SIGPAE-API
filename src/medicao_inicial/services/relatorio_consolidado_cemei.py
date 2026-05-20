@@ -32,6 +32,10 @@ from src.medicao_inicial.services.utils import (
 )
 
 PROGRAMAS_E_PROJETOS = "PROGRAMAS E PROJETOS"
+DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
+DIETA_ESPECIAL_TIPO_A_ENTERAL = (
+    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+)
 
 
 def get_alimentacoes_por_periodo(
@@ -152,16 +156,18 @@ def _get_lista_alimentacoes_dietas(
 
 
 def _unificar_dietas(dietas_alimentacoes: dict) -> dict:
-    dieta_principal = "DIETA ESPECIAL - TIPO A - INFANTIL"
-    dieta_alternativa = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS - INFANTIL"
-    )
-    valor_principal = dietas_alimentacoes.get(dieta_principal, [])
-    valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
-    if valor_alternativo:
-        dietas_alimentacoes[dieta_principal] = valor_principal + valor_alternativo
-        dietas_alimentacoes.pop(dieta_alternativa, None)
-    return dietas_alimentacoes
+    dietas_unificadas = {}
+
+    for categoria, alimentacoes in dietas_alimentacoes.items():
+        categoria_normalizada = categoria.replace(
+            DIETA_ESPECIAL_TIPO_A_ENTERAL,
+            DIETA_ESPECIAL_TIPO_A,
+            1,
+        )
+        dietas_unificadas.setdefault(categoria_normalizada, [])
+        dietas_unificadas[categoria_normalizada].extend(alimentacoes)
+
+    return dietas_unificadas
 
 
 def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> dict:
@@ -273,7 +279,8 @@ def _processa_dieta_especial(
     query_params: dict | None = None,
 ) -> str | float:
     periodo = (
-        periodo.replace(" - INFANTIL", "")
+        periodo.replace(DIETA_ESPECIAL_TIPO_A_ENTERAL, DIETA_ESPECIAL_TIPO_A)
+        .replace(" - INFANTIL", "")
         .replace(" - INTEGRAL", "")
         .replace(" - PARCIAL", "")
         .replace(" - PROGRAMAS E PROJETOS", "")
