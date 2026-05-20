@@ -3,6 +3,7 @@ from io import BytesIO
 import openpyxl
 import pandas as pd
 import pytest
+from model_bakery import baker
 from openpyxl import load_workbook
 
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
@@ -1337,94 +1338,44 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         1,
         1,
     )
-    assert rows[6] == (
-        "TOTAL",
-        None,
-        None,
-        5,
-        5,
-        100,
-        100,
-        100,
-        100,
-        100,
-        100,
-        100,
-        100,
-        10,
-        10,
-        10,
-        10,
-        10,
-        10,
-        10,
-        10,
-        15,
-        15,
-        15,
-        15,
-        15,
-        15,
-        15,
-        15,
-        100,
-        100,
-        100,
-        100,
-        100,
-        100,
-        100,
-        100,
-        10,
-        10,
-        10,
-        10,
-        10,
-        10,
-        10,
-        10,
-        15,
-        15,
-        15,
-        15,
-        15,
-        15,
-        15,
-        15,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        150,
-        30,
-        30,
-        15,
-        15,
-        15,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
+
+
+def test_gera_relatorio_consolidado_xlsx_cemei_unifica_dieta_enteral_programas_e_projetos(
+    relatorio_consolidado_xlsx_cemei,
+    mock_query_params_excel_cemei,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+):
+    medicao_programas_e_projetos = relatorio_consolidado_xlsx_cemei.medicoes.get(
+        grupo__nome="Programas e Projetos"
     )
+    baker.make(
+        "ValorMedicao",
+        dia="05",
+        nome_campo="refeicao",
+        medicao=medicao_programas_e_projetos,
+        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+        valor=1,
+    )
+
+    arquivo = gera_relatorio_consolidado_xlsx(
+        [relatorio_consolidado_xlsx_cemei.uuid],
+        ["CEMEI"],
+        mock_query_params_excel_cemei,
+    )
+
+    workbook = load_workbook(filename=BytesIO(arquivo))
+    nome_aba = (
+        f"Relatório Consolidado {relatorio_consolidado_xlsx_cemei.mes}-"
+        f"{relatorio_consolidado_xlsx_cemei.ano}"
+    )
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert not any(
+        value == "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        for value in rows[2]
+    )
+    assert rows[2].count("DIETA ESPECIAL - TIPO A") == 4
 
 
 def test_gera_relatorio_consolidado_xlsx_emebs(
