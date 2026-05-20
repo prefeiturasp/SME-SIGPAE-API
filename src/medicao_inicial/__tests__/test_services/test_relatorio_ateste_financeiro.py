@@ -536,7 +536,7 @@ def test_relatorio_ateste_financeiro_grupo_emebs_conteudo_pdf(
     texto = extrair_texto_de_pdf(pdf_bytes)
 
     assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
-    assert "FEVEREIRO/2026" in texto
+    assert "MAIO/2025" in texto
 
     assert "Grupo 5" in texto
     assert "(EMEBS)" in texto
