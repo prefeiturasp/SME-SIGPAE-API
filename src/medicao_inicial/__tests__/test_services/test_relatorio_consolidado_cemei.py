@@ -4,6 +4,7 @@ from io import BytesIO
 import openpyxl
 import pandas as pd
 import pytest
+from model_bakery import baker
 
 from src.medicao_inicial.models import GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_cemei import (
@@ -166,6 +167,72 @@ def test_unificar_dietas():
         not in resultado
     )
     assert len(resultado["DIETA ESPECIAL - TIPO A - INFANTIL"]) == 5
+
+
+def test_unificar_dietas_tipo_a_programas_e_projetos_sem_coluna_enteral():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A - INFANTIL": ["lanche", "lanche_4h"],
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS - INFANTIL": [
+            "refeicao",
+        ],
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS - PROGRAMAS E PROJETOS": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+        ],
+        "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": ["lanche", "lanche_4h"],
+    }
+
+    resultado = _unificar_dietas(dietas_alimentacoes)
+
+    assert resultado["DIETA ESPECIAL - TIPO A - INFANTIL"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+    ]
+    assert resultado["DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+    ]
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS - INFANTIL"
+        not in resultado
+    )
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS - PROGRAMAS E PROJETOS"
+        not in resultado
+    )
+
+
+def test_get_alimentacoes_por_periodo_unifica_dieta_enteral_programas_e_projetos(
+    relatorio_consolidado_xlsx_cemei,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+):
+    medicao_programas_e_projetos = relatorio_consolidado_xlsx_cemei.medicoes.get(
+        grupo__nome="Programas e Projetos"
+    )
+    baker.make(
+        "ValorMedicao",
+        dia="05",
+        nome_campo="refeicao",
+        medicao=medicao_programas_e_projetos,
+        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+        valor=1,
+    )
+
+    colunas = get_alimentacoes_por_periodo([relatorio_consolidado_xlsx_cemei])
+
+    assert [
+        tupla[1]
+        for tupla in colunas
+        if tupla[0] == "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS"
+    ] == ["lanche", "lanche_4h", "refeicao"]
+    assert not any(
+        tupla[0]
+        == "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS - PROGRAMAS E PROJETOS"
+        for tupla in colunas
+    )
 
 
 def test_sort_and_merge(faixas_etarias_ativas):
