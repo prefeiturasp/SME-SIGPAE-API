@@ -792,7 +792,7 @@ def build_relatorio_financeiro_grupo_emebs(
     relatorio_infantil = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro,
         tabelas_infantil,
-        totais_consumo["INFANTIL"],
+        totais_consumo.get("INFANTIL", {}),
     )
 
     tabelas_fundamental = [
@@ -804,7 +804,7 @@ def build_relatorio_financeiro_grupo_emebs(
     relatorio_fundamental = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro,
         tabelas_fundamental,
-        totais_consumo["FUNDAMENTAL"],
+        totais_consumo.get("FUNDAMENTAL", {}),
     )
 
     consolidado_total = {
