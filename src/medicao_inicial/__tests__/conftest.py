@@ -6906,7 +6906,6 @@ def solicitacao_recreio_cei(
                 nome_campo="participantes",
                 dia=dia,
                 valor=str(participante.num_inscritos - quantidade_dieta_autorizada),
-                faixa_etaria=faixa,
             )
             baker.make(
                 "ValorMedicao",
