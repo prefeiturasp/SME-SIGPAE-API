@@ -3,6 +3,7 @@ postgreSQL.loadDBCommands()
 
 import './commands_api/commands_login'
 import './commands_api/commands_api_token_auth'
+import './commands_api/commands_api_version'
 import './commands_api/commands_analise_sensorial'
 import './commands_api/commands_alimentos'
 import './commands_api/commands_alergias_intolerancias'
