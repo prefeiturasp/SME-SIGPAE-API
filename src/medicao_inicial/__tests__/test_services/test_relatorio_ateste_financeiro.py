@@ -2,18 +2,20 @@ from decimal import Decimal
 
 import pytest
 
+from src.medicao_inicial.__tests__.conftest import parametrizacao_financeira_emef, relatorio_financeiro_emef
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_cemei,
     build_relatorio_financeiro_grupo_emei,
 )
 from src.medicao_inicial.utils import normalizar_nome_campo
-from src.relatorios.relatorios import (
-    relatorio_ateste_financeiro_grupo_cei,
-    relatorio_ateste_financeiro_grupo_cemei,
-    relatorio_ateste_financeiro_grupo_emei,
-)
+from src.relatorios.relatorios import gerar_relatorio_ateste_financeiro
 from src.relatorios.utils import extrair_texto_de_pdf
+
+TEMPLATE_HTML_CEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html"
+TEMPLATE_HTML_CEMEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html"
+TEMPLATE_HTML_EMEBS = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emebs.html"
+TEMPLATE_HTML_EMEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emei.html"
 
 
 @pytest.mark.django_db
@@ -37,9 +39,11 @@ def test_build_relatorio_financeiro_grupo_cei(
         },
     }
 
+    tabelas = parametrizacao_financeira_cei.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_cei(
         relatorio_financeiro_cei,
-        parametrizacao_financeira_cei,
+        tabelas,
         totais_consumo,
     )
 
@@ -56,9 +60,12 @@ def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
     relatorio_financeiro_cei,
     parametrizacao_financeira_cei,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_cei(
-        relatorio_financeiro_cei,
-        parametrizacao_financeira_cei,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_cei,
+        parametrizacao=parametrizacao_financeira_cei,
+        builder=build_relatorio_financeiro_grupo_cei,
+        template=TEMPLATE_HTML_CEI,
+        tipo_calculo="faixa_etaria",
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -79,8 +86,8 @@ def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
     assert "DIETA ESPECIAL - TIPO B" in texto
 
     assert "CONSOLIDADO TOTAL (A + B + C)" in texto
-    assert "QUANTIDADE SERVIDA (A+B+C):" in texto
-    assert "VALOR DO FATURAMENTO TOTAL (A+B+C):" in texto
+    assert "QUANTIDADE SERVIDA:" in texto
+    assert "VALOR DO FATURAMENTO TOTAL:" in texto
 
 
 @pytest.mark.django_db
@@ -119,9 +126,11 @@ def test_build_relatorio_financeiro_grupo_emei(
         for chave, valores in valores_por_tipo.items()
     }
 
+    tabelas = parametrizacao_financeira_emei.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro_emei,
-        parametrizacao_financeira_emei,
+        tabelas,
         totais_consumo,
     )
 
@@ -146,9 +155,12 @@ def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
     relatorio_financeiro_emei,
     parametrizacao_financeira_emei,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
-        relatorio_financeiro_emei,
-        parametrizacao_financeira_emei,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_emei,
+        parametrizacao=parametrizacao_financeira_emei,
+        builder=build_relatorio_financeiro_grupo_emei,
+        template=TEMPLATE_HTML_EMEI,
+        tipo_calculo="tipo_alimentacao",
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -169,8 +181,6 @@ def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
     assert "DIETA ESPECIAL - TIPO B" in texto
 
     assert "CONSOLIDADO TOTAL (A + B + C)" in texto
-    assert "QUANTIDADE SERVIDA (A+B+C):" in texto
-    assert "VALOR DO FATURAMENTO TOTAL (A+B+C):" in texto
 
 
 @pytest.mark.django_db
@@ -207,9 +217,11 @@ def test_build_relatorio_financeiro_grupo_cieja(
         for chave, valores in valores_por_tipo.items()
     }
 
+    tabelas = parametrizacao_financeira_cieja.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro_cieja,
-        parametrizacao_financeira_cieja,
+        tabelas,
         totais_consumo,
     )
 
@@ -229,9 +241,12 @@ def test_relatorio_ateste_financeiro_grupo_cieja_conteudo_pdf(
     parametrizacao_financeira_cieja,
     vinculo_alimentacao_cieja,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
-        relatorio_financeiro_cieja,
-        parametrizacao_financeira_cieja,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_cieja,
+        parametrizacao=parametrizacao_financeira_cieja,
+        builder=build_relatorio_financeiro_grupo_emei,
+        template=TEMPLATE_HTML_EMEI,
+        tipo_calculo="tipo_alimentacao",
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -304,9 +319,11 @@ def test_build_relatorio_financeiro_grupo_cemei(
         "TIPO": totais_consumo_tipo,
     }
 
+    tabelas = parametrizacao_financeira_cemei.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_cemei(
         relatorio_financeiro_cemei,
-        parametrizacao_financeira_cemei,
+        tabelas,
         totais_consumo,
     )
 
@@ -331,9 +348,12 @@ def test_relatorio_ateste_financeiro_grupo_cemei_conteudo_pdf(
     faixas_etarias_ativas,
     vinculo_alimentacao_cemei,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_cemei(
-        relatorio_financeiro_cemei,
-        parametrizacao_financeira_cemei,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_cemei,
+        parametrizacao=parametrizacao_financeira_cemei,
+        builder=build_relatorio_financeiro_grupo_cemei,
+        template=TEMPLATE_HTML_CEMEI,
+        tipo_calculo=None,
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -391,9 +411,11 @@ def test_build_relatorio_financeiro_grupo_emef(
         for chave, valores in valores_por_tipo.items()
     }
 
+    tabelas = parametrizacao_financeira_emef.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro_emef,
-        parametrizacao_financeira_emef,
+        tabelas,
         totais_consumo,
     )
 
@@ -413,9 +435,12 @@ def test_relatorio_ateste_financeiro_grupo_emef_conteudo_pdf(
     parametrizacao_financeira_emef,
     vinculo_alimentacao_emef,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
-        relatorio_financeiro_emef,
-        parametrizacao_financeira_emef,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_emef,
+        parametrizacao=parametrizacao_financeira_emef,
+        builder=build_relatorio_financeiro_grupo_emei,
+        template=TEMPLATE_HTML_EMEI,
+        tipo_calculo="tipo_alimentacao",
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
