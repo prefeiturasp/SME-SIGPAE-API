@@ -2630,9 +2630,11 @@ def gerar_relatorio_ateste_financeiro(
         **kwargs_consumo,
     )
 
+    tabelas = parametrizacao.tabelas.all()
+
     relatorio = builder(
         relatorio_financeiro,
-        parametrizacao,
+        tabelas,
         totais_consumo,
     )
 
