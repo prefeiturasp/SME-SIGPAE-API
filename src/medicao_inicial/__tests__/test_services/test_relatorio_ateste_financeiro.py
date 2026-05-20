@@ -2,11 +2,11 @@ from decimal import Decimal
 
 import pytest
 
-from src.medicao_inicial.__tests__.conftest import parametrizacao_financeira_emef, relatorio_financeiro_emef
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_cemei,
     build_relatorio_financeiro_grupo_emei,
+    build_relatorio_financeiro_grupo_emebs,
 )
 from src.medicao_inicial.utils import normalizar_nome_campo
 from src.relatorios.relatorios import gerar_relatorio_ateste_financeiro
@@ -456,3 +456,90 @@ def test_relatorio_ateste_financeiro_grupo_emef_conteudo_pdf(
 
     assert "REFEIÇÃO" in texto
     assert "REFEIÇÃO - EJA" in texto
+
+
+@pytest.mark.django_db
+def test_build_relatorio_financeiro_grupo_emebs(
+    relatorio_financeiro_emebs,
+    parametrizacao_financeira_emebs,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+    grupo_unidade_escolar_emebs,
+    vinculo_alimentacao_emebs,
+):
+    TIPOS_ALIMENTACOES = [
+        tipo_alimentacao_lanche.nome,
+        tipo_alimentacao_lanche_4h.nome,
+        tipo_alimentacao_refeicao.nome,
+    ]
+
+    GRUPO_NOME = grupo_unidade_escolar_emebs.nome
+
+    valores_por_tipo = {
+        "INFANTIL": {
+            "ALIMENTAÇÃO": [68, 78, 88, 98],
+            "DIETA ESPECIAL - TIPO A": [65, 75, 85, 95],
+            "DIETA ESPECIAL - TIPO B": [69, 79, 89, 99],
+        },
+        "FUNDAMENTAL": {
+            "ALIMENTAÇÃO": [10, 20, 30, 40],
+            "DIETA ESPECIAL - TIPO A": [11, 21, 31, 41],
+            "DIETA ESPECIAL - TIPO B": [12, 22, 32, 42],
+        },
+    }
+
+    totais_consumo = {
+        etapa: {
+            chave: {
+                (
+                    f"total_{normalizar_nome_campo(tipo, GRUPO_NOME).lower()}"
+                    if chave == "ALIMENTAÇÃO"
+                    else normalizar_nome_campo(tipo, GRUPO_NOME).lower()
+                ): valor
+                for tipo, valor in zip(TIPOS_ALIMENTACOES, valores)
+            }
+            for chave, valores in tipos.items()
+        }
+        for etapa, tipos in valores_por_tipo.items()
+    }
+
+    tabelas = parametrizacao_financeira_emebs.tabelas.all()
+
+    resultado = build_relatorio_financeiro_grupo_emebs(
+        relatorio_financeiro_emebs,
+        tabelas,
+        totais_consumo,
+    )
+
+    assert "infantil" in resultado
+    assert "fundamental" in resultado
+
+    assert resultado["cabecalho"]["grupo_unidade_escolar"] == "Grupo 5 (EMEBS)"
+    assert resultado["cabecalho"]["data_referencia"] == "MAIO/2025"
+
+
+@pytest.mark.django_db
+def test_relatorio_ateste_financeiro_grupo_emebs_conteudo_pdf(
+    relatorio_financeiro_emebs,
+    parametrizacao_financeira_emebs,
+    vinculo_alimentacao_emebs,
+):
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_emebs,
+        parametrizacao=parametrizacao_financeira_emebs,
+        builder=build_relatorio_financeiro_grupo_emebs,
+        template=TEMPLATE_HTML_EMEBS,
+        tipo_calculo="tipo_alimentacao",
+    )
+
+    texto = extrair_texto_de_pdf(pdf_bytes)
+
+    assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
+    assert "FEVEREIRO/2026" in texto
+
+    assert "Grupo 5" in texto
+    assert "(EMEBS)" in texto
+
+    assert "TURMA INFANTIL" in texto
+    assert "TURMA FUNDAMENTAL" in texto

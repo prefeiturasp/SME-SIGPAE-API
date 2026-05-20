@@ -6847,8 +6847,8 @@ def relatorio_financeiro_emebs(
         "RelatorioFinanceiro",
         grupo_unidade_escolar=grupo_unidade_escolar_emebs,
         lote=escola_emebs.lote,
-        mes="02",
-        ano="2026",
+        mes="05",
+        ano="2025",
     )
 
 
@@ -6866,8 +6866,8 @@ def parametrizacao_financeira_emebs(
         edital=edital,
         lote=escola_emebs.lote,
         grupo_unidade_escolar=grupo_unidade_escolar_emebs,
-        data_inicial="2026-02-01",
-        data_final="2026-02-31",
+        data_inicial="2025-05-01",
+        data_final="2025-05-31",
         legenda="Parametrização Financeira: Teste Grupo 5 - EMEBS",
     )
 
