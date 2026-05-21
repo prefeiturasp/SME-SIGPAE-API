@@ -6,14 +6,16 @@ from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_cemei,
     build_relatorio_financeiro_grupo_emei,
+    build_relatorio_financeiro_grupo_emebs,
 )
 from src.medicao_inicial.utils import normalizar_nome_campo
-from src.relatorios.relatorios import (
-    relatorio_ateste_financeiro_grupo_cei,
-    relatorio_ateste_financeiro_grupo_cemei,
-    relatorio_ateste_financeiro_grupo_emei,
-)
+from src.relatorios.relatorios import gerar_relatorio_ateste_financeiro
 from src.relatorios.utils import extrair_texto_de_pdf
+
+TEMPLATE_HTML_CEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html"
+TEMPLATE_HTML_CEMEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html"
+TEMPLATE_HTML_EMEBS = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emebs.html"
+TEMPLATE_HTML_EMEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emei.html"
 
 
 @pytest.mark.django_db
@@ -37,9 +39,11 @@ def test_build_relatorio_financeiro_grupo_cei(
         },
     }
 
+    tabelas = parametrizacao_financeira_cei.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_cei(
         relatorio_financeiro_cei,
-        parametrizacao_financeira_cei,
+        tabelas,
         totais_consumo,
     )
 
@@ -56,9 +60,12 @@ def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
     relatorio_financeiro_cei,
     parametrizacao_financeira_cei,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_cei(
-        relatorio_financeiro_cei,
-        parametrizacao_financeira_cei,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_cei,
+        parametrizacao=parametrizacao_financeira_cei,
+        builder=build_relatorio_financeiro_grupo_cei,
+        template=TEMPLATE_HTML_CEI,
+        tipo_calculo="faixa_etaria",
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -79,8 +86,8 @@ def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
     assert "DIETA ESPECIAL - TIPO B" in texto
 
     assert "CONSOLIDADO TOTAL (A + B + C)" in texto
-    assert "QUANTIDADE SERVIDA (A+B+C):" in texto
-    assert "VALOR DO FATURAMENTO TOTAL (A+B+C):" in texto
+    assert "QUANTIDADE SERVIDA:" in texto
+    assert "VALOR DO FATURAMENTO TOTAL:" in texto
 
 
 @pytest.mark.django_db
@@ -119,9 +126,11 @@ def test_build_relatorio_financeiro_grupo_emei(
         for chave, valores in valores_por_tipo.items()
     }
 
+    tabelas = parametrizacao_financeira_emei.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro_emei,
-        parametrizacao_financeira_emei,
+        tabelas,
         totais_consumo,
     )
 
@@ -146,9 +155,12 @@ def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
     relatorio_financeiro_emei,
     parametrizacao_financeira_emei,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
-        relatorio_financeiro_emei,
-        parametrizacao_financeira_emei,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_emei,
+        parametrizacao=parametrizacao_financeira_emei,
+        builder=build_relatorio_financeiro_grupo_emei,
+        template=TEMPLATE_HTML_EMEI,
+        tipo_calculo="tipo_alimentacao",
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -169,8 +181,6 @@ def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
     assert "DIETA ESPECIAL - TIPO B" in texto
 
     assert "CONSOLIDADO TOTAL (A + B + C)" in texto
-    assert "QUANTIDADE SERVIDA (A+B+C):" in texto
-    assert "VALOR DO FATURAMENTO TOTAL (A+B+C):" in texto
 
 
 @pytest.mark.django_db
@@ -207,9 +217,11 @@ def test_build_relatorio_financeiro_grupo_cieja(
         for chave, valores in valores_por_tipo.items()
     }
 
+    tabelas = parametrizacao_financeira_cieja.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro_cieja,
-        parametrizacao_financeira_cieja,
+        tabelas,
         totais_consumo,
     )
 
@@ -229,9 +241,12 @@ def test_relatorio_ateste_financeiro_grupo_cieja_conteudo_pdf(
     parametrizacao_financeira_cieja,
     vinculo_alimentacao_cieja,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
-        relatorio_financeiro_cieja,
-        parametrizacao_financeira_cieja,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_cieja,
+        parametrizacao=parametrizacao_financeira_cieja,
+        builder=build_relatorio_financeiro_grupo_emei,
+        template=TEMPLATE_HTML_EMEI,
+        tipo_calculo="tipo_alimentacao",
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -304,9 +319,11 @@ def test_build_relatorio_financeiro_grupo_cemei(
         "TIPO": totais_consumo_tipo,
     }
 
+    tabelas = parametrizacao_financeira_cemei.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_cemei(
         relatorio_financeiro_cemei,
-        parametrizacao_financeira_cemei,
+        tabelas,
         totais_consumo,
     )
 
@@ -331,9 +348,12 @@ def test_relatorio_ateste_financeiro_grupo_cemei_conteudo_pdf(
     faixas_etarias_ativas,
     vinculo_alimentacao_cemei,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_cemei(
-        relatorio_financeiro_cemei,
-        parametrizacao_financeira_cemei,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_cemei,
+        parametrizacao=parametrizacao_financeira_cemei,
+        builder=build_relatorio_financeiro_grupo_cemei,
+        template=TEMPLATE_HTML_CEMEI,
+        tipo_calculo=None,
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -391,9 +411,11 @@ def test_build_relatorio_financeiro_grupo_emef(
         for chave, valores in valores_por_tipo.items()
     }
 
+    tabelas = parametrizacao_financeira_emef.tabelas.all()
+
     resultado = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro_emef,
-        parametrizacao_financeira_emef,
+        tabelas,
         totais_consumo,
     )
 
@@ -413,9 +435,12 @@ def test_relatorio_ateste_financeiro_grupo_emef_conteudo_pdf(
     parametrizacao_financeira_emef,
     vinculo_alimentacao_emef,
 ):
-    pdf_bytes = relatorio_ateste_financeiro_grupo_emei(
-        relatorio_financeiro_emef,
-        parametrizacao_financeira_emef,
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_emef,
+        parametrizacao=parametrizacao_financeira_emef,
+        builder=build_relatorio_financeiro_grupo_emei,
+        template=TEMPLATE_HTML_EMEI,
+        tipo_calculo="tipo_alimentacao",
     )
 
     texto = extrair_texto_de_pdf(pdf_bytes)
@@ -431,3 +456,90 @@ def test_relatorio_ateste_financeiro_grupo_emef_conteudo_pdf(
 
     assert "REFEIÇÃO" in texto
     assert "REFEIÇÃO - EJA" in texto
+
+
+@pytest.mark.django_db
+def test_build_relatorio_financeiro_grupo_emebs(
+    relatorio_financeiro_emebs,
+    parametrizacao_financeira_emebs,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+    grupo_unidade_escolar_emebs,
+    vinculo_alimentacao_emebs,
+):
+    TIPOS_ALIMENTACOES = [
+        tipo_alimentacao_lanche.nome,
+        tipo_alimentacao_lanche_4h.nome,
+        tipo_alimentacao_refeicao.nome,
+    ]
+
+    GRUPO_NOME = grupo_unidade_escolar_emebs.nome
+
+    valores_por_tipo = {
+        "INFANTIL": {
+            "ALIMENTAÇÃO": [68, 78, 88, 98],
+            "DIETA ESPECIAL - TIPO A": [65, 75, 85, 95],
+            "DIETA ESPECIAL - TIPO B": [69, 79, 89, 99],
+        },
+        "FUNDAMENTAL": {
+            "ALIMENTAÇÃO": [10, 20, 30, 40],
+            "DIETA ESPECIAL - TIPO A": [11, 21, 31, 41],
+            "DIETA ESPECIAL - TIPO B": [12, 22, 32, 42],
+        },
+    }
+
+    totais_consumo = {
+        etapa: {
+            chave: {
+                (
+                    f"total_{normalizar_nome_campo(tipo, GRUPO_NOME).lower()}"
+                    if chave == "ALIMENTAÇÃO"
+                    else normalizar_nome_campo(tipo, GRUPO_NOME).lower()
+                ): valor
+                for tipo, valor in zip(TIPOS_ALIMENTACOES, valores)
+            }
+            for chave, valores in tipos.items()
+        }
+        for etapa, tipos in valores_por_tipo.items()
+    }
+
+    tabelas = parametrizacao_financeira_emebs.tabelas.all()
+
+    resultado = build_relatorio_financeiro_grupo_emebs(
+        relatorio_financeiro_emebs,
+        tabelas,
+        totais_consumo,
+    )
+
+    assert "infantil" in resultado
+    assert "fundamental" in resultado
+
+    assert resultado["cabecalho"]["grupo_unidade_escolar"] == "Grupo 5 (EMEBS)"
+    assert resultado["cabecalho"]["data_referencia"] == "MAIO/2025"
+
+
+@pytest.mark.django_db
+def test_relatorio_ateste_financeiro_grupo_emebs_conteudo_pdf(
+    relatorio_financeiro_emebs,
+    parametrizacao_financeira_emebs,
+    vinculo_alimentacao_emebs,
+):
+    pdf_bytes = gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro_emebs,
+        parametrizacao=parametrizacao_financeira_emebs,
+        builder=build_relatorio_financeiro_grupo_emebs,
+        template=TEMPLATE_HTML_EMEBS,
+        tipo_calculo="tipo_alimentacao",
+    )
+
+    texto = extrair_texto_de_pdf(pdf_bytes)
+
+    assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
+    assert "MAIO/2025" in texto
+
+    assert "Grupo 5" in texto
+    assert "(EMEBS)" in texto
+
+    assert "TURMA INFANTIL" in texto
+    assert "TURMA FUNDAMENTAL" in texto

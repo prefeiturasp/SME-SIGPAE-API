@@ -21,11 +21,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
-from src.medicao_inicial.services.relatorio_ateste_financeiro import (
-    build_relatorio_financeiro_grupo_cei,
-    build_relatorio_financeiro_grupo_cemei,
-    build_relatorio_financeiro_grupo_emei,
-)
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -2615,105 +2610,52 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
     return data
 
 
-def relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao):
+def gerar_relatorio_ateste_financeiro(
+    relatorio_financeiro,
+    parametrizacao,
+    builder,
+    template,
+    tipo_calculo=None,
+):
+    kwargs_consumo = {}
+
+    if tipo_calculo:
+        kwargs_consumo["tipo_calculo"] = tipo_calculo
+
     totais_consumo = calcula_totais_consumo_por_grupo(
         relatorio_financeiro.lote,
         relatorio_financeiro.grupo_unidade_escolar,
         relatorio_financeiro.mes,
         relatorio_financeiro.ano,
-        "faixa_etaria",
+        **kwargs_consumo,
     )
 
-    relatorio_cei = build_relatorio_financeiro_grupo_cei(
+    tabelas = parametrizacao.tabelas.all()
+
+    relatorio = builder(
         relatorio_financeiro,
-        parametrizacao,
+        tabelas,
         totais_consumo,
     )
 
     html_string = render_to_string(
-        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html",
+        template,
         {
-            **relatorio_cei,
+            **relatorio,
             "relatorio": relatorio_financeiro,
         },
     )
 
+    cabecalho = relatorio["cabecalho"]
     grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
 
     return html_to_pdf_file(
         html_string.replace(
             "dt_file",
-            f"{relatorio_cei["cabecalho"]["data_geracao"]} às {relatorio_cei["cabecalho"]["hora_geracao"]}",
+            f'{cabecalho["data_geracao"]} às {cabecalho["hora_geracao"]}',
         ),
-        f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
-        is_async=True,
-    )
-
-
-def relatorio_ateste_financeiro_grupo_emei(relatorio_financeiro, parametrizacao):
-    totais_consumo = calcula_totais_consumo_por_grupo(
-        relatorio_financeiro.lote,
-        relatorio_financeiro.grupo_unidade_escolar,
-        relatorio_financeiro.mes,
-        relatorio_financeiro.ano,
-        "tipo_alimentacao",
-    )
-
-    relatorio_emei = build_relatorio_financeiro_grupo_emei(
-        relatorio_financeiro,
-        parametrizacao,
-        totais_consumo,
-    )
-
-    html_string = render_to_string(
-        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emei.html",
-        {
-            **relatorio_emei,
-            "relatorio": relatorio_financeiro,
-        },
-    )
-
-    grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
-
-    return html_to_pdf_file(
-        html_string.replace(
-            "dt_file",
-            f"{relatorio_emei["cabecalho"]["data_geracao"]} às {relatorio_emei["cabecalho"]["hora_geracao"]}",
+        (
+            f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf"
         ),
-        f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
-        is_async=True,
-    )
-
-
-def relatorio_ateste_financeiro_grupo_cemei(relatorio_financeiro, parametrizacao):
-    totais_consumo = calcula_totais_consumo_por_grupo(
-        relatorio_financeiro.lote,
-        relatorio_financeiro.grupo_unidade_escolar,
-        relatorio_financeiro.mes,
-        relatorio_financeiro.ano,
-    )
-
-    relatorio_cemei = build_relatorio_financeiro_grupo_cemei(
-        relatorio_financeiro,
-        parametrizacao,
-        totais_consumo,
-    )
-
-    html_string = render_to_string(
-        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html",
-        {
-            **relatorio_cemei,
-            "relatorio": relatorio_financeiro,
-        },
-    )
-
-    grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
-
-    return html_to_pdf_file(
-        html_string.replace(
-            "dt_file",
-            f"{relatorio_cemei["cabecalho"]["data_geracao"]} às {relatorio_cemei["cabecalho"]["hora_geracao"]}",
-        ),
-        f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )

@@ -27,6 +27,38 @@ ORDEM_PRIORIDADE = {
 }
 
 
+def obter_config_grupo(grupo_nome):
+    grupos_relatorio = {
+        "GRUPO 1": {
+            "builder": build_relatorio_financeiro_grupo_cei,
+            "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html",
+            "tipo_calculo": "faixa_etaria",
+        },
+        "GRUPO 2": {
+            "builder": build_relatorio_financeiro_grupo_cemei,
+            "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html",
+            "tipo_calculo": None,
+        },
+        "GRUPO 5": {
+            "builder": build_relatorio_financeiro_grupo_emebs,
+            "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emebs.html",
+            "tipo_calculo": "tipo_alimentacao",
+        },
+        "DEFAULT": {
+            "builder": build_relatorio_financeiro_grupo_emei,
+            "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emei.html",
+            "tipo_calculo": "tipo_alimentacao",
+        },
+    }
+
+    grupo_upper = grupo_nome.upper()
+    for grupo, config in grupos_relatorio.items():
+        if grupo != "DEFAULT" and grupo in grupo_upper:
+            return config
+
+    return grupos_relatorio["DEFAULT"]
+
+
 def _buscar_valor_por_faixa(valores, faixa_uuid, tipo):
     """Busca um valor com base na faixa etária e tipo de valor.
 
@@ -306,21 +338,20 @@ def _build_tabela_dieta_cei(tabelas, faixas_etarias, totais_consumo, tipo_dieta)
 
 def build_relatorio_financeiro_grupo_cei(
     relatorio_financeiro,
-    parametrizacao,
+    tabelas,
     totais_consumo,
 ):
     """Retorna dados para o relatório financeiro do grupos por faixa etária (1 e 2).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
-        parametrizacao (Model): Configuração contendo tabelas.
+        tabelas (QuerySet): Tabelas parametrizadas.
         totais_consumo (dict): Dados de totais de consumo e atendimento.
 
     Returns:
         dict: Estrutura completa do relatório.
     """
     faixas_etarias = FaixaEtaria.objects.filter(ativo=True)
-    tabelas = parametrizacao.tabelas.all()
 
     alimentacao = _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo)
 
@@ -561,14 +592,14 @@ def _build_tabela_dieta_emei(
 
 def build_relatorio_financeiro_grupo_emei(
     relatorio_financeiro,
-    parametrizacao,
+    tabelas,
     totais_consumo,
 ):
     """Gera os dados que serão exibidos no relatório financeiro para grupo por tipo de alimentação (2, 3 e 6).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
-        parametrizacao (Model): Valores da parametrização com base no lote/dre e grupo da unidade educacional.
+        tabelas (QuerySet): Conjunto de tabelas da parametrização financeira.
         totais_consumo (dict): Dados de totais de consumo e atendimento.
 
     Returns:
@@ -614,8 +645,6 @@ def build_relatorio_financeiro_grupo_emei(
             "nome": "KIT LANCHE",
         }
     )
-
-    tabelas = parametrizacao.tabelas.all()
 
     alimentacao = _build_tabela_alimentacao_emei(
         tabelas,
@@ -680,14 +709,14 @@ def build_relatorio_financeiro_grupo_emei(
 # =========================================================
 def build_relatorio_financeiro_grupo_cemei(
     relatorio_financeiro,
-    parametrizacao,
+    tabelas,
     totais_consumo,
 ):
     """Retorna dados para o relatório financeiro do grupo CEMEI (tipo de alimentação e faixa etária).
 
     Args:
         relatorio_financeiro (Model): Instância do relatório.
-        parametrizacao (Model): Configuração contendo tabelas.
+        tabelas (QuerySet): Conjunto de tabelas da parametrização financeira.
         totais_consumo (dict): Dados de totais de consumo e atendimento.
 
     Returns:
@@ -695,13 +724,13 @@ def build_relatorio_financeiro_grupo_cemei(
     """
     relatorio_cei = build_relatorio_financeiro_grupo_cei(
         relatorio_financeiro,
-        parametrizacao,
+        tabelas.filter(periodo_escolar__isnull=False),
         totais_consumo["FAIXA"],
     )
 
     relatorio_emei = build_relatorio_financeiro_grupo_emei(
         relatorio_financeiro,
-        parametrizacao,
+        tabelas,
         totais_consumo["TIPO"],
     )
 
@@ -723,20 +752,87 @@ def build_relatorio_financeiro_grupo_cemei(
             {
                 **relatorio_cei["consolidado"],
                 "titulo": "CONSOLIDADO CEI (A + B + C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA (A+B+C):",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (A+B+C):",
             },
             {
                 **relatorio_emei["consolidado"],
                 "titulo": "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA (INF. A+INF. B+INF. C):",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL (INF. A+INF. B+INF. C):",
             },
             {
                 **consolidado_total,
                 "titulo": "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
-                "titulo_quantidade": "QUANTIDADE SERVIDA:",
-                "titulo_valor": "VALOR DO FATURAMENTO TOTAL:",
+            },
+        ],
+    }
+
+
+# =========================================================
+# EMEBS
+# =========================================================
+def build_relatorio_financeiro_grupo_emebs(
+    relatorio_financeiro,
+    tabelas,
+    totais_consumo,
+):
+    """Retorna dados para o relatório financeiro do grupo EMEBS (tipo de alimentação INFANTIL e FUNDAMENTAL).
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório.
+        tabelas (QuerySet): Conjunto de tabelas da parametrização financeira.
+        totais_consumo (dict): Dados de totais de consumo e atendimento.
+
+    Returns:
+        dict: Estrutura completa do relatório.
+    """
+    tabelas_infantil = [
+        tabela
+        for tabela in tabelas
+        if "infantil" in tabela.nome.lower()
+    ]
+
+    relatorio_infantil = build_relatorio_financeiro_grupo_emei(
+        relatorio_financeiro,
+        tabelas_infantil,
+        totais_consumo.get("INFANTIL", {}),
+    )
+
+    tabelas_fundamental = [
+        tabela
+        for tabela in tabelas
+        if "fundamental" in tabela.nome.lower()
+    ]
+
+    relatorio_fundamental = build_relatorio_financeiro_grupo_emei(
+        relatorio_financeiro,
+        tabelas_fundamental,
+        totais_consumo.get("FUNDAMENTAL", {}),
+    )
+
+    consolidado_total = {
+        "quantidade": relatorio_infantil["consolidado"]["quantidade"] + relatorio_fundamental["consolidado"]["quantidade"],
+        "valor": relatorio_infantil["consolidado"]["valor"] + relatorio_fundamental["consolidado"]["valor"],
+        "valor_extenso": num2words(
+            relatorio_infantil["consolidado"]["valor"] + relatorio_fundamental["consolidado"]["valor"],
+            lang="pt_BR",
+            to="currency"
+        ),
+    }
+
+    return {
+        "cabecalho": relatorio_infantil["cabecalho"],
+        "infantil": relatorio_infantil,
+        "fundamental": relatorio_fundamental,
+        "consolidados": [
+            {
+                **relatorio_infantil["consolidado"],
+                "titulo": "CONSOLIDADO INFANTIL (INF. A + INF. B + INF. C)",
+            },
+            {
+                **relatorio_fundamental["consolidado"],
+                "titulo": "CONSOLIDADO FUNDAMENTAL (FUND. A + FUND. B + FUND. C)",
+            },
+            {
+                **consolidado_total,
+                "titulo": "CONSOLIDADO TOTAL (INF. A + INF. B + INF. C + FUND. A + FUND. B + FUND. C)",
             },
         ],
     }

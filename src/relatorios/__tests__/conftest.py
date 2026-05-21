@@ -786,7 +786,16 @@ def solicitacao_com_historico_completo(
         usuario=usuario,
     )
 
-    # 3. Log de Aprovação (Para testar o status final)
+    # 3. Log Corrigido para CODAE (Para testar exibição justificativa)
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
+        justificativa="<p>Corrigido ocorrências</p>",
+        usuario=usuario,
+    )
+
+    # 4. Log de Aprovação (Para testar o status final)
     baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=solicitacao.uuid,

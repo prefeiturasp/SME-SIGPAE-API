@@ -7,23 +7,18 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from xworkflows import InvalidTransitionError
 
-from ...dados_comuns import constants, services
-from ...dados_comuns.mixins.serializer_context import DataSolicitacaoContextMixin
-from ...dados_comuns.permissions import (
+from src.dados_comuns import constants, services
+from src.dados_comuns.mixins.serializer_context import DataSolicitacaoContextMixin
+from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioDiretoriaRegional,
     UsuarioEmpresaGenerico,
     UsuarioEscolaTercTotal,
 )
-from ...eol_servico.utils import EOLException
-from ...relatorios.relatorios import (
-    relatorio_inclusao_alimentacao_cei,
-    relatorio_inclusao_alimentacao_cemei,
-    relatorio_inclusao_alimentacao_continua,
-    relatorio_inclusao_alimentacao_normal,
-)
-from ..models import (
+from src.eol_servico.utils import EOLException
+from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,
     InclusaoAlimentacaoDaCEI,
@@ -31,6 +26,13 @@ from ..models import (
     MotivoInclusaoContinua,
     MotivoInclusaoNormal,
 )
+from src.relatorios.relatorios import (
+    relatorio_inclusao_alimentacao_cei,
+    relatorio_inclusao_alimentacao_cemei,
+    relatorio_inclusao_alimentacao_continua,
+    relatorio_inclusao_alimentacao_normal,
+)
+
 from .serializers import serializers, serializers_create
 
 
@@ -565,7 +567,6 @@ class InclusaoAlimentacaoContinuaViewSet(
         url_path=constants.ESCOLA_CANCELA,
     )
     def escola_cancela_pedido(self, request, uuid=None):
-        from ...dados_comuns.models import LogSolicitacoesUsuario
 
         obj = self.get_object()
         quantidades_periodo = request.data.get("quantidades_periodo", [])
@@ -590,6 +591,7 @@ class InclusaoAlimentacaoContinuaViewSet(
                     usuario=request.user,
                     justificativa=justificativa,
                 )
+                services.enviar_email_ue_cancelar_pedido_parcialmente(obj)
             else:
                 if len(uuids_selecionados) == obj.quantidades_periodo.count():
                     obj.cancelar_pedido(user=request.user, justificativa=justificativa)
