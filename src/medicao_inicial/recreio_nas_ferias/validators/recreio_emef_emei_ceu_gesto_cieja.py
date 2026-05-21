@@ -17,6 +17,7 @@ from src.medicao_inicial.recreio_nas_ferias.models import (
     RecreioNasFeriasUnidadeParticipante,
 )
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import agrupar_tipos_alimentacao_por_categoria, valida_campo_participantes
 from src.medicao_inicial.utils import get_name_campo
 from src.medicao_inicial.validators import (
     erros_unicos,
@@ -54,51 +55,8 @@ def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
     }
     if existe_colaborador(participantes):
         informacoes_participantes["Colaboradores"] = participantes.num_colaboradores
-
-    grupos = list(informacoes_participantes.keys())
-
-    categoria = CategoriaMedicao.objects.get(nome=CATEGORIA_ALIMENTACAO_NOME)
-    grupos_medicao_existentes = {
-        medicao.grupo.nome: medicao
-        for medicao in instance.medicoes.filter(grupo__nome__in=grupos).select_related(
-            "grupo"
-        )
-    }
-    grupos_obj = {
-        grupo.nome: grupo for grupo in GrupoMedicao.objects.filter(nome__in=grupos)
-    }
-
-    valores_medicao_a_criar = []
-    inicio_recreio = recreio.data_inicio
-    dias_totais = (recreio.data_fim - inicio_recreio).days
-
-    for numero_dia in range(dias_totais + 1):
-        dia = f"{(inicio_recreio + timedelta(days=numero_dia)).day:02d}"
-        for grupo in grupos:
-            medicao = grupos_medicao_existentes.get(grupo)
-            if medicao is None:
-                medicao = Medicao.objects.create(
-                    solicitacao_medicao_inicial=instance,
-                    grupo=grupos_obj[grupo],
-                )
-                grupos_medicao_existentes[grupo] = medicao
-
-            if not medicao.valores_medicao.filter(
-                categoria_medicao=categoria,
-                dia=dia,
-                nome_campo="participantes",
-            ).exists():
-                valores_medicao_a_criar.append(
-                    ValorMedicao(
-                        medicao=medicao,
-                        categoria_medicao=categoria,
-                        dia=dia,
-                        nome_campo="participantes",
-                        valor=informacoes_participantes[grupo],
-                    )
-                )
-
-    ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
+        
+    valida_campo_participantes(instance, informacoes_participantes)
 
 
 def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao(
@@ -337,30 +295,6 @@ def validate_lancamento_alimentacoes_medicao_recreio(
             lista_erros,
         )
     return erros_unicos(lista_erros)
-
-
-def agrupar_tipos_alimentacao_por_categoria(
-    tipos_alimentacao: QuerySet,
-) -> dict[str, list]:
-    """Agrupa tipos de alimentação por categoria.
-
-    Args:
-        tipos_alimentacao (QuerySet):
-            Queryset contendo os tipos de alimentação.
-
-    Returns:
-        dict[str, list]: Dicionário com os tipos de alimentação agrupados
-            pelo nome da categoria.
-    """
-    agrupados = defaultdict(list)
-
-    for tipo in tipos_alimentacao.select_related(
-        "categoria",
-        "tipo_alimentacao",
-    ):
-        agrupados[tipo.categoria.nome].append(tipo.tipo_alimentacao.nome)
-
-    return dict(agrupados)
 
 
 def get_linhas_da_tabela_alimentacoes_recreio(alimentacoes: list[str]) -> list[str]:
