@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from freezegun import freeze_time
 from model_bakery import baker
@@ -812,14 +814,21 @@ def test_url_endpoint_inclusao_continua_escola_encerra_periodo_parcial(
             {"uuid": "6f16b41d-151e-4f82-a0d0-43921a9edabe", "cancelado": False},
         ],
     }
-    response = client_autenticado_vinculo_escola_inclusao.patch(
-        f"/inclusoes-alimentacao-continua/{inclusao_alimentacao_continua_codae_autorizado.uuid}/"
-        f"{ESCOLA_CANCELA}/",
-        content_type="application/json",
-        data=data,
-    )
+    with patch(
+        "src.inclusao_alimentacao.api.viewsets.services.enviar_email_ue_cancelar_pedido_parcialmente"
+    ) as mock_enviar_email:
+        response = client_autenticado_vinculo_escola_inclusao.patch(
+            f"/inclusoes-alimentacao-continua/{inclusao_alimentacao_continua_codae_autorizado.uuid}/"
+            f"{ESCOLA_CANCELA}/",
+            content_type="application/json",
+            data=data,
+        )
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["status"] == PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO
+    mock_enviar_email.assert_called_once_with(
+        inclusao_alimentacao_continua_codae_autorizado
+    )
 
     qtd_alterada = next(
         q
