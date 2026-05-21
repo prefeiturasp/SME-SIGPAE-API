@@ -14,8 +14,8 @@ from src.medicao_inicial.models import (
     ValorMedicao,
 )
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import agrupar_tipos_alimentacao_por_categoria, valida_campo_participantes
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
-    agrupar_tipos_alimentacao_por_categoria,
     buscar_valores_lancamento_alimentacoes_recreio,
     existe_colaborador,
     get_classificacoes_dietas_recreio,
@@ -51,50 +51,52 @@ def cria_valores_medicao_participantes_cei(instance: SolicitacaoMedicaoInicial) 
     if existe_colaborador(participantes):
         informacoes_participantes["Colaboradores"] = participantes.num_colaboradores
 
-    grupos = list(informacoes_participantes.keys())
+    valida_campo_participantes(instance, informacoes_participantes)
+    
+    # grupos = list(informacoes_participantes.keys())
 
-    categoria = CategoriaMedicao.objects.get(nome=CATEGORIA_ALIMENTACAO_NOME)
-    grupos_medicao_existentes = {
-        medicao.grupo.nome: medicao
-        for medicao in instance.medicoes.filter(grupo__nome__in=grupos).select_related(
-            "grupo"
-        )
-    }
-    grupos_obj = {
-        grupo.nome: grupo for grupo in GrupoMedicao.objects.filter(nome__in=grupos)
-    }
+    # categoria = CategoriaMedicao.objects.get(nome=CATEGORIA_ALIMENTACAO_NOME)
+    # grupos_medicao_existentes = {
+    #     medicao.grupo.nome: medicao
+    #     for medicao in instance.medicoes.filter(grupo__nome__in=grupos).select_related(
+    #         "grupo"
+    #     )
+    # }
+    # grupos_obj = {
+    #     grupo.nome: grupo for grupo in GrupoMedicao.objects.filter(nome__in=grupos)
+    # }
 
-    valores_medicao_a_criar = []
-    inicio_recreio = recreio.data_inicio
-    dias_totais = (recreio.data_fim - inicio_recreio).days
+    # valores_medicao_a_criar = []
+    # inicio_recreio = recreio.data_inicio
+    # dias_totais = (recreio.data_fim - inicio_recreio).days
 
-    for numero_dia in range(dias_totais + 1):
-        dia = f"{(inicio_recreio + timedelta(days=numero_dia)).day:02d}"
-        for grupo in grupos:
-            medicao = grupos_medicao_existentes.get(grupo)
-            if medicao is None:
-                medicao = Medicao.objects.create(
-                    solicitacao_medicao_inicial=instance,
-                    grupo=grupos_obj[grupo],
-                )
-                grupos_medicao_existentes[grupo] = medicao
+    # for numero_dia in range(dias_totais + 1):
+    #     dia = f"{(inicio_recreio + timedelta(days=numero_dia)).day:02d}"
+    #     for grupo in grupos:
+    #         medicao = grupos_medicao_existentes.get(grupo)
+    #         if medicao is None:
+    #             medicao = Medicao.objects.create(
+    #                 solicitacao_medicao_inicial=instance,
+    #                 grupo=grupos_obj[grupo],
+    #             )
+    #             grupos_medicao_existentes[grupo] = medicao
 
-            if not medicao.valores_medicao.filter(
-                categoria_medicao=categoria,
-                dia=dia,
-                nome_campo="participantes",
-            ).exists():
-                valores_medicao_a_criar.append(
-                    ValorMedicao(
-                        medicao=medicao,
-                        categoria_medicao=categoria,
-                        dia=dia,
-                        nome_campo="participantes",
-                        valor=informacoes_participantes[grupo],
-                    )
-                )
+    #         if not medicao.valores_medicao.filter(
+    #             categoria_medicao=categoria,
+    #             dia=dia,
+    #             nome_campo="participantes",
+    #         ).exists():
+    #             valores_medicao_a_criar.append(
+    #                 ValorMedicao(
+    #                     medicao=medicao,
+    #                     categoria_medicao=categoria,
+    #                     dia=dia,
+    #                     nome_campo="participantes",
+    #                     valor=informacoes_participantes[grupo],
+    #                 )
+    #             )
 
-    ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
+    # ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
 
 def cria_valores_medicao_participantes_dietas_autorizadas_cei(
