@@ -15,6 +15,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips impo
 )
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     agrupar_tipos_alimentacao_por_categoria,
+    existe_colaborador,
 )
 
 pytestmark = pytest.mark.django_db
@@ -23,7 +24,7 @@ pytestmark = pytest.mark.django_db
 def test_validate_lancamento_alimentacoes_medicao_recreio_cei(solicitacao_recreio_cei):
 
     lista_erros = []
-    validate_lancamento_alimentacoes_medicao_recreio_cei(
+    lista_erros = validate_lancamento_alimentacoes_medicao_recreio_cei(
         solicitacao_recreio_cei, lista_erros
     )
     assert len(lista_erros) == 0
@@ -391,3 +392,111 @@ def test_categoria_tem_logs_dieta_autorizada_cei_retorna_false(
     )
 
     assert resultado is False
+
+
+def test_existe_colaborador_retorna_false_quando_nao_tem_colaboradores(
+    solicitacao_recreio_cei,
+):
+    participante = (
+        solicitacao_recreio_cei.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participante.num_colaboradores = 0
+    participante.save()
+
+    assert existe_colaborador(participante) is False
+
+
+def test_existe_colaborador_retorna_false_quando_nao_tem_tipos_alimentacao_com_colaboradores(
+    solicitacao_recreio_cei,
+):
+    participante = (
+        solicitacao_recreio_cei.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+
+    assert participante.num_colaboradores > 0
+    assert existe_colaborador(participante) is False
+
+
+def test_cria_valores_medicao_participantes_cei_sem_tipo_alimentacao_colaboradores(
+    solicitacao_recreio_cei,
+):
+    participante = (
+        solicitacao_recreio_cei.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+
+    assert participante.num_colaboradores > 0
+    assert existe_colaborador(participante) is False
+
+    ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cei,
+        medicao__grupo__nome="Recreio nas Férias",
+        nome_campo="participantes",
+    ).delete()
+    ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cei,
+        medicao__grupo__nome="Colaboradores",
+        nome_campo="participantes",
+    ).delete()
+
+    cria_valores_medicao_participantes_cei(solicitacao_recreio_cei)
+
+    participantes_valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cei,
+        medicao__grupo__nome="Recreio nas Férias",
+        nome_campo="participantes",
+    )
+    colaboradores_valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cei,
+        medicao__grupo__nome="Colaboradores",
+        nome_campo="participantes",
+    )
+
+    assert participantes_valores.exists()
+    assert colaboradores_valores.count() == 0
+
+
+def test_validate_lancamento_alimentacoes_medicao_recreio_ignora_colaboradores_sem_tipo_alimentacao(
+    solicitacao_recreio_cei,
+):
+    participante = (
+        solicitacao_recreio_cei.recreio_nas_ferias.unidades_participantes.first()
+    )
+
+    participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+
+    assert participante.num_colaboradores > 0
+    assert existe_colaborador(participante) is False
+
+    lista_erros = []
+
+    lista_erros = validate_lancamento_alimentacoes_medicao_recreio_cei(
+        solicitacao_recreio_cei,
+        lista_erros,
+    )
+
+    assert lista_erros == []
+
+
+def test_retorna_valor_para_log_dieta_autorizada_cei_quando_nao_existe(
+    solicitacao_recreio_cei, categoria_medicao_dieta_b, faixas_etarias_ativas
+):
+    escola = solicitacao_recreio_cei.escola
+    recreio = solicitacao_recreio_cei.recreio_nas_ferias
+    inicio_recreio = recreio.data_inicio
+    fim_recreio = recreio.data_fim
+
+    logs_do_recreio = escola.logs_dietas_autorizadas_recreio_ferias_cei.filter(
+        data__range=[inicio_recreio, fim_recreio],
+    )
+    logs_por_dia = indexar_logs_dieta_autorizadas_por_data_e_faixa(logs_do_recreio)
+    data = datetime.date(2025, 12, 10)
+    resultado = retorna_valor_para_log_dieta_autorizada_cei(
+        categoria_medicao_dieta_b, logs_por_dia, data, faixas_etarias_ativas[1]
+    )
+
+    assert resultado == 0
