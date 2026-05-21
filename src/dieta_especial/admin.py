@@ -19,6 +19,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoAlteracaoUE,
     MotivoNegacao,
 )
+from src.escola.models import FaixaEtaria
 from src.escola.utils_analise_dietas_ativas import main
 from src.escola.utils_escola import create_tempfile, escreve_escolas_json
 from src.processamento_arquivos.dieta_especial import (
@@ -303,6 +304,22 @@ class LogQuantidadeDietasAutorizadasAdmin(admin.ModelAdmin):
     )
 
 
+class FaixaEtariaAtivaFilter(admin.SimpleListFilter):
+    title = "faixa etária"
+    parameter_name = "faixa_etaria"
+
+    def lookups(self, request, model_admin):
+        return [
+            (str(faixa.id), str(faixa))
+            for faixa in FaixaEtaria.objects.filter(ativo=True)
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(faixa_etaria_id=self.value())
+        return queryset
+
+
 @admin.register(LogQuantidadeDietasAutorizadasCEI)
 class LogQuantidadeDietasAutorizadasCEIAdmin(admin.ModelAdmin):
     list_display = (
@@ -319,7 +336,7 @@ class LogQuantidadeDietasAutorizadasCEIAdmin(admin.ModelAdmin):
         ("data", DateRangeFilter),
         "classificacao",
         "periodo_escolar",
-        "faixa_etaria",
+        FaixaEtariaAtivaFilter,
     )
 
 
@@ -353,7 +370,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin(admin.ModelAdmin):
     list_filter = (
         ("data", DateRangeFilter),
         "classificacao",
-        "faixa_etaria",
+        FaixaEtariaAtivaFilter,
     )
 
 

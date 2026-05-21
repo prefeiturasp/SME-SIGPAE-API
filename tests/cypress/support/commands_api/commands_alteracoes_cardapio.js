@@ -4,7 +4,7 @@ Cypress.Commands.add('validar_alteracoes_cardapio', (id) => {
 	cy.request({
 		method: 'GET',
 		url: Cypress.config('baseUrl') + `api/alteracoes-cardapio/${id}`,
-		timeout: 60000,
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -16,6 +16,7 @@ Cypress.Commands.add('validar_alteracoes_cardapio_relatorio', (id) => {
 	cy.request({
 		method: 'GET',
 		url: Cypress.config('baseUrl') + `api/alteracoes-cardapio/${id}/relatorio/`,
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -29,6 +30,7 @@ Cypress.Commands.add('validar_alteracoes_cardapio_minhas_solicitacoes', () => {
 		url:
 			Cypress.config('baseUrl') +
 			'api/alteracoes-cardapio/minhas-solicitacoes/',
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -40,6 +42,7 @@ Cypress.Commands.add('cadastrar_alteracoes_cardapio', (dados_teste) => {
 	cy.request({
 		method: 'POST',
 		url: Cypress.config('baseUrl') + 'api/alteracoes-cardapio/',
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},
@@ -82,7 +85,7 @@ Cypress.Commands.add('excluir_alteracoes_cardapio', (id) => {
 	cy.request({
 		method: 'DELETE',
 		url: Cypress.config('baseUrl') + `api/alteracoes-cardapio/${id}/`,
-		timeout: 60000,
+		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
 		},

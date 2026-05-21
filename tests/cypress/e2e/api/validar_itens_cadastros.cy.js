@@ -1,6 +1,11 @@
 describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_codae')
-	var senha = Cypress.config('senha')
+	var usuario = Cypress.env('usuario_codae')
+	var senha = Cypress.env('senha')
+	const TEMPO_ESPERA_API = Cypress.env('wait_api_itens_cadastros') || 3000
+
+	function aguardar_processamento_api() {
+		cy.wait(TEMPO_ESPERA_API)
+	}
 
 	function criarNomeUnico(prefixo) {
 		return `${prefixo} ${Date.now()} ${Cypress._.random(1000, 9999)}`
@@ -29,6 +34,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
+		aguardar_processamento_api()
 	})
 
 	context('Rota api/itens-cadastros/', () => {
@@ -184,7 +190,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação'
+			var nome_teste = criarNomeUnico('Testes Automação')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -227,7 +233,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCAS', 'FABRICANTES', 'UNIDADES_MEDIDAS', 'EMBALAGENS']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação'
+			var nome_teste = criarNomeUnico('Testes Automação Tipo Inválido')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -267,7 +273,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação DELETE'
+			var nome_teste = criarNomeUnico('Testes Automação DELETE')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -299,7 +305,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação PUT'
+			var nome_teste = criarNomeUnico('Testes Automação PUT')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
@@ -336,7 +342,7 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			const opcoes = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 			var tipo_teste = opcoes[Math.floor(Math.random() * opcoes.length)] // NOSONAR
 
-			var nome_teste = 'Testes Automação PUT - Tipo Inválido'
+			var nome_teste = criarNomeUnico('Testes Automação PUT - Tipo Inválido')
 			var dados_teste = {
 				nome: nome_teste,
 				tipo: tipo_teste,
