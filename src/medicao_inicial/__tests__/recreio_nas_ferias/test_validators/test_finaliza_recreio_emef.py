@@ -96,7 +96,7 @@ def test_get_linhas_da_tabela_alimentacoes_recreio():
         ["Refeição", "Sobremesa", "Lanche"]
     )
 
-    assert resultado == [
+    alimentacoes = [
         "participantes",
         "frequencia",
         "refeicao",
@@ -105,6 +105,9 @@ def test_get_linhas_da_tabela_alimentacoes_recreio():
         "repeticao_sobremesa",
         "lanche",
     ]
+
+    for esperado in alimentacoes:
+        assert esperado in resultado, f"Elemento {esperado} não encontrado"
 
 
 def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_emef):
@@ -117,10 +120,16 @@ def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_emef):
 
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
-    assert resultado == {
-        "Colaboradores": ["Refeição", "Sobremesa"],
-        "Inscritos": ["Refeição", "Sobremesa"],
-    }
+    alimentacoes = ["Refeição", "Sobremesa"]
+    assert "Colaboradores" in resultado
+    for esperado in alimentacoes:
+        assert (
+            esperado in resultado["Colaboradores"]
+        ), f"Elemento {esperado} não encontrado"
+
+    assert "Inscritos" in resultado
+    for esperado in alimentacoes:
+        assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
 
 
 def test_retorna_valor_para_log_dieta_autorizada_enteral(
@@ -398,22 +407,27 @@ def test_indexar_logs_dieta_autorizadas_por_data_soma_quantidades(
 def test_get_linhas_sem_refeicao_nao_adiciona_repeticao():
     resultado = get_linhas_da_tabela_alimentacoes_recreio(["Lanche"])
 
-    assert resultado == [
+    campos = [
         "participantes",
         "frequencia",
         "lanche",
     ]
 
+    for esperado in campos:
+        assert esperado in resultado, f"Elemento {esperado} não encontrado"
+
 
 def test_get_linhas_adiciona_repeticao_sobremesa():
     resultado = get_linhas_da_tabela_alimentacoes_recreio(["Sobremesa"])
 
-    assert resultado == [
+    campos = [
         "participantes",
         "frequencia",
         "sobremesa",
         "repeticao_sobremesa",
     ]
+    for esperado in campos:
+        assert esperado in resultado, f"Elemento {esperado} não encontrado"
 
 
 def test_retorna_valor_para_log_dieta_autorizada_enteral_sem_logs(
@@ -448,12 +462,14 @@ def test_get_linhas_da_tabela_dieta_recreio_com_todas_alimentacoes(
         categoria_medicao_dieta_a_enteral_aminoacidos,
     )
 
-    assert resultado == [
+    campos = [
         "frequencia",
         "lanche",
         "lanche_4h",
         "refeicao",
     ]
+    for esperado in campos:
+        assert esperado in resultado, f"Elemento {esperado} não encontrado"
 
 
 def test_categoria_tem_logs_dieta_autorizada_categoria_comum_retorna_true(

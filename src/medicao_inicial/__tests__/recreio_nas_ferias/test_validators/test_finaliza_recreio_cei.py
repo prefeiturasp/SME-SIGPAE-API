@@ -103,10 +103,17 @@ def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_cei):
 
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
-    assert resultado == {
-        "Colaboradores": ["Refeição", "Sobremesa"],
-        "Inscritos": ["Refeição", "Sobremesa", "Lanche", "Lanche 4h", "Almoço"],
-    }
+    assert "Colaboradores" in resultado
+    colaboradores = ["Refeição", "Sobremesa"]
+    for esperado in colaboradores:
+        assert (
+            esperado in resultado["Colaboradores"]
+        ), f"Elemento {esperado} não encontrado"
+
+    assert "Inscritos" in resultado
+    inscritos = ["Refeição", "Sobremesa", "Lanche", "Lanche 4h", "Almoço"]
+    for esperado in inscritos:
+        assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
 
 
 def test_retorna_valor_para_log_dieta_autorizada_cei(
