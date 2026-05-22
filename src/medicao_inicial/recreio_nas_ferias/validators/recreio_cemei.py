@@ -8,6 +8,7 @@ from src.medicao_inicial.recreio_nas_ferias.models import (
 )
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips import (
+    buscar_valores_lancamento_alimentacoes_faixa_etaria,
     cria_valores_medicao_dietas_autorizadas_do_recreio_cei,
 )
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
@@ -176,7 +177,7 @@ def validate_lancamento_alimentacoes_medicao_recreio_cemei(
     solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
 ):
     recreio = solicitacao.recreio_nas_ferias
-    dias_letivos_geral_formatado = [
+    dias_letivos = [
         f"{dia:02d}"
         for dia in gerar_dias_letivos_recreio(recreio.data_inicio, recreio.data_fim)
     ]
@@ -201,16 +202,25 @@ def validate_lancamento_alimentacoes_medicao_recreio_cemei(
         informacoes_alimentacao[GRUPO_COLABORADORES] = tipos_alimentacao_map.get(
             "Colaboradores", []
         )
-
     if participantes_emei is not None and participantes_emei.num_inscritos > 0:
-        informacoes_alimentacao[GRUPO_EMEI] = tipos_alimentacao_map.get("Inscritos", [])
+        informacoes_alimentacao[GRUPO_EMEI] = tipos_alimentacao_map.get("Infantil", [])
 
-    informacoes = {
-        "solicitacao": solicitacao,
-        "grupos_recreio": informacoes_alimentacao,
-        "dias_letivos": dias_letivos_geral_formatado,
-        "categoria_alimentacao": categoria_alimentacao,
-    }
-    lista_erros = validar_lancamentos_alimentacoes_recreio(informacoes, lista_erros)
+    if informacoes_alimentacao:
+        informacoes = {
+            "solicitacao": solicitacao,
+            "grupos_recreio": informacoes_alimentacao,
+            "dias_letivos": dias_letivos,
+            "categoria_alimentacao": categoria_alimentacao,
+        }
+        lista_erros = validar_lancamentos_alimentacoes_recreio(informacoes, lista_erros)
+
+    if participantes_cei is not None and participantes_cei.num_inscritos > 0:
+        lista_erros = buscar_valores_lancamento_alimentacoes_faixa_etaria(
+            solicitacao,
+            GRUPO_CEI,
+            dias_letivos,
+            categoria_alimentacao,
+            lista_erros,
+        )
 
     return lista_erros
