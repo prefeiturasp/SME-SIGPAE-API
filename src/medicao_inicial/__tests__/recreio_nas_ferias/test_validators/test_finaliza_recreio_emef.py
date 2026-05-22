@@ -6,14 +6,13 @@ from model_bakery import baker
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
+    existe_colaborador,
 )
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     _categoria_tem_logs_dieta_autorizada,
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
     cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
-    existe_colaborador,
     get_classificacoes_dietas_recreio,
-    get_linhas_da_tabela_alimentacoes_recreio,
     get_linhas_da_tabela_dieta_recreio,
     indexar_logs_dieta_autorizadas_por_data,
     retorna_valor_para_log_dieta_autorizada,
@@ -91,25 +90,6 @@ def test_validate_lancamento_dietas_medicao_recreio_dados_nao_lancados(
             "periodo_escolar": "Recreio nas Férias",
         }
     ]
-
-
-def test_get_linhas_da_tabela_alimentacoes_recreio():
-    resultado = get_linhas_da_tabela_alimentacoes_recreio(
-        ["Refeição", "Sobremesa", "Lanche"]
-    )
-
-    alimentacoes = [
-        "participantes",
-        "frequencia",
-        "refeicao",
-        "repeticao_refeicao",
-        "sobremesa",
-        "repeticao_sobremesa",
-        "lanche",
-    ]
-
-    for esperado in alimentacoes:
-        assert esperado in resultado, f"Elemento {esperado} não encontrado"
 
 
 def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_emef):
@@ -404,32 +384,6 @@ def test_indexar_logs_dieta_autorizadas_por_data_soma_quantidades(
     resultado = indexar_logs_dieta_autorizadas_por_data(logs_do_recreio)
 
     assert resultado[datetime.date(2025, 12, 10)]["tipo a enteral"] == 3
-
-
-def test_get_linhas_sem_refeicao_nao_adiciona_repeticao():
-    resultado = get_linhas_da_tabela_alimentacoes_recreio(["Lanche"])
-
-    campos = [
-        "participantes",
-        "frequencia",
-        "lanche",
-    ]
-
-    for esperado in campos:
-        assert esperado in resultado, f"Elemento {esperado} não encontrado"
-
-
-def test_get_linhas_adiciona_repeticao_sobremesa():
-    resultado = get_linhas_da_tabela_alimentacoes_recreio(["Sobremesa"])
-
-    campos = [
-        "participantes",
-        "frequencia",
-        "sobremesa",
-        "repeticao_sobremesa",
-    ]
-    for esperado in campos:
-        assert esperado in resultado, f"Elemento {esperado} não encontrado"
 
 
 def test_retorna_valor_para_log_dieta_autorizada_enteral_sem_logs(
