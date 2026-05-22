@@ -111,12 +111,20 @@
     <span class="n">SolicitacaoForaDoPrazo</span><span class="p">,</span>
     <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Troca um cardápio de um dia por outro.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modelo responsável por armazenar Solicitações de Inversão do dia de Cardápio.</span>
 
-<span class="sd">    servir o cardápio do dia 30 no dia 15, automaticamente o</span>
-<span class="sd">    cardápio do dia 15 será servido no dia 30</span>
+<span class="sd">    Esse modelo serve para todos os tipos de unidade escolar.</span>
+
+<span class="sd">    O objetivo da solicitação é inverter o cardápio disponibilizado no Prato Aberto sobre um tipo de alimentação </span>
+<span class="sd">    em um dia específico. </span>
+<span class="sd">    </span>
+<span class="sd">    Por exemplo:</span>
+<span class="sd">      - dia 15/03 será servido carne na Refeição.</span>
+<span class="sd">      - dia 22/03 será servido peixe na Refeição.</span>
+<span class="sd">      - caso exista uma Inversão de Cardápio solicitada para o dia 15/03 para o dia 22/03 de Refeição, o peixe será servido dia 15/03 e a carne será servida dia 22/03. </span>
+
+<span class="sd">    Para CEMEIs, é necessário informar se a substituição é para alunos CEI, EMEI ou para ambos.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Inversão de Cardápio&quot;</span>
     <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
     <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">InversaoCardapioDestaSemanaManager</span><span class="p">()</span>
