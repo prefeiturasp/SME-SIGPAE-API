@@ -1,15 +1,22 @@
 from collections import defaultdict
 from datetime import timedelta
+
 from django.db.models import QuerySet
 
-from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao, Medicao, SolicitacaoMedicaoInicial, ValorMedicao
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    GrupoMedicao,
+    Medicao,
+    SolicitacaoMedicaoInicial,
+    ValorMedicao,
+)
 
 
 def agrupar_tipos_alimentacao_por_categoria(
     tipos_alimentacao: QuerySet,
 ) -> dict[str, list]:
     """Agrupa tipos de alimentação por categoria removendo duplicados.
-    
+
     Os tipos de alimentação são agrupados pelo nome da categoria e os
     valores duplicados são removidos preservando a ordem de inserção.
 
@@ -31,14 +38,15 @@ def agrupar_tipos_alimentacao_por_categoria(
         agrupados[tipo.categoria.nome].append(tipo.tipo_alimentacao.nome)
 
     resultado = {
-        categoria: list(dict.fromkeys(itens))
-        for categoria, itens in agrupados.items()
+        categoria: list(dict.fromkeys(itens)) for categoria, itens in agrupados.items()
     }
 
     return resultado
 
 
-def valida_campo_participantes(instance: SolicitacaoMedicaoInicial, informacoes_participantes: dict[str, int]) -> None:
+def valida_campo_participantes(
+    instance: SolicitacaoMedicaoInicial, informacoes_participantes: dict[str, int]
+) -> None:
     """Cria valores de medição para o campo ``participantes``.
 
     Garante que exista um registro de ``ValorMedicao`` para o campo

@@ -4,7 +4,9 @@ import pytest
 from model_bakery import baker
 
 from src.medicao_inicial.models import ValorMedicao
-from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import agrupar_tipos_alimentacao_por_categoria
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
+    agrupar_tipos_alimentacao_por_categoria,
+)
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     _categoria_tem_logs_dieta_autorizada,
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,

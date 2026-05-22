@@ -56,7 +56,10 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips impo
     validate_lancamento_alimentacoes_medicao_recreio_cei,
     validate_lancamento_dietas_medicao_recreio_cei,
 )
-from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import cria_valores_medicao_participantes_cemei, cria_valores_medicao_participantes_dietas_autorizadas_cemei
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
+    cria_valores_medicao_participantes_cemei,
+    cria_valores_medicao_participantes_dietas_autorizadas_cemei,
+)
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
     cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
@@ -1255,8 +1258,8 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         cria_valores_medicao_participantes_cei(instance)
         cria_valores_medicao_participantes_dietas_autorizadas_cei(instance)
 
-        # instance.logs_salvos = True
-        # instance.save()
+        instance.logs_salvos = True
+        instance.save()
 
     def valida_finalizar_medicao_recreio_cei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1276,19 +1279,15 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
-        
+
     def cria_valores_medicao_recreio_cemei(
         self, instance: SolicitacaoMedicaoInicial
     ) -> None:
-        if (
-            not instance.escola.eh_cemei or instance.logs_salvos
-        ):
+        if not instance.escola.eh_cemei or instance.logs_salvos:
             return
 
         cria_valores_medicao_participantes_cemei(instance)
-        cria_valores_medicao_participantes_dietas_autorizadas_cemei(
-            instance
-        )
+        cria_valores_medicao_participantes_dietas_autorizadas_cemei(instance)
         instance.logs_salvos = True
         instance.save()
 
