@@ -94,28 +94,28 @@
 <div class="viewcode-block" id="TipoAlimentacaoSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoAlimentacaoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serializa tipos de alimentacao com sua representacao completa de leitura.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa tipos de alimentacao com sua representacao completa de leitura.</span>
 
-<span class="sd">        Expoe os campos publicos de ``TipoAlimentacao`` usados na API base e em</span>
-<span class="sd">        serializers aninhados que retornam os tipos de alimentacao permitidos para</span>
-<span class="sd">        horarios e vinculos.</span>
+<span class="sd">    Expoe os campos publicos de ``TipoAlimentacao`` usados na API base e em</span>
+<span class="sd">    serializers aninhados que retornam os tipos de alimentacao permitidos para</span>
+<span class="sd">    horarios e vinculos.</span>
 
-<span class="sd">        Viewsets que utilizam este serializer:</span>
-<span class="sd">                - ``TipoAlimentacaoViewSet``: uso direto como ``serializer_class`` nas</span>
-<span class="sd">                    acoes padrao do ``ModelViewSet``.</span>
-<span class="sd">                - ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet``: uso</span>
-<span class="sd">                    indireto, aninhado em</span>
-<span class="sd">                    ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer``.</span>
-<span class="sd">                - ``VinculoTipoAlimentacaoViewSet``: uso indireto, aninhado em</span>
-<span class="sd">                    ``VinculoTipoAlimentoSimplesSerializer`` e</span>
-<span class="sd">                    ``VinculoTipoAlimentoPeriodoSerializer``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">            - ``TipoAlimentacaoViewSet``: uso direto como ``serializer_class`` nas</span>
+<span class="sd">                acoes padrao do ``ModelViewSet``.</span>
+<span class="sd">            - ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet``: uso</span>
+<span class="sd">                indireto, aninhado em</span>
+<span class="sd">                ``HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializer``.</span>
+<span class="sd">            - ``VinculoTipoAlimentacaoViewSet``: uso indireto, aninhado em</span>
+<span class="sd">                ``VinculoTipoAlimentoSimplesSerializer`` e</span>
+<span class="sd">                ``VinculoTipoAlimentoPeriodoSerializer``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TipoAlimentacaoSerializer.Meta">
 <a class="viewcode-back" href="../../../../../cardapio/base.html#src.cardapio.base.api.serializers.TipoAlimentacaoSerializer.Meta">[docs]</a>
-        <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span>
-                <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TipoAlimentacao</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
 </div>
 
 

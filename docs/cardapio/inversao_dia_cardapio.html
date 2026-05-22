@@ -51,7 +51,10 @@
 <li class="toctree-l3"><a class="reference internal" href="alteracao_tipo_alimentacao_cemei.html">alteracao_tipo_alimentacao_cemei</a></li>
 <li class="toctree-l3"><a class="reference internal" href="base.html">base</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">inversao_dia_cardapio</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.inversao_dia_cardapio.admin">admin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.inversao_dia_cardapio.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioModelAdmin</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.inversao_dia_cardapio.models">models</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code></a></li>
 </ul>
@@ -115,6 +118,231 @@
 <span id="inversao-dia-cardapio"></span><h1>inversao_dia_cardapio<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio" title="Link to this heading"></a></h1>
 <section id="module-src.cardapio.inversao_dia_cardapio.admin">
 <span id="admin"></span><h2>admin<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.admin" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/admin.html#InversaoCardapioModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Django para solicitacoes de inversao de cardapio.</p>
+<p>Configura a listagem administrativa de <code class="xref py py-class docutils literal notranslate"><span class="pre">InversaoCardapio</span></code>,
+exibindo as datas envolvidas na inversao, a escola relacionada, o
+status atual da solicitacao e os tipos de alimentacao vinculados.
+Tambem habilita filtros por intervalo de datas, status, lote e tipo
+de alimentacao, alem da busca textual por nome e codigo EOL da escola.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.list_display" title="Link to this definition"></a></dt>
+<dd><p>Colunas exibidas na listagem do admin.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;get_data_de&quot;,</span> <span class="pre">&quot;get_data_para&quot;,</span> <span class="pre">&quot;get_data_de_2&quot;,</span> <span class="pre">&quot;get_data_para_2&quot;,</span> <span class="pre">&quot;get_escola&quot;,</span> <span class="pre">&quot;status&quot;,</span> <span class="pre">&quot;get_tipos_alimentacao&quot;)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd><p>Campos consultados pela busca textual do admin.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;rastro_escola__nome&quot;,</span> <span class="pre">&quot;rastro_escola__codigo_eol&quot;,</span> <span class="pre">&quot;escola__nome&quot;,</span> <span class="pre">&quot;escola__codigo_eol&quot;)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.search_help_text">
+<span class="sig-name descname"><span class="pre">search_help_text</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.search_help_text" title="Link to this definition"></a></dt>
+<dd><p>Texto auxiliar exibido abaixo do campo de busca.
+Valores: <code class="docutils literal notranslate"><span class="pre">&quot;Pesquisa</span> <span class="pre">por:</span> <span class="pre">nome</span> <span class="pre">da</span> <span class="pre">escola,</span> <span class="pre">codigo</span> <span class="pre">eol</span> <span class="pre">da</span> <span class="pre">escola&quot;</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.list_filter">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd><p>Filtros laterais disponiveis na listagem.
+Valores: <code class="docutils literal notranslate"><span class="pre">((&quot;data_de_inversao&quot;,</span> <span class="pre">DateRangeFilter),</span> <span class="pre">(&quot;data_para_inversao&quot;,</span> <span class="pre">DateRangeFilter),</span> <span class="pre">&quot;status&quot;,</span> <span class="pre">&quot;rastro_lote&quot;,</span> <span class="pre">&quot;tipos_alimentacao&quot;)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[object, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.list_select_related">
+<span class="sig-name descname"><span class="pre">list_select_related</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.list_select_related" title="Link to this definition"></a></dt>
+<dd><p>Relacoes carregadas via join na listagem.
+Valores: <code class="docutils literal notranslate"><span class="pre">(&quot;escola&quot;,</span> <span class="pre">&quot;rastro_escola&quot;,</span> <span class="pre">&quot;rastro_lote&quot;)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[str, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_data_de">
+<span class="sig-name descname"><span class="pre">get_data_de</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/admin.html#InversaoCardapioModelAdmin.get_data_de"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_data_de" title="Link to this definition"></a></dt>
+<dd><p>Retorna a primeira data de origem da inversao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><em>InversaoCardapio</em></a>) – Solicitacao exibida na linha atual.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data de origem formatada para exibicao no admin.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_data_de_2">
+<span class="sig-name descname"><span class="pre">get_data_de_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/admin.html#InversaoCardapioModelAdmin.get_data_de_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_data_de_2" title="Link to this definition"></a></dt>
+<dd><p>Retorna a segunda data de origem da inversao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><em>InversaoCardapio</em></a>) – Solicitacao exibida na linha atual.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Segunda data de origem formatada para exibicao no admin.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_data_para">
+<span class="sig-name descname"><span class="pre">get_data_para</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/admin.html#InversaoCardapioModelAdmin.get_data_para"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_data_para" title="Link to this definition"></a></dt>
+<dd><p>Retorna a primeira data de destino da inversao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><em>InversaoCardapio</em></a>) – Solicitacao exibida na linha atual.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data de destino formatada para exibicao no admin.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_data_para_2">
+<span class="sig-name descname"><span class="pre">get_data_para_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/admin.html#InversaoCardapioModelAdmin.get_data_para_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_data_para_2" title="Link to this definition"></a></dt>
+<dd><p>Retorna a segunda data de destino da inversao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><em>InversaoCardapio</em></a>) – Solicitacao exibida na linha atual.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Segunda data de destino formatada para exibicao no admin.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_escola">
+<span class="sig-name descname"><span class="pre">get_escola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/admin.html#InversaoCardapioModelAdmin.get_escola"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_escola" title="Link to this definition"></a></dt>
+<dd><p>Retorna a escola associada a solicitacao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><em>InversaoCardapio</em></a>) – Solicitacao exibida na linha atual.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Nome da escola vinculada, ou <code class="docutils literal notranslate"><span class="pre">&quot;-&quot;</span></code> quando indisponivel.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_queryset">
+<span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/admin.html#InversaoCardapioModelAdmin.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_queryset" title="Link to this definition"></a></dt>
+<dd><p>Retorna a queryset otimizada para a listagem do admin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>HttpRequest</em>) – Requisicao atual do Django Admin.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Queryset com os tipos de alimentacao</dt><dd><p>previamente carregados para evitar consultas extras.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>django.db.models.QuerySet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_tipos_alimentacao">
+<span class="sig-name descname"><span class="pre">get_tipos_alimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/admin.html#InversaoCardapioModelAdmin.get_tipos_alimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.get_tipos_alimentacao" title="Link to this definition"></a></dt>
+<dd><p>Retorna os tipos de alimentacao vinculados a inversao.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><em>InversaoCardapio</em></a>) – Solicitacao exibida na linha atual.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Nomes dos tipos de alimentacao separados por virgula.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('get_data_de',</span> <span class="pre">'get_data_para',</span> <span class="pre">'get_data_de_2',</span> <span class="pre">'get_data_para_2',</span> <span class="pre">'get_escola',</span> <span class="pre">'status',</span> <span class="pre">'get_tipos_alimentacao')</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('data_de_inversao',</span> <span class="pre">&lt;class</span> <span class="pre">'rangefilter.filters.DateRangeFilter'&gt;),</span> <span class="pre">('data_para_inversao',</span> <span class="pre">&lt;class</span> <span class="pre">'rangefilter.filters.DateRangeFilter'&gt;),</span> <span class="pre">'status',</span> <span class="pre">'rastro_lote',</span> <span class="pre">'tipos_alimentacao')</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">list_select_related</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('escola',</span> <span class="pre">'rastro_escola',</span> <span class="pre">'rastro_lote')</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('rastro_escola__nome',</span> <span class="pre">'rastro_escola__codigo_eol',</span> <span class="pre">'escola__nome',</span> <span class="pre">'escola__codigo_eol')</span></span><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">search_help_text</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Pesquisa</span> <span class="pre">por:</span> <span class="pre">nome</span> <span class="pre">da</span> <span class="pre">escola,</span> <span class="pre">codigo</span> <span class="pre">eol</span> <span class="pre">da</span> <span class="pre">escola'</span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-src.cardapio.inversao_dia_cardapio.models">
 <span id="models"></span><h2>models<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.models" title="Link to this heading"></a></h2>
@@ -608,14 +836,14 @@ object the first time, the query is executed.</p>
 descriptive messages when something goes wrong, but this method is
 essentially just:</p>
 <blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
+<div><p>return ExampleModel.objects.create(<a href="#id5"><span class="problematic" id="id6">**</span></a>validated_data)</p>
 </div></blockquote>
 <p>If there are many to many fields present on the instance then they
 cannot be set until the model is instantiated, in which case the
 implementation is like so:</p>
 <blockquote>
 <div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
+instance = ExampleModel.objects.create(<a href="#id7"><span class="problematic" id="id8">**</span></a>validated_data)
 instance.example_relationship = example_relationship
 return instance</p>
 </div></blockquote>
