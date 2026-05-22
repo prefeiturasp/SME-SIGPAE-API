@@ -1,18 +1,28 @@
 from src.medicao_inicial.models import (
-    CategoriaMedicao,
-    GrupoMedicao,
-
     SolicitacaoMedicaoInicial,
-
 )
-from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFeriasUnidadeParticipante
-from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import agrupar_tipos_alimentacao_por_categoria, valida_campo_participantes
+from src.medicao_inicial.recreio_nas_ferias.models import (
+    RecreioNasFeriasUnidadeParticipante,
+)
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips import (
+    cria_valores_medicao_dietas_autorizadas_do_recreio_cei,
+)
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
+    agrupar_tipos_alimentacao_por_categoria,
+    valida_campo_participantes,
+)
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
+    cria_valores_medicao_dietas_autorizadas_do_recreio,
+)
 
 GRUPO_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
 GRUPO_EMEI = "Recreio nas Férias - 4 a 14 anos"
 GRUPO_COLABORADORES = "Colaboradores"
 
-def cria_valores_medicao_participantes_cemei(instance: SolicitacaoMedicaoInicial) -> None:
+
+def cria_valores_medicao_participantes_cemei(
+    instance: SolicitacaoMedicaoInicial,
+) -> None:
     """Cria os valores de medição de participantes do Recreio nas Férias de unidades CEMEI.
 
     Cria registros de ``ValorMedicao`` para cada dia do período do recreio,
@@ -25,19 +35,7 @@ def cria_valores_medicao_participantes_cemei(instance: SolicitacaoMedicaoInicial
         instance (SolicitacaoMedicaoInicial): Solicitação de medição inicial vinculada ao recreio.
     """
     recreio = instance.recreio_nas_ferias
-    # participantes = recreio.unidades_participantes.filter(
-    #     unidade_educacional=instance.escola
-    # )
-      
-    # informacoes_participantes = {}
-    # participantes_emei = participantes.filter(cei_ou_emei='EMEI').first()
-    # if participantes_emei and participantes_emei.num_inscritos > 0:
-    #     informacoes_participantes["Recreio nas Férias - 4 a 14 anos"] = participantes_emei.num_inscritos
-            
-    # participantes_cei = participantes.filter(cei_ou_emei='CEI').first()
-    # if participantes_cei and participantes_cei.num_inscritos > 0:
-    #     informacoes_participantes["Recreio nas Férias - de 0 a 3 anos e 11 meses"] = participantes_cei.num_inscritos
-    
+
     participantes = {
         participante.cei_ou_emei: participante
         for participante in recreio.unidades_participantes.filter(
@@ -61,7 +59,7 @@ def cria_valores_medicao_participantes_cemei(instance: SolicitacaoMedicaoInicial
     for participante, descricao in grupos:
         if participante and participante.num_inscritos > 0:
             informacoes_participantes[descricao] = participante.num_inscritos
-        
+
     if existe_colaborador_cemei(participantes_cei, participantes_emei):
         total = sum(
             p.num_colaboradores
@@ -69,18 +67,61 @@ def cria_valores_medicao_participantes_cemei(instance: SolicitacaoMedicaoInicial
             if p is not None
         )
         informacoes_participantes[GRUPO_COLABORADORES] = total
-              
+
     valida_campo_participantes(instance, informacoes_participantes)
-    
+
 
 def cria_valores_medicao_participantes_dietas_autorizadas_cemei(
     instance: SolicitacaoMedicaoInicial,
 ) -> None:
-    pass
+    """Cria os valores de medição de dietas autorizadas do recreio CEMEI.
+
+    Cria registros de ``ValorMedicao`` para dietas autorizadas durante o
+    período do Recreio nas Férias, considerando separadamente os cenários
+    EMEI e CEI da CEMEI.
+
+    Para EMEI, os valores são gerados a partir dos logs de dietas autorizadas
+    indexados por data e classificação, criando registros para cada
+    combinação de categoria e dia ainda inexistente.
+
+    Para CEI, os valores são gerados a partir dos logs de dietas autorizadas
+    indexados por data, faixa etária e classificação, criando registros para
+    cada combinação de categoria, dia e faixa etária ainda inexistente.
+
+    Somente categorias que possuam logs compatíveis no período do recreio
+    são consideradas para criação dos valores.
+
+    Args:
+        instance (SolicitacaoMedicaoInicial): Solicitação de medição inicial vinculada ao recreio.
+    """
+
+    escola = instance.escola
+    recreio = instance.recreio_nas_ferias
+    inicio_recreio = recreio.data_inicio
+    fim_recreio = recreio.data_fim
+
+    logs_do_recreio_emei = escola.logs_dietas_autorizadas_recreio_ferias.filter(
+        data__range=[inicio_recreio, fim_recreio],
+    )
+    cria_valores_medicao_dietas_autorizadas_do_recreio(
+        instance, logs_do_recreio_emei, GRUPO_EMEI
+    )
+
+    logs_do_recreio_cei = escola.logs_dietas_autorizadas_recreio_ferias_cei.filter(
+        data__range=[inicio_recreio, fim_recreio],
+        faixa_etaria__isnull=False,
+    )
+
+    cria_valores_medicao_dietas_autorizadas_do_recreio_cei(
+        instance, logs_do_recreio_cei, GRUPO_CEI
+    )
 
 
-def existe_colaborador_cemei(participantes_cei: RecreioNasFeriasUnidadeParticipante, participantes_emei: RecreioNasFeriasUnidadeParticipante) -> bool:
-    """"Verifica se existem colaboradores ativos no CEMEI.
+def existe_colaborador_cemei(
+    participantes_cei: RecreioNasFeriasUnidadeParticipante,
+    participantes_emei: RecreioNasFeriasUnidadeParticipante,
+) -> bool:
+    """ "Verifica se existem colaboradores ativos no CEMEI.
 
     Retorna ``True`` quando a soma dos colaboradores participantes dos
     recreios CEI (0 a 3 anos e 11 meses) e EMEI (4 a 14 anos) da unidade
@@ -98,14 +139,10 @@ def existe_colaborador_cemei(participantes_cei: RecreioNasFeriasUnidadeParticipa
         bool:  ``True`` se houver colaboradores com alimentação configurada dos recreios CEI ou EMEI da unidade CEMEI; caso contrário, ``False``.
     """
     participantes = [
-        p for p in [participantes_cei, participantes_emei]
-        if p is not None
+        p for p in [participantes_cei, participantes_emei] if p is not None
     ]
 
-    total_colaboradores = sum(
-        p.num_colaboradores
-        for p in participantes
-    )
+    total_colaboradores = sum(p.num_colaboradores for p in participantes)
 
     if total_colaboradores <= 0:
         return False
@@ -118,14 +155,10 @@ def existe_colaborador_cemei(participantes_cei: RecreioNasFeriasUnidadeParticipa
         )
 
         tipos_alimentacao = (
-            tipos
-            if tipos_alimentacao is None
-            else tipos_alimentacao | tipos
+            tipos if tipos_alimentacao is None else tipos_alimentacao | tipos
         )
 
-    tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(
-        tipos_alimentacao
-    )
+    tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
     return bool(
         tipos_alimentacao_map.get(
@@ -133,4 +166,3 @@ def existe_colaborador_cemei(participantes_cei: RecreioNasFeriasUnidadeParticipa
             [],
         )
     )
-
