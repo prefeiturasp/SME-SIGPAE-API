@@ -232,7 +232,9 @@ def validate_lancamento_alimentacoes_medicao_recreio(
         recreio.data_inicio, recreio.data_fim
     )
     dias_letivos_geral_formatado = [f"{dia:02d}" for dia in dias_letivos_geral]
-    categoria_alimentacao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    categoria_alimentacao = CategoriaMedicao.objects.get(
+        nome=CATEGORIA_ALIMENTACAO_NOME
+    )
 
     informacoes = {
         "solicitacao": solicitacao,

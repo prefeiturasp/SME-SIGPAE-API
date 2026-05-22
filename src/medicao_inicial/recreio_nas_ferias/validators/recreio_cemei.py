@@ -1,9 +1,12 @@
+from src.cardapio.base.models import TipoAlimentacao
 from src.medicao_inicial.models import (
+    CategoriaMedicao,
     SolicitacaoMedicaoInicial,
 )
 from src.medicao_inicial.recreio_nas_ferias.models import (
     RecreioNasFeriasUnidadeParticipante,
 )
+from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips import (
     cria_valores_medicao_dietas_autorizadas_do_recreio_cei,
 )
@@ -13,6 +16,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
 )
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     cria_valores_medicao_dietas_autorizadas_do_recreio,
+    validar_lancamentos_alimentacoes_recreio,
 )
 
 GRUPO_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
@@ -166,3 +170,47 @@ def existe_colaborador_cemei(
             [],
         )
     )
+
+
+def validate_lancamento_alimentacoes_medicao_recreio_cemei(
+    solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
+):
+    recreio = solicitacao.recreio_nas_ferias
+    dias_letivos_geral_formatado = [
+        f"{dia:02d}"
+        for dia in gerar_dias_letivos_recreio(recreio.data_inicio, recreio.data_fim)
+    ]
+    categoria_alimentacao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    participantes = dict()
+    tipos_alimentacao = TipoAlimentacao.objects.none()
+    informacoes_alimentacao = {}
+
+    for participante in recreio.unidades_participantes.filter(
+        unidade_educacional=solicitacao.escola
+    ):
+        alimentacoes = participante.tipos_alimentacao.filter(
+            categoria__nome__in=["Infantil", "Inscritos", "Colaboradores"]
+        )
+        tipos_alimentacao = tipos_alimentacao | alimentacoes
+        participantes[participante.cei_ou_emei] = participante
+
+    tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+    if existe_colaborador_cemei(participantes_cei, participantes_emei):
+        informacoes_alimentacao[GRUPO_COLABORADORES] = tipos_alimentacao_map.get(
+            "Colaboradores", []
+        )
+
+    if participantes_emei is not None and participantes_emei.num_inscritos > 0:
+        informacoes_alimentacao[GRUPO_EMEI] = tipos_alimentacao_map.get("Inscritos", [])
+
+    informacoes = {
+        "solicitacao": solicitacao,
+        "grupos_recreio": informacoes_alimentacao,
+        "dias_letivos": dias_letivos_geral_formatado,
+        "categoria_alimentacao": categoria_alimentacao,
+    }
+    lista_erros = validar_lancamentos_alimentacoes_recreio(informacoes, lista_erros)
+
+    return lista_erros
