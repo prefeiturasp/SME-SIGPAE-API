@@ -231,7 +231,7 @@ def retorna_valor_para_log_dieta_autorizada_cei(
 def validate_lancamento_alimentacoes_medicao_recreio_cei(
     solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
 ) -> list:
-    """ "Valida os lançamentos das alimentações da medição do Recreio nas Férias para CEI.
+    """Valida os lançamentos das alimentações da medição do Recreio nas Férias para CEI.
 
     Realiza a validação dos lançamentos de alimentações dos participantes do
     grupo ``Recreio nas Férias`` e, quando existirem colaboradores na unidade,

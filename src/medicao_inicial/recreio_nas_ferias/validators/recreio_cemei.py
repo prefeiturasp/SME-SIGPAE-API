@@ -175,7 +175,30 @@ def existe_colaborador_cemei(
 
 def validate_lancamento_alimentacoes_medicao_recreio_cemei(
     solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
-):
+) -> list:
+    """Valida os lançamentos das alimentações da medição do Recreio nas Férias para CEMEI.
+
+    Realiza a validação dos lançamentos de alimentações dos participantes do
+    grupo ``Recreio nas Férias`` e, quando existirem colaboradores na unidade,
+    também valida os lançamentos do grupo ``Colaboradores``.
+
+    As validações consideram os dias letivos do período do recreio e os tipos
+    de alimentação configurados para cada categoria.
+
+    Os erros encontrados durante as validações são acumulados e retornados sem
+    duplicidades.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação de medição inicial
+            vinculada ao Recreio nas Férias.
+        lista_erros (list): Lista acumulada de erros encontrados durante as
+            validações.
+
+    Returns:
+        list: Lista de erros sem duplicidades após a validação dos lançamentos
+            das alimentações do recreio.
+    """
+
     recreio = solicitacao.recreio_nas_ferias
     dias_letivos = [
         f"{dia:02d}"
