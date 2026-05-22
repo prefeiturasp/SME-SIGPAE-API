@@ -15,22 +15,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
-from src.perfil.models.perfil import Vinculo
-from src.perfil.models.usuario import (
-    ImportacaoPlanilhaUsuarioExternoCoreSSO,
-    ImportacaoPlanilhaUsuarioServidorCoreSSO,
-    ImportacaoPlanilhaUsuarioUEParceiraCoreSSO,
-)
-from src.terceirizada.models import Terceirizada
-
-from ...dados_comuns.constants import (
+from src.dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     ADMINISTRADOR_EMPRESA,
     COGESTOR_DRE,
     DIRETOR_UE,
     USUARIO_EMPRESA,
 )
-from ...dados_comuns.permissions import (
+from src.dados_comuns.permissions import (
     PermissaoParaCriarUsuarioComCoresso,
     PermissaoParaListarVinculosAtivos,
     UsuarioAdministradorContratos,
@@ -40,19 +32,11 @@ from ...dados_comuns.permissions import (
     UsuarioPodeFinalizarVinculo,
     UsuarioSuperCodae,
 )
-from ...escola.api.serializers import UsuarioDetalheSerializer
-from ...escola.models import Codae
-from ..api.helpers import ofuscar_email
-from ..models import Perfil, PerfisVinculados, Usuario
-from ..tasks import (
-    busca_cargo_de_usuario,
-    processa_planilha_usuario_externo_coresso_async,
-    processa_planilha_usuario_servidor_coresso_async,
-    processa_planilha_usuario_ue_parceira_coresso_async,
-)
-from ..utils import PerfilPagination
-from .filters import ImportacaoPlanilhaUsuarioCoreSSOFilter, VinculoFilter
-from .serializers import (
+from src.escola.api.serializers import UsuarioDetalheSerializer
+from src.escola.models import Codae
+from src.perfil.api.filters import ImportacaoPlanilhaUsuarioCoreSSOFilter, VinculoFilter
+from src.perfil.api.helpers import ofuscar_email
+from src.perfil.api.serializers import (
     AlteraEmailSerializer,
     AlterarVinculoSerializer,
     ImportacaoPlanilhaUsuarioExternoCoreSSOCreateSerializer,
@@ -69,6 +53,21 @@ from .serializers import (
     VinculoSerializer,
     VinculoSimplesSerializer,
 )
+from src.perfil.models import Perfil, PerfisVinculados, Usuario
+from src.perfil.models.perfil import Vinculo
+from src.perfil.models.usuario import (
+    ImportacaoPlanilhaUsuarioExternoCoreSSO,
+    ImportacaoPlanilhaUsuarioServidorCoreSSO,
+    ImportacaoPlanilhaUsuarioUEParceiraCoreSSO,
+)
+from src.perfil.tasks import (
+    busca_cargo_de_usuario,
+    processa_planilha_usuario_externo_coresso_async,
+    processa_planilha_usuario_servidor_coresso_async,
+    processa_planilha_usuario_ue_parceira_coresso_async,
+)
+from src.perfil.utils import PerfilPagination
+from src.terceirizada.models import Terceirizada
 
 logger = logging.getLogger(__name__)
 
