@@ -237,9 +237,7 @@ def build_dict_relacao_categorias_e_campos(medicao, tipo_turma=None):
             dict_categorias_campos[categoria_campo[CATEGORIA]] += [
                 categoria_campo[CAMPO]
             ]
-    print(f"### dict_categorias_campos grupo={medicao.grupo.nome if medicao.grupo else None}")
-    for k, v in dict_categorias_campos.items():
-        print(f"  {k}: {v}")
+
     return dict_categorias_campos
 
 
@@ -1744,7 +1742,6 @@ def popula_campo_total(
                 ]
             valores_dia += [sum(int(x) for x in values)]
         except Exception as e:
-            print(f"### TOTAL EXCEPTION campo={campo} erro={e}")
             valores_dia += ["0"]
 
 
@@ -2691,11 +2688,7 @@ def popula_faixas_dias(
 
 def build_tabelas_relatorio_medicao(solicitacao):
     tabelas_com_headers = build_headers_tabelas(solicitacao)
-    print("tabelas_com_headers")
-    print(tabelas_com_headers)
     tabelas_populadas = popula_tabelas(solicitacao, tabelas_com_headers)
-    print("tabelas_populadas")
-    print(tabelas_populadas)
     return tabelas_populadas
 
 
@@ -3459,7 +3452,6 @@ def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes,
     except Exception:
         medicao_colaboradores = None
 
-    print(medicao_recreio.valores_medicao.values_list("categoria_medicao__nome", flat=True).distinct())
     campos_alimentacao = [
         c for c in ORDEM_CAMPOS
         if c not in [
