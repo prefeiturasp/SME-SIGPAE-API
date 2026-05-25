@@ -640,9 +640,10 @@ class SolicitacaoMedicaoInicialViewSet(
         user = request.user.get_username()
         uuid_sol_medicao = request.query_params["uuid"]
         solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid_sol_medicao)
+        sufixo_recreio = " Recreio nas Férias" if solicitacao.recreio_nas_ferias else ""
         gera_pdf_relatorio_solicitacao_medicao_por_escola_async.delay(
             user=user,
-            nome_arquivo=f"Relatório Medição Inicial - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
+            nome_arquivo=f"Relatório Medição Inicial{sufixo_recreio} - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
             f"{solicitacao.mes}/{solicitacao.ano}.pdf",
             uuid_sol_medicao=uuid_sol_medicao,
         )
