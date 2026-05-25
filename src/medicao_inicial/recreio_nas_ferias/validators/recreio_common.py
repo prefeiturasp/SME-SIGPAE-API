@@ -295,7 +295,7 @@ def get_tipos_alimentacao_recreio(
     categoria.
 
     Args:
-        recreio (RecreioNasFerias): Instância do recreio utilizada na consulta.
+        solicitacao (SolicitacaoMedicaoInicial): Instância da solicitação utilizada na consulta.
 
     Returns:
         list[str]: Lista contendo os tipos de alimentação dos inscritos.

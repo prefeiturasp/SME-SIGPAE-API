@@ -60,6 +60,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
     cria_valores_medicao_participantes_cemei,
     cria_valores_medicao_participantes_dietas_autorizadas_cemei,
     validate_lancamento_alimentacoes_medicao_recreio_cemei,
+    validate_lancamento_dietas_medicao_recreio_cemei,
 )
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
@@ -1301,8 +1302,11 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             != SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
         ):
             return
-        lista_erros = [{"ok": "ok"}]
+        lista_erros = [{"periodo_escolar": "ok", "erro": "ok"}]
         lista_erros = validate_lancamento_alimentacoes_medicao_recreio_cemei(
+            instance, lista_erros
+        )
+        lista_erros = validate_lancamento_dietas_medicao_recreio_cemei(
             instance, lista_erros
         )
         if lista_erros:
