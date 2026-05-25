@@ -73,6 +73,7 @@ def test_meses_para_mes_e_ano_string():
 
 
 def test_faixa_to_string():
+    assert faixa_to_string(0, 1) == "0 a 1 mes"
     assert faixa_to_string(0, 0) == "0 meses a 11 meses"
     assert faixa_to_string(12, 13) == "01 ano"
 
@@ -85,6 +86,7 @@ def test_faixa_to_string():
 
 
 def test_string_to_faixa():
+    assert string_to_faixa("0 a 1 mes") == (0, 1)
     assert string_to_faixa("0 meses a 11 meses") == (0, 12)
     assert string_to_faixa("1") == (1, 2)
 

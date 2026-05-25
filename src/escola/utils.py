@@ -35,6 +35,8 @@ def meses_to_mes_e_ano_string(total_meses):
 
 
 def faixa_to_string(inicio, fim):
+    if inicio == 0 and fim == 1:
+        return "0 a 1 mes"
     if fim - inicio == 1:
         return meses_to_mes_e_ano_string(inicio)
     if inicio == 0:
@@ -49,6 +51,8 @@ def faixa_to_string(inicio, fim):
 
 
 def string_to_faixa(faixa_str):
+    if faixa_str.strip() == "0 a 1 mes":
+        return 0, 1
     if "a" in faixa_str:
         str_inicio, str_fim = faixa_str.split(" a ")
     else:
