@@ -469,10 +469,7 @@ def test_analise_alunos_dietas_somente_uma_data_dieta_cancelada(dieta_cancelada)
         alunos_com_dietas_autorizadas,
     )
     assert isinstance(alunos, list)
-    assert len(alunos) == 1
-    assert alunos[0]["aluno"] == dieta_cancelada.aluno.nome
-    assert alunos[0]["tipo_dieta"] == dieta_cancelada.classificacao.nome
-    assert alunos[0]["data_autorizacao"] == dieta_cancelada.data_autorizacao
+    assert len(alunos) == 0
 
 
 @freeze_time("2025-01-01")
@@ -509,6 +506,23 @@ def test_get_alunos_com_dietas_autorizadas_nao_retorna_ativo_false(
     alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
 
     assert alunos == []
+
+
+@freeze_time("2025-01-01")
+def test_get_alunos_com_dietas_autorizadas_com_atualizacao_protocolo(
+    dieta_com_atualizacao_protocolo, escola
+):
+    """Dieta cujo último log não é CODAE_AUTORIZOU (houve atualização de protocolo),
+    mas cujo status é CODAE_AUTORIZADO, deve aparecer no relatório."""
+    query_params = {"mes_ano": "02_2025"}
+    alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
+    assert len(alunos) == 1
+    assert alunos[0]["aluno"] == dieta_com_atualizacao_protocolo.aluno.nome
+    assert alunos[0]["tipo_dieta"] == dieta_com_atualizacao_protocolo.classificacao.nome
+    assert (
+        alunos[0]["data_autorizacao"]
+        == dieta_com_atualizacao_protocolo.data_autorizacao
+    )
 
 
 @freeze_time("2024-06-15")

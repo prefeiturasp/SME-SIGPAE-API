@@ -449,25 +449,14 @@ def eh_dia_sem_atividade_escolar(escola, data, alteracao):
 def analise_alunos_dietas_somente_uma_data(
     datetime_autorizacao, data_inicial, data_final, dieta, alunos_com_dietas_autorizadas
 ):
-    from src.dados_comuns.models import LogSolicitacoesUsuario
-
     if (
         data_inicial is not None
         and data_final is not None
         and data_inicial == data_final
     ):
-        if datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d") and (
-            (dieta.logs.last().status_evento == LogSolicitacoesUsuario.CODAE_AUTORIZOU)
-            or (
-                dieta.logs.last().status_evento
-                == LogSolicitacoesUsuario.CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL
-            )
-            or (
-                dieta.logs.last().status_evento
-                != LogSolicitacoesUsuario.CODAE_AUTORIZOU
-                and dieta.logs.last().criado_em
-                > datetime.strptime(data_inicial, "%Y-%m-%d")
-            )
+        if (
+            datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d")
+            and str(dieta.status) == "CODAE_AUTORIZADO"
         ):
             alunos_com_dietas_autorizadas.append(
                 {
@@ -480,43 +469,26 @@ def analise_alunos_dietas_somente_uma_data(
 
 
 def get_alunos_com_dietas_autorizadas(query_params, escola):
-    from src.dados_comuns.models import LogSolicitacoesUsuario
     from src.dieta_especial.solicitacao_dieta_especial.models import (
         SolicitacaoDietaEspecial,
     )
 
-    solicitacoes_dietas_comuns = SolicitacaoDietaEspecial.objects.filter(
-        aluno__escola=escola, tipo_solicitacao="COMUM", ativo=True
+    dietas_autorizadas = SolicitacaoDietaEspecial.objects.filter(
+        aluno__escola=escola,
+        tipo_solicitacao="COMUM",
+        ativo=True,
+        status="CODAE_AUTORIZADO",
     )
-    dietas_com_log_autorizado = [
-        s
-        for s in solicitacoes_dietas_comuns
-        if s.logs.filter(status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU)
-    ]
     data_inicial = query_params.get("data_inicial")
     data_final = query_params.get("data_final")
     alunos_com_dietas_autorizadas = []
-    for dieta in dietas_com_log_autorizado:
+    for dieta in dietas_autorizadas:
         datetime_autorizacao = datetime.strptime(dieta.data_autorizacao, "%d/%m/%Y")
         if data_inicial and data_final:
             if (
                 datetime_autorizacao >= datetime.strptime(data_inicial, "%Y-%m-%d")
                 and datetime_autorizacao <= datetime.strptime(data_final, "%Y-%m-%d")
-            ) or (
-                datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d")
-                and (
-                    (
-                        dieta.logs.last().status_evento
-                        == LogSolicitacoesUsuario.CODAE_AUTORIZOU
-                    )
-                    or (
-                        dieta.logs.last().status_evento
-                        != LogSolicitacoesUsuario.CODAE_AUTORIZOU
-                        and dieta.logs.last().criado_em
-                        > datetime.strptime(data_inicial, "%Y-%m-%d")
-                    )
-                )
-            ):
+            ) or (datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d")):
                 alunos_com_dietas_autorizadas.append(
                     {
                         "aluno": dieta.aluno.nome,
@@ -538,18 +510,6 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
                 <= datetime.strptime(f"{num_dias}/{mes}/{ano}", "%d/%m/%Y")
             ) or (
                 datetime_autorizacao < datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
-                and (
-                    (
-                        dieta.logs.last().status_evento
-                        == LogSolicitacoesUsuario.CODAE_AUTORIZOU
-                    )
-                    or (
-                        dieta.logs.last().status_evento
-                        != LogSolicitacoesUsuario.CODAE_AUTORIZOU
-                        and dieta.logs.last().criado_em
-                        > datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
-                    )
-                )
             ):
                 alunos_com_dietas_autorizadas.append(
                     {
