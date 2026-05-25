@@ -17,12 +17,10 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
     buscar_valores_lancamento_alimentacoes_recreio,
     existe_colaborador,
-    get_linhas_da_tabela_alimentacoes_recreio,
-    valida_campo_participantes,
-)
-from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     get_classificacoes_dietas_recreio,
+    get_linhas_da_tabela_alimentacoes_recreio,
     get_tipos_alimentacao_recreio,
+    valida_campo_participantes,
 )
 from src.medicao_inicial.validators import erros_unicos, lista_erros_com_periodo
 

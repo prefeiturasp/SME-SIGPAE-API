@@ -17,7 +17,9 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
     buscar_valores_lancamento_alimentacoes_recreio,
     existe_colaborador,
+    get_classificacoes_dietas_recreio,
     get_linhas_da_tabela_alimentacoes_recreio,
+    get_tipos_alimentacao_recreio,
     valida_campo_participantes,
 )
 from src.medicao_inicial.validators import (
@@ -439,35 +441,6 @@ def get_linhas_da_tabela_dieta_recreio(
     return nomes_campos
 
 
-def get_tipos_alimentacao_recreio(
-    solicitacao: SolicitacaoMedicaoInicial,
-) -> list[str]:
-    """Retorna os tipos de alimentação dos inscritos no recreio.
-
-    Busca os tipos de alimentação configurados para os participantes
-    da categoria ``Inscritos`` e retorna os nomes agrupados por
-    categoria.
-
-    Args:
-        recreio (RecreioNasFerias): Instância do recreio utilizada na consulta.
-
-    Returns:
-        list[str]: Lista contendo os tipos de alimentação dos inscritos.
-    """
-    recreio = solicitacao.recreio_nas_ferias
-    participantes = recreio.unidades_participantes.filter(
-        unidade_educacional=solicitacao.escola
-    ).first()
-
-    tipos_alimentacao = participantes.tipos_alimentacao.filter(
-        categoria__nome="Inscritos",
-    )
-
-    return agrupar_tipos_alimentacao_por_categoria(
-        tipos_alimentacao,
-    ).get("Inscritos", [])
-
-
 def get_logs_indexados_recreio(
     escola: Escola,
     inicio_recreio: datetime.date,
@@ -568,65 +541,6 @@ def get_valores_medicao_set(
     )
 
     return set(valores_medicao)
-
-
-def get_classificacoes_dietas_recreio(
-    categorias: list[CategoriaMedicao], lista_alimentacoes: list[str]
-) -> list[CategoriaMedicao]:
-    """
-    Filtra categorias de medição de dietas para recreio
-    com base nos tipos de alimentação disponíveis.
-
-    Regras:
-    - Remove categorias contendo "ENTERAL" quando não existir:
-        - Lanche
-        - Lanche 4h
-        - Refeição
-
-    - Remove categorias contendo "DIETA ESPECIAL"quando não existir:
-        - Lanche
-        - Lanche 4h
-
-    - Categorias ENTERAL são preservadas na regra de remoção de "DIETA ESPECIAL"
-
-    Args:
-        categorias (list[CategoriaMedicao]):  Lista de categorias de medição disponíveis.
-        lista_alimentacoes (list[str]): Lista de alimentações habilitadas para a medição.
-
-    Returns:
-        list[CategoriaMedicao]: Lista de categorias filtradas conforme as regras de alimentação do recreio.
-    """
-
-    dicionario_alimentacao_dietas = {
-        "Lanche": "lanche",
-        "Lanche 4h": "lanche_4h",
-        "Refeição": "refeicao",
-    }
-    alimentacoes = {
-        dicionario_alimentacao_dietas[alimentacao]
-        for alimentacao in lista_alimentacoes
-        if alimentacao in dicionario_alimentacao_dietas
-    }
-
-    tem_lanche = "lanche" in alimentacoes or "lanche_4h" in alimentacoes
-    tem_refeicao = "refeicao" in alimentacoes
-
-    categorias_filtradas = []
-
-    for categoria in categorias:
-        nome = categoria.nome.upper()
-
-        tem_enteral = "ENTERAL" in nome
-        tem_dieta_especial = "DIETA ESPECIAL" in nome
-
-        if not tem_lanche and not tem_refeicao and tem_enteral:
-            continue
-
-        if not tem_lanche and tem_dieta_especial and not tem_enteral:
-            continue
-
-        categorias_filtradas.append(categoria)
-    return categorias_filtradas
 
 
 def cria_valores_medicao_dietas_autorizadas_do_recreio(

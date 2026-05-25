@@ -7,12 +7,12 @@ from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
     existe_colaborador,
+    get_classificacoes_dietas_recreio,
 )
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
     _categoria_tem_logs_dieta_autorizada,
     cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
     cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
-    get_classificacoes_dietas_recreio,
     get_linhas_da_tabela_dieta_recreio,
     indexar_logs_dieta_autorizadas_por_data,
     retorna_valor_para_log_dieta_autorizada,
