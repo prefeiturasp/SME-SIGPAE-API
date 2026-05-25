@@ -648,7 +648,7 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "00 meses") == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == "0 a 1 mes") == 6
     assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 6
     assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 6
     assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 6

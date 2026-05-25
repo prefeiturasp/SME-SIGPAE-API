@@ -86,6 +86,9 @@ td {
 
 tbody {
   .linha-faixa-matriculados {
+    break-after: avoid;
+    page-break-after: avoid;
+
     td:first-child {
       font-weight: 700;
     }

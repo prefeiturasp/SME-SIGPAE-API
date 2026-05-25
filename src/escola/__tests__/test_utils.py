@@ -73,6 +73,7 @@ def test_meses_para_mes_e_ano_string():
 
 
 def test_faixa_to_string():
+    assert faixa_to_string(0, 1) == "0 a 1 mes"
     assert faixa_to_string(0, 0) == "0 meses a 11 meses"
     assert faixa_to_string(12, 13) == "01 ano"
 
@@ -85,6 +86,7 @@ def test_faixa_to_string():
 
 
 def test_string_to_faixa():
+    assert string_to_faixa("0 a 1 mes") == (0, 1)
     assert string_to_faixa("0 meses a 11 meses") == (0, 12)
     assert string_to_faixa("1") == (1, 2)
 
@@ -467,10 +469,7 @@ def test_analise_alunos_dietas_somente_uma_data_dieta_cancelada(dieta_cancelada)
         alunos_com_dietas_autorizadas,
     )
     assert isinstance(alunos, list)
-    assert len(alunos) == 1
-    assert alunos[0]["aluno"] == dieta_cancelada.aluno.nome
-    assert alunos[0]["tipo_dieta"] == dieta_cancelada.classificacao.nome
-    assert alunos[0]["data_autorizacao"] == dieta_cancelada.data_autorizacao
+    assert len(alunos) == 0
 
 
 @freeze_time("2025-01-01")
@@ -507,6 +506,23 @@ def test_get_alunos_com_dietas_autorizadas_nao_retorna_ativo_false(
     alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
 
     assert alunos == []
+
+
+@freeze_time("2025-01-01")
+def test_get_alunos_com_dietas_autorizadas_com_atualizacao_protocolo(
+    dieta_com_atualizacao_protocolo, escola
+):
+    """Dieta cujo último log não é CODAE_AUTORIZOU (houve atualização de protocolo),
+    mas cujo status é CODAE_AUTORIZADO, deve aparecer no relatório."""
+    query_params = {"mes_ano": "02_2025"}
+    alunos = get_alunos_com_dietas_autorizadas(query_params, escola)
+    assert len(alunos) == 1
+    assert alunos[0]["aluno"] == dieta_com_atualizacao_protocolo.aluno.nome
+    assert alunos[0]["tipo_dieta"] == dieta_com_atualizacao_protocolo.classificacao.nome
+    assert (
+        alunos[0]["data_autorizacao"]
+        == dieta_com_atualizacao_protocolo.data_autorizacao
+    )
 
 
 @freeze_time("2024-06-15")
@@ -756,7 +772,7 @@ class TestOrdenaFaixasPorIdade:
                 "MANHA",
                 [
                     "07 a 11 meses",
-                    "00 meses",
+                    "0 a 1 mes",
                     "04 a 05 meses",
                     "01 a 03 meses",
                     "06 meses",
@@ -768,7 +784,7 @@ class TestOrdenaFaixasPorIdade:
         resultado = ordena_faixas_por_idade(periodos)
         nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
         assert nomes_ordenados == [
-            "00 meses",
+            "0 a 1 mes",
             "01 a 03 meses",
             "04 a 05 meses",
             "06 meses",
@@ -778,27 +794,27 @@ class TestOrdenaFaixasPorIdade:
         ]
 
     def test_faixas_ausentes_nao_quebram(self):
-        periodos = [make_periodo("TARDE", ["06 meses", "00 meses"])]
+        periodos = [make_periodo("TARDE", ["06 meses", "0 a 1 mes"])]
         resultado = ordena_faixas_por_idade(periodos)
         nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
-        assert nomes_ordenados == ["00 meses", "06 meses"]
+        assert nomes_ordenados == ["0 a 1 mes", "06 meses"]
 
     def test_faixa_desconhecida_vai_para_o_fim(self):
         periodos = [
-            make_periodo("MANHA", ["faixa_desconhecida", "06 meses", "00 meses"])
+            make_periodo("MANHA", ["faixa_desconhecida", "06 meses", "0 a 1 mes"])
         ]
         resultado = ordena_faixas_por_idade(periodos)
         nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
-        assert nomes_ordenados == ["00 meses", "06 meses", "faixa_desconhecida"]
+        assert nomes_ordenados == ["0 a 1 mes", "06 meses", "faixa_desconhecida"]
 
     def test_multiplos_periodos_ordenados_independentemente(self):
         periodos = [
-            make_periodo("MANHA", ["07 a 11 meses", "00 meses"]),
+            make_periodo("MANHA", ["07 a 11 meses", "0 a 1 mes"]),
             make_periodo("TARDE", ["04 a 05 meses", "01 a 03 meses"]),
         ]
         resultado = ordena_faixas_por_idade(periodos)
         assert [f["nome_faixa"] for f in resultado[0]["faixas"]] == [
-            "00 meses",
+            "0 a 1 mes",
             "07 a 11 meses",
         ]
         assert [f["nome_faixa"] for f in resultado[1]["faixas"]] == [
