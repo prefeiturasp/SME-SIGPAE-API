@@ -54,7 +54,7 @@ pytestmark = pytest.mark.django_db
 
 
 def test_meses_para_mes_e_ano_string():
-    assert meses_to_mes_e_ano_string(0) == "0 a 1 mes"
+    assert meses_to_mes_e_ano_string(0) == "00 meses"
     assert meses_to_mes_e_ano_string(1) == "01 mês"
     assert meses_to_mes_e_ano_string(2) == "02 meses"
     assert meses_to_mes_e_ano_string(3) == "03 meses"
