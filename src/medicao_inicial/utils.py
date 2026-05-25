@@ -1741,7 +1741,7 @@ def popula_campo_total(
                     for valores in tabela["valores_campos"]
                 ]
             valores_dia += [sum(int(x) for x in values)]
-        except Exception as e:
+        except Exception:
             valores_dia += ["0"]
 
 
