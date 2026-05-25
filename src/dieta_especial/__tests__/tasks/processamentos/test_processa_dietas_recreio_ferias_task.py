@@ -19,6 +19,7 @@ from src.dieta_especial.logs_models.models import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
+from src.dieta_especial.tasks import logs as logs_tasks
 from src.dieta_especial.tasks.logs import (
     gera_logs_dietas_recreio_ferias_diariamente,
 )
@@ -43,6 +44,10 @@ from src.terceirizada.fixtures.factories.terceirizada_factory import (
 )
 
 pytestmark = [pytest.mark.django_db(transaction=True, reset_sequences=True)]
+
+
+def _raise_when_filter_called(*args, **kwargs):
+    raise RuntimeError("reached-filter")
 
 
 class TestLogsRecreioNasFerias:
@@ -345,15 +350,43 @@ class TestLogsRecreioNasFerias:
         assert len(logs_tipo_a) == 1
         assert logs_tipo_a[0].quantidade == 5
 
-    @freeze_time("2025-01-15")
-    def test_nao_gera_logs_fora_janeiro_julho(self):
+    def test_nao_gera_logs_fora_janeiro_julho_em_producao(self, monkeypatch):
+        monkeypatch.setattr(logs_tasks, "env", lambda key: "production")
+        monkeypatch.setattr(
+            SolicitacaoDietaEspecial.objects,
+            "filter",
+            _raise_when_filter_called,
+        )
 
         with freeze_time("2025-03-15"):
             gera_logs_dietas_recreio_ferias_diariamente()
-            assert LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.count() == 0
-            assert (
-                LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count() == 0
-            )
+
+    @pytest.mark.parametrize("data_referencia", ["2025-01-15", "2025-07-15"])
+    def test_gera_logs_em_mes_de_ferias_em_producao(self, monkeypatch, data_referencia):
+        monkeypatch.setattr(logs_tasks, "env", lambda key: "production")
+        monkeypatch.setattr(
+            SolicitacaoDietaEspecial.objects,
+            "filter",
+            _raise_when_filter_called,
+        )
+
+        with freeze_time(data_referencia), pytest.raises(
+            RuntimeError, match="reached-filter"
+        ):
+            gera_logs_dietas_recreio_ferias_diariamente()
+
+    def test_gera_logs_fora_de_producao_mes_nao_ferias(self, monkeypatch):
+        monkeypatch.setattr(logs_tasks, "env", lambda key: "local")
+        monkeypatch.setattr(
+            SolicitacaoDietaEspecial.objects,
+            "filter",
+            _raise_when_filter_called,
+        )
+
+        with freeze_time("2025-03-15"), pytest.raises(
+            RuntimeError, match="reached-filter"
+        ):
+            gera_logs_dietas_recreio_ferias_diariamente()
 
     @freeze_time("2025-01-15")
     def test_nao_gera_logs_para_escolas_nao_terc_total(self):

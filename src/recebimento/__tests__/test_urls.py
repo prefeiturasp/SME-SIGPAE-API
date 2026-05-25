@@ -6,9 +6,11 @@ from io import BytesIO
 import pytest
 from faker import Faker
 from freezegun import freeze_time
+from model_bakery import baker
 from pypdf import PdfReader
 from rest_framework import status
 
+from src.dados_comuns import constants
 from src.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from src.recebimento.models import (
@@ -20,6 +22,32 @@ from src.recebimento.models import (
 fake = Faker("pt_BR")
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture
+def client_autenticado_dilog_visualizacao(client, django_user_model):
+    email = "dilogvisualizacao@test.com"
+    password = constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=password,
+        email=email,
+        registro_funcional=str(fake.unique.random_int(min=100000, max=999999)),
+    )
+    perfil_dilog_visualizacao = baker.make(
+        "Perfil", nome=constants.DILOG_VISUALIZACAO, ativo=True
+    )
+    codae = baker.make("Codae")
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_visualizacao,
+        data_inicial=date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client
 
 
 def test_url_questoes_conferencia_list(
@@ -464,6 +492,23 @@ def test_gerar_pdf_ficha_recebimento(
 
     assert ficha_tecnica.material_embalagem_primaria in pdf_text
     assert ficha_tecnica.sistema_vedacao_embalagem_secundaria in pdf_text
+
+
+@freeze_time("2025-09-09")
+def test_gerar_pdf_ficha_recebimento_perfil_dilog_visualizacao(
+    client_autenticado_dilog_visualizacao, ficha_de_recebimento_factory
+):
+    ficha_completa = ficha_de_recebimento_factory(
+        status=FichaDeRecebimentoWorkflow.ASSINADA,
+        etapa__cronograma__ficha_tecnica__programa=FichaTecnicaDoProduto.LEVE_LEITE,
+    )
+
+    response = client_autenticado_dilog_visualizacao.get(
+        f"/fichas-de-recebimento/{ficha_completa.uuid}/gerar-pdf-ficha/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response["Content-Type"] == "application/pdf"
 
 
 def test_gerar_pdf_ficha_nao_encontrada(client_autenticado_qualidade):

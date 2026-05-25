@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from src.dados_comuns.helpers_autenticidade import (
     verificar_autenticidade_usuario,
 )
+from src.dados_comuns.permissions import PermissaoParaVisualizarRelatorioCronograma
 from src.relatorios.relatorios import get_pdf_ficha_recebimento
 
 from ...dados_comuns.api.paginations import DefaultPagination
@@ -223,7 +224,12 @@ class FichaRecebimentoModelViewSet(
         instance = self.get_object()
         return self._process_ficha_request(request, instance=instance, create=False)
 
-    @action(detail=True, methods=["GET"], url_path="gerar-pdf-ficha")
+    @action(
+        detail=True,
+        methods=["GET"],
+        url_path="gerar-pdf-ficha",
+        permission_classes=(PermissaoParaVisualizarRelatorioCronograma,),
+    )
     def gerar_pdf_ficha(self, request, uuid=None):
         ficha = self.get_object()
         return get_pdf_ficha_recebimento(request, ficha)
