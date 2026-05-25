@@ -189,12 +189,12 @@
     </h1>
 
     {% if tabela_somatorio_participantes.body %}
-    <div class="tabelas-somatorio mb-2">
-      <table>
+    <div class="tabelas-somatorio-dietas mb-2">
+      <table class="tabela-dieta-participantes">
         <thead class="head-tabelas-somatorio">
           <tr class="texto-branco">
             {% for col in tabela_somatorio_participantes.header %}
-            <th class="col-{{ col|get_colspan }}">
+            <th class="col-1">
               {{ col|get_nome_header }}
             </th>
             {% endfor %}
@@ -204,7 +204,7 @@
           {% for row in tabela_somatorio_participantes.body %}
           <tr>
             {% for col in tabela_somatorio_participantes.header %}
-            <td class="col-{{ col|get_colspan }}">
+            <td class="col-1">
               {{ row|get_element_by_index:forloop.counter0 }}
             </td>
             {% endfor %}
@@ -219,8 +219,8 @@
     {% endif %}
 
     {% if tabela_somatorio_colaboradores.body %}
-    <div class="tabelas-somatorio">
-      <table>
+    <div class="tabelas-somatorio-dietas">
+      <table class="tabela-dieta-colaboradores">
         <thead class="head-tabelas-somatorio">
           <tr class="texto-branco">
             {% for col in tabela_somatorio_colaboradores.header %}
