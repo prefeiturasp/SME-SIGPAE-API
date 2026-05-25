@@ -654,6 +654,30 @@ def aluno_pertence_a_escola(aluno, escola, data_inicial=None, data_final=None):
     return False
 
 
+def _filtra_alunos_faixa_para_extensao(alunos_por_dia, faixa_etaria, data_referencia):
+    """
+    Filtra os alunos que ainda pertencem à faixa etária na data_referencia.
+
+    Necessário para não propagar para dias futuros alunos que mudaram de faixa
+    no decorrer do mês corrente (ex.: aniversário).
+    O nome do aluno está no formato "NOME - DD/MM/YYYY".
+    """
+    filtrados = []
+    for aluno_str in alunos_por_dia:
+        partes = aluno_str.rsplit(" - ", 1)
+        if len(partes) == 2:
+            try:
+                d, m, y = partes[1].split("/")
+                data_nascimento = date(int(y), int(m), int(d))
+                if faixa_etaria.data_pertence_a_faixa(data_nascimento, data_referencia):
+                    filtrados.append(aluno_str)
+            except (ValueError, AttributeError):
+                filtrados.append(aluno_str)
+        else:
+            filtrados.append(aluno_str)
+    return filtrados
+
+
 def trata_dados_futuro_mes_atual(
     queryset_periodo_faixa,
     log_periodo_faixa,
@@ -672,9 +696,12 @@ def trata_dados_futuro_mes_atual(
             if datetime_inicial >= hoje:
                 dias_append(dias, int(dia_inicial), alunos_por_dia)
         else:
+            alunos_extensao = _filtra_alunos_faixa_para_extensao(
+                alunos_por_dia, log_periodo_faixa.faixa_etaria, hoje
+            )
             dia = log_periodo_faixa.data.day + 1
             while int(dia) <= int(num_dias):
-                dias_append(dias, dia, alunos_por_dia)
+                dias_append(dias, dia, alunos_extensao)
                 dia += 1
 
 
