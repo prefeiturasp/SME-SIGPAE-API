@@ -519,9 +519,9 @@ class TestFiltraAlunosFaixaParaExtensao:
 
     def test_aluno_na_faixa_permanece(self):
         """Aluno cujo nascimento pertence à faixa na data de referência → permanece."""
-        # "00 meses" (inicio=0, fim=1): em 25/05/2026, abrange nascidos em [25/04, 25/05)
+        # "0 a 1 mes" (inicio=0, fim=1): em 25/05/2026, abrange nascidos em [25/04, 25/05)
         faixa = FaixaEtaria(inicio=0, fim=1)
-        aluno_str = "JOAO SILVA - 20/05/2026"  # 5 dias → dentro de "00 meses"
+        aluno_str = "JOAO SILVA - 20/05/2026"  # 5 dias → dentro de "0 a 1 mes"
         resultado = _filtra_alunos_faixa_para_extensao(
             [aluno_str], faixa, datetime.date(2026, 5, 25)
         )
@@ -529,7 +529,7 @@ class TestFiltraAlunosFaixaParaExtensao:
 
     def test_aluno_fora_da_faixa_removido(self):
         """Aluno cujo nascimento não pertence mais à faixa na data de referência → removido."""
-        # LEVI nascido 10/04/2026: em 25/05/2026 tem 1 mês e 15 dias → fora de "00 meses"
+        # LEVI nascido 10/04/2026: em 25/05/2026 tem 1 mês e 15 dias → fora de "0 a 1 mes"
         faixa = FaixaEtaria(inicio=0, fim=1)
         aluno_str = "LEVI BRITO DA COSTA - 10/04/2026"
         resultado = _filtra_alunos_faixa_para_extensao(
@@ -565,9 +565,9 @@ class TestFiltraAlunosFaixaParaExtensao:
     def test_filtra_alunos_mistos_apenas_na_faixa_permanece(self):
         """Dois alunos: um na faixa e outro fora → apenas o da faixa permanece."""
         faixa = FaixaEtaria(inicio=0, fim=1)
-        # Em 25/05/2026, "00 meses" abrange nascidos em [25/04/2026, 25/05/2026)
-        aluno_na_faixa = "JOSE - 01/05/2026"  # 24 dias → dentro de "00 meses"
-        aluno_fora = "LEVI - 10/04/2026"  # ~45 dias → fora de "00 meses"
+        # Em 25/05/2026, "0 a 1 mes" abrange nascidos em [25/04/2026, 25/05/2026)
+        aluno_na_faixa = "JOSE - 01/05/2026"  # 24 dias → dentro de "0 a 1 mes"
+        aluno_fora = "LEVI - 10/04/2026"  # ~45 dias → fora de "0 a 1 mes"
         resultado = _filtra_alunos_faixa_para_extensao(
             [aluno_na_faixa, aluno_fora], faixa, datetime.date(2026, 5, 25)
         )
@@ -584,9 +584,9 @@ class TestTrataDadosFuturoMesAtualMudancaFaixa:
     @freeze_time("2026-05-25")
     def test_aluno_que_mudou_de_faixa_nao_aparece_nos_dias_estendidos(self):
         """
-        LEVI nasceu em 10/04/2026. Os logs de "00 meses" cobrem os dias 06-09 de maio
+        LEVI nasceu em 10/04/2026. Os logs de "0 a 1 mes" cobrem os dias 06-09 de maio
         (antes do aniversário de 1 mês). Em 25/05/2026 LEVI pertence a "01 a 03 meses",
-        portanto a extensão para 10-31/05 em "00 meses" NÃO deve incluí-lo.
+        portanto a extensão para 10-31/05 em "0 a 1 mes" NÃO deve incluí-lo.
         """
         escola = EscolaFactory()
         aluno = AlunoFactory(escola=escola, data_nascimento=datetime.date(2026, 4, 10))
@@ -628,12 +628,12 @@ class TestTrataDadosFuturoMesAtualMudancaFaixa:
         for dia_dict in dias_estendidos:
             assert (
                 levi_str not in dia_dict["alunos_por_dia"]
-            ), f"LEVI não deveria aparecer em 'dia={dia_dict['dia']}' de '00 meses'"
+            ), f"LEVI não deveria aparecer em 'dia={dia_dict['dia']}' de '0 a 1 mes'"
 
     @freeze_time("2026-05-25")
     def test_aluno_ainda_na_faixa_aparece_nos_dias_estendidos(self):
         """
-        Aluno nascido em 01/05/2026 ainda está em "00 meses" em 25/05/2026.
+        Aluno nascido em 01/05/2026 ainda está em "0 a 1 mes" em 25/05/2026.
         A extensão deve incluí-lo normalmente nos dias futuros.
         """
         escola = EscolaFactory()
@@ -676,4 +676,4 @@ class TestTrataDadosFuturoMesAtualMudancaFaixa:
         for dia_dict in dias_estendidos:
             assert (
                 aluno_str in dia_dict["alunos_por_dia"]
-            ), f"Aluno deveria aparecer em 'dia={dia_dict['dia']}' de '00 meses'"
+            ), f"Aluno deveria aparecer em 'dia={dia_dict['dia']}' de '0 a 1 mes'"

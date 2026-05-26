@@ -852,14 +852,13 @@ def formata_periodos_pdf_controle_frequencia(
 
 def ordena_faixas_por_idade(periodos: list) -> list:
     ORDEM_FAIXA_ETARIA = {
-        "00 meses": 1,
-        "0 a 1 mês": 2,
-        "01 a 03 meses": 3,
-        "04 a 05 meses": 4,
-        "06 meses": 5,
-        "07 a 11 meses": 6,
-        "1 a 3 anos e 11 meses": 7,
-        "4 a 6 anos": 8,
+        "0 a 1 mes": 1,
+        "01 a 03 meses": 2,
+        "04 a 05 meses": 3,
+        "06 meses": 4,
+        "07 a 11 meses": 5,
+        "1 a 3 anos e 11 meses": 6,
+        "4 a 6 anos": 7,
     }
 
     for periodo in periodos:
