@@ -312,3 +312,62 @@ class DocRecebimentoDetalharCodaeSerializer(DocRecebimentoDetalharSerializer):
             "datas_fabricacao_e_prazos",
             "correcao_solicitada",
         )
+
+
+class DocumentoDeRecebimentoDetalheRelatorioSerializer(serializers.ModelSerializer):
+    nome_laboratorio = serializers.CharField(source="laboratorio.nome", read_only=True)
+    unidade_medida = serializers.CharField(
+        source="unidade_medida.abreviacao", read_only=True
+    )
+    datas_fabricacao_e_prazos = DataDeFabricacaoEPrazoLookupSerializer(
+        many=True, read_only=True
+    )
+    status_documento = serializers.CharField(
+        source="get_status_display", read_only=True
+    )
+    saldo_inicial_laudo = serializers.DecimalField(
+        source="quantidade_laudo", max_digits=15, decimal_places=2, read_only=True
+    )
+    saldo_atual = serializers.SerializerMethodField()
+
+    def get_saldo_atual(self, obj):
+        return calcular_saldo_laudo(obj)
+
+    class Meta:
+        model = DocumentoDeRecebimento
+        fields = (
+            "uuid",
+            "numero_laudo",
+            "nome_laboratorio",
+            "numero_lote_laudo",
+            "data_final_lote",
+            "unidade_medida",
+            "quantidade_laudo",
+            "saldo_inicial_laudo",
+            "saldo_atual",
+            "datas_fabricacao_e_prazos",
+            "status_documento",
+        )
+
+
+class CronogramaRelatorioDocumentosSerializer(serializers.Serializer):
+    uuid = serializers.UUIDField(read_only=True)
+    numero_cronograma = serializers.CharField(source="numero", read_only=True)
+    produto = serializers.CharField(
+        source="ficha_tecnica.produto.nome", read_only=True
+    )
+    empresa = serializers.CharField(source="empresa.razao_social", read_only=True)
+    numero_pregao_chamada_publica = serializers.SerializerMethodField()
+    numero_processo_sei = serializers.CharField(
+        source="contrato.processo", read_only=True
+    )
+    documentos = serializers.SerializerMethodField()
+
+    def get_numero_pregao_chamada_publica(self, obj):
+        return obj.contrato.numero_pregao if obj.contrato else None
+
+    def get_documentos(self, obj):
+        docs = obj.documentos_de_recebimento.select_related(
+            "laboratorio", "unidade_medida"
+        ).prefetch_related("datas_fabricacao_e_prazos")
+        return DocumentoDeRecebimentoDetalheRelatorioSerializer(docs, many=True).data
