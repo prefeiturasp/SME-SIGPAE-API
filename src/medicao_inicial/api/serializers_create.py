@@ -1302,7 +1302,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             != SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
         ):
             return
-        lista_erros = [{"periodo_escolar": "ok", "erro": "ok"}]
+        lista_erros = []
         lista_erros = validate_lancamento_alimentacoes_medicao_recreio_cemei(
             instance, lista_erros
         )
