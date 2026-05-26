@@ -198,45 +198,41 @@ def get_lista_categorias_campos_cei(medicao):
     return lista_categorias_campos
 
 
+def _get_campos_iniciais_categoria(categoria: str, medicao) -> list:
+    """Retorna os campos iniciais de uma categoria conforme o tipo de medição."""
+    GRUPOS_PROGRAMAS = ["Programas e Projetos", "ETEC"]
+    GRUPOS_RECREIO = ["Recreio nas Férias", "Colaboradores"]
+
+    if "DIETA" in categoria:
+        return ["aprovadas"]
+
+    grupo_nome = medicao.grupo.nome if medicao.grupo else None
+
+    if grupo_nome == "Solicitações de Alimentação":
+        return []
+    if grupo_nome in GRUPOS_PROGRAMAS:
+        return ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]
+    if grupo_nome in GRUPOS_RECREIO:
+        return ["participantes", "total_refeicoes_pagamento", "total_sobremesas_pagamento"]
+
+    return ["matriculados", "total_refeicoes_pagamento", "total_sobremesas_pagamento"]
+
+
 def build_dict_relacao_categorias_e_campos(medicao, tipo_turma=None):
     CATEGORIA = 0
     CAMPO = 1
 
     lista_categorias_campos = get_lista_categorias_campos(medicao, tipo_turma)
     dict_categorias_campos = {}
+
     for categoria_campo in lista_categorias_campos:
-        if categoria_campo[CATEGORIA] not in dict_categorias_campos.keys():
-            if "DIETA" in categoria_campo[CATEGORIA]:
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = ["aprovadas"]
-            elif medicao.grupo and medicao.grupo.nome == "Solicitações de Alimentação":
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = []
-            elif medicao.grupo and medicao.grupo.nome in [
-                "Programas e Projetos",
-                "ETEC",
-            ]:
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = [
-                    "total_refeicoes_pagamento",
-                    "total_sobremesas_pagamento",
-                ]
-            elif medicao.grupo and (medicao.grupo.nome == "Recreio nas Férias" or medicao.grupo.nome == "Colaboradores"):
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = [
-                    "participantes",
-                    "total_refeicoes_pagamento",
-                    "total_sobremesas_pagamento",
-                ]
-            else:
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = [
-                    "matriculados",
-                    "total_refeicoes_pagamento",
-                    "total_sobremesas_pagamento",
-                ]
-            dict_categorias_campos[categoria_campo[CATEGORIA]] += [
-                categoria_campo[CAMPO]
-            ]
-        else:
-            dict_categorias_campos[categoria_campo[CATEGORIA]] += [
-                categoria_campo[CAMPO]
-            ]
+        categoria = categoria_campo[CATEGORIA]
+        campo = categoria_campo[CAMPO]
+
+        if categoria not in dict_categorias_campos:
+            dict_categorias_campos[categoria] = _get_campos_iniciais_categoria(categoria, medicao)
+
+        dict_categorias_campos[categoria].append(campo)
 
     return dict_categorias_campos
 
@@ -3441,16 +3437,47 @@ def somar_campos_somatorio_recreio_nas_ferias(medicao, campo):
     return total
 
 
-def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes, dict_total_sobremesas):
-    try:
-        medicao_recreio = solicitacao.medicoes.get(grupo__nome="Recreio nas Férias")
-    except Exception:
-        medicao_recreio = None
+def _get_total_dieta_por_tipo(medicao, tipo_dieta: str, nome_categoria: str, campo: str) -> int:
+    if not medicao:
+        return 0
+    if tipo_dieta == "TIPO A":
+        values = medicao.valores_medicao.filter(
+            categoria_medicao__nome=nome_categoria,
+            nome_campo=campo,
+        )
+    else:
+        values = medicao.valores_medicao.filter(
+            categoria_medicao__nome__icontains=nome_categoria,
+            nome_campo=campo,
+        )
+    return sum(int(v.valor) for v in values)
 
-    try:
-        medicao_colaboradores = solicitacao.medicoes.get(grupo__nome="Colaboradores")
-    except Exception:
-        medicao_colaboradores = None
+
+def _build_body_tabela_participantes(medicao_recreio, campos_alimentacao: list) -> list:
+    body = []
+    for campo in campos_alimentacao:
+        total_alim = somar_campos_somatorio_recreio_nas_ferias(medicao_recreio, campo) if medicao_recreio else 0
+        totais_dietas = [
+            _get_total_dieta_por_tipo(medicao_recreio, tipo_dieta, nome_categoria, campo)
+            for tipo_dieta, nome_categoria in MAPA_TIPO_DIETA.items()
+        ]
+        if any(v > 0 for v in [total_alim] + totais_dietas):
+            body.append([get_nome_campo(campo), total_alim, *totais_dietas])
+    return body
+
+
+def _build_body_tabela_colaboradores(medicao_colaboradores, campos_alimentacao: list) -> list:
+    body = []
+    for campo in campos_alimentacao:
+        total_colab = somar_campos_somatorio_recreio_nas_ferias(medicao_colaboradores, campo) if medicao_colaboradores else 0
+        if total_colab > 0:
+            body.append([get_nome_campo(campo), total_colab])
+    return body
+
+
+def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes, dict_total_sobremesas):
+    medicao_recreio = solicitacao.medicoes.filter(grupo__nome="Recreio nas Férias").first()
+    medicao_colaboradores = solicitacao.medicoes.filter(grupo__nome="Colaboradores").first()
 
     campos_alimentacao = [
         c for c in ORDEM_CAMPOS
@@ -3461,67 +3488,20 @@ def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes,
         ]
     ]
 
-    header_tabela_1 = [
-        "TIPOS ALIMENTAÇÃO",
-        "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
-        "DIETA TIPO A",
-        "DIETA ENTERAL / REST. DE AMINOÁCIDOS",
-        "DIETA TIPO B",
-    ]
-    body_tabela_1 = []
-
-    for campo in campos_alimentacao:
-        # Alimentação regular
-        if medicao_recreio:
-            total_alim = somar_campos_somatorio_recreio_nas_ferias(medicao_recreio, campo)
-        else:
-            total_alim = 0
-
-        # Dietas
-        totais_dietas = []
-        for tipo_dieta, nome_categoria in MAPA_TIPO_DIETA.items():
-            if medicao_recreio:
-                if tipo_dieta == "TIPO A":
-                    # exact para não pegar ENTERAL
-                    values_dieta = medicao_recreio.valores_medicao.filter(
-                        categoria_medicao__nome=nome_categoria,
-                        nome_campo=campo,
-                    )
-                else:
-                    values_dieta = medicao_recreio.valores_medicao.filter(
-                        categoria_medicao__nome__icontains=nome_categoria,
-                        nome_campo=campo,
-                    )
-                total_dieta = sum(int(v.valor) for v in values_dieta)
-            else:
-                total_dieta = 0
-            totais_dietas.append(total_dieta)
-
-        if any(v > 0 for v in [total_alim] + totais_dietas):
-            body_tabela_1.append([
-                get_nome_campo(campo),
-                total_alim,
-                *totais_dietas,
-            ])
-
-    tabela_participantes = {"header": header_tabela_1, "body": body_tabela_1}
-
-    header_tabela_2 = [
-        "TIPOS ALIMENTAÇÃO",
-        "TOTAL DE ALIMENTAÇÕES PARA COLABORADORES",
-    ]
-    body_tabela_2 = []
-
-    for campo in campos_alimentacao:
-        if medicao_colaboradores:
-            total_colab = somar_campos_somatorio_recreio_nas_ferias(medicao_colaboradores, campo)
-        else:
-            total_colab = 0
-
-        if total_colab > 0:
-            body_tabela_2.append([get_nome_campo(campo), total_colab])
-
-    tabela_colaboradores = {"header": header_tabela_2, "body": body_tabela_2}
+    tabela_participantes = {
+        "header": [
+            "TIPOS ALIMENTAÇÃO",
+            "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
+            "DIETA TIPO A",
+            "DIETA ENTERAL / REST. DE AMINOÁCIDOS",
+            "DIETA TIPO B",
+        ],
+        "body": _build_body_tabela_participantes(medicao_recreio, campos_alimentacao),
+    }
+    tabela_colaboradores = {
+        "header": ["TIPOS ALIMENTAÇÃO", "TOTAL DE ALIMENTAÇÕES PARA COLABORADORES"],
+        "body": _build_body_tabela_colaboradores(medicao_colaboradores, campos_alimentacao),
+    }
 
     return tabela_participantes, tabela_colaboradores
 
