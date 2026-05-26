@@ -1,3 +1,4 @@
+from django.db.models import Count, Prefetch
 from django.http import HttpResponse
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
@@ -12,12 +13,13 @@ from src.dados_comuns.fluxo_status import (
 )
 from src.dados_comuns.permissions import (
     PermissaoParaDashboardDocumentosDeRecebimento,
-    PermissaoParaVisualizarDocumentosDeRecebimento,
     PermissaoParaRelatorioDocumentosDeRecebimento,
+    PermissaoParaVisualizarDocumentosDeRecebimento,
     UsuarioEhDilogQualidade,
     UsuarioEhFornecedor,
     ViewSetActionPermissionMixin,
 )
+from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.pre_recebimento.documento_recebimento.api.filters import (
     CronogramaRelatorioDocumentosFilter,
     DocumentoDeRecebimentoFilter,
@@ -42,9 +44,6 @@ from src.pre_recebimento.documento_recebimento.api.services import (
 from src.pre_recebimento.documento_recebimento.models import (
     DocumentoDeRecebimento,
 )
-
-from django.db.models import Prefetch, Count
-from src.pre_recebimento.cronograma_entrega.models import Cronograma
 
 from ....dados_comuns.api.paginations import DefaultPagination
 
@@ -200,15 +199,21 @@ class DocumentoDeRecebimentoModelViewSet(
             doc_recebimento.arquivo_laudo_assinado,
             content_type="application/pdf",
         )
-    
+
     def _calcular_totalizadores(self, docs_qs):
         contagens = docs_qs.values("status").annotate(total=Count("status"))
         contagens_por_status = {item["status"]: item["total"] for item in contagens}
         return {
             "Total de Documentos Recebidos": sum(contagens_por_status.values()),
-            "Total de Pendentes de Aprovação": contagens_por_status.get(DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_ANALISE, 0),
-            "Total de Enviados para Correção": contagens_por_status.get(DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_CORRECAO, 0),
-            "Total de Aprovados": contagens_por_status.get(DocumentoDeRecebimentoWorkflow.APROVADO, 0),
+            "Total de Pendentes de Aprovação": contagens_por_status.get(
+                DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_ANALISE, 0
+            ),
+            "Total de Enviados para Correção": contagens_por_status.get(
+                DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_CORRECAO, 0
+            ),
+            "Total de Aprovados": contagens_por_status.get(
+                DocumentoDeRecebimentoWorkflow.APROVADO, 0
+            ),
         }
 
     @action(
@@ -220,11 +225,9 @@ class DocumentoDeRecebimentoModelViewSet(
     def lista_relatorio(self, request, *args, **kwargs):
         status_documento = request.query_params.getlist("status_documento")
 
-        docs_qs = (
-            DocumentoDeRecebimento.objects
-            .select_related("laboratorio", "unidade_medida")
-            .prefetch_related("datas_fabricacao_e_prazos")
-        )
+        docs_qs = DocumentoDeRecebimento.objects.select_related(
+            "laboratorio", "unidade_medida"
+        ).prefetch_related("datas_fabricacao_e_prazos")
         if status_documento:
             docs_qs = docs_qs.filter(status__in=status_documento)
 
@@ -245,9 +248,7 @@ class DocumentoDeRecebimentoModelViewSet(
                 documentos_de_recebimento__status__in=status_documento
             )
 
-        docs_totais = DocumentoDeRecebimento.objects.filter(
-            cronograma__in=queryset
-        )
+        docs_totais = DocumentoDeRecebimento.objects.filter(cronograma__in=queryset)
         if status_documento:
             docs_totais = docs_totais.filter(status__in=status_documento)
 

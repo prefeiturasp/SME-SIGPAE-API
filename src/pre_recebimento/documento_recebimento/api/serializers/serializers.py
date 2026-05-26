@@ -353,9 +353,7 @@ class DocumentoDeRecebimentoDetalheRelatorioSerializer(serializers.ModelSerializ
 class CronogramaRelatorioDocumentosSerializer(serializers.Serializer):
     uuid = serializers.UUIDField(read_only=True)
     numero_cronograma = serializers.CharField(source="numero", read_only=True)
-    produto = serializers.CharField(
-        source="ficha_tecnica.produto.nome", read_only=True
-    )
+    produto = serializers.CharField(source="ficha_tecnica.produto.nome", read_only=True)
     empresa = serializers.CharField(source="empresa.razao_social", read_only=True)
     numero_pregao_chamada_publica = serializers.SerializerMethodField()
     numero_processo_sei = serializers.CharField(

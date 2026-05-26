@@ -1094,7 +1094,7 @@ class PermissaoParaDashboardDocumentosDeRecebimento(BasePermission):
                 )
             )
         )
-    
+
 
 class PermissaoParaRelatorioDocumentosDeRecebimento(BasePermission):
     PERFIS_PERMITIDOS = [

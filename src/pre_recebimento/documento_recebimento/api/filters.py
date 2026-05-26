@@ -1,6 +1,5 @@
 from django_filters import rest_framework as filters
 
-from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.terceirizada.models import Terceirizada
 
 from ....dados_comuns.fluxo_status import (
