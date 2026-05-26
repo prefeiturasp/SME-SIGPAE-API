@@ -42,8 +42,8 @@
               <th>Período Parcial</th>
             </tr>
           </thead>
-          <tbody>
-            {% for faixa in periodo.faixas %}
+          {% for faixa in periodo.faixas %}
+            <tbody class="grupo-faixa-cabecalho">
               <tr class="linha-faixa-matriculados">
                 <td>
                   {{ faixa.nome_faixa }} - Matriculados: {{ faixa.alunos_por_faixa|length }}
@@ -54,8 +54,10 @@
                   <td class="coluna-frequencia-head {% if dia_nao_letivo %}dia-nao-letivo-frequencia-head{% endif %}">{{ dia }}</td>
                 {% endfor %}
                 
-                <td />
+                <td></td>
               </tr>
+            </tbody>
+            <tbody class="grupo-faixa-conteudo">
               {% for aluno in faixa.alunos_por_faixa %}
                 <tr>
                   <td class="coluna-nome-aluno">
@@ -71,13 +73,13 @@
                     {% eh_dia_nao_letivo dia escola_nome mes_ano as dia_nao_letivo %}
                     <td class="coluna-frequencia {% if not aluno_nesta_faixa_dia %}nao-exibe-checkbox{% endif %} {% if dia_nao_letivo %}dia-nao-letivo{% endif %}">
                       {% if aluno_nesta_faixa_dia %}
-                        <div class="checkbox-frequencia {% if dia_nao_letivo %}dia-nao-letivo-ckbox-freq{% endif %}" />
+                        <div class="checkbox-frequencia {% if dia_nao_letivo %}dia-nao-letivo-ckbox-freq{% endif %}"></div>
                       {% endif %}
                     </td>
                   {% endfor %}
 
                   <td>
-                    <div class="checkbox-periodo-parcial" />
+                    <div class="checkbox-periodo-parcial"></div>
                   </td>
                 </tr>
 
@@ -98,13 +100,13 @@
                 </td>
 
                 {% for dia in dias_do_mes %}
-                  <td />
+                  <td></td>
                 {% endfor %}
 
-                <td />
+                <td></td>
               </tr>
-            {% endfor %}
-          </tbody>
+            </tbody>
+          {% endfor %}
         </table>
       </div>
     {% endfor %}
