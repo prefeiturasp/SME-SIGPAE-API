@@ -1390,6 +1390,16 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior,
                 "numero_de_alunos",
             )
+            valor_participantes = get_valor_campo(
+                campos,
+                campos_tabela_anterior,
+                indice_periodo,
+                tabela,
+                tabela_anterior,
+                valores,
+                valores_tabela_anterior,
+                "participantes",
+            )
             eh_emebs_infantil = (
                 solicitacao.escola.eh_emebs_data(solicitacao.data_referencia)
                 and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
@@ -1408,12 +1418,15 @@ def popula_campo_total_refeicoes_pagamento(
                     valor_repeticao_segunda_refeicao,
                     valor_matriculados,
                     valor_numero_de_alunos,
+                    valor_participantes,
                 )
             else:
                 valor_comparativo = (
                     valor_matriculados
                     if int(valor_matriculados) > 0
                     else valor_numero_de_alunos
+                    if int(valor_numero_de_alunos) > 0
+                    else valor_participantes
                 )
                 total_refeicao = int(valor_refeicao) + int(valor_repeticao_refeicao)
                 total_refeicao = min(int(total_refeicao), int(valor_comparativo))
@@ -1438,6 +1451,7 @@ def get_valor_total_emei_cemei(
     valor_repeticao_segunda_refeicao,
     valor_matriculados,
     valor_numero_de_alunos,
+    valor_participantes
 ):
     editais = Edital.objects.filter(uuid__in=solicitacao.escola.editais)
     tem_edital_imr = editais.filter(eh_imr=True).exists()
@@ -1450,6 +1464,8 @@ def get_valor_total_emei_cemei(
             valor_matriculados
             if int(valor_matriculados) > 0
             else valor_numero_de_alunos
+            if int(valor_numero_de_alunos) > 0
+            else valor_participantes
         )
 
         total_refeicao = int(valor_refeicao) + int(valor_repeticao_refeicao)
@@ -1620,6 +1636,17 @@ def popula_campo_total_sobremesas_pagamento(
                 "numero_de_alunos",
             )
 
+            valor_participantes = get_valor_campo(
+                campos,
+                campos_tabela_anterior,
+                indice_periodo,
+                tabela,
+                tabela_anterior,
+                valores,
+                valores_tabela_anterior,
+                "participantes",
+            )
+
             eh_emebs_infantil = (
                 solicitacao.escola.eh_emebs_data(solicitacao.data_referencia)
                 and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
@@ -1639,12 +1666,15 @@ def popula_campo_total_sobremesas_pagamento(
                     valor_repeticao_segunda_sobremesa,
                     valor_matriculados,
                     valor_numero_de_alunos,
+                    valor_participantes,
                 )
             else:
                 valor_comparativo = (
                     valor_matriculados
                     if int(valor_matriculados) > 0
                     else valor_numero_de_alunos
+                    if int(valor_numero_de_alunos) > 0
+                    else valor_participantes
                 )
 
                 total_sobremesa = int(valor_sobremesa) + int(valor_repeticao_sobremesa)
@@ -3414,7 +3444,6 @@ CAMPOS_REPETICAO_SOBREMESA = ["repeticao_sobremesa", "2_sobremesa_1_oferta", "re
 
 
 def somar_campos_somatorio_recreio_nas_ferias(medicao, campo):
-    """Soma campo diretamente dos valores_medicao, incluindo repetições para refeicao/sobremesa."""
     values = medicao.valores_medicao.filter(
         categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
         nome_campo=campo,
@@ -3426,7 +3455,9 @@ def somar_campos_somatorio_recreio_nas_ferias(medicao, campo):
             categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
             nome_campo__in=CAMPOS_REPETICAO_REFEICAO,
         )
-        total += sum(int(v.valor) for v in repeticoes)
+        rep_total = sum(int(v.valor) for v in repeticoes)
+        print(f"[DEBUG] refeicao={total}, repeticoes={rep_total}")  # <-- add
+        total += rep_total
     elif campo == "sobremesa":
         repeticoes = medicao.valores_medicao.filter(
             categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
