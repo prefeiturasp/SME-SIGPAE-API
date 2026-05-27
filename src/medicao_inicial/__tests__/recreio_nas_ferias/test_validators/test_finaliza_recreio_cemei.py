@@ -3,6 +3,7 @@ import pytest
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
     buscar_alimentacoes_recreio_cemei,
+    buscar_erro_por_periodo,
     cria_valores_medicao_participantes_cemei,
     cria_valores_medicao_participantes_dietas_autorizadas_cemei,
     existe_colaborador_cemei,
@@ -538,7 +539,7 @@ def test_cria_valores_medicao_participantes_dietas_autorizadas_cemei(
     )
 
     assert valores_depois.count() == 189
-    
+
 
 def test_cria_valores_dietas_nao_cria_sem_logs(
     solicitacao_recreio_cemei,
@@ -561,3 +562,113 @@ def test_cria_valores_dietas_nao_cria_sem_logs(
         medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
         nome_campo="dietas_autorizadas",
     ).exists()
+
+
+def test_buscar_erro_por_periodo_deve_encontrar_erro_pelo_tipo_erro(
+    solicitacao_recreio_cemei,
+):
+
+    medicao = solicitacao_recreio_cemei.medicoes.filter(grupo__nome=GRUPO_CEI).first()
+
+    lista_erros = [
+        {
+            "periodo_escolar": GRUPO_CEI,
+            "erro": "Restam dias a serem lançados nas dietas.",
+        }
+    ]
+
+    resultado = buscar_erro_por_periodo(
+        lista_erros=lista_erros,
+        medicao=medicao,
+        tipo_erro="dietas",
+    )
+
+    assert resultado == {
+        "erro": "Restam dias a serem lançados nas dietas.",
+        "periodo_escolar": GRUPO_CEI,
+    }
+
+
+def test_buscar_erro_por_periodo_deve_usar_grupo(solicitacao_recreio_cemei):
+    medicao = solicitacao_recreio_cemei.medicoes.filter(grupo__nome=GRUPO_CEI).first()
+
+    lista_erros = [
+        {
+            "periodo_escolar": GRUPO_EMEI,
+            "erro": "Restam dias a serem lançados nas dietas.",
+        }
+    ]
+
+    resultado = buscar_erro_por_periodo(
+        lista_erros=lista_erros,
+        medicao=medicao,
+        tipo_erro="dietas",
+    )
+
+    assert resultado is None
+
+
+def test_buscar_erro_por_periodo_deve_retornar_none_quando_nao_existir_periodo_correspondente(
+    solicitacao_recreio_cemei,
+):
+    medicao = solicitacao_recreio_cemei.medicoes.filter(grupo__nome=GRUPO_CEI).first()
+
+    lista_erros = [
+        {
+            "periodo_escolar": GRUPO_COLABORADORES,
+            "erro": "Restam dias a serem lançados nas dietas.",
+        }
+    ]
+
+    resultado = buscar_erro_por_periodo(
+        lista_erros=lista_erros,
+        medicao=medicao,
+        tipo_erro="dietas",
+    )
+
+    assert resultado is None
+
+
+def test_buscar_erro_por_periodo_deve_retornar_none_quando_tipo_erro_nao_corresponder(
+    solicitacao_recreio_cemei,
+):
+    medicao = solicitacao_recreio_cemei.medicoes.filter(grupo__nome=GRUPO_EMEI).first()
+
+    lista_erros = [
+        {
+            "periodo_escolar": GRUPO_EMEI,
+            "erro": "Restam dias a serem lançados nas dietas.",
+        }
+    ]
+
+    resultado = buscar_erro_por_periodo(
+        lista_erros=lista_erros,
+        medicao=medicao,
+        tipo_erro="alimentação",
+    )
+
+    assert resultado is None
+
+
+def test_buscar_erro_por_periodo_deve_retornar_apenas_primeiro_erro_encontrado(
+    solicitacao_recreio_cemei,
+):
+    medicao = solicitacao_recreio_cemei.medicoes.filter(grupo__nome=GRUPO_EMEI).first()
+
+    primeiro = {
+        "periodo_escolar": GRUPO_EMEI,
+        "erro": "Restam dias a serem lançados nas dietas.",
+    }
+
+    segundo = {
+        "periodo_escolar": GRUPO_EMEI,
+        "erro": "Restam dias a serem lançados nas dietas.",
+    }
+
+    resultado = buscar_erro_por_periodo(
+        lista_erros=[primeiro, segundo],
+        medicao=medicao,
+        tipo_erro="dietas",
+    )
+
+    assert resultado == primeiro
