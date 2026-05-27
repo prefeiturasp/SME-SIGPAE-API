@@ -41,6 +41,7 @@ from ...dados_comuns.permissions import (
     UsuarioDiretoriaRegional,
     UsuarioEmpresaTerceirizada,
     UsuarioEscolaTercTotal,
+    UsuarioEscolaTercTotalPFOM,
     UsuarioEscolaTercTotalSemAlunosRegulares,
     UsuarioMedicao,
     UsuarioSupervisaoNutricao,
@@ -1152,7 +1153,9 @@ class SolicitacaoMedicaoInicialViewSet(
         methods=["PATCH"],
         url_path="escola-corrige-medicao-para-dre",
         permission_classes=[
-            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+            UsuarioDiretorEscolaTercTotal
+            | UsuarioEscolaTercTotalSemAlunosRegulares
+            | UsuarioEscolaTercTotalPFOM
         ],
     )
     def escola_corrige_medicao_para_dre(self, request, uuid=None):
@@ -1185,7 +1188,9 @@ class SolicitacaoMedicaoInicialViewSet(
         methods=["PATCH"],
         url_path="escola-corrige-medicao-para-codae",
         permission_classes=[
-            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+            UsuarioDiretorEscolaTercTotal
+            | UsuarioEscolaTercTotalSemAlunosRegulares
+            | UsuarioEscolaTercTotalPFOM
         ],
     )
     def escola_corrige_medicao_para_codae(self, request, uuid=None):
@@ -1218,7 +1223,9 @@ class SolicitacaoMedicaoInicialViewSet(
         methods=["PATCH"],
         url_path="ue-atualiza-ocorrencia",
         permission_classes=[
-            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+            UsuarioDiretorEscolaTercTotal
+            | UsuarioEscolaTercTotalSemAlunosRegulares
+            | UsuarioEscolaTercTotalPFOM
         ],
     )
     def ue_atualiza_ocorrencia(self, request, uuid=None):
@@ -1660,7 +1667,9 @@ class MedicaoViewSet(
         methods=["PATCH"],
         url_path="escola-corrige-medicao",
         permission_classes=[
-            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+            UsuarioDiretorEscolaTercTotal
+            | UsuarioEscolaTercTotalSemAlunosRegulares
+            | UsuarioEscolaTercTotalPFOM
         ],
     )
     def escola_corrige_medicao(self, request, uuid=None):

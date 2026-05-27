@@ -114,6 +114,32 @@ class UsuarioEscolaTercTotalSemAlunosRegulares(UsuarioEscolaTercTotal):
         )
 
 
+class UsuarioEscolaTercTotalPFOM(UsuarioEscolaTercTotal):
+    """Permite acesso a usuários com vinculo a uma Escola P FOM (EMEF P FOM ou EMEI P FOM)"""
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Escola)
+            and usuario.vinculo_atual.instituicao.modulo_gestao == "TERCEIRIZADA"
+            and usuario.vinculo_atual.instituicao.eh_p_fom
+        )
+
+    def has_object_permission(self, request, view, obj):
+        usuario = request.user
+        escola = usuario.vinculo_atual.instituicao
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(escola, Escola)
+            and escola.modulo_gestao == "TERCEIRIZADA"
+            and escola.eh_p_fom
+            and obj.escola == escola
+        )
+
+
 class UsuarioDiretorEscolaTercTotal(UsuarioEscolaTercTotal):
     """Permite acesso a usuários com vinculo a uma Escola."""
 

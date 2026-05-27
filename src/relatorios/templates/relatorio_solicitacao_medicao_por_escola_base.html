@@ -58,7 +58,7 @@
           <span><b>Nome: {{responsavel.nome}}</b></span>
         </div>
         <div class="usuario-values">
-          <span><b>RF: {{responsavel.rf}}</b></span>
+          <span><b>{% if responsavel.rf|length == 11 %}CPF{% else %}RF{% endif %}: {{responsavel.rf}}</b></span>
         </div>
       </div>
       {% endfor %}
