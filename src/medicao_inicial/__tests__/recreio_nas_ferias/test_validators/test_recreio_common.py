@@ -1,5 +1,7 @@
 import pytest
+from rest_framework.serializers import ValidationError
 
+from src.cardapio.base.models import TipoAlimentacao
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
@@ -11,6 +13,9 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
 )
 
 pytestmark = pytest.mark.django_db
+GRUPO_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
+GRUPO_EMEI = "Recreio nas Férias - 4 a 14 anos"
+GRUPO_COLABORADORES = "Colaboradores"
 
 
 def test_agrupar_tipos_alimentacao_por_categoria_recreio_emef(solicitacao_recreio_emef):
@@ -166,6 +171,98 @@ def test_get_tipos_alimentacao_recreio_cei(solicitacao_recreio_cei):
     assert len(resultado) == 5
     for esperado in alimentacoes:
         assert esperado in resultado, f"Elemento {esperado} não encontrado"
+
+
+def test_agrupar_tipos_alimentacao_por_categoria_recreio_cemei(
+    solicitacao_recreio_cemei,
+):
+    recreio = solicitacao_recreio_cemei.recreio_nas_ferias
+    participantes = dict()
+    tipos_alimentacao = TipoAlimentacao.objects.none()
+    for participante in recreio.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        alimentacoes = participante.tipos_alimentacao.filter(
+            categoria__nome__in=["Infantil", "Inscritos", "Colaboradores"]
+        )
+        tipos_alimentacao = tipos_alimentacao | alimentacoes
+        participantes[participante.cei_ou_emei] = participante
+
+    resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
+
+    alimentacoes = ["Refeição", "Sobremesa"]
+    assert "Colaboradores" in resultado
+    assert len(resultado["Colaboradores"]) == 2
+    for esperado in alimentacoes:
+        assert (
+            esperado in resultado["Colaboradores"]
+        ), f"Elemento {esperado} não encontrado"
+
+    assert "Infantil" in resultado
+    assert len(resultado["Infantil"]) == 2
+    for esperado in alimentacoes:
+        assert esperado in resultado["Infantil"], f"Elemento {esperado} não encontrado"
+
+    assert "Inscritos" in resultado
+    inscritos = ["Refeição", "Sobremesa", "Lanche", "Almoço"]
+    assert len(resultado["Inscritos"]) == 4
+    for esperado in inscritos:
+        assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
+
+
+def test_valida_campo_participantes_recreio_cemei(solicitacao_recreio_cemei):
+
+    valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="participantes",
+    )
+    assert valores.count() == 63
+    valores.delete()
+    assert valores.count() == 0
+
+    quantidade_antes = ValorMedicao.objects.count()
+
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+    informacoes_participantes = informacoes_participantes = {
+        GRUPO_CEI: participantes_cei.num_inscritos,
+        GRUPO_EMEI: participantes_emei.num_colaboradores,
+        GRUPO_COLABORADORES: participantes_cei.num_colaboradores
+        + participantes_emei.num_colaboradores,
+    }
+    valida_campo_participantes(solicitacao_recreio_cemei, informacoes_participantes)
+
+    quantidade_depois = ValorMedicao.objects.count()
+
+    assert quantidade_depois > quantidade_antes
+
+    valores_depois = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="participantes",
+    )
+
+    assert valores_depois.count() == 63
+
+
+def test_existe_colaborador_recreio_cemei(
+    solicitacao_recreio_cemei,
+):
+    participante = (
+        solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.first()
+    )
+    with pytest.raises(
+        ValidationError,
+        match="Método incorreto para validar colaboradores de unidades CEMEI.",
+    ):
+        existe_colaborador(participante)
 
 
 def test_get_linhas_da_tabela_alimentacoes_recreio():

@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import timedelta
 
 from django.db.models import QuerySet
+from rest_framework.serializers import ValidationError
 
 from src.medicao_inicial.models import (
     CategoriaMedicao,
@@ -212,6 +213,10 @@ def existe_colaborador(participantes: RecreioNasFeriasUnidadeParticipante) -> bo
         bool: ``True`` se houver colaboradores com alimentação configurada;
             ``False`` caso contrário.
     """
+    if participantes.unidade_educacional.eh_cemei:
+        raise ValidationError(
+            "Método incorreto para validar colaboradores de unidades CEMEI."
+        )
     if participantes.num_colaboradores > 0:
         tipos_alimentacao = participantes.tipos_alimentacao.filter(
             categoria__nome__in=["Colaboradores"]
