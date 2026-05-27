@@ -3,6 +3,7 @@ import pytest
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
     buscar_alimentacoes_recreio_cemei,
+    cria_valores_medicao_participantes_cemei,
     existe_colaborador_cemei,
     validate_lancamento_alimentacoes_medicao_recreio_cemei,
     validate_lancamento_dietas_medicao_recreio_cemei,
@@ -45,11 +46,11 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_cemei_dados_nao_lancad
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Colaboradores",
+            "periodo_escolar": GRUPO_COLABORADORES,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+            "periodo_escolar": GRUPO_EMEI,
         },
     ]
 
@@ -79,11 +80,11 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_cemei_dados_nao_lancad
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Colaboradores",
+            "periodo_escolar": GRUPO_COLABORADORES,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            "periodo_escolar": GRUPO_CEI,
         },
     ]
 
@@ -113,15 +114,15 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_cemei_dados_nao_lancad
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Colaboradores",
+            "periodo_escolar": GRUPO_COLABORADORES,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            "periodo_escolar": GRUPO_CEI,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+            "periodo_escolar": GRUPO_EMEI,
         },
     ]
 
@@ -157,7 +158,7 @@ def test_validate_lancamento_dietas_medicao_recreio_cemei_dados_nao_lancados_eme
     assert lista_erros == [
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+            "periodo_escolar": GRUPO_EMEI,
         }
     ]
 
@@ -182,7 +183,7 @@ def test_validate_lancamento_dietas_medicao_recreio_cemei_dados_nao_lancados_cei
     assert lista_erros == [
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            "periodo_escolar": GRUPO_CEI,
         }
     ]
 
@@ -212,11 +213,11 @@ def test_validate_lancamento_dietas_medicao_recreio_cemei_dados_nao_lancados_ger
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+            "periodo_escolar": GRUPO_EMEI,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            "periodo_escolar": GRUPO_CEI,
         },
     ]
 
@@ -229,11 +230,11 @@ def test_buscar_alimentacoes_recreio_cemei(solicitacao_recreio_cemei):
     assert len(resultado) == 3
 
     alimentacoes = ["Refeição", "Sobremesa"]
-    assert "Colaboradores" in resultado
-    assert len(resultado["Colaboradores"]) == 2
+    assert GRUPO_COLABORADORES in resultado
+    assert len(resultado[GRUPO_COLABORADORES]) == 2
     for esperado in alimentacoes:
         assert (
-            esperado in resultado["Colaboradores"]
+            esperado in resultado[GRUPO_COLABORADORES]
         ), f"Elemento {esperado} não encontrado"
 
     assert "Infantil" in resultado
@@ -327,7 +328,9 @@ def test_existe_colaborador_cemei_retorna_false_quando_nao_tem_tipos_alimentacao
     ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
         unidade_educacional=solicitacao_recreio_cemei.escola
     ):
-        participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+        participante.tipos_alimentacao.filter(
+            categoria__nome=GRUPO_COLABORADORES
+        ).delete()
         participantes[participante.cei_ou_emei] = participante
 
     participantes_cei = participantes.get("CEI")
@@ -347,7 +350,9 @@ def test_existe_colaborador_cemei_retorna_false_quando_nao_tem_tipos_alimentacao
     ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
         unidade_educacional=solicitacao_recreio_cemei.escola
     ):
-        participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+        participante.tipos_alimentacao.filter(
+            categoria__nome=GRUPO_COLABORADORES
+        ).delete()
         participantes[participante.cei_ou_emei] = participante
 
     participantes_cei = participantes.get("CEI")
@@ -369,7 +374,7 @@ def test_existe_colaborador_cemei_retorna_true_quando_so_tem_tipos_alimentacao_c
     ):
         if participante.cei_ou_emei == "EMEI":
             participante.tipos_alimentacao.filter(
-                categoria__nome="Colaboradores"
+                categoria__nome=GRUPO_COLABORADORES
             ).delete()
         participantes[participante.cei_ou_emei] = participante
 
@@ -392,7 +397,7 @@ def test_existe_colaborador_cemei_retorna_true_quando_so_tem_tipos_alimentacao_c
     ):
         if participante.cei_ou_emei == "CEI":
             participante.tipos_alimentacao.filter(
-                categoria__nome="Colaboradores"
+                categoria__nome=GRUPO_COLABORADORES
             ).delete()
         participantes[participante.cei_ou_emei] = participante
 
@@ -402,3 +407,105 @@ def test_existe_colaborador_cemei_retorna_true_quando_so_tem_tipos_alimentacao_c
     assert participantes_cei.num_colaboradores > 0
     assert participantes_emei.num_colaboradores > 0
     assert existe_colaborador_cemei(participantes_cei, participantes_emei) is True
+
+
+def test_cria_valores_medicao_participantes_cemei(solicitacao_recreio_cemei):
+    valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="participantes",
+    )
+    assert valores.count() == 63
+    valores.delete()
+    assert valores.count() == 0
+
+    quantidade_antes = ValorMedicao.objects.count()
+
+    cria_valores_medicao_participantes_cemei(solicitacao_recreio_cemei)
+
+    quantidade_depois = ValorMedicao.objects.count()
+
+    assert quantidade_depois > quantidade_antes
+
+    valores_depois = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="participantes",
+    )
+
+    assert valores_depois.count() == 63
+
+
+def test_cria_valores_medicao_participantes_cemei_nao_duplica_registros(
+    solicitacao_recreio_cemei,
+):
+    quantidade_antes = ValorMedicao.objects.count()
+
+    cria_valores_medicao_participantes_cemei(solicitacao_recreio_cemei)
+    quantidade_depois_primeira_execucao = ValorMedicao.objects.count()
+
+    cria_valores_medicao_participantes_cemei(solicitacao_recreio_cemei)
+    quantidade_depois_segunda_execucao = ValorMedicao.objects.count()
+
+    assert quantidade_depois_primeira_execucao == quantidade_depois_segunda_execucao
+
+    assert quantidade_depois_segunda_execucao >= quantidade_antes
+
+
+def test_cria_medicao_quando_grupo_nao_existe(
+    solicitacao_recreio_cemei,
+):
+    solicitacao_recreio_cemei.medicoes.all().delete()
+
+    cria_valores_medicao_participantes_cemei(solicitacao_recreio_cemei)
+
+    assert solicitacao_recreio_cemei.medicoes.exists()
+    assert solicitacao_recreio_cemei.medicoes.count() == 3
+
+
+def test_cria_valores_medicao_participantes_cemei_sem_tipo_alimentacao_colaboradores(
+    solicitacao_recreio_cemei,
+):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+
+        participante.tipos_alimentacao.filter(
+            categoria__nome=GRUPO_COLABORADORES
+        ).delete()
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+
+    assert participantes_cei.num_colaboradores > 0
+    assert participantes_emei.num_colaboradores > 0
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is False
+
+    ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="participantes",
+    ).delete()
+
+    cria_valores_medicao_participantes_cemei(solicitacao_recreio_cemei)
+
+    participantes_cei_valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        medicao__grupo__nome=GRUPO_CEI,
+        nome_campo="participantes",
+    )
+    participantes_emei_valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        medicao__grupo__nome=GRUPO_EMEI,
+        nome_campo="participantes",
+    )
+    colaboradores_valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        medicao__grupo__nome=GRUPO_COLABORADORES,
+        nome_campo="participantes",
+    )
+
+    assert participantes_cei_valores.exists()
+    assert participantes_emei_valores.exists()
+    assert colaboradores_valores.count() == 0
