@@ -254,6 +254,11 @@ def test_login_coresso_erro_usuario_sem_email(
             mocked_response_get_dados_usuario_coresso_sem_email(), 200
         ),
     )
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "usuario_core_sso_or_none",
+        lambda *args, **kwargs: None,
+    )
     response = client_autenticado_da_escola_email_invalido.post(
         "/login/", content_type="application/json", data=json.dumps(data)
     )
