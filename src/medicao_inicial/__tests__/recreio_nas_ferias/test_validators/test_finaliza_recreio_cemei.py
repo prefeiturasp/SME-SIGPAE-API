@@ -2,6 +2,8 @@ import pytest
 
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
+    buscar_alimentacoes_recreio_cemei,
+    existe_colaborador_cemei,
     validate_lancamento_alimentacoes_medicao_recreio_cemei,
     validate_lancamento_dietas_medicao_recreio_cemei,
 )
@@ -220,3 +222,183 @@ def test_validate_lancamento_dietas_medicao_recreio_cemei_dados_nao_lancados_ger
 
     for esperado in erros_esperados:
         assert esperado in lista_erros, f"Elemento {esperado} não encontrado"
+
+
+def test_buscar_alimentacoes_recreio_cemei(solicitacao_recreio_cemei):
+    resultado = buscar_alimentacoes_recreio_cemei(solicitacao_recreio_cemei)
+    assert len(resultado) == 3
+
+    alimentacoes = ["Refeição", "Sobremesa"]
+    assert "Colaboradores" in resultado
+    assert len(resultado["Colaboradores"]) == 2
+    for esperado in alimentacoes:
+        assert (
+            esperado in resultado["Colaboradores"]
+        ), f"Elemento {esperado} não encontrado"
+
+    assert "Infantil" in resultado
+    assert len(resultado["Infantil"]) == 2
+    for esperado in alimentacoes:
+        assert esperado in resultado["Infantil"], f"Elemento {esperado} não encontrado"
+
+    alimentacoes_inscritos = ["Refeição", "Sobremesa", "Lanche", "Almoço"]
+    assert "Inscritos" in resultado
+    assert len(resultado["Inscritos"]) == 4
+    for esperado in alimentacoes_inscritos:
+        assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
+
+
+def test_existe_colaborador_cemei(solicitacao_recreio_cemei):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is True
+
+
+def test_existe_colaborador_cemei_retorna_false_quando_nao_tem_colaboradores(
+    solicitacao_recreio_cemei,
+):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        participante.num_colaboradores = 0
+        participante.save()
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is False
+
+
+def test_existe_colaborador_cemei_retorna_true_quando_so_tem_colaboradores_cei(
+    solicitacao_recreio_cemei,
+):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        if participante.cei_ou_emei == "EMEI":
+            participante.num_colaboradores = 0
+            participante.save()
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is True
+
+
+def test_existe_colaborador_cemei_retorna_true_quando_so_tem_colaboradores_emei(
+    solicitacao_recreio_cemei,
+):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        if participante.cei_ou_emei == "CEI":
+            participante.num_colaboradores = 0
+            participante.save()
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is True
+
+
+def test_existe_colaborador_cemei_retorna_false_quando_nao_tem_tipos_alimentacao_com_colaboradores(
+    solicitacao_recreio_cemei,
+):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+
+    assert participantes_cei.num_colaboradores > 0
+    assert participantes_emei.num_colaboradores > 0
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is False
+
+
+def test_existe_colaborador_cemei_retorna_false_quando_nao_tem_tipos_alimentacao_com_colaboradores(
+    solicitacao_recreio_cemei,
+):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        participante.tipos_alimentacao.filter(categoria__nome="Colaboradores").delete()
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+
+    assert participantes_cei.num_colaboradores > 0
+    assert participantes_emei.num_colaboradores > 0
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is False
+
+
+def test_existe_colaborador_cemei_retorna_true_quando_so_tem_tipos_alimentacao_com_colaboradores_cei(
+    solicitacao_recreio_cemei,
+):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        if participante.cei_ou_emei == "EMEI":
+            participante.tipos_alimentacao.filter(
+                categoria__nome="Colaboradores"
+            ).delete()
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+
+    assert participantes_cei.num_colaboradores > 0
+    assert participantes_emei.num_colaboradores > 0
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is True
+
+
+def test_existe_colaborador_cemei_retorna_true_quando_so_tem_tipos_alimentacao_com_colaboradores_emei(
+    solicitacao_recreio_cemei,
+):
+    participantes = dict()
+    for (
+        participante
+    ) in solicitacao_recreio_cemei.recreio_nas_ferias.unidades_participantes.filter(
+        unidade_educacional=solicitacao_recreio_cemei.escola
+    ):
+        if participante.cei_ou_emei == "CEI":
+            participante.tipos_alimentacao.filter(
+                categoria__nome="Colaboradores"
+            ).delete()
+        participantes[participante.cei_ou_emei] = participante
+
+    participantes_cei = participantes.get("CEI")
+    participantes_emei = participantes.get("EMEI")
+
+    assert participantes_cei.num_colaboradores > 0
+    assert participantes_emei.num_colaboradores > 0
+    assert existe_colaborador_cemei(participantes_cei, participantes_emei) is True
