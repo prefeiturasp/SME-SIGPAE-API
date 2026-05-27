@@ -1404,10 +1404,14 @@ def popula_campo_total_refeicoes_pagamento(
                 solicitacao.escola.eh_emebs_data(solicitacao.data_referencia)
                 and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
             )
+            eh_colaboradores = "Colaboradores" in periodo_corrente
             if (
-                solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
-                or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                or eh_emebs_infantil
+                not eh_colaboradores
+                and (
+                    solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
+                    or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
+                    or eh_emebs_infantil
+                )
             ):
                 valores_dia = get_valor_total_emei_cemei(
                     solicitacao,
@@ -1652,10 +1656,14 @@ def popula_campo_total_sobremesas_pagamento(
                 and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
             )
 
+            eh_colaboradores = "Colaboradores" in periodo_corrente
             if (
-                solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
-                or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                or eh_emebs_infantil
+                not eh_colaboradores
+                and (
+                    solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
+                    or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
+                    or eh_emebs_infantil
+                )
             ):
                 valores_dia = get_valor_total_emei_cemei(
                     solicitacao,
@@ -1823,6 +1831,7 @@ def get_eh_dia_letivo(dia, solicitacao):
         ).dia_letivo
     except Exception:
         return False
+
 
 def popula_campos(
     solicitacao,
