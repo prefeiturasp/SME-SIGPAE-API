@@ -857,7 +857,7 @@ class Escola(
         """Verifica se a escola é EMEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={CEU_EMEI, EMEI},
+            iniciais_validas={CEU_EMEI, EMEI, EMEI_P_FOM},
             fallback=self.eh_emei,
         )
 
