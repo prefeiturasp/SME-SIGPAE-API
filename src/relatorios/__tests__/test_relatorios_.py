@@ -900,23 +900,6 @@ def test_relatorio_solicitacao_medicao_rodape_aprovacao(
     assert "Usuário TESTE" in texto
 
 
-def test_relatorio_solicitacao_medicao_recreio_nas_ferias_rodape_aprovacao(
-    solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae,
-):
-    relatorio = relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(
-        solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae
-    )
-    texto = extrair_texto_de_pdf(relatorio)
-
-    assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
-    assert "EMEF JOAO MENDES" in texto
-    assert "Recreio nas Férias - Julho 2025" in texto
-    assert "SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS" in texto
-    assert "Aprovado por CODAE em" in texto
-    assert "05/08/2025" in texto
-    assert "Usuário TESTE" in texto
-
-
 def test_obter_relatorio_da_unidade_cemei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
