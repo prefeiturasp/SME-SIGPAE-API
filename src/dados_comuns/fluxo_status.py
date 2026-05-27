@@ -4412,6 +4412,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
         if user:
@@ -4447,6 +4448,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 
@@ -4474,6 +4476,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             nao_possui_permissao = (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
                 raise PermissionDenied(
@@ -4491,6 +4494,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             nao_possui_permissao = (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
                 raise PermissionDenied(
@@ -4512,6 +4516,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 
@@ -4538,6 +4543,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 
