@@ -824,6 +824,13 @@ class Escola(
     def eh_cmct(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CMCT"]
 
+    @property
+    def eh_p_fom(self) -> bool:
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [
+            EMEI_P_FOM,
+            EMEF_P_FOM,
+        ]
+
     def _eh_tipo_unidade_data(
         self, data: datetime.date, iniciais_validas: set[str], fallback: bool
     ) -> bool:
