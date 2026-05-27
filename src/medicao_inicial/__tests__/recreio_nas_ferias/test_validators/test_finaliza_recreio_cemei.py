@@ -4,6 +4,7 @@ from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
     buscar_alimentacoes_recreio_cemei,
     cria_valores_medicao_participantes_cemei,
+    cria_valores_medicao_participantes_dietas_autorizadas_cemei,
     existe_colaborador_cemei,
     validate_lancamento_alimentacoes_medicao_recreio_cemei,
     validate_lancamento_dietas_medicao_recreio_cemei,
@@ -509,3 +510,54 @@ def test_cria_valores_medicao_participantes_cemei_sem_tipo_alimentacao_colaborad
     assert participantes_cei_valores.exists()
     assert participantes_emei_valores.exists()
     assert colaboradores_valores.count() == 0
+
+
+def test_cria_valores_medicao_participantes_dietas_autorizadas_cemei(
+    solicitacao_recreio_cemei,
+):
+    valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="dietas_autorizadas",
+    )
+    assert valores.count() == 126
+    valores.delete()
+    assert valores.count() == 0
+
+    quantidade_antes = ValorMedicao.objects.count()
+
+    cria_valores_medicao_participantes_dietas_autorizadas_cemei(
+        solicitacao_recreio_cemei
+    )
+    quantidade_depois = ValorMedicao.objects.count()
+
+    assert quantidade_depois > quantidade_antes
+
+    valores_depois = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="dietas_autorizadas",
+    )
+
+    assert valores_depois.count() == 189
+    
+
+def test_cria_valores_dietas_nao_cria_sem_logs(
+    solicitacao_recreio_cemei,
+):
+    escola = solicitacao_recreio_cemei.escola
+
+    escola.logs_dietas_autorizadas_recreio_ferias.all().delete()
+    escola.logs_dietas_autorizadas_recreio_ferias_cei.all().delete()
+
+    ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="dietas_autorizadas",
+    ).delete()
+
+    cria_valores_medicao_participantes_dietas_autorizadas_cemei(
+        solicitacao_recreio_cemei
+    )
+
+    assert not ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="dietas_autorizadas",
+    ).exists()
