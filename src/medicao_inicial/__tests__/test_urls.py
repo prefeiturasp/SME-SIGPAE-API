@@ -3092,6 +3092,7 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     json = response.json()
+    assert len(json) == 3
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
@@ -3178,6 +3179,7 @@ def test_url_endpoint_finaliza_medicao_recreio_cei_falta_lancamento(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     json = response.json()
+    assert len(json) == 3
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
@@ -3190,6 +3192,90 @@ def test_url_endpoint_finaliza_medicao_recreio_cei_falta_lancamento(
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
             "periodo_escolar": "Recreio nas Férias",
+        },
+    ]
+
+    for esperado in erros_esperados:
+        assert esperado in json, f"Elemento {esperado} não encontrado"
+
+
+def test_url_endpoint_finaliza_medicao_recreio_cemei(
+    client_autenticado_da_escola_cemei,
+    escola_cemei,
+    solicitacao_recreio_cemei,
+    responsavel,
+    tipo_contagem_alimentacao,
+):
+    data_update = {
+        "escola": str(escola_cemei.uuid),
+        "tipo_contagem_alimentacoes": str(tipo_contagem_alimentacao.uuid),
+        "com_ocorrencias": False,
+        "finaliza_medicao": True,
+    }
+    response = client_autenticado_da_escola_cemei.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_recreio_cemei.uuid}/",
+        content_type="application/json",
+        data=data_update,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()
+    assert "logs" in json
+    assert len(json["logs"]) == 1
+    assert json["logs"][0]["status_evento_explicacao"] == "Enviado pela UE"
+
+
+def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
+    client_autenticado_da_escola_cemei,
+    escola_cemei,
+    solicitacao_recreio_cemei,
+    responsavel,
+    tipo_contagem_alimentacao,
+):
+
+    valores = ValorMedicao.objects.filter(
+        medicao__solicitacao_medicao_inicial=solicitacao_recreio_cemei,
+        nome_campo="frequencia",
+        dia="17",
+    )
+    assert valores.count() == 19
+    valores.delete()
+    assert valores.count() == 0
+
+    data_update = {
+        "escola": str(escola_cemei.uuid),
+        "tipo_contagem_alimentacoes": str(tipo_contagem_alimentacao.uuid),
+        "com_ocorrencias": False,
+        "finaliza_medicao": True,
+    }
+    response = client_autenticado_da_escola_cemei.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_recreio_cemei.uuid}/",
+        content_type="application/json",
+        data=data_update,
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    json = response.json()
+    assert len(json) == 5
+    erros_esperados = [
+        {
+            "erro": "Restam dias a serem lançados nas alimentações.",
+            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+        },
+        {
+            "erro": "Restam dias a serem lançados nas alimentações.",
+            "periodo_escolar": "Colaboradores",
+        },
+        {
+            "erro": "Restam dias a serem lançados nas alimentações.",
+            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+        },
+        {
+            "erro": "Restam dias a serem lançados nas dietas.",
+            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+        },
+        {
+            "erro": "Restam dias a serem lançados nas dietas.",
+            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
         },
     ]
 
