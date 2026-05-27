@@ -18,6 +18,15 @@ from src.medicao_inicial.models import (
     ValorMedicao,
 )
 
+TIPOS_UNIDADE_PFOM = ["EMEF P FOM", "EMEI P FOM"]
+
+
+def _configura_escola_pfom(escola, tipo_unidade_pfom):
+    escola.tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais=tipo_unidade_pfom)
+    escola.nome = f"{tipo_unidade_pfom} TESTE"
+    escola.save(update_fields=["tipo_unidade", "nome"])
+    escola.refresh_from_db()
+
 
 def test_url_endpoint_cria_dias_sobremesa_doce(client_autenticado_coordenador_codae):
     data = {
@@ -713,6 +722,31 @@ def test_url_escola_corrige_medicao_para_dre_sucesso(
     }
 
 
+@pytest.mark.parametrize(
+    "tipo_unidade_pfom",
+    TIPOS_UNIDADE_PFOM,
+    ids=["emef-p-fom", "emei-p-fom"],
+)
+def test_url_escola_corrige_medicao_para_dre_pfom_nao_recebe_403(
+    client_autenticado_adm_da_escola,
+    escola,
+    log_alunos_regulares,
+    solicitacao_medicao_inicial_medicao_correcao_solicitada,
+    tipo_unidade_pfom,
+):
+    _configura_escola_pfom(escola, tipo_unidade_pfom)
+
+    assert escola.eh_p_fom is True
+    assert escola.possui_alunos_regulares is True
+
+    response = client_autenticado_adm_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial_medicao_correcao_solicitada.uuid}/"
+        f"escola-corrige-medicao-para-dre/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+
 def test_url_escola_corrige_medicao_para_dre_erro_transicao(
     client_autenticado_da_escola, solicitacao_medicao_inicial
 ):
@@ -868,6 +902,32 @@ def test_url_ue_atualiza_ocorrencia_para_dre(
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Erro de transição de estado:" in response.data["detail"]
+
+
+@pytest.mark.parametrize(
+    "tipo_unidade_pfom",
+    TIPOS_UNIDADE_PFOM,
+    ids=["emef-p-fom", "emei-p-fom"],
+)
+def test_url_ue_atualiza_ocorrencia_pfom_nao_recebe_403(
+    client_autenticado_adm_da_escola,
+    escola,
+    log_alunos_regulares,
+    sol_med_inicial_devolvida_pela_dre_para_ue,
+    tipo_unidade_pfom,
+):
+    _configura_escola_pfom(escola, tipo_unidade_pfom)
+
+    assert escola.eh_p_fom is True
+    assert escola.possui_alunos_regulares is True
+
+    response = client_autenticado_adm_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{sol_med_inicial_devolvida_pela_dre_para_ue.uuid}/ue-atualiza-ocorrencia/",
+        content_type="application/json",
+        data={"com_ocorrencias": "false", "justificativa": "TESTE PFOM"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
 
 
 def test_url_ue_atualiza_ocorrencia_para_codae(
@@ -1162,6 +1222,32 @@ def test_url_escola_corrige_medicao_para_codae_sucesso(
     }
 
 
+@pytest.mark.parametrize(
+    "tipo_unidade_pfom",
+    TIPOS_UNIDADE_PFOM,
+    ids=["emef-p-fom", "emei-p-fom"],
+)
+def test_url_escola_corrige_medicao_para_codae_pfom_nao_recebe_403(
+    client_autenticado_adm_da_escola,
+    escola,
+    log_alunos_regulares,
+    solicitacao_medicao_inicial_medicao_correcao_solicitada_codae,
+    tipo_unidade_pfom,
+):
+    _configura_escola_pfom(escola, tipo_unidade_pfom)
+
+    assert escola.eh_p_fom is True
+    assert escola.possui_alunos_regulares is True
+
+    response = client_autenticado_adm_da_escola.patch(
+        "/medicao-inicial/solicitacao-medicao-inicial/"
+        f"{solicitacao_medicao_inicial_medicao_correcao_solicitada_codae.uuid}/"
+        f"escola-corrige-medicao-para-codae/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+
 def test_url_escola_corrige_medicao_para_codae_erro_transicao(
     client_autenticado_da_escola, solicitacao_medicao_inicial
 ):
@@ -1231,6 +1317,55 @@ def test_url_codae_aprova_periodo(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Erro de transição de estado:" in response.data["detail"]
+
+
+@pytest.mark.parametrize(
+    "tipo_unidade_pfom",
+    TIPOS_UNIDADE_PFOM,
+    ids=["emef-p-fom", "emei-p-fom"],
+)
+def test_url_medicao_escola_corrige_pfom_nao_recebe_403(
+    client_autenticado_adm_da_escola,
+    escola,
+    log_alunos_regulares,
+    medicao_status_inicial,
+    tipo_unidade_pfom,
+    monkeypatch,
+):
+    _configura_escola_pfom(escola, tipo_unidade_pfom)
+
+    assert escola.eh_p_fom is True
+    assert escola.possui_alunos_regulares is True
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.api.viewsets.log_alteracoes_escola_corrige_periodo",
+        lambda *args, **kwargs: None,
+    )
+
+    medicao_status_inicial.status = (
+        medicao_status_inicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA
+    )
+    medicao_status_inicial.save(update_fields=["status"])
+
+    valor_medicao = medicao_status_inicial.valores_medicao.first()
+    data = [
+        {
+            "dia": valor_medicao.dia,
+            "nome_campo": valor_medicao.nome_campo,
+            "valor": valor_medicao.valor,
+            "categoria_medicao": valor_medicao.categoria_medicao.id,
+            "tipo_alimentacao": str(valor_medicao.tipo_alimentacao.uuid),
+        }
+    ]
+
+    response = client_autenticado_adm_da_escola.patch(
+        f"/medicao-inicial/medicao/{medicao_status_inicial.uuid}/escola-corrige-medicao/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_CORRIGIDA_PELA_UE"
 
 
 def test_url_ceu_gestao_frequencias_dietas(

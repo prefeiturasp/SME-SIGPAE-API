@@ -437,9 +437,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             for periodo_escolar in periodos_escolares:
                 medicao, _ = Medicao.objects.get_or_create(
                     solicitacao_medicao_inicial=instance,
-                    periodo_escolar=PeriodoEscolar.objects.get(
-                        nome=periodo_escolar
-                    ),
+                    periodo_escolar=PeriodoEscolar.objects.get(nome=periodo_escolar),
                 )
                 if not medicao.valores_medicao.filter(
                     categoria_medicao=categoria,
@@ -511,9 +509,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             for periodo_escolar in periodos_escolares:
                 medicao, _ = Medicao.objects.get_or_create(
                     solicitacao_medicao_inicial=instance,
-                    periodo_escolar=PeriodoEscolar.objects.get(
-                        nome=periodo_escolar
-                    ),
+                    periodo_escolar=PeriodoEscolar.objects.get(nome=periodo_escolar),
                 )
                 valores_medicao_a_criar = self.analisa_periodos_por_dia_matriculados(
                     logs_do_mes,
@@ -994,7 +990,13 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         escola_possui_alunos_regulares = (
             eh_escola and vinculo_usuario.instituicao.possui_alunos_regulares
         )
-        if eh_escola and not eh_diretor and escola_possui_alunos_regulares:
+        escola_p_fom = eh_escola and vinculo_usuario.instituicao.eh_p_fom
+        if (
+            eh_escola
+            and not eh_diretor
+            and escola_possui_alunos_regulares
+            and not escola_p_fom
+        ):
             raise PermissionDenied("Você não tem permissão para executar essa ação.")
 
     def _update_instance_fields(self, instance, validated_data):
