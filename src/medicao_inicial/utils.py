@@ -3434,16 +3434,10 @@ def build_tabela_somatorio_body(
     return primeira_tabela_somatorio, segunda_tabela_somatorio
 
 
-MAPA_TIPO_DIETA = {
-    "TIPO A": "DIETA ESPECIAL - TIPO A",
-    "ENTERAL": "ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-    "TIPO B": "DIETA ESPECIAL - TIPO B",
-}
-CAMPOS_REPETICAO_REFEICAO = ["repeticao_refeicao", "2_refeicao_1_oferta", "repeticao_2_refeicao"]
-CAMPOS_REPETICAO_SOBREMESA = ["repeticao_sobremesa", "2_sobremesa_1_oferta", "repeticao_2_sobremesa"]
-
-
 def somar_campos_somatorio_recreio_nas_ferias(medicao, campo):
+    CAMPOS_REPETICAO_REFEICAO = ["repeticao_refeicao", "2_refeicao_1_oferta", "repeticao_2_refeicao"]
+    CAMPOS_REPETICAO_SOBREMESA = ["repeticao_sobremesa", "2_sobremesa_1_oferta", "repeticao_2_sobremesa"]
+
     values = medicao.valores_medicao.filter(
         categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
         nome_campo=campo,
@@ -3456,7 +3450,6 @@ def somar_campos_somatorio_recreio_nas_ferias(medicao, campo):
             nome_campo__in=CAMPOS_REPETICAO_REFEICAO,
         )
         rep_total = sum(int(v.valor) for v in repeticoes)
-        print(f"[DEBUG] refeicao={total}, repeticoes={rep_total}")  # <-- add
         total += rep_total
     elif campo == "sobremesa":
         repeticoes = medicao.valores_medicao.filter(
@@ -3485,7 +3478,13 @@ def _get_total_dieta_por_tipo(medicao, tipo_dieta: str, nome_categoria: str, cam
 
 
 def _build_body_tabela_participantes(medicao_recreio, campos_alimentacao: list) -> list:
+    MAPA_TIPO_DIETA = {
+        "TIPO A": "DIETA ESPECIAL - TIPO A",
+        "ENTERAL": "ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "TIPO B": "DIETA ESPECIAL - TIPO B",
+    }
     body = []
+
     for campo in campos_alimentacao:
         total_alim = somar_campos_somatorio_recreio_nas_ferias(medicao_recreio, campo) if medicao_recreio else 0
         totais_dietas = [
