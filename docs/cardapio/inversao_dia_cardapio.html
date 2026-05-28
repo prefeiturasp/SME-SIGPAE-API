@@ -847,26 +847,6 @@ compatibilidade de interface, sem uso direto no método.</p></li>
 <span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;src.dados_comuns.fluxo_status.PedidoAPartirDaEscolaWorkflow</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.status" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.template_mensagem">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">template_mensagem</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.template_mensagem" title="Link to this definition"></a></dt>
-<dd><p>Retorna o assunto e o corpo HTML do template de notificacao.</p>
-<p>Busca o template cadastrado para inversao de cardapio e substitui os
-placeholders dinamicos pelos dados da solicitacao atual.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tupla com <code class="docutils literal notranslate"><span class="pre">(assunto,</span> <span class="pre">corpo_html)</span></code> da mensagem.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple[str, str]</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>TemplateMensagem.DoesNotExist</strong> – Caso nao exista template para o tipo
-    <code class="docutils literal notranslate"><span class="pre">INVERSAO_CARDAPIO</span></code>.</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_conferiu_gestao">
 <span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>

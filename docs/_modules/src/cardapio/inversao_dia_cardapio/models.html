@@ -90,7 +90,7 @@
     <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoAprovacaoPartindoDaEscola</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span><span class="p">,</span> <span class="n">TemplateMensagem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
 
 <span class="n">FORMATO_DATA_BR</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span>
 
@@ -115,16 +115,17 @@
 
 <span class="sd">    Esse modelo serve para todos os tipos de unidade escolar.</span>
 
-<span class="sd">    O objetivo da solicitação é inverter o cardápio disponibilizado no Prato Aberto sobre um tipo de alimentação </span>
-<span class="sd">    em um dia específico. </span>
-<span class="sd">    </span>
+<span class="sd">    O objetivo da solicitação é inverter o cardápio disponibilizado no Prato Aberto sobre um tipo de alimentação</span>
+<span class="sd">    em um dia específico.</span>
+
 <span class="sd">    Por exemplo:</span>
 <span class="sd">      - dia 15/03 será servido carne na Refeição.</span>
 <span class="sd">      - dia 22/03 será servido peixe na Refeição.</span>
-<span class="sd">      - caso exista uma Inversão de Cardápio solicitada para o dia 15/03 para o dia 22/03 de Refeição, o peixe será servido dia 15/03 e a carne será servida dia 22/03. </span>
+<span class="sd">      - caso exista uma Inversão de Cardápio solicitada para o dia 15/03 para o dia 22/03 de Refeição, o peixe será servido dia 15/03 e a carne será servida dia 22/03.</span>
 
 <span class="sd">    Para CEMEIs, é necessário informar se a substituição é para alunos CEI, EMEI ou para ambos.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Inversão de Cardápio&quot;</span>
     <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
     <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">InversaoCardapioDestaSemanaManager</span><span class="p">()</span>
@@ -152,6 +153,16 @@
 <a class="viewcode-back" href="../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_solicitacoes_rascunho">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_solicitacoes_rascunho</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">usuario</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitacoes de inversao com status RASCUNHO de um usuario.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            usuario (django.contrib.auth.models.AbstractUser): Usuario autor das</span>
+<span class="sd">                solicitacoes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.QuerySet: Queryset contendo as solicitacoes da</span>
+<span class="sd">                classe com status de rascunho criadas pelo usuario informado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">solicitacoes_unificadas</span> <span class="o">=</span> <span class="n">InversaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">criado_por</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">InversaoCardapio</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">RASCUNHO</span>
         <span class="p">)</span>
@@ -160,6 +171,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">datas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as datas de origem formatadas para exibicao em relatorios.</span>
+
+<span class="sd">        Quando a solicitacao possui um segundo par de datas, a segunda data de</span>
+<span class="sd">        origem e concatenada com quebra de linha em HTML.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String com a primeira data formatada em ``dd/mm/YYYY`` e, se</span>
+<span class="sd">                existir, a segunda data separada por ``&lt;br /&gt;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">datas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">FORMATO_DATA_BR</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao_2</span><span class="p">:</span>
             <span class="n">datas</span> <span class="o">+=</span> <span class="s2">&quot;&lt;br /&gt;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao_2</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">FORMATO_DATA_BR</span><span class="p">)</span>
@@ -167,14 +187,32 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">data_de</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a primeira data para a troca de cardápio da inversao do cardápio.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date | None: Data de origem principal, ou ``None`` quando</span>
+<span class="sd">                nao informada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span> <span class="ow">or</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">data_para</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a segunda data para a troca de cardápio da inversao do cardápio.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date | None: Data de destino principal, ou ``None`` quando</span>
+<span class="sd">                nao informada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para_inversao</span> <span class="ow">or</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a menor data relevante entre a primeira e a segunda data da inversao.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date | None: Menor data entre ``data_de`` e ``data_para``.</span>
+<span class="sd">                Se apenas uma delas existir, retorna a data disponivel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_para</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -183,35 +221,55 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tipo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a descrição legível do tipo da solicitacao.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String ``&quot;Inversão de Dia de Cardápio&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Inversão de Dia de Cardápio&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o caminho relativo do relatorio desta solicitação no frontend.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: URL relativa do frontend para a tela de relatorio da</span>
+<span class="sd">                solicitacao.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;inversao-de-dia-de-cardapio/relatorio?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&amp;tipoSolicitacao=solicitacao-normal&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o total de alunos associado a solicitação.</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tipo</span><span class="o">=</span><span class="n">TemplateMensagem</span><span class="o">.</span><span class="n">INVERSAO_CARDAPIO</span><span class="p">)</span>
-        <span class="n">template_troca</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;@id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span><span class="p">,</span>
-            <span class="s2">&quot;@criado_em&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">criado_em</span><span class="p">),</span>
-            <span class="s2">&quot;@criado_por&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">criado_por</span><span class="p">),</span>
-            <span class="s2">&quot;@status&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">),</span>
-            <span class="c1"># TODO: verificar a url padrão do pedido</span>
-            <span class="s2">&quot;@link&quot;</span><span class="p">:</span> <span class="s2">&quot;https://teste.com&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">corpo</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">template_html</span>
-        <span class="k">for</span> <span class="n">chave</span><span class="p">,</span> <span class="n">valor</span> <span class="ow">in</span> <span class="n">template_troca</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">corpo</span> <span class="o">=</span> <span class="n">corpo</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">chave</span><span class="p">,</span> <span class="n">valor</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">assunto</span><span class="p">,</span> <span class="n">corpo</span>
+<span class="sd">        Neste tipo de solicitação não há consolidação de quantidade de alunos,</span>
+<span class="sd">        por isso o valor retornado é sempre vazio.</span>
+
+<span class="sd">        Necessário para integração da Inversão de Dia de Cardápio com o paineis_consolidados, que agrupa todos os tipos de solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String vazia.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
 <div class="viewcode-block" id="InversaoCardapio.salvar_log_transicao">
 <a class="viewcode-back" href="../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.salvar_log_transicao">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra no log a transicao de status da solicitacao.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            status_evento (int): Codigo do evento de status que sera</span>
+<span class="sd">                registrado.</span>
+<span class="sd">            usuario (django.contrib.auth.models.AbstractUser): Usuario</span>
+<span class="sd">                responsavel pela transicao.</span>
+<span class="sd">            **kwargs: Parametros opcionais do log.</span>
+<span class="sd">                `justificativa` (str): Texto justificando a transicao.</span>
+<span class="sd">                `resposta_sim_nao` (bool): Resposta booleana associada ao</span>
+<span class="sd">                    evento, quando existir.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None: O metodo apenas persiste o log da transicao.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">resposta_sim_nao</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resposta_sim_nao&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
@@ -228,6 +286,19 @@
 <div class="viewcode-block" id="InversaoCardapio.solicitacao_dict_para_relatorio">
 <a class="viewcode-back" href="../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.solicitacao_dict_para_relatorio">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacao_dict_para_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_data</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">instituicao</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Monta o dicionário usado na geração do relatório da solicitação.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label_data (str): rótulo textual da data exibida no relatório.</span>
+<span class="sd">            data_log (str): Data ou descrição temporal associada ao log do</span>
+<span class="sd">                relatório.</span>
+<span class="sd">            instituicao (object): Instituição solicitante. Mantido por</span>
+<span class="sd">                compatibilidade de interface, sem uso direto no método.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, object]: Dicionário com os dados consolidados da</span>
+<span class="sd">                solicitação para renderização em relatórios.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_de_inversao</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">data_de_inversao_2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="p">:</span>
@@ -263,8 +334,14 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a representação textual resumida da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Texto com a descrição da inversão e o primeiro par de datas</span>
+<span class="sd">                envolvido.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Inversão de Cardápio </span><span class="se">\n</span><span class="s2">De: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">codigo_eol</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2"> - Inversão de Cardápio </span><span class="se">\n</span><span class="s2">De: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_de_inversao</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;Para: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_para_inversao</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
