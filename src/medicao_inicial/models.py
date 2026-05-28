@@ -528,7 +528,7 @@ class OcorrenciaMedicaoInicial(TemChaveExterna, Logs, FluxoSolicitacaoMedicaoIni
 
 class Responsavel(models.Model):
     nome = models.CharField("Nome", max_length=100)
-    rf = models.CharField(max_length=10)
+    rf = models.CharField(max_length=11)
     solicitacao_medicao_inicial = models.ForeignKey(
         SolicitacaoMedicaoInicial, related_name="responsaveis", on_delete=models.CASCADE
     )

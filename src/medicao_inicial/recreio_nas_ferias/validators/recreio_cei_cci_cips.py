@@ -8,24 +8,26 @@ from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDi
 from src.escola.models import Escola, FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
-    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
 )
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
-from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
     buscar_valores_lancamento_alimentacoes_recreio,
     existe_colaborador,
     get_classificacoes_dietas_recreio,
     get_linhas_da_tabela_alimentacoes_recreio,
     get_tipos_alimentacao_recreio,
+    valida_campo_participantes,
 )
 from src.medicao_inicial.validators import erros_unicos, lista_erros_com_periodo
 
 CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
 CATEGORIA_DIETA_TIPO_A = "DIETA ESPECIAL - TIPO A"
+
+GRUPO_RECREIO = "Recreio nas Férias"
 
 
 def cria_valores_medicao_participantes_cei(instance: SolicitacaoMedicaoInicial) -> None:
@@ -46,55 +48,12 @@ def cria_valores_medicao_participantes_cei(instance: SolicitacaoMedicaoInicial) 
     ).first()
 
     informacoes_participantes = {
-        "Recreio nas Férias": participantes.num_inscritos,
+        GRUPO_RECREIO: participantes.num_inscritos,
     }
     if existe_colaborador(participantes):
         informacoes_participantes["Colaboradores"] = participantes.num_colaboradores
 
-    grupos = list(informacoes_participantes.keys())
-
-    categoria = CategoriaMedicao.objects.get(nome=CATEGORIA_ALIMENTACAO_NOME)
-    grupos_medicao_existentes = {
-        medicao.grupo.nome: medicao
-        for medicao in instance.medicoes.filter(grupo__nome__in=grupos).select_related(
-            "grupo"
-        )
-    }
-    grupos_obj = {
-        grupo.nome: grupo for grupo in GrupoMedicao.objects.filter(nome__in=grupos)
-    }
-
-    valores_medicao_a_criar = []
-    inicio_recreio = recreio.data_inicio
-    dias_totais = (recreio.data_fim - inicio_recreio).days
-
-    for numero_dia in range(dias_totais + 1):
-        dia = f"{(inicio_recreio + timedelta(days=numero_dia)).day:02d}"
-        for grupo in grupos:
-            medicao = grupos_medicao_existentes.get(grupo)
-            if medicao is None:
-                medicao = Medicao.objects.create(
-                    solicitacao_medicao_inicial=instance,
-                    grupo=grupos_obj[grupo],
-                )
-                grupos_medicao_existentes[grupo] = medicao
-
-            if not medicao.valores_medicao.filter(
-                categoria_medicao=categoria,
-                dia=dia,
-                nome_campo="participantes",
-            ).exists():
-                valores_medicao_a_criar.append(
-                    ValorMedicao(
-                        medicao=medicao,
-                        categoria_medicao=categoria,
-                        dia=dia,
-                        nome_campo="participantes",
-                        valor=informacoes_participantes[grupo],
-                    )
-                )
-
-    ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
+    valida_campo_participantes(instance, informacoes_participantes)
 
 
 def cria_valores_medicao_participantes_dietas_autorizadas_cei(
@@ -124,60 +83,10 @@ def cria_valores_medicao_participantes_dietas_autorizadas_cei(
         data__range=[inicio_recreio, fim_recreio],
         faixa_etaria__isnull=False,
     )
-    logs_por_dia = indexar_logs_dieta_autorizadas_por_data_e_faixa(logs_do_recreio)
 
-    grupo = "Recreio nas Férias"
-    categorias = list(
-        CategoriaMedicao.objects.filter(
-            nome__in=[CATEGORIA_DIETA_TIPO_A, "DIETA ESPECIAL - TIPO B"]
-        )
+    cria_valores_medicao_dietas_autorizadas_do_recreio_cei(
+        instance, logs_do_recreio, GRUPO_RECREIO
     )
-    tipos_alimentacao = get_tipos_alimentacao_recreio(instance)
-    categorias_validas = get_classificacoes_dietas_recreio(
-        categorias, tipos_alimentacao
-    )
-    categorias_com_logs = [
-        categoria
-        for categoria in categorias_validas
-        if _categoria_tem_logs_dieta_autorizada_cei(categoria, logs_por_dia)
-    ]
-
-    if not categorias_com_logs:
-        return
-
-    medicao = instance.medicoes.get(grupo__nome=grupo)
-    valores_existentes = set(
-        medicao.valores_medicao.filter(
-            categoria_medicao__in=categorias_com_logs,
-            nome_campo="dietas_autorizadas",
-        ).values_list("categoria_medicao_id", "dia", "faixa_etaria")
-    )
-
-    valores_medicao_a_criar = []
-    dias_totais = (fim_recreio - inicio_recreio).days
-    faixas = FaixaEtaria.objects.filter(ativo=True)
-    for numero_dia in range(dias_totais + 1):
-        data = inicio_recreio + timedelta(days=numero_dia)
-        dia = f"{data.day:02d}"
-        for categoria in categorias_com_logs:
-            for faixa_etaria in faixas:
-                if (categoria.id, dia, faixa_etaria.id) in valores_existentes:
-                    continue
-                valor = retorna_valor_para_log_dieta_autorizada_cei(
-                    categoria, logs_por_dia, data, faixa_etaria
-                )
-                valores_medicao_a_criar.append(
-                    ValorMedicao(
-                        medicao=medicao,
-                        categoria_medicao=categoria,
-                        dia=dia,
-                        nome_campo="dietas_autorizadas",
-                        valor=valor,
-                        faixa_etaria=faixa_etaria,
-                    )
-                )
-
-    ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
 
 def indexar_logs_dieta_autorizadas_por_data_e_faixa(
@@ -320,7 +229,7 @@ def retorna_valor_para_log_dieta_autorizada_cei(
 def validate_lancamento_alimentacoes_medicao_recreio_cei(
     solicitacao: SolicitacaoMedicaoInicial, lista_erros: list
 ) -> list:
-    """ "Valida os lançamentos das alimentações da medição do Recreio nas Férias para CEI.
+    """Valida os lançamentos das alimentações da medição do Recreio nas Férias para CEI.
 
     Realiza a validação dos lançamentos de alimentações dos participantes do
     grupo ``Recreio nas Férias`` e, quando existirem colaboradores na unidade,
@@ -416,7 +325,7 @@ def validate_lancamento_alimentacoes_inscritos(
 
     lista_erros = buscar_valores_lancamento_alimentacoes_faixa_etaria(
         solicitacao,
-        "Recreio nas Férias",
+        GRUPO_RECREIO,
         dias_letivos,
         categoria_alimentacao,
         lista_erros,
@@ -568,9 +477,7 @@ def validate_lancamento_dietas_medicao_recreio_cei(
             nome__in=[CATEGORIA_DIETA_TIPO_A, "DIETA ESPECIAL - TIPO B"]
         )
     )
-    medicao_recreio = solicitacao.medicoes.filter(
-        grupo__nome="Recreio nas Férias"
-    ).first()
+    medicao_recreio = solicitacao.medicoes.filter(grupo__nome=GRUPO_RECREIO).first()
 
     dias_letivos = [
         f"{dia:02d}"
@@ -828,3 +735,80 @@ def get_classificacoes_dietas_cei(
     )
 
     return ClassificacaoDieta.objects.filter(nome__icontains=termo)
+
+
+def cria_valores_medicao_dietas_autorizadas_do_recreio_cei(
+    instance: SolicitacaoMedicaoInicial, logs_do_recreio: QuerySet, grupo: str
+) -> None:
+    """Cria registros de ``ValorMedicao`` para dietas autorizadas do recreio CEI.
+
+    Processa os logs de dietas autorizadas do período do Recreio nas Férias,
+    identifica as categorias de dietas aplicáveis e cria registros de
+    ``ValorMedicao`` para os dias e categorias e faixas etárias ainda não existentes.
+
+    A criação considera apenas categorias que possuem logs associados e
+    evita duplicidade para o mesmo dia , categoria e faixa etária.
+
+    Args:
+        instance (SolicitacaoMedicaoInicial): Solicitação de medição inicial
+            vinculada ao recreio.
+        logs_do_recreio(QuerySet): Logs de dietas autorizadas filtrados para o período
+            do recreio.
+        grupo(str): Nome do grupo do recreio
+    """
+    recreio = instance.recreio_nas_ferias
+    inicio_recreio = recreio.data_inicio
+    fim_recreio = recreio.data_fim
+    logs_por_dia = indexar_logs_dieta_autorizadas_por_data_e_faixa(logs_do_recreio)
+
+    categorias = list(
+        CategoriaMedicao.objects.filter(
+            nome__in=[CATEGORIA_DIETA_TIPO_A, "DIETA ESPECIAL - TIPO B"]
+        )
+    )
+    tipos_alimentacao = get_tipos_alimentacao_recreio(instance)
+    categorias_validas = get_classificacoes_dietas_recreio(
+        categorias, tipos_alimentacao
+    )
+    categorias_com_logs = [
+        categoria
+        for categoria in categorias_validas
+        if _categoria_tem_logs_dieta_autorizada_cei(categoria, logs_por_dia)
+    ]
+
+    if not categorias_com_logs:
+        return
+
+    medicao = instance.medicoes.get(grupo__nome=grupo)
+    valores_existentes = set(
+        medicao.valores_medicao.filter(
+            categoria_medicao__in=categorias_com_logs,
+            nome_campo="dietas_autorizadas",
+        ).values_list("categoria_medicao_id", "dia", "faixa_etaria")
+    )
+
+    valores_medicao_a_criar = []
+    dias_totais = (fim_recreio - inicio_recreio).days
+    faixas = FaixaEtaria.objects.filter(ativo=True)
+    for numero_dia in range(dias_totais + 1):
+        data = inicio_recreio + timedelta(days=numero_dia)
+        dia = f"{data.day:02d}"
+        for categoria in categorias_com_logs:
+            for faixa_etaria in faixas:
+                if (categoria.id, dia, faixa_etaria.id) in valores_existentes:
+                    continue
+                valor = retorna_valor_para_log_dieta_autorizada_cei(
+                    categoria, logs_por_dia, data, faixa_etaria
+                )
+                valores_medicao_a_criar.append(
+                    ValorMedicao(
+                        medicao=medicao,
+                        categoria_medicao=categoria,
+                        dia=dia,
+                        nome_campo="dietas_autorizadas",
+                        valor=valor,
+                        faixa_etaria=faixa_etaria,
+                    )
+                )
+
+    ValorMedicao.objects.bulk_create(valores_medicao_a_criar)

@@ -1059,6 +1059,7 @@ def dieta_codae_autorizou(aluno, escola):
             aluno=aluno,
             classificacao=classificacao,
             tipo_solicitacao="COMUM",
+            status="CODAE_AUTORIZADO",
         )
         solicitacao_dieta.criado_em = datetime.date(2025, 1, 1)
         solicitacao_dieta.save()
@@ -1085,6 +1086,7 @@ def dieta_cancelada(aluno, escola):
         rastro_escola=escola,
         aluno=aluno,
         classificacao=classificacao,
+        status="CANCELADO_ALUNO_MUDOU_ESCOLA",
     )
     baker.make(
         "LogSolicitacoesUsuario",
@@ -1092,6 +1094,42 @@ def dieta_cancelada(aluno, escola):
         uuid_original=solicitacao_dieta.uuid,
     )
     return solicitacao_dieta
+
+
+@pytest.fixture
+def dieta_com_atualizacao_protocolo(aluno, escola):
+    with freeze_time("2025-01-01"):
+        aluno.nome = "Beatriz"
+        aluno.save()
+        classificacao = baker.make("ClassificacaoDieta", nome="Tipo C")
+        solicitacao_dieta = baker.make(
+            "SolicitacaoDietaEspecial",
+            rastro_escola=escola,
+            aluno=aluno,
+            classificacao=classificacao,
+            tipo_solicitacao="COMUM",
+            status="CODAE_AUTORIZADO",
+        )
+        solicitacao_dieta.criado_em = datetime.date(2025, 1, 1)
+        solicitacao_dieta.save()
+
+        log_autorizacao = baker.make(
+            "LogSolicitacoesUsuario",
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            uuid_original=solicitacao_dieta.uuid,
+        )
+        log_autorizacao.criado_em = datetime.date(2025, 1, 1)
+        log_autorizacao.save()
+
+        log_atualizacao = baker.make(
+            "LogSolicitacoesUsuario",
+            status_evento=LogSolicitacoesUsuario.CODAE_ATUALIZOU_PROTOCOLO,
+            uuid_original=solicitacao_dieta.uuid,
+        )
+        log_atualizacao.criado_em = datetime.date(2025, 1, 2)
+        log_atualizacao.save()
+
+        return solicitacao_dieta
 
 
 @pytest.fixture

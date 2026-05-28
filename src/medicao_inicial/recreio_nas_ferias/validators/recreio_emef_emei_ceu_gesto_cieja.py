@@ -8,16 +8,20 @@ from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDi
 from src.escola.models import Escola
 from src.medicao_inicial.models import (
     CategoriaMedicao,
-    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
 )
-from src.medicao_inicial.recreio_nas_ferias.models import (
-    RecreioNasFeriasUnidadeParticipante,
-)
 from src.medicao_inicial.recreio_nas_ferias.utils import gerar_dias_letivos_recreio
-from src.medicao_inicial.utils import get_name_campo
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
+    agrupar_tipos_alimentacao_por_categoria,
+    buscar_valores_lancamento_alimentacoes_recreio,
+    existe_colaborador,
+    get_classificacoes_dietas_recreio,
+    get_linhas_da_tabela_alimentacoes_recreio,
+    get_tipos_alimentacao_recreio,
+    valida_campo_participantes,
+)
 from src.medicao_inicial.validators import (
     erros_unicos,
     get_classificacoes_dietas,
@@ -28,6 +32,7 @@ CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
 CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME = (
     "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
 )
+GRUPO_RECREIO = "Recreio nas Férias"
 
 
 def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
@@ -50,55 +55,12 @@ def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
     ).first()
 
     informacoes_participantes = {
-        "Recreio nas Férias": participantes.num_inscritos,
+        GRUPO_RECREIO: participantes.num_inscritos,
     }
     if existe_colaborador(participantes):
         informacoes_participantes["Colaboradores"] = participantes.num_colaboradores
 
-    grupos = list(informacoes_participantes.keys())
-
-    categoria = CategoriaMedicao.objects.get(nome=CATEGORIA_ALIMENTACAO_NOME)
-    grupos_medicao_existentes = {
-        medicao.grupo.nome: medicao
-        for medicao in instance.medicoes.filter(grupo__nome__in=grupos).select_related(
-            "grupo"
-        )
-    }
-    grupos_obj = {
-        grupo.nome: grupo for grupo in GrupoMedicao.objects.filter(nome__in=grupos)
-    }
-
-    valores_medicao_a_criar = []
-    inicio_recreio = recreio.data_inicio
-    dias_totais = (recreio.data_fim - inicio_recreio).days
-
-    for numero_dia in range(dias_totais + 1):
-        dia = f"{(inicio_recreio + timedelta(days=numero_dia)).day:02d}"
-        for grupo in grupos:
-            medicao = grupos_medicao_existentes.get(grupo)
-            if medicao is None:
-                medicao = Medicao.objects.create(
-                    solicitacao_medicao_inicial=instance,
-                    grupo=grupos_obj[grupo],
-                )
-                grupos_medicao_existentes[grupo] = medicao
-
-            if not medicao.valores_medicao.filter(
-                categoria_medicao=categoria,
-                dia=dia,
-                nome_campo="participantes",
-            ).exists():
-                valores_medicao_a_criar.append(
-                    ValorMedicao(
-                        medicao=medicao,
-                        categoria_medicao=categoria,
-                        dia=dia,
-                        nome_campo="participantes",
-                        valor=informacoes_participantes[grupo],
-                    )
-                )
-
-    ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
+    valida_campo_participantes(instance, informacoes_participantes)
 
 
 def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao(
@@ -124,56 +86,9 @@ def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceuges
     logs_do_recreio = escola.logs_dietas_autorizadas_recreio_ferias.filter(
         data__range=[inicio_recreio, fim_recreio],
     )
-    logs_por_dia = indexar_logs_dieta_autorizadas_por_data(logs_do_recreio)
-
-    grupo = "Recreio nas Férias"
-    categorias = list(CategoriaMedicao.objects.filter(nome__icontains="dieta"))
-    tipos_alimentacao = get_tipos_alimentacao_recreio(instance)
-    categorias_validas = get_classificacoes_dietas_recreio(
-        categorias, tipos_alimentacao
+    cria_valores_medicao_dietas_autorizadas_do_recreio(
+        instance, logs_do_recreio, GRUPO_RECREIO
     )
-    categorias_com_logs = [
-        categoria
-        for categoria in categorias_validas
-        if _categoria_tem_logs_dieta_autorizada(categoria, logs_por_dia)
-    ]
-
-    if not categorias_com_logs:
-        return
-
-    medicao = instance.medicoes.get(grupo__nome=grupo)
-    valores_existentes = set(
-        medicao.valores_medicao.filter(
-            categoria_medicao__in=categorias_com_logs,
-            nome_campo="dietas_autorizadas",
-        ).values_list("categoria_medicao_id", "dia")
-    )
-
-    valores_medicao_a_criar = []
-    dias_totais = (fim_recreio - inicio_recreio).days
-
-    for numero_dia in range(dias_totais + 1):
-        data = inicio_recreio + timedelta(days=numero_dia)
-        dia = f"{data.day:02d}"
-
-        for categoria in categorias_com_logs:
-            if (categoria.id, dia) in valores_existentes:
-                continue
-
-            valor = retorna_valor_para_log_dieta_autorizada(
-                categoria, logs_por_dia, data
-            )
-            valores_medicao_a_criar.append(
-                ValorMedicao(
-                    medicao=medicao,
-                    categoria_medicao=categoria,
-                    dia=dia,
-                    nome_campo="dietas_autorizadas",
-                    valor=valor,
-                )
-            )
-
-    ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
 
 def indexar_logs_dieta_autorizadas_por_data(
@@ -309,140 +224,27 @@ def validate_lancamento_alimentacoes_medicao_recreio(
     )
     tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
     informacoes_alimentacao = {
-        "Recreio nas Férias": tipos_alimentacao_map.get("Inscritos", [])
+        GRUPO_RECREIO: tipos_alimentacao_map.get("Inscritos", [])
     }
     if existe_colaborador(participantes):
         informacoes_alimentacao["Colaboradores"] = tipos_alimentacao_map.get(
             "Colaboradores", []
         )
-
-    grupos = list(informacoes_alimentacao.keys())
-
-    categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
     dias_letivos_geral = gerar_dias_letivos_recreio(
         recreio.data_inicio, recreio.data_fim
     )
     dias_letivos_geral_formatado = [f"{dia:02d}" for dia in dias_letivos_geral]
+    categoria_alimentacao = CategoriaMedicao.objects.get(
+        nome=CATEGORIA_ALIMENTACAO_NOME
+    )
 
-    for grupo in grupos:
-        linhas_da_tabela = get_linhas_da_tabela_alimentacoes_recreio(
-            informacoes_alimentacao[grupo]
-        )
-        lista_erros = buscar_valores_lancamento_alimentacoes_recreio(
-            linhas_da_tabela,
-            solicitacao,
-            grupo,
-            dias_letivos_geral_formatado,
-            categoria_medicao,
-            lista_erros,
-        )
-    return erros_unicos(lista_erros)
-
-
-def agrupar_tipos_alimentacao_por_categoria(
-    tipos_alimentacao: QuerySet,
-) -> dict[str, list]:
-    """Agrupa tipos de alimentação por categoria.
-
-    Args:
-        tipos_alimentacao (QuerySet):
-            Queryset contendo os tipos de alimentação.
-
-    Returns:
-        dict[str, list]: Dicionário com os tipos de alimentação agrupados
-            pelo nome da categoria.
-    """
-    agrupados = defaultdict(list)
-
-    for tipo in tipos_alimentacao.select_related(
-        "categoria",
-        "tipo_alimentacao",
-    ):
-        agrupados[tipo.categoria.nome].append(tipo.tipo_alimentacao.nome)
-
-    return dict(agrupados)
-
-
-def get_linhas_da_tabela_alimentacoes_recreio(alimentacoes: list[str]) -> list[str]:
-    """Monta as linhas esperadas da tabela de alimentações.
-
-    Adiciona os campos obrigatórios de participantes e frequência,
-    além das alimentações configuradas para o grupo.
-
-    Também adiciona os campos de repetição quando aplicável.
-
-    Args:
-        alimentacoes (list[str]): Lista de alimentações configuradas para o grupo.
-
-    Returns:
-        list[str]:   Lista contendo os nomes dos campos esperados na tabela de lançamento.
-    """
-    linhas_da_tabela = ["participantes", "frequencia"]
-    for alimentacao in alimentacoes:
-        nome_formatado = get_name_campo(alimentacao)
-        linhas_da_tabela.append(nome_formatado)
-        if nome_formatado == "refeicao":
-            linhas_da_tabela.append("repeticao_refeicao")
-        if nome_formatado == "sobremesa":
-            linhas_da_tabela.append("repeticao_sobremesa")
-    return linhas_da_tabela
-
-
-def buscar_valores_lancamento_alimentacoes_recreio(
-    linhas_da_tabela: list[str],
-    solicitacao: SolicitacaoMedicaoInicial,
-    grupo: str,
-    dias_letivos: list[str],
-    categoria_medicao: CategoriaMedicao,
-    lista_erros: list,
-) -> list:
-    """Valida os lançamentos das alimentações do recreio.
-
-    Verifica se todos os campos esperados da tabela possuem
-    valores preenchidos para todos os dias letivos do período.
-
-    Quando existem dias sem preenchimento e sem observação
-    justificando a ausência, adiciona erro na lista.
-
-    Args:
-        linhas_da_tabela (list[str]): Lista de campos esperados na tabela.
-        solicitacao (SolicitacaoMedicaoInicial):  Solicitação de medição inicial.
-        grupo (str):  Nome do grupo validado.
-        dias_letivos (list[str]):  Lista de dias letivos formatados.
-        categoria_medicao (CategoriaMedicao): Categoria de medição utilizada na validação.
-        lista_erros (list): Lista acumulada de erros.
-
-    Returns:
-        list: Lista atualizada de erros encontrados.
-    """
-    periodo_com_erro = False
-    dias_letivos_set = set(dias_letivos)
-
-    for nome_campo in linhas_da_tabela:
-        valores_da_medicao = set(
-            ValorMedicao.objects.filter(
-                medicao__solicitacao_medicao_inicial=solicitacao,
-                nome_campo=nome_campo,
-                medicao__grupo__nome=grupo,
-                dia__in=dias_letivos,
-                categoria_medicao=categoria_medicao,
-            )
-            .exclude(valor=None)
-            .values_list("dia", flat=True)
-        )
-
-        if valores_da_medicao != dias_letivos_set:
-            dias_sem_preenchimento = dias_letivos_set - valores_da_medicao
-            if len(dias_sem_preenchimento) > 0:
-                periodo_com_erro = True
-
-    if periodo_com_erro:
-        lista_erros.append(
-            {
-                "periodo_escolar": grupo,
-                "erro": "Restam dias a serem lançados nas alimentações.",
-            }
-        )
+    informacoes = {
+        "solicitacao": solicitacao,
+        "grupos_recreio": informacoes_alimentacao,
+        "dias_letivos": dias_letivos_geral_formatado,
+        "categoria_alimentacao": categoria_alimentacao,
+    }
+    lista_erros = validar_lancamentos_alimentacoes_recreio(informacoes, lista_erros)
     return lista_erros
 
 
@@ -474,9 +276,7 @@ def validate_lancamento_dietas_medicao_recreio(
     """
     recreio = solicitacao.recreio_nas_ferias
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
-    medicao_recreio = solicitacao.medicoes.filter(
-        grupo__nome="Recreio nas Férias"
-    ).first()
+    medicao_recreio = solicitacao.medicoes.filter(grupo__nome=GRUPO_RECREIO).first()
 
     dias_letivos = [
         f"{dia:02d}"
@@ -641,35 +441,6 @@ def get_linhas_da_tabela_dieta_recreio(
     return nomes_campos
 
 
-def get_tipos_alimentacao_recreio(
-    solicitacao: SolicitacaoMedicaoInicial,
-) -> list[str]:
-    """Retorna os tipos de alimentação dos inscritos no recreio.
-
-    Busca os tipos de alimentação configurados para os participantes
-    da categoria ``Inscritos`` e retorna os nomes agrupados por
-    categoria.
-
-    Args:
-        recreio (RecreioNasFerias): Instância do recreio utilizada na consulta.
-
-    Returns:
-        list[str]: Lista contendo os tipos de alimentação dos inscritos.
-    """
-    recreio = solicitacao.recreio_nas_ferias
-    participantes = recreio.unidades_participantes.filter(
-        unidade_educacional=solicitacao.escola
-    ).first()
-
-    tipos_alimentacao = participantes.tipos_alimentacao.filter(
-        categoria__nome="Inscritos",
-    )
-
-    return agrupar_tipos_alimentacao_por_categoria(
-        tipos_alimentacao,
-    ).get("Inscritos", [])
-
-
 def get_logs_indexados_recreio(
     escola: Escola,
     inicio_recreio: datetime.date,
@@ -772,89 +543,120 @@ def get_valores_medicao_set(
     return set(valores_medicao)
 
 
-def get_classificacoes_dietas_recreio(
-    categorias: list[CategoriaMedicao], lista_alimentacoes: list[str]
-) -> list[CategoriaMedicao]:
-    """
-    Filtra categorias de medição de dietas para recreio
-    com base nos tipos de alimentação disponíveis.
+def cria_valores_medicao_dietas_autorizadas_do_recreio(
+    instance: SolicitacaoMedicaoInicial, logs_do_recreio: QuerySet, grupo: str
+) -> None:
+    """Cria registros de ``ValorMedicao`` para dietas autorizadas do recreio.
 
-    Regras:
-    - Remove categorias contendo "ENTERAL" quando não existir:
-        - Lanche
-        - Lanche 4h
-        - Refeição
+    Processa os logs de dietas autorizadas do período do Recreio nas Férias,
+    identifica as categorias de dietas aplicáveis e cria registros de
+    ``ValorMedicao`` para os dias e categorias ainda não existentes.
 
-    - Remove categorias contendo "DIETA ESPECIAL"quando não existir:
-        - Lanche
-        - Lanche 4h
-
-    - Categorias ENTERAL são preservadas na regra de remoção de "DIETA ESPECIAL"
+    A criação considera apenas categorias que possuem logs associados e
+    evita duplicidade para o mesmo dia e categoria.
 
     Args:
-        categorias (list[CategoriaMedicao]):  Lista de categorias de medição disponíveis.
-        lista_alimentacoes (list[str]): Lista de alimentações habilitadas para a medição.
-
-    Returns:
-        list[CategoriaMedicao]: Lista de categorias filtradas conforme as regras de alimentação do recreio.
+        instance (SolicitacaoMedicaoInicial): Solicitação de medição inicial
+            vinculada ao recreio.
+        logs_do_recreio(QuerySet): Logs de dietas autorizadas filtrados para o período
+            do recreio.
+        grupo(str): Nome do grupo do recreio
     """
+    recreio = instance.recreio_nas_ferias
+    inicio_recreio = recreio.data_inicio
+    fim_recreio = recreio.data_fim
+    logs_por_dia = indexar_logs_dieta_autorizadas_por_data(logs_do_recreio)
 
-    dicionario_alimentacao_dietas = {
-        "Lanche": "lanche",
-        "Lanche 4h": "lanche_4h",
-        "Refeição": "refeicao",
-    }
-    alimentacoes = {
-        dicionario_alimentacao_dietas[alimentacao]
-        for alimentacao in lista_alimentacoes
-        if alimentacao in dicionario_alimentacao_dietas
-    }
+    categorias = list(CategoriaMedicao.objects.filter(nome__icontains="dieta"))
+    tipos_alimentacao = get_tipos_alimentacao_recreio(instance)
+    categorias_validas = get_classificacoes_dietas_recreio(
+        categorias, tipos_alimentacao
+    )
+    categorias_com_logs = [
+        categoria
+        for categoria in categorias_validas
+        if _categoria_tem_logs_dieta_autorizada(categoria, logs_por_dia)
+    ]
 
-    tem_lanche = "lanche" in alimentacoes or "lanche_4h" in alimentacoes
-    tem_refeicao = "refeicao" in alimentacoes
+    if not categorias_com_logs:
+        return
 
-    categorias_filtradas = []
+    medicao = instance.medicoes.get(grupo__nome=grupo)
+    valores_existentes = set(
+        medicao.valores_medicao.filter(
+            categoria_medicao__in=categorias_com_logs,
+            nome_campo="dietas_autorizadas",
+        ).values_list("categoria_medicao_id", "dia")
+    )
 
-    for categoria in categorias:
-        nome = categoria.nome.upper()
+    valores_medicao_a_criar = []
+    dias_totais = (fim_recreio - inicio_recreio).days
 
-        tem_enteral = "ENTERAL" in nome
-        tem_dieta_especial = "DIETA ESPECIAL" in nome
+    for numero_dia in range(dias_totais + 1):
+        data = inicio_recreio + timedelta(days=numero_dia)
+        dia = f"{data.day:02d}"
 
-        if not tem_lanche and not tem_refeicao and tem_enteral:
-            continue
+        for categoria in categorias_com_logs:
+            if (categoria.id, dia) in valores_existentes:
+                continue
 
-        if not tem_lanche and tem_dieta_especial and not tem_enteral:
-            continue
+            valor = retorna_valor_para_log_dieta_autorizada(
+                categoria, logs_por_dia, data
+            )
+            valores_medicao_a_criar.append(
+                ValorMedicao(
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    dia=dia,
+                    nome_campo="dietas_autorizadas",
+                    valor=valor,
+                )
+            )
 
-        categorias_filtradas.append(categoria)
-    return categorias_filtradas
+    ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
 
-def existe_colaborador(participantes: RecreioNasFeriasUnidadeParticipante) -> bool:
-    """Verifica se existem colaboradores ativos no recreio.
+def validar_lancamentos_alimentacoes_recreio(
+    informacoes_alimentacao: dict, lista_erros: list
+) -> list:
+    """Valida os lançamentos de alimentações do recreio por grupo.
 
-    Retorna ``True`` quando a unidade participante possui número de
-    colaboradores maior que zero e pelo menos um tipo de alimentação
-    associado à categoria "Colaboradores". Caso contrário, retorna ``False``.
+    Percorre os grupos do Recreio nas Férias, obtém as linhas da tabela
+    de alimentações de cada grupo e busca inconsistências nos lançamentos
+    realizados para a solicitação informada.
+
+    Ao final, retorna a lista de erros consolidada sem duplicidades
 
     Args:
-        participantes (RecreioNasFeriasUnidadeParticipante): Instância de
-            participante da unidade escolar no Recreio nas Férias.
+        informacoes_alimentacao (dict): Dicionário contendo as informações
+            necessárias para validação dos colaboradores, incluindo:
+            - ``grupos_recreio``: dados dos grupos de recreio a serem validados;
+            - ``solicitacao``: solicitação de medição inicial;
+            - ``dias_letivos``: lista de dias letivos formatados;
+            - ``categoria_alimentacao``: categoria de medição utilizada na
+        lista_erros (list): Lista acumulada de erros encontrados durante
+            as validações.
 
     Returns:
-        bool: ``True`` se houver colaboradores com alimentação configurada;
-            ``False`` caso contrário.
+        list: Lista de erros únicos identificados durante a validação dos
+            lançamentos.
     """
-    if participantes.num_colaboradores > 0:
-        tipos_alimentacao = participantes.tipos_alimentacao.filter(
-            categoria__nome__in=["Colaboradores"]
-        )
-        tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(
-            tipos_alimentacao
-        )
-        alimentacoes_colaboradores = tipos_alimentacao_map.get("Colaboradores", [])
-        if len(alimentacoes_colaboradores) > 0:
-            return True
+    solicitacao = informacoes_alimentacao.get("solicitacao")
+    grupos_recreio = informacoes_alimentacao.get("grupos_recreio")
+    dias_letivos = informacoes_alimentacao.get("dias_letivos")
+    categoria_alimentacao = informacoes_alimentacao.get("categoria_alimentacao")
 
-    return False
+    grupos = list(grupos_recreio.keys())
+    for grupo in grupos:
+        linhas_da_tabela = get_linhas_da_tabela_alimentacoes_recreio(
+            grupos_recreio[grupo]
+        )
+        lista_erros = buscar_valores_lancamento_alimentacoes_recreio(
+            linhas_da_tabela,
+            solicitacao,
+            grupo,
+            dias_letivos,
+            categoria_alimentacao,
+            lista_erros,
+        )
+    return erros_unicos(lista_erros)

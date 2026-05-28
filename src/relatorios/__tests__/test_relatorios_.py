@@ -671,9 +671,7 @@ def test_relatorio_ficha_recebimento(
         in texto
     )
     assert ficha_recebimento_com_ocorrencia.observacao in texto
-    assert (
-        ficha_recebimento_com_ocorrencia.data_entrega.strftime("%d/%m/%Y") in texto
-    )
+    assert ficha_recebimento_com_ocorrencia.data_entrega.strftime("%d/%m/%Y") in texto
     assert "HOUVE OCORRÊNCIA(S) NO RECEBIMENTO: SIM" in texto
     assert "Faltaram 5 unidades do produto" in texto
 
@@ -897,6 +895,25 @@ def test_relatorio_solicitacao_medicao_rodape_aprovacao(
     assert "Aprovado por CODAE em" in texto
     assert "27/11/2025" in texto
     assert "Usuário TESTE" in texto
+
+
+def test_relatorio_solicitacao_medicao_mostra_cpf_quando_responsavel_tem_11_digitos(
+    solicitacao_medicao_inicial_aprovada_codae,
+):
+    baker.make(
+        "medicao_inicial.Responsavel",
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial_aprovada_codae,
+        nome="Responsável PFOM",
+        rf="12345678901",
+    )
+
+    relatorio = relatorio_solicitacao_medicao_por_escola(
+        solicitacao_medicao_inicial_aprovada_codae
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert "CPF: 12345678901" in texto
+    assert "RF: 12345678901" not in texto
 
 
 def test_obter_relatorio_da_unidade_cemei():

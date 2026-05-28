@@ -108,11 +108,13 @@ redis_conn = redis.StrictRedis(
 ESCOLA_TIPO_GESTAO_NOME = "TERC TOTAL"
 
 EMEI = "EMEI"
+EMEI_P_FOM = "EMEI P FOM"
 EMEF = "EMEF"
 EMEFM = "EMEFM"
 CIEJA = "CIEJA"
 CEU_EMEI = "CEU EMEI"
 CEU_EMEF = "CEU EMEF"
+EMEF_P_FOM = "EMEF P FOM"
 
 LISTA_TIPOS_UNIDADES = [
     "CEI DIRET",
@@ -778,7 +780,11 @@ class Escola(
 
     @property
     def eh_emei(self) -> bool:
-        return self.tipo_unidade and self.tipo_unidade.iniciais in [CEU_EMEI, EMEI]
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [
+            CEU_EMEI,
+            EMEI,
+            EMEI_P_FOM,
+        ]
 
     @property
     def eh_emebs(self) -> bool:
@@ -797,6 +803,8 @@ class Escola(
             CEU_EMEF,
             CEU_EMEI,
             CIEJA,
+            EMEF_P_FOM,
+            EMEI_P_FOM,
         ]
 
     @property
@@ -805,6 +813,7 @@ class Escola(
             EMEF,
             CEU_EMEF,
             EMEFM,
+            EMEF_P_FOM,
         ]
 
     @property
@@ -814,6 +823,13 @@ class Escola(
     @property
     def eh_cmct(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in ["CMCT"]
+
+    @property
+    def eh_p_fom(self) -> bool:
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [
+            EMEI_P_FOM,
+            EMEF_P_FOM,
+        ]
 
     def _eh_tipo_unidade_data(
         self, data: datetime.date, iniciais_validas: set[str], fallback: bool
@@ -841,7 +857,7 @@ class Escola(
         """Verifica se a escola é EMEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={CEU_EMEI, EMEI},
+            iniciais_validas={CEU_EMEI, EMEI, EMEI_P_FOM},
             fallback=self.eh_emei,
         )
 
@@ -880,7 +896,16 @@ class Escola(
         """Verifica se a escola é EMEI, EMEF ou CIEJA na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={EMEI, EMEF, EMEFM, CEU_EMEF, CEU_EMEI, CIEJA},
+            iniciais_validas={
+                EMEI,
+                EMEF,
+                EMEFM,
+                CEU_EMEF,
+                CEU_EMEI,
+                CIEJA,
+                EMEF_P_FOM,
+                EMEI_P_FOM,
+            },
             fallback=self.eh_emef_emei_cieja,
         )
 
@@ -888,7 +913,7 @@ class Escola(
         """Verifica se a escola é EMEF na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={EMEF, CEU_EMEF, EMEFM},
+            iniciais_validas={EMEF, CEU_EMEF, EMEFM, EMEF_P_FOM},
             fallback=self.eh_emef,
         )
 
