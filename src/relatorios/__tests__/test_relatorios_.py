@@ -30,6 +30,7 @@ from ..relatorios import (
     relatorio_dieta_especial_protocolo,
     relatorio_reclamacao_produtos,
     relatorio_solicitacao_medicao_por_escola,
+    relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
     relatorio_suspensao_de_alimentacao,
 )
 
@@ -671,9 +672,7 @@ def test_relatorio_ficha_recebimento(
         in texto
     )
     assert ficha_recebimento_com_ocorrencia.observacao in texto
-    assert (
-        ficha_recebimento_com_ocorrencia.data_entrega.strftime("%d/%m/%Y") in texto
-    )
+    assert ficha_recebimento_com_ocorrencia.data_entrega.strftime("%d/%m/%Y") in texto
     assert "HOUVE OCORRÊNCIA(S) NO RECEBIMENTO: SIM" in texto
     assert "Faltaram 5 unidades do produto" in texto
 
@@ -899,6 +898,25 @@ def test_relatorio_solicitacao_medicao_rodape_aprovacao(
     assert "Usuário TESTE" in texto
 
 
+def test_relatorio_solicitacao_medicao_mostra_cpf_quando_responsavel_tem_11_digitos(
+    solicitacao_medicao_inicial_aprovada_codae,
+):
+    baker.make(
+        "medicao_inicial.Responsavel",
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial_aprovada_codae,
+        nome="Responsável PFOM",
+        rf="12345678901",
+    )
+
+    relatorio = relatorio_solicitacao_medicao_por_escola(
+        solicitacao_medicao_inicial_aprovada_codae
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert "CPF: 12345678901" in texto
+    assert "RF: 12345678901" not in texto
+
+
 def test_obter_relatorio_da_unidade_cemei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
@@ -1031,3 +1049,20 @@ def test_relatorio_historico_ocorrencias_renderiza_todos_os_tipos_de_logs(
     # --- Validação Geral ---
     assert "RELATÓRIO DE HISTÓRICO DO FORMULÁRIO DE OCORRÊNCIAS" in html
     assert f"{solicitacao.mes}/{solicitacao.ano}" in html
+
+
+def test_relatorio_solicitacao_medicao_recreio_nas_ferias_rodape_aprovacao(
+    solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae,
+):
+    relatorio = relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(
+        solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
+    assert "EMEF JOAO MENDES" in texto
+    assert "Recreio nas Férias - Julho 2025" in texto
+    assert "SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS" in texto
+    assert "Aprovado por CODAE em" in texto
+    assert "05/08/2025" in texto
+    assert "Usuário TESTE" in texto

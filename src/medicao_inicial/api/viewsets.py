@@ -41,6 +41,7 @@ from ...dados_comuns.permissions import (
     UsuarioDiretoriaRegional,
     UsuarioEmpresaTerceirizada,
     UsuarioEscolaTercTotal,
+    UsuarioEscolaTercTotalPFOM,
     UsuarioEscolaTercTotalSemAlunosRegulares,
     UsuarioMedicao,
     UsuarioSupervisaoNutricao,
@@ -640,9 +641,10 @@ class SolicitacaoMedicaoInicialViewSet(
         user = request.user.get_username()
         uuid_sol_medicao = request.query_params["uuid"]
         solicitacao = SolicitacaoMedicaoInicial.objects.get(uuid=uuid_sol_medicao)
+        sufixo_recreio = " Recreio nas Férias" if solicitacao.recreio_nas_ferias else ""
         gera_pdf_relatorio_solicitacao_medicao_por_escola_async.delay(
             user=user,
-            nome_arquivo=f"Relatório Medição Inicial - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
+            nome_arquivo=f"Relatório Medição Inicial{sufixo_recreio} - {solicitacao.escola.nome_historico(solicitacao.data_referencia)} - "
             f"{solicitacao.mes}/{solicitacao.ano}.pdf",
             uuid_sol_medicao=uuid_sol_medicao,
         )
@@ -1152,7 +1154,9 @@ class SolicitacaoMedicaoInicialViewSet(
         methods=["PATCH"],
         url_path="escola-corrige-medicao-para-dre",
         permission_classes=[
-            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+            UsuarioDiretorEscolaTercTotal
+            | UsuarioEscolaTercTotalSemAlunosRegulares
+            | UsuarioEscolaTercTotalPFOM
         ],
     )
     def escola_corrige_medicao_para_dre(self, request, uuid=None):
@@ -1185,7 +1189,9 @@ class SolicitacaoMedicaoInicialViewSet(
         methods=["PATCH"],
         url_path="escola-corrige-medicao-para-codae",
         permission_classes=[
-            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+            UsuarioDiretorEscolaTercTotal
+            | UsuarioEscolaTercTotalSemAlunosRegulares
+            | UsuarioEscolaTercTotalPFOM
         ],
     )
     def escola_corrige_medicao_para_codae(self, request, uuid=None):
@@ -1218,7 +1224,9 @@ class SolicitacaoMedicaoInicialViewSet(
         methods=["PATCH"],
         url_path="ue-atualiza-ocorrencia",
         permission_classes=[
-            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+            UsuarioDiretorEscolaTercTotal
+            | UsuarioEscolaTercTotalSemAlunosRegulares
+            | UsuarioEscolaTercTotalPFOM
         ],
     )
     def ue_atualiza_ocorrencia(self, request, uuid=None):
@@ -1660,7 +1668,9 @@ class MedicaoViewSet(
         methods=["PATCH"],
         url_path="escola-corrige-medicao",
         permission_classes=[
-            UsuarioDiretorEscolaTercTotal | UsuarioEscolaTercTotalSemAlunosRegulares
+            UsuarioDiretorEscolaTercTotal
+            | UsuarioEscolaTercTotalSemAlunosRegulares
+            | UsuarioEscolaTercTotalPFOM
         ],
     )
     def escola_corrige_medicao(self, request, uuid=None):

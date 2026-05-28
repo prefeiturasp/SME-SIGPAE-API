@@ -59,7 +59,11 @@ def get_lista_dias_letivos(solicitacao, escola, periodo_escolar=None):
         data__year=ano,
         escola=escola,
         dia_letivo=True,
-        periodo_escolar=periodo_escolar,
+        periodo_escolar=(
+            periodo_escolar
+            if periodo_escolar and periodo_escolar.nome == "NOITE"
+            else None
+        ),
     )
     dias_letivos = list(set(dias_letivos.values_list("data__day", flat=True)))
     dias_letivos_uteis = filtrar_dias_letivos(dias_letivos, mes, ano)
@@ -105,6 +109,7 @@ def buscar_valores_lancamento_alimentacoes(
             .exclude(valor=None)
             .values_list("dia", flat=True)
         )
+
         permissoes_especiais = get_permissoes_especiais_da_solicitacao(
             solicitacao, solicitacao.escola, periodo_escolar
         )

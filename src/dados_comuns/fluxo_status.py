@@ -4123,7 +4123,8 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 user.vinculo_atual.instituicao.possui_alunos_regulares
             )
             eh_diretor = user.vinculo_atual.perfil.nome == DIRETOR_UE
-            if not eh_diretor and escola_possui_alunos_regulares:
+            escola_p_fom = user.vinculo_atual.instituicao.eh_p_fom
+            if not eh_diretor and escola_possui_alunos_regulares and not escola_p_fom:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4411,6 +4412,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
         if user:
@@ -4446,6 +4448,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 
@@ -4473,6 +4476,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             nao_possui_permissao = (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
                 raise PermissionDenied(
@@ -4490,6 +4494,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             nao_possui_permissao = (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
                 raise PermissionDenied(
@@ -4511,6 +4516,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 
@@ -4537,6 +4543,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 

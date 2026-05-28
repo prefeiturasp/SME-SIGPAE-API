@@ -97,7 +97,7 @@
     {% for responsavel in responsaveis %}
     <div class="row p-0 mx-4 mt-2 usuarios">
       <div class="usuario-label mr-2"><span><b>Nome: {{responsavel.nome}}</b></span></div>
-      <div class="usuario-values"><span><b>RF: {{responsavel.rf}}</b></span></div>
+      <div class="usuario-values"><span><b>{% if responsavel.rf|length == 11 %}CPF{% else %}RF{% endif %}: {{responsavel.rf}}</b></span></div>
     </div>
     {% endfor %}
   </div>
