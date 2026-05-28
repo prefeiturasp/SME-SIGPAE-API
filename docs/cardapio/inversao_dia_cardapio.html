@@ -1424,7 +1424,7 @@ questionamento.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.relatorio">
 <span class="sig-name descname"><span class="pre">relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.relatorio" title="Link to this definition"></a></dt>
-<dd><p>Gera o relatório PDF da solicitação de inversão de cardápio.</p>
+<dd><p>Gera o relatório PDF da solicitação de Inversão de dia de Cardápio.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1578,10 +1578,17 @@ params.</p>
 <span id="fixtures"></span><h2>fixtures<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.fixtures" title="Link to this heading"></a></h2>
 <section id="module-src.cardapio.inversao_dia_cardapio.fixtures.factories">
 <span id="fixtures-factories"></span><h3>fixtures/factories<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.fixtures.factories" title="Link to this heading"></a></h3>
-<dl class="py class" id="module-src.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory">
+<p>Factories de teste para o subapp de inversao de dia de cardapio.</p>
+<p id="module-src.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory">Factories para o modelo InversaoCardapio.</p>
+<p>Utiliza <code class="docutils literal notranslate"><span class="pre">factory_boy</span></code> para criar instancias de teste com os relacionamentos
+necessarios para o fluxo de inversao de dia de cardapio.</p>
+<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/fixtures/factories/inversao_cardapio_factory.html#InversaoCardapioFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<p>Factory para o modelo <code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code>.</p>
+<p>Cria automaticamente a escola solicitante e os campos de rastreio
+(escola, lote, DRE e terceirizada) por meio de subfactories.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.escola">
 <span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EscolaFactory)</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory.escola" title="Link to this definition"></a></dt>
@@ -1618,15 +1625,30 @@ params.</p>
 </section>
 <section id="module-src.cardapio.inversao_dia_cardapio.managers">
 <span id="managers"></span><h2>managers<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.managers" title="Link to this heading"></a></h2>
-<dl class="py class" id="module-src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers">
+<p>Managers customizados para consultas do subapp de inversao de cardapio.</p>
+<p id="module-src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers">Managers customizados para o modelo InversaoCardapio.</p>
+<p>Cada manager aplica um recorte temporal ou de status sobre o queryset padrao,
+facilitando consultas de solicitacoes proximas, do mes e vencidas.</p>
+<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioDestaSemanaManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioDestaSemanaManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna inversões com datas previstas para os próximos 7 dias.</p>
+<p>Considera tanto <code class="docutils literal notranslate"><span class="pre">data_de_inversao</span></code> quanto <code class="docutils literal notranslate"><span class="pre">data_para_inversao</span></code> e exige
+que ambas as datas da solicitação ainda não tenham passado.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioDestaSemanaManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset filtrado pelo intervalo da semana atual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Inversoes com <code class="docutils literal notranslate"><span class="pre">data_de_inversao</span></code> ou
+<code class="docutils literal notranslate"><span class="pre">data_para_inversao</span></code> entre hoje e hoje + 7 dias.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1635,11 +1657,22 @@ customize the behavior of the Manager.</p>
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioDesteMesManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioDesteMesManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna inversões com datas previstas para os próximos 30 dias.</p>
+<p>Considera tanto <code class="docutils literal notranslate"><span class="pre">data_de_inversao</span></code> quanto <code class="docutils literal notranslate"><span class="pre">data_para_inversao</span></code> e exige
+que ambas as datas da solicitação ainda não tenham passado.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioDesteMesManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset filtrado pelo intervalo do mês atual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Inversões com <code class="docutils literal notranslate"><span class="pre">data_de_inversao</span></code> ou
+<code class="docutils literal notranslate"><span class="pre">data_para_inversao</span></code> entre hoje e hoje + 30 dias.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1648,11 +1681,22 @@ customize the behavior of the Manager.</p>
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioVencidaManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioVencidaManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Manager</span></code></p>
+<p>Manager que retorna inversões vencidas ainda em status aberto.</p>
+<p>Considera vencidas as solicitações cuja data de início ou fim já passou e
+que ainda estejam em status pendentes do fluxo da escola ou da DRE.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.html#InversaoCardapioVencidaManager.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager.get_queryset" title="Link to this definition"></a></dt>
-<dd><p>Return a new QuerySet object. Subclasses can override this method to
-customize the behavior of the Manager.</p>
+<dd><p>Retorna o queryset das inversões vencidas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Inversões com datas passadas e status ainda não
+finalizados.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>QuerySet</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

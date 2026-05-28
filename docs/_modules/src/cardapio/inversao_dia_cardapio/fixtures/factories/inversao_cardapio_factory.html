@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
+<span></span><span class="sd">&quot;&quot;&quot;Factories para o modelo InversaoCardapio.</span>
+
+<span class="sd">Utiliza ``factory_boy`` para criar instancias de teste com os relacionamentos</span>
+<span class="sd">necessarios para o fluxo de inversao de dia de cardapio.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory.django</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoModelFactory</span>
 
@@ -87,6 +93,12 @@
 <div class="viewcode-block" id="InversaoCardapioFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.fixtures.factories.inversao_cardapio_factory.InversaoCardapioFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapioFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``InversaoCardapio``.</span>
+
+<span class="sd">    Cria automaticamente a escola solicitante e os campos de rastreio</span>
+<span class="sd">    (escola, lote, DRE e terceirizada) por meio de subfactories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">EscolaFactory</span><span class="p">)</span>
     <span class="n">rastro_escola</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">EscolaFactory</span><span class="p">)</span>
     <span class="n">rastro_lote</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">LoteFactory</span><span class="p">)</span>
@@ -95,6 +107,13 @@
 
     <span class="nd">@factory</span><span class="o">.</span><span class="n">post_generation</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="p">,</span> <span class="n">extracted</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adiciona os tipos de alimentacao a instancia criada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            create (bool): Indica se a instancia foi persistida no banco.</span>
+<span class="sd">            extracted: Lista de tipos de alimentacao a associar, ou ``None``.</span>
+<span class="sd">            **kwargs: Argumentos adicionais ignorados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
             <span class="k">return</span>
 
