@@ -8,7 +8,6 @@ from .models import (
     LogSolicitacoesUsuario,
     Notificacao,
     PerguntaFrequente,
-    TemplateMensagem,
 )
 
 
@@ -33,4 +32,3 @@ admin.site.register(Endereco)
 admin.site.register(LogSolicitacoesUsuario)
 admin.site.register(Notificacao)
 admin.site.register(PerguntaFrequente)
-admin.site.register(TemplateMensagem)

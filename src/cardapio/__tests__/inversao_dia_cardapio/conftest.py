@@ -8,7 +8,6 @@ from src.cardapio.inversao_dia_cardapio.api.serializers import (
 )
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from src.dados_comuns.models import TemplateMensagem
 
 
 @pytest.fixture(
@@ -163,17 +162,7 @@ def datas_de_inversoes_intervalo_entre_60_dias(request):
 
 
 @pytest.fixture
-def template_mensagem_inversao_cardapio():
-    return baker.make(
-        TemplateMensagem,
-        tipo=TemplateMensagem.INVERSAO_CARDAPIO,
-        assunto="TESTE INVERSAO CARDAPIO",
-        template_html="@id @criado_em @status @link",
-    )
-
-
-@pytest.fixture
-def inversao_dia_cardapio(template_mensagem_inversao_cardapio, escola):
+def inversao_dia_cardapio(escola):
     return baker.make(
         InversaoCardapio,
         criado_em=datetime.date(2019, 12, 12),
@@ -187,10 +176,7 @@ def inversao_dia_cardapio(template_mensagem_inversao_cardapio, escola):
 
 
 @pytest.fixture
-def inversao_dia_cardapio_outra_dre(
-    template_mensagem_inversao_cardapio,
-    escola_dre_guaianases,
-):
+def inversao_dia_cardapio_outra_dre(escola_dre_guaianases):
     return baker.make(
         InversaoCardapio,
         criado_em=datetime.date(2019, 12, 12),
@@ -232,12 +218,6 @@ def inversao_dia_cardapio_codae_autorizado(inversao_dia_cardapio):
 
 @pytest.fixture
 def inversao_dia_cardapio2(escola):
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE INVERSAO CARDAPIO",
-        tipo=TemplateMensagem.INVERSAO_CARDAPIO,
-        template_html="@id @criado_em @status @link",
-    )
     return baker.make(
         InversaoCardapio,
         uuid="98dc7cb7-7a38-408d-907c-c0f073ca2d13",

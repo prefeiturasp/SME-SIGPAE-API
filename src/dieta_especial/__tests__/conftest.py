@@ -8,7 +8,6 @@ from model_bakery import baker
 
 from src.dados_comuns import constants
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
-from src.dados_comuns.models import TemplateMensagem
 from src.dados_comuns.utils import convert_base64_to_contentfile
 from src.dieta_especial.protocolo_padrao.models import Alimento
 from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
@@ -210,9 +209,7 @@ def payload_autorizar(
 
 
 @pytest.fixture
-def solicitacao_dieta_especial_a_autorizar(
-    client, escola, template_mensagem_dieta_especial
-):
+def solicitacao_dieta_especial_a_autorizar(client, escola):
     email = "escola@admin.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     rf = "1545933"
@@ -398,16 +395,6 @@ def solicitacao_dieta_especial_codae_autorizou_inativacao(
 
 
 @pytest.fixture
-def template_mensagem_dieta_especial():
-    return baker.make(
-        TemplateMensagem,
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        assunto="TESTE DIETA ESPECIAL",
-        template_html="@id @criado_em @status @link",
-    )
-
-
-@pytest.fixture
 def escola():
     terceirizada = baker.make(
         "Terceirizada", uuid="a8fefdd3-b5ff-47e0-8338-ce5d7c6d8a52"
@@ -502,7 +489,7 @@ def massa_dados_protocolo_padrao_test(solicitacao_dieta_especial):
 
 
 @pytest.fixture
-def usuario_escola_dieta(django_user_model, escola, template_mensagem_dieta_especial):
+def usuario_escola_dieta(django_user_model, escola):
     email = "diretor_escola_dieta@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -529,9 +516,7 @@ def client_autenticado_vinculo_escola_dieta(client, usuario_escola_dieta):
 
 
 @pytest.fixture
-def client_autenticado_vinculo_dre_dieta(
-    client, django_user_model, escola, template_mensagem_dieta_especial
-):
+def client_autenticado_vinculo_dre_dieta(client, django_user_model, escola):
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -552,9 +537,7 @@ def client_autenticado_vinculo_dre_dieta(
 
 
 @pytest.fixture
-def usuario_vinculo_codae_dieta(
-    django_user_model, escola, codae, template_mensagem_dieta_especial
-):
+def usuario_vinculo_codae_dieta(django_user_model, escola, codae):
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -585,7 +568,7 @@ def client_autenticado_vinculo_codae_dieta(client, usuario_vinculo_codae_dieta):
 
 @pytest.fixture
 def client_autenticado_vinculo_codae_gestao_alimentacao_dieta(
-    client, django_user_model, escola, codae, template_mensagem_dieta_especial
+    client, django_user_model, escola, codae
 ):
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
@@ -612,7 +595,7 @@ def client_autenticado_vinculo_codae_gestao_alimentacao_dieta(
 
 @pytest.fixture
 def client_autenticado_vinculo_terceirizada_dieta(
-    client, django_user_model, escola, codae, template_mensagem_dieta_especial
+    client, django_user_model, escola, codae
 ):
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD

@@ -19,7 +19,7 @@ from src.dados_comuns.behaviors import (
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
-from src.dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from src.dados_comuns.models import LogSolicitacoesUsuario
 
 FORMATO_DATA_BR = "%d/%m/%Y"
 
@@ -175,34 +175,6 @@ class InversaoCardapio(
             str: String vazia.
         """
         return ""
-
-    @property
-    def template_mensagem(self):
-        """Retorna o assunto e o corpo HTML do template de notificacao.
-
-        Busca o template cadastrado para inversao de cardapio e substitui os
-        placeholders dinamicos pelos dados da solicitacao atual.
-
-        Returns:
-            tuple[str, str]: Tupla com ``(assunto, corpo_html)`` da mensagem.
-
-        Raises:
-            TemplateMensagem.DoesNotExist: Caso nao exista template para o tipo
-                ``INVERSAO_CARDAPIO``.
-        """
-        template = TemplateMensagem.objects.get(tipo=TemplateMensagem.INVERSAO_CARDAPIO)
-        template_troca = {
-            "@id": self.id_externo,
-            "@criado_em": str(self.criado_em),
-            "@criado_por": str(self.criado_por),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "https://teste.com",
-        }
-        corpo = template.template_html
-        for chave, valor in template_troca.items():
-            corpo = corpo.replace(chave, valor)
-        return template.assunto, corpo
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         """Registra no log a transicao de status da solicitacao.

@@ -1,21 +1,9 @@
 import pytest
 from django.contrib import admin
-from model_bakery import baker
 
 from ..models import CentralDeDownload, Notificacao
 
 pytestmark = pytest.mark.django_db
-
-
-def test_template_mensagem(template_mensagem):
-    params, esperado = template_mensagem
-    template = baker.make(**params)
-    assert isinstance(template.assunto, str)
-    assert isinstance(template.template_html, str)
-
-
-def test_template_mensagem_obj(template_mensagem_obj):
-    assert template_mensagem_obj.__str__() == "Alteração do tipo de Alimentação"
 
 
 def test_instance_model_notificacao(notificacao, django_user_model):

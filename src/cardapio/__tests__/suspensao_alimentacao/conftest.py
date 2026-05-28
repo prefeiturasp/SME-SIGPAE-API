@@ -14,7 +14,6 @@ from src.cardapio.suspensao_alimentacao.models import (
     SuspensaoAlimentacaoNoPeriodoEscolar,
 )
 from src.dados_comuns.fluxo_status import InformativoPartindoDaEscolaWorkflow
-from src.dados_comuns.models import TemplateMensagem
 
 
 @pytest.fixture(
@@ -101,11 +100,6 @@ def suspensao_periodo_escolar(suspensao_alimentacao):
 
 
 @pytest.fixture
-def template_mensagem_suspensao_alimentacao():
-    return baker.make(TemplateMensagem, tipo=TemplateMensagem.SUSPENSAO_ALIMENTACAO)
-
-
-@pytest.fixture
 def grupo_suspensao_alimentacao(escola):
     grupo_suspensao = baker.make(
         GrupoSuspensaoAlimentacao,
@@ -135,9 +129,7 @@ def grupo_suspensao_alimentacao(escola):
 
 
 @pytest.fixture
-def grupo_suspensao_alimentacao_outra_dre(
-    escola_dre_guaianases, template_mensagem_suspensao_alimentacao
-):
+def grupo_suspensao_alimentacao_outra_dre(escola_dre_guaianases):
     return baker.make(
         GrupoSuspensaoAlimentacao,
         observacao="lorem ipsum",

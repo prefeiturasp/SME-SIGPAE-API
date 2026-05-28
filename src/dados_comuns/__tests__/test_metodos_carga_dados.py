@@ -8,7 +8,7 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
-from src.dados_comuns.models import Contato, TemplateMensagem
+from src.dados_comuns.models import Contato
 from src.dieta_especial.protocolo_padrao.models import Alimento
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
@@ -50,7 +50,6 @@ from utility.carga_dados.cardapio.importa_dados import (
 )
 from utility.carga_dados.dados_comuns.importa_dados import (
     cria_contatos,
-    cria_templatemensagem,
 )
 from utility.carga_dados.dieta_especial.importa_dados import (
     cria_alergia_intolerancias,
@@ -134,12 +133,6 @@ def test_cria_contatos():
     assert Contato.objects.count() == 0
     cria_contatos()
     assert Contato.objects.count() == 1
-
-
-def test_cria_templatemensagem():
-    assert TemplateMensagem.objects.count() == 0
-    cria_templatemensagem()
-    assert TemplateMensagem.objects.count() == 8
 
 
 def test_cria_diretorias_regionais():

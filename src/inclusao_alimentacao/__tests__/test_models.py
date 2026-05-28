@@ -39,10 +39,6 @@ def test_inclusao_alimentacao_continua(inclusao_alimentacao_continua_params):
     inclusao_alimentacao_continua, esperado = inclusao_alimentacao_continua_params
     assert isinstance(inclusao_alimentacao_continua.escola, Escola)
     assert isinstance(inclusao_alimentacao_continua.motivo, MotivoInclusaoContinua)
-    assunto, template_html = inclusao_alimentacao_continua.template_mensagem
-    assert assunto == "TESTE"
-    assert "98DC7" in template_html
-    assert "RASCUNHO" in template_html
     assert inclusao_alimentacao_continua.data == esperado
 
 

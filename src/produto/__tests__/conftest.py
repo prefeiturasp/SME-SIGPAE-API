@@ -26,7 +26,7 @@ from ...dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
     ReclamacaoProdutoWorkflow,
 )
-from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...escola.models import DiretoriaRegional, TipoGestao
 from ...terceirizada.models import Contrato
 from ..models import AnaliseSensorial, HomologacaoProduto, ProdutoEdital
@@ -62,16 +62,6 @@ def codae():
 
 
 @pytest.fixture
-def template_homologacao_produto():
-    return baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.HOMOLOGACAO_PRODUTO,
-        template_html="@id @criado_em @status @link",
-    )
-
-
-@pytest.fixture
 def perfil_gpcodae():
     return baker.make("Perfil", nome=constants.ADMINISTRADOR_GESTAO_PRODUTO, ativo=True)
 
@@ -91,9 +81,7 @@ def mock_vinculo_atual():
 
 
 @pytest.fixture
-def client_autenticado_vinculo_codae_produto(
-    client, django_user_model, escola, codae, template_homologacao_produto
-):
+def client_autenticado_vinculo_codae_produto(client, django_user_model, escola, codae):
     email = "test2@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -214,9 +202,7 @@ def produtos_edital_41(escola):
 
 
 @pytest.fixture
-def client_autenticado_vinculo_terceirizada(
-    client, django_user_model, escola, template_homologacao_produto
-):
+def client_autenticado_vinculo_terceirizada(client, django_user_model, escola):
     email = "test@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     tecerizada = escola.lote.terceirizada
@@ -453,9 +439,7 @@ def produto_com_editais(produto, escola):
 
 
 @pytest.fixture
-def hom_produto_com_editais(
-    escola, template_homologacao_produto, user, produto_com_editais
-):
+def hom_produto_com_editais(escola, user, produto_com_editais):
     perfil_admin_terceirizada = baker.make(
         "Perfil", nome=constants.ADMINISTRADOR_EMPRESA, ativo=True
     )
@@ -835,12 +819,6 @@ def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
         data_inicial=hoje,
         ativo=True,
     )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
-    )
     client.login(username=email, password=password)
     return client, user
 
@@ -871,12 +849,6 @@ def client_autenticado_vinculo_escola_nutrisupervisor(
         data_inicial=hoje,
         ativo=True,
     )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
-    )
     client.login(username=email, password=password)
     return client
 
@@ -906,18 +878,12 @@ def client_autenticado_vinculo_codae_nutrisupervisor(client, django_user_model, 
         ativo=True,
     )
     assert user.tipo_usuario == constants.TIPO_USUARIO_NUTRISUPERVISOR
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
-    )
     client.login(username=email, password=password)
     return client
 
 
 @pytest.fixture
-def homologacao_produto(escola, template_homologacao_produto, user, produto, edital):
+def homologacao_produto(escola, user, produto, edital):
     perfil_admin_terceirizada = baker.make(
         "Perfil", nome=constants.ADMINISTRADOR_EMPRESA, ativo=True
     )

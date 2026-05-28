@@ -12,7 +12,7 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
-from src.dados_comuns.models import Contato, TemplateMensagem
+from src.dados_comuns.models import Contato
 from src.dieta_especial.protocolo_padrao.models import Alimento
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
@@ -68,7 +68,6 @@ class CargaDadosCommandTest(TestCase):
         assert MotivoSuspensao.objects.count() == 0
         assert TipoAlimentacao.objects.count() == 0
         assert Contato.objects.count() == 0
-        assert TemplateMensagem.objects.count() == 0
         assert DiretoriaRegional.objects.count() == 0
         assert TipoGestao.objects.count() == 0
         assert Terceirizada.objects.count() == 0
@@ -109,7 +108,6 @@ class CargaDadosCommandTest(TestCase):
         assert MotivoSuspensao.objects.count() == 3
         assert TipoAlimentacao.objects.count() == 8
         assert Contato.objects.count() == 1036
-        assert TemplateMensagem.objects.count() == 8
         assert DiretoriaRegional.objects.count() == 14
         assert TipoGestao.objects.count() == 4
         assert Terceirizada.objects.count() == 5

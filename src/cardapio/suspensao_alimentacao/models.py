@@ -21,7 +21,7 @@ from src.dados_comuns.behaviors import (
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
-from src.dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from src.dados_comuns.models import LogSolicitacoesUsuario
 
 
 class MotivoSuspensao(
@@ -206,14 +206,6 @@ class GrupoSuspensaoAlimentacao(
 
     def __str__(self):
         return f"{self.observacao}"
-
-    @property
-    def template_mensagem(self):
-        template = TemplateMensagem.objects.get(
-            tipo=TemplateMensagem.SUSPENSAO_ALIMENTACAO
-        )
-        corpo = template.template_html
-        return template.assunto, corpo
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")

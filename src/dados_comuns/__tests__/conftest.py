@@ -39,7 +39,6 @@ from ..models import (
     CentralDeDownload,
     LogSolicitacoesUsuario,
     Notificacao,
-    TemplateMensagem,
 )
 
 fake = Faker("pt_BR")
@@ -171,35 +170,6 @@ def dias_uteis_apos(request):
     return request.param
 
 
-@pytest.fixture(
-    scope="function",
-    params=[
-        # model-params-dict, esperado
-        (
-            {
-                "_model": "TemplateMensagem",
-                "assunto": "Inversão de cardápio",
-                "template_html": '<p><span style="color: rgb(133,135,150);background-color:'
-                ' rgb(255,255,255);font-size: 16px;">Ola @nome, a Inversão de'
-                " cardápio #@id pedida por @criado_por está em @status. "
-                "Acesse: @link</span></p>",
-            },
-            '<p><span style="color: rgb(133,135,150);background-color:'
-            ' rgb(255,255,255);font-size: 16px;">Ola fulano, a Inversão de'
-            " cardápio #FAKE_id_externo pedida por FAKE_criado_por está em FAKE_status. "
-            "Acesse: http:teste.com</span></p>",
-        ),
-    ],
-)
-def template_mensagem(request):
-    return request.param
-
-
-@pytest.fixture
-def template_mensagem_obj():
-    return baker.make(TemplateMensagem, tipo=TemplateMensagem.ALTERACAO_CARDAPIO)
-
-
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
     pass
@@ -207,7 +177,7 @@ def enable_db_access_for_all_tests(db):
 
 @pytest.fixture
 def validators_models_object():
-    return baker.make("dados_comuns.TemplateMensagem", assunto="TESTE")
+    return baker.make("dados_comuns.Contato", email="TESTE")
 
 
 @pytest.fixture

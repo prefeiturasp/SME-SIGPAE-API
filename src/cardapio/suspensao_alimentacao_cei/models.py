@@ -14,7 +14,7 @@ from src.dados_comuns.behaviors import (
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
-from src.dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from src.dados_comuns.models import LogSolicitacoesUsuario
 
 
 class SuspensaoAlimentacaoDaCEI(
@@ -58,14 +58,6 @@ class SuspensaoAlimentacaoDaCEI(
     @property
     def path(self):
         return f"suspensao-de-alimentacao-cei/relatorio?uuid={self.uuid}&tipoSolicitacao=solicitacao-normal"
-
-    @property
-    def template_mensagem(self):
-        template = TemplateMensagem.objects.get(
-            tipo=TemplateMensagem.ALTERACAO_CARDAPIO
-        )
-        corpo = template.template_html
-        return template.assunto, corpo
 
     def salvar_log_transicao(self, status_evento, usuario, justificativa=""):
         LogSolicitacoesUsuario.objects.create(

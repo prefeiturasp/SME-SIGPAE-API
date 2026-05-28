@@ -13,10 +13,7 @@ from src.cardapio.suspensao_alimentacao.models import (
 )
 from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
-from src.dados_comuns.models import (
-    LogSolicitacoesUsuario,
-    TemplateMensagem,
-)
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
@@ -96,16 +93,6 @@ def escola_destino():
         diretoria_regional=diretoria_regional,
     )
     return escola
-
-
-@pytest.fixture
-def template_mensagem_dieta_especial():
-    return baker.make(
-        TemplateMensagem,
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        assunto="TESTE DIETA ESPECIAL",
-        template_html="@id @criado_em @status @link",
-    )
 
 
 @pytest.fixture
@@ -212,9 +199,7 @@ def aluno():
 
 
 @pytest.fixture
-def solicitacao_dieta_especial_a_autorizar(
-    client, escola, template_mensagem_dieta_especial, usuario_escola, aluno
-):
+def solicitacao_dieta_especial_a_autorizar(client, escola, usuario_escola, aluno):
     with freeze_time("2025-12-10"):
         user, password = usuario_escola
         # client.login(username=user.email, password=password)
@@ -310,7 +295,6 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     escola,
     solicitacao_dieta_especial_a_autorizar,
     escola_destino,
-    template_mensagem_dieta_especial,
 ):
     email = "terceirizada@admin.com"
     password = DJANGO_ADMIN_PASSWORD
