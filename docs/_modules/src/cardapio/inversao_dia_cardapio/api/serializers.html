@@ -69,7 +69,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.inversao_dia_cardapio.api.serializers</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span></span><span class="sd">&quot;&quot;&quot;Serializers de leitura da API de inversao de dia de cardapio.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">TipoAlimentacaoSimplesSerializer</span><span class="p">,</span>
@@ -85,6 +87,12 @@
 <div class="viewcode-block" id="InversaoCardapioSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapioSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a representação detalhada de uma Inversao de dia de Cardápio.</span>
+
+<span class="sd">    Inclui dados da escola, terceirizada, logs da solicitação e os tipos de</span>
+<span class="sd">    alimentação associados à inversão.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaSimplesSerializer</span><span class="p">()</span>
     <span class="n">id_externo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
     <span class="n">prioridade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
@@ -107,6 +115,12 @@
 <div class="viewcode-block" id="InversaoCardapioSimpleserializer">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapioSimpleserializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa uma visão resumida de uma inversão de cardápio.</span>
+
+<span class="sd">    Exibe os campos essenciais para listagens em que não é necessário carregar</span>
+<span class="sd">    toda a estrutura detalhada da solicitação.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">id_externo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
     <span class="n">prioridade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaSimplesSerializer</span><span class="p">()</span>

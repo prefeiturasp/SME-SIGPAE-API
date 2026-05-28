@@ -69,7 +69,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.inversao_dia_cardapio.api.viewsets</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">status</span><span class="p">,</span> <span class="n">viewsets</span>
+<span></span><span class="sd">&quot;&quot;&quot;ViewSet da API de solicitações de Inversão de dia de cardápio.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">status</span><span class="p">,</span> <span class="n">viewsets</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsAdminUser</span><span class="p">,</span> <span class="n">IsAuthenticated</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
@@ -99,6 +101,13 @@
 <div class="viewcode-block" id="InversaoCardapioViewSet">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapioViewSet</span><span class="p">(</span><span class="n">DataSolicitacaoContextMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gerencia o CRUD e o fluxo de aprovação de ``InversaoCardapio``.</span>
+
+<span class="sd">    Exponibiliza endpoints de listagem por perfil, transições de workflow,</span>
+<span class="sd">    geração de relatório e marcação de conferência para solicitações de</span>
+<span class="sd">    inversão de cardápio.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">InversaoCardapioSerializer</span>
     <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,)</span>
@@ -107,6 +116,11 @@
 <div class="viewcode-block" id="InversaoCardapioViewSet.get_permissions">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_permissions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define as permissões dinamicamente conforme a action executada.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: Instâncias de permissão aplicáveis à requisição atual.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;list&quot;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">IsAdminUser</span><span class="p">,)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;retrieve&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">]:</span>
@@ -119,6 +133,11 @@
 <div class="viewcode-block" id="InversaoCardapioViewSet.get_serializer_class">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_serializer_class">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o serializer adequado para leitura ou escrita.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: Classe de serializer associada à action atual.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">InversaoCardapioSerializerCreate</span>
         <span class="k">return</span> <span class="n">InversaoCardapioSerializer</span></div>
@@ -134,6 +153,17 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_diretoria_regional</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista as solicitações visíveis para a DRE autenticada.</span>
+
+<span class="sd">        Permite filtro adicional por lote via query param.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+<span class="sd">            filtro_aplicado (str): Filtro de status a ser aplicado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Lista serializada das solicitações encontradas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">diretoria_regional</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
         <span class="n">inversoes_cardapio</span> <span class="o">=</span> <span class="n">diretoria_regional</span><span class="o">.</span><span class="n">inversoes_cardapio_das_minhas_escolas</span><span class="p">(</span>
@@ -154,6 +184,18 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioCODAEGestaoAlimentacao</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_codae</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista as solicitações visíveis para a CODAE autenticada.</span>
+
+<span class="sd">        Permite filtros opcionais por diretoria regional e lote via query</span>
+<span class="sd">        params.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+<span class="sd">            filtro_aplicado (str): Filtro de status a ser aplicado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Lista serializada das solicitações encontradas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: colocar regras de codae CODAE aqui...</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">codae</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
@@ -178,6 +220,15 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEmpresaGenerico</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacoes_terceirizada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtro_aplicado</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">SEM_FILTRO</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista as solicitações visíveis para a terceirizada autenticada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+<span class="sd">            filtro_aplicado (str): Filtro de status a ser aplicado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com as solicitações da terceirizada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: colocar regras de Terceirizada aqui...</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">terceirizada</span> <span class="o">=</span> <span class="n">usuario</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
@@ -197,6 +248,14 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEscolaTercTotal</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">minhas_solicitacoes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista as solicitações em rascunho do usuário escola terceirizada autenticado.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com os rascunhos do usuário.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">inversoes_rascunho</span> <span class="o">=</span> <span class="n">InversaoCardapio</span><span class="o">.</span><span class="n">get_solicitacoes_rascunho</span><span class="p">(</span><span class="n">usuario</span><span class="p">)</span>
         <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">inversoes_rascunho</span><span class="p">)</span>
@@ -217,6 +276,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">ESCOLA_INICIO_PEDIDO</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">inicio_de_solicitacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inicia o fluxo da solicitação a partir da escola.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">inversao_cardapio</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="p">(</span>
@@ -240,6 +308,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">DRE_VALIDA_PEDIDO</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">diretoria_regional_valida_solicitacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Executa a validação da solicitação pela DRE.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">inversao_cardapio</span><span class="o">.</span><span class="n">dre_valida</span><span class="p">(</span>
@@ -263,6 +340,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">DRE_NAO_VALIDA_PEDIDO</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">diretoria_regional_nao_valida_solicitacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Não valida a solicitação pela DRE com justificativa opcional.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP contendo a justificativa.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -287,6 +373,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">CODAE_AUTORIZA_PEDIDO</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">codae_autoriza_solicitacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Autoriza a solicitação na CODAE ou no fluxo de questionamento.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP contendo justificativa opcional.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -318,6 +413,16 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">CODAE_QUESTIONA_PEDIDO</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">codae_questiona</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra um questionamento da CODAE para a solicitação.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP contendo a observação do</span>
+<span class="sd">                questionamento.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;observacao_questionamento_codae&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -342,6 +447,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">CODAE_NEGA_PEDIDO</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">codae_nega_solicitacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Nega a solicitação na CODAE ou no fluxo de questionamento.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP contendo justificativa opcional.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -373,6 +487,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">TERCEIRIZADA_RESPONDE_QUESTIONAMENTO</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">terceirizada_responde_questionamento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra a resposta da terceirizada a um questionamento da CODAE.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP contendo justificativa e resposta.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">resposta_sim_nao</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resposta_sim_nao&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -400,6 +523,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">terceirizada_toma_ciencia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra a tomada de ciência da terceirizada sobre a solicitação.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">inversao_cardapio</span><span class="o">.</span><span class="n">terceirizada_toma_ciencia</span><span class="p">(</span>
@@ -423,6 +555,15 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">ESCOLA_CANCELA</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">escola_cancela_solicitacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cancela a solicitação pela escola com justificativa opcional.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP contendo justificativa opcional.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou erro de transição inválida.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -441,6 +582,16 @@
 <div class="viewcode-block" id="InversaoCardapioViewSet.destroy">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.destroy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exclui a solicitação apenas quando ela ainda está em rascunho.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP da operação de exclusão.</span>
+<span class="sd">            *args: Argumentos posicionais repassados ao ``destroy`` base.</span>
+<span class="sd">            **kwargs: Argumentos nomeados repassados ao ``destroy`` base.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resultado da exclusão ou mensagem de permissão negada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">inversao_cardapio</span><span class="o">.</span><span class="n">pode_excluir</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -460,6 +611,15 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gera o relatório PDF da solicitação de inversão de cardápio.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HttpResponse: Arquivo PDF gerado para a solicitação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">relatorio_inversao_dia_de_cardapio</span><span class="p">(</span>
             <span class="n">request</span><span class="p">,</span> <span class="n">solicitacao</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="p">)</span></div>
@@ -474,6 +634,15 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">terceirizada_marca_inclusao_como_conferida</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Marca a solicitação como conferida pela terceirizada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Requisição HTTP com o usuário autenticado.</span>
+<span class="sd">            uuid (str | None): Identificador da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Solicitação atualizada ou mensagem de erro.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inversao_cardapio</span><span class="p">:</span> <span class="n">InversaoCardapio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">inversao_cardapio</span><span class="o">.</span><span class="n">terceirizada_conferiu_gestao</span> <span class="o">=</span> <span class="kc">True</span>

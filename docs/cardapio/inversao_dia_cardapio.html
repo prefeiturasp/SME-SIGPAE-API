@@ -913,12 +913,17 @@ object the first time, the query is executed.</p>
 </section>
 <section id="module-src.cardapio.inversao_dia_cardapio.api">
 <span id="api"></span><h2>api<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.api" title="Link to this heading"></a></h2>
+<p>Camada de API para solicitacoes de inversao de dia de cardapio.</p>
 <section id="module-src.cardapio.inversao_dia_cardapio.api.serializers">
 <span id="serializers"></span><h3>serializers<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.api.serializers" title="Link to this heading"></a></h3>
+<p>Serializers de leitura da API de inversao de dia de cardapio.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa a representação detalhada de uma Inversao de dia de Cardápio.</p>
+<p>Inclui dados da escola, terceirizada, logs da solicitação e os tipos de
+alimentação associados à inversão.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSerializer.Meta" title="Link to this definition"></a></dt>
@@ -942,6 +947,9 @@ object the first time, the query is executed.</p>
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioSimpleserializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSimpleserializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa uma visão resumida de uma inversão de cardápio.</p>
+<p>Exibe os campos essenciais para listagens em que não é necessário carregar
+toda a estrutura detalhada da solicitação.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers.html#InversaoCardapioSimpleserializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers.InversaoCardapioSimpleserializer.Meta" title="Link to this definition"></a></dt>
@@ -964,10 +972,14 @@ object the first time, the query is executed.</p>
 </section>
 <section id="module-src.cardapio.inversao_dia_cardapio.api.serializers_create">
 <span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.api.serializers_create" title="Link to this heading"></a></h3>
+<p>Serializer de escrita da API de inversao de dia de cardapio.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa a criação e a atualização de <code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code>.</p>
+<p>Recebe as datas expostas pela API, aplica validações de negócio e converte
+os campos para a estrutura persistida no modelo.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.Meta" title="Link to this definition"></a></dt>
@@ -988,133 +1000,394 @@ object the first time, the query is executed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.create" title="Link to this definition"></a></dt>
-<dd><p>We have a bit of extra checking around this in order to provide
-descriptive messages when something goes wrong, but this method is
-essentially just:</p>
-<blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id5"><span class="problematic" id="id6">**</span></a>validated_data)</p>
-</div></blockquote>
-<p>If there are many to many fields present on the instance then they
-cannot be set until the model is instantiated, in which case the
-implementation is like so:</p>
-<blockquote>
-<div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id7"><span class="problematic" id="id8">**</span></a>validated_data)
-instance.example_relationship = example_relationship
-return instance</p>
-</div></blockquote>
-<p>The default implementation also does not handle nested relationships.
-If you want to support writable nested relationships you’ll need
-to write an explicit <cite>.create()</cite> method.</p>
+<dd><p>Cria uma <code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code> a partir dos campos expostos pela API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validated_data</strong> (<em>dict</em>) – Dados da solicitação após as validações do
+serializer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instância criada com os tipos de alimentação
+associados.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio">InversaoCardapio</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Atualiza uma <code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code> convertendo os campos da API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instance</strong> (<a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><em>InversaoCardapio</em></a>) – Instância persistida a ser atualizada.</p></li>
+<li><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados enviados na requisição.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instância atualizada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio">InversaoCardapio</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate">
 <span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Aplica as validações de negócio da solicitação de inversão.</p>
+<ul class="simple">
+<li><p>as datas devem ser do mesmo ano corrente ou do próximo ano quando a solicitação for feita no mês de dezembro;</p></li>
+<li><p>não pode existir outra solicitação de inversão para a mesma escola, tipos de alimentação e datas, que esteja em aberto;</p></li>
+<li><p>a diferença entre as datas de origem e destino da inversão não pode ser superior a 60 dias;</p></li>
+<li><p>as datas informadas devem ser dias letivos e dias da semana válidos para a escola.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attrs</strong> (<em>dict</em>) – Dados normalizados pelo serializer antes da
+persistência.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>O dicionário de atributos validado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de">
 <span class="sig-name descname"><span class="pre">validate_data_de</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate_data_de"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida se a data inicial da primeira inversão não está no passado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data_de</strong> (<em>datetime.date</em>) – Data inicial informada na solicitação.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A mesma data validada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.date</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de_2">
 <span class="sig-name descname"><span class="pre">validate_data_de_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate_data_de_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de_2" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida a segunda data inicial quando uma segunda inversão é enviada; não pode ser no passado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data_de_2</strong> (<em>datetime.date</em><em> | </em><em>None</em>) – Segunda data inicial da
+solicitação.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A data validada ou <code class="docutils literal notranslate"><span class="pre">None</span></code> quando ausente.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.date | None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para">
 <span class="sig-name descname"><span class="pre">validate_data_para</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_para</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate_data_para"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida se a data final da primeira inversão não está no passado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data_para</strong> (<em>datetime.date</em>) – Data final informada na solicitação.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A mesma data validada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.date</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para_2">
 <span class="sig-name descname"><span class="pre">validate_data_para_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_para_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/serializers_create.html#InversaoCardapioSerializerCreate.validate_data_para_2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para_2" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida a segunda data final quando uma segunda inversão é enviada; não pode ser no passado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data_para_2</strong> (<em>datetime.date</em><em> | </em><em>None</em>) – Segunda data final da
+solicitação.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A data validada ou <code class="docutils literal notranslate"><span class="pre">None</span></code> quando ausente.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.date | None</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-src.cardapio.inversao_dia_cardapio.api.validators">
 <span id="validators"></span><h3>validators<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.api.validators" title="Link to this heading"></a></h3>
+<p>Validadores de negócio da API de Inversão de dia de Cardápio.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.validators.nao_pode_existir_solicitacao_igual_para_mesma_escola">
 <span class="sig-name descname"><span class="pre">nao_pode_existir_solicitacao_igual_para_mesma_escola</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_para</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipos_alimentacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/validators.html#nao_pode_existir_solicitacao_igual_para_mesma_escola"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.validators.nao_pode_existir_solicitacao_igual_para_mesma_escola" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Impede a criação de solicitações duplicadas para a mesma escola.</p>
+<p>Considera tanto o primeiro quanto o segundo par de datas da solicitação e
+ignora pedidos em status finais que não bloqueiam nova criação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_de</strong> (<em>datetime.date</em>) – Data inicial da inversão.</p></li>
+<li><p><strong>data_para</strong> (<em>datetime.date</em>) – Data final da inversão.</p></li>
+<li><p><strong>escola</strong> (<em>Escola</em>) – Escola associada ao pedido.</p></li>
+<li><p><strong>tipos_alimentacao</strong> (<em>list</em>) – Tipos de alimentação vinculados ao pedido.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> quando não existe solicitação equivalente em aberto.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando já existe uma solicitação com os mesmos dados.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.validators.nao_pode_ter_mais_que_60_dias_diferenca">
 <span class="sig-name descname"><span class="pre">nao_pode_ter_mais_que_60_dias_diferenca</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_de</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_para</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/validators.html#nao_pode_ter_mais_que_60_dias_diferenca"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.validators.nao_pode_ter_mais_que_60_dias_diferenca" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida o limite máximo de diferença entre as datas da inversão, que é de 60 dias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_de</strong> (<em>datetime.date</em>) – Data inicial da inversão.</p></li>
+<li><p><strong>data_para</strong> (<em>datetime.date</em>) – Data final da inversão.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> quando a diferença entre as datas é de até 60 dias.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValidationError</strong> – Quando a diferença absoluta entre as datas ultrapassa
+    60 dias.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-src.cardapio.inversao_dia_cardapio.api.viewsets">
 <span id="viewsets"></span><h3>viewsets<a class="headerlink" href="#module-src.cardapio.inversao_dia_cardapio.api.viewsets" title="Link to this heading"></a></h3>
+<p>ViewSet da API de solicitações de Inversão de dia de cardápio.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InversaoCardapioViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataSolicitacaoContextMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code></p>
+<p>Gerencia o CRUD e o fluxo de aprovação de <code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code>.</p>
+<p>Exponibiliza endpoints de listagem por perfil, transições de workflow,
+geração de relatório e marcação de conferência para solicitações de
+inversão de cardápio.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_autoriza_solicitacao">
 <span class="sig-name descname"><span class="pre">codae_autoriza_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.codae_autoriza_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_autoriza_solicitacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Autoriza a solicitação na CODAE ou no fluxo de questionamento.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP contendo justificativa opcional.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_nega_solicitacao">
 <span class="sig-name descname"><span class="pre">codae_nega_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.codae_nega_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_nega_solicitacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Nega a solicitação na CODAE ou no fluxo de questionamento.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP contendo justificativa opcional.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_questiona">
 <span class="sig-name descname"><span class="pre">codae_questiona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.codae_questiona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.codae_questiona" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Registra um questionamento da CODAE para a solicitação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP contendo a observação do
+questionamento.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.destroy">
 <span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.destroy" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Exclui a solicitação apenas quando ela ainda está em rascunho.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP da operação de exclusão.</p></li>
+<li><p><strong>*args</strong> – Argumentos posicionais repassados ao <code class="docutils literal notranslate"><span class="pre">destroy</span></code> base.</p></li>
+<li><p><strong>**kwargs</strong> – Argumentos nomeados repassados ao <code class="docutils literal notranslate"><span class="pre">destroy</span></code> base.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resultado da exclusão ou mensagem de permissão negada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.diretoria_regional_nao_valida_solicitacao">
 <span class="sig-name descname"><span class="pre">diretoria_regional_nao_valida_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.diretoria_regional_nao_valida_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.diretoria_regional_nao_valida_solicitacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Não valida a solicitação pela DRE com justificativa opcional.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP contendo a justificativa.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.diretoria_regional_valida_solicitacao">
 <span class="sig-name descname"><span class="pre">diretoria_regional_valida_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.diretoria_regional_valida_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.diretoria_regional_valida_solicitacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Executa a validação da solicitação pela DRE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.escola_cancela_solicitacao">
 <span class="sig-name descname"><span class="pre">escola_cancela_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.escola_cancela_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.escola_cancela_solicitacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Cancela a solicitação pela escola com justificativa opcional.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP contendo justificativa opcional.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_permissions">
 <span class="sig-name descname"><span class="pre">get_permissions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.get_permissions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_permissions" title="Link to this definition"></a></dt>
-<dd><p>Instantiates and returns the list of permissions that this view requires.</p>
+<dd><p>Define as permissões dinamicamente conforme a action executada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Instâncias de permissão aplicáveis à requisição atual.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_serializer_class">
 <span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
+<dd><p>Retorna o serializer adequado para leitura ou escrita.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Classe de serializer associada à action atual.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.inicio_de_solicitacao">
 <span class="sig-name descname"><span class="pre">inicio_de_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.inicio_de_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.inicio_de_solicitacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Inicia o fluxo da solicitação a partir da escola.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.lookup_field">
@@ -1124,7 +1397,19 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.minhas_solicitacoes">
 <span class="sig-name descname"><span class="pre">minhas_solicitacoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.minhas_solicitacoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.minhas_solicitacoes" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Lista as solicitações em rascunho do usuário escola terceirizada autenticado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com os rascunhos do usuário.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.permission_classes">
@@ -1139,7 +1424,22 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.relatorio">
 <span class="sig-name descname"><span class="pre">relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.relatorio" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gera o relatório PDF da solicitação de inversão de cardápio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Arquivo PDF gerado para a solicitação.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.serializer_class">
@@ -1150,32 +1450,125 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_codae">
 <span class="sig-name descname"><span class="pre">solicitacoes_codae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.solicitacoes_codae"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_codae" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Lista as solicitações visíveis para a CODAE autenticada.</p>
+<p>Permite filtros opcionais por diretoria regional e lote via query
+params.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status a ser aplicado.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada das solicitações encontradas.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_diretoria_regional">
 <span class="sig-name descname"><span class="pre">solicitacoes_diretoria_regional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.solicitacoes_diretoria_regional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_diretoria_regional" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Lista as solicitações visíveis para a DRE autenticada.</p>
+<p>Permite filtro adicional por lote via query param.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status a ser aplicado.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada das solicitações encontradas.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_terceirizada">
 <span class="sig-name descname"><span class="pre">solicitacoes_terceirizada</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtro_aplicado</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sem_filtro'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.solicitacoes_terceirizada"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.solicitacoes_terceirizada" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Lista as solicitações visíveis para a terceirizada autenticada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p></li>
+<li><p><strong>filtro_aplicado</strong> (<em>str</em>) – Filtro de status a ser aplicado.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com as solicitações da terceirizada.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_marca_inclusao_como_conferida">
 <span class="sig-name descname"><span class="pre">terceirizada_marca_inclusao_como_conferida</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.terceirizada_marca_inclusao_como_conferida"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_marca_inclusao_como_conferida" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Marca a solicitação como conferida pela terceirizada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou mensagem de erro.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_responde_questionamento">
 <span class="sig-name descname"><span class="pre">terceirizada_responde_questionamento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.terceirizada_responde_questionamento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_responde_questionamento" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Registra a resposta da terceirizada a um questionamento da CODAE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP contendo justificativa e resposta.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_toma_ciencia">
 <span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/inversao_dia_cardapio/api/viewsets.html#InversaoCardapioViewSet.terceirizada_toma_ciencia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.api.viewsets.InversaoCardapioViewSet.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Registra a tomada de ciência da terceirizada sobre a solicitação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Requisição HTTP com o usuário autenticado.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em> | </em><em>None</em>) – Identificador da solicitação.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Solicitação atualizada ou erro de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
