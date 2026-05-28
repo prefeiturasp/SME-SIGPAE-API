@@ -195,7 +195,6 @@ class LayoutDeEmbalagem(
                 somente_ultima_pagina=True,
             )
 
-
         with open(imagem.arquivo.path, "rb") as f:
             imagem_bytes = f.read()
 
