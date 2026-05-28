@@ -62,6 +62,7 @@ from ..medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
     calcula_totais_consumo_por_grupo,
+    build_tabela_somatorio_recreio_nas_ferias,
 )
 from ..pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
@@ -1723,6 +1724,86 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         ARQUIVO_MARCA_DAGUA_PRELIMINAR,
         is_async=True,
     )
+
+
+def relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(solicitacao):
+    tabelas = build_tabelas_relatorio_medicao(solicitacao)
+    dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
+    dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
+
+    tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
+        "nome", flat=True
+    )
+    tipos_contagem_alimentacao = ", ".join(list(set(tipos_contagem_alimentacao)))
+    tabela_observacoes = build_lista_campos_observacoes(solicitacao)
+
+    tabela_somatorio_participantes, tabela_somatorio_colaboradores = (
+        build_tabela_somatorio_recreio_nas_ferias(
+            solicitacao, dict_total_refeicoes, dict_total_sobremesas
+        )
+    )
+
+    _ajustar_labels_recreio_nas_ferias(tabelas, solicitacao.recreio_nas_ferias.titulo)
+
+    html_string = render_to_string(
+        "medicao/relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias.html",
+        {
+            "solicitacao": solicitacao,
+            "tipos_contagem_alimentacao": tipos_contagem_alimentacao,
+            "responsaveis": solicitacao.responsaveis.all(),
+            "assinatura_escola": solicitacao.assinatura_ue,
+            "assinatura_dre": solicitacao.assinatura_dre,
+            "quantidade_dias_mes": range(
+                1, monthrange(int(solicitacao.ano), int(solicitacao.mes))[1] + 1
+            ),
+            "tabelas": tabelas,
+            "tabela_observacoes": tabela_observacoes,
+            "tabela_somatorio_participantes": tabela_somatorio_participantes,
+            "tabela_somatorio_colaboradores": tabela_somatorio_colaboradores,
+        },
+    )
+
+    if (
+        solicitacao.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
+    ):
+        return html_to_pdf_file(
+            html_string, "relatorio_dieta_especial.pdf", is_async=True
+        )
+    return html_to_pdf_watermark(
+        html_string,
+        "relatorio_dieta_especial.pdf",
+        ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+        is_async=True,
+    )
+
+
+def _ajustar_labels_recreio_nas_ferias(tabelas: list, titulo_recreio: str) -> None:
+    """
+    Ajusta in-place os labels de períodos e categorias das tabelas
+    conforme o título do recreio nas férias.
+    """
+    PERIODO_PARTICIPANTES = "Recreio nas Férias"
+    PERIODO_COLABORADORES = "Colaboradores"
+    CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
+
+    MAP_CATEGORIA = {
+        True: "ALIMENTAÇÕES para COLABORADORES",
+        False: "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
+    }
+
+    for tabela in tabelas:
+        era_colaboradores = PERIODO_COLABORADORES in tabela["periodos"]
+
+        tabela["periodos"] = [
+            titulo_recreio if p in (PERIODO_PARTICIPANTES, PERIODO_COLABORADORES) else p
+            for p in tabela["periodos"]
+        ]
+
+        tabela["categorias"] = [
+            MAP_CATEGORIA[era_colaboradores] if cat == CATEGORIA_ALIMENTACAO else cat
+            for cat in tabela["categorias"]
+        ]
 
 
 def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):

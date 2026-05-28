@@ -295,6 +295,8 @@ ORDEM_PERIODOS_GRUPOS = {
     "Programas e Projetos": 7,
     "Solicitações de Alimentação": 8,
     "ETEC": 9,
+    "Recreio nas Férias": 10,
+    "Colaboradores": 11,
 }
 
 ORDEM_PERIODOS_GRUPOS_CEI = {
@@ -329,6 +331,7 @@ MAX_COLUNAS = 15
 
 ORDEM_CAMPOS = [
     "numero_de_alunos",
+    "participantes",
     "matriculados",
     "aprovadas",
     "frequencia",
