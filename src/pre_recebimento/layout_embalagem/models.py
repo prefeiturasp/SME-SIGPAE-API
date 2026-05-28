@@ -1,3 +1,4 @@
+import io
 import os
 
 from django.core.validators import FileExtensionValidator
@@ -11,11 +12,18 @@ from ...dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from django.template.loader import render_to_string
+
 from ...dados_comuns.fluxo_status import (
     FluxoLayoutDeEmbalagem,
 )
 from ...dados_comuns.models import LogSolicitacoesUsuario
+from ...dados_comuns.utils import convert_image_to_base64
 from ...dados_comuns.validators import validate_file_size_10mb
+from ...relatorios.utils import (
+    imagem_para_pdf,
+    merge_pdf_com_string_template,
+)
 
 
 class ImagemDoTipoDeEmbalagem(TemChaveExterna):
@@ -145,6 +153,59 @@ class LayoutDeEmbalagem(
             return f"Layout de Embalagens {self.ficha_tecnica.numero} - {self.ficha_tecnica.produto.nome}"
         except AttributeError:
             return f"Layout de Embalagens {self.id}"
+
+    def arquivo_imagem_assinada(self, imagem: "ImagemDoTipoDeEmbalagem"):
+        """Gera o arquivo da imagem com rodapé de assinatura digital.
+
+        Segue o mesmo padrão de DocumentoDeRecebimento.arquivo_laudo_assinado.
+        Para PDFs: usa merge_pdf_com_string_template diretamente.
+        Para imagens (PNG/JPG): converte para PDF primeiro, depois aplica o merge.
+        """
+        from rest_framework.exceptions import ValidationError
+
+        log_aprovacao = self.logs.filter(
+            status_evento=LogSolicitacoesUsuario.LAYOUT_APROVADO
+        ).first()
+
+        if not log_aprovacao:
+            raise ValidationError(
+                "Não foi possível encontrar o log de Aprovação do Layout de Embalagem "
+                "para gerar a imagem assinada."
+            )
+
+        logo_sigpae = convert_image_to_base64(
+            "src/relatorios/static/images/logo-sigpae.png", "png"
+        )
+
+        string_template = render_to_string(
+            "pre_recebimento/layout_embalagem/rodape_assinatura_digital.html",
+            {
+                "logo_sigpae": logo_sigpae,
+                "usuario": log_aprovacao.usuario,
+                "data_hora": log_aprovacao.criado_em,
+            },
+        )
+
+        extensao = imagem.nome.lower().split(".")[-1] if "." in imagem.nome else ""
+
+        if extensao in ("pdf",):
+            return merge_pdf_com_string_template(
+                arquivo_pdf=imagem.arquivo,
+                string_template=string_template,
+                somente_ultima_pagina=True,
+            )
+
+
+        with open(imagem.arquivo.path, "rb") as f:
+            imagem_bytes = f.read()
+
+        pdf_bytes = imagem_para_pdf(imagem_bytes, imagem.nome)
+
+        return merge_pdf_com_string_template(
+            arquivo_pdf=io.BytesIO(pdf_bytes),
+            string_template=string_template,
+            somente_ultima_pagina=True,
+        )
 
     class Meta:
         verbose_name = "Layout de Embalagem"
