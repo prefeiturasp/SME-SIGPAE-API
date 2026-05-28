@@ -16,7 +16,7 @@ from .....dados_comuns.api.serializers import (
 class ImagemDoTipoEmbalagemLookupSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImagemDoTipoDeEmbalagem
-        exclude = ("id", "uuid", "tipo_de_embalagem")
+        exclude = ("id", "tipo_de_embalagem")
 
 
 class TipoEmbalagemLayoutLookupSerializer(serializers.ModelSerializer):
