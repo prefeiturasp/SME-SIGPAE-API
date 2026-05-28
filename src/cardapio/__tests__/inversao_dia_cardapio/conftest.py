@@ -132,17 +132,17 @@ def datas_inversao_deste_mes(request):
         (
             datetime.date(2019, 8, 10),
             datetime.date(2019, 10, 24),
-            "Diferença entre as datas não pode ultrapassar de 60 dias",
+            "Diferença entre as datas não pode ultrapassar 60 dias",
         ),
         (
             datetime.date(2019, 1, 1),
             datetime.date(2019, 3, 3),
-            "Diferença entre as datas não pode ultrapassar de 60 dias",
+            "Diferença entre as datas não pode ultrapassar 60 dias",
         ),
         (
             datetime.date(2019, 1, 1),
             datetime.date(2019, 3, 4),
-            "Diferença entre as datas não pode ultrapassar de 60 dias",
+            "Diferença entre as datas não pode ultrapassar 60 dias",
         ),
     ]
 )
