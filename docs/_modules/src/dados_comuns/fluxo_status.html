@@ -1743,12 +1743,6 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">pode_excluir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">RASCUNHO</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Deve criar um property que recupera o assunto e corpo mensagem desse objeto&quot;</span>
-        <span class="p">)</span>
-
     <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Deve criar um método salvar_log_transicao&quot;</span><span class="p">)</span>
 
@@ -2456,12 +2450,6 @@
         <span class="c1"># TODO: definir partes interessadas</span>
         <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Deve criar um property que recupera o assunto e corpo mensagem desse objeto&quot;</span>
-        <span class="p">)</span>
-
     <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Deve criar um método salvar_log_transicao&quot;</span><span class="p">)</span>
 
@@ -2863,12 +2851,6 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">partes_interessadas_terceirizadas_tomou_ciencia</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: definir partes interessadas</span>
         <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Deve criar um property que recupera o assunto e corpo mensagem desse objeto&quot;</span>
-        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Deve criar um método salvar_log_transicao&quot;</span><span class="p">)</span>
@@ -3355,12 +3337,6 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="n">email_lista</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">email_lista</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">template_mensagem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Deve criar um property que recupera o assunto e corpo mensagem desse objeto&quot;</span>
-        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_envia_email_autorizar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assunto</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">partes_interessadas</span><span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">..relatorios.relatorios</span><span class="w"> </span><span class="kn">import</span> <span class="n">relatorio_dieta_especial_protocolo</span>
@@ -4194,7 +4170,8 @@
                 <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">possui_alunos_regulares</span>
             <span class="p">)</span>
             <span class="n">eh_diretor</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="n">DIRETOR_UE</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">eh_diretor</span> <span class="ow">and</span> <span class="n">escola_possui_alunos_regulares</span><span class="p">:</span>
+            <span class="n">escola_p_fom</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">eh_diretor</span> <span class="ow">and</span> <span class="n">escola_possui_alunos_regulares</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">escola_p_fom</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span>
                     <span class="s2">&quot;Você não tem permissão para executar essa ação.&quot;</span>
                 <span class="p">)</span>
@@ -4482,6 +4459,7 @@
             <span class="ow">or</span> <span class="p">(</span>
                 <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="n">DIRETOR_UE</span>
                 <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">possui_alunos_regulares</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
@@ -4517,6 +4495,7 @@
             <span class="ow">or</span> <span class="p">(</span>
                 <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="n">DIRETOR_UE</span>
                 <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">possui_alunos_regulares</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -4544,6 +4523,7 @@
             <span class="n">nao_possui_permissao</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="n">DIRETOR_UE</span>
                 <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">possui_alunos_regulares</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span>
@@ -4561,6 +4541,7 @@
             <span class="n">nao_possui_permissao</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="n">DIRETOR_UE</span>
                 <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">possui_alunos_regulares</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span>
@@ -4582,6 +4563,7 @@
             <span class="ow">or</span> <span class="p">(</span>
                 <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="n">DIRETOR_UE</span>
                 <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">possui_alunos_regulares</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -4608,6 +4590,7 @@
             <span class="ow">or</span> <span class="p">(</span>
                 <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="n">DIRETOR_UE</span>
                 <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">possui_alunos_regulares</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="p">)</span>
         <span class="p">)</span>
 

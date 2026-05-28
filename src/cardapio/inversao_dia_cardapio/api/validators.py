@@ -1,3 +1,5 @@
+"""Validadores de negócio da API de Inversão de dia de Cardápio."""
+
 import datetime
 
 from django.db.models import Q
@@ -13,6 +15,23 @@ def nao_pode_existir_solicitacao_igual_para_mesma_escola(
     escola: Escola,
     tipos_alimentacao: list,
 ):
+    """Impede a criação de solicitações duplicadas para a mesma escola.
+
+    Considera tanto o primeiro quanto o segundo par de datas da solicitação e
+    ignora pedidos em status finais que não bloqueiam nova criação.
+
+    Args:
+        data_de (datetime.date): Data inicial da inversão.
+        data_para (datetime.date): Data final da inversão.
+        escola (Escola): Escola associada ao pedido.
+        tipos_alimentacao (list): Tipos de alimentação vinculados ao pedido.
+
+    Returns:
+        bool: ``True`` quando não existe solicitação equivalente em aberto.
+
+    Raises:
+        ValidationError: Quando já existe uma solicitação com os mesmos dados.
+    """
     inversao_cardapio = (
         InversaoCardapio.objects.filter(
             Q(
@@ -51,9 +70,22 @@ def nao_pode_existir_solicitacao_igual_para_mesma_escola(
 def nao_pode_ter_mais_que_60_dias_diferenca(
     data_de: datetime.date, data_para: datetime.date
 ):
+    """Valida o limite máximo de diferença entre as datas da inversão, que é de 60 dias.
+
+    Args:
+        data_de (datetime.date): Data inicial da inversão.
+        data_para (datetime.date): Data final da inversão.
+
+    Returns:
+        bool: ``True`` quando a diferença entre as datas é de até 60 dias.
+
+    Raises:
+        ValidationError: Quando a diferença absoluta entre as datas ultrapassa
+            60 dias.
+    """
     diferenca = abs((data_para - data_de).days)
     if diferenca > 60:
         raise serializers.ValidationError(
-            "Diferença entre as datas não pode ultrapassar de 60 dias"
+            "Diferença entre as datas não pode ultrapassar 60 dias"
         )
     return True

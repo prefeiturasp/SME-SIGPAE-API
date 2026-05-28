@@ -10,11 +10,10 @@ from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
 from src.dados_comuns import constants
-from src.dados_comuns.models import TemplateMensagem
 
 
 @pytest.fixture
-def alteracao_cardapio_cei(escola, template_mensagem_alteracao_cardapio):
+def alteracao_cardapio_cei(escola):
     return baker.make(
         AlteracaoCardapioCEI,
         escola=escola,
@@ -27,7 +26,7 @@ def alteracao_cardapio_cei(escola, template_mensagem_alteracao_cardapio):
 
 @pytest.fixture
 def client_autenticado_vinculo_escola_cei_cardapio(
-    client, django_user_model, escola_cei, template_mensagem_alteracao_cardapio
+    client, django_user_model, escola_cei
 ):
     email = "test@test.com"
     rf = "8888888"
@@ -78,30 +77,12 @@ def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola,
         data_inicial=hoje,
         ativo=True,
     )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
-    )
     client.login(username=email, password=password)
     return client
 
 
 @pytest.fixture
-def template_inclusao_normal():
-    return baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO,
-        template_html="@id @criado_em @status @link",
-    )
-
-
-@pytest.fixture
-def client_autenticado_vinculo_dre_inclusao(
-    client, django_user_model, escola, template_inclusao_normal
-):
+def client_autenticado_vinculo_dre_inclusao(client, django_user_model, escola):
     email = "test@test1.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(

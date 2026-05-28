@@ -24,7 +24,7 @@ from ..dados_comuns.behaviors import (
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
-from ..dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..escola.constants import (
     PERIODOS_CEMEI_EVENTO_ESPECIFICO,
     PERIODOS_ESPECIAIS_CEMEI,
@@ -179,24 +179,6 @@ class InclusaoAlimentacaoContinua(
     @property
     def inclusoes(self):
         return self.quantidades_por_periodo
-
-    @property
-    def template_mensagem(self):
-        template = TemplateMensagem.objects.get(
-            tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO_CONTINUA
-        )
-        template_troca = {
-            "@id": self.id_externo,
-            "@criado_em": str(self.criado_em),
-            "@criado_por": str(self.criado_por),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "https://teste.com",
-        }
-        corpo = template.template_html
-        for chave, valor in template_troca.items():
-            corpo = corpo.replace(chave, valor)
-        return template.assunto, corpo
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")
@@ -408,23 +390,6 @@ class GrupoInclusaoAlimentacaoNormal(
             status=GrupoInclusaoAlimentacaoNormal.workflow_class.RASCUNHO,
         )
         return alimentacao_normal
-
-    @property
-    def template_mensagem(self):
-        template = TemplateMensagem.objects.get(
-            tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO
-        )
-        template_troca = {
-            "@id": self.id_externo,
-            "@criado_por": str(self.criado_por),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "https://teste.com",
-        }
-        corpo = template.template_html
-        for chave, valor in template_troca.items():
-            corpo = corpo.replace(chave, valor)
-        return template.assunto, corpo
 
     @property
     def data(self):

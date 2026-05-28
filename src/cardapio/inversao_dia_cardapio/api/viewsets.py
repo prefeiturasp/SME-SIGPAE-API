@@ -1,3 +1,5 @@
+"""ViewSet da API de solicitações de Inversão de dia de cardápio."""
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -26,12 +28,24 @@ from src.relatorios.relatorios import relatorio_inversao_dia_de_cardapio
 
 
 class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet):
+    """Gerencia o CRUD e o fluxo de aprovação de ``InversaoCardapio``.
+
+    Exponibiliza endpoints de listagem por perfil, transições de workflow,
+    geração de relatório e marcação de conferência para solicitações de
+    inversão de cardápio.
+    """
+
     lookup_field = "uuid"
     serializer_class = InversaoCardapioSerializer
     permission_classes = (IsAuthenticated,)
     queryset = InversaoCardapio.objects.all()
 
     def get_permissions(self):
+        """Define as permissões dinamicamente conforme a action executada.
+
+        Returns:
+            list: Instâncias de permissão aplicáveis à requisição atual.
+        """
         if self.action in ["list"]:
             self.permission_classes = (IsAdminUser,)
         elif self.action in ["retrieve", "update"]:
@@ -41,6 +55,11 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         return super(InversaoCardapioViewSet, self).get_permissions()
 
     def get_serializer_class(self):
+        """Retorna o serializer adequado para leitura ou escrita.
+
+        Returns:
+            type: Classe de serializer associada à action atual.
+        """
         if self.action in ["create", "update", "partial_update"]:
             return InversaoCardapioSerializerCreate
         return InversaoCardapioSerializer
@@ -53,6 +72,17 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
     def solicitacoes_diretoria_regional(
         self, request, filtro_aplicado=constants.SEM_FILTRO
     ):
+        """Lista as solicitações visíveis para a DRE autenticada.
+
+        Permite filtro adicional por lote via query param.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+            filtro_aplicado (str): Filtro de status a ser aplicado.
+
+        Returns:
+            Response: Lista serializada das solicitações encontradas.
+        """
         usuario = request.user
         diretoria_regional = usuario.vinculo_atual.instituicao
         inversoes_cardapio = diretoria_regional.inversoes_cardapio_das_minhas_escolas(
@@ -70,6 +100,18 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         permission_classes=(UsuarioCODAEGestaoAlimentacao,),
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
+        """Lista as solicitações visíveis para a CODAE autenticada.
+
+        Permite filtros opcionais por diretoria regional e lote via query
+        params.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+            filtro_aplicado (str): Filtro de status a ser aplicado.
+
+        Returns:
+            Response: Lista serializada das solicitações encontradas.
+        """
         # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
@@ -91,6 +133,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         permission_classes=(UsuarioEmpresaGenerico,),
     )
     def solicitacoes_terceirizada(self, request, filtro_aplicado=constants.SEM_FILTRO):
+        """Lista as solicitações visíveis para a terceirizada autenticada.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+            filtro_aplicado (str): Filtro de status a ser aplicado.
+
+        Returns:
+            Response: Resposta paginada com as solicitações da terceirizada.
+        """
         # TODO: colocar regras de Terceirizada aqui...
         usuario = request.user
         terceirizada = usuario.vinculo_atual.instituicao
@@ -107,6 +158,14 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         permission_classes=(UsuarioEscolaTercTotal,),
     )
     def minhas_solicitacoes(self, request):
+        """Lista as solicitações em rascunho do usuário escola terceirizada autenticado.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+
+        Returns:
+            Response: Resposta paginada com os rascunhos do usuário.
+        """
         usuario = request.user
         inversoes_rascunho = InversaoCardapio.get_solicitacoes_rascunho(usuario)
         page = self.paginate_queryset(inversoes_rascunho)
@@ -124,6 +183,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.ESCOLA_INICIO_PEDIDO,
     )
     def inicio_de_solicitacao(self, request, uuid=None):
+        """Inicia o fluxo da solicitação a partir da escola.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         try:
             inversao_cardapio.inicia_fluxo(
@@ -144,6 +212,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.DRE_VALIDA_PEDIDO,
     )
     def diretoria_regional_valida_solicitacao(self, request, uuid=None):
+        """Executa a validação da solicitação pela DRE.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         try:
             inversao_cardapio.dre_valida(
@@ -164,6 +241,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.DRE_NAO_VALIDA_PEDIDO,
     )
     def diretoria_regional_nao_valida_solicitacao(self, request, uuid=None):
+        """Não valida a solicitação pela DRE com justificativa opcional.
+
+        Args:
+            request (Request): Requisição HTTP contendo a justificativa.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         justificativa = request.data.get("justificativa", "")
         try:
@@ -185,6 +271,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.CODAE_AUTORIZA_PEDIDO,
     )
     def codae_autoriza_solicitacao(self, request, uuid=None):
+        """Autoriza a solicitação na CODAE ou no fluxo de questionamento.
+
+        Args:
+            request (Request): Requisição HTTP contendo justificativa opcional.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         justificativa = request.data.get("justificativa", "")
         try:
@@ -213,6 +308,16 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.CODAE_QUESTIONA_PEDIDO,
     )
     def codae_questiona(self, request, uuid=None):
+        """Registra um questionamento da CODAE para a solicitação.
+
+        Args:
+            request (Request): Requisição HTTP contendo a observação do
+                questionamento.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         justificativa = request.data.get("observacao_questionamento_codae", "")
         try:
@@ -234,6 +339,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.CODAE_NEGA_PEDIDO,
     )
     def codae_nega_solicitacao(self, request, uuid=None):
+        """Nega a solicitação na CODAE ou no fluxo de questionamento.
+
+        Args:
+            request (Request): Requisição HTTP contendo justificativa opcional.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         justificativa = request.data.get("justificativa", "")
         try:
@@ -262,6 +376,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
     )
     def terceirizada_responde_questionamento(self, request, uuid=None):
+        """Registra a resposta da terceirizada a um questionamento da CODAE.
+
+        Args:
+            request (Request): Requisição HTTP contendo justificativa e resposta.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         justificativa = request.data.get("justificativa", "")
         resposta_sim_nao = request.data.get("resposta_sim_nao", False)
@@ -286,6 +409,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.TERCEIRIZADA_TOMOU_CIENCIA,
     )
     def terceirizada_toma_ciencia(self, request, uuid=None):
+        """Registra a tomada de ciência da terceirizada sobre a solicitação.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         try:
             inversao_cardapio.terceirizada_toma_ciencia(
@@ -306,6 +438,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         url_path=constants.ESCOLA_CANCELA,
     )
     def escola_cancela_solicitacao(self, request, uuid=None):
+        """Cancela a solicitação pela escola com justificativa opcional.
+
+        Args:
+            request (Request): Requisição HTTP contendo justificativa opcional.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou erro de transição inválida.
+        """
         inversao_cardapio = self.get_object()
         justificativa = request.data.get("justificativa", "")
         try:
@@ -321,6 +462,16 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             )
 
     def destroy(self, request, *args, **kwargs):
+        """Exclui a solicitação apenas quando ela ainda está em rascunho.
+
+        Args:
+            request (Request): Requisição HTTP da operação de exclusão.
+            *args: Argumentos posicionais repassados ao ``destroy`` base.
+            **kwargs: Argumentos nomeados repassados ao ``destroy`` base.
+
+        Returns:
+            Response: Resultado da exclusão ou mensagem de permissão negada.
+        """
         inversao_cardapio = self.get_object()
         if inversao_cardapio.pode_excluir:
             return super().destroy(request, *args, **kwargs)
@@ -337,6 +488,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         permission_classes=(IsAuthenticated,),
     )
     def relatorio(self, request, uuid=None):
+        """Gera o relatório PDF da solicitação de Inversão de dia de Cardápio.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            HttpResponse: Arquivo PDF gerado para a solicitação.
+        """
         return relatorio_inversao_dia_de_cardapio(
             request, solicitacao=self.get_object()
         )
@@ -348,6 +508,15 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         permission_classes=(IsAuthenticated,),
     )
     def terceirizada_marca_inclusao_como_conferida(self, request, uuid=None):
+        """Marca a solicitação como conferida pela terceirizada.
+
+        Args:
+            request (Request): Requisição HTTP com o usuário autenticado.
+            uuid (str | None): Identificador da solicitação.
+
+        Returns:
+            Response: Solicitação atualizada ou mensagem de erro.
+        """
         inversao_cardapio: InversaoCardapio = self.get_object()
         try:
             inversao_cardapio.terceirizada_conferiu_gestao = True

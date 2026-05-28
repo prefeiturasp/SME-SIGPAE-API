@@ -11,26 +11,18 @@ from openpyxl import Workbook, styles
 from openpyxl.worksheet.datavalidation import DataValidation
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
-from src.perfil.models.perfil import Vinculo
-from src.perfil.models.usuario import (
-    ImportacaoPlanilhaUsuarioExternoCoreSSO,
-    ImportacaoPlanilhaUsuarioServidorCoreSSO,
-    ImportacaoPlanilhaUsuarioUEParceiraCoreSSO,
-)
-
-from ...dados_comuns.constants import (
+from src.dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     ADMINISTRADOR_EMPRESA,
     COGESTOR_DRE,
     DIRETOR_UE,
     USUARIO_EMPRESA,
 )
-from ...dados_comuns.permissions import (
+from src.dados_comuns.permissions import (
     PermissaoParaCriarUsuarioComCoresso,
     PermissaoParaListarVinculosAtivos,
     UsuarioAdministradorContratos,
@@ -40,20 +32,11 @@ from ...dados_comuns.permissions import (
     UsuarioPodeFinalizarVinculo,
     UsuarioSuperCodae,
 )
-from ...escola.api.serializers import UsuarioDetalheSerializer
-from ...escola.models import Codae
-from ...terceirizada.models import Terceirizada
-from ..api.helpers import ofuscar_email
-from ..models import Perfil, PerfisVinculados, Usuario
-from ..tasks import (
-    busca_cargo_de_usuario,
-    processa_planilha_usuario_externo_coresso_async,
-    processa_planilha_usuario_servidor_coresso_async,
-    processa_planilha_usuario_ue_parceira_coresso_async,
-)
-from ..utils import PerfilPagination
-from .filters import ImportacaoPlanilhaUsuarioCoreSSOFilter, VinculoFilter
-from .serializers import (
+from src.escola.api.serializers import UsuarioDetalheSerializer
+from src.escola.models import Codae
+from src.perfil.api.filters import ImportacaoPlanilhaUsuarioCoreSSOFilter, VinculoFilter
+from src.perfil.api.helpers import ofuscar_email
+from src.perfil.api.serializers import (
     AlteraEmailSerializer,
     AlterarVinculoSerializer,
     ImportacaoPlanilhaUsuarioExternoCoreSSOCreateSerializer,
@@ -67,10 +50,24 @@ from .serializers import (
     RedefinirSenhaSerializer,
     UsuarioComCoreSSOCreateSerializer,
     UsuarioSerializer,
-    UsuarioUpdateSerializer,
     VinculoSerializer,
     VinculoSimplesSerializer,
 )
+from src.perfil.models import Perfil, PerfisVinculados, Usuario
+from src.perfil.models.perfil import Vinculo
+from src.perfil.models.usuario import (
+    ImportacaoPlanilhaUsuarioExternoCoreSSO,
+    ImportacaoPlanilhaUsuarioServidorCoreSSO,
+    ImportacaoPlanilhaUsuarioUEParceiraCoreSSO,
+)
+from src.perfil.tasks import (
+    busca_cargo_de_usuario,
+    processa_planilha_usuario_externo_coresso_async,
+    processa_planilha_usuario_servidor_coresso_async,
+    processa_planilha_usuario_ue_parceira_coresso_async,
+)
+from src.perfil.utils import PerfilPagination
+from src.terceirizada.models import Terceirizada
 
 logger = logging.getLogger(__name__)
 
@@ -133,44 +130,9 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UsuarioUpdateViewSet(viewsets.GenericViewSet):
     permission_classes = (AllowAny,)
-    serializer_class = UsuarioUpdateSerializer
-
-    def get_authenticators(self, *args, **kwargs):
-        if "post" in self.action_map and self.action_map["post"] == "create":
-            return []
-        return super().get_authenticators(*args, **kwargs)
-
-    def _get_usuario(self, request):
-        if request.data.get("registro_funcional") is not None:
-            return Usuario.objects.get(
-                registro_funcional=request.data.get("registro_funcional")
-            )
-        else:
-            return Usuario.objects.get(email=request.data.get("email"))
 
     def _get_usuario_por_rf_cpf(self, registro_funcional_ou_cpf):
         return Usuario.objects.get(username=registro_funcional_ou_cpf)
-
-    def create(self, request):  # noqa C901
-        try:
-            usuario = self._get_usuario(request)
-            # TODO: ajeitar isso aqui
-            usuario = UsuarioUpdateSerializer(usuario).partial_update(
-                usuario, request.data
-            )
-            if not isinstance(usuario.vinculo_atual.instituicao, Terceirizada):
-                usuario.enviar_email_confirmacao()
-            return Response(UsuarioDetalheSerializer(usuario).data)
-        except ValidationError as e:
-            return Response(
-                {"detail": e.detail[0].title()}, status=status.HTTP_400_BAD_REQUEST
-            )
-        except ObjectDoesNotExist:
-            if request.data.get("registro_funcional"):
-                mensagem = "RF não cadastrado no sistema"
-            else:
-                mensagem = "E-mail não cadastrado no sistema"
-            return Response({"detail": mensagem}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, url_path="recuperar-senha/(?P<registro_funcional_ou_cpf>.*)")
     def recuperar_senha(self, request, registro_funcional_ou_cpf=None):

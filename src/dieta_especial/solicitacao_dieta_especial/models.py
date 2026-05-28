@@ -18,7 +18,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
 )
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
-from src.dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import convert_base64_to_contentfile
 from src.escola.api.serializers import AlunoSerializer
 from src.escola.models import Aluno
@@ -372,22 +372,6 @@ class SolicitacaoDietaEspecial(
             if self.escola_destino.lote:
                 lote = f"{self.escola_destino.lote.nome}"
         return f"{dre}  - {lote} - {escola}"
-
-    @property
-    def template_mensagem(self):
-        template = TemplateMensagem.objects.get(tipo=TemplateMensagem.DIETA_ESPECIAL)
-        template_troca = {
-            "@id": self.id_externo,
-            "@criado_em": str(self.criado_em),
-            "@criado_por": str(self.criado_por),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "https://teste.com",
-        }
-        corpo = template.template_html
-        for chave, valor in template_troca.items():
-            corpo = corpo.replace(chave, valor)
-        return template.assunto, corpo
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")

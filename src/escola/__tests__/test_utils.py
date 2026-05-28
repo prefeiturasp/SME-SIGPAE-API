@@ -317,6 +317,36 @@ def test_registro_quantidade_alunos_matriculados_por_escola_periodo_exception(
     mock_logger.error.assert_called_once()
 
 
+@freeze_time("2025-02-06")
+@patch("src.escola.models.DiretoriaRegional.objects.all")
+@patch("src.eol_servico.utils.EOLServicoSGP.matricula_por_escola")
+@patch("src.escola.utils.registra_quantidade_matriculados")
+@patch("src.escola.utils.duplica_dia_anterior")
+def test_registro_quantidade_alunos_matriculados_por_escola_periodo_com_data_referencia(
+    mock_duplica_dia_anterior,
+    mock_registra_quantidade_matriculados,
+    mock_matricula_por_escola,
+    mock_diretoria_all,
+    mock_diretoria_regional,
+    mock_tipo_turma,
+):
+    data_referencia = datetime.date(2025, 2, 4)
+    resposta = {"escola": "Escola Teste", "matriculados": 50}
+
+    mock_diretoria_all.return_value = mock_diretoria_regional
+    mock_matricula_por_escola.return_value = resposta
+
+    registro_quantidade_alunos_matriculados_por_escola_periodo(
+        mock_tipo_turma, data_referencia
+    )
+
+    assert mock_matricula_por_escola.call_args.kwargs["data"] == "2025-02-05"
+    mock_registra_quantidade_matriculados.assert_called_once_with(
+        resposta, data_referencia, mock_tipo_turma.name
+    )
+    mock_duplica_dia_anterior.assert_not_called()
+
+
 def test_processa_dias_letivos(lista_dias_letivos):
     escola, dias_letivos = lista_dias_letivos
     assert DiaCalendario.objects.count() == 2

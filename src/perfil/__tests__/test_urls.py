@@ -7,10 +7,8 @@ from rest_framework import status
 
 from src.escola.__tests__.conftest import mocked_response
 
-from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from ...eol_servico.utils import EOLServicoSGP
 from ..api.helpers import ofuscar_email
-from ..api.viewsets import UsuarioUpdateViewSet
 from ..models import (
     ImportacaoPlanilhaUsuarioExternoCoreSSO,
     ImportacaoPlanilhaUsuarioServidorCoreSSO,
@@ -154,108 +152,6 @@ def test_get_meus_dados_diretor_escola(users_diretor_escola):
         json["vinculo_atual"]["perfil"]["uuid"]
         == "41c20c8b-7e57-41ed-9433-ccb92e8afaf1"
     )
-
-
-def test_cadastro_erro(client):
-    response = client.post(
-        "/cadastro/",
-        data={
-            "email": "string",
-            "registro_funcional": "string",
-            "password": DJANGO_ADMIN_PASSWORD,
-            "confirmar_password": DJANGO_ADMIN_PASSWORD,
-            "cpf": "string",
-        },
-    )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert isinstance(response.json(), dict)
-    assert response.json() == {"detail": "RF não cadastrado no sistema"}
-
-
-def test_cadastro_diretor(client, users_diretor_escola, tipo_gestao, monkeypatch):
-    _, email, password, rf, cpf, user = users_diretor_escola
-    data = {
-        "email": email,
-        "registro_funcional": rf,
-        "password": password,
-        "confirmar_password": password,
-        "cpf": cpf,
-    }
-    assert user.registro_funcional == rf
-
-    monkeypatch.setattr(
-        UsuarioUpdateViewSet, "_get_usuario", lambda p1, p2: user
-    )  # noqa
-    monkeypatch.setattr(Usuario, "pode_efetuar_cadastro", lambda: True)
-    response = client.post(
-        "/cadastro/", content_type="application/json", data=json.dumps(data)
-    )  # noqa
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    keys = [
-        "uuid",
-        "nome",
-        "email",
-        "registro_funcional",
-        "date_joined",
-        "vinculo_atual",
-        "tipo_usuario",
-    ]
-    for key in keys:
-        assert key in response_json.keys()
-    assert response_json["email"] == email
-    assert response_json["registro_funcional"] == rf
-    response.json().get("vinculo_atual").pop("uuid")
-    response.json().get("vinculo_atual").get("instituicao").pop("periodos_escolares")
-    assert response_json["tipo_usuario"] == "escola"
-    assert response_json["vinculo_atual"] == {
-        "instituicao": {
-            "nome": "EMEI NOE AZEVEDO, PROF",
-            "uuid": "b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
-            "codigo_eol": "256341",
-            "quantidade_alunos": 450,
-            "lotes": [],
-            "eh_cei": False,
-            "eh_cemei": False,
-            "eh_emebs": False,
-            "acesso_modulo_medicao_inicial": False,
-            "possui_alunos_regulares": True,
-            "modulo_gestao": "TERCEIRIZADA",
-            "diretoria_regional": {
-                "uuid": "7da9acec-48e1-430c-8a5c-1f1efc666fad",
-                "nome": "DIRETORIA REGIONAL IPIRANGA",
-                "codigo_eol": "987656",
-                "iniciais": "IP",
-                "acesso_modulo_medicao_inicial": False,
-            },
-            "tipo_unidade_escolar": "56725de5-89d3-4edf-8633-3e0b5c99e9d4",
-            "tipo_unidade_escolar_iniciais": "EMEF",
-            "tipo_gestao": "TERC TOTAL",
-            "tipo_gestao_uuid": str(tipo_gestao.uuid),
-            "endereco": {
-                "logradouro": "",
-                "numero": None,
-                "complemento": "",
-                "bairro": "",
-                "cep": None,
-            },
-            "contato": {
-                "nome": "",
-                "telefone": "",
-                "telefone2": "",
-                "celular": "",
-                "email": "",
-                "eh_nutricionista": False,
-                "crn_numero": "",
-            },
-        },
-        "perfil": {
-            "nome": "DIRETOR_UE",
-            "uuid": "41c20c8b-7e57-41ed-9433-ccb92e8afaf1",
-            "visao": None,
-        },
-        "ativo": True,
-    }
 
 
 def test_post_usuarios(client_autenticado):

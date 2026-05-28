@@ -28,7 +28,7 @@ from ...dados_comuns.fluxo_status import (
     DietaEspecialWorkflow,
     InformativoPartindoDaEscolaWorkflow,
 )
-from ...dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
@@ -113,9 +113,7 @@ def escola2(diretoria_regional2):
 
 @pytest.fixture
 def templates():
-    baker.make(TemplateMensagem, tipo=TemplateMensagem.ALTERACAO_CARDAPIO)
-    baker.make(TemplateMensagem, tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_AVULSA)
-    baker.make(TemplateMensagem, tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO_CONTINUA)
+    return None
 
 
 @pytest.fixture

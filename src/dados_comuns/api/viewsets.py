@@ -21,7 +21,6 @@ from ..models import (
     Notificacao,
     PerguntaFrequente,
     SolicitacaoAberta,
-    TemplateMensagem,
 )
 from ..permissions import UsuarioCODAEGestaoAlimentacao
 from ..utils import obter_dias_uteis_apos, obter_versao_api
@@ -31,7 +30,6 @@ from .serializers import (
     CategoriaPerguntaFrequenteSerializer,
     CentralDeDownloadSerializer,
     ConfiguracaoEmailSerializer,
-    ConfiguracaoMensagemSerializer,
     ConsultaPerguntasFrequentesSerializer,
     NotificacaoSerializer,
     PerguntaFrequenteCreateSerializer,
@@ -197,12 +195,6 @@ class ConfiguracaoEmailViewSet(ModelViewSet):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
-
-class TemplateMensagemViewSet(ModelViewSet):
-    lookup_field = "uuid"
-    queryset = TemplateMensagem.objects.all()
-    serializer_class = ConfiguracaoMensagemSerializer
 
 
 class CategoriaPerguntaFrequenteViewSet(ModelViewSet):

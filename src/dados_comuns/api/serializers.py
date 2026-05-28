@@ -15,7 +15,6 @@ from ..models import (
     Notificacao,
     PerguntaFrequente,
     SolicitacaoAberta,
-    TemplateMensagem,
 )
 from ..services import ServiceMapeamentoLogsLinhaDoTempo
 
@@ -174,12 +173,6 @@ class ConfiguracaoEmailSerializer(serializers.ModelSerializer):
             "use_ssl",
             "timeout",
         )
-
-
-class ConfiguracaoMensagemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TemplateMensagem
-        exclude = ("id", "tipo")
 
 
 class ContatoSerializer(serializers.ModelSerializer):

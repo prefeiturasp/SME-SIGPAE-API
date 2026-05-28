@@ -69,7 +69,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.inversao_dia_cardapio.api.serializers_create</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span></span><span class="sd">&quot;&quot;&quot;Serializer de escrita da API de inversao de dia de cardapio.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 
@@ -91,6 +93,12 @@
 <div class="viewcode-block" id="InversaoCardapioSerializerCreate">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapioSerializerCreate</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a criação e a atualização de ``InversaoCardapio``.</span>
+
+<span class="sd">    Recebe as datas expostas pela API, aplica validações de negócio e converte</span>
+<span class="sd">    os campos para a estrutura persistida no modelo.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">data_de</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
     <span class="n">data_para</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
     <span class="n">data_de_2</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -110,6 +118,14 @@
 <div class="viewcode-block" id="InversaoCardapioSerializerCreate.validate_data_de">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_data_de</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_de</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Valida se a data inicial da primeira inversão não está no passado.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_de (datetime.date): Data inicial informada na solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date: A mesma data validada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">data_de</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_de</span></div>
 
@@ -117,6 +133,14 @@
 <div class="viewcode-block" id="InversaoCardapioSerializerCreate.validate_data_para">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_data_para</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_para</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Valida se a data final da primeira inversão não está no passado.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_para (datetime.date): Data final informada na solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date: A mesma data validada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">data_para</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_para</span></div>
 
@@ -124,6 +148,15 @@
 <div class="viewcode-block" id="InversaoCardapioSerializerCreate.validate_data_de_2">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_de_2">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_data_de_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_de_2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Valida a segunda data inicial quando uma segunda inversão é enviada; não pode ser no passado.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_de_2 (datetime.date | None): Segunda data inicial da</span>
+<span class="sd">                solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date | None: A data validada ou ``None`` quando ausente.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">data_de_2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">data_de_2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_de_2</span></div>
@@ -132,6 +165,15 @@
 <div class="viewcode-block" id="InversaoCardapioSerializerCreate.validate_data_para_2">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate_data_para_2">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_data_para_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_para_2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Valida a segunda data final quando uma segunda inversão é enviada; não pode ser no passado.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_para_2 (datetime.date | None): Segunda data final da</span>
+<span class="sd">                solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date | None: A data validada ou ``None`` quando ausente.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">data_para_2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">data_para_2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_para_2</span></div>
@@ -140,6 +182,20 @@
 <div class="viewcode-block" id="InversaoCardapioSerializerCreate.validate">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.validate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Aplica as validações de negócio da solicitação de inversão.</span>
+
+<span class="sd">        - as datas devem ser do mesmo ano corrente ou do próximo ano quando a solicitação for feita no mês de dezembro;</span>
+<span class="sd">        - não pode existir outra solicitação de inversão para a mesma escola, tipos de alimentação e datas, que esteja em aberto;</span>
+<span class="sd">        - a diferença entre as datas de origem e destino da inversão não pode ser superior a 60 dias;</span>
+<span class="sd">        - as datas informadas devem ser dias letivos e dias da semana válidos para a escola.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attrs (dict): Dados normalizados pelo serializer antes da</span>
+<span class="sd">                persistência.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: O dicionário de atributos validado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_de</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_de&quot;</span><span class="p">]</span>
         <span class="n">data_para</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_para&quot;</span><span class="p">]</span>
         <span class="n">escola</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;escola&quot;</span><span class="p">]</span>
@@ -174,6 +230,16 @@
 <div class="viewcode-block" id="InversaoCardapioSerializerCreate.create">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.create">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cria uma ``InversaoCardapio`` a partir dos campos expostos pela API.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            validated_data (dict): Dados da solicitação após as validações do</span>
+<span class="sd">                serializer.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            InversaoCardapio: Instância criada com os tipos de alimentação</span>
+<span class="sd">            associados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_de</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_de&quot;</span><span class="p">)</span>
         <span class="n">data_para</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_para&quot;</span><span class="p">)</span>
         <span class="n">data_de_2</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_de_2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -195,6 +261,15 @@
 <div class="viewcode-block" id="InversaoCardapioSerializerCreate.update">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.api.serializers_create.InversaoCardapioSerializerCreate.update">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atualiza uma ``InversaoCardapio`` convertendo os campos da API.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance (InversaoCardapio): Instância persistida a ser atualizada.</span>
+<span class="sd">            validated_data (dict): Dados validados enviados na requisição.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            InversaoCardapio: Instância atualizada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_de</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_de&quot;</span><span class="p">)</span>
         <span class="n">data_para</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_para&quot;</span><span class="p">)</span>
         <span class="n">data_de_2</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_de_2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>

@@ -28,7 +28,6 @@ from ..dados_comuns.fluxo_status import (
 from ..dados_comuns.models import (
     AnexoLogSolicitacoesUsuario,
     LogSolicitacoesUsuario,
-    TemplateMensagem,
 )
 from ..dados_comuns.utils import (
     convert_base64_to_contentfile,
@@ -451,24 +450,6 @@ class HomologacaoProduto(
             if log:
                 return log.criado_em.date()
         return None
-
-    @property
-    def template_mensagem(self):
-        template = TemplateMensagem.objects.get(
-            tipo=TemplateMensagem.HOMOLOGACAO_PRODUTO
-        )
-        template_troca = {
-            "@id": self.id_externo,
-            "@criado_em": str(self.criado_em),
-            "@criado_por": str(self.criado_por),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "https://teste.com",
-        }
-        corpo = template.template_html
-        for chave, valor in template_troca.items():
-            corpo = corpo.replace(chave, valor)
-        return template.assunto, corpo
 
     @property
     def tempo_aguardando_acao_em_dias(self):
