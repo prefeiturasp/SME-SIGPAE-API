@@ -4163,12 +4163,23 @@ def test_url_layout_embalagem_download_imagem_inexistente(
 def test_url_layout_embalagem_download_imagem_de_outro_layout(
     client_autenticado_codae_dilog,
     _layout_com_imagem_e_log_aprovacao,
-    layout_de_embalagem_aprovado,
+    ficha_tecnica_factory,
+    empresa,
 ):
     """Deve retornar 401 quando a imagem não pertence ao layout."""
     client = client_autenticado_codae_dilog
     _, imagem = _layout_com_imagem_e_log_aprovacao
-    outro_layout = layout_de_embalagem_aprovado
+
+    # Cria um layout completamente separado (não usa fixture para evitar cache)
+    outro_layout = baker.make(
+        LayoutDeEmbalagem,
+        ficha_tecnica=ficha_tecnica_factory(
+            status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            empresa=empresa,
+        ),
+        observacoes="Outro layout",
+        status=LayoutDeEmbalagemWorkflow.APROVADO,
+    )
 
     url = f"/layouts-de-embalagem/{outro_layout.uuid}/download/{imagem.uuid}/"
     response = client.get(url)
