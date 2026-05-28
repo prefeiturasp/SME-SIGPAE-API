@@ -1122,6 +1122,26 @@ class PermissaoParaDashboardDocumentosDeRecebimento(BasePermission):
         )
 
 
+class PermissaoParaRelatorioDocumentosDeRecebimento(BasePermission):
+    PERFIS_PERMITIDOS = [
+        DILOG_QUALIDADE,
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
+    ]
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and (
+                (
+                    isinstance(usuario.vinculo_atual.instituicao, Codae)
+                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
+                )
+            )
+        )
+
+
 class PermissaoParaCadastrarLaboratorio(BasePermission):
     # Apenas DILOG_QUALIDADE tem acesso a tela de cadastro de Laboratórios.
     def has_permission(self, request, view):
