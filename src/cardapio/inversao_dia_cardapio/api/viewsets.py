@@ -488,7 +488,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         permission_classes=(IsAuthenticated,),
     )
     def relatorio(self, request, uuid=None):
-        """Gera o relatório PDF da solicitação de inversão de cardápio.
+        """Gera o relatório PDF da solicitação de Inversão de dia de Cardápio.
 
         Args:
             request (Request): Requisição HTTP com o usuário autenticado.
