@@ -73,6 +73,17 @@ main {
 
 .tabela-principal {
   width: 100%;
+
+  thead {
+    display: table-header-group;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .grupo-faixa-cabecalho {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }
 
 .tabela-principal,
@@ -86,6 +97,16 @@ td {
 
 tbody {
   .linha-faixa-matriculados {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-after: avoid;
+    page-break-after: avoid;
+
+    td {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
     td:first-child {
       font-weight: 700;
     }

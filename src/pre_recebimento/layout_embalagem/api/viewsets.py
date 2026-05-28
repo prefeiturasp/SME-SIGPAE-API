@@ -1,3 +1,4 @@
+from django.http import Http404, HttpResponse
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -26,6 +27,7 @@ from src.pre_recebimento.layout_embalagem.filters import (
     LayoutDeEmbalagemFilter,
 )
 from src.pre_recebimento.layout_embalagem.models import (
+    ImagemDoTipoDeEmbalagem,
     LayoutDeEmbalagem,
 )
 
@@ -108,3 +110,35 @@ class LayoutDeEmbalagemModelViewSet(
         if serializer.is_valid(raise_exception=True):
             layout_corrigido = serializer.save()
             return Response(LayoutDeEmbalagemDetalheSerializer(layout_corrigido).data)
+
+    @action(
+        detail=True,
+        methods=["GET"],
+        url_path="download/(?P<imagem_uuid>[^/.]+)",
+        permission_classes=(PermissaoParaVisualizarLayoutDeEmbalagem,),
+    )
+    def download_imagem_assinada(self, request, uuid, imagem_uuid):
+        """Gera e retorna a imagem do Layout de Embalagem com rodapé de assinatura digital.
+
+        Segue o mesmo padrão de DocumentoDeRecebimento.download_laudo_assinado.
+        Se a imagem for PDF, faz merge com rodapé diretamente.
+        Se for PNG/JPG, converte para PDF e depois faz o merge.
+        """
+        layout = self.get_object()
+
+        try:
+            imagem = ImagemDoTipoDeEmbalagem.objects.get(uuid=imagem_uuid)
+        except ImagemDoTipoDeEmbalagem.DoesNotExist:
+            raise Http404("Imagem não encontrada.")
+
+        if imagem.tipo_de_embalagem.layout_de_embalagem != layout:
+            return HttpResponse(
+                "A imagem informada não pertence a este Layout de Embalagem.",
+                status=401,
+            )
+
+        pdf_bytes = layout.arquivo_imagem_assinada(imagem)
+
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="{imagem.nome}"'
+        return response

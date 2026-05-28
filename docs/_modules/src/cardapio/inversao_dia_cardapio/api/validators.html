@@ -69,7 +69,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.inversao_dia_cardapio.api.validators</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span></span><span class="sd">&quot;&quot;&quot;Validadores de negócio da API de Inversão de dia de Cardápio.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
@@ -86,6 +88,23 @@
     <span class="n">escola</span><span class="p">:</span> <span class="n">Escola</span><span class="p">,</span>
     <span class="n">tipos_alimentacao</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Impede a criação de solicitações duplicadas para a mesma escola.</span>
+
+<span class="sd">    Considera tanto o primeiro quanto o segundo par de datas da solicitação e</span>
+<span class="sd">    ignora pedidos em status finais que não bloqueiam nova criação.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_de (datetime.date): Data inicial da inversão.</span>
+<span class="sd">        data_para (datetime.date): Data final da inversão.</span>
+<span class="sd">        escola (Escola): Escola associada ao pedido.</span>
+<span class="sd">        tipos_alimentacao (list): Tipos de alimentação vinculados ao pedido.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: ``True`` quando não existe solicitação equivalente em aberto.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: Quando já existe uma solicitação com os mesmos dados.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inversao_cardapio</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">InversaoCardapio</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">Q</span><span class="p">(</span>
@@ -127,10 +146,23 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">nao_pode_ter_mais_que_60_dias_diferenca</span><span class="p">(</span>
     <span class="n">data_de</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">data_para</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Valida o limite máximo de diferença entre as datas da inversão, que é de 60 dias.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_de (datetime.date): Data inicial da inversão.</span>
+<span class="sd">        data_para (datetime.date): Data final da inversão.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: ``True`` quando a diferença entre as datas é de até 60 dias.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: Quando a diferença absoluta entre as datas ultrapassa</span>
+<span class="sd">            60 dias.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">diferenca</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">((</span><span class="n">data_para</span> <span class="o">-</span> <span class="n">data_de</span><span class="p">)</span><span class="o">.</span><span class="n">days</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">diferenca</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
-            <span class="s2">&quot;Diferença entre as datas não pode ultrapassar de 60 dias&quot;</span>
+            <span class="s2">&quot;Diferença entre as datas não pode ultrapassar 60 dias&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="kc">True</span></div>
 

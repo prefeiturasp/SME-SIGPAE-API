@@ -8,7 +8,6 @@ from src.escola.__tests__.conftest import mocked_response
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from ...dados_comuns.models import TemplateMensagem
 from ...eol_servico.utils import EOLServicoSGP
 from .. import models
 
@@ -172,26 +171,6 @@ def quantidade_por_periodo():
     )
 
 
-@pytest.fixture
-def template_inclusao_normal():
-    return baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO,
-        template_html="@id @criado_em @status @link",
-    )
-
-
-@pytest.fixture
-def template_inclusao_continua():
-    return baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.INCLUSAO_ALIMENTACAO_CONTINUA,
-        template_html="@id @criado_em @status @link",
-    )
-
-
 @pytest.fixture(
     params=[
         # data ini, data fim, esperado
@@ -207,9 +186,7 @@ def template_inclusao_continua():
         ),
     ]
 )
-def inclusao_alimentacao_continua_params(
-    escola, motivo_inclusao_continua, request, template_inclusao_continua
-):
+def inclusao_alimentacao_continua_params(escola, motivo_inclusao_continua, request):
     data_inicial, data_final, esperado = request.param
     model = baker.make(
         models.InclusaoAlimentacaoContinua,
@@ -238,9 +215,7 @@ def inclusao_alimentacao_continua_params(
         ),
     ]
 )
-def inclusao_alimentacao_continua(
-    escola, motivo_inclusao_continua, request, template_inclusao_continua
-):
+def inclusao_alimentacao_continua(escola, motivo_inclusao_continua, request):
     data_inicial, data_final, esperado = request.param
     inc_continua = baker.make(
         models.InclusaoAlimentacaoContinua,
@@ -267,9 +242,7 @@ def inclusao_alimentacao_continua(
 
 
 @pytest.fixture
-def inclusao_alimentacao_cemei(
-    escola, motivo_inclusao_normal, template_inclusao_normal
-):
+def inclusao_alimentacao_cemei(escola, motivo_inclusao_normal):
     inclusao_cemei = baker.make(
         "InclusaoDeAlimentacaoCEMEI",
         escola=escola,
@@ -297,7 +270,7 @@ def inclusao_alimentacao_cemei(
     ]
 )
 def inclusao_alimentacao_continua_outra_dre(
-    escola_dre_guaianases, motivo_inclusao_continua, request, template_inclusao_continua
+    escola_dre_guaianases, motivo_inclusao_continua, request
 ):
     data_inicial, data_final, esperado = request.param
     return baker.make(
@@ -432,9 +405,7 @@ def inclusao_alimentacao_normal_outro_motivo(motivo_inclusao_normal):
         (datetime.date(2019, 10, 1), datetime.date(2019, 9, 20)),
     ]
 )
-def grupo_inclusao_alimentacao_normal(
-    escola, motivo_inclusao_normal, request, template_inclusao_normal
-):
+def grupo_inclusao_alimentacao_normal(escola, motivo_inclusao_normal, request):
     data_1, data_2 = request.param
     grupo_inclusao_normal = baker.make(
         models.GrupoInclusaoAlimentacaoNormal,
@@ -497,7 +468,7 @@ def make_grupo_inclusao_alimentacao_normal(escola, motivo_inclusao_normal):
     ]
 )
 def grupo_inclusao_alimentacao_normal_outra_dre(
-    escola_dre_guaianases, motivo_inclusao_normal, request, template_inclusao_normal
+    escola_dre_guaianases, motivo_inclusao_normal, request
 ):
     data_1, data_2 = request.param
     grupo_inclusao_normal = baker.make(
@@ -687,7 +658,6 @@ def client_autenticado_vinculo_escola_inclusao(
     django_user_model,
     escola,
     motivo_inclusao_normal_nome,
-    template_inclusao_normal,
     periodo_escolar,
     faixa_etaria,
 ):
@@ -712,7 +682,7 @@ def client_autenticado_vinculo_escola_inclusao(
 
 @pytest.fixture
 def client_autenticado_vinculo_escola_cei_inclusao(
-    client, django_user_model, escola_cei, template_inclusao_normal
+    client, django_user_model, escola_cei
 ):
     email = "test2@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
@@ -734,9 +704,7 @@ def client_autenticado_vinculo_escola_cei_inclusao(
 
 
 @pytest.fixture
-def client_autenticado_vinculo_dre_inclusao(
-    client, django_user_model, escola, template_inclusao_normal
-):
+def client_autenticado_vinculo_dre_inclusao(client, django_user_model, escola):
     email = "test@test1.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -778,12 +746,6 @@ def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola,
         data_inicial=hoje,
         ativo=True,
     )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
-    )
     client.login(username=email, password=password)
     return client
 
@@ -811,12 +773,6 @@ def client_autenticado_vinculo_terceirizada_inclusao(
         perfil=perfil_nutri_admin,
         data_inicial=hoje,
         ativo=True,
-    )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
     )
     client.login(username=email, password=password)
     return client, user

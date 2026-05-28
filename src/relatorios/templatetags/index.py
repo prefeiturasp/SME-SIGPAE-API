@@ -579,6 +579,7 @@ def get_nao_eh_dia_letivo_cei(dias_letivos, i):
 def get_nome_campo(campo):
     campos = {
         "numero_de_alunos": "Número de Alunos",
+        "participantes": "Participantes",
         "matriculados": "Matriculados",
         "aprovadas": "Aprovadas",
         "frequencia": "Frequência",
@@ -776,6 +777,7 @@ def numero_para_porcentagem(valor):
 def get_colspan(periodo):
     periodo_colsapn = {
         "TIPOS DE ALIMENTAÇÃO": 2,
+        "TIPOS ALIMENTAÇÃO": 2,
         "DIETAS TIPO A / ENTERAL / REST. DE AMINOÁCIDOS": 2,
         "DIETAS TIPO B": 2,
         "MANHA": 1,
@@ -789,6 +791,11 @@ def get_colspan(periodo):
         "Infantil INTEGRAL": 1,
         "Infantil MANHA": 1,
         "Infantil TARDE": 1,
+        "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES": 1,
+        "DIETA TIPO A": 1,
+        "DIETA ENTERAL / REST. DE AMINOÁCIDOS": 1,
+        "DIETA TIPO B": 1,
+        "TOTAL DE ALIMENTAÇÕES PARA COLABORADORES": 1,
     }
 
     return periodo_colsapn.get(periodo.upper())

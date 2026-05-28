@@ -30,7 +30,7 @@ from ..dados_comuns.fluxo_status import (
     FluxoAprovacaoPartindoDaDiretoriaRegional,
     FluxoAprovacaoPartindoDaEscola,
 )
-from ..dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from ..dados_comuns.models import LogSolicitacoesUsuario
 from .managers import (
     SolicitacaoUnificadaDestaSemanaManager,
     SolicitacaoUnificadaDesteMesManager,
@@ -162,24 +162,6 @@ class SolicitacaoKitLancheAvulsaBase(
             justificativa=justificativa,
             resposta_sim_nao=resposta_sim_nao,
         )
-
-    @property
-    def template_mensagem(self):
-        template = TemplateMensagem.objects.get(
-            tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_AVULSA
-        )
-        template_troca = {
-            "@id": self.id_externo,
-            "@criado_em": str(self.solicitacao_kit_lanche.criado_em),
-            "@criado_por": str(self.criado_por),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "https://teste.com",
-        }
-        corpo = template.template_html
-        for chave, valor in template_troca.items():
-            corpo = corpo.replace(chave, valor)
-        return template.assunto, corpo
 
     class Meta:
         abstract = True
@@ -529,24 +511,6 @@ class SolicitacaoKitLancheUnificada(
     # TODO: se esse caso existir algum dia, implementar
     def dividir_por_tres_ou_mais_lotes(self):
         return
-
-    @property
-    def template_mensagem(self):
-        template = TemplateMensagem.objects.get(
-            tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_UNIFICADA
-        )
-        template_troca = {
-            "@id": self.id_externo,
-            "@criado_em": str(self.solicitacao_kit_lanche.criado_em),
-            "@criado_por": str(self.criado_por),
-            "@status": str(self.status),
-            # TODO: verificar a url padrão do pedido
-            "@link": "https://teste.com",
-        }
-        corpo = template.template_html
-        for chave, valor in template_troca.items():
-            corpo = corpo.replace(chave, valor)
-        return template.assunto, corpo
 
     @property
     def total_kit_lanche(self):

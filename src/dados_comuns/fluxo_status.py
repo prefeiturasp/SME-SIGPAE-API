@@ -1672,12 +1672,6 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
     def pode_excluir(self):
         return self.status == self.workflow_class.RASCUNHO
 
-    @property
-    def template_mensagem(self):
-        raise NotImplementedError(
-            "Deve criar um property que recupera o assunto e corpo mensagem desse objeto"
-        )
-
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         raise NotImplementedError("Deve criar um método salvar_log_transicao")
 
@@ -2385,12 +2379,6 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         # TODO: definir partes interessadas
         return []
 
-    @property
-    def template_mensagem(self):
-        raise NotImplementedError(
-            "Deve criar um property que recupera o assunto e corpo mensagem desse objeto"
-        )
-
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         raise NotImplementedError("Deve criar um método salvar_log_transicao")
 
@@ -2792,12 +2780,6 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
     def partes_interessadas_terceirizadas_tomou_ciencia(self):
         # TODO: definir partes interessadas
         return []
-
-    @property
-    def template_mensagem(self):
-        raise NotImplementedError(
-            "Deve criar um property que recupera o assunto e corpo mensagem desse objeto"
-        )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         raise NotImplementedError("Deve criar um método salvar_log_transicao")
@@ -3284,12 +3266,6 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         except AttributeError:
             email_lista = []
         return email_lista
-
-    @property
-    def template_mensagem(self):
-        raise NotImplementedError(
-            "Deve criar um property que recupera o assunto e corpo mensagem desse objeto"
-        )
 
     def _envia_email_autorizar(self, assunto, titulo, user, partes_interessadas):
         from ..relatorios.relatorios import relatorio_dieta_especial_protocolo
@@ -4123,7 +4099,8 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 user.vinculo_atual.instituicao.possui_alunos_regulares
             )
             eh_diretor = user.vinculo_atual.perfil.nome == DIRETOR_UE
-            if not eh_diretor and escola_possui_alunos_regulares:
+            escola_p_fom = user.vinculo_atual.instituicao.eh_p_fom
+            if not eh_diretor and escola_possui_alunos_regulares and not escola_p_fom:
                 raise PermissionDenied(
                     "Você não tem permissão para executar essa ação."
                 )
@@ -4411,6 +4388,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
         if user:
@@ -4446,6 +4424,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 
@@ -4473,6 +4452,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             nao_possui_permissao = (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
                 raise PermissionDenied(
@@ -4490,6 +4470,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             nao_possui_permissao = (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
                 raise PermissionDenied(
@@ -4511,6 +4492,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 
@@ -4537,6 +4519,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             or (
                 user.vinculo_atual.perfil.nome != DIRETOR_UE
                 and user.vinculo_atual.instituicao.possui_alunos_regulares
+                and not user.vinculo_atual.instituicao.eh_p_fom
             )
         )
 

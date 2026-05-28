@@ -13,7 +13,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips impo
     validate_lancamento_alimentacoes_medicao_recreio_cei,
     validate_lancamento_dietas_medicao_recreio_cei,
 )
-from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
     existe_colaborador,
 )

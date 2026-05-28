@@ -14,7 +14,6 @@ from src.cardapio.suspensao_alimentacao.models import (
 )
 from src.dados_comuns import constants
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from src.dados_comuns.models import TemplateMensagem
 
 fake = Faker("pt_BR")
 Faker.seed(420)
@@ -232,11 +231,6 @@ def escola_com_periodos_e_horarios_combos(escola):
 
 
 @pytest.fixture
-def template_mensagem_alteracao_cardapio():
-    return baker.make(TemplateMensagem, tipo=TemplateMensagem.ALTERACAO_CARDAPIO)
-
-
-@pytest.fixture
 def tipo_unidade_escolar():
     return baker.make("TipoUnidadeEscolar", iniciais=fake.name()[:10])
 
@@ -284,11 +278,7 @@ def motivo_alteracao_cardapio_inativo():
 
 
 @pytest.fixture
-def usuario_vinculo_escola_cardapio(
-    django_user_model,
-    escola,
-    template_mensagem_alteracao_cardapio,
-):
+def usuario_vinculo_escola_cardapio(django_user_model, escola):
     email = "test@test.com"
     rf = "1888888"
     password = constants.DJANGO_ADMIN_PASSWORD
@@ -341,9 +331,7 @@ def client_autenticado_vinculo_escola_cardapio(client, usuario_vinculo_escola_ca
 
 
 @pytest.fixture
-def usuario_dre_vinculo_escola_cardapio(
-    django_user_model, escola, template_mensagem_alteracao_cardapio
-):
+def usuario_dre_vinculo_escola_cardapio(django_user_model, escola):
     email = "test@test1.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -393,20 +381,12 @@ def client_autenticado_vinculo_codae_cardapio(client, django_user_model, codae):
         data_inicial=hoje,
         ativo=True,
     )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
-    )
     client.login(username=email, password=password)
     return client
 
 
 @pytest.fixture
-def usuario_vinculo_codae_dieta_cardapio(
-    django_user_model, escola, codae, template_mensagem_alteracao_cardapio
-):
+def usuario_vinculo_codae_dieta_cardapio(django_user_model, escola, codae):
     email = "testc@test.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -426,12 +406,6 @@ def usuario_vinculo_codae_dieta_cardapio(
         perfil=perfil_dieta,
         data_inicial=hoje,
         ativo=True,
-    )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
     )
 
     return user, password
@@ -470,12 +444,6 @@ def client_autenticado_vinculo_terceirizada_cardapio(
         perfil=perfil_nutri_admin,
         data_inicial=hoje,
         ativo=True,
-    )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
     )
     client.login(username=email, password=password)
     return client

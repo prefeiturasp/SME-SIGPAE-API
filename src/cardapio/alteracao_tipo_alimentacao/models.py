@@ -22,7 +22,7 @@ from src.dados_comuns.behaviors import (
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
-from src.dados_comuns.models import LogSolicitacoesUsuario, TemplateMensagem
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
 
 
@@ -185,26 +185,6 @@ class AlteracaoCardapio(
             ``"alteracao-do-tipo-de-alimentacao/relatorio?uuid=<uuid>&tipoSolicitacao=solicitacao-normal"``.
         """
         return f"alteracao-do-tipo-de-alimentacao/relatorio?uuid={self.uuid}&tipoSolicitacao=solicitacao-normal"
-
-    @property
-    def template_mensagem(self):
-        """Retorna o assunto e o corpo HTML do template de mensagem de alteração de cardápio.
-
-        Busca o ``TemplateMensagem`` do tipo ``ALTERACAO_CARDAPIO`` e retorna
-        seus campos de assunto e conteúdo HTML.
-
-        Returns:
-            tuple[str, str]: Tupla ``(assunto, corpo_html)`` do template.
-
-        Raises:
-            TemplateMensagem.DoesNotExist: Caso não exista template do tipo
-                ``ALTERACAO_CARDAPIO`` cadastrado.
-        """
-        template = TemplateMensagem.objects.get(
-            tipo=TemplateMensagem.ALTERACAO_CARDAPIO
-        )
-        corpo = template.template_html
-        return template.assunto, corpo
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         """Registra no log a transição de status da solicitação.

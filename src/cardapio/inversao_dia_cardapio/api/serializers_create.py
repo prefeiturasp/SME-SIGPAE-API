@@ -1,3 +1,5 @@
+"""Serializer de escrita da API de inversao de dia de cardapio."""
+
 import datetime
 
 from rest_framework import serializers
@@ -18,6 +20,12 @@ from src.escola.models import Escola
 
 
 class InversaoCardapioSerializerCreate(serializers.ModelSerializer):
+    """Serializa a criação e a atualização de ``InversaoCardapio``.
+
+    Recebe as datas expostas pela API, aplica validações de negócio e converte
+    os campos para a estrutura persistida no modelo.
+    """
+
     data_de = serializers.DateField()
     data_para = serializers.DateField()
     data_de_2 = serializers.DateField(required=False, allow_null=True)
@@ -35,24 +43,72 @@ class InversaoCardapioSerializerCreate(serializers.ModelSerializer):
     )
 
     def validate_data_de(self, data_de):
+        """Valida se a data inicial da primeira inversão não está no passado.
+
+        Args:
+            data_de (datetime.date): Data inicial informada na solicitação.
+
+        Returns:
+            datetime.date: A mesma data validada.
+        """
         nao_pode_ser_no_passado(data_de)
         return data_de
 
     def validate_data_para(self, data_para):
+        """Valida se a data final da primeira inversão não está no passado.
+
+        Args:
+            data_para (datetime.date): Data final informada na solicitação.
+
+        Returns:
+            datetime.date: A mesma data validada.
+        """
         nao_pode_ser_no_passado(data_para)
         return data_para
 
     def validate_data_de_2(self, data_de_2):
+        """Valida a segunda data inicial quando uma segunda inversão é enviada; não pode ser no passado.
+
+        Args:
+            data_de_2 (datetime.date | None): Segunda data inicial da
+                solicitação.
+
+        Returns:
+            datetime.date | None: A data validada ou ``None`` quando ausente.
+        """
         if data_de_2 is not None:
             nao_pode_ser_no_passado(data_de_2)
         return data_de_2
 
     def validate_data_para_2(self, data_para_2):
+        """Valida a segunda data final quando uma segunda inversão é enviada; não pode ser no passado.
+
+        Args:
+            data_para_2 (datetime.date | None): Segunda data final da
+                solicitação.
+
+        Returns:
+            datetime.date | None: A data validada ou ``None`` quando ausente.
+        """
         if data_para_2 is not None:
             nao_pode_ser_no_passado(data_para_2)
         return data_para_2
 
     def validate(self, attrs):
+        """Aplica as validações de negócio da solicitação de inversão.
+
+        - as datas devem ser do mesmo ano corrente ou do próximo ano quando a solicitação for feita no mês de dezembro;
+        - não pode existir outra solicitação de inversão para a mesma escola, tipos de alimentação e datas, que esteja em aberto;
+        - a diferença entre as datas de origem e destino da inversão não pode ser superior a 60 dias;
+        - as datas informadas devem ser dias letivos e dias da semana válidos para a escola.
+
+        Args:
+            attrs (dict): Dados normalizados pelo serializer antes da
+                persistência.
+
+        Returns:
+            dict: O dicionário de atributos validado.
+        """
         data_de = attrs["data_de"]
         data_para = attrs["data_para"]
         escola = attrs["escola"]
@@ -84,6 +140,16 @@ class InversaoCardapioSerializerCreate(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """Cria uma ``InversaoCardapio`` a partir dos campos expostos pela API.
+
+        Args:
+            validated_data (dict): Dados da solicitação após as validações do
+                serializer.
+
+        Returns:
+            InversaoCardapio: Instância criada com os tipos de alimentação
+            associados.
+        """
         data_de = validated_data.pop("data_de")
         data_para = validated_data.pop("data_para")
         data_de_2 = validated_data.pop("data_de_2", None)
@@ -102,6 +168,15 @@ class InversaoCardapioSerializerCreate(serializers.ModelSerializer):
         return inversao_cardapio
 
     def update(self, instance, validated_data):
+        """Atualiza uma ``InversaoCardapio`` convertendo os campos da API.
+
+        Args:
+            instance (InversaoCardapio): Instância persistida a ser atualizada.
+            validated_data (dict): Dados validados enviados na requisição.
+
+        Returns:
+            InversaoCardapio: Instância atualizada.
+        """
         data_de = validated_data.pop("data_de")
         data_para = validated_data.pop("data_para")
         data_de_2 = validated_data.pop("data_de_2", None)

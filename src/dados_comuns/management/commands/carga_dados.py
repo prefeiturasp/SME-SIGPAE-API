@@ -7,10 +7,7 @@ from utility.carga_dados.cardapio.importa_dados import (
     cria_tipo_alimentacao,
     cria_vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar,
 )
-from utility.carga_dados.dados_comuns.importa_dados import (
-    cria_contatos,
-    cria_templatemensagem,
-)
+from utility.carga_dados.dados_comuns.importa_dados import cria_contatos
 from utility.carga_dados.dieta_especial.importa_dados import (
     cria_alergia_intolerancias,
     cria_alimento,
@@ -79,7 +76,6 @@ class Command(BaseCommand):
 
         if settings.DEBUG:
             cria_contatos()
-            cria_templatemensagem()
 
         cria_diretorias_regionais()
         cria_tipos_gestao()

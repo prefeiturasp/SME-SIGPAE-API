@@ -13,7 +13,6 @@ from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
     PedidoAPartirDaEscolaWorkflow,
 )
-from ...dados_comuns.models import TemplateMensagem
 from ...escola.models import Aluno, TipoTurma
 from .. import models
 from ..models import KitLanche
@@ -248,7 +247,6 @@ def item_kit_lanche():
 @pytest.fixture
 def solicitacao_avulsa(escola, terceirizada):
     baker.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
-    baker.make(TemplateMensagem, tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_AVULSA)
     kits = baker.make(models.KitLanche, _quantity=3)
     solicitacao_kit_lanche = baker.make(
         models.SolicitacaoKitLanche, kits=kits, data=datetime.date(2000, 1, 1)
@@ -268,7 +266,6 @@ def solicitacao_avulsa(escola, terceirizada):
 @pytest.fixture
 def solicitacao_cei(escola, terceirizada):
     baker.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
-    baker.make(TemplateMensagem, tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_AVULSA)
     kits = baker.make(models.KitLanche, _quantity=3)
     solicitacao_kit_lanche = baker.make(
         models.SolicitacaoKitLanche, kits=kits, data=datetime.date(2000, 1, 1)
@@ -344,7 +341,6 @@ def solicitacao_avulsa_codae_autorizado(solicitacao_avulsa, escola):
 def solicitacao_unificada_lista_igual(
     escola, diretoria_regional, terceirizada, usuario_escola
 ):
-    baker.make(TemplateMensagem, tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_UNIFICADA)
     kits = baker.make(models.KitLanche, _quantity=3)
     solicitacao_kit_lanche = baker.make(
         models.SolicitacaoKitLanche,
@@ -834,7 +830,6 @@ def dados_alunos_matriculados(escola):
 def solicitacao_avulsa_escolas_regulares(
     dados_alunos_matriculados, escola_cmct, terceirizada
 ):
-    baker.make(TemplateMensagem, tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_AVULSA)
     kits = baker.make(models.KitLanche, _quantity=3)
     solicitacao_kit_lanche = baker.make(
         models.SolicitacaoKitLanche, kits=kits, data=datetime.date(2000, 1, 1)
@@ -874,7 +869,6 @@ def solicitacao_avulsa_na_mesma_data(
 
 @pytest.fixture
 def solicitacao_avulsa_cmct(dados_alunos_matriculados, escola_cmct, terceirizada):
-    baker.make(TemplateMensagem, tipo=TemplateMensagem.SOLICITACAO_KIT_LANCHE_AVULSA)
     kits = baker.make(models.KitLanche, _quantity=3)
     solicitacao_kit_lanche = baker.make(
         models.SolicitacaoKitLanche, kits=kits, data=datetime.datetime.now().date()

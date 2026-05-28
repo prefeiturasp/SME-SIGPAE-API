@@ -56,9 +56,7 @@ def alteracao_cemei_dre_validado(alteracao_cemei):
 
 
 @pytest.fixture
-def client_autenticado_vinculo_escola_cemei(
-    client, django_user_model, escola_cemei, template_mensagem_alteracao_cardapio
-):
+def client_autenticado_vinculo_escola_cemei(client, django_user_model, escola_cemei):
     email = "test@test1.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -81,7 +79,7 @@ def client_autenticado_vinculo_escola_cemei(
 
 @pytest.fixture
 def client_autenticado_vinculo_dre_escola_cemei(
-    client, django_user_model, escola_cemei, template_mensagem_alteracao_cardapio
+    client, django_user_model, escola_cemei
 ):
     email = "test@test1.com"
     password = constants.DJANGO_ADMIN_PASSWORD
