@@ -271,23 +271,25 @@ def nega_solicitacoes_pendentes_autorizacao_vencidas():
 @shared_task(
     autoretry_for=(ConnectionError,), retry_backoff=2, retry_kwargs={"max_retries": 3}
 )
-def matriculados_por_escola_e_periodo_regulares():  # noqa C901
+def matriculados_por_escola_e_periodo_regulares(data_referencia=None):
     """Medição Inicial.
 
     Consulta todos os dias a API do eol do SGP, para cada escola e turmas regulares,
     a quantidade de alunos matriculados por período no dia e armazena essa informação.
     """
 
-    registro_quantidade_alunos_matriculados_por_escola_periodo(TipoTurma.REGULAR)
+    registro_quantidade_alunos_matriculados_por_escola_periodo(
+        TipoTurma.REGULAR, data_referencia
+    )
     logger.debug("""Processando duplicação para o ultimo dia letivo""")
-    duplica_logs_ultimo_dia_letivo(TipoTurma.REGULAR)
+    duplica_logs_ultimo_dia_letivo(TipoTurma.REGULAR, data_referencia)
     logger.debug("""Fim do processamento da duplicação para o ultimo dia letivo""")
 
 
 @shared_task(
     autoretry_for=(ConnectionError,), retry_backoff=2, retry_kwargs={"max_retries": 3}
 )
-def matriculados_por_escola_e_periodo_programas():  # noqa C901
+def matriculados_por_escola_e_periodo_programas():
     """Medição Inicial.
 
     Consulta todos os dias a API do eol do SGP, para cada escola e turmas programas,
@@ -303,7 +305,7 @@ def matriculados_por_escola_e_periodo_programas():  # noqa C901
 @shared_task(
     autoretry_for=(ConnectionError,), retry_backoff=2, retry_kwargs={"max_retries": 3}
 )
-def calendario_escolas():  # noqa C901
+def calendario_escolas():
     """Medição Inicial.
 
     Consulta o calendário de uma escola para o mês corrente.

@@ -4,10 +4,24 @@ from unittest.mock import patch
 import pytest
 from freezegun import freeze_time
 
-from src.escola.models import LogAlunosMatriculadosPeriodoEscola
+from src.escola.models import LogAlunosMatriculadosPeriodoEscola, TipoTurma
 from src.escola.tasks import matriculados_por_escola_e_periodo_regulares
 
 pytestmark = pytest.mark.django_db
+
+
+@patch("src.escola.tasks.duplica_logs_ultimo_dia_letivo")
+@patch("src.escola.tasks.registro_quantidade_alunos_matriculados_por_escola_periodo")
+def test_matriculados_por_escola_e_periodo_regulares_recebe_data_referencia(
+    mock_registro_quantidade,
+    mock_duplica_logs,
+):
+    data_referencia = datetime.date(2025, 2, 4)
+
+    matriculados_por_escola_e_periodo_regulares(data_referencia)
+
+    mock_registro_quantidade.assert_called_once_with(TipoTurma.REGULAR, data_referencia)
+    mock_duplica_logs.assert_called_once_with(TipoTurma.REGULAR, data_referencia)
 
 
 class TestUseCaseCriacaoLogsMatriculadosProgramas:
