@@ -164,9 +164,17 @@ def merge_pdf_com_string_template(
 ):
     pdf_usuario = PdfReader(arquivo_pdf, strict=False)
 
+    # Usa as dimensões reais da primeira página em vez de A4 fixo
+    # pypdf mede em pontos (1 pt = 0.352778 mm)
+    primeira_pagina = pdf_usuario.pages[0]
+    largura_pt = float(primeira_pagina.mediabox.width)
+    altura_pt = float(primeira_pagina.mediabox.height)
+    largura_mm = largura_pt * 0.352778
+    altura_mm = altura_pt * 0.352778
+
     css_string = (
-        "html, body {font-family: 'Roboto', sans-serif; margin: 0; padding: 0}\n@page {size: A4 %s; margin: 0}"
-        % obter_orientacao_pdf(pdf_usuario)
+        "html, body {font-family: 'Roboto', sans-serif; margin: 0; padding: 0}\n"
+        f"@page {{ size: {largura_mm:.0f}mm {altura_mm:.0f}mm; margin: 0; }}"
     )
     stylesheets = [CSS(string=css_string)]
     html_para_mergear = HTML(
@@ -196,16 +204,6 @@ def merge_pdf_com_string_template(
     arquivo_final.seek(0)
 
     return ContentFile(arquivo_final.read())
-
-
-def obter_orientacao_pdf(arquivo_pdf: PdfReader):
-    page = arquivo_pdf.pages[0]
-
-    return (
-        "portrait"
-        if float(page.mediabox.height) > float(page.mediabox.width)
-        else "landscape"
-    )
 
 
 def get_config_cabecario_relatorio_analise(  # noqa C901
@@ -404,6 +402,43 @@ def extrair_texto_de_pdf(conteudo: bytes) -> str:
         texto_codificado = texto_bruto.encode().decode("utf-8", errors="ignore")
         texto += texto_codificado.replace("\n\n", "").replace("\n", " ")
     return texto
+
+
+def imagem_para_pdf(imagem_bytes: bytes, nome_arquivo: str = "imagem.pdf") -> bytes:
+    """Converte bytes de imagem (PNG/JPG/JPEG) em bytes de PDF via WeasyPrint.
+
+    Define a página exatamente no tamanho da imagem, sem margens,
+    para evitar cortes e bordas brancas. Respeita a orientação natural.
+    """
+    from PIL import Image
+
+    imagem = Image.open(io.BytesIO(imagem_bytes))
+    largura, altura = imagem.size
+
+    extensao = nome_arquivo.lower().split(".")[-1] if "." in nome_arquivo else "png"
+    mime_type = {
+        "png": "image/png",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+    }.get(extensao, "image/png")
+
+    img_base64 = base64.b64encode(imagem_bytes).decode("utf-8")
+    data_uri = f"data:{mime_type};base64,{img_base64}"
+
+    css_string = (
+        f"@page {{ size: {largura}px {altura}px; margin: 0; }}"
+    )
+    stylesheets = [CSS(string=css_string)]
+
+    html_string = (
+        "<html><body style='margin: 0; padding: 0;'>"
+        f"<img src='{data_uri}' style='width: {largura}px; height: {altura}px;' />"
+        "</body></html>"
+    )
+
+    return HTML(
+        string=html_string, base_url=staticfiles_storage.location
+    ).write_pdf(stylesheets=stylesheets)
 
 
 class PDFMergeService:

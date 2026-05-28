@@ -37,6 +37,7 @@ from ..relatorios.relatorios import (
     obter_relatorio_da_unidade,
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
+    relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
     relatorio_solicitacao_medicao_por_escola_emebs,
@@ -211,20 +212,27 @@ def gera_pdf_relatorio_solicitacao_medicao_por_escola_async(
         user=user, identificador=nome_arquivo
     )
     try:
-        if solicitacao.escola.eh_cei_data(solicitacao.data_referencia):
-            arquivo = relatorio_solicitacao_medicao_por_escola_cei(solicitacao)
-        elif solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
-            arquivo = relatorio_solicitacao_medicao_por_escola_cemei(solicitacao)
-        elif solicitacao.escola.eh_emebs_data(solicitacao.data_referencia):
-            arquivo = relatorio_solicitacao_medicao_por_escola_emebs(solicitacao)
-        else:
-            arquivo = relatorio_solicitacao_medicao_por_escola(solicitacao)
+        relatorio_fn = get_relatorio_solicitacao_medicao_por_escola(solicitacao)
+        arquivo = relatorio_fn(solicitacao)
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
     except Exception as e:
         atualiza_central_download_com_erro(obj_central_download, str(e))
         logger.error(f"Erro: {e}")
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+
+
+def get_relatorio_solicitacao_medicao_por_escola(solicitacao):
+    if solicitacao.escola.eh_cei_data(solicitacao.data_referencia):
+        return relatorio_solicitacao_medicao_por_escola_cei
+    elif solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
+        return relatorio_solicitacao_medicao_por_escola_cemei
+    elif solicitacao.escola.eh_emebs_data(solicitacao.data_referencia):
+        return relatorio_solicitacao_medicao_por_escola_emebs
+    elif getattr(solicitacao, "recreio_nas_ferias", None):
+        return relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias
+    else:
+        return relatorio_solicitacao_medicao_por_escola
 
 
 @shared_task(
