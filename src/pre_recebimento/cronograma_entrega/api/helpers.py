@@ -15,6 +15,10 @@ from src.pre_recebimento.cronograma_entrega.models import (
 
 
 def cria_etapas_de_cronograma(etapas, cronograma=None):
+    """Cria registros de EtapasDoCronograma a partir de uma lista de dicionários.
+
+    Retorna a lista das etapas criadas, já persistidas no banco.
+    """
     etapas_criadas = []
     for etapa in etapas:
         etapas_criadas.append(
@@ -24,6 +28,10 @@ def cria_etapas_de_cronograma(etapas, cronograma=None):
 
 
 def cria_programacao_de_cronograma(programacoes, cronograma=None):
+    """Cria registros de ProgramacaoDoRecebimentoDoCronograma.
+
+    Retorna a lista das programações criadas, já persistidas no banco.
+    """
     programacoes_criadas = []
     for programacao in programacoes:
         programacoes_criadas.append(
@@ -37,19 +45,13 @@ def cria_programacao_de_cronograma(programacoes, cronograma=None):
 def totalizador_relatorio_cronograma(
     data: Union[QuerySet, list[dict]],
 ) -> dict[str, int]:
-    """
-    Calcula a quantidade de itens por status do cronograma.
+    """Calcula a quantidade de itens por status do cronograma.
+
     Aceita tanto um QuerySet (usando ORM) quanto uma lista de dicionários
     já serializados, mantendo o mesmo formato de saída.
 
-    Args:
-        data (Union[QuerySet, list[dict]]):
-          - QuerySet: coleção de objetos com campo `status`
-          - list[dict]: dados serializados contendo a chave `status`
-
-    Returns:
-        dict[str, int]: Dicionário ordenado de forma decrescente pela quantidade,
-            onde a chave é o título do status (`states[s].title`) e o valor é a contagem.
+    Retorna dicionário ordenado de forma decrescente pela quantidade,
+    onde a chave é o título do status e o valor é a contagem.
     """
     is_queryset = isinstance(data, QuerySet)
 
@@ -70,6 +72,10 @@ def totalizador_relatorio_cronograma(
 
 
 def parse_date(date_str):
+    """Converte string de data DD/MM/YYYY para datetime.date.
+
+    Retorna None se a string for inválida.
+    """
     try:
         return datetime.strptime(date_str, "%d/%m/%Y").date()
     except (ValueError, AttributeError):
@@ -77,6 +83,7 @@ def parse_date(date_str):
 
 
 def passa_filtro_data_etapa(etapa_data, data_inicio_obj, data_fim_obj):
+    """Verifica se a data da etapa está dentro do intervalo informado."""
     data_programada = etapa_data.get("data_programada")
     if not data_programada:
         return False
@@ -100,6 +107,7 @@ def processar_situacao_recebido(
     incluir_etapa,
     fichas_finais,
 ):
+    """Processa o filtro de situação \"Recebido\" nas fichas de recebimento."""
     if "Recebido" in situacoes and tem_fichas_sem_ocorrencia:
         incluir_etapa = True
         fichas_finais = [
@@ -116,6 +124,7 @@ def processar_situacao_ocorrencia(
     incluir_etapa,
     fichas_finais,
 ):
+    """Processa o filtro de situação \"Ocorrência\" nas fichas de recebimento."""
     if "Ocorrência" in situacoes and tem_fichas_com_ocorrencia:
         incluir_etapa = True
         fichas_com_ocorrencia = [
@@ -136,6 +145,7 @@ def processar_situacao_a_receber(
     incluir_etapa,
     fichas_finais,
 ):
+    """Processa o filtro de situação \"A Receber\" nas fichas de recebimento."""
     if "A Receber" in situacoes:
         if not fichas_recebimento or (
             tem_fichas_com_ocorrencia and not tem_fichas_sem_ocorrencia
@@ -149,6 +159,7 @@ def processar_situacao_a_receber(
 def aplicar_filtros_etapa(
     etapa_data, data_inicio_obj, data_fim_obj, situacoes, tem_filtro_situacao
 ):
+    """Aplica os filtros de data e situação a uma etapa do relatório."""
     if data_inicio_obj or data_fim_obj:
         if not passa_filtro_data_etapa(etapa_data, data_inicio_obj, data_fim_obj):
             return False
@@ -160,6 +171,7 @@ def aplicar_filtros_etapa(
 
 
 def passa_filtro_situacao(etapa_data, situacoes):
+    """Verifica se a etapa atende ao filtro de situação selecionado."""
     if not situacoes or len(situacoes) == 3:
         return True
 
@@ -208,6 +220,7 @@ def passa_filtro_situacao(etapa_data, situacoes):
 
 
 def filtrar_etapas(serialized_data, filtros):
+    """Filtra uma lista de cronogramas por data e situação das etapas."""
     data_inicial = filtros.get("data_inicial")
     data_final = filtros.get("data_final")
     situacoes = filtros.get("situacao", [])
@@ -245,9 +258,9 @@ def filtrar_etapas(serialized_data, filtros):
 
 
 def extrair_numero_quantidade(quantidade_str):
-    """
-    Extrai apenas os números da string de quantidade, removendo unidades.
-    Exemplo: "10.000,00 kg" -> "10.000,00"
+    """Extrai apenas os números da string de quantidade, removendo unidades.
+
+    Exemplo: ``"10.000,00 kg"`` → ``"10.000,00"``.
     """
     if not quantidade_str:
         return ""
@@ -257,9 +270,10 @@ def extrair_numero_quantidade(quantidade_str):
 
 
 def converter_para_numero(quantidade_str):
-    """
-    Converte string formatada para número float.
-    Exemplo: "10.000,00 kg" -> 10000.00
+    """Converte string formatada para número float.
+
+    Exemplo: ``"10.000,00 kg"`` → ``10000.00``.
+    Retorna None se a conversão falhar.
     """
     numero_str = extrair_numero_quantidade(quantidade_str)
     if not numero_str:

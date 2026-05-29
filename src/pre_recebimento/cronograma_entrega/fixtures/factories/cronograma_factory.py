@@ -23,6 +23,8 @@ fake = Faker("pt_BR")
 
 
 class CronogramaFactory(DjangoModelFactory):
+    """Factory para geração de dados de teste do modelo Cronograma."""
+
     class Meta:
         model = Cronograma
 
@@ -39,6 +41,8 @@ class CronogramaFactory(DjangoModelFactory):
 
 
 class EtapasDoCronogramaFactory(DjangoModelFactory):
+    """Factory para geração de dados de teste do modelo EtapasDoCronograma."""
+
     class Meta:
         model = EtapasDoCronograma
 

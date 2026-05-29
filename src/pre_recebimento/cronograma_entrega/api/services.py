@@ -22,6 +22,12 @@ from src.pre_recebimento.cronograma_entrega.models import (
 
 
 class ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles(BaseServiceDashboard):
+    """Mapeamento de status do dashboard por perfil de usuário.
+
+    Define quais status de ``CronogramaAlteracaoWorkflow`` são exibidos
+    no dashboard de solicitações de alteração para cada perfil
+    (DILOG Abastecimento, DILOG Diretoria, DILOG Cronograma, etc.).
+    """
     STATUS_POR_PERFIL = {
         DILOG_ABASTECIMENTO: [
             CronogramaAlteracaoWorkflow.CRONOGRAMA_CIENTE,
@@ -77,6 +83,12 @@ class ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles(BaseServiceDashboar
 
 
 class ServiceQuerysetAlteracaoCronograma:
+    """Gerencia a ordenação de solicitações de alteração por prioridade.
+
+    Define quais status são prioritários para cada perfil de usuário
+    e monta uma QuerySet ordenada: primeiro os registros com status
+    prioritário, depois os demais, ambos ordenados por criado_em.
+    """
     STATUS_PRIORITARIO = {
         ADMINISTRADOR_EMPRESA: [
             CronogramaAlteracaoWorkflow.ALTERACAO_ENVIADA_FORNECEDOR,
@@ -109,6 +121,10 @@ class ServiceQuerysetAlteracaoCronograma:
 
     @classmethod
     def get_status(self, user) -> list:
+        """Retorna a lista de status prioritários para o perfil do usuário.
+
+        Levanta ValueError se o perfil do usuário não estiver mapeado.
+        """
         perfil = user.vinculo_atual.perfil.nome
 
         if perfil not in self.STATUS_PRIORITARIO:
@@ -117,6 +133,10 @@ class ServiceQuerysetAlteracaoCronograma:
         return self.STATUS_PRIORITARIO[perfil]
 
     def get_queryset(self, filter=False):
+        """Monta a QuerySet ordenada por prioridade de status.
+
+        Aceita uma função de filtro adicional aplicada às sub-queries.
+        """
         user = self.request.user
         lista_status = self.get_status(user)
         q1 = SolicitacaoAlteracaoCronograma.objects.filter(
