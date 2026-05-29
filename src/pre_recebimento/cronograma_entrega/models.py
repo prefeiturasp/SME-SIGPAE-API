@@ -20,6 +20,27 @@ from src.terceirizada.models import Contrato, Terceirizada
 
 
 class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronograma):
+    """Cronograma de entrega de produtos alimentícios para as escolas.
+
+    Registra o planejamento de entregas de um produto vinculado a uma ficha técnica,
+    contrato e empresa fornecedora. Passa por um fluxo de aprovação (FluxoCronograma):
+    RASCUNHO, ASSINADO_E_ENVIADO_AO_FORNECEDOR, ASSINADO_FORNECEDOR,
+    ASSINADO_DILOG_ABASTECIMENTO, ASSINADO_CODAE.
+
+    Divide-se em dois tipos conforme a categoria do produto e o tipo de entrega:
+
+    **Armazenável**
+        Produtos comuns, armazenados em almoxarifado/distribuidor. Possui etapas
+        com data específica (DD/MM/YYYY) e programações de recebimento. A numeração
+        utiliza o sufixo ``A`` (ex.: ``001/2025A``).
+
+    **FLV Ponto a Ponto**
+        Produtos hortifrutigranjeiros (FLV) entregues diretamente pelo fornecedor
+        às unidades escolares. Possui etapas mensais (MM/YYYY) e não possui
+        armazém, embalagem secundária nem programações de recebimento. A numeração
+        utiliza o sufixo ``P`` (ex.: ``001/2025P``).
+    """
+
     numero = models.CharField(
         "Número do Cronograma", blank=True, max_length=250, unique=True
     )
@@ -92,6 +113,13 @@ class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronogr
 
 
 class EtapasDoCronograma(ModeloBase):
+    """Etapa individual de um cronograma de entrega.
+
+    Cada etapa representa uma parcela programada dentro do cronograma,
+    com data, quantidade, empenho e total de embalagens. Pode ser
+    subdividida em partes.
+    """
+
     cronograma = models.ForeignKey(
         Cronograma,
         on_delete=models.CASCADE,
@@ -138,6 +166,12 @@ class EtapasDoCronograma(ModeloBase):
 
 
 class ProgramacaoDoRecebimentoDoCronograma(ModeloBase):
+    """Programação de recebimento associada a um cronograma.
+
+    Define as datas programadas e o tipo de carga (paletizada ou
+    estivada/batida) para o recebimento dos produtos.
+    """
+
     PALETIZADA = "PALETIZADA"
     ESTIVADA_BATIDA = "ESTIVADA_BATIDA"
 
@@ -168,10 +202,21 @@ class ProgramacaoDoRecebimentoDoCronograma(ModeloBase):
 
 
 class SolicitacaoAlteracaoCronogramaQuerySet(models.QuerySet):
+    """QuerySet personalizado para SolicitacaoAlteracaoCronograma.
+
+    Fornece métodos de filtro por status com ordenação pelo log
+    mais recente e filtros por fornecedor, cronograma e produto.
+    """
+
     def em_analise(self):
         return self.filter(status=CronogramaAlteracaoWorkflow.EM_ANALISE)
 
     def filtrar_por_status(self, status, filtros=None, init=None, end=None):
+        """Filtra solicitações por status, ordenando pelo log mais recente.
+
+        Aceita filtros opcionais por nome_fornecedor, numero_cronograma
+        e nome_produto, além de parâmetros init/end para paginação.
+        """
         log = (
             LogSolicitacoesUsuario.objects.filter(uuid_original=OuterRef("uuid"))
             .order_by("-criado_em")
@@ -215,6 +260,13 @@ class SolicitacaoAlteracaoCronogramaQuerySet(models.QuerySet):
 class SolicitacaoAlteracaoCronograma(
     ModeloBase, TemIdentificadorExternoAmigavel, FluxoAlteracaoCronograma, Logs
 ):
+    """Solicitação de alteração de um cronograma já assinado.
+
+    Permite que fornecedores ou CODAE solicitem alterações nas etapas
+    e programações de recebimento de um cronograma. Passa por um fluxo
+    de aprovação próprio (FluxoAlteracaoCronograma).
+    """
+
     cronograma = models.ForeignKey(
         Cronograma, on_delete=models.PROTECT, related_name="solicitacoes_de_alteracao"
     )
@@ -245,9 +297,18 @@ class SolicitacaoAlteracaoCronograma(
     objects = SolicitacaoAlteracaoCronogramaQuerySet.as_manager()
 
     def gerar_numero_solicitacao(self):
+        """Gera o número único da solicitação de alteração.
+
+        O formato é ``XXXXXXXX-ALT``, onde ``XXXXXXXX`` é o PK
+        preenchido com zeros à esquerda.
+        """
         self.numero_solicitacao = f"{str(self.pk).zfill(8)}-ALT"
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra no log a transição de status da solicitação.
+
+        Cria um LogSolicitacoesUsuario com os dados da transição.
+        """
         justificativa = kwargs.get("justificativa", "")
         log_transicao = LogSolicitacoesUsuario.objects.create(
             descricao=str(self),
@@ -260,6 +321,11 @@ class SolicitacaoAlteracaoCronograma(
         return log_transicao
 
     def cronograma_confirma_ciencia(self, justificativa, usuario, etapas, programacoes):
+        """Registra a ciência do cronograma sobre a alteração proposta.
+
+        Substitui as etapas novas pelas recebidas, salva as programações
+        de recebimento e avança o fluxo para CRONOGRAMA_CIENTE.
+        """
         from .api.helpers import (
             cria_etapas_de_cronograma,
             cria_programacao_de_cronograma,
@@ -283,13 +349,31 @@ class SolicitacaoAlteracaoCronograma(
 
 @receiver(post_save, sender=SolicitacaoAlteracaoCronograma)
 def gerar_numero_solicitacao(sender, instance, created, **kwargs):
+    """Sinal post_save que gera o número da solicitação de alteração.
+
+    Executado automaticamente após a criação de uma
+    SolicitacaoAlteracaoCronograma, atribuindo o número no formato
+    XXXXXXXX-ALT.
+    """
     if created:
         instance.gerar_numero_solicitacao()
         instance.save()
 
 
 class InterrupcaoProgramadaEntrega(ModeloBase):
-    """Modelo para cadastro de interrupções programadas de entregas."""
+    """Interrupção programada em que não há recebimento de entregas.
+
+    Utilizada pelo calendário de cronogramas para bloquear datas específicas
+    em que as entregas não podem ocorrer (feriados, emendas de feriado,
+    reuniões, inventários, etc.).
+
+    A interrupção é separada por tipo de calendário:
+    - ``ARMAZENAVEL``: Bloqueia o calendário de cronogramas armazenáveis.
+    - ``PONTO_A_PONTO``: Bloqueia o calendário de cronogramas FLV.
+
+    A combinação ``data`` + ``tipo_calendario`` é única, garantindo que
+    não haja duplicidade de registros para o mesmo dia e tipo.
+    """
 
     MOTIVO_EMENDA = "EMENDA"
     MOTIVO_REUNIAO = "REUNIAO"
