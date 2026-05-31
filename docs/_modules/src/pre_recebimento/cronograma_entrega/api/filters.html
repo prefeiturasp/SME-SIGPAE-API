@@ -1,0 +1,200 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.cronograma_entrega.api.filters &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.cronograma_entrega.api.filters</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.cronograma_entrega.api.filters</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django_filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">rest_framework</span> <span class="k">as</span> <span class="n">filters</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.terceirizada.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Terceirizada</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">....dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaAlteracaoWorkflow</span><span class="p">,</span>
+    <span class="n">CronogramaWorkflow</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="CronogramaFilter">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFilter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaFilter</span><span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">FilterSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filtros para listagem de Cronogramas.</span>
+
+<span class="sd">    Permite filtrar por:</span>
+<span class="sd">    - ``uuid``: UUID exato.</span>
+<span class="sd">    - ``numero``: Parte do número do cronograma.</span>
+<span class="sd">    - ``nome_empresa``: Nome fantasia da empresa fornecedora.</span>
+<span class="sd">    - ``nome_produto``: Nome do produto (via ficha técnica).</span>
+<span class="sd">    - ``data_inicial`` / ``data_final``: Intervalo de datas programadas (etapas).</span>
+<span class="sd">    - ``status``: Um ou mais status do workflow.</span>
+<span class="sd">    - ``armazem`` / ``empresa``: UUIDs dos respectivos modelos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">CharFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">lookup_expr</span><span class="o">=</span><span class="s2">&quot;exact&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">numero</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">CharFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+        <span class="n">lookup_expr</span><span class="o">=</span><span class="s2">&quot;icontains&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nome_empresa</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">CharFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;empresa__nome_fantasia&quot;</span><span class="p">,</span>
+        <span class="n">lookup_expr</span><span class="o">=</span><span class="s2">&quot;icontains&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nome_produto</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">CharFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;ficha_tecnica__produto__nome&quot;</span><span class="p">,</span>
+        <span class="n">lookup_expr</span><span class="o">=</span><span class="s2">&quot;icontains&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">data_inicial</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">DateFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;etapas__data_programada&quot;</span><span class="p">,</span>
+        <span class="n">lookup_expr</span><span class="o">=</span><span class="s2">&quot;gte&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">data_final</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">DateFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;etapas__data_programada&quot;</span><span class="p">,</span>
+        <span class="n">lookup_expr</span><span class="o">=</span><span class="s2">&quot;lte&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">MultipleChoiceFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;status&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[(</span><span class="nb">str</span><span class="p">(</span><span class="n">state</span><span class="p">),</span> <span class="n">state</span><span class="p">)</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">states</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">armazem</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">ModelMultipleChoiceFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;armazem__uuid&quot;</span><span class="p">,</span>
+        <span class="n">to_field_name</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Terceirizada</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">tipo_servico</span><span class="o">=</span><span class="n">Terceirizada</span><span class="o">.</span><span class="n">DISTRIBUIDOR_ARMAZEM</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">ModelMultipleChoiceFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;empresa__uuid&quot;</span><span class="p">,</span>
+        <span class="n">to_field_name</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Terceirizada</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">tipo_servico__in</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">Terceirizada</span><span class="o">.</span><span class="n">FORNECEDOR</span><span class="p">,</span>
+                <span class="n">Terceirizada</span><span class="o">.</span><span class="n">FORNECEDOR_E_DISTRIBUIDOR</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaFilter">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoAlteracaoCronogramaFilter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoAlteracaoCronogramaFilter</span><span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">FilterSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filtros para listagem de Solicitações de Alteração de Cronograma.</span>
+
+<span class="sd">    Permite filtrar por:</span>
+<span class="sd">    - ``numero_cronograma``: Número do cronograma original.</span>
+<span class="sd">    - ``fornecedor``: Nome fantasia do fornecedor.</span>
+<span class="sd">    - ``data``: Intervalo de data de criação (DateFromToRangeFilter).</span>
+<span class="sd">    - ``status``: Um ou mais status do fluxo de alteração.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">CharFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;cronograma__numero&quot;</span><span class="p">,</span>
+        <span class="n">lookup_expr</span><span class="o">=</span><span class="s2">&quot;icontains&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fornecedor</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">CharFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;cronograma__empresa__nome_fantasia&quot;</span><span class="p">,</span>
+        <span class="n">lookup_expr</span><span class="o">=</span><span class="s2">&quot;icontains&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">DateFromToRangeFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">MultipleChoiceFilter</span><span class="p">(</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="s2">&quot;status&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[(</span><span class="nb">str</span><span class="p">(</span><span class="n">state</span><span class="p">),</span> <span class="n">state</span><span class="p">)</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">states</span><span class="p">],</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

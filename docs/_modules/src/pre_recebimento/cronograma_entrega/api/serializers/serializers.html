@@ -1,0 +1,1450 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.cronograma_entrega.api.serializers.serializers &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.cronograma_entrega.api.serializers.serializers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.cronograma_entrega.api.serializers.serializers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Case</span><span class="p">,</span> <span class="n">CharField</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">When</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocumentoDeRecebimentoWorkflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">numero_com_agrupador_de_milhar_e_decimal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Cronograma</span><span class="p">,</span>
+    <span class="n">EtapasDoCronograma</span><span class="p">,</span>
+    <span class="n">InterrupcaoProgramadaEntrega</span><span class="p">,</span>
+    <span class="n">ProgramacaoDoRecebimentoDoCronograma</span><span class="p">,</span>
+    <span class="n">SolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+    <span class="n">UnidadeMedida</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DocRecebimentoFichaDeRecebimentoSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.ficha_tecnica.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FichaTecnicaCronogramaSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.qualidade.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TipoEmbalagemQld</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.terceirizada.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ContratoSimplesSerializer</span><span class="p">,</span>
+    <span class="n">DistribuidorComEnderecoSimplesSerializer</span><span class="p">,</span>
+    <span class="n">DistribuidorSimplesSerializer</span><span class="p">,</span>
+    <span class="n">TerceirizadaLookUpSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.....dados_comuns.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="ProgramacaoDoRecebimentoDoCronogramaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.ProgramacaoDoRecebimentoDoCronogramaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProgramacaoDoRecebimentoDoCronogramaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="ProgramacaoDoRecebimentoDoCronogramaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.ProgramacaoDoRecebimentoDoCronogramaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ProgramacaoDoRecebimentoDoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_carga&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtapasDoCronogramaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">etapa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">parte</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="EtapasDoCronogramaSerializer.get_data_programada">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaSerializer.get_data_programada">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_programada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ponto_a_ponto</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%m/%Y&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaSerializer.get_etapa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaSerializer.get_etapa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_etapa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Etapa </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">etapa</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">etapa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaSerializer.get_parte">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaSerializer.get_parte">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_parte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Parte </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">parte</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">parte</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">EtapasDoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;parte&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;total_embalagens&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtapasDoCronogramaCalendarioSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">nome_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">uuid_cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_fornecedor</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">etapa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">parte</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_etapa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_etapa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_etapa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Etapa </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">etapa</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">etapa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_parte">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_parte">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_parte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Parte </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">parte</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">parte</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_nome_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_nome_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_uuid_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_uuid_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_uuid_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_numero_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_numero_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span><span class="p">)</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_nome_fornecedor">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_nome_fornecedor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_fornecedor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_data_programada">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_data_programada">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_programada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ponto_a_ponto</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%m/%Y&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_status">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">get_status_display</span><span class="p">()</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_unidade_medida">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_unidade_medida">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_unidade_medida</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">unidade_medida</span><span class="o">.</span><span class="n">abreviacao</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCalendarioSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaCalendarioSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">EtapasDoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;uuid_cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_fornecedor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;parte&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoAlteracaoCronogramaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">fornecedor</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;cronograma.empresa&quot;</span><span class="p">)</span>
+    <span class="n">cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;cronograma.numero&quot;</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoAlteracaoCronogramaSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoAlteracaoCronogramaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fornecedor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TipoEmbalagemQldSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.TipoEmbalagemQldSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoEmbalagemQldSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="TipoEmbalagemQldSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.TipoEmbalagemQldSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TipoEmbalagemQld</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TipoEmbalagemQldSimplesSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.TipoEmbalagemQldSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoEmbalagemQldSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="TipoEmbalagemQldSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.TipoEmbalagemQldSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TipoEmbalagemQld</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;abreviacao&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UnidadeMedidaSerialzer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.UnidadeMedidaSerialzer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnidadeMedidaSerialzer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="UnidadeMedidaSerialzer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.UnidadeMedidaSerialzer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">UnidadeMedida</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;abreviacao&quot;</span><span class="p">,</span> <span class="s2">&quot;criado_em&quot;</span><span class="p">)</span>
+        <span class="n">read_only_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;abreviacao&quot;</span><span class="p">,</span> <span class="s2">&quot;criado_em&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">etapas</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">programacoes_de_recebimento</span> <span class="o">=</span> <span class="n">ProgramacaoDoRecebimentoDoCronogramaSerializer</span><span class="p">(</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">armazem</span> <span class="o">=</span> <span class="n">DistribuidorSimplesSerializer</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">TerceirizadaLookUpSerializer</span><span class="p">()</span>
+    <span class="n">contrato</span> <span class="o">=</span> <span class="n">ContratoSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">UnidadeMedidaSerialzer</span><span class="p">()</span>
+    <span class="n">ficha_tecnica</span> <span class="o">=</span> <span class="n">FichaTecnicaCronogramaSerializer</span><span class="p">()</span>
+    <span class="n">tipo_embalagem_secundaria</span> <span class="o">=</span> <span class="n">TipoEmbalagemQldSimplesSerializer</span><span class="p">()</span>
+    <span class="n">ponto_a_ponto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CronogramaSerializer.get_ponto_a_ponto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSerializer.get_ponto_a_ponto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ponto_a_ponto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ponto_a_ponto</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alterado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contrato&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;armazem&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programacoes_de_recebimento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ficha_tecnica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;custo_unitario_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observacoes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaComLogSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaComLogSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaComLogSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">etapas</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">programacoes_de_recebimento</span> <span class="o">=</span> <span class="n">ProgramacaoDoRecebimentoDoCronogramaSerializer</span><span class="p">(</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">armazem</span> <span class="o">=</span> <span class="n">DistribuidorComEnderecoSimplesSerializer</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">TerceirizadaLookUpSerializer</span><span class="p">()</span>
+    <span class="n">contrato</span> <span class="o">=</span> <span class="n">ContratoSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">UnidadeMedidaSerialzer</span><span class="p">()</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ficha_tecnica</span> <span class="o">=</span> <span class="n">FichaTecnicaCronogramaSerializer</span><span class="p">()</span>
+    <span class="n">tipo_embalagem_secundaria</span> <span class="o">=</span> <span class="n">TipoEmbalagemQldSimplesSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CronogramaComLogSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaComLogSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alterado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contrato&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;armazem&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programacoes_de_recebimento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ficha_tecnica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;custo_unitario_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;logs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observacoes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="n">ponto_a_ponto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaCompletoSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoAlteracaoCronogramaCompletoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoAlteracaoCronogramaCompletoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">fornecedor</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;cronograma.empresa&quot;</span><span class="p">)</span>
+    <span class="n">cronograma</span> <span class="o">=</span> <span class="n">CronogramaSerializer</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">etapas_antigas</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">etapas_novas</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaCompletoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoAlteracaoCronogramaCompletoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fornecedor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapas_antigas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapas_novas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;justificativa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;logs&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaRascunhosSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRascunhosSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaRascunhosSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">ponto_a_ponto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CronogramaRascunhosSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRascunhosSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;numero&quot;</span><span class="p">,</span> <span class="s2">&quot;alterado_em&quot;</span><span class="p">,</span> <span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaSimplesSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">pregao_chamada_publica</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CronogramaSimplesSerializer.get_pregao_chamada_publica">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSimplesSerializer.get_pregao_chamada_publica">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pregao_chamada_publica</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">pregao_chamada_publica</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSimplesSerializer.get_nome_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSimplesSerializer.get_nome_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSimplesSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSimplesSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSimplesSerializer.get_ponto_a_ponto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSimplesSerializer.get_ponto_a_ponto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ponto_a_ponto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ponto_a_ponto</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pregao_chamada_publica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtapasDoCronogramaFichaDeRecebimentoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">qtd_total_empenho</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">total_embalagens</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">desvinculada_recebimento</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">etapa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">parte</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">houve_ocorrencia</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">houve_reposicao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">fichas_recebimento</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">foi_recebida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_etapa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_etapa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_etapa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Etapa </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">etapa</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">etapa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_parte">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_parte">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_parte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Parte </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">parte</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">parte</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_qtd_total_empenho">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_qtd_total_empenho">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_qtd_total_empenho</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">valor</span> <span class="o">=</span> <span class="n">numero_com_agrupador_de_milhar_e_decimal</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">qtd_total_empenho</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">valor</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">unidade_medida</span><span class="o">.</span><span class="n">abreviacao</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">valor</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_quantidade">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_quantidade">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_quantidade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">valor</span> <span class="o">=</span> <span class="n">numero_com_agrupador_de_milhar_e_decimal</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">quantidade</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">valor</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">unidade_medida</span><span class="o">.</span><span class="n">abreviacao</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">valor</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_total_embalagens">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_total_embalagens">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_embalagens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">valor</span> <span class="o">=</span> <span class="n">numero_com_agrupador_de_milhar_e_decimal</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">total_embalagens</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">valor</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">tipo_embalagem_secundaria</span><span class="o">.</span><span class="n">abreviacao</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">valor</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_data_programada">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_data_programada">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_programada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ponto_a_ponto</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%m/%Y&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_desvinculada_recebimento">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_desvinculada_recebimento">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_desvinculada_recebimento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_recebimento</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_houve_ocorrencia">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_houve_ocorrencia">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_houve_ocorrencia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_recebimento</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">houve_ocorrencia</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">&quot;ASSINADA&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_houve_reposicao">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_houve_reposicao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_houve_reposicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_recebimento</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">houve_ocorrencia</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">houve_ocorrencia__isnull</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">reposicao_cronograma__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_foi_recebida">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_foi_recebida">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_foi_recebida</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_recebimento</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">houve_ocorrencia</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">houve_ocorrencia__isnull</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_fichas_recebimento">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_fichas_recebimento">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fichas_recebimento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">ficha_recebimento</span><span class="o">.</span><span class="n">values</span><span class="p">(</span>
+                <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;houve_ocorrencia&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                <span class="n">houve_reposicao</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="n">reposicao_cronograma__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="n">situacao</span><span class="o">=</span><span class="n">Case</span><span class="p">(</span>
+                    <span class="n">When</span><span class="p">(</span><span class="n">houve_ocorrencia</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">then</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Ocorrência&quot;</span><span class="p">)),</span>
+                    <span class="n">default</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;Recebido&quot;</span><span class="p">),</span>
+                    <span class="n">output_field</span><span class="o">=</span><span class="n">CharField</span><span class="p">(),</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.get_unidade_medida">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.get_unidade_medida">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_unidade_medida</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">unidade_medida</span><span class="o">.</span><span class="n">abreviacao</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaFichaDeRecebimentoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapasDoCronogramaFichaDeRecebimentoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">EtapasDoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;parte&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;total_embalagens&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;desvinculada_recebimento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;houve_ocorrencia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;houve_reposicao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fichas_recebimento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;foi_recebida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaFichaDeRecebimentoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">fornecedor</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">contrato</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">pregao_chamada_publica</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">numero_chamada_publica</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">ata</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">marca</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">qtd_total_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">peso_liquido_embalagem_primaria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">peso_liquido_embalagem_secundaria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">embalagem_primaria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">embalagem_secundaria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">categoria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">etapas</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaFichaDeRecebimentoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">documentos_de_recebimento</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">sistema_vedacao_embalagem_secundaria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_fornecedor">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_fornecedor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fornecedor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_contrato">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_contrato">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_contrato</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">numero</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_pregao_chamada_publica">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_pregao_chamada_publica">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pregao_chamada_publica</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">pregao_chamada_publica</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_numero_chamada_publica">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_numero_chamada_publica">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_chamada_publica</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">numero_chamada_publica</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_ata">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_ata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">ata</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_marca">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_marca">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_marca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">marca</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_qtd_total_programada">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_qtd_total_programada">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_qtd_total_programada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">valor</span> <span class="o">=</span> <span class="n">numero_com_agrupador_de_milhar_e_decimal</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">qtd_total_programada</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">valor</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">unidade_medida</span><span class="o">.</span><span class="n">abreviacao</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">unidade_medida</span> <span class="k">else</span> <span class="n">valor</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_peso_liquido_embalagem_primaria">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_peso_liquido_embalagem_primaria">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_peso_liquido_embalagem_primaria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">peso_liquido_embalagem_primaria</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">unidade_medida_primaria</span><span class="o">.</span><span class="n">abreviacao</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_peso_liquido_embalagem_secundaria">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_peso_liquido_embalagem_secundaria">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_peso_liquido_embalagem_secundaria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">peso_liquido_embalagem_secundaria</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">unidade_medida_secundaria</span><span class="o">.</span><span class="n">abreviacao</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_embalagem_primaria">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_embalagem_primaria">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_embalagem_primaria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">material_embalagem_primaria</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_embalagem_secundaria">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_embalagem_secundaria">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_embalagem_secundaria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">sistema_vedacao_embalagem_secundaria</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_categoria">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_categoria">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_categoria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">categoria</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_documentos_de_recebimento">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_documentos_de_recebimento">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_documentos_de_recebimento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DocRecebimentoFichaDeRecebimentoSerializer</span><span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">documentos_de_recebimento</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">DocumentoDeRecebimentoWorkflow</span><span class="o">.</span><span class="n">APROVADO</span>
+            <span class="p">),</span>
+            <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_sistema_vedacao_embalagem_secundaria">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_sistema_vedacao_embalagem_secundaria">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sistema_vedacao_embalagem_secundaria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">sistema_vedacao_embalagem_secundaria</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="CronogramaFichaDeRecebimentoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaFichaDeRecebimentoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fornecedor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contrato&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pregao_chamada_publica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ata&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;marca&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peso_liquido_embalagem_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peso_liquido_embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;embalagem_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;categoria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;documentos_de_recebimento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sistema_vedacao_embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_chamada_publica&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtapaCronogramaRelatorioSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">marca</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">qtd_total_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">custo_unitario_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">armazem</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status_cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">total_embalagens</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">situacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">etapa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">parte</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">numero_empenho</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_data_programada">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_data_programada">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_programada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ponto_a_ponto</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%m/%Y&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_etapa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_etapa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_etapa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Etapa </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">etapa</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">etapa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_parte">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_parte">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_parte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Parte </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">parte</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">parte</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_numero_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_numero_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_empresa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_empresa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_empresa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_marca">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_marca">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_marca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">marca</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_qtd_total_programada">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_qtd_total_programada">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_qtd_total_programada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">qtd_total_programada</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_unidade_medida">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_unidade_medida">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_unidade_medida</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">unidade_medida</span><span class="o">.</span><span class="n">abreviacao</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_custo_unitario_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_custo_unitario_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_custo_unitario_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;R$ </span><span class="si">{</span><span class="n">numero_com_agrupador_de_milhar_e_decimal</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">custo_unitario_produto</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">custo_unitario_produto</span>
+            <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_armazem">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_armazem">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_armazem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">armazem</span><span class="o">.</span><span class="n">nome_fantasia</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_status_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_status_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_status_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">get_status_display</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_total_embalagens">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_total_embalagens">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_embalagens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">total_embalagens</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">tipo_embalagem_secundaria</span><span class="o">.</span><span class="n">abreviacao</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_situacao">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_situacao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_situacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.get_numero_empenho">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.get_numero_empenho">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_empenho</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">numero_empenho</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;-&quot;</span></div>
+
+
+<div class="viewcode-block" id="EtapaCronogramaRelatorioSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.EtapaCronogramaRelatorioSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">EtapasDoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;marca&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;custo_unitario_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;armazem&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;parte&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;total_embalagens&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;situacao&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaRelatorioSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">etapas</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaFichaDeRecebimentoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">numero_contrato</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">numero_processo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">armazem</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">marca</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">custo_unitario_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">modalidade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_numero_contrato">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_numero_contrato">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_contrato</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">numero</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_numero_processo">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_numero_processo">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_processo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">processo</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_empresa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_empresa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_empresa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_armazem">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_armazem">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_armazem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">armazem</span><span class="o">.</span><span class="n">nome_fantasia</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_marca">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_marca">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_marca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">marca</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_custo_unitario_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_custo_unitario_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_custo_unitario_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;R$ </span><span class="si">{</span><span class="n">numero_com_agrupador_de_milhar_e_decimal</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">custo_unitario_produto</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">custo_unitario_produto</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.get_modalidade">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.get_modalidade">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_modalidade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Não Informado&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">modalidade</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Não Informado&quot;</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">modalidade</span><span class="o">.</span><span class="n">nome</span> <span class="ow">or</span> <span class="s2">&quot;Não Informado&quot;</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaRelatorioSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_contrato&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_processo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;armazem&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;marca&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;custo_unitario_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;modalidade&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PainelCronogramaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelCronogramaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PainelCronogramaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">log_mais_recente</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PainelCronogramaSerializer.get_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelCronogramaSerializer.get_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PainelCronogramaSerializer.get_empresa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelCronogramaSerializer.get_empresa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_empresa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PainelCronogramaSerializer.get_log_mais_recente">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelCronogramaSerializer.get_log_mais_recente">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_log_mais_recente</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">==</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PainelCronogramaSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelCronogramaSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PainelCronogramaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelCronogramaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log_mais_recente&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializerItem">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializerItem">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PainelSolicitacaoAlteracaoCronogramaSerializerItem</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;cronograma.empresa&quot;</span><span class="p">)</span>
+    <span class="n">cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;cronograma.numero&quot;</span><span class="p">)</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">log_mais_recente</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_log_mais_recente">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_log_mais_recente">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_log_mais_recente</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_criado_em</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_criado_em</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">==</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">log_criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">log_criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">log_criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializerItem.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializerItem.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log_mais_recente&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PainelSolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">dados</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializer.get_dados">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializer.get_dados">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dados</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">PainelSolicitacaoAlteracaoCronogramaSerializerItem</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;dados&quot;</span><span class="p">],</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="s2">&quot;dados&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializer.to_representation">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializer.to_representation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span>
+            <span class="n">PainelSolicitacaoAlteracaoCronogramaSerializer</span><span class="p">,</span> <span class="bp">self</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InterrupcaoProgramadaEntregaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">motivo_display</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_motivo_display&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">tipo_calendario_display</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_tipo_calendario_display&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">InterrupcaoProgramadaEntrega</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;motivo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;motivo_display&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;descricao_motivo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_calendario&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_calendario_display&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaCreateSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InterrupcaoProgramadaEntregaCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">InterrupcaoProgramadaEntrega</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;motivo&quot;</span><span class="p">,</span> <span class="s2">&quot;descricao_motivo&quot;</span><span class="p">,</span> <span class="s2">&quot;tipo_calendario&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaCreateSerializer.validate">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaCreateSerializer.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;motivo&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;OUTROS&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;descricao_motivo&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;descricao_motivo&quot;</span><span class="p">:</span> <span class="s2">&quot;Descrição é obrigatória quando motivo é &#39;Outros&#39;&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">attrs</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaMensalAssinadoSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaMensalAssinadoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaMensalAssinadoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializer para listar cronogramas mensal Ponto a Ponto assinados&quot;&quot;&quot;</span>
+
+    <span class="n">produto_nome</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">fornecedor_nome</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">numero_contrato</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CronogramaMensalAssinadoSerializer.get_produto_nome">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaMensalAssinadoSerializer.get_produto_nome">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_produto_nome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaMensalAssinadoSerializer.get_fornecedor_nome">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaMensalAssinadoSerializer.get_fornecedor_nome">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fornecedor_nome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaMensalAssinadoSerializer.get_numero_contrato">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaMensalAssinadoSerializer.get_numero_contrato">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_contrato</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">numero</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaMensalAssinadoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaMensalAssinadoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto_nome&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fornecedor_nome&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_contrato&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -84,6 +84,7 @@
 <li class="toctree-l3"><a class="reference internal" href="suspensao_alimentacao_cei.html">suspensao_alimentacao_cei</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a></li>
 </ul>
 </li>
 </ul>
@@ -364,90 +365,450 @@ em um dia específico.</p>
 </dl>
 <p>Para CEMEIs, é necessário informar se a substituição é para alunos CEI, EMEI ou para ambos.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DESCRICAO">
-<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio'</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DESCRICAO" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei">
-<span class="sig-name descname"><span class="pre">alunos_da_cemei</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
+<span class="sig-name descname"><span class="pre">alunos_da_cemei</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Indica quais alunos da CEMEI são afetados no primeiro par de datas da inversão.</p>
+<p>O campo permite <code class="docutils literal notranslate"><span class="pre">blank</span></code> e possui valor padrão <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei_2">
-<span class="sig-name descname"><span class="pre">alunos_da_cemei_2</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei_2" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
+<span class="sig-name descname"><span class="pre">alunos_da_cemei_2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.alunos_da_cemei_2" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Indica quais alunos da CEMEI são afetados no segundo par de datas da inversão, quando informado.</p>
+<p>O campo permite <code class="docutils literal notranslate"><span class="pre">blank</span></code> e possui valor padrão <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>.</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação do registro.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por">
+<span class="sig-name descname"><span class="pre">criado_por</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Usuário responsável pela criação do registro.
+O campo ainda permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por_id">
+<span class="sig-name descname"><span class="pre">criado_por_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador do usuário responsável pela criação do registro.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">perfil.Usuario</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao">
+<span class="sig-name descname"><span class="pre">data_de_inversao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Primeira data de origem da inversão de cardápio.</p>
+<p>Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao_2">
+<span class="sig-name descname"><span class="pre">data_de_inversao_2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao_2" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Segunda data de origem da inversão de cardápio, utilizada quando há um segundo par de datas na solicitação.</p>
+<p>Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao">
+<span class="sig-name descname"><span class="pre">data_para_inversao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Primeira data de destino da inversão de cardápio.</p>
+<p>Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao_2">
+<span class="sig-name descname"><span class="pre">data_para_inversao_2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao_2" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Segunda data de destino da inversão de cardápio, utilizada quando há um segundo par de datas na solicitação.</p>
+<p>Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.desta_semana">
+<span class="sig-name descname"><span class="pre">desta_semana</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">inversao_dia_cardapio.managers.InversaoCardapioDestaSemanaManager</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.desta_semana" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.py</span></code></p>
+<p><strong>Descrição:</strong>
+Manager customizado para consultar solicitações com datas previstas para os próximos 7 dias.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.deste_mes">
+<span class="sig-name descname"><span class="pre">deste_mes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">inversao_dia_cardapio.managers.InversaoCardapioDesteMesManager</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.deste_mes" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.py</span></code></p>
+<p><strong>Descrição:</strong>
+Manager customizado para consultar solicitações com datas previstas para os próximos 30 dias.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Escola</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Escola que efetuou a solicitação de inversão de dia de cardápio.</p>
+<p>Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da escola que efetuou a solicitação de inversão de dia de cardápio.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Escola</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.foi_solicitado_fora_do_prazo">
+<span class="sig-name descname"><span class="pre">foi_solicitado_fora_do_prazo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.foi_solicitado_fora_do_prazo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Indica se a solicitação foi criada fora do prazo regular de antecedência.</p>
+<p>Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, significa que o pedido foi criado com 5 dias úteis ou menos de antecedência.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.Model</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador interno do registro no banco de dados.</p>
+<p>Corresponde à chave primária gerada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_status_display">
+<span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_status_display" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django_xworkflows.models.StateField</span></code></p>
+<p><strong>Descrição:</strong>
+Relacionado ao campo <code class="docutils literal notranslate"><span class="pre">status</span></code> do workflow.</p>
+<p>Retorna a representação legível (label) do status atual da instância.</p>
+<p>O valor retornado corresponde ao texto definido em <code class="docutils literal notranslate"><span class="pre">states</span></code> do workflow,
+sendo mais apropriado para exibição em interfaces (ex: telas e relatórios).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Texto legível do status</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.motivo">
+<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.motivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Campo textual que descreve o motivo da solicitação de inversão de cardápio.</p>
+<p>Pode ser uma string vazia, pois o campo permite <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.motivo_id">
+<span class="sig-name descname"><span class="pre">motivo_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.motivo_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Não se aplica ao modelo atual de Inversão de Cardápio, pois <code class="docutils literal notranslate"><span class="pre">motivo</span></code> é um campo textual e não uma chave estrangeira.</p>
+<p>Mantido na documentação para compatibilidade com outros modelos de solicitação que utilizam <code class="docutils literal notranslate"><span class="pre">motivo_id</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.manager.Manager</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio" title="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><span class="pre">InversaoCardapio</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.objects" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.Manager</span></code></p>
+<p><strong>Descrição:</strong>
+Manager padrão do modelo, usado para consultas como <code class="docutils literal notranslate"><span class="pre">all()</span></code>, <code class="docutils literal notranslate"><span class="pre">filter()</span></code> e <code class="docutils literal notranslate"><span class="pre">get()</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.observacao">
+<span class="sig-name descname"><span class="pre">observacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.observacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Campo de texto livre para registrar observações complementares da solicitação.</p>
+<p>Pode ser uma string vazia, pois o campo permite <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre">
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.DiretoriaRegional</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Diretoria Regional de Educação vinculada ao rastro histórico da solicitação.</p>
+<p>Representa a DRE da escola no momento em que o rastro do pedido foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre_id">
+<span class="sig-name descname"><span class="pre">rastro_dre_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da DRE vinculada ao rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.DiretoriaRegional</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola">
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Escola</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Escola registrada no rastro histórico da solicitação.</p>
+<p>Representa a escola vinculada ao pedido no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola_id">
+<span class="sig-name descname"><span class="pre">rastro_escola_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da escola registrada no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Escola</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote">
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Lote</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Lote registrado no rastro histórico da solicitação.</p>
+<p>Representa o lote da escola no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote_id">
+<span class="sig-name descname"><span class="pre">rastro_lote_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador do lote registrado no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Lote</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Terceirizada</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Terceirizada registrada no rastro histórico da solicitação.</p>
+<p>Representa a empresa terceirizada vinculada ao lote da escola no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada_id">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAprovacaoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da terceirizada registrada no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">terceirizada.Terceirizada</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.status" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django_xworkflows.models.StateField</span></code></p>
+<p><strong>Descrição:</strong>
+Estado atual da solicitação dentro do workflow de aprovação partindo da escola.</p>
+<p>Armazena um dos valores definidos em <code class="xref py py-class docutils literal notranslate"><span class="pre">PedidoAPartirDaEscolaWorkflow</span></code>, como <code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code>, <code class="docutils literal notranslate"><span class="pre">DRE_A_VALIDAR</span></code> ou <code class="docutils literal notranslate"><span class="pre">CODAE_AUTORIZADO</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_conferiu_gestao">
+<span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Indica se a terceirizada marcou ciência da solicitação na Gestão de Alimentação.</p>
+<p>Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, registra que a empresa conferiu o pedido sem necessariamente alterar o status do workflow.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.tipos_alimentacao">
+<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="base.html#src.cardapio.base.models.TipoAlimentacao" title="src.cardapio.base.models.TipoAlimentacao"><span class="pre">TipoAlimentacao</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.tipos_alimentacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/models.py</span></code></p>
+<p><strong>Descrição:</strong>
+Relação M:N com os tipos de alimentação aos quais a inversão se aplica.</p>
+<p>Pode estar vazia quando a solicitação ainda não tiver tipos vinculados.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador único do registro.</p>
+<p>Gerado automaticamente no momento da criação, sendo utilizado como identificador externo amigável.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.vencidos">
+<span class="sig-name descname"><span class="pre">vencidos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">inversao_dia_cardapio.managers.InversaoCardapioVencidaManager</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.vencidos" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">inversao_dia_cardapio/managers/inversao_dia_cardapio_managers.py</span></code></p>
+<p><strong>Descrição:</strong>
+Manager customizado para consultar solicitações vencidas que ainda estão em status abertos do workflow.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DESCRICAO">
+<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Inversão</span> <span class="pre">de</span> <span class="pre">Cardápio'</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.DESCRICAO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza">
 <span class="sig-name descname"><span class="pre">codae_autoriza</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>Autoriza a solicitação de Gestão de Alimentação como CODAE pedida com mais de 5 dias úteis de antecedência.
+Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_codae_autoriza_hook</span></code>) para, após a autorização:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>enviar e-mail para as partes interessadas notificando sobre a autorização.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza_questionamento">
 <span class="sig-name descname"><span class="pre">codae_autoriza_questionamento</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_autoriza_questionamento" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>CODAE autoriza a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência, mediante resposta positiva do questionamento para a empresa terceirizada que atende a escola.
+Só é possível autorizar uma solicitação que foi validada pela Diretoria Regional.</p>
+<dl class="simple">
+<dt>Uma solicitação pode ser autorizada se:</dt><dd><ul class="simple">
+<li><p>teve uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=True no log de questionamento.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_codae_autoriza_hook</span></code>) para, após a autorização:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>enviar e-mail para as partes interessadas notificando sobre a autorização.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_nega">
 <span class="sig-name descname"><span class="pre">codae_nega</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_nega" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>CODAE nega a solicitação de Gestão de Alimentação.
+Só é possível negar uma solicitação que foi validada pela Diretoria Regional.</p>
+<dl class="simple">
+<dt>Uma solicitação pode ser negada se, por exemplo:</dt><dd><ul class="simple">
+<li><p>infringir alguma regra do edital</p></li>
+<li><p>tiver algum dado incorreto ou inconsistente (por exemplo, um Kit Lanche não pode ser solicitado para um “passeio” nas dependências da escola. É apenas para passeios externos.)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_codae_recusou_hook</span></code>) para, após a negação:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>enviar e-mail para as partes interessadas notificando sobre a negação.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_nega_questionamento">
 <span class="sig-name descname"><span class="pre">codae_nega_questionamento</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_nega_questionamento" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>CODAE nega a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.
+Só é possível negar uma solicitação que foi validada pela Diretoria Regional.</p>
+<dl class="simple">
+<dt>Uma solicitação pode ser negada se:</dt><dd><ul class="simple">
+<li><p>não tiver uma resposta positiva do questionamento pela empresa terceirizada que atende a escola, ou seja, resposta_sim_nao=False no log de questionamento.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_codae_recusou_hook</span></code>) para, após a negação:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>enviar e-mail para as partes interessadas notificando sobre a negação.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_questiona">
 <span class="sig-name descname"><span class="pre">codae_questiona</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.codae_questiona" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>CODAE questiona a empresa terceirizada se é possível atender a solicitação de Gestão de Alimentação pedida com menos de 5 dias úteis de antecedência.
+Só é possível questionar uma solicitação que foi validada pela Diretoria Regional.</p>
+<p>Uma solicitação pedida com menos de 5 dias úteis de antecedência não pode ser autorizada imediatamente, pois a empresa terceirizada que atende a escola precisa confirmar se é possível atender a solicitação nesse prazo. Portanto, o CODAE questiona a solicitação para obter essa confirmação.</p>
+<dl class="simple">
+<dt>Exceção (pode ser autorizado imediatamente, sem questionamento):</dt><dd><ul class="simple">
+<li><p>Alteração do Tipo de Alimentação - Lanche Emergencial</p></li>
+</ul>
+</dd>
+</dl>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_codae_questiona_hook</span></code>) para, após o questionamento:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_em">
-<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_em" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por">
-<span class="sig-name descname"><span class="pre">criado_por</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por_id">
-<span class="sig-name descname"><span class="pre">criado_por_id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.criado_por_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data">
@@ -485,20 +846,6 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao">
-<span class="sig-name descname"><span class="pre">data_de_inversao</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao_2">
-<span class="sig-name descname"><span class="pre">data_de_inversao_2</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_de_inversao_2" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">data_para</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para" title="Link to this definition"></a></dt>
@@ -515,20 +862,6 @@ object the first time, the query is executed.</p>
 <dd class="field-even"><p>datetime.date | None</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao">
-<span class="sig-name descname"><span class="pre">data_para_inversao</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao_2">
-<span class="sig-name descname"><span class="pre">data_para_inversao_2</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.data_para_inversao_2" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -552,73 +885,45 @@ origem e concatenada com quebra de linha em HTML.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.desta_semana">
-<span class="sig-name descname"><span class="pre">desta_semana</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.desta_semana" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.deste_mes">
-<span class="sig-name descname"><span class="pre">deste_mes</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.deste_mes" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_nao_valida">
 <span class="sig-name descname"><span class="pre">dre_nao_valida</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_nao_valida" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>DRE não valida a solicitação de Gestão de Alimentação.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_dre_nao_valida_hook</span></code>) para, após a não validação:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>enviar e-mail para as partes interessadas notificando sobre a não validação.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_pede_revisao">
 <span class="sig-name descname"><span class="pre">dre_pede_revisao</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_pede_revisao" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>Deprecado.</p>
+<p>Este método é herdado de django_xworkflows.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_valida">
 <span class="sig-name descname"><span class="pre">dre_valida</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.dre_valida" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>DRE valida a solicitação de Gestão de Alimentação.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_dre_valida_hook</span></code>) para, após a validação:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola">
-<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_id">
-<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_revisa">
 <span class="sig-name descname"><span class="pre">escola_revisa</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.escola_revisa" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>Deprecado.</p>
+<p>Este método é herdado de django_xworkflows.</p>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.foi_solicitado_fora_do_prazo">
-<span class="sig-name descname"><span class="pre">foi_solicitado_fora_do_prazo</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.foi_solicitado_fora_do_prazo" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_next_by_criado_em">
-<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_next_by_criado_em" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_previous_by_criado_em">
-<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_previous_by_criado_em" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_solicitacoes_rascunho">
@@ -642,29 +947,20 @@ solicitacoes.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_status_display">
-<span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django_xworkflows.models.StateField:</span> <span class="pre">status&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.get_status_display" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.inicia_fluxo">
 <span class="sig-name descname"><span class="pre">inicia_fluxo</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.inicia_fluxo" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.motivo">
-<span class="sig-name descname"><span class="pre">motivo</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.motivo" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
+<dd><p>Inicia o fluxo da solicitação de Gestão de Alimentação (envia a solicitação para DRE validar).</p>
+<p>Só é possível iniciar uma solicitação que esteja em <strong>RASCUNHO</strong>.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_inicia_fluxo_hook</span></code>) para, após o início do fluxo:</dt><dd><ul class="simple">
+<li><p>definir o campo <code class="docutils literal notranslate"><span class="pre">foi_solicitado_fora_do_prazo</span></code> com base na prioridade da solicitação.</p></li>
+<li><p>salvar os rastros históricos da solicitação (escola, DRE, lote e terceirizada).</p></li>
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -684,18 +980,6 @@ por isso o valor retornado é sempre vazio.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.observacao">
-<span class="sig-name descname"><span class="pre">observacao</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.observacao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.path">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.path" title="Link to this definition"></a></dt>
@@ -713,78 +997,6 @@ object the first time, the query is executed.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre">
-<span class="sig-name descname"><span class="pre">rastro_dre</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre_id">
-<span class="sig-name descname"><span class="pre">rastro_dre_id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_dre_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola">
-<span class="sig-name descname"><span class="pre">rastro_escola</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola_id">
-<span class="sig-name descname"><span class="pre">rastro_escola_id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_escola_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote">
-<span class="sig-name descname"><span class="pre">rastro_lote</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote_id">
-<span class="sig-name descname"><span class="pre">rastro_lote_id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_lote_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada">
-<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada_id">
-<span class="sig-name descname"><span class="pre">rastro_terceirizada_id</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.rastro_terceirizada_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.salvar_log_transicao">
@@ -843,27 +1055,37 @@ compatibilidade de interface, sem uso direto no método.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.status">
-<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;src.dados_comuns.fluxo_status.PedidoAPartirDaEscolaWorkflow</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.status" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_conferiu_gestao">
-<span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_responde_questionamento">
 <span class="sig-name descname"><span class="pre">terceirizada_responde_questionamento</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_responde_questionamento" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>A empresa terceirizada responde ao questionamento da CODAE sobre a possibilidade de atendimento da solicitação.</p>
+<p>Só é possível responder um questionamento quando a solicitação está em <strong>CODAE_QUESTIONADO</strong>.</p>
+<p>Caso a empresa responda que <strong>sim</strong> (resposta_sim_nao=True), a solicitação pode ser autorizada normalmente pela CODAE, mesmo tendo sido pedida com menos de 5 dias úteis de antecedência.</p>
+<p>Caso a empresa responda que <strong>não</strong> (resposta_sim_nao=False), a solicitação deve ser negada pela CODAE, pois a empresa, pelo contrato, tem o direito de negar solicitações pedidas com menos de 5 dias úteis de antecedência.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_terceirizada_responde_questionamento_hook</span></code>) para, após a resposta:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>registrar no log a justificativa informada e a resposta booleana em <code class="docutils literal notranslate"><span class="pre">resposta_sim_nao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_toma_ciencia">
 <span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>Deprecado.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<p>Antigamente, este método era utilizado para registrar a ciência da empresa terceirizada sobre a solicitação.</p>
+<p>O status final do fluxo era <strong>TERCEIRIZADA_TOMOU_CIENCIA</strong>.</p>
+<dl class="simple">
+<dt>Atualmente:</dt><dd><ul class="simple">
+<li><p>o status final é <strong>CODAE_AUTORIZADO</strong>.</p></li>
+<li><p>o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.</p></li>
+<li><p>a empresa toma ciência sem alterar o status da solicitação, através do campo <code class="docutils literal notranslate"><span class="pre">terceirizada_conferiu_gestao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -879,34 +1101,6 @@ object the first time, the query is executed.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.tipos_alimentacao">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.tipos_alimentacao" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.vencidos">
-<span class="sig-name descname"><span class="pre">vencidos</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio.vencidos" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

@@ -91,6 +91,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoAprovacaoPartindoDaEscola</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch_docs</span>
 
 <span class="n">FORMATO_DATA_BR</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span>
 
@@ -349,6 +350,8 @@
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Inversão de cardápio&quot;</span>
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Inversões de cardápio&quot;</span></div>
 
+
+<span class="n">patch_docs</span><span class="p">(</span><span class="n">InversaoCardapio</span><span class="p">)</span>
 </pre></div>
 
            </div>
