@@ -94,6 +94,24 @@ from .validators import valida_parametros_calendario
 
 
 class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet):
+    """ViewSet para CRUD e gerenciamento de Cronogramas.
+
+    Endpoints principais:
+    - ``GET /`` — Lista cronogramas (com filtros por número, empresa, produto, status).
+    - ``POST /`` — Cria um novo cronograma (rascunho).
+    - ``GET /dashboard/`` — Dashboard agrupado por status.
+    - ``GET /dashboard-com-filtro/`` — Dashboard com filtros.
+    - ``PATCH /<uuid>/fornecedor-assina-cronograma/`` — Assinatura do fornecedor.
+    - ``PATCH /<uuid>/abastecimento-assina/`` — Assinatura DILOG Abastecimento.
+    - ``PATCH /<uuid>/codae-assina/`` — Assinatura CODAE.
+    - ``GET /<uuid>/gerar-pdf-cronograma/`` — Geração de PDF.
+    - ``GET /rascunhos/`` — Lista cronogramas em rascunho.
+    - ``GET /listagem-relatorio/`` — Relatório de cronogramas com filtros.
+
+    Permissões são definidas dinamicamente por ``permission_action_classes``
+    e ``ViewSetActionPermissionMixin``.
+    """
+
     lookup_field = "uuid"
     queryset = Cronograma.objects.all()
     serializer_class = CronogramaSerializer
@@ -107,6 +125,12 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
     }
 
     def get_serializer_class(self):
+        """Retorna o serializer adequado conforme a ação.
+
+        - ``retrieve`` / ``list``: CronogramaSerializer (leitura).
+        - ``create`` com ``ponto_a_ponto=True``: CronogramaPontoAPontoCreateSerializer.
+        - demais ações: CronogramaCreateSerializer.
+        """
         if self.action in ["retrieve", "list"]:
             return CronogramaSerializer
 
@@ -116,9 +140,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         return CronogramaCreateSerializer
 
     def get_queryset(self):
+        """Retorna todos os cronogramas ordenados por data de criação (decrescente)."""
         return Cronograma.objects.all().order_by("-criado_em")
 
     def get_lista_status(self):
+        """Retorna os status que aparecem no dashboard do cronograma."""
         lista_status = [
             Cronograma.workflow_class.ASSINADO_E_ENVIADO_AO_FORNECEDOR,
             Cronograma.workflow_class.ASSINADO_FORNECEDOR,
@@ -129,6 +155,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         return lista_status
 
     def get_default_sql(self, workflow, query_set, use_raw):
+        """Busca cronogramas por status ordenados pelo log mais recente.
+
+        Se ``use_raw=True`` utiliza SQL raw; caso contrário ordena em
+        memória via Python.
+        """
         workflow = workflow if isinstance(workflow, list) else [workflow]
         if use_raw:
             data = {
@@ -158,6 +189,10 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
             return qs
 
     def dados_dashboard(self, request, query_set: QuerySet, use_raw) -> list:
+        """Monta os dados do dashboard agrupados por status.
+
+        Aceita parâmetros ``limit``, ``offset`` e ``status`` via query params.
+        """
         limit = int(request.query_params.get("limit", 10))
         offset = int(request.query_params.get("offset", 0))
         status = request.query_params.getlist("status", None)
@@ -202,6 +237,13 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         permission_classes=(PermissaoParaDashboardCronograma,),
     )
     def dashboard(self, request):
+        """Dashboard de cronogramas agrupados por status.
+
+        Retorna os cronogramas mais recentes de cada status
+        (ASSINADO_E_ENVIADO_AO_FORNECEDOR, ASSINADO_FORNECEDOR,
+        ASSINADO_DILOG_ABASTECIMENTO, ASSINADO_CODAE) com até 6
+        registros por grupo.
+        """
         query_set = self.get_queryset()
         response = {
             "results": self.dados_dashboard(
@@ -217,6 +259,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         permission_classes=(PermissaoParaDashboardCronograma,),
     )
     def dashboard_com_filtro(self, request):
+        """Dashboard de cronogramas com filtros.
+
+        Similar ao ``dashboard``, mas permite filtrar por número do
+        cronograma, nome do produto e nome do fornecedor via query params.
+        """
         query_set = self.get_queryset()
         numero_cronograma = request.query_params.get("numero_cronograma", None)
         produto = request.query_params.get("nome_produto", None)
@@ -239,6 +286,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         return Response(response)
 
     def list(self, request, *args, **kwargs):
+        """Lista cronogramas com paginação.
+
+        Para usuários do perfil ADMINISTRADOR_EMPRESA que são
+        fornecedores, filtra apenas os cronogramas da sua empresa.
+        """
         vinculo = self.request.user.vinculo_atual
         queryset = self.filter_queryset(self.get_queryset())
         queryset = queryset.order_by("-alterado_em").distinct()
@@ -265,6 +317,12 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         url_path="listagem-relatorio",
     )
     def lista_relatorio(self, request, *args, **kwargs):
+        """Retorna listagem de cronogramas para relatório com filtros.
+
+        Aceita filtros por ``situacao`` (lista), ``data_inicial`` e
+        ``data_final`` via query params. Aplica paginação e retorna
+        totalizadores por status.
+        """
         queryset = (
             self.filter_queryset(self.get_queryset())
             .order_by("-alterado_em")
@@ -330,10 +388,12 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
     @action(detail=False, url_path="opcoes-etapas")
     def etapas(self, _):
+        """Retorna lista de opções de etapas (1 a 100) para formulários."""
         return Response(EtapasDoCronograma.etapas_to_json())
 
     @action(detail=False, methods=["GET"], url_path="rascunhos")
     def rascunhos(self, _):
+        """Retorna lista de cronogramas em status RASCUNHO."""
         queryset = self.get_queryset().filter(status__in=[CronogramaWorkflow.RASCUNHO])
         response = {"results": CronogramaRascunhosSerializer(queryset, many=True).data}
         return Response(response)
@@ -346,6 +406,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         url_path="fornecedor-assina-cronograma",
     )
     def fornecedor_assina(self, request, uuid=None):
+        """Registra a assinatura do fornecedor no cronograma.
+
+        Valida a senha do usuário antes de prosseguir. Avança o fluxo
+        do cronograma para ASSINADO_FORNECEDOR.
+        """
         usuario = request.user
 
         if not usuario.verificar_autenticidade(request.data.get("password")):
@@ -383,6 +448,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         url_path="abastecimento-assina",
     )
     def abastecimento_assina(self, request, uuid):
+        """Registra a assinatura da DILOG Abastecimento no cronograma.
+
+        Valida a senha do usuário antes de prosseguir. Avança o fluxo
+        do cronograma para ASSINADO_DILOG_ABASTECIMENTO.
+        """
         usuario = request.user
 
         if not usuario.verificar_autenticidade(request.data.get("password")):
@@ -418,6 +488,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         url_path="codae-assina",
     )
     def codae_assina(self, request, uuid):
+        """Registra a assinatura da CODAE no cronograma.
+
+        Valida a senha do usuário antes de prosseguir. Avança o fluxo
+        do cronograma para ASSINADO_CODAE (última etapa do fluxo).
+        """
         usuario = request.user
 
         if not usuario.verificar_autenticidade(request.data.get("password")):
@@ -447,6 +522,12 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-cronograma")
     def gerar_pdf_cronograma(self, request, uuid=None):
+        """Gera o PDF do cronograma.
+
+        Para cronogramas Ponto a Ponto (FLV) utiliza o template específico
+        ``get_pdf_cronograma_ponto_a_ponto_flv``. Para os demais, utiliza
+        o template ``get_pdf_cronograma`` padrão.
+        """
         cronograma = self.get_object()
 
         if cronograma.ponto_a_ponto:
@@ -456,12 +537,17 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
     @action(detail=True, methods=["GET"], url_path="detalhar-com-log")
     def detalhar_com_log(self, request, uuid=None):
+        """Retorna os detalhes do cronograma com o histórico de logs."""
         cronograma = self.get_object()
         response = CronogramaComLogSerializer(cronograma, many=False).data
         return Response(response)
 
     @action(detail=False, methods=["GET"], url_path="lista-cronogramas-cadastro")
     def lista_cronogramas_para_cadastro(self, request):
+        """Lista cronogramas para usar em campos de seleção em cadastros.
+
+        Para fornecedores, retorna apenas os cronogramas da sua empresa.
+        """
         user = self.request.user
         if user.eh_fornecedor:
             cronogramas = Cronograma.objects.filter(
@@ -480,6 +566,10 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         url_path="lista-cronogramas-ficha-recebimento",
     )
     def lista_cronogramas_ficha_recebimento(self, request):
+        """Lista cronogramas aptos para gerar ficha de recebimento.
+
+        Retorna apenas cronogramas com status ASSINADO_CODAE.
+        """
         qs = self.get_queryset().filter(status=CronogramaWorkflow.ASSINADO_CODAE)
 
         return Response({"results": CronogramaSimplesSerializer(qs, many=True).data})
@@ -490,6 +580,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         url_path="dados-cronograma-ficha-recebimento",
     )
     def dados_cronograma_ficha_recebimento(self, request, uuid):
+        """Retorna os dados completos do cronograma para a ficha de recebimento."""
         return Response(
             {"results": CronogramaFichaDeRecebimentoSerializer(self.get_object()).data}
         )
@@ -501,6 +592,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         url_path="gerar-relatorio-xlsx-async",
     )
     def gerar_relatorio_xlsx_async(self, request):
+        """Solicita a geração assíncrona de relatório de cronogramas em XLSX.
+
+        Os filtros (situação, data_inicial, data_final) são passados
+        via query params.
+        """
         ids_cronogramas = list(
             (
                 self.filter_queryset(self.get_queryset())
@@ -533,6 +629,11 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         url_path="gerar-relatorio-pdf-async",
     )
     def gerar_relatorio_pdf_async(self, request):
+        """Solicita a geração assíncrona de relatório de cronogramas em PDF.
+
+        Os filtros (situação, data_inicial, data_final) são passados
+        via query params.
+        """
         ids_cronogramas = list(
             (
                 self.filter_queryset(self.get_queryset())
@@ -560,6 +661,24 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
 
 class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
+    """ViewSet para CRUD e gerenciamento de solicitações de alteração de cronograma.
+
+    Permite que fornecedores e CODAE criem solicitações de alteração de
+    cronogramas já assinados. Inclui fluxo de aprovação com análise da
+    DILOG Abastecimento e DILOG, ciência do cronograma e dashboard.
+
+    Endpoints principais:
+    - ``GET /`` — Lista solicitações (ordenadas por prioridade do perfil).
+    - ``POST /`` — Cria nova solicitação de alteração.
+    - ``GET /dashboard/`` — Dashboard por status.
+    - ``PATCH /<uuid>/cronograma-ciente/`` — Confirma ciência do cronograma.
+    - ``PATCH /<uuid>/analise-abastecimento/`` — Análise DILOG Abastecimento.
+    - ``PATCH /<uuid>/analise-dilog/`` — Análise DILOG.
+    - ``PATCH /<uuid>/fornecedor-ciente/`` — Ciência do fornecedor.
+
+    Permissões são ajustadas por ação via ``get_permissions()``.
+    """
+
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
     pagination_class = PreRecebimentoPagination
@@ -567,6 +686,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
     filterset_class = SolicitacaoAlteracaoCronogramaFilter
 
     def get_queryset(self):
+        """Retorna as solicitações de alteração.
+
+        Para fornecedores, filtra apenas as solicitações dos cronogramas
+        da sua empresa.
+        """
         user = self.request.user
         if user.eh_fornecedor:
             return SolicitacaoAlteracaoCronograma.objects.filter(
@@ -575,6 +699,12 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         return SolicitacaoAlteracaoCronograma.objects.all().order_by("-criado_em")
 
     def get_serializer_class(self):
+        """Retorna o serializer adequado conforme a ação.
+
+        - ``list``: SolicitacaoAlteracaoCronogramaSerializer (resumo).
+        - ``retrieve``: SolicitacaoAlteracaoCronogramaCompletoSerializer (detalhes + logs).
+        - demais: SolicitacaoDeAlteracaoCronogramaCreateSerializer.
+        """
         serializer_classes_map = {
             "list": SolicitacaoAlteracaoCronogramaSerializer,
             "retrieve": SolicitacaoAlteracaoCronogramaCompletoSerializer,
@@ -584,6 +714,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         )
 
     def get_permissions(self):
+        """Retorna as permissões específicas para cada ação.
+
+        - ``list`` / ``retrieve``: PermissaoParaVisualizarSolicitacoesAlteracaoCronograma.
+        - ``create``: PermissaoParaCriarSolicitacoesAlteracaoCronograma.
+        """
         permission_classes_map = {
             "list": (PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,),
             "retrieve": (PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,),
@@ -594,6 +729,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         return super(SolicitacaoDeAlteracaoCronogramaViewSet, self).get_permissions()
 
     def list(self, request, *args, **kwargs):
+        """Lista solicitações de alteração ordenadas por prioridade do perfil.
+
+        Utiliza o ServiceQuerysetAlteracaoCronograma para ordenar:
+        primeiro os status prioritários do perfil, depois os demais.
+        """
         queryset = ServiceQuerysetAlteracaoCronograma(
             request=self.request
         ).get_queryset(filter=self.filter_queryset)
@@ -607,6 +747,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def _dados_dashboard(self, request, filtros=None):
+        """Monta os dados do dashboard de solicitações de alteração.
+
+        Aceita parâmetros ``limit``, ``offset`` e ``status``.
+        Os status exibidos variam conforme o perfil do usuário.
+        """
         limit = (
             int(request.query_params.get("limit", 10))
             if "limit" in request.query_params
@@ -654,6 +799,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         ),
     )
     def dashboard(self, request):
+        """Dashboard de solicitações de alteração agrupadas por status.
+
+        Os status exibidos variam conforme o perfil do usuário logado
+        (fornecedor, DILOG Abastecimento, DILOG, CODAE, etc.).
+        """
         serialized_data = PainelSolicitacaoAlteracaoCronogramaSerializer(
             self._dados_dashboard(request), many=True
         ).data
@@ -668,6 +818,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         ),
     )
     def dashboard_com_filtro(self, request):
+        """Dashboard com filtros por parâmetros de consulta.
+
+        Aceita os mesmos filtros do ``SolicitacaoAlteracaoCronogramaFilter``
+        via query params (número do cronograma, fornecedor, data, status).
+        """
         filtros = request.query_params
         serialized_data = PainelSolicitacaoAlteracaoCronogramaSerializer(
             self._dados_dashboard(request, filtros), many=True
@@ -682,6 +837,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         url_path="cronograma-ciente",
     )
     def cronograma_ciente(self, request, uuid):
+        """Registra a ciência do cronograma sobre a alteração solicitada.
+
+        Recebe as novas etapas e programações de recebimento, substitui
+        as anteriores e avança o fluxo da solicitação.
+        """
         usuario = request.user
         justificativa = request.data.get("justificativa_cronograma")
         etapas = request.data.get("etapas", [])
@@ -717,6 +877,12 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         url_path="analise-abastecimento",
     )
     def analise_abastecimento(self, request, uuid):
+        """Análise da solicitação pela DILOG Abastecimento.
+
+        Recebe o parâmetro ``aprovado`` (bool) no body. Se ``True``,
+        aprova a solicitação; se ``False``, reprova com justificativa
+        (campo ``justificativa_abastecimento``).
+        """
         usuario = request.user
         aprovado = request.data.get(("aprovado"), "aprovado")
         try:
@@ -757,6 +923,13 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         url_path="analise-dilog",
     )
     def analise_dilog(self, request, uuid):
+        """Análise final da solicitação pela DILOG.
+
+        Recebe o parâmetro ``aprovado`` (bool) no body. Se aprovada,
+        substitui as etapas e programações do cronograma original pelas
+        novas. Se reprovada, registra a justificativa (campo
+        ``justificativa_dilog``).
+        """
         usuario = request.user
         aprovado = request.data.get(("aprovado"), "aprovado")
         try:
@@ -807,6 +980,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         url_path="fornecedor-ciente",
     )
     def fornecedor_ciente(self, request, uuid):
+        """Registra a ciência do fornecedor sobre a alteração.
+
+        Avança o fluxo da solicitação e, se o cronograma não estiver
+        no status ``ASSINADO_CODAE``, finaliza a solicitação de alteração.
+        """
         usuario = request.user
         try:
             solicitacao_cronograma = SolicitacaoAlteracaoCronograma.objects.get(
@@ -842,6 +1020,15 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
 
 
 class CalendarioCronogramaViewset(viewsets.ReadOnlyModelViewSet):
+    """ViewSet para consulta de etapas de cronograma em formato de calendário.
+
+    Endpoints:
+    - ``GET /etapas-por-mes/`` — Etapas agrupadas por mês/ano.
+    - ``GET /datas-bloqueadas-armazenavel/`` — Datas bloqueadas (tipo armazenável).
+
+    Utilizado pelo frontend para exibir cronogramas em visualização de calendário.
+    """
+
     queryset = EtapasDoCronograma.objects.filter(cronograma__isnull=False).order_by(
         "-criado_em"
     )
@@ -849,6 +1036,12 @@ class CalendarioCronogramaViewset(viewsets.ReadOnlyModelViewSet):
     permission_classes = (PermissaoParaVisualizarCalendarioCronograma,)
 
     def get_queryset(self):
+        """Retorna etapas de cronograma filtradas por mês/ano.
+
+        Valida os parâmetros ``mes`` e ``ano`` (obrigatórios) e filtra
+        apenas cronogramas com status ASSINADO_CODAE, ALTERACAO_CODAE
+        ou SOLICITADO_ALTERACAO.
+        """
         mes = self.request.query_params.get("mes", None)
         ano = self.request.query_params.get("ano", None)
 
@@ -883,11 +1076,17 @@ class InterrupcaoProgramadaEntregaViewSet(
     lookup_field = "uuid"
 
     def get_serializer_class(self):
+        """Retorna o serializer conforme a ação.
+
+        - ``create``: InterrupcaoProgramadaEntregaCreateSerializer.
+        - demais: InterrupcaoProgramadaEntregaSerializer (leitura).
+        """
         if self.action == "create":
             return InterrupcaoProgramadaEntregaCreateSerializer
         return InterrupcaoProgramadaEntregaSerializer
 
     def get_queryset(self):
+        """Retorna interrupções filtradas por mês, ano e tipo de calendário."""
         qs = super().get_queryset()
         mes = self.request.query_params.get("mes")
         ano = self.request.query_params.get("ano")

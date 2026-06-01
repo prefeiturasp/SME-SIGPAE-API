@@ -30,6 +30,7 @@ from ..relatorios import (
     relatorio_dieta_especial_protocolo,
     relatorio_reclamacao_produtos,
     relatorio_solicitacao_medicao_por_escola,
+    relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
     relatorio_suspensao_de_alimentacao,
 )
 
@@ -1038,9 +1039,30 @@ def test_relatorio_historico_ocorrencias_renderiza_todos_os_tipos_de_logs(
     assert "DEVOLVIDO PARA AJUSTES PELA DRE" in html
     assert "Precisa ajustar o valor." in html
 
+    # --- Validação do Log de Correção para CODAE ---
+    assert "Corrigido para CODAE" in html
+    assert "Corrigido ocorrências" in html
+
     # --- Validação do Log de Aprovação (CODAE) ---
     assert "Aprovado pela CODAE" in html
 
     # --- Validação Geral ---
     assert "RELATÓRIO DE HISTÓRICO DO FORMULÁRIO DE OCORRÊNCIAS" in html
     assert f"{solicitacao.mes}/{solicitacao.ano}" in html
+
+
+def test_relatorio_solicitacao_medicao_recreio_nas_ferias_rodape_aprovacao(
+    solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae,
+):
+    relatorio = relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(
+        solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
+    assert "EMEF JOAO MENDES" in texto
+    assert "Recreio nas Férias - Julho 2025" in texto
+    assert "SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS" in texto
+    assert "Aprovado por CODAE em" in texto
+    assert "05/08/2025" in texto
+    assert "Usuário TESTE" in texto

@@ -54,7 +54,6 @@ from .dados_comuns.fixtures.factories.dados_comuns_factories import (
     ContatoFactory,
     LogSolicitacoesUsuarioFactory,
 )
-from .dados_comuns.models import TemplateMensagem
 from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     AlergiaIntoleranciaFactory,
     AlimentoFactory,
@@ -444,12 +443,6 @@ def client_autenticado_vinculo_escola(client, django_user_model):
         data_inicial=hoje,
         ativo=True,
     )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
-    )
     client.login(username=email, password=password)
     return client
 
@@ -680,12 +673,6 @@ def client_autenticado_escola_abastecimento(client, django_user_model, escola):
         perfil=perfil_admin_escola_abastecimento,
         data_inicial=hoje,
         ativo=True,
-    )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
     )
     client.login(username=email, password=password)
     return client

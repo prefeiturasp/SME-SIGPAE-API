@@ -57,7 +57,12 @@ from src.pre_recebimento.ficha_tecnica.models import (
 from src.pre_recebimento.layout_embalagem.api.services import (
     ServiceDashboardLayoutEmbalagem,
 )
-from src.pre_recebimento.layout_embalagem.models import LayoutDeEmbalagem
+from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.pre_recebimento.layout_embalagem.models import (
+    ImagemDoTipoDeEmbalagem,
+    LayoutDeEmbalagem,
+    TipoDeEmbalagemDeLayout,
+)
 from src.pre_recebimento.qualidade.models import (
     Laboratorio,
     TipoEmbalagemQld,
@@ -4030,3 +4035,153 @@ def test_deleta_interrupcao_programada(client_autenticado_vinculo_dilog_cronogra
     assert (
         InterrupcaoProgramadaEntrega.objects.filter(uuid=interrupcao.uuid).count() == 0
     )
+
+
+#
+# Testes de download de imagem do Layout de Embalagem
+#
+
+
+@pytest.fixture
+def _layout_com_imagem_e_log_aprovacao(
+    layout_de_embalagem_aprovado, django_user_model
+):
+    """Retorna layout aprovado com imagem (PDF) e log de LAYOUT_APROVADO."""
+    layout = layout_de_embalagem_aprovado
+    tipo = layout.tipos_de_embalagens.first()
+
+    # Cria um PDF mínimo para o teste
+    pdf_buffer = BytesIO()
+    from pypdf import PdfWriter
+
+    pdf_writer = PdfWriter()
+    pdf_writer.add_blank_page(width=612, height=792)
+    pdf_writer.write(pdf_buffer)
+    pdf_buffer.seek(0)
+
+    from django.core.files.base import ContentFile
+
+    imagem = baker.make(
+        ImagemDoTipoDeEmbalagem,
+        tipo_de_embalagem=tipo,
+        arquivo=ContentFile(pdf_buffer.read(), name="teste_layout.pdf"),
+        nome="teste_layout.pdf",
+    )
+
+    # Cria log de LAYOUT_APROVADO
+    usuario = django_user_model.objects.first()
+    baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=layout.uuid,
+        status_evento=LogSolicitacoesUsuario.LAYOUT_APROVADO,
+        solicitacao_tipo=LogSolicitacoesUsuario.LAYOUT_DE_EMBALAGEM,
+        usuario=usuario,
+        criado_em=timezone.now(),
+    )
+
+    return layout, imagem
+
+
+@pytest.fixture
+def _layout_sem_log_aprovacao(
+    layout_de_embalagem_aprovado, django_user_model
+):
+    """Retorna layout aprovado mas SEM log de LAYOUT_APROVADO."""
+    layout = layout_de_embalagem_aprovado
+    tipo = layout.tipos_de_embalagens.first()
+
+    pdf_buffer = BytesIO()
+    from pypdf import PdfWriter
+
+    pdf_writer = PdfWriter()
+    pdf_writer.add_blank_page(width=612, height=792)
+    pdf_writer.write(pdf_buffer)
+    pdf_buffer.seek(0)
+
+    from django.core.files.base import ContentFile
+
+    imagem = baker.make(
+        ImagemDoTipoDeEmbalagem,
+        tipo_de_embalagem=tipo,
+        arquivo=ContentFile(pdf_buffer.read(), name="teste_layout.pdf"),
+        nome="teste_layout.pdf",
+    )
+
+    return layout, imagem
+
+
+def test_url_layout_embalagem_download_ok(
+    client_autenticado_codae_dilog, _layout_com_imagem_e_log_aprovacao
+):
+    """Deve baixar a imagem com rodapé de assinatura digital."""
+    client = client_autenticado_codae_dilog
+    layout, imagem = _layout_com_imagem_e_log_aprovacao
+
+    url = f"/layouts-de-embalagem/{layout.uuid}/download/{imagem.uuid}/"
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response["Content-Type"] == "application/pdf"
+
+    # Verifica que o PDF gerado é válido
+    pdf_reader = PdfReader(BytesIO(response.content))
+    assert len(pdf_reader.pages) >= 1
+
+    texto_pdf = ""
+    for pagina in pdf_reader.pages:
+        texto_pdf += pagina.extract_text()
+
+    assert "Layout de Embalagem analisado eletronicamente" in texto_pdf
+
+
+def test_url_layout_embalagem_download_sem_log_aprovacao(
+    client_autenticado_codae_dilog, _layout_sem_log_aprovacao
+):
+    """Deve retornar erro quando não há log de aprovação."""
+    client = client_autenticado_codae_dilog
+    layout, imagem = _layout_sem_log_aprovacao
+
+    url = f"/layouts-de-embalagem/{layout.uuid}/download/{imagem.uuid}/"
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_layout_embalagem_download_imagem_inexistente(
+    client_autenticado_codae_dilog, layout_de_embalagem_aprovado
+):
+    """Deve retornar 404 para UUID de imagem inexistente."""
+    client = client_autenticado_codae_dilog
+    layout = layout_de_embalagem_aprovado
+
+    url = f"/layouts-de-embalagem/{layout.uuid}/download/{uuid.uuid4()}/"
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_url_layout_embalagem_download_imagem_de_outro_layout(
+    client_autenticado_codae_dilog,
+    _layout_com_imagem_e_log_aprovacao,
+    ficha_tecnica_factory,
+    empresa,
+):
+    """Deve retornar 401 quando a imagem não pertence ao layout."""
+    client = client_autenticado_codae_dilog
+    _, imagem = _layout_com_imagem_e_log_aprovacao
+
+    # Cria um layout completamente separado (não usa fixture para evitar cache)
+    outro_layout = baker.make(
+        LayoutDeEmbalagem,
+        ficha_tecnica=ficha_tecnica_factory(
+            status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE,
+            empresa=empresa,
+        ),
+        observacoes="Outro layout",
+        status=LayoutDeEmbalagemWorkflow.APROVADO,
+    )
+
+    url = f"/layouts-de-embalagem/{outro_layout.uuid}/download/{imagem.uuid}/"
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED

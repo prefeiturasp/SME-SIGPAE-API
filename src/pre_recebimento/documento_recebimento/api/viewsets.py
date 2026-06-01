@@ -1,3 +1,4 @@
+from django.db.models import Count, Prefetch
 from django.http import HttpResponse
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
@@ -12,12 +13,15 @@ from src.dados_comuns.fluxo_status import (
 )
 from src.dados_comuns.permissions import (
     PermissaoParaDashboardDocumentosDeRecebimento,
+    PermissaoParaRelatorioDocumentosDeRecebimento,
     PermissaoParaVisualizarDocumentosDeRecebimento,
     UsuarioEhDilogQualidade,
     UsuarioEhFornecedor,
     ViewSetActionPermissionMixin,
 )
+from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.pre_recebimento.documento_recebimento.api.filters import (
+    CronogramaRelatorioDocumentosFilter,
     DocumentoDeRecebimentoFilter,
 )
 from src.pre_recebimento.documento_recebimento.api.serializers.serializer_create import (
@@ -28,6 +32,7 @@ from src.pre_recebimento.documento_recebimento.api.serializers.serializer_create
     DocumentoDeRecebimentoCreateSerializer,
 )
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
+    CronogramaRelatorioDocumentosSerializer,
     DocRecebimentoDetalharCodaeSerializer,
     DocRecebimentoDetalharSerializer,
     DocumentoDeRecebimentoSerializer,
@@ -194,3 +199,69 @@ class DocumentoDeRecebimentoModelViewSet(
             doc_recebimento.arquivo_laudo_assinado,
             content_type="application/pdf",
         )
+
+    def _calcular_totalizadores(self, docs_qs):
+        contagens = docs_qs.values("status").annotate(total=Count("status"))
+        contagens_por_status = {item["status"]: item["total"] for item in contagens}
+        return {
+            "Total de Documentos Recebidos": sum(contagens_por_status.values()),
+            "Total de Pendentes de Aprovação": contagens_por_status.get(
+                DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_ANALISE, 0
+            ),
+            "Total de Enviados para Correção": contagens_por_status.get(
+                DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_CORRECAO, 0
+            ),
+            "Total de Aprovados": contagens_por_status.get(
+                DocumentoDeRecebimentoWorkflow.APROVADO, 0
+            ),
+        }
+
+    @action(
+        detail=False,
+        permission_classes=(PermissaoParaRelatorioDocumentosDeRecebimento,),
+        methods=["GET"],
+        url_path="listagem-relatorio",
+    )
+    def lista_relatorio(self, request, *args, **kwargs):
+        status_documento = request.query_params.getlist("status_documento")
+
+        docs_qs = DocumentoDeRecebimento.objects.select_related(
+            "laboratorio", "unidade_medida"
+        ).prefetch_related("datas_fabricacao_e_prazos")
+        if status_documento:
+            docs_qs = docs_qs.filter(status__in=status_documento)
+
+        queryset = (
+            Cronograma.objects.filter(documentos_de_recebimento__isnull=False)
+            .select_related("ficha_tecnica__produto", "empresa", "contrato")
+            .prefetch_related(Prefetch("documentos_de_recebimento", queryset=docs_qs))
+            .order_by("-alterado_em")
+            .distinct()
+        )
+
+        queryset = CronogramaRelatorioDocumentosFilter(
+            request.query_params, queryset=queryset
+        ).qs.distinct()
+
+        if status_documento:
+            queryset = queryset.filter(
+                documentos_de_recebimento__status__in=status_documento
+            )
+
+        docs_totais = DocumentoDeRecebimento.objects.filter(cronograma__in=queryset)
+        if status_documento:
+            docs_totais = docs_totais.filter(status__in=status_documento)
+
+        totalizadores = self._calcular_totalizadores(docs_totais)
+
+        page = self.paginate_queryset(queryset)
+        itens = page if page is not None else queryset
+
+        serializer = CronogramaRelatorioDocumentosSerializer(itens, many=True)
+        dados = [item for item in serializer.data if item["documentos"]]
+
+        if page is not None:
+            response = self.get_paginated_response(dados)
+            response.data["totalizadores"] = totalizadores
+            return response
+        return Response({"results": dados, "totalizadores": totalizadores})

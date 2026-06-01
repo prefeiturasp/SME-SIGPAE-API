@@ -21,11 +21,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
-from src.medicao_inicial.services.relatorio_ateste_financeiro import (
-    build_relatorio_financeiro_grupo_cei,
-    build_relatorio_financeiro_grupo_cemei,
-    build_relatorio_financeiro_grupo_emei,
-)
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -67,6 +62,7 @@ from ..medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
     calcula_totais_consumo_por_grupo,
+    build_tabela_somatorio_recreio_nas_ferias,
 )
 from ..pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
@@ -1730,6 +1726,86 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
     )
 
 
+def relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(solicitacao):
+    tabelas = build_tabelas_relatorio_medicao(solicitacao)
+    dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
+    dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
+
+    tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
+        "nome", flat=True
+    )
+    tipos_contagem_alimentacao = ", ".join(list(set(tipos_contagem_alimentacao)))
+    tabela_observacoes = build_lista_campos_observacoes(solicitacao)
+
+    tabela_somatorio_participantes, tabela_somatorio_colaboradores = (
+        build_tabela_somatorio_recreio_nas_ferias(
+            solicitacao, dict_total_refeicoes, dict_total_sobremesas
+        )
+    )
+
+    _ajustar_labels_recreio_nas_ferias(tabelas, solicitacao.recreio_nas_ferias.titulo)
+
+    html_string = render_to_string(
+        "medicao/relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias.html",
+        {
+            "solicitacao": solicitacao,
+            "tipos_contagem_alimentacao": tipos_contagem_alimentacao,
+            "responsaveis": solicitacao.responsaveis.all(),
+            "assinatura_escola": solicitacao.assinatura_ue,
+            "assinatura_dre": solicitacao.assinatura_dre,
+            "quantidade_dias_mes": range(
+                1, monthrange(int(solicitacao.ano), int(solicitacao.mes))[1] + 1
+            ),
+            "tabelas": tabelas,
+            "tabela_observacoes": tabela_observacoes,
+            "tabela_somatorio_participantes": tabela_somatorio_participantes,
+            "tabela_somatorio_colaboradores": tabela_somatorio_colaboradores,
+        },
+    )
+
+    if (
+        solicitacao.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
+    ):
+        return html_to_pdf_file(
+            html_string, "relatorio_dieta_especial.pdf", is_async=True
+        )
+    return html_to_pdf_watermark(
+        html_string,
+        "relatorio_dieta_especial.pdf",
+        ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+        is_async=True,
+    )
+
+
+def _ajustar_labels_recreio_nas_ferias(tabelas: list, titulo_recreio: str) -> None:
+    """
+    Ajusta in-place os labels de períodos e categorias das tabelas
+    conforme o título do recreio nas férias.
+    """
+    PERIODO_PARTICIPANTES = "Recreio nas Férias"
+    PERIODO_COLABORADORES = "Colaboradores"
+    CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
+
+    MAP_CATEGORIA = {
+        True: "ALIMENTAÇÕES para COLABORADORES",
+        False: "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
+    }
+
+    for tabela in tabelas:
+        era_colaboradores = PERIODO_COLABORADORES in tabela["periodos"]
+
+        tabela["periodos"] = [
+            titulo_recreio if p in (PERIODO_PARTICIPANTES, PERIODO_COLABORADORES) else p
+            for p in tabela["periodos"]
+        ]
+
+        tabela["categorias"] = [
+            MAP_CATEGORIA[era_colaboradores] if cat == CATEGORIA_ALIMENTACAO else cat
+            for cat in tabela["categorias"]
+        ]
+
+
 def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
     tabelas, dias_letivos = build_tabelas_relatorio_medicao_cei(solicitacao)
     tabelas_somatorios = build_tabela_somatorio_body_cei(solicitacao)
@@ -2615,105 +2691,52 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
     return data
 
 
-def relatorio_ateste_financeiro_grupo_cei(relatorio_financeiro, parametrizacao):
+def gerar_relatorio_ateste_financeiro(
+    relatorio_financeiro,
+    parametrizacao,
+    builder,
+    template,
+    tipo_calculo=None,
+):
+    kwargs_consumo = {}
+
+    if tipo_calculo:
+        kwargs_consumo["tipo_calculo"] = tipo_calculo
+
     totais_consumo = calcula_totais_consumo_por_grupo(
         relatorio_financeiro.lote,
         relatorio_financeiro.grupo_unidade_escolar,
         relatorio_financeiro.mes,
         relatorio_financeiro.ano,
-        "faixa_etaria",
+        **kwargs_consumo,
     )
 
-    relatorio_cei = build_relatorio_financeiro_grupo_cei(
+    tabelas = parametrizacao.tabelas.all()
+
+    relatorio = builder(
         relatorio_financeiro,
-        parametrizacao,
+        tabelas,
         totais_consumo,
     )
 
     html_string = render_to_string(
-        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html",
+        template,
         {
-            **relatorio_cei,
+            **relatorio,
             "relatorio": relatorio_financeiro,
         },
     )
 
+    cabecalho = relatorio["cabecalho"]
     grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
 
     return html_to_pdf_file(
         html_string.replace(
             "dt_file",
-            f"{relatorio_cei["cabecalho"]["data_geracao"]} às {relatorio_cei["cabecalho"]["hora_geracao"]}",
+            f'{cabecalho["data_geracao"]} às {cabecalho["hora_geracao"]}',
         ),
-        f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
-        is_async=True,
-    )
-
-
-def relatorio_ateste_financeiro_grupo_emei(relatorio_financeiro, parametrizacao):
-    totais_consumo = calcula_totais_consumo_por_grupo(
-        relatorio_financeiro.lote,
-        relatorio_financeiro.grupo_unidade_escolar,
-        relatorio_financeiro.mes,
-        relatorio_financeiro.ano,
-        "tipo_alimentacao",
-    )
-
-    relatorio_emei = build_relatorio_financeiro_grupo_emei(
-        relatorio_financeiro,
-        parametrizacao,
-        totais_consumo,
-    )
-
-    html_string = render_to_string(
-        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emei.html",
-        {
-            **relatorio_emei,
-            "relatorio": relatorio_financeiro,
-        },
-    )
-
-    grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
-
-    return html_to_pdf_file(
-        html_string.replace(
-            "dt_file",
-            f"{relatorio_emei["cabecalho"]["data_geracao"]} às {relatorio_emei["cabecalho"]["hora_geracao"]}",
+        (
+            f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf"
         ),
-        f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
-        is_async=True,
-    )
-
-
-def relatorio_ateste_financeiro_grupo_cemei(relatorio_financeiro, parametrizacao):
-    totais_consumo = calcula_totais_consumo_por_grupo(
-        relatorio_financeiro.lote,
-        relatorio_financeiro.grupo_unidade_escolar,
-        relatorio_financeiro.mes,
-        relatorio_financeiro.ano,
-    )
-
-    relatorio_cemei = build_relatorio_financeiro_grupo_cemei(
-        relatorio_financeiro,
-        parametrizacao,
-        totais_consumo,
-    )
-
-    html_string = render_to_string(
-        "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html",
-        {
-            **relatorio_cemei,
-            "relatorio": relatorio_financeiro,
-        },
-    )
-
-    grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
-
-    return html_to_pdf_file(
-        html_string.replace(
-            "dt_file",
-            f"{relatorio_cemei["cabecalho"]["data_geracao"]} às {relatorio_cemei["cabecalho"]["hora_geracao"]}",
-        ),
-        f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf",
         is_async=True,
     )

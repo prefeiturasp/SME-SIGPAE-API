@@ -1,0 +1,1348 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.cronograma_entrega.api.viewsets &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.cronograma_entrega.api.viewsets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.cronograma_entrega.api.viewsets</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceil</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">transaction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuerySet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">rest_framework</span> <span class="k">as</span> <span class="n">filters</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">mixins</span><span class="p">,</span> <span class="n">viewsets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsAuthenticated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HTTP_200_OK</span><span class="p">,</span>
+    <span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+    <span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+    <span class="n">HTTP_406_NOT_ACCEPTABLE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xworkflows.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidTransitionError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ADMINISTRADOR_EMPRESA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaWorkflow</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaAnalisarDilogSolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaAssinarCronogramaUsuarioDilog</span><span class="p">,</span>
+    <span class="n">PermissaoParaAssinarCronogramaUsuarioFornecedor</span><span class="p">,</span>
+    <span class="n">PermissaoParaCriarCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaCriarSolicitacoesAlteracaoCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaDarCienciaAlteracaoCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaDashboardCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaVisualizarCalendarioCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaVisualizarCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaVisualizarRelatorioCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaVisualizarSolicitacoesAlteracaoCronograma</span><span class="p">,</span>
+    <span class="n">UsuarioDilogAbastecimento</span><span class="p">,</span>
+    <span class="n">ViewSetActionPermissionMixin</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.base.api.paginations</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PreRecebimentoPagination</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.api.filters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaFilter</span><span class="p">,</span>
+    <span class="n">SolicitacaoAlteracaoCronogramaFilter</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.api.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">filtrar_etapas</span><span class="p">,</span>
+    <span class="n">totalizador_relatorio_cronograma</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaCreateSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaPontoAPontoCreateSerializer</span><span class="p">,</span>
+    <span class="n">SolicitacaoDeAlteracaoCronogramaCreateSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaComLogSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaFichaDeRecebimentoSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaRascunhosSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaRelatorioSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaSimplesSerializer</span><span class="p">,</span>
+    <span class="n">EtapasDoCronogramaCalendarioSerializer</span><span class="p">,</span>
+    <span class="n">InterrupcaoProgramadaEntregaCreateSerializer</span><span class="p">,</span>
+    <span class="n">InterrupcaoProgramadaEntregaSerializer</span><span class="p">,</span>
+    <span class="n">PainelCronogramaSerializer</span><span class="p">,</span>
+    <span class="n">PainelSolicitacaoAlteracaoCronogramaSerializer</span><span class="p">,</span>
+    <span class="n">SolicitacaoAlteracaoCronogramaCompletoSerializer</span><span class="p">,</span>
+    <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.api.services</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles</span><span class="p">,</span>
+    <span class="n">ServiceQuerysetAlteracaoCronograma</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Cronograma</span><span class="p">,</span>
+    <span class="n">EtapasDoCronograma</span><span class="p">,</span>
+    <span class="n">InterrupcaoProgramadaEntrega</span><span class="p">,</span>
+    <span class="n">SolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">gerar_relatorio_cronogramas_pdf_async</span><span class="p">,</span>
+    <span class="n">gerar_relatorio_cronogramas_xlsx_async</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.relatorios.relatorios</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_pdf_cronograma</span><span class="p">,</span>
+    <span class="n">get_pdf_cronograma_ponto_a_ponto_flv</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">....dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.validators</span><span class="w"> </span><span class="kn">import</span> <span class="n">valida_parametros_calendario</span>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaModelViewSet</span><span class="p">(</span><span class="n">ViewSetActionPermissionMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ViewSet para CRUD e gerenciamento de Cronogramas.</span>
+
+<span class="sd">    Endpoints principais:</span>
+<span class="sd">    - ``GET /`` — Lista cronogramas (com filtros por número, empresa, produto, status).</span>
+<span class="sd">    - ``POST /`` — Cria um novo cronograma (rascunho).</span>
+<span class="sd">    - ``GET /dashboard/`` — Dashboard agrupado por status.</span>
+<span class="sd">    - ``GET /dashboard-com-filtro/`` — Dashboard com filtros.</span>
+<span class="sd">    - ``PATCH /&lt;uuid&gt;/fornecedor-assina-cronograma/`` — Assinatura do fornecedor.</span>
+<span class="sd">    - ``PATCH /&lt;uuid&gt;/abastecimento-assina/`` — Assinatura DILOG Abastecimento.</span>
+<span class="sd">    - ``PATCH /&lt;uuid&gt;/codae-assina/`` — Assinatura CODAE.</span>
+<span class="sd">    - ``GET /&lt;uuid&gt;/gerar-pdf-cronograma/`` — Geração de PDF.</span>
+<span class="sd">    - ``GET /rascunhos/`` — Lista cronogramas em rascunho.</span>
+<span class="sd">    - ``GET /listagem-relatorio/`` — Relatório de cronogramas com filtros.</span>
+
+<span class="sd">    Permissões são definidas dinamicamente por ``permission_action_classes``</span>
+<span class="sd">    e ``ViewSetActionPermissionMixin``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">CronogramaSerializer</span>
+    <span class="n">filter_backends</span> <span class="o">=</span> <span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">DjangoFilterBackend</span><span class="p">,)</span>
+    <span class="n">filterset_class</span> <span class="o">=</span> <span class="n">CronogramaFilter</span>
+    <span class="n">pagination_class</span> <span class="o">=</span> <span class="n">PreRecebimentoPagination</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">PermissaoParaVisualizarCronograma</span><span class="p">,)</span>
+    <span class="n">permission_action_classes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;create&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaCriarCronograma</span><span class="p">],</span>
+        <span class="s2">&quot;delete&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaCriarCronograma</span><span class="p">],</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="CronogramaModelViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o serializer adequado conforme a ação.</span>
+
+<span class="sd">        - ``retrieve`` / ``list``: CronogramaSerializer (leitura).</span>
+<span class="sd">        - ``create`` com ``ponto_a_ponto=True``: CronogramaPontoAPontoCreateSerializer.</span>
+<span class="sd">        - demais ações: CronogramaCreateSerializer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;retrieve&quot;</span><span class="p">,</span> <span class="s2">&quot;list&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">CronogramaSerializer</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">CronogramaPontoAPontoCreateSerializer</span>
+
+        <span class="k">return</span> <span class="n">CronogramaCreateSerializer</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.get_queryset">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.get_queryset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna todos os cronogramas ordenados por data de criação (decrescente).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.get_lista_status">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.get_lista_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_lista_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna os status que aparecem no dashboard do cronograma.&quot;&quot;&quot;</span>
+        <span class="n">lista_status</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Cronograma</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">ASSINADO_E_ENVIADO_AO_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">Cronograma</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">ASSINADO_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">Cronograma</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">ASSINADO_DILOG_ABASTECIMENTO</span><span class="p">,</span>
+            <span class="n">Cronograma</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">ASSINADO_CODAE</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">lista_status</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.get_default_sql">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.get_default_sql">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">query_set</span><span class="p">,</span> <span class="n">use_raw</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Busca cronogramas por status ordenados pelo log mais recente.</span>
+
+<span class="sd">        Se ``use_raw=True`` utiliza SQL raw; caso contrário ordena em</span>
+<span class="sd">        memória via Python.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">workflow</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">workflow</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">use_raw</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">db_table</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma&quot;</span><span class="p">:</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">db_table</span><span class="p">,</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">workflow</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">raw_sql</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;SELECT </span><span class="si">%(cronograma)s</span><span class="s2">.* FROM </span><span class="si">%(cronograma)s</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;JOIN (SELECT uuid_original, MAX(criado_em) AS log_criado_em FROM </span><span class="si">%(logs)s</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;GROUP BY uuid_original) &quot;</span>
+                <span class="s2">&quot;AS most_recent_log &quot;</span>
+                <span class="s2">&quot;ON </span><span class="si">%(cronograma)s</span><span class="s2">.uuid = most_recent_log.uuid_original &quot;</span>
+                <span class="s2">&quot;WHERE </span><span class="si">%(cronograma)s</span><span class="s2">.status = &#39;</span><span class="si">%(status)s</span><span class="s2">&#39; &quot;</span>
+            <span class="p">)</span>
+            <span class="n">raw_sql</span> <span class="o">+=</span> <span class="s2">&quot;ORDER BY log_criado_em DESC&quot;</span>
+
+            <span class="k">return</span> <span class="n">query_set</span><span class="o">.</span><span class="n">raw</span><span class="p">(</span><span class="n">raw_sql</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">query_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status__in</span><span class="o">=</span><span class="n">workflow</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">log_mais_recente</span> <span class="k">else</span> <span class="s2">&quot;-criado_em&quot;</span>
+                <span class="p">),</span>
+                <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">qs</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.dados_dashboard">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dados_dashboard">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dados_dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">query_set</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">,</span> <span class="n">use_raw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Monta os dados do dashboard agrupados por status.</span>
+
+<span class="sd">        Aceita parâmetros ``limit``, ``offset`` e ``status`` via query params.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">sumario</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_sql</span><span class="p">(</span>
+                <span class="n">workflow</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">query_set</span><span class="o">=</span><span class="n">query_set</span><span class="p">,</span> <span class="n">use_raw</span><span class="o">=</span><span class="n">use_raw</span>
+            <span class="p">)</span>
+            <span class="n">sumario</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+                    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">qs</span><span class="p">),</span>
+                    <span class="s2">&quot;dados&quot;</span><span class="p">:</span> <span class="n">PainelCronogramaSerializer</span><span class="p">(</span>
+                        <span class="n">qs</span><span class="p">[</span><span class="n">offset</span> <span class="p">:</span> <span class="n">limit</span> <span class="o">+</span> <span class="n">offset</span><span class="p">],</span>
+                        <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;workflow&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">},</span>
+                        <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">workflow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lista_status</span><span class="p">():</span>
+                <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_sql</span><span class="p">(</span>
+                    <span class="n">workflow</span><span class="o">=</span><span class="n">workflow</span><span class="p">,</span> <span class="n">query_set</span><span class="o">=</span><span class="n">query_set</span><span class="p">,</span> <span class="n">use_raw</span><span class="o">=</span><span class="n">use_raw</span>
+                <span class="p">)</span>
+                <span class="n">sumario</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">workflow</span><span class="p">,</span>
+                        <span class="s2">&quot;dados&quot;</span><span class="p">:</span> <span class="n">PainelCronogramaSerializer</span><span class="p">(</span>
+                            <span class="n">qs</span><span class="p">[:</span><span class="mi">6</span><span class="p">],</span>
+                            <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;workflow&quot;</span><span class="p">:</span> <span class="n">workflow</span><span class="p">},</span>
+                            <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sumario</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.dashboard">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dashboard">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;dashboard&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaDashboardCronograma</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dashboard de cronogramas agrupados por status.</span>
+
+<span class="sd">        Retorna os cronogramas mais recentes de cada status</span>
+<span class="sd">        (ASSINADO_E_ENVIADO_AO_FORNECEDOR, ASSINADO_FORNECEDOR,</span>
+<span class="sd">        ASSINADO_DILOG_ABASTECIMENTO, ASSINADO_CODAE) com até 6</span>
+<span class="sd">        registros por grupo.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dados_dashboard</span><span class="p">(</span>
+                <span class="n">query_set</span><span class="o">=</span><span class="n">query_set</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span> <span class="n">use_raw</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.dashboard_com_filtro">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dashboard_com_filtro">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;dashboard-com-filtro&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaDashboardCronograma</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dashboard_com_filtro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dashboard de cronogramas com filtros.</span>
+
+<span class="sd">        Similar ao ``dashboard``, mas permite filtrar por número do</span>
+<span class="sd">        cronograma, nome do produto e nome do fornecedor via query params.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
+        <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;numero_cronograma&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">produto</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nome_produto&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">fornecedor</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nome_fornecedor&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">numero_cronograma</span><span class="p">:</span>
+            <span class="n">query_set</span> <span class="o">=</span> <span class="n">query_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">numero__icontains</span><span class="o">=</span><span class="n">numero_cronograma</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">produto</span><span class="p">:</span>
+            <span class="n">query_set</span> <span class="o">=</span> <span class="n">query_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">ficha_tecnica__produto__nome__icontains</span><span class="o">=</span><span class="n">produto</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">fornecedor</span><span class="p">:</span>
+            <span class="n">query_set</span> <span class="o">=</span> <span class="n">query_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">empresa__razao_social__icontains</span><span class="o">=</span><span class="n">fornecedor</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dados_dashboard</span><span class="p">(</span>
+                <span class="n">query_set</span><span class="o">=</span><span class="n">query_set</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span> <span class="n">use_raw</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.list">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista cronogramas com paginação.</span>
+
+<span class="sd">        Para usuários do perfil ADMINISTRADOR_EMPRESA que são</span>
+<span class="sd">        fornecedores, filtra apenas os cronogramas da sua empresa.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vinculo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_queryset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">())</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">vinculo</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="n">ADMINISTRADOR_EMPRESA</span>
+            <span class="ow">and</span> <span class="n">vinculo</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_fornecedor</span>
+        <span class="p">):</span>
+            <span class="n">queryset</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">empresa</span><span class="o">=</span><span class="n">vinculo</span><span class="o">.</span><span class="n">instituicao</span><span class="p">)</span>
+
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.lista_relatorio">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_relatorio">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaVisualizarRelatorioCronograma</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;listagem-relatorio&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lista_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna listagem de cronogramas para relatório com filtros.</span>
+
+<span class="sd">        Aceita filtros por ``situacao`` (lista), ``data_inicial`` e</span>
+<span class="sd">        ``data_final`` via query params. Aplica paginação e retorna</span>
+<span class="sd">        totalizadores por status.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_queryset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">situacoes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;situacao&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">data_inicial</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_inicial&quot;</span><span class="p">)</span>
+        <span class="n">data_final</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_final&quot;</span><span class="p">)</span>
+
+        <span class="n">tem_filtro_pos_serializacao</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">situacoes</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">situacoes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="n">data_inicial</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="n">data_final</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tem_filtro_pos_serializacao</span><span class="p">:</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaRelatorioSerializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">filtros</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;situacao&quot;</span><span class="p">:</span> <span class="n">situacoes</span><span class="p">,</span>
+                <span class="s2">&quot;data_inicial&quot;</span><span class="p">:</span> <span class="n">data_inicial</span><span class="p">,</span>
+                <span class="s2">&quot;data_final&quot;</span><span class="p">:</span> <span class="n">data_final</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">dados_filtrados</span> <span class="o">=</span> <span class="n">filtrar_etapas</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">filtros</span><span class="p">)</span>
+
+            <span class="n">page_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pagination_class</span><span class="p">()</span><span class="o">.</span><span class="n">page_size</span>
+            <span class="n">page_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;page&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+            <span class="n">start_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">page_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">page_size</span>
+            <span class="n">end_index</span> <span class="o">=</span> <span class="n">start_index</span> <span class="o">+</span> <span class="n">page_size</span>
+            <span class="n">dados_paginados</span> <span class="o">=</span> <span class="n">dados_filtrados</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">]</span>
+
+            <span class="n">total_items</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dados_filtrados</span><span class="p">)</span>
+            <span class="n">total_pages</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">total_items</span> <span class="o">/</span> <span class="n">page_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">page_size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+            <span class="n">has_next</span> <span class="o">=</span> <span class="n">page_number</span> <span class="o">&lt;</span> <span class="n">total_pages</span>
+            <span class="n">has_previous</span> <span class="o">=</span> <span class="n">page_number</span> <span class="o">&gt;</span> <span class="mi">1</span>
+
+            <span class="n">response_data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="n">total_items</span><span class="p">,</span>
+                <span class="s2">&quot;next&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;?page=</span><span class="si">{</span><span class="n">page_number</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">has_next</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;previous&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;?page=</span><span class="si">{</span><span class="n">page_number</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">has_previous</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">dados_paginados</span><span class="p">,</span>
+                <span class="s2">&quot;totalizadores&quot;</span><span class="p">:</span> <span class="n">totalizador_relatorio_cronograma</span><span class="p">(</span><span class="n">dados_filtrados</span><span class="p">),</span>
+            <span class="p">}</span>
+
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">response_data</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaRelatorioSerializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;totalizadores&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">totalizador_relatorio_cronograma</span><span class="p">(</span>
+                    <span class="n">queryset</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">response</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaRelatorioSerializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.etapas">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.etapas">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;opcoes-etapas&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">etapas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna lista de opções de etapas (1 a 100) para formulários.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">EtapasDoCronograma</span><span class="o">.</span><span class="n">etapas_to_json</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.rascunhos">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.rascunhos">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;rascunhos&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rascunhos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna lista de cronogramas em status RASCUNHO.&quot;&quot;&quot;</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status__in</span><span class="o">=</span><span class="p">[</span><span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">RASCUNHO</span><span class="p">])</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">CronogramaRascunhosSerializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.fornecedor_assina">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.fornecedor_assina">[docs]</a>
+    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaAssinarCronogramaUsuarioFornecedor</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;fornecedor-assina-cronograma&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fornecedor_assina</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra a assinatura do fornecedor no cronograma.</span>
+
+<span class="sd">        Valida a senha do usuário antes de prosseguir. Avança o fluxo</span>
+<span class="sd">        do cronograma para ASSINADO_FORNECEDOR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">usuario</span><span class="o">.</span><span class="n">verificar_autenticidade</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Assinatura do cronograma não foi validada. Verifique sua senha.&quot;</span>
+                <span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cronograma</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="n">cronograma</span><span class="o">.</span><span class="n">fornecedor_assina</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaSerializer</span><span class="p">(</span><span class="n">cronograma</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cronograma informado não é valido: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_406_NOT_ACCEPTABLE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Erro de transição de estado: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.abastecimento_assina">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.abastecimento_assina">[docs]</a>
+    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioDilogAbastecimento</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;abastecimento-assina&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">abastecimento_assina</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra a assinatura da DILOG Abastecimento no cronograma.</span>
+
+<span class="sd">        Valida a senha do usuário antes de prosseguir. Avança o fluxo</span>
+<span class="sd">        do cronograma para ASSINADO_DILOG_ABASTECIMENTO.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">usuario</span><span class="o">.</span><span class="n">verificar_autenticidade</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Assinatura do cronograma não foi validada. Verifique sua senha.&quot;</span>
+                <span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cronograma</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="n">cronograma</span><span class="o">.</span><span class="n">dilog_abastecimento_assina</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaSerializer</span><span class="p">(</span><span class="n">cronograma</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cronograma informado não é valido: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_406_NOT_ACCEPTABLE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Erro de transição de estado: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.codae_assina">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.codae_assina">[docs]</a>
+    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaAssinarCronogramaUsuarioDilog</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;codae-assina&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">codae_assina</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra a assinatura da CODAE no cronograma.</span>
+
+<span class="sd">        Valida a senha do usuário antes de prosseguir. Avança o fluxo</span>
+<span class="sd">        do cronograma para ASSINADO_CODAE (última etapa do fluxo).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">usuario</span><span class="o">.</span><span class="n">verificar_autenticidade</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Assinatura do cronograma não foi validada. Verifique sua senha.&quot;</span>
+                <span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cronograma</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="n">cronograma</span><span class="o">.</span><span class="n">codae_assina</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaSerializer</span><span class="p">(</span><span class="n">cronograma</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Cronograma informado não é valido: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_406_NOT_ACCEPTABLE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Erro de transição de estado: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.gerar_pdf_cronograma">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.gerar_pdf_cronograma">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;gerar-pdf-cronograma&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gerar_pdf_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gera o PDF do cronograma.</span>
+
+<span class="sd">        Para cronogramas Ponto a Ponto (FLV) utiliza o template específico</span>
+<span class="sd">        ``get_pdf_cronograma_ponto_a_ponto_flv``. Para os demais, utiliza</span>
+<span class="sd">        o template ``get_pdf_cronograma`` padrão.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cronograma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">ponto_a_ponto</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_pdf_cronograma_ponto_a_ponto_flv</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">get_pdf_cronograma</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.detalhar_com_log">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.detalhar_com_log">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;detalhar-com-log&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detalhar_com_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna os detalhes do cronograma com o histórico de logs.&quot;&quot;&quot;</span>
+        <span class="n">cronograma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">CronogramaComLogSerializer</span><span class="p">(</span><span class="n">cronograma</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.lista_cronogramas_para_cadastro">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_cronogramas_para_cadastro">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;lista-cronogramas-cadastro&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lista_cronogramas_para_cadastro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista cronogramas para usar em campos de seleção em cadastros.</span>
+
+<span class="sd">        Para fornecedores, retorna apenas os cronogramas da sua empresa.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">eh_fornecedor</span><span class="p">:</span>
+            <span class="n">cronogramas</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">empresa</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cronogramas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaSimplesSerializer</span><span class="p">(</span><span class="n">cronogramas</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">serializer</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.lista_cronogramas_ficha_recebimento">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_cronogramas_ficha_recebimento">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;lista-cronogramas-ficha-recebimento&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lista_cronogramas_ficha_recebimento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista cronogramas aptos para gerar ficha de recebimento.</span>
+
+<span class="sd">        Retorna apenas cronogramas com status ASSINADO_CODAE.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">ASSINADO_CODAE</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">CronogramaSimplesSerializer</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.dados_cronograma_ficha_recebimento">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dados_cronograma_ficha_recebimento">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;dados-cronograma-ficha-recebimento&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dados_cronograma_ficha_recebimento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna os dados completos do cronograma para a ficha de recebimento.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">CronogramaFichaDeRecebimentoSerializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">())</span><span class="o">.</span><span class="n">data</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.gerar_relatorio_xlsx_async">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.gerar_relatorio_xlsx_async">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaVisualizarRelatorioCronograma</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;gerar-relatorio-xlsx-async&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gerar_relatorio_xlsx_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solicita a geração assíncrona de relatório de cronogramas em XLSX.</span>
+
+<span class="sd">        Os filtros (situação, data_inicial, data_final) são passados</span>
+<span class="sd">        via query params.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ids_cronogramas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">filter_queryset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">())</span>
+                <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">filtros</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;situacao&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;situacao&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="s2">&quot;data_inicial&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_inicial&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;data_final&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_final&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">gerar_relatorio_cronogramas_xlsx_async</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+            <span class="n">ids_cronogramas</span><span class="p">,</span>
+            <span class="n">filtros</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Solicitação de geração de arquivo recebida com sucesso.&quot;</span><span class="p">},</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaModelViewSet.gerar_relatorio_pdf_async">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.gerar_relatorio_pdf_async">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaVisualizarRelatorioCronograma</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;gerar-relatorio-pdf-async&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gerar_relatorio_pdf_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solicita a geração assíncrona de relatório de cronogramas em PDF.</span>
+
+<span class="sd">        Os filtros (situação, data_inicial, data_final) são passados</span>
+<span class="sd">        via query params.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ids_cronogramas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">filter_queryset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">())</span>
+                <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">filtros</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;situacao&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;situacao&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="s2">&quot;data_inicial&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_inicial&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;data_final&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_final&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">gerar_relatorio_cronogramas_pdf_async</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+            <span class="n">ids_cronogramas</span><span class="p">,</span>
+            <span class="n">filtros</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Solicitação de geração de arquivo recebida com sucesso.&quot;</span><span class="p">},</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDeAlteracaoCronogramaViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ViewSet para CRUD e gerenciamento de solicitações de alteração de cronograma.</span>
+
+<span class="sd">    Permite que fornecedores e CODAE criem solicitações de alteração de</span>
+<span class="sd">    cronogramas já assinados. Inclui fluxo de aprovação com análise da</span>
+<span class="sd">    DILOG Abastecimento e DILOG, ciência do cronograma e dashboard.</span>
+
+<span class="sd">    Endpoints principais:</span>
+<span class="sd">    - ``GET /`` — Lista solicitações (ordenadas por prioridade do perfil).</span>
+<span class="sd">    - ``POST /`` — Cria nova solicitação de alteração.</span>
+<span class="sd">    - ``GET /dashboard/`` — Dashboard por status.</span>
+<span class="sd">    - ``PATCH /&lt;uuid&gt;/cronograma-ciente/`` — Confirma ciência do cronograma.</span>
+<span class="sd">    - ``PATCH /&lt;uuid&gt;/analise-abastecimento/`` — Análise DILOG Abastecimento.</span>
+<span class="sd">    - ``PATCH /&lt;uuid&gt;/analise-dilog/`` — Análise DILOG.</span>
+<span class="sd">    - ``PATCH /&lt;uuid&gt;/fornecedor-ciente/`` — Ciência do fornecedor.</span>
+
+<span class="sd">    Permissões são ajustadas por ação via ``get_permissions()``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">filter_backends</span> <span class="o">=</span> <span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">DjangoFilterBackend</span><span class="p">,)</span>
+    <span class="n">pagination_class</span> <span class="o">=</span> <span class="n">PreRecebimentoPagination</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,)</span>
+    <span class="n">filterset_class</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaFilter</span>
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.get_queryset">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.get_queryset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitações de alteração.</span>
+
+<span class="sd">        Para fornecedores, filtra apenas as solicitações dos cronogramas</span>
+<span class="sd">        da sua empresa.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">eh_fornecedor</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">cronograma__empresa</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o serializer adequado conforme a ação.</span>
+
+<span class="sd">        - ``list``: SolicitacaoAlteracaoCronogramaSerializer (resumo).</span>
+<span class="sd">        - ``retrieve``: SolicitacaoAlteracaoCronogramaCompletoSerializer (detalhes + logs).</span>
+<span class="sd">        - demais: SolicitacaoDeAlteracaoCronogramaCreateSerializer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">serializer_classes_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;list&quot;</span><span class="p">:</span> <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;retrieve&quot;</span><span class="p">:</span> <span class="n">SolicitacaoAlteracaoCronogramaCompletoSerializer</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">serializer_classes_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="n">SolicitacaoDeAlteracaoCronogramaCreateSerializer</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.get_permissions">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.get_permissions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as permissões específicas para cada ação.</span>
+
+<span class="sd">        - ``list`` / ``retrieve``: PermissaoParaVisualizarSolicitacoesAlteracaoCronograma.</span>
+<span class="sd">        - ``create``: PermissaoParaCriarSolicitacoesAlteracaoCronograma.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">permission_classes_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;list&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">PermissaoParaVisualizarSolicitacoesAlteracaoCronograma</span><span class="p">,),</span>
+            <span class="s2">&quot;retrieve&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">PermissaoParaVisualizarSolicitacoesAlteracaoCronograma</span><span class="p">,),</span>
+            <span class="s2">&quot;create&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">PermissaoParaCriarSolicitacoesAlteracaoCronograma</span><span class="p">,),</span>
+        <span class="p">}</span>
+        <span class="n">action_permissions</span> <span class="o">=</span> <span class="n">permission_classes_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">permission_classes</span><span class="p">,</span> <span class="o">*</span><span class="n">action_permissions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SolicitacaoDeAlteracaoCronogramaViewSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_permissions</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.list">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lista solicitações de alteração ordenadas por prioridade do perfil.</span>
+
+<span class="sd">        Utiliza o ServiceQuerysetAlteracaoCronograma para ordenar:</span>
+<span class="sd">        primeiro os status prioritários do perfil, depois os demais.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="n">ServiceQuerysetAlteracaoCronograma</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_queryset</span><span class="p">)</span>
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_dados_dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">filtros</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Monta os dados do dashboard de solicitações de alteração.</span>
+
+<span class="sd">        Aceita parâmetros ``limit``, ``offset`` e ``status``.</span>
+<span class="sd">        Os status exibidos variam conforme o perfil do usuário.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="k">if</span> <span class="s2">&quot;limit&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span>
+            <span class="k">else</span> <span class="mi">6</span>
+        <span class="p">)</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">if</span> <span class="s2">&quot;offset&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span>
+            <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">dados_dashboard</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lista_status</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">status</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">status</span>
+            <span class="k">else</span> <span class="n">ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles</span><span class="o">.</span><span class="n">get_dashboard_status</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">dados_dashboard</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+                <span class="s2">&quot;dados&quot;</span><span class="p">:</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filtrar_por_status</span><span class="p">(</span>
+                    <span class="n">status</span><span class="p">,</span> <span class="n">filtros</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span> <span class="o">+</span> <span class="n">offset</span>
+                <span class="p">),</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">lista_status</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">dados_dashboard</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filtrar_por_status</span><span class="p">(</span>
+                    <span class="n">status</span><span class="p">,</span> <span class="n">filtros</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dados_dashboard</span>
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.dashboard">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.dashboard">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;dashboard&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dashboard de solicitações de alteração agrupadas por status.</span>
+
+<span class="sd">        Os status exibidos variam conforme o perfil do usuário logado</span>
+<span class="sd">        (fornecedor, DILOG Abastecimento, DILOG, CODAE, etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">serialized_data</span> <span class="o">=</span> <span class="n">PainelSolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dados_dashboard</span><span class="p">(</span><span class="n">request</span><span class="p">),</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">serialized_data</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.dashboard_com_filtro">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.dashboard_com_filtro">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;dashboard-com-filtro&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">PermissaoParaListarDashboardSolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dashboard_com_filtro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dashboard com filtros por parâmetros de consulta.</span>
+
+<span class="sd">        Aceita os mesmos filtros do ``SolicitacaoAlteracaoCronogramaFilter``</span>
+<span class="sd">        via query params (número do cronograma, fornecedor, data, status).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filtros</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span>
+        <span class="n">serialized_data</span> <span class="o">=</span> <span class="n">PainelSolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dados_dashboard</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">filtros</span><span class="p">),</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">serialized_data</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.cronograma_ciente">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.cronograma_ciente">[docs]</a>
+    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaDarCienciaAlteracaoCronograma</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;cronograma-ciente&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cronograma_ciente</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra a ciência do cronograma sobre a alteração solicitada.</span>
+
+<span class="sd">        Recebe as novas etapas e programações de recebimento, substitui</span>
+<span class="sd">        as anteriores e avança o fluxo da solicitação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa_cronograma&quot;</span><span class="p">)</span>
+        <span class="n">etapas</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">programacoes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;programacoes_de_recebimento&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">solicitacao_alteracao</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span>
+            <span class="p">)</span>
+            <span class="n">solicitacao_alteracao</span><span class="o">.</span><span class="n">cronograma_confirma_ciencia</span><span class="p">(</span>
+                <span class="n">justificativa</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="n">etapas</span><span class="p">,</span> <span class="n">programacoes</span>
+            <span class="p">)</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span><span class="n">solicitacao_alteracao</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Solicitação Cronograma informado não é valido: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_406_NOT_ACCEPTABLE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Erro de transição de estado: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.analise_abastecimento">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.analise_abastecimento">[docs]</a>
+    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;analise-abastecimento&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analise_abastecimento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Análise da solicitação pela DILOG Abastecimento.</span>
+
+<span class="sd">        Recebe o parâmetro ``aprovado`` (bool) no body. Se ``True``,</span>
+<span class="sd">        aprova a solicitação; se ``False``, reprova com justificativa</span>
+<span class="sd">        (campo ``justificativa_abastecimento``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">aprovado</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="s2">&quot;aprovado&quot;</span><span class="p">),</span> <span class="s2">&quot;aprovado&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">solicitacao_cronograma</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">aprovado</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_abastecimento_aprova</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">aprovado</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa_abastecimento&quot;</span><span class="p">)</span>
+                <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_abastecimento_reprova</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Parametro aprovado deve ser true ou false.&quot;</span><span class="p">)</span>
+            <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span>
+                <span class="n">solicitacao_cronograma</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Solicitação Cronograma informado não é valido: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_406_NOT_ACCEPTABLE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Erro de transição de estado: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.analise_dilog">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.analise_dilog">[docs]</a>
+    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaAnalisarDilogSolicitacaoAlteracaoCronograma</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;analise-dilog&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analise_dilog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Análise final da solicitação pela DILOG.</span>
+
+<span class="sd">        Recebe o parâmetro ``aprovado`` (bool) no body. Se aprovada,</span>
+<span class="sd">        substitui as etapas e programações do cronograma original pelas</span>
+<span class="sd">        novas. Se reprovada, registra a justificativa (campo</span>
+<span class="sd">        ``justificativa_dilog``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">aprovado</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="s2">&quot;aprovado&quot;</span><span class="p">),</span> <span class="s2">&quot;aprovado&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">solicitacao_cronograma</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">aprovado</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_aprova</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span>
+                <span class="n">cronograma</span> <span class="o">=</span> <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">cronograma</span>
+                <span class="n">cronograma</span><span class="o">.</span><span class="n">etapas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">etapas_novas</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+                <span class="n">cronograma</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                <span class="n">cronograma</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                    <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">programacoes_novas</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">cronograma</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">aprovado</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa_dilog&quot;</span><span class="p">)</span>
+                <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_reprova</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Parametro aprovado deve ser true ou false.&quot;</span><span class="p">)</span>
+            <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">finaliza_solicitacao_alteracao</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">usuario</span>
+            <span class="p">)</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span>
+                <span class="n">solicitacao_cronograma</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Solicitação Cronograma informado não é valido: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_406_NOT_ACCEPTABLE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Erro de transição de estado: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaViewSet.fornecedor_ciente">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.fornecedor_ciente">[docs]</a>
+    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaAssinarCronogramaUsuarioFornecedor</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;fornecedor-ciente&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fornecedor_ciente</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra a ciência do fornecedor sobre a alteração.</span>
+
+<span class="sd">        Avança o fluxo da solicitação e, se o cronograma não estiver</span>
+<span class="sd">        no status ``ASSINADO_CODAE``, finaliza a solicitação de alteração.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">solicitacao_cronograma</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span>
+            <span class="p">)</span>
+
+            <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">fornecedor_ciente</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span>
+            <span class="n">cronograma</span> <span class="o">=</span> <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">cronograma</span>
+
+            <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">ASSINADO_CODAE</span><span class="p">:</span>
+                <span class="n">usuario_codae</span> <span class="o">=</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">logs</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">cronograma</span><span class="o">.</span><span class="n">logs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">usuario</span>
+                <span class="n">cronograma</span><span class="o">.</span><span class="n">finaliza_solicitacao_alteracao</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">usuario_codae</span><span class="p">,</span>
+                    <span class="n">justificativa</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span>
+                <span class="n">solicitacao_cronograma</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Solicitação Cronograma informado não é valido: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_406_NOT_ACCEPTABLE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Erro de transição de estado: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CalendarioCronogramaViewset">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CalendarioCronogramaViewset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CalendarioCronogramaViewset</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ReadOnlyModelViewSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ViewSet para consulta de etapas de cronograma em formato de calendário.</span>
+
+<span class="sd">    Endpoints:</span>
+<span class="sd">    - ``GET /etapas-por-mes/`` — Etapas agrupadas por mês/ano.</span>
+<span class="sd">    - ``GET /datas-bloqueadas-armazenavel/`` — Datas bloqueadas (tipo armazenável).</span>
+
+<span class="sd">    Utilizado pelo frontend para exibir cronogramas em visualização de calendário.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">EtapasDoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cronograma__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span>
+        <span class="s2">&quot;-criado_em&quot;</span>
+    <span class="p">)</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaCalendarioSerializer</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">PermissaoParaVisualizarCalendarioCronograma</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="CalendarioCronogramaViewset.get_queryset">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CalendarioCronogramaViewset.get_queryset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna etapas de cronograma filtradas por mês/ano.</span>
+
+<span class="sd">        Valida os parâmetros ``mes`` e ``ano`` (obrigatórios) e filtra</span>
+<span class="sd">        apenas cronogramas com status ASSINADO_CODAE, ALTERACAO_CODAE</span>
+<span class="sd">        ou SOLICITADO_ALTERACAO.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">ano</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ano&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">valida_parametros_calendario</span><span class="p">(</span><span class="n">mes</span><span class="p">,</span> <span class="n">ano</span><span class="p">)</span>
+
+        <span class="n">status_necessarios_cronogramas</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">ASSINADO_CODAE</span><span class="p">,</span>
+            <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_CODAE</span><span class="p">,</span>
+            <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">SOLICITADO_ALTERACAO</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="n">EtapasDoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">cronograma__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">cronograma__status__in</span><span class="o">=</span><span class="n">status_necessarios_cronogramas</span><span class="p">,</span>
+            <span class="n">data_programada__month</span><span class="o">=</span><span class="n">mes</span><span class="p">,</span>
+            <span class="n">data_programada__year</span><span class="o">=</span><span class="n">ano</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">queryset</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaViewSet">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InterrupcaoProgramadaEntregaViewSet</span><span class="p">(</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">CreateModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">DestroyModelMixin</span><span class="p">,</span>
+    <span class="n">viewsets</span><span class="o">.</span><span class="n">GenericViewSet</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ViewSet para cadastro e listagem de Interrupções Programadas de Entregas.&quot;&quot;&quot;</span>
+
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">InterrupcaoProgramadaEntrega</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">PermissaoParaVisualizarCalendarioCronograma</span><span class="p">,)</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o serializer conforme a ação.</span>
+
+<span class="sd">        - ``create``: InterrupcaoProgramadaEntregaCreateSerializer.</span>
+<span class="sd">        - demais: InterrupcaoProgramadaEntregaSerializer (leitura).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;create&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">InterrupcaoProgramadaEntregaCreateSerializer</span>
+        <span class="k">return</span> <span class="n">InterrupcaoProgramadaEntregaSerializer</span></div>
+
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaViewSet.get_queryset">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.get_queryset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna interrupções filtradas por mês, ano e tipo de calendário.&quot;&quot;&quot;</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">)</span>
+        <span class="n">ano</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ano&quot;</span><span class="p">)</span>
+        <span class="n">motivo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;motivo[]&quot;</span><span class="p">)</span>
+        <span class="n">tipo_calendario</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;tipo_calendario[]&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mes</span> <span class="ow">and</span> <span class="n">ano</span><span class="p">:</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__month</span><span class="o">=</span><span class="n">mes</span><span class="p">,</span> <span class="n">data__year</span><span class="o">=</span><span class="n">ano</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">motivo</span><span class="p">:</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">motivo__in</span><span class="o">=</span><span class="n">motivo</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tipo_calendario</span><span class="p">:</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tipo_calendario__in</span><span class="o">=</span><span class="n">tipo_calendario</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">qs</span></div>
+
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaViewSet.motivos">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.motivos">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;motivos&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">motivos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna lista de motivos disponíveis para interrupção.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">InterrupcaoProgramadaEntrega</span><span class="o">.</span><span class="n">MOTIVO_CHOICES</span>
+                <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">InterrupcaoProgramadaEntrega</span><span class="o">.</span><span class="n">MOTIVO_FERIADO</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntregaViewSet.datas_bloqueadas_armazenavel">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.datas_bloqueadas_armazenavel">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;datas-bloqueadas-armazenavel&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datas_bloqueadas_armazenavel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna lista de datas bloqueadas para cadastro de etapas (tipo ARMAZENAVEL).&quot;&quot;&quot;</span>
+        <span class="n">ano_atual</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
+        <span class="n">ano_proximo</span> <span class="o">=</span> <span class="n">ano_atual</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">datas</span> <span class="o">=</span> <span class="n">InterrupcaoProgramadaEntrega</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">tipo_calendario</span><span class="o">=</span><span class="n">InterrupcaoProgramadaEntrega</span><span class="o">.</span><span class="n">TIPO_CALENDARIO_ARMAZENAVEL</span><span class="p">,</span>
+            <span class="n">data__year__in</span><span class="o">=</span><span class="p">[</span><span class="n">ano_atual</span><span class="p">,</span> <span class="n">ano_proximo</span><span class="p">],</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">datas</span><span class="p">)},</span> <span class="n">status</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

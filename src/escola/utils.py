@@ -17,6 +17,16 @@ from ..escola import models
 logger = logging.getLogger("sigpae.taskEscola")
 
 
+def _normaliza_data_referencia_matriculados(data_referencia=None):
+    if data_referencia is None:
+        return date.today() - timedelta(days=1)
+    if isinstance(data_referencia, datetime):
+        return data_referencia.date()
+    if isinstance(data_referencia, str):
+        return date.fromisoformat(data_referencia)
+    return data_referencia
+
+
 def meses_to_mes_e_ano_string(total_meses):
     anos = total_meses // 12
     meses = total_meses % 12
@@ -87,14 +97,16 @@ def remove_acentos(texto):
     return resultado
 
 
-def update_datetime_LogAlunosMatriculadosPeriodoEscola():
+def update_datetime_LogAlunosMatriculadosPeriodoEscola(data_referencia=None):
     from src.escola.models import LogAlunosMatriculadosPeriodoEscola
 
+    data_referencia = _normaliza_data_referencia_matriculados(data_referencia)
     hoje = date.today()
+    deslocamento = hoje - data_referencia
     logs_hoje = LogAlunosMatriculadosPeriodoEscola.objects.filter(criado_em__date=hoje)
 
     for log in logs_hoje:
-        log.criado_em = log.criado_em - timedelta(days=1)
+        log.criado_em = log.criado_em - deslocamento
         log.save()
 
 
@@ -156,7 +168,7 @@ def registra_quantidade_matriculados(matriculas, ontem, tipo_turma):  # noqa C90
             tipo_turma=tipo_turma, escola=escola
         ).exclude(periodo_escolar__in=periodos).delete()
     AlunosMatriculadosPeriodoEscola.objects.bulk_update(objs, ["quantidade_alunos"])
-    update_datetime_LogAlunosMatriculadosPeriodoEscola()
+    update_datetime_LogAlunosMatriculadosPeriodoEscola(ontem)
 
 
 def create_update_objeto_escola_periodo_escolar(
@@ -188,14 +200,16 @@ def duplica_dia_anterior(dre, dois_dias_atras, ontem, tipo_turma_name):
             data=ontem,
             tipo_turma=tipo_turma_name,
         )
-    update_datetime_LogAlunosMatriculadosPeriodoEscola()
+    update_datetime_LogAlunosMatriculadosPeriodoEscola(ontem)
 
 
-def registro_quantidade_alunos_matriculados_por_escola_periodo(tipo_turma):
+def registro_quantidade_alunos_matriculados_por_escola_periodo(
+    tipo_turma, data_referencia=None
+):
     from src.escola.models import DiretoriaRegional
 
-    hoje = date.today()
-    ontem = hoje - timedelta(days=1)
+    ontem = _normaliza_data_referencia_matriculados(data_referencia)
+    hoje = ontem + timedelta(days=1)
     dres = DiretoriaRegional.objects.all()
     total = len(dres)
     cont = 1
@@ -953,16 +967,15 @@ def datas_para_gerar_logs(escola, hoje: date | None = None) -> list[date]:
     return datas
 
 
-def duplica_logs_ultimo_dia_letivo(tipo_turma):
+def duplica_logs_ultimo_dia_letivo(tipo_turma, data_referencia=None):
     from src.escola.models import Escola, LogAlunosMatriculadosPeriodoEscola
 
     DEZEMBRO = 12
 
-    hoje = date.today()
+    ontem = _normaliza_data_referencia_matriculados(data_referencia)
+    hoje = ontem + timedelta(days=1)
     if hoje.month != DEZEMBRO:
         return
-
-    ontem = date.today() - timedelta(days=1)
 
     escolas = Escola.objects.all()
     for escola in escolas:
@@ -972,7 +985,7 @@ def duplica_logs_ultimo_dia_letivo(tipo_turma):
             criado_em__date=ontem, tipo_turma=tipo_turma.name
         )
         for log in logs_da_escola:
-            LogAlunosMatriculadosPeriodoEscola.objects.create(
+            novo_log = LogAlunosMatriculadosPeriodoEscola.objects.create(
                 escola=escola,
                 tipo_turma=log.tipo_turma,
                 periodo_escolar=log.periodo_escolar,
@@ -980,3 +993,5 @@ def duplica_logs_ultimo_dia_letivo(tipo_turma):
                 cei_ou_emei=log.cei_ou_emei,
                 infantil_ou_fundamental=log.infantil_ou_fundamental,
             )
+            novo_log.criado_em = log.criado_em + timedelta(days=1)
+            novo_log.save()

@@ -39,6 +39,7 @@ from src.dados_comuns.utils import (
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
@@ -150,7 +151,7 @@ def get_lista_categorias_campos(medicao, tipo_turma=None):
     lista_categorias_campos = sorted(
         list(
             queryset.exclude(
-                nome_campo__in=["observacoes", "dietas_autorizadas", "matriculados"]
+                nome_campo__in=["observacoes", "dietas_autorizadas", "matriculados", "participantes"]
             )
             .values_list("categoria_medicao__nome", "nome_campo")
             .distinct()
@@ -197,39 +198,42 @@ def get_lista_categorias_campos_cei(medicao):
     return lista_categorias_campos
 
 
+def _get_campos_iniciais_categoria(categoria: str, medicao) -> list:
+    """Retorna os campos iniciais de uma categoria conforme o tipo de medição."""
+    GRUPOS_PROGRAMAS = ["Programas e Projetos", "ETEC"]
+    GRUPOS_RECREIO = ["Recreio nas Férias", "Colaboradores"]
+
+    if "DIETA" in categoria:
+        return ["aprovadas"]
+
+    grupo_nome = medicao.grupo.nome if medicao.grupo else None
+
+    if grupo_nome == "Solicitações de Alimentação":
+        return []
+    if grupo_nome in GRUPOS_PROGRAMAS:
+        return ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]
+    if grupo_nome in GRUPOS_RECREIO:
+        return ["participantes", "total_refeicoes_pagamento", "total_sobremesas_pagamento"]
+
+    return ["matriculados", "total_refeicoes_pagamento", "total_sobremesas_pagamento"]
+
+
 def build_dict_relacao_categorias_e_campos(medicao, tipo_turma=None):
     CATEGORIA = 0
     CAMPO = 1
 
     lista_categorias_campos = get_lista_categorias_campos(medicao, tipo_turma)
     dict_categorias_campos = {}
+
     for categoria_campo in lista_categorias_campos:
-        if categoria_campo[CATEGORIA] not in dict_categorias_campos.keys():
-            if "DIETA" in categoria_campo[CATEGORIA]:
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = ["aprovadas"]
-            elif medicao.grupo and medicao.grupo.nome == "Solicitações de Alimentação":
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = []
-            elif medicao.grupo and medicao.grupo.nome in [
-                "Programas e Projetos",
-                "ETEC",
-            ]:
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = [
-                    "total_refeicoes_pagamento",
-                    "total_sobremesas_pagamento",
-                ]
-            else:
-                dict_categorias_campos[categoria_campo[CATEGORIA]] = [
-                    "matriculados",
-                    "total_refeicoes_pagamento",
-                    "total_sobremesas_pagamento",
-                ]
-            dict_categorias_campos[categoria_campo[CATEGORIA]] += [
-                categoria_campo[CAMPO]
-            ]
-        else:
-            dict_categorias_campos[categoria_campo[CATEGORIA]] += [
-                categoria_campo[CAMPO]
-            ]
+        categoria = categoria_campo[CATEGORIA]
+        campo = categoria_campo[CAMPO]
+
+        if categoria not in dict_categorias_campos:
+            dict_categorias_campos[categoria] = _get_campos_iniciais_categoria(categoria, medicao)
+
+        dict_categorias_campos[categoria].append(campo)
+
     return dict_categorias_campos
 
 
@@ -959,6 +963,29 @@ def popula_campo_matriculados(
             valores_dia += ["0"]
 
 
+def popula_campo_participantes(
+    dia,
+    campo,
+    valores_dia,
+    solicitacao,
+    categoria_corrente,
+    periodo_corrente,
+):
+    if campo != "participantes":
+        return
+    try:
+        recreio = solicitacao.recreio_nas_ferias
+        unidade = recreio.unidades_participantes.get(
+            unidade_educacional=solicitacao.escola
+        )
+        if "Colaboradores" in periodo_corrente or "COLABORADORES" in categoria_corrente:
+            valores_dia += [unidade.num_colaboradores]
+        else:
+            valores_dia += [unidade.num_inscritos]
+    except Exception:
+        valores_dia += [0]
+
+
 def get_nome_periodo(periodo_corrente):
     if periodo_corrente in [
         "Infantil INTEGRAL",
@@ -1046,6 +1073,8 @@ def popula_campo_aprovadas(
             )
             if periodo in ["Programas e Projetos", "ETEC"]:
                 logs_dietas = logs_dietas.filter(periodo_escolar=None)
+            elif periodo in ["Recreio nas Férias", "Colaboradores"]:
+                pass
             else:
                 logs_dietas = logs_dietas.filter(periodo_escolar__nome=periodo)
             quantidade = logs_dietas.aggregate(Sum("quantidade")).get("quantidade__sum")
@@ -1115,12 +1144,14 @@ def popula_campos_preenchidos_pela_escola(
             "Infantil INTEGRAL",
             "Infantil MANHA",
             "Infantil TARDE",
+            "Recreio nas Férias",
+            "Colaboradores",
         ]:
             medicao = medicoes.get(grupo__nome=periodo)
         else:
             medicao = medicoes.get(periodo_escolar__nome=periodo, grupo=None)
 
-        valores_dia += [
+        resultado = (
             medicao.valores_medicao.filter(
                 dia=f"{dia:02d}",
                 categoria_medicao__nome=categoria_corrente,
@@ -1128,8 +1159,8 @@ def popula_campos_preenchidos_pela_escola(
                 infantil_ou_fundamental=tipo_turma,
             )
             .first()
-            .valor
-        ]
+        )
+        valores_dia += [resultado.valor if resultado else "0"]
     except (ValorMedicao.DoesNotExist, AttributeError):
         valores_dia += ["0"]
 
@@ -1359,14 +1390,28 @@ def popula_campo_total_refeicoes_pagamento(
                 valores_tabela_anterior,
                 "numero_de_alunos",
             )
+            valor_participantes = get_valor_campo(
+                campos,
+                campos_tabela_anterior,
+                indice_periodo,
+                tabela,
+                tabela_anterior,
+                valores,
+                valores_tabela_anterior,
+                "participantes",
+            )
             eh_emebs_infantil = (
                 solicitacao.escola.eh_emebs_data(solicitacao.data_referencia)
                 and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
             )
+            eh_colaboradores = "Colaboradores" in periodo_corrente
             if (
-                solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
-                or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                or eh_emebs_infantil
+                not eh_colaboradores
+                and (
+                    solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
+                    or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
+                    or eh_emebs_infantil
+                )
             ):
                 valores_dia = get_valor_total_emei_cemei(
                     solicitacao,
@@ -1377,12 +1422,15 @@ def popula_campo_total_refeicoes_pagamento(
                     valor_repeticao_segunda_refeicao,
                     valor_matriculados,
                     valor_numero_de_alunos,
+                    valor_participantes,
                 )
             else:
                 valor_comparativo = (
                     valor_matriculados
                     if int(valor_matriculados) > 0
                     else valor_numero_de_alunos
+                    if int(valor_numero_de_alunos) > 0
+                    else valor_participantes
                 )
                 total_refeicao = int(valor_refeicao) + int(valor_repeticao_refeicao)
                 total_refeicao = min(int(total_refeicao), int(valor_comparativo))
@@ -1407,6 +1455,7 @@ def get_valor_total_emei_cemei(
     valor_repeticao_segunda_refeicao,
     valor_matriculados,
     valor_numero_de_alunos,
+    valor_participantes
 ):
     editais = Edital.objects.filter(uuid__in=solicitacao.escola.editais)
     tem_edital_imr = editais.filter(eh_imr=True).exists()
@@ -1419,6 +1468,8 @@ def get_valor_total_emei_cemei(
             valor_matriculados
             if int(valor_matriculados) > 0
             else valor_numero_de_alunos
+            if int(valor_numero_de_alunos) > 0
+            else valor_participantes
         )
 
         total_refeicao = int(valor_refeicao) + int(valor_repeticao_refeicao)
@@ -1589,15 +1640,30 @@ def popula_campo_total_sobremesas_pagamento(
                 "numero_de_alunos",
             )
 
+            valor_participantes = get_valor_campo(
+                campos,
+                campos_tabela_anterior,
+                indice_periodo,
+                tabela,
+                tabela_anterior,
+                valores,
+                valores_tabela_anterior,
+                "participantes",
+            )
+
             eh_emebs_infantil = (
                 solicitacao.escola.eh_emebs_data(solicitacao.data_referencia)
                 and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
             )
 
+            eh_colaboradores = "Colaboradores" in periodo_corrente
             if (
-                solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
-                or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                or eh_emebs_infantil
+                not eh_colaboradores
+                and (
+                    solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
+                    or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
+                    or eh_emebs_infantil
+                )
             ):
                 valores_dia = get_valor_total_emei_cemei(
                     solicitacao,
@@ -1608,12 +1674,15 @@ def popula_campo_total_sobremesas_pagamento(
                     valor_repeticao_segunda_sobremesa,
                     valor_matriculados,
                     valor_numero_de_alunos,
+                    valor_participantes,
                 )
             else:
                 valor_comparativo = (
                     valor_matriculados
                     if int(valor_matriculados) > 0
                     else valor_numero_de_alunos
+                    if int(valor_numero_de_alunos) > 0
+                    else valor_participantes
                 )
 
                 total_sobremesa = int(valor_sobremesa) + int(valor_repeticao_sobremesa)
@@ -1685,7 +1754,7 @@ def popula_campo_solicitado(
 def popula_campo_total(
     tabela, campo, valores_dia, indice_categoria, indice_campo, categoria_corrente
 ):
-    if campo in ["matriculados", "numero_de_alunos", "frequencia", "aprovadas"]:
+    if campo in ["matriculados", "numero_de_alunos", "frequencia", "aprovadas", "participantes"]:
         valores_dia += ["-"]
     else:
         try:
@@ -1739,17 +1808,29 @@ def popula_campo_total_cei(
 
 
 def get_eh_dia_letivo(dia, solicitacao):
-    if not dia == "Total":
-        try:
-            eh_dia_letivo = DiaCalendario.objects.get(
-                escola=solicitacao.escola,
-                data__day=dia,
-                data__month=solicitacao.mes,
-                data__year=solicitacao.ano,
-            ).dia_letivo
-            return eh_dia_letivo
-        except Exception:
-            return False
+    if dia == "Total":
+        return False
+
+    eh_recreio = (
+        hasattr(solicitacao, 'recreio_nas_ferias') and solicitacao.recreio_nas_ferias
+    )
+
+    if eh_recreio:
+        recreio = solicitacao.recreio_nas_ferias
+        mes = recreio.data_inicio.month
+        ano = recreio.data_inicio.year
+        data = datetime.date(ano, mes, dia)
+        return data.weekday() < 5
+
+    try:
+        return DiaCalendario.objects.get(
+            escola=solicitacao.escola,
+            data__day=dia,
+            data__month=solicitacao.mes,
+            data__year=solicitacao.ano,
+        ).dia_letivo
+    except Exception:
+        return False
 
 
 def popula_campos(
@@ -1993,24 +2074,42 @@ def popula_tabelas(solicitacao, tabelas):
     dias_no_mes = range(
         1, monthrange(int(solicitacao.ano), int(solicitacao.mes))[1] + 1
     )
+    recreio = getattr(solicitacao, "recreio_nas_ferias", None)
+    dias_recreio = (
+        range(recreio.data_inicio.day, recreio.data_fim.day + 1)
+        if recreio else None
+    )
+
     logs_alunos_matriculados = LogAlunosMatriculadosPeriodoEscola.objects.filter(
         escola=solicitacao.escola,
         criado_em__month=solicitacao.mes,
         criado_em__year=solicitacao.ano,
         tipo_turma="REGULAR",
     )
-    logs_dietas = LogQuantidadeDietasAutorizadas.objects.filter(
-        escola=solicitacao.escola,
-        data__month=solicitacao.mes,
-        data__year=solicitacao.ano,
-    )
+    if recreio:
+        logs_dietas = LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.filter(
+            escola=solicitacao.escola,
+            data__range=(recreio.data_inicio, recreio.data_fim),
+        )
+    else:
+        logs_dietas = LogQuantidadeDietasAutorizadas.objects.filter(
+            escola=solicitacao.escola,
+            data__month=solicitacao.mes,
+            data__year=solicitacao.ano,
+        )
     alteracoes_lanche_emergencial = get_alteracoes_lanche_emergencial(solicitacao)
     kits_lanches = get_kit_lanche(solicitacao)
     indice_periodo = 0
     quantidade_tabelas = range(0, len(tabelas))
     for indice_tabela in quantidade_tabelas:
         tabela = tabelas[indice_tabela]
-        for dia in list(dias_no_mes) + ["Total"]:
+
+        eh_recreio = bool(
+            set(tabela.get("periodos", [])) & {"Recreio nas Férias", "Colaboradores"}
+        )
+        dias = dias_recreio if (eh_recreio and dias_recreio) else dias_no_mes
+
+        for dia in list(dias) + ["Total"]:
             popula_campos(
                 solicitacao,
                 tabela,
@@ -2169,6 +2268,7 @@ def popula_valores_campos(
             )
 
             if campo not in [
+                "participantes",
                 "matriculados",
                 "aprovadas",
                 "total_refeicoes_pagamento",
@@ -2396,6 +2496,14 @@ def popula_campos_nomes(
                 categoria_corrente,
                 periodo_corrente,
             )
+            popula_campo_participantes(
+                dia,
+                campo,
+                valores_dia,
+                solicitacao,
+                categoria_corrente,
+                periodo_corrente,
+            )
             popula_campo_aprovadas(
                 solicitacao,
                 dia,
@@ -2439,6 +2547,7 @@ def popula_campos_nomes(
                 kits_lanches,
             )
             if campo not in [
+                "participantes",
                 "matriculados",
                 "aprovadas",
                 "total_refeicoes_pagamento",
@@ -3163,6 +3272,58 @@ def get_somatorio_etec(campo, solicitacao, dict_total_refeicoes, dict_total_sobr
     return somatorio_etec
 
 
+def get_somatorio_recreio_nas_ferias(
+    campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas
+):
+    try:
+        medicao = solicitacao.medicoes.get(grupo__nome="Recreio nas Férias")
+        values = medicao.valores_medicao.filter(
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR, nome_campo=campo
+        )
+        values = somar_valores_semelhantes(
+            values,
+            medicao,
+            campo,
+            solicitacao,
+            dict_total_refeicoes,
+            dict_total_sobremesas,
+        )
+        somatorio_recreio_nas_ferias = (
+            values if type(values) is int else sum([int(v.valor) for v in values])
+        )
+        if somatorio_recreio_nas_ferias == 0:
+            somatorio_recreio_nas_ferias = 0
+    except Exception:
+        somatorio_recreio_nas_ferias = 0
+    return somatorio_recreio_nas_ferias
+
+
+def get_somatorio_colaboradores(
+    campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas
+):
+    try:
+        medicao = solicitacao.medicoes.get(grupo__nome="Colaboradores")
+        values = medicao.valores_medicao.filter(
+            categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR, nome_campo=campo
+        )
+        values = somar_valores_semelhantes(
+            values,
+            medicao,
+            campo,
+            solicitacao,
+            dict_total_refeicoes,
+            dict_total_sobremesas,
+        )
+        somatorio_colaboradores = (
+            values if type(values) is int else sum([int(v.valor) for v in values])
+        )
+        if somatorio_colaboradores == 0:
+            somatorio_colaboradores = 0
+    except Exception:
+        somatorio_colaboradores = 0
+    return somatorio_colaboradores
+
+
 def build_tabela_somatorio_header(
     medicao, primeira_tabela_header, segunda_tabela_header=[], categoria=None
 ):
@@ -3240,6 +3401,7 @@ def build_tabela_somatorio_body(
                     "dietas_autorizadas",
                     "frequencia",
                     "matriculados",
+                    "participantes",
                     "numero_de_alunos",
                     "repeticao_refeicao",
                     "repeticao_sobremesa",
@@ -3292,6 +3454,97 @@ def build_tabela_somatorio_body(
     return primeira_tabela_somatorio, segunda_tabela_somatorio
 
 
+def somar_campos_somatorio_recreio_nas_ferias(medicao, campo, dict_total_refeicoes, dict_total_sobremesas):
+    medicao_nome = medicao.grupo.nome
+
+    if campo == "refeicao":
+        return dict_total_refeicoes.get(medicao_nome, 0)
+
+    if campo == "sobremesa":
+        return dict_total_sobremesas.get(medicao_nome, 0)
+
+    values = medicao.valores_medicao.filter(
+        categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR,
+        nome_campo=campo,
+    )
+    return sum(int(v.valor) for v in values)
+
+
+def _get_total_dieta_por_tipo(medicao, tipo_dieta: str, nome_categoria: str, campo: str) -> int:
+    if not medicao:
+        return 0
+    if tipo_dieta == "TIPO A":
+        values = medicao.valores_medicao.filter(
+            categoria_medicao__nome=nome_categoria,
+            nome_campo=campo,
+        )
+    else:
+        values = medicao.valores_medicao.filter(
+            categoria_medicao__nome__icontains=nome_categoria,
+            nome_campo=campo,
+        )
+    return sum(int(v.valor) for v in values)
+
+
+def _build_body_tabela_participantes(medicao_recreio, campos_alimentacao: list, dict_total_refeicoes, dict_total_sobremesas) -> list:
+    MAPA_TIPO_DIETA = {
+        "TIPO A": "DIETA ESPECIAL - TIPO A",
+        "ENTERAL": "ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "TIPO B": "DIETA ESPECIAL - TIPO B",
+    }
+    body = []
+
+    for campo in campos_alimentacao:
+        total_alim = somar_campos_somatorio_recreio_nas_ferias(medicao_recreio, campo, dict_total_refeicoes, dict_total_sobremesas) if medicao_recreio else 0
+        totais_dietas = [
+            _get_total_dieta_por_tipo(medicao_recreio, tipo_dieta, nome_categoria, campo)
+            for tipo_dieta, nome_categoria in MAPA_TIPO_DIETA.items()
+        ]
+        if any(v > 0 for v in [total_alim] + totais_dietas):
+            body.append([get_nome_campo(campo), total_alim, *totais_dietas])
+    return body
+
+
+def _build_body_tabela_colaboradores(medicao_colaboradores, campos_alimentacao: list, dict_total_refeicoes, dict_total_sobremesas) -> list:
+    body = []
+    for campo in campos_alimentacao:
+        total_colab = somar_campos_somatorio_recreio_nas_ferias(medicao_colaboradores, campo, dict_total_refeicoes, dict_total_sobremesas) if medicao_colaboradores else 0
+        if total_colab > 0:
+            body.append([get_nome_campo(campo), total_colab])
+    return body
+
+
+def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes, dict_total_sobremesas):
+    medicao_recreio = solicitacao.medicoes.filter(grupo__nome="Recreio nas Férias").first()
+    medicao_colaboradores = solicitacao.medicoes.filter(grupo__nome="Colaboradores").first()
+
+    campos_alimentacao = [
+        c for c in ORDEM_CAMPOS
+        if c not in [
+            "observacoes", "dietas_autorizadas", "frequencia", "matriculados",
+            "participantes", "numero_de_alunos", "repeticao_refeicao",
+            "repeticao_sobremesa", "aprovadas",
+        ]
+    ]
+
+    tabela_participantes = {
+        "header": [
+            "TIPOS ALIMENTAÇÃO",
+            "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
+            "DIETA TIPO A",
+            "DIETA ENTERAL / REST. DE AMINOÁCIDOS",
+            "DIETA TIPO B",
+        ],
+        "body": _build_body_tabela_participantes(medicao_recreio, campos_alimentacao, dict_total_refeicoes, dict_total_sobremesas),
+    }
+    tabela_colaboradores = {
+        "header": ["TIPOS ALIMENTAÇÃO", "TOTAL DE ALIMENTAÇÕES PARA COLABORADORES"],
+        "body": _build_body_tabela_colaboradores(medicao_colaboradores, campos_alimentacao, dict_total_refeicoes, dict_total_sobremesas),
+    }
+
+    return tabela_participantes, tabela_colaboradores
+
+
 def adiciona_nomes_header(
     primeira_tabela_somatorio, segunda_tabela_somatorio, categoria, nome
 ):
@@ -3316,10 +3569,13 @@ def get_somatorio_dietas(
         medicao = solicitacao.medicoes.get(
             periodo_escolar__nome=periodo, grupo__nome=grupo
         )
+        eh_recreio = grupo in ["Recreio nas Férias", "Colaboradores"]
         values = medicao.valores_medicao.filter(
             categoria_medicao__nome__icontains=tipo_dieta,
             nome_campo=campo,
-            infantil_ou_fundamental=tipo_turma if tipo_turma is not None else "N/A",
+            **({} if eh_recreio else {
+                "infantil_ou_fundamental": tipo_turma if tipo_turma is not None else "N/A"
+            })
         )
         somatorio_dietas = (
             values if type(values) is int else sum([int(v.valor) for v in values])
@@ -3417,7 +3673,7 @@ def somatorio_periodo_dietas(
     valores_somatorios_primeira_tabela = []
 
     for periodo in primeira_tabela_somatorio["header"]:
-        if periodo == "Programas e Projetos":
+        if periodo in ["Programas e Projetos", "Recreio nas Férias", "Colaboradores"]:
             somatorio_dieta = get_somatorio_dietas(
                 tipo_alimentacao,
                 solicitacao,
@@ -3485,7 +3741,7 @@ def get_somatorio_periodos_params(
     dict_total_sobremesas,
     tipo_turma,
 ):
-    if periodo.upper() == "ETEC":
+    if periodo.upper() in ["ETEC", "RECREIO NAS FÉRIAS", "COLABORADORES"]:
         return (
             tipo_alimentacao,
             solicitacao,
@@ -3523,6 +3779,8 @@ def somatorio_periodo(
         "INTERMEDIARIO": get_somatorio_intermediario_eja,
         "VESPERTINO": get_somatorio_vespertino_eja,
         "ETEC": get_somatorio_etec,
+        "Recreio nas Férias": get_somatorio_recreio_nas_ferias,
+        "Colaboradores": get_somatorio_colaboradores,
     }
 
     valores_somatorios_primeira_tabela = []

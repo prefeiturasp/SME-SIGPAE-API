@@ -47,7 +47,7 @@ from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
 MODEL_MEDICAO_RESPONSAVEL = "medicao_inicial.Responsavel"
 PROGRAMAS_E_PROOJETOS = "PROGRAMAS E PROJETOS"
 
-PRECO_DAS_ALIMENTACOES = "Preço das Alimentações"
+TABELA_ALIMENTACOES = "Preço das Alimentações"
 TABELA_DIETA_A = "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos"
 TABELA_DIETA_B = "Dietas Tipo B"
 
@@ -100,6 +100,18 @@ def grupo_recreio_nas_ferias():
 @pytest.fixture
 def grupo_colaboradores():
     return baker.make("GrupoMedicao", nome="Colaboradores")
+
+
+@pytest.fixture
+def grupo_recreio_nas_ferias_0_a_3_anos_e_11_meses():
+    return baker.make(
+        "GrupoMedicao", nome="Recreio nas Férias - de 0 a 3 anos e 11 meses"
+    )
+
+
+@pytest.fixture
+def grupo_recreio_nas_ferias_4_a_14_anos():
+    return baker.make("GrupoMedicao", nome="Recreio nas Férias - 4 a 14 anos")
 
 
 @pytest.fixture
@@ -215,6 +227,11 @@ def tipo_unidade_escolar_ceu_cemei():
 @pytest.fixture
 def tipo_unidade_escolar_cemei():
     return baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+
+
+@pytest.fixture
+def tipo_unidade_escolar_emebs():
+    return baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
 
 
 @pytest.fixture
@@ -2108,7 +2125,7 @@ def parametrizacao_financeira_emef(
 
     tabela_precos = baker.make(
         "ParametrizacaoFinanceiraTabela",
-        nome=PRECO_DAS_ALIMENTACOES,
+        nome=TABELA_ALIMENTACOES,
         periodo_escolar=None,
         parametrizacao_financeira=parametrizacao_financeira,
     )
@@ -4827,7 +4844,7 @@ def payload_create_parametrizacao_financeira_cei(
         "data_final": "2025-10-30",
         "tabelas": [
             {
-                "nome": PRECO_DAS_ALIMENTACOES,
+                "nome": TABELA_ALIMENTACOES,
                 "valores": [
                     {
                         "faixa_etaria": faixa.uuid,
@@ -4841,7 +4858,7 @@ def payload_create_parametrizacao_financeira_cei(
                 "periodo_escolar": periodo_escolar_integral.nome,
             },
             {
-                "nome": PRECO_DAS_ALIMENTACOES,
+                "nome": TABELA_ALIMENTACOES,
                 "valores": [
                     {
                         "faixa_etaria": faixa.uuid,
@@ -6101,22 +6118,22 @@ def parametrizacao_financeira_cei(
 
     tabelas_config = [
         (
-            PRECO_DAS_ALIMENTACOES,
+            TABELA_ALIMENTACOES,
             periodo_escolar_integral,
             [tipo_unitario, tipo_reajuste],
         ),
         (
-            PRECO_DAS_ALIMENTACOES,
+            TABELA_ALIMENTACOES,
             periodo_escolar_parcial,
             [tipo_unitario, tipo_reajuste],
         ),
         (
-            "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+            TABELA_DIETA_A,
             periodo_escolar_integral,
             [tipo_unitario, tipo_acrescimo],
         ),
         (
-            "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+            TABELA_DIETA_A,
             periodo_escolar_parcial,
             [tipo_unitario, tipo_acrescimo],
         ),
@@ -6230,21 +6247,21 @@ def parametrizacao_financeira_emei(
 
     tabela_alimentacoes = baker.make(
         "ParametrizacaoFinanceiraTabela",
-        nome=PRECO_DAS_ALIMENTACOES,
+        nome=TABELA_ALIMENTACOES,
         periodo_escolar=None,
         parametrizacao_financeira=parametrizacao_financeira,
     )
 
     tabela_dieta_a = baker.make(
         "ParametrizacaoFinanceiraTabela",
-        nome="Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos",
+        nome=TABELA_DIETA_A,
         periodo_escolar=None,
         parametrizacao_financeira=parametrizacao_financeira,
     )
 
     tabela_dieta_b = baker.make(
         "ParametrizacaoFinanceiraTabela",
-        nome="Dietas Tipo B",
+        nome=TABELA_DIETA_B,
         periodo_escolar=None,
         parametrizacao_financeira=parametrizacao_financeira,
     )
@@ -6374,10 +6391,6 @@ def parametrizacao_financeira_cieja(
         data_final="2026-03-30",
         legenda="Parametrização Financeira: Teste Grupo 6 - CIEJA",
     )
-
-    TABELA_ALIMENTACOES = PRECO_DAS_ALIMENTACOES
-    TABELA_DIETA_A = "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos"
-    TABELA_DIETA_B = "Dietas Tipo B"
 
     tabelas = {
         TABELA_ALIMENTACOES: baker.make(
@@ -6518,10 +6531,6 @@ def parametrizacao_financeira_cemei(
         legenda="Parametrização Financeira: Teste Grupo 2 - CEMEI",
     )
 
-    TABELA_ALIMENTACOES = PRECO_DAS_ALIMENTACOES
-    TABELA_DIETA_A = "Dietas Tipo A e Tipo A Enteral/Restrição de Aminoácidos"
-    TABELA_DIETA_B = "Dietas Tipo B"
-
     tabelas = {
         TABELA_ALIMENTACOES: baker.make(
             "ParametrizacaoFinanceiraTabela",
@@ -6630,6 +6639,21 @@ def parametrizacao_financeira_cemei(
 
 
 @pytest.fixture
+def categoria_inscritos_recreio():
+    return baker.make("CategoriaAlimentacao", nome="Inscritos")
+
+
+@pytest.fixture
+def categoria_colaboradores_recreio():
+    return baker.make("CategoriaAlimentacao", nome="Colaboradores")
+
+
+@pytest.fixture
+def categoria_infantil_recreio():
+    return baker.make("CategoriaAlimentacao", nome="Infantil")
+
+
+@pytest.fixture
 def solicitacao_recreio_emef(
     solicitacao_recreio_nas_ferias,
     recreio_nas_ferias,
@@ -6640,6 +6664,8 @@ def solicitacao_recreio_emef(
     categoria_medicao,
     classificacao_dieta_tipo_a_enteral,
     categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_inscritos_recreio,
+    categoria_colaboradores_recreio,
 ):
 
     solicitacao_recreio_nas_ferias.status = (
@@ -6647,8 +6673,6 @@ def solicitacao_recreio_emef(
     )
     solicitacao_recreio_nas_ferias.save()
 
-    categoria_inscritos = baker.make("CategoriaAlimentacao", nome="Inscritos")
-    categoria_colaboradores = baker.make("CategoriaAlimentacao", nome="Colaboradores")
     participante = baker.make(
         "RecreioNasFeriasUnidadeParticipante",
         recreio_nas_ferias=recreio_nas_ferias,
@@ -6660,25 +6684,25 @@ def solicitacao_recreio_emef(
     baker.make(
         "RecreioNasFeriasUnidadeTipoAlimentacao",
         recreio_ferias_unidade=participante,
-        categoria=categoria_inscritos,
+        categoria=categoria_inscritos_recreio,
         tipo_alimentacao=tipo_alimentacao_refeicao,
     )
     baker.make(
         "RecreioNasFeriasUnidadeTipoAlimentacao",
         recreio_ferias_unidade=participante,
-        categoria=categoria_inscritos,
+        categoria=categoria_inscritos_recreio,
         tipo_alimentacao=tipo_alimentacao_sobremesa,
     )
     baker.make(
         "RecreioNasFeriasUnidadeTipoAlimentacao",
         recreio_ferias_unidade=participante,
-        categoria=categoria_colaboradores,
+        categoria=categoria_colaboradores_recreio,
         tipo_alimentacao=tipo_alimentacao_refeicao,
     )
     baker.make(
         "RecreioNasFeriasUnidadeTipoAlimentacao",
         recreio_ferias_unidade=participante,
-        categoria=categoria_colaboradores,
+        categoria=categoria_colaboradores_recreio,
         tipo_alimentacao=tipo_alimentacao_sobremesa,
     )
 
@@ -6806,3 +6830,528 @@ def relatorio_financeiro_emef(
         mes="10",
         ano="2025",
     )
+
+
+@pytest.fixture
+def grupo_unidade_escolar_emebs(
+    tipo_unidade_escolar_emebs,
+):
+    return baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 5",
+        tipos_unidades=[
+            tipo_unidade_escolar_emebs,
+        ],
+    )
+
+
+@pytest.fixture
+def vinculo_alimentacao_emebs(
+    tipo_unidade_escolar_emebs,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_refeicao,
+):
+    vinculo_alimentacao = baker.make(
+        "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        tipo_unidade_escolar=tipo_unidade_escolar_emebs,
+    )
+    for tipo in [
+        tipo_alimentacao_refeicao,
+        tipo_alimentacao_lanche,
+        tipo_alimentacao_lanche_4h,
+    ]:
+        vinculo_alimentacao.tipos_alimentacao.add(tipo)
+    vinculo_alimentacao.save()
+
+
+@pytest.fixture
+def relatorio_financeiro_emebs(
+    escola_emebs,
+    grupo_unidade_escolar_emebs,
+):
+    return baker.make(
+        "RelatorioFinanceiro",
+        grupo_unidade_escolar=grupo_unidade_escolar_emebs,
+        lote=escola_emebs.lote,
+        mes="05",
+        ano="2025",
+    )
+
+
+@pytest.fixture
+def parametrizacao_financeira_emebs(
+    edital,
+    escola_emebs,
+    tipo_alimentacao_refeicao,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_lanche,
+    grupo_unidade_escolar_emebs,
+):
+    parametrizacao_financeira = baker.make(
+        "ParametrizacaoFinanceira",
+        edital=edital,
+        lote=escola_emebs.lote,
+        grupo_unidade_escolar=grupo_unidade_escolar_emebs,
+        data_inicial="2025-05-01",
+        data_final="2025-05-31",
+        legenda="Parametrização Financeira: Teste Grupo 5 - EMEBS",
+    )
+
+    SUFIXOS = [
+        "EMEBS Infantil",
+        "EMEBS Fundamental",
+    ]
+
+    tipos_valor = {
+        nome: TipoValorParametrizacaoFinanceira.objects.get_or_create(nome=nome)[0]
+        for nome in ["UNITARIO", "REAJUSTE", "ACRESCIMO"]
+    }
+
+    valores_config = [
+        (
+            TABELA_ALIMENTACOES,
+            ["UNITARIO", "REAJUSTE"],
+            [
+                ("refeicao", tipo_alimentacao_refeicao, "10.00"),
+                ("lanche", tipo_alimentacao_lanche, "10.50"),
+                ("lanche_4h", tipo_alimentacao_lanche_4h, "6.25"),
+                ("kit_lanche", None, "6.88"),
+            ],
+        ),
+        (
+            TABELA_DIETA_A,
+            ["UNITARIO", "ACRESCIMO"],
+            [
+                ("refeicao", tipo_alimentacao_refeicao, "11.22"),
+                ("lanche", tipo_alimentacao_lanche, "12.00"),
+                ("lanche_4h", tipo_alimentacao_lanche_4h, "9.00"),
+            ],
+        ),
+        (
+            TABELA_DIETA_B,
+            ["UNITARIO", "ACRESCIMO"],
+            [
+                ("lanche", tipo_alimentacao_lanche, "10.00"),
+                ("lanche_4h", tipo_alimentacao_lanche_4h, "8.00"),
+            ],
+        ),
+    ]
+
+    for sufixo in SUFIXOS:
+        for nome_tabela, tipos, valores in valores_config:
+            tabela = baker.make(
+                "ParametrizacaoFinanceiraTabela",
+                nome=f"{nome_tabela} - {sufixo}",
+                periodo_escolar=None,
+                parametrizacao_financeira=parametrizacao_financeira,
+            )
+
+            for tipo in tipos:
+                for nome_campo, tipo_alimentacao, valor in valores:
+                    baker.make(
+                        "ParametrizacaoFinanceiraTabelaValor",
+                        tabela=tabela,
+                        nome_campo=nome_campo,
+                        faixa_etaria=None,
+                        tipo_alimentacao=tipo_alimentacao,
+                        tipo_valor=tipos_valor[tipo],
+                        valor=valor,
+                    )
+
+    return parametrizacao_financeira
+
+
+@pytest.fixture
+def solicitacao_recreio_cei(
+    escola_cei,
+    recreio_nas_ferias,
+    tipo_alimentacao_refeicao,
+    tipo_alimentacao_sobremesa,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_lanche_4h,
+    tipo_alimentacao_almoco,
+    grupo_recreio_nas_ferias,
+    grupo_colaboradores,
+    categoria_medicao,
+    classificacao_dieta_tipo_a_enteral,
+    categoria_medicao_dieta_a,
+    faixas_etarias_ativas,
+    categoria_inscritos_recreio,
+    categoria_colaboradores_recreio,
+):
+    solicitacao_recreio_nas_ferias = baker.make(
+        SolicitacaoMedicaoInicial,
+        mes="12",
+        ano="2025",
+        escola=escola_cei,
+        recreio_nas_ferias=recreio_nas_ferias,
+        status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+    )
+
+    participante = baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio_nas_ferias,
+        unidade_educacional=solicitacao_recreio_nas_ferias.escola,
+        lote=solicitacao_recreio_nas_ferias.escola.lote,
+        num_inscritos=100,
+        num_colaboradores=20,
+    )
+
+    for alimentacao in [
+        tipo_alimentacao_refeicao,
+        tipo_alimentacao_lanche,
+        tipo_alimentacao_lanche_4h,
+        tipo_alimentacao_sobremesa,
+        tipo_alimentacao_almoco,
+    ]:
+        baker.make(
+            "RecreioNasFeriasUnidadeTipoAlimentacao",
+            recreio_ferias_unidade=participante,
+            categoria=categoria_inscritos_recreio,
+            tipo_alimentacao=alimentacao,
+        )
+
+    baker.make(
+        "RecreioNasFeriasUnidadeTipoAlimentacao",
+        recreio_ferias_unidade=participante,
+        categoria=categoria_colaboradores_recreio,
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+    )
+    baker.make(
+        "RecreioNasFeriasUnidadeTipoAlimentacao",
+        recreio_ferias_unidade=participante,
+        categoria=categoria_colaboradores_recreio,
+        tipo_alimentacao=tipo_alimentacao_sobremesa,
+    )
+
+    medicao_recreio_nas_ferias = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_recreio_nas_ferias,
+        grupo=grupo_recreio_nas_ferias,
+    )
+
+    medicao_colaboradores = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_recreio_nas_ferias,
+        grupo=grupo_colaboradores,
+    )
+    quantidade_dieta_autorizada = 3
+    frequencia_por_faixa = int(participante.num_inscritos / len(faixas_etarias_ativas))
+    for offset in range(
+        (recreio_nas_ferias.data_fim - recreio_nas_ferias.data_inicio).days + 1
+    ):
+        data = recreio_nas_ferias.data_inicio + datetime.timedelta(days=offset)
+        dia = f"{data.day:02d}"
+
+        if dia not in [
+            "13",
+            "14",
+            "20",
+            "21",
+            "25",
+            "27",
+            "28",
+        ]:
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao_recreio_nas_ferias,
+                categoria_medicao=categoria_medicao,
+                nome_campo="participantes",
+                dia=dia,
+                valor=str(participante.num_inscritos - quantidade_dieta_autorizada),
+            )
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao_colaboradores,
+                categoria_medicao=categoria_medicao,
+                nome_campo="participantes",
+                dia=dia,
+                valor=str(participante.num_colaboradores),
+            )
+
+            for campo in [
+                "frequencia",
+                "refeicao",
+                "repeticao_refeicao",
+                "sobremesa",
+                "repeticao_sobremesa",
+            ]:
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_colaboradores,
+                    categoria_medicao=categoria_medicao,
+                    nome_campo=campo,
+                    dia=dia,
+                    valor="20",
+                )
+
+            for faixa in faixas_etarias_ativas:
+                dieta = baker.make(
+                    "LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI",
+                    escola=solicitacao_recreio_nas_ferias.escola,
+                    data=data,
+                    classificacao=classificacao_dieta_tipo_a_enteral,
+                    quantidade=quantidade_dieta_autorizada,
+                    faixa_etaria=faixa,
+                )
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_recreio_nas_ferias,
+                    categoria_medicao=categoria_medicao_dieta_a,
+                    nome_campo="dietas_autorizadas",
+                    dia=dia,
+                    valor=dieta.quantidade,
+                    faixa_etaria=faixa,
+                )
+
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_recreio_nas_ferias,
+                    categoria_medicao=categoria_medicao,
+                    nome_campo="frequencia",
+                    dia=dia,
+                    valor=str(frequencia_por_faixa),
+                    faixa_etaria=faixa,
+                )
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_recreio_nas_ferias,
+                    categoria_medicao=categoria_medicao_dieta_a,
+                    nome_campo="frequencia",
+                    dia=dia,
+                    valor=dieta.quantidade - 1,
+                    faixa_etaria=faixa,
+                )
+
+    return solicitacao_recreio_nas_ferias
+
+
+@pytest.fixture
+def solicitacao_recreio_cemei(
+    escola_cemei,
+    recreio_nas_ferias,
+    tipo_alimentacao_refeicao,
+    tipo_alimentacao_sobremesa,
+    tipo_alimentacao_lanche,
+    tipo_alimentacao_almoco,
+    grupo_recreio_nas_ferias_0_a_3_anos_e_11_meses,
+    grupo_recreio_nas_ferias_4_a_14_anos,
+    grupo_colaboradores,
+    categoria_medicao,
+    classificacao_dieta_tipo_a_enteral,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    faixas_etarias_ativas,
+    categoria_inscritos_recreio,
+    categoria_colaboradores_recreio,
+    categoria_infantil_recreio,
+):
+    solicitacao_recreio_nas_ferias = baker.make(
+        SolicitacaoMedicaoInicial,
+        mes="12",
+        ano="2025",
+        escola=escola_cemei,
+        recreio_nas_ferias=recreio_nas_ferias,
+        status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+    )
+    participante_cei = baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio_nas_ferias,
+        unidade_educacional=solicitacao_recreio_nas_ferias.escola,
+        lote=solicitacao_recreio_nas_ferias.escola.lote,
+        num_inscritos=90,
+        num_colaboradores=9,
+        cei_ou_emei="CEI",
+    )
+    participante_emei = baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio_nas_ferias,
+        unidade_educacional=solicitacao_recreio_nas_ferias.escola,
+        lote=solicitacao_recreio_nas_ferias.escola.lote,
+        num_inscritos=100,
+        num_colaboradores=10,
+        cei_ou_emei="EMEI",
+    )
+
+    for alimentacao in [
+        tipo_alimentacao_refeicao,
+        tipo_alimentacao_sobremesa,
+        tipo_alimentacao_lanche,
+        tipo_alimentacao_almoco,
+    ]:
+        baker.make(
+            "RecreioNasFeriasUnidadeTipoAlimentacao",
+            recreio_ferias_unidade=participante_cei,
+            categoria=categoria_inscritos_recreio,
+            tipo_alimentacao=alimentacao,
+        )
+
+        if alimentacao in [tipo_alimentacao_refeicao, tipo_alimentacao_sobremesa]:
+            baker.make(
+                "RecreioNasFeriasUnidadeTipoAlimentacao",
+                recreio_ferias_unidade=participante_emei,
+                categoria=categoria_infantil_recreio,
+                tipo_alimentacao=alimentacao,
+            )
+            baker.make(
+                "RecreioNasFeriasUnidadeTipoAlimentacao",
+                recreio_ferias_unidade=participante_cei,
+                categoria=categoria_colaboradores_recreio,
+                tipo_alimentacao=alimentacao,
+            )
+            baker.make(
+                "RecreioNasFeriasUnidadeTipoAlimentacao",
+                recreio_ferias_unidade=participante_emei,
+                categoria=categoria_colaboradores_recreio,
+                tipo_alimentacao=alimentacao,
+            )
+
+    medicao_recreio_nas_ferias_0_a_3_anos = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_recreio_nas_ferias,
+        grupo=grupo_recreio_nas_ferias_0_a_3_anos_e_11_meses,
+    )
+
+    medicao_recreio_nas_ferias_4_a_14_anos = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_recreio_nas_ferias,
+        grupo=grupo_recreio_nas_ferias_4_a_14_anos,
+    )
+
+    medicao_colaboradores = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao_recreio_nas_ferias,
+        grupo=grupo_colaboradores,
+    )
+    quantidade_dieta_autorizada = 3
+    frequencia_por_faixa = int(
+        participante_cei.num_inscritos / len(faixas_etarias_ativas)
+    )
+    for offset in range(
+        (recreio_nas_ferias.data_fim - recreio_nas_ferias.data_inicio).days + 1
+    ):
+        data = recreio_nas_ferias.data_inicio + datetime.timedelta(days=offset)
+        dia = f"{data.day:02d}"
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_recreio_nas_ferias_4_a_14_anos,
+            categoria_medicao=categoria_medicao,
+            nome_campo="participantes",
+            dia=dia,
+            valor=str(participante_emei.num_inscritos),
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_recreio_nas_ferias_0_a_3_anos,
+            categoria_medicao=categoria_medicao,
+            nome_campo="participantes",
+            dia=dia,
+            valor=str(participante_cei.num_inscritos - quantidade_dieta_autorizada),
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_colaboradores,
+            categoria_medicao=categoria_medicao,
+            nome_campo="participantes",
+            dia=dia,
+            valor=str(
+                participante_emei.num_colaboradores + participante_cei.num_colaboradores
+            ),
+        )
+        dieta = baker.make(
+            "LogQuantidadeDietasAutorizadasRecreioNasFerias",
+            escola=solicitacao_recreio_nas_ferias.escola,
+            data=data,
+            classificacao=classificacao_dieta_tipo_a_enteral,
+            quantidade=3,
+        )
+        if dia not in [
+            "13",
+            "14",
+            "20",
+            "21",
+            "25",
+            "27",
+            "28",
+        ]:  # Sabado, Domingo e Feriado
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao_recreio_nas_ferias_4_a_14_anos,
+                categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                nome_campo="dietas_autorizadas",
+                dia=dia,
+                valor=dieta.quantidade,
+            )
+            for campo in [
+                "frequencia",
+                "refeicao",
+                "repeticao_refeicao",
+                "sobremesa",
+                "repeticao_sobremesa",
+            ]:
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_recreio_nas_ferias_4_a_14_anos,
+                    categoria_medicao=categoria_medicao,
+                    nome_campo=campo,
+                    dia=dia,
+                    valor="90",
+                )
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_colaboradores,
+                    categoria_medicao=categoria_medicao,
+                    nome_campo=campo,
+                    dia=dia,
+                    valor="15",
+                )
+                if campo in ["frequencia", "refeicao"]:
+                    baker.make(
+                        "ValorMedicao",
+                        medicao=medicao_recreio_nas_ferias_4_a_14_anos,
+                        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                        nome_campo=campo,
+                        dia=dia,
+                        valor=1,
+                    )
+
+            for faixa in faixas_etarias_ativas:
+                dieta = baker.make(
+                    "LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI",
+                    escola=solicitacao_recreio_nas_ferias.escola,
+                    data=data,
+                    classificacao=classificacao_dieta_tipo_a_enteral,
+                    quantidade=quantidade_dieta_autorizada,
+                    faixa_etaria=faixa,
+                )
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_recreio_nas_ferias_0_a_3_anos,
+                    categoria_medicao=categoria_medicao_dieta_a,
+                    nome_campo="dietas_autorizadas",
+                    dia=dia,
+                    valor=dieta.quantidade,
+                    faixa_etaria=faixa,
+                )
+
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_recreio_nas_ferias_0_a_3_anos,
+                    categoria_medicao=categoria_medicao,
+                    nome_campo="frequencia",
+                    dia=dia,
+                    valor=str(frequencia_por_faixa),
+                    faixa_etaria=faixa,
+                )
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao_recreio_nas_ferias_0_a_3_anos,
+                    categoria_medicao=categoria_medicao_dieta_a,
+                    nome_campo="frequencia",
+                    dia=dia,
+                    valor=dieta.quantidade - 1,
+                    faixa_etaria=faixa,
+                )
+
+    return solicitacao_recreio_nas_ferias

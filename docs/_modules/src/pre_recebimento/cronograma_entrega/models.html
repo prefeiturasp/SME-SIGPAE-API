@@ -1,0 +1,553 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.cronograma_entrega.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.cronograma_entrega.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.cronograma_entrega.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OuterRef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models.signals</span><span class="w"> </span><span class="kn">import</span> <span class="n">post_save</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">receiver</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">ModeloBase</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaAlteracaoWorkflow</span><span class="p">,</span>
+    <span class="n">FluxoAlteracaoCronograma</span><span class="p">,</span>
+    <span class="n">FluxoCronograma</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnidadeMedida</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.qualidade.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoEmbalagemQld</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.terceirizada.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Contrato</span><span class="p">,</span> <span class="n">Terceirizada</span>
+
+
+<div class="viewcode-block" id="Cronograma">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Cronograma</span><span class="p">(</span><span class="n">ModeloBase</span><span class="p">,</span> <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span> <span class="n">Logs</span><span class="p">,</span> <span class="n">FluxoCronograma</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cronograma de entrega de produtos alimentícios para as escolas.</span>
+
+<span class="sd">    Registra o planejamento de entregas de um produto vinculado a uma ficha técnica,</span>
+<span class="sd">    contrato e empresa fornecedora. Passa por um fluxo de aprovação (FluxoCronograma):</span>
+<span class="sd">    RASCUNHO, ASSINADO_E_ENVIADO_AO_FORNECEDOR, ASSINADO_FORNECEDOR,</span>
+<span class="sd">    ASSINADO_DILOG_ABASTECIMENTO, ASSINADO_CODAE.</span>
+
+<span class="sd">    Divide-se em dois tipos conforme a categoria do produto e o tipo de entrega:</span>
+
+<span class="sd">    **Armazenável**</span>
+<span class="sd">        Produtos comuns, armazenados em almoxarifado/distribuidor. Possui etapas</span>
+<span class="sd">        com data específica (DD/MM/YYYY) e programações de recebimento. A numeração</span>
+<span class="sd">        utiliza o sufixo ``A`` (ex.: ``001/2025A``).</span>
+
+<span class="sd">    **FLV Ponto a Ponto**</span>
+<span class="sd">        Produtos hortifrutigranjeiros (FLV) entregues diretamente pelo fornecedor</span>
+<span class="sd">        às unidades escolares. Possui etapas mensais (MM/YYYY) e não possui</span>
+<span class="sd">        armazém, embalagem secundária nem programações de recebimento. A numeração</span>
+<span class="sd">        utiliza o sufixo ``P`` (ex.: ``001/2025P``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">numero</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Número do Cronograma&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">contrato</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Contrato</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Terceirizada</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">qtd_total_programada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
+        <span class="s2">&quot;Qtd Total Programada&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">UnidadeMedida</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">armazem</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Terceirizada</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;cronogramas&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ficha_tecnica</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;FichaTecnicaDoProduto&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipo_embalagem_secundaria</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">TipoEmbalagemQld</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">custo_unitario_produto</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
+        <span class="s2">&quot;Custo Unitário do Produto&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">numero_empenho</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s2">&quot;Número do Empenho&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">qtd_total_empenho</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
+        <span class="s2">&quot;Qtde. Total do Empenho&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">observacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Observações&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ponto_a_ponto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">categoria</span> <span class="o">==</span> <span class="s2">&quot;FLV&quot;</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">tipo_entrega</span> <span class="o">==</span> <span class="s2">&quot;PONTO_A_PONTO&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Cronograma.salvar_log_transicao">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.salvar_log_transicao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Cronograma: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero</span><span class="si">}</span><span class="s2"> - Status: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_status_display</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Cronograma&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Cronogramas&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="EtapasDoCronograma">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtapasDoCronograma</span><span class="p">(</span><span class="n">ModeloBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Etapa individual de um cronograma de entrega.</span>
+
+<span class="sd">    Cada etapa representa uma parcela programada dentro do cronograma,</span>
+<span class="sd">    com data, quantidade, empenho e total de embalagens. Pode ser</span>
+<span class="sd">    subdividida em partes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cronograma</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Cronograma</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">numero_empenho</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s2">&quot;Número do Empenho&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">qtd_total_empenho</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
+        <span class="s2">&quot;Qtde. Total do Empenho&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">etapa</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;Etapa&quot;</span><span class="p">)</span>
+    <span class="n">parte</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;Parte&quot;</span><span class="p">)</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Data Programada&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">total_embalagens</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="s2">&quot;Total de Embalagens&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">etapa</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">etapa</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">etapa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">parte</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Parte </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">parte</span><span class="si">}</span><span class="s2"> - &quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parte</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">cronograma</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cronograma </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cronograma</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="s2">&quot;sem Cronograma&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Etapa</span><span class="si">{</span><span class="n">etapa</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">parte</span><span class="si">}{</span><span class="n">cronograma</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Etapa do Cronograma&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Etapas dos Cronogramas&quot;</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;etapa&quot;</span><span class="p">,</span> <span class="s2">&quot;parte&quot;</span><span class="p">]</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etapa&quot;</span><span class="p">,</span> <span class="s2">&quot;parte&quot;</span><span class="p">]),</span>
+        <span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">etapas_to_json</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">numero</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span>
+            <span class="n">choice</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">numero</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Etapa </span><span class="si">{</span><span class="n">numero</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="ProgramacaoDoRecebimentoDoCronograma">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProgramacaoDoRecebimentoDoCronograma</span><span class="p">(</span><span class="n">ModeloBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Programação de recebimento associada a um cronograma.</span>
+
+<span class="sd">    Define as datas programadas e o tipo de carga (paletizada ou</span>
+<span class="sd">    estivada/batida) para o recebimento dos produtos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">PALETIZADA</span> <span class="o">=</span> <span class="s2">&quot;PALETIZADA&quot;</span>
+    <span class="n">ESTIVADA_BATIDA</span> <span class="o">=</span> <span class="s2">&quot;ESTIVADA_BATIDA&quot;</span>
+
+    <span class="n">TIPO_CARGA_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">PALETIZADA</span><span class="p">,</span> <span class="s2">&quot;Paletizada&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">ESTIVADA_BATIDA</span><span class="p">,</span> <span class="s2">&quot;Estivada / Batida&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">cronograma</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Cronograma</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;programacoes_de_recebimento&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">tipo_carga</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">TIPO_CARGA_CHOICES</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_programada</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_programada</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Programação do Recebimento do Cromograma&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Programações dos Recebimentos dos Cromogramas&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaQuerySet">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoAlteracaoCronogramaQuerySet</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;QuerySet personalizado para SolicitacaoAlteracaoCronograma.</span>
+
+<span class="sd">    Fornece métodos de filtro por status com ordenação pelo log</span>
+<span class="sd">    mais recente e filtros por fornecedor, cronograma e produto.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaQuerySet.em_analise">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet.em_analise">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">em_analise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">EM_ANALISE</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronogramaQuerySet.filtrar_por_status">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet.filtrar_por_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filtrar_por_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">filtros</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filtra solicitações por status, ordenando pelo log mais recente.</span>
+
+<span class="sd">        Aceita filtros opcionais por nome_fornecedor, numero_cronograma</span>
+<span class="sd">        e nome_produto, além de parâmetros init/end para paginação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">uuid_original</span><span class="o">=</span><span class="n">OuterRef</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s2">&quot;criado_em&quot;</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="p">[</span><span class="n">status</span><span class="p">]</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status__in</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">log_criado_em</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-log_criado_em&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">filtros</span><span class="p">:</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filtrar_por_atributos_adicionais</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">filtros</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">qs</span><span class="p">[</span><span class="n">init</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">qs</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filtrar_por_atributos_adicionais</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">filtros</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filtros</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;nome_fornecedor&quot;</span> <span class="ow">in</span> <span class="n">filtros</span><span class="p">:</span>
+                <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">cronograma__empresa__nome_fantasia__icontains</span><span class="o">=</span><span class="n">filtros</span><span class="p">[</span>
+                        <span class="s2">&quot;nome_fornecedor&quot;</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;numero_cronograma&quot;</span> <span class="ow">in</span> <span class="n">filtros</span><span class="p">:</span>
+                <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">cronograma__numero__icontains</span><span class="o">=</span><span class="n">filtros</span><span class="p">[</span><span class="s2">&quot;numero_cronograma&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;nome_produto&quot;</span> <span class="ow">in</span> <span class="n">filtros</span><span class="p">:</span>
+                <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">cronograma__ficha_tecnica__produto__nome__icontains</span><span class="o">=</span><span class="n">filtros</span><span class="p">[</span>
+                        <span class="s2">&quot;nome_produto&quot;</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">qs</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoAlteracaoCronograma">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoAlteracaoCronograma</span><span class="p">(</span>
+    <span class="n">ModeloBase</span><span class="p">,</span> <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span> <span class="n">FluxoAlteracaoCronograma</span><span class="p">,</span> <span class="n">Logs</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solicitação de alteração de um cronograma já assinado.</span>
+
+<span class="sd">    Permite que fornecedores ou CODAE solicitem alterações nas etapas</span>
+<span class="sd">    e programações de recebimento de um cronograma. Passa por um fluxo</span>
+<span class="sd">    de aprovação próprio (FluxoAlteracaoCronograma).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cronograma</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Cronograma</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;solicitacoes_de_alteracao&quot;</span>
+    <span class="p">)</span>
+    <span class="n">qtd_total_programada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
+        <span class="s2">&quot;Qtd Total Programada&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">etapas_antigas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">EtapasDoCronograma</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;etapas_antigas&quot;</span>
+    <span class="p">)</span>
+    <span class="n">etapas_novas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">EtapasDoCronograma</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;etapas_novas&quot;</span>
+    <span class="p">)</span>
+    <span class="n">programacoes_novas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">ProgramacaoDoRecebimentoDoCronograma</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;programacoes_novas&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">justificativa</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="s2">&quot;Justificativa de solicitação pelo fornecedor&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">usuario_solicitante</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;perfil.Usuario&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+    <span class="p">)</span>
+    <span class="n">numero_solicitacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Número da solicitação&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaQuerySet</span><span class="o">.</span><span class="n">as_manager</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">gerar_numero_solicitacao</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gera o número único da solicitação de alteração.</span>
+
+<span class="sd">        O formato é ``XXXXXXXX-ALT``, onde ``XXXXXXXX`` é o PK</span>
+<span class="sd">        preenchido com zeros à esquerda.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numero_solicitacao</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="si">}</span><span class="s2">-ALT&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra no log a transição de status da solicitação.</span>
+
+<span class="sd">        Cria um LogSolicitacoesUsuario com os dados da transição.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">log_transicao</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">SOLICITACAO_DE_ALTERACAO_CRONOGRAMA</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">log_transicao</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">cronograma_confirma_ciencia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">justificativa</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="n">etapas</span><span class="p">,</span> <span class="n">programacoes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra a ciência do cronograma sobre a alteração proposta.</span>
+
+<span class="sd">        Substitui as etapas novas pelas recebidas, salva as programações</span>
+<span class="sd">        de recebimento e avança o fluxo para CRONOGRAMA_CIENTE.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.api.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">cria_etapas_de_cronograma</span><span class="p">,</span>
+            <span class="n">cria_programacao_de_cronograma</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">etapas_novas</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">etapas_criadas</span> <span class="o">=</span> <span class="n">cria_etapas_de_cronograma</span><span class="p">(</span><span class="n">etapas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">etapas_novas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">etapas_criadas</span><span class="p">)</span>
+        <span class="n">programacoes_criadas</span> <span class="o">=</span> <span class="n">cria_programacao_de_cronograma</span><span class="p">(</span><span class="n">programacoes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">programacoes_novas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">programacoes_criadas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cronograma_ciente</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Solicitação de alteração do cronograma: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_solicitacao</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Solicitação de Alteração de Cronograma&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Solicitações de Alteração de Cronograma&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="gerar_numero_solicitacao">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.gerar_numero_solicitacao">[docs]</a>
+<span class="nd">@receiver</span><span class="p">(</span><span class="n">post_save</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">SolicitacaoAlteracaoCronograma</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gerar_numero_solicitacao</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">created</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sinal post_save que gera o número da solicitação de alteração.</span>
+
+<span class="sd">    Executado automaticamente após a criação de uma</span>
+<span class="sd">    SolicitacaoAlteracaoCronograma, atribuindo o número no formato</span>
+<span class="sd">    XXXXXXXX-ALT.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">gerar_numero_solicitacao</span><span class="p">()</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="InterrupcaoProgramadaEntrega">
+<a class="viewcode-back" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InterrupcaoProgramadaEntrega</span><span class="p">(</span><span class="n">ModeloBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interrupção programada em que não há recebimento de entregas.</span>
+
+<span class="sd">    Utilizada pelo calendário de cronogramas para bloquear datas específicas</span>
+<span class="sd">    em que as entregas não podem ocorrer (feriados, emendas de feriado,</span>
+<span class="sd">    reuniões, inventários, etc.).</span>
+
+<span class="sd">    A interrupção é separada por tipo de calendário:</span>
+<span class="sd">    - ``ARMAZENAVEL``: Bloqueia o calendário de cronogramas armazenáveis.</span>
+<span class="sd">    - ``PONTO_A_PONTO``: Bloqueia o calendário de cronogramas FLV.</span>
+
+<span class="sd">    A combinação ``data`` + ``tipo_calendario`` é única, garantindo que</span>
+<span class="sd">    não haja duplicidade de registros para o mesmo dia e tipo.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">MOTIVO_EMENDA</span> <span class="o">=</span> <span class="s2">&quot;EMENDA&quot;</span>
+    <span class="n">MOTIVO_REUNIAO</span> <span class="o">=</span> <span class="s2">&quot;REUNIAO&quot;</span>
+    <span class="n">MOTIVO_INVENTARIO</span> <span class="o">=</span> <span class="s2">&quot;INVENTARIO&quot;</span>
+    <span class="n">MOTIVO_FERIADO</span> <span class="o">=</span> <span class="s2">&quot;FERIADO&quot;</span>
+    <span class="n">MOTIVO_OUTROS</span> <span class="o">=</span> <span class="s2">&quot;OUTROS&quot;</span>
+
+    <span class="n">MOTIVO_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">MOTIVO_EMENDA</span><span class="p">,</span> <span class="s2">&quot;Emenda&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MOTIVO_REUNIAO</span><span class="p">,</span> <span class="s2">&quot;Reunião&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MOTIVO_INVENTARIO</span><span class="p">,</span> <span class="s2">&quot;Inventário&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MOTIVO_FERIADO</span><span class="p">,</span> <span class="s2">&quot;Feriado&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MOTIVO_OUTROS</span><span class="p">,</span> <span class="s2">&quot;Outros&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">TIPO_CALENDARIO_ARMAZENAVEL</span> <span class="o">=</span> <span class="s2">&quot;ARMAZENAVEL&quot;</span>
+    <span class="n">TIPO_CALENDARIO_PONTO_A_PONTO</span> <span class="o">=</span> <span class="s2">&quot;PONTO_A_PONTO&quot;</span>
+
+    <span class="n">TIPO_CALENDARIO_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">TIPO_CALENDARIO_ARMAZENAVEL</span><span class="p">,</span> <span class="s2">&quot;Armazenável&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">TIPO_CALENDARIO_PONTO_A_PONTO</span><span class="p">,</span> <span class="s2">&quot;Ponto a Ponto&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">&quot;Data da Interrupção&quot;</span><span class="p">)</span>
+    <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Motivo da Interrupção&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">MOTIVO_CHOICES</span>
+    <span class="p">)</span>
+    <span class="n">descricao_motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="s2">&quot;Descrição do Motivo&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Obrigatório quando motivo = OUTROS&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipo_calendario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Tipo de Calendário&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_CALENDARIO_CHOICES</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">TIPO_CALENDARIO_ARMAZENAVEL</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Interrupção Programada de Entrega&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Interrupções Programadas de Entregas&quot;</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;tipo_calendario&quot;</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Interrupção </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_motivo_display</span><span class="p">()</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">:</span><span class="s2">%d/%m/%Y</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

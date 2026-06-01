@@ -190,7 +190,7 @@ def inclusao_continua_autorizada_periodo_tarde(escola_com_dias_letivos, periodo_
 
 
 @pytest.fixture
-def alteracao_cardapio(escola, template_mensagem_alteracao_cardapio):
+def alteracao_cardapio(escola):
     return baker.make(
         AlteracaoCardapio,
         escola=escola,
@@ -203,9 +203,7 @@ def alteracao_cardapio(escola, template_mensagem_alteracao_cardapio):
 
 
 @pytest.fixture
-def alteracao_cardapio_com_datas_intervalo(
-    escola, template_mensagem_alteracao_cardapio
-):
+def alteracao_cardapio_com_datas_intervalo(escola):
     alteracao = baker.make(
         AlteracaoCardapio,
         escola=escola,
@@ -235,9 +233,7 @@ def alteracao_cardapio_com_datas_intervalo(
 
 
 @pytest.fixture
-def alteracao_cardapio_outra_dre(
-    escola_dre_guaianases, template_mensagem_alteracao_cardapio
-):
+def alteracao_cardapio_outra_dre(escola_dre_guaianases):
     return baker.make(
         AlteracaoCardapio,
         escola=escola_dre_guaianases,
@@ -365,12 +361,6 @@ def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola,
         perfil=perfil_admin_gestao_alimentacao,
         data_inicial=hoje,
         ativo=True,
-    )
-    baker.make(
-        TemplateMensagem,
-        assunto="TESTE",
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        template_html="@id @criado_em @status @link",
     )
     client.login(username=email, password=password)
     return client

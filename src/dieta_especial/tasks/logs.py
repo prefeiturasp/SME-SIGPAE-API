@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+import environ
 from celery import shared_task
 from django.db.models import Q
 
@@ -25,6 +26,8 @@ from src.escola.models import Escola
 from src.escola.utils import datas_para_gerar_logs
 
 logger = logging.getLogger(__name__)
+
+env = environ.Env()
 
 
 @shared_task(
@@ -88,8 +91,11 @@ def gera_logs_dietas_especiais_diariamente():
 def gera_logs_dietas_recreio_ferias_diariamente():
     hoje = datetime.date.today()
 
-    # 1) Verifica se está em Janeiro ou Julho
-    if hoje.month not in (1, 7):
+    mes_nao_e_ferias = hoje.month not in (1, 7)
+    ambiente_producao = env("DJANGO_ENV") == "production"
+
+    # 1) Verifica se está em Janeiro ou Julho e é produção; caso não é produção, sempre gera os logs.
+    if mes_nao_e_ferias and ambiente_producao:
         return
 
     logger.info(

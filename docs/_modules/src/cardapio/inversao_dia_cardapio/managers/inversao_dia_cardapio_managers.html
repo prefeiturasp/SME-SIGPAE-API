@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span></span><span class="sd">&quot;&quot;&quot;Managers customizados para o modelo InversaoCardapio.</span>
+
+<span class="sd">Cada manager aplica um recorte temporal ou de status sobre o queryset padrao,</span>
+<span class="sd">facilitando consultas de solicitacoes proximas, do mes e vencidas.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span>
@@ -80,9 +86,21 @@
 <div class="viewcode-block" id="InversaoCardapioDestaSemanaManager">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapioDestaSemanaManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapioDestaSemanaManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna inversões com datas previstas para os próximos 7 dias.</span>
+
+<span class="sd">    Considera tanto ``data_de_inversao`` quanto ``data_para_inversao`` e exige</span>
+<span class="sd">    que ambas as datas da solicitação ainda não tenham passado.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="InversaoCardapioDestaSemanaManager.get_queryset">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapioDestaSemanaManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset filtrado pelo intervalo da semana atual.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Inversoes com ``data_de_inversao`` ou</span>
+<span class="sd">            ``data_para_inversao`` entre hoje e hoje + 7 dias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_limite_inicial</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="n">data_limite_final</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -104,9 +122,21 @@
 <div class="viewcode-block" id="InversaoCardapioDesteMesManager">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapioDesteMesManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapioDesteMesManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna inversões com datas previstas para os próximos 30 dias.</span>
+
+<span class="sd">    Considera tanto ``data_de_inversao`` quanto ``data_para_inversao`` e exige</span>
+<span class="sd">    que ambas as datas da solicitação ainda não tenham passado.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="InversaoCardapioDesteMesManager.get_queryset">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapioDesteMesManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset filtrado pelo intervalo do mês atual.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Inversões com ``data_de_inversao`` ou</span>
+<span class="sd">            ``data_para_inversao`` entre hoje e hoje + 30 dias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_limite_inicial</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="n">data_limite_final</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -128,9 +158,21 @@
 <div class="viewcode-block" id="InversaoCardapioVencidaManager">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapioVencidaManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversaoCardapioVencidaManager</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager que retorna inversões vencidas ainda em status aberto.</span>
+
+<span class="sd">    Considera vencidas as solicitações cuja data de início ou fim já passou e</span>
+<span class="sd">    que ainda estejam em status pendentes do fluxo da escola ou da DRE.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="InversaoCardapioVencidaManager.get_queryset">
 <a class="viewcode-back" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapioVencidaManager.get_queryset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o queryset das inversões vencidas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Inversões com datas passadas e status ainda não</span>
+<span class="sd">            finalizados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hoje</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">InversaoCardapioVencidaManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>

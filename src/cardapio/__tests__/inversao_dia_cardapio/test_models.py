@@ -15,9 +15,6 @@ def test_inversao_dia_cardapio(inversao_dia_cardapio):
     assert isinstance(inversao_dia_cardapio.escola, Escola)
     assert inversao_dia_cardapio.data_de == datetime.date(2019, 12, 15)
     assert inversao_dia_cardapio.data_para == datetime.date(2019, 12, 21)
-    assunto, template_html = inversao_dia_cardapio.template_mensagem
-    assert assunto == "TESTE INVERSAO CARDAPIO"
-    assert "RASCUNHO" in template_html
 
 
 @freeze_time("2019-12-12")

@@ -15,11 +15,6 @@ router.register(
 router.register("dias-uteis", viewsets.DiasUteisViewSet, basename="Dias úteis")
 router.register("feriados-ano", viewsets.FeriadosAnoViewSet, basename="Feriados no Ano")
 router.register(
-    "templates-mensagem",
-    viewsets.TemplateMensagemViewSet,
-    basename="Configuração de mensagem",
-)
-router.register(
     "perguntas-frequentes",
     viewsets.PerguntaFrequenteViewSet,
     basename="Perguntas Frequentes",

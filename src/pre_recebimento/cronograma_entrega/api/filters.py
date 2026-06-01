@@ -9,6 +9,17 @@ from ....dados_comuns.fluxo_status import (
 
 
 class CronogramaFilter(filters.FilterSet):
+    """Filtros para listagem de Cronogramas.
+
+    Permite filtrar por:
+    - ``uuid``: UUID exato.
+    - ``numero``: Parte do número do cronograma.
+    - ``nome_empresa``: Nome fantasia da empresa fornecedora.
+    - ``nome_produto``: Nome do produto (via ficha técnica).
+    - ``data_inicial`` / ``data_final``: Intervalo de datas programadas (etapas).
+    - ``status``: Um ou mais status do workflow.
+    - ``armazem`` / ``empresa``: UUIDs dos respectivos modelos.
+    """
     uuid = filters.CharFilter(
         field_name="uuid",
         lookup_expr="exact",
@@ -57,6 +68,14 @@ class CronogramaFilter(filters.FilterSet):
 
 
 class SolicitacaoAlteracaoCronogramaFilter(filters.FilterSet):
+    """Filtros para listagem de Solicitações de Alteração de Cronograma.
+
+    Permite filtrar por:
+    - ``numero_cronograma``: Número do cronograma original.
+    - ``fornecedor``: Nome fantasia do fornecedor.
+    - ``data``: Intervalo de data de criação (DateFromToRangeFilter).
+    - ``status``: Um ou mais status do fluxo de alteração.
+    """
     numero_cronograma = filters.CharFilter(
         field_name="cronograma__numero",
         lookup_expr="icontains",

@@ -13,10 +13,7 @@ from src.cardapio.suspensao_alimentacao.models import (
 )
 from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
-from src.dados_comuns.models import (
-    LogSolicitacoesUsuario,
-    TemplateMensagem,
-)
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
@@ -96,16 +93,6 @@ def escola_destino():
         diretoria_regional=diretoria_regional,
     )
     return escola
-
-
-@pytest.fixture
-def template_mensagem_dieta_especial():
-    return baker.make(
-        TemplateMensagem,
-        tipo=TemplateMensagem.DIETA_ESPECIAL,
-        assunto="TESTE DIETA ESPECIAL",
-        template_html="@id @criado_em @status @link",
-    )
 
 
 @pytest.fixture
@@ -212,9 +199,7 @@ def aluno():
 
 
 @pytest.fixture
-def solicitacao_dieta_especial_a_autorizar(
-    client, escola, template_mensagem_dieta_especial, usuario_escola, aluno
-):
+def solicitacao_dieta_especial_a_autorizar(client, escola, usuario_escola, aluno):
     with freeze_time("2025-12-10"):
         user, password = usuario_escola
         # client.login(username=user.email, password=password)
@@ -310,7 +295,6 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     escola,
     solicitacao_dieta_especial_a_autorizar,
     escola_destino,
-    template_mensagem_dieta_especial,
 ):
     email = "terceirizada@admin.com"
     password = DJANGO_ADMIN_PASSWORD
@@ -756,6 +740,177 @@ def solicitacao_medicao_inicial_aprovada_codae(
 
 
 @pytest.fixture
+def recreio_nas_ferias(escola):
+    recreio = baker.make(
+        "RecreioNasFerias",
+        titulo="Recreio nas Férias - Julho 2025",
+        data_inicio=datetime.date(2025, 7, 14),
+        data_fim=datetime.date(2025, 8, 1),
+    )
+    baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio,
+        lote=escola.lote,
+        unidade_educacional=escola,
+        num_inscritos=100,
+        num_colaboradores=50,
+        liberar_medicao=True,
+        cei_ou_emei="N/A",
+    )
+    return recreio
+
+
+@pytest.fixture
+def solicitacao_medicao_inicial_recreio_nas_ferias(escola, recreio_nas_ferias):
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+    grupo_recreio = baker.make("GrupoMedicao", nome="Recreio nas Férias")
+    grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
+
+    categoria_alimentacao = baker.make(
+        "CategoriaMedicao", nome="ALIMENTAÇÃO"
+    )
+    categoria_dieta_a = baker.make(
+        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A"
+    )
+    categoria_dieta_enteral = baker.make(
+        "CategoriaMedicao",
+        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+    )
+    categoria_dieta_b = baker.make(
+        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B"
+    )
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=7,
+        ano=2025,
+        escola=escola,
+        recreio_nas_ferias=recreio_nas_ferias,
+        rastro_lote=escola.lote,
+    )
+    solicitacao.tipos_contagem_alimentacao.set([tipo_contagem])
+
+    # Medição Recreio nas Férias
+    medicao_recreio = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_recreio,
+    )
+
+    # Medição Colaboradores
+    medicao_colaboradores = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_colaboradores,
+    )
+
+    # Valores - Recreio nas Férias - Alimentação regular
+    for dia, valor in [("01", "100"), ("02", "95")]:
+        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                semana="1",
+                nome_campo=campo,
+                medicao=medicao_recreio,
+                categoria_medicao=categoria_alimentacao,
+                valor=valor,
+            )
+
+    # Valores - Recreio nas Férias - Dieta Tipo A
+    for dia, valor in [("01", "4"), ("02", "4")]:
+        for campo in ["lanche", "lanche_4h"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                semana="1",
+                nome_campo=campo,
+                medicao=medicao_recreio,
+                categoria_medicao=categoria_dieta_a,
+                valor=valor,
+            )
+
+    # Valores - Recreio nas Férias - Dieta Enteral
+    for dia, valor in [("01", "8"), ("02", "8")]:
+        for campo in ["lanche", "lanche_4h", "refeicao"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                semana="1",
+                nome_campo=campo,
+                medicao=medicao_recreio,
+                categoria_medicao=categoria_dieta_enteral,
+                valor=valor,
+            )
+
+    # Valores - Recreio nas Férias - Dieta Tipo B
+    for dia, valor in [("01", "4"), ("02", "4")]:
+        for campo in ["lanche", "lanche_4h"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                semana="1",
+                nome_campo=campo,
+                medicao=medicao_recreio,
+                categoria_medicao=categoria_dieta_b,
+                valor=valor,
+            )
+
+    # Valores - Colaboradores - Alimentação regular
+    for dia, valor in [("01", "50"), ("02", "50")]:
+        for campo in ["lanche", "refeicao", "sobremesa"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                semana="1",
+                nome_campo=campo,
+                medicao=medicao_colaboradores,
+                categoria_medicao=categoria_alimentacao,
+                valor=valor,
+            )
+
+    return solicitacao
+
+
+@pytest.fixture
+def solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae(
+    solicitacao_medicao_inicial_recreio_nas_ferias,
+    django_user_model,
+):
+    usuario = django_user_model.objects.create_user(
+        nome="Usuário TESTE",
+        username="medicao_recreio_teste",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="medicao_recreio@escola.com",
+        registro_funcional="654321",
+    )
+
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao_inicial_recreio_nas_ferias.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2025, 8, 5, 10, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+
+    for medicao in solicitacao_medicao_inicial_recreio_nas_ferias.medicoes.all():
+        medicao.status = (
+            solicitacao_medicao_inicial_recreio_nas_ferias.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+        )
+        medicao.save()
+
+    solicitacao_medicao_inicial_recreio_nas_ferias.status = (
+        solicitacao_medicao_inicial_recreio_nas_ferias.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+    )
+    solicitacao_medicao_inicial_recreio_nas_ferias.save()
+
+    return solicitacao_medicao_inicial_recreio_nas_ferias
+
+
+@pytest.fixture
 def solicitacao_com_historico_completo(
     solicitacoes_medicao_inicial_emef,
     django_user_model,
@@ -786,7 +941,16 @@ def solicitacao_com_historico_completo(
         usuario=usuario,
     )
 
-    # 3. Log de Aprovação (Para testar o status final)
+    # 3. Log Corrigido para CODAE (Para testar exibição justificativa)
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
+        justificativa="<p>Corrigido ocorrências</p>",
+        usuario=usuario,
+    )
+
+    # 4. Log de Aprovação (Para testar o status final)
     baker.make(
         "LogSolicitacoesUsuario",
         uuid_original=solicitacao.uuid,

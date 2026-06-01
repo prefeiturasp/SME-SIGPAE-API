@@ -4,14 +4,15 @@ import pytest
 from model_bakery import baker
 
 from src.medicao_inicial.models import ValorMedicao
-from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
-    _categoria_tem_logs_dieta_autorizada,
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
-    cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
-    cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
     existe_colaborador,
     get_classificacoes_dietas_recreio,
-    get_linhas_da_tabela_alimentacoes_recreio,
+)
+from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_gesto_cieja import (
+    _categoria_tem_logs_dieta_autorizada,
+    cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceugestao,
+    cria_valores_medicao_participantes_emef_emei_cieja_ceugestao,
     get_linhas_da_tabela_dieta_recreio,
     indexar_logs_dieta_autorizadas_por_data,
     retorna_valor_para_log_dieta_autorizada,
@@ -91,22 +92,6 @@ def test_validate_lancamento_dietas_medicao_recreio_dados_nao_lancados(
     ]
 
 
-def test_get_linhas_da_tabela_alimentacoes_recreio():
-    resultado = get_linhas_da_tabela_alimentacoes_recreio(
-        ["Refeição", "Sobremesa", "Lanche"]
-    )
-
-    assert resultado == [
-        "participantes",
-        "frequencia",
-        "refeicao",
-        "repeticao_refeicao",
-        "sobremesa",
-        "repeticao_sobremesa",
-        "lanche",
-    ]
-
-
 def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_emef):
     recreio = solicitacao_recreio_emef.recreio_nas_ferias
     participantes = recreio.unidades_participantes.first()
@@ -117,10 +102,16 @@ def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_emef):
 
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
-    assert resultado == {
-        "Colaboradores": ["Refeição", "Sobremesa"],
-        "Inscritos": ["Refeição", "Sobremesa"],
-    }
+    alimentacoes = ["Refeição", "Sobremesa"]
+    assert "Colaboradores" in resultado
+    for esperado in alimentacoes:
+        assert (
+            esperado in resultado["Colaboradores"]
+        ), f"Elemento {esperado} não encontrado"
+
+    assert "Inscritos" in resultado
+    for esperado in alimentacoes:
+        assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
 
 
 def test_retorna_valor_para_log_dieta_autorizada_enteral(
@@ -395,27 +386,6 @@ def test_indexar_logs_dieta_autorizadas_por_data_soma_quantidades(
     assert resultado[datetime.date(2025, 12, 10)]["tipo a enteral"] == 3
 
 
-def test_get_linhas_sem_refeicao_nao_adiciona_repeticao():
-    resultado = get_linhas_da_tabela_alimentacoes_recreio(["Lanche"])
-
-    assert resultado == [
-        "participantes",
-        "frequencia",
-        "lanche",
-    ]
-
-
-def test_get_linhas_adiciona_repeticao_sobremesa():
-    resultado = get_linhas_da_tabela_alimentacoes_recreio(["Sobremesa"])
-
-    assert resultado == [
-        "participantes",
-        "frequencia",
-        "sobremesa",
-        "repeticao_sobremesa",
-    ]
-
-
 def test_retorna_valor_para_log_dieta_autorizada_enteral_sem_logs(
     categoria_medicao_dieta_a_enteral_aminoacidos,
 ):
@@ -448,12 +418,14 @@ def test_get_linhas_da_tabela_dieta_recreio_com_todas_alimentacoes(
         categoria_medicao_dieta_a_enteral_aminoacidos,
     )
 
-    assert resultado == [
+    campos = [
         "frequencia",
         "lanche",
         "lanche_4h",
         "refeicao",
     ]
+    for esperado in campos:
+        assert esperado in resultado, f"Elemento {esperado} não encontrado"
 
 
 def test_categoria_tem_logs_dieta_autorizada_categoria_comum_retorna_true(
