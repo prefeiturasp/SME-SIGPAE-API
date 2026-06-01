@@ -2,6 +2,7 @@ import datetime
 from collections import namedtuple
 
 import pytest
+from django.db.models import Q
 from freezegun.api import freeze_time
 from model_bakery import baker
 from rest_framework import status
@@ -1338,8 +1339,37 @@ def test_kit_lanches_autorizadas_recreio_filtra_periodo_para_todos_tipos(
         def __init__(self, items):
             self.items = list(items)
 
-        def filter(self, **kwargs):
+        def _matches_q(self, item, q_object):
+            resultados = []
+            for filho in q_object.children:
+                if isinstance(filho, Q):
+                    resultados.append(self._matches_q(item, filho))
+                    continue
+
+                lookup, value = filho
+                if lookup == "data_evento__lt":
+                    resultados.append(item.data_evento < value)
+                elif lookup == "data_evento__gt":
+                    resultados.append(item.data_evento > value)
+                elif lookup == "data_evento__lte":
+                    resultados.append(item.data_evento <= value)
+                elif lookup == "data_evento__gte":
+                    resultados.append(item.data_evento >= value)
+                else:
+                    raise AssertionError(f"Lookup não suportado no teste: {lookup}")
+
+            if q_object.connector == "AND":
+                matched = all(resultados)
+            else:
+                matched = any(resultados)
+
+            return not matched if q_object.negated else matched
+
+        def filter(self, *args, **kwargs):
             filtrados = self.items
+            for q_object in args:
+                filtrados = [x for x in filtrados if self._matches_q(x, q_object)]
+
             for lookup, value in kwargs.items():
                 if lookup == "data_evento__month":
                     filtrados = [
@@ -1351,6 +1381,8 @@ def test_kit_lanches_autorizadas_recreio_filtra_periodo_para_todos_tipos(
                     ]
                 elif lookup == "data_evento__lt":
                     filtrados = [x for x in filtrados if x.data_evento < value]
+                elif lookup == "data_evento__gt":
+                    filtrados = [x for x in filtrados if x.data_evento > value]
                 elif lookup == "data_evento__gte":
                     filtrados = [x for x in filtrados if x.data_evento >= value]
                 elif lookup == "data_evento__lte":
@@ -1408,6 +1440,173 @@ def test_kit_lanches_autorizadas_recreio_filtra_periodo_para_todos_tipos(
             },
             {
                 "kit_lanche_id_externo": "uuid-kit-unificado",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+            },
+        ]
+    }
+
+
+@freeze_time("2026-03-20")
+def test_kit_lanches_autorizadas_sem_recreio_exclui_periodo_de_recreio_para_todos_tipos(
+    client_autenticado_escola_paineis_consolidados,
+    escola,
+    monkeypatch,
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+
+    recreio = baker.make(
+        RecreioNasFerias,
+        data_inicio=datetime.date(2026, 3, 3),
+        data_fim=datetime.date(2026, 3, 10),
+    )
+    baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio,
+        unidade_educacional=escola,
+        lote=escola.lote,
+        liberar_medicao=True,
+    )
+
+    Linha = namedtuple("Linha", ["uuid", "data_evento", "tipo_doc"])
+
+    linhas = [
+        Linha(
+            uuid="uuid-fora-padrao",
+            data_evento=datetime.date(2026, 3, 1),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+        ),
+        Linha(
+            uuid="uuid-dentro-padrao",
+            data_evento=datetime.date(2026, 3, 5),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+        ),
+        Linha(
+            uuid="uuid-fora-cemei",
+            data_evento=datetime.date(2026, 3, 2),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+        ),
+        Linha(
+            uuid="uuid-dentro-cemei",
+            data_evento=datetime.date(2026, 3, 6),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+        ),
+        Linha(
+            uuid="uuid-fora-unificado",
+            data_evento=datetime.date(2026, 3, 11),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+        ),
+        Linha(
+            uuid="uuid-dentro-unificado",
+            data_evento=datetime.date(2026, 3, 8),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+        ),
+    ]
+
+    class FakeQS:
+        def __init__(self, items):
+            self.items = list(items)
+
+        def _matches_q(self, item, q_object):
+            resultados = []
+            for filho in q_object.children:
+                if isinstance(filho, Q):
+                    resultados.append(self._matches_q(item, filho))
+                    continue
+
+                lookup, value = filho
+                if lookup == "data_evento__lt":
+                    resultados.append(item.data_evento < value)
+                elif lookup == "data_evento__gt":
+                    resultados.append(item.data_evento > value)
+                elif lookup == "data_evento__lte":
+                    resultados.append(item.data_evento <= value)
+                elif lookup == "data_evento__gte":
+                    resultados.append(item.data_evento >= value)
+                else:
+                    raise AssertionError(f"Lookup não suportado no teste: {lookup}")
+
+            if q_object.connector == "AND":
+                matched = all(resultados)
+            else:
+                matched = any(resultados)
+
+            return not matched if q_object.negated else matched
+
+        def filter(self, *args, **kwargs):
+            filtrados = self.items
+            for q_object in args:
+                filtrados = [x for x in filtrados if self._matches_q(x, q_object)]
+
+            for lookup, value in kwargs.items():
+                if lookup == "data_evento__month":
+                    filtrados = [
+                        x for x in filtrados if x.data_evento.month == int(value)
+                    ]
+                elif lookup == "data_evento__year":
+                    filtrados = [
+                        x for x in filtrados if x.data_evento.year == int(value)
+                    ]
+                elif lookup == "data_evento__lt":
+                    filtrados = [x for x in filtrados if x.data_evento < value]
+                elif lookup == "data_evento__gt":
+                    filtrados = [x for x in filtrados if x.data_evento > value]
+                elif lookup == "data_evento__gte":
+                    filtrados = [x for x in filtrados if x.data_evento >= value]
+                elif lookup == "data_evento__lte":
+                    filtrados = [x for x in filtrados if x.data_evento <= value]
+
+            return FakeQS(filtrados)
+
+        def __iter__(self):
+            return iter(self.items)
+
+    fake_qs = FakeQS(linhas)
+
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "get_autorizados",
+        classmethod(lambda cls, escola_uuid=None: fake_qs),
+    )
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "busca_filtro",
+        classmethod(lambda cls, qs, params: qs),
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "remove_duplicados_do_query_set",
+        lambda self, qs: qs,
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "_build_results_kit_lanches",
+        lambda self, qs, escola_uuid: [
+            {"kit_lanche_id_externo": item.uuid, "tipo_doc": item.tipo_doc}
+            for item in qs
+        ],
+    )
+
+    params = {
+        "escola_uuid": str(escola.uuid),
+        "mes": "03",
+        "ano": "2026",
+        "tipo_solicitacao": "Kit Lanche",
+    }
+    response = client.get("/escola-solicitacoes/kit-lanches-autorizadas/", params)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "results": [
+            {
+                "kit_lanche_id_externo": "uuid-fora-padrao",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+            },
+            {
+                "kit_lanche_id_externo": "uuid-fora-cemei",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+            },
+            {
+                "kit_lanche_id_externo": "uuid-fora-unificado",
                 "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
             },
         ]
