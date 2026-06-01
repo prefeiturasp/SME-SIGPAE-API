@@ -194,6 +194,9 @@ def tratar_inclusao_continua(escola, mes, ano, periodo, inclusao, return_dict):
     ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
     data_evento_final = get_data_evento_final_periodo(periodo, inclusao.data_evento_2)
 
+    if inclusao.motivo == "ETEC":
+        return
+
     data_inicio_no_mes = max(inclusao.data_evento, primeiro_dia_mes)
     data_evento_final_no_mes = min(data_evento_final, ultimo_dia_mes)
 
