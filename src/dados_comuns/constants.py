@@ -304,6 +304,8 @@ ORDEM_PERIODOS_GRUPOS_CEI = {
     "PARCIAL": 2,
     "MANHA": 3,
     "TARDE": 4,
+    "Recreio nas Férias": 5,
+    "Colaboradores": 6,
 }
 
 ORDEM_PERIODOS_GRUPOS_CEMEI = {
