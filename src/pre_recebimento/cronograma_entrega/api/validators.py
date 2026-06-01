@@ -2,6 +2,10 @@ from rest_framework import serializers
 
 
 def contrato_pertence_a_empresa(contrato, empresa):
+    """Valida se o contrato pertence à empresa informada.
+
+    Levanta ValidationError se o contrato não pertencer à empresa.
+    """
     if contrato not in empresa.contratos.all():
         raise serializers.ValidationError(
             "Contrato deve pertencer a empresa selecionada"
@@ -10,6 +14,10 @@ def contrato_pertence_a_empresa(contrato, empresa):
 
 
 def valida_parametros_calendario(mes, ano):
+    """Valida os parâmetros mês (1-12) e ano (4 dígitos) para consultas de calendário.
+
+    Levanta ValidationError se os parâmetros forem inválidos ou ausentes.
+    """
     if not (mes and ano):
         raise serializers.ValidationError(
             "Os parâmetros mes e ano são parametros obrigatórios"

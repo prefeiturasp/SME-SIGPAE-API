@@ -21,15 +21,21 @@ class EtapasNovasInline(admin.StackedInline):
 
 @admin.register(SolicitacaoAlteracaoCronograma)
 class SolicitacaoAdmin(admin.ModelAdmin):
+    """Admin para Solicitação de Alteração de Cronograma com inlines de etapas."""
+
     inlines = [EtapasAntigasInline, EtapasNovasInline]
 
 
 class EtapasInline(admin.TabularInline):
+    """Inline para exibir etapas do cronograma no formulário admin."""
+
     model = EtapasDoCronograma
     extra = 0
 
 
 class CronogramaAdmin(admin.ModelAdmin):
+    """Admin para Cronograma com inline de etapas."""
+
     inlines = (EtapasInline,)
 
 

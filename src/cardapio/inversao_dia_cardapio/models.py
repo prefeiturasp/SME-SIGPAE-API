@@ -20,6 +20,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.utils import patch_docs
 
 FORMATO_DATA_BR = "%d/%m/%Y"
 
@@ -266,3 +267,6 @@ class InversaoCardapio(
     class Meta:
         verbose_name = "Inversão de cardápio"
         verbose_name_plural = "Inversões de cardápio"
+
+
+patch_docs(InversaoCardapio)

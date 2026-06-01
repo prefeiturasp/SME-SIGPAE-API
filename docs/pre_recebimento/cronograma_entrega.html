@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cronograma_entrega &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="models" href="cronograma_entrega/models.html" />
+    <link rel="prev" title="pre_recebimento" href="../pre_recebimento.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cronograma_entrega</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html">models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html">api</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/admin.html">admin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../pre_recebimento.html">pre_recebimento</a></li>
+      <li class="breadcrumb-item active">cronograma_entrega</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pre_recebimento/cronograma_entrega.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cronograma-entrega">
+<h1>cronograma_entrega<a class="headerlink" href="#cronograma-entrega" title="Link to this heading"></a></h1>
+<p>Submódulo de cronogramas de entrega. Gerencia o planejamento de entregas
+de produtos alimentícios, incluindo criação de cronogramas, etapas,
+programações de recebimento, solicitações de alteração e interrupções
+programadas de entregas.</p>
+<div class="toctree-wrapper compound" id="module-src.pre_recebimento.cronograma_entrega">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cronograma_entrega/models.html">models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.gerar_numero_solicitacao"><code class="docutils literal notranslate"><span class="pre">gerar_numero_solicitacao()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/models.html#cronograma">Cronograma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma"><code class="docutils literal notranslate"><span class="pre">Cronograma</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.id"><code class="docutils literal notranslate"><span class="pre">Cronograma.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.uuid"><code class="docutils literal notranslate"><span class="pre">Cronograma.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.numero"><code class="docutils literal notranslate"><span class="pre">Cronograma.numero</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.status"><code class="docutils literal notranslate"><span class="pre">Cronograma.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.criado_em"><code class="docutils literal notranslate"><span class="pre">Cronograma.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.alterado_em"><code class="docutils literal notranslate"><span class="pre">Cronograma.alterado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.contrato"><code class="docutils literal notranslate"><span class="pre">Cronograma.contrato</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.empresa"><code class="docutils literal notranslate"><span class="pre">Cronograma.empresa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.qtd_total_programada"><code class="docutils literal notranslate"><span class="pre">Cronograma.qtd_total_programada</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.unidade_medida"><code class="docutils literal notranslate"><span class="pre">Cronograma.unidade_medida</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.armazem"><code class="docutils literal notranslate"><span class="pre">Cronograma.armazem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.ficha_tecnica"><code class="docutils literal notranslate"><span class="pre">Cronograma.ficha_tecnica</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.tipo_embalagem_secundaria"><code class="docutils literal notranslate"><span class="pre">Cronograma.tipo_embalagem_secundaria</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.custo_unitario_produto"><code class="docutils literal notranslate"><span class="pre">Cronograma.custo_unitario_produto</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.numero_empenho"><code class="docutils literal notranslate"><span class="pre">Cronograma.numero_empenho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.qtd_total_empenho"><code class="docutils literal notranslate"><span class="pre">Cronograma.qtd_total_empenho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.observacoes"><code class="docutils literal notranslate"><span class="pre">Cronograma.observacoes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.etapas"><code class="docutils literal notranslate"><span class="pre">Cronograma.etapas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.programacoes_de_recebimento"><code class="docutils literal notranslate"><span class="pre">Cronograma.programacoes_de_recebimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.solicitacoes_de_alteracao"><code class="docutils literal notranslate"><span class="pre">Cronograma.solicitacoes_de_alteracao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.logs"><code class="docutils literal notranslate"><span class="pre">Cronograma.logs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.log_mais_recente"><code class="docutils literal notranslate"><span class="pre">Cronograma.log_mais_recente</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.id_externo"><code class="docutils literal notranslate"><span class="pre">Cronograma.id_externo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.ponto_a_ponto"><code class="docutils literal notranslate"><span class="pre">Cronograma.ponto_a_ponto</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma.salvar_log_transicao"><code class="docutils literal notranslate"><span class="pre">Cronograma.salvar_log_transicao</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/models.html#etapasdocronograma">EtapasDoCronograma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.id"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.uuid"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.cronograma"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.cronograma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.numero_empenho"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.numero_empenho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.qtd_total_empenho"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.qtd_total_empenho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapa"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.etapa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.parte"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.parte</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.data_programada"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.data_programada</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.quantidade"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.quantidade</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.total_embalagens"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.total_embalagens</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.criado_em"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.alterado_em"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.alterado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapas_antigas"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.etapas_antigas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapas_novas"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronograma.etapas_novas</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/models.html#programacaodorecebimentodocronograma">ProgramacaoDoRecebimentoDoCronograma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.id"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.uuid"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.cronograma"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.cronograma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.data_programada"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.data_programada</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.tipo_carga"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.tipo_carga</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.ESTIVADA_BATIDA"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.ESTIVADA_BATIDA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.PALETIZADA"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.PALETIZADA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.TIPO_CARGA_CHOICES"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.TIPO_CARGA_CHOICES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.get_tipo_carga_display"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.get_tipo_carga_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.programacoes_novas"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma.programacoes_novas</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/models.html#solicitacaoalteracaocronograma">SolicitacaoAlteracaoCronograma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.id"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.uuid"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.objects"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.numero_solicitacao"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.numero_solicitacao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.status"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.cronograma"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.cronograma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.qtd_total_programada"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.qtd_total_programada</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.etapas_antigas"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.etapas_antigas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.etapas_novas"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.etapas_novas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.programacoes_novas"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.programacoes_novas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.justificativa"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.justificativa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.usuario_solicitante"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.usuario_solicitante</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.criado_em"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.logs"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.logs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.cronograma_ciente"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.cronograma_ciente</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_abastecimento_aprova"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.dilog_abastecimento_aprova</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_abastecimento_reprova"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.dilog_abastecimento_reprova</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_aprova"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.dilog_aprova</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_reprova"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.dilog_reprova</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.fornecedor_ciente"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.fornecedor_ciente</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.inicia_fluxo"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.inicia_fluxo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.inicia_fluxo_codae"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma.inicia_fluxo_codae</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/models.html#solicitacaoalteracaocronogramaqueryset">SolicitacaoAlteracaoCronogramaQuerySet</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronogramaQuerySet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet.em_analise"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronogramaQuerySet.em_analise()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet.filtrar_por_status"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronogramaQuerySet.filtrar_por_status()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/models.html#interrupcaoprogramadaentrega">InterrupcaoProgramadaEntrega</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.id"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.uuid"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.data"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.motivo"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.motivo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.descricao_motivo"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.descricao_motivo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.tipo_calendario"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.tipo_calendario</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_CHOICES"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.MOTIVO_CHOICES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_EMENDA"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.MOTIVO_EMENDA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_FERIADO"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.MOTIVO_FERIADO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_INVENTARIO"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.MOTIVO_INVENTARIO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_OUTROS"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.MOTIVO_OUTROS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_REUNIAO"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.MOTIVO_REUNIAO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_CHOICES"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_CHOICES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_motivo_display"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.get_motivo_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_next_by_data"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.get_next_by_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_previous_by_data"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.get_previous_by_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_tipo_calendario_display"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntrega.get_tipo_calendario_display()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cronograma_entrega/api.html">api</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.viewsets">viewsets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CalendarioCronogramaViewset"><code class="docutils literal notranslate"><span class="pre">CalendarioCronogramaViewset</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CalendarioCronogramaViewset.get_queryset"><code class="docutils literal notranslate"><span class="pre">CalendarioCronogramaViewset.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CalendarioCronogramaViewset.permission_classes"><code class="docutils literal notranslate"><span class="pre">CalendarioCronogramaViewset.permission_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CalendarioCronogramaViewset.queryset"><code class="docutils literal notranslate"><span class="pre">CalendarioCronogramaViewset.queryset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CalendarioCronogramaViewset.serializer_class"><code class="docutils literal notranslate"><span class="pre">CalendarioCronogramaViewset.serializer_class</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.abastecimento_assina"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.abastecimento_assina()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.codae_assina"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.codae_assina()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dados_cronograma_ficha_recebimento"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.dados_cronograma_ficha_recebimento()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dados_dashboard"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.dados_dashboard()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dashboard"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.dashboard()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dashboard_com_filtro"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.dashboard_com_filtro()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.detalhar_com_log"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.detalhar_com_log()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.etapas"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.etapas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.filter_backends"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.filter_backends</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.filterset_class"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.filterset_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.fornecedor_assina"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.fornecedor_assina()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.gerar_pdf_cronograma"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.gerar_pdf_cronograma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.gerar_relatorio_pdf_async"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.gerar_relatorio_pdf_async()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.gerar_relatorio_xlsx_async"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.gerar_relatorio_xlsx_async()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.get_default_sql"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.get_default_sql()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.get_lista_status"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.get_lista_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.get_queryset"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.get_serializer_class"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.get_serializer_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.list"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_cronogramas_ficha_recebimento"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.lista_cronogramas_ficha_recebimento()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_cronogramas_para_cadastro"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.lista_cronogramas_para_cadastro()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_relatorio"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.lista_relatorio()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lookup_field"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.lookup_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.pagination_class"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.pagination_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.permission_action_classes"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.permission_action_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.permission_classes"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.permission_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.queryset"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.queryset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.rascunhos"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.rascunhos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.serializer_class"><code class="docutils literal notranslate"><span class="pre">CronogramaModelViewSet.serializer_class</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaViewSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.datas_bloqueadas_armazenavel"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaViewSet.datas_bloqueadas_armazenavel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.get_queryset"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaViewSet.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.get_serializer_class"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaViewSet.get_serializer_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.lookup_field"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaViewSet.lookup_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.motivos"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaViewSet.motivos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.permission_classes"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaViewSet.permission_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.InterrupcaoProgramadaEntregaViewSet.queryset"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaViewSet.queryset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.analise_abastecimento"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.analise_abastecimento()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.analise_dilog"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.analise_dilog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.cronograma_ciente"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.cronograma_ciente()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.dashboard"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.dashboard()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.dashboard_com_filtro"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.dashboard_com_filtro()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.filter_backends"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.filter_backends</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.filterset_class"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.filterset_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.fornecedor_ciente"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.fornecedor_ciente()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.get_permissions"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.get_permissions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.get_queryset"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.get_serializer_class"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.get_serializer_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.list"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.lookup_field"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.lookup_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.pagination_class"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.pagination_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.SolicitacaoDeAlteracaoCronogramaViewSet.permission_classes"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaViewSet.permission_classes</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.filters">filters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.filters.CronogramaFilter"><code class="docutils literal notranslate"><span class="pre">CronogramaFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.filters.CronogramaFilter.base_filters"><code class="docutils literal notranslate"><span class="pre">CronogramaFilter.base_filters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.filters.CronogramaFilter.declared_filters"><code class="docutils literal notranslate"><span class="pre">CronogramaFilter.declared_filters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.filters.SolicitacaoAlteracaoCronogramaFilter"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronogramaFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.filters.SolicitacaoAlteracaoCronogramaFilter.base_filters"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronogramaFilter.base_filters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.filters.SolicitacaoAlteracaoCronogramaFilter.declared_filters"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronogramaFilter.declared_filters</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.services">services</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles"><code class="docutils literal notranslate"><span class="pre">ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles.STATUS_POR_PERFIL"><code class="docutils literal notranslate"><span class="pre">ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles.STATUS_POR_PERFIL</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceQuerysetAlteracaoCronograma"><code class="docutils literal notranslate"><span class="pre">ServiceQuerysetAlteracaoCronograma</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceQuerysetAlteracaoCronograma.STATUS_PRIORITARIO"><code class="docutils literal notranslate"><span class="pre">ServiceQuerysetAlteracaoCronograma.STATUS_PRIORITARIO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceQuerysetAlteracaoCronograma.get_queryset"><code class="docutils literal notranslate"><span class="pre">ServiceQuerysetAlteracaoCronograma.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceQuerysetAlteracaoCronograma.get_status"><code class="docutils literal notranslate"><span class="pre">ServiceQuerysetAlteracaoCronograma.get_status()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.validators">validators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.validators.contrato_pertence_a_empresa"><code class="docutils literal notranslate"><span class="pre">contrato_pertence_a_empresa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.validators.valida_parametros_calendario"><code class="docutils literal notranslate"><span class="pre">valida_parametros_calendario()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.helpers">helpers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.aplicar_filtros_etapa"><code class="docutils literal notranslate"><span class="pre">aplicar_filtros_etapa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.converter_para_numero"><code class="docutils literal notranslate"><span class="pre">converter_para_numero()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.cria_etapas_de_cronograma"><code class="docutils literal notranslate"><span class="pre">cria_etapas_de_cronograma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.cria_programacao_de_cronograma"><code class="docutils literal notranslate"><span class="pre">cria_programacao_de_cronograma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.extrair_numero_quantidade"><code class="docutils literal notranslate"><span class="pre">extrair_numero_quantidade()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.filtrar_etapas"><code class="docutils literal notranslate"><span class="pre">filtrar_etapas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.parse_date"><code class="docutils literal notranslate"><span class="pre">parse_date()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.passa_filtro_data_etapa"><code class="docutils literal notranslate"><span class="pre">passa_filtro_data_etapa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.passa_filtro_situacao"><code class="docutils literal notranslate"><span class="pre">passa_filtro_situacao()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.processar_situacao_a_receber"><code class="docutils literal notranslate"><span class="pre">processar_situacao_a_receber()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.processar_situacao_ocorrencia"><code class="docutils literal notranslate"><span class="pre">processar_situacao_ocorrencia()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.processar_situacao_recebido"><code class="docutils literal notranslate"><span class="pre">processar_situacao_recebido()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.totalizador_relatorio_cronograma"><code class="docutils literal notranslate"><span class="pre">totalizador_relatorio_cronograma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.serializers.serializers">serializers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaComLogSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaComLogSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaFichaDeRecebimentoSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaFichaDeRecebimentoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaMensalAssinadoSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaMensalAssinadoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaRascunhosSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaRascunhosSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaRelatorioSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaRelatorioSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaSimplesSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaSimplesSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapaCronogramaRelatorioSerializer"><code class="docutils literal notranslate"><span class="pre">EtapaCronogramaRelatorioSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaCalendarioSerializer"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaCalendarioSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaFichaDeRecebimentoSerializer"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFichaDeRecebimentoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaSerializer"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.InterrupcaoProgramadaEntregaCreateSerializer"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.InterrupcaoProgramadaEntregaSerializer"><code class="docutils literal notranslate"><span class="pre">InterrupcaoProgramadaEntregaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelCronogramaSerializer"><code class="docutils literal notranslate"><span class="pre">PainelCronogramaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializer"><code class="docutils literal notranslate"><span class="pre">PainelSolicitacaoAlteracaoCronogramaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializerItem"><code class="docutils literal notranslate"><span class="pre">PainelSolicitacaoAlteracaoCronogramaSerializerItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.ProgramacaoDoRecebimentoDoCronogramaSerializer"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronogramaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.SolicitacaoAlteracaoCronogramaCompletoSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronogramaCompletoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.SolicitacaoAlteracaoCronogramaSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronogramaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.TipoEmbalagemQldSerializer"><code class="docutils literal notranslate"><span class="pre">TipoEmbalagemQldSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.TipoEmbalagemQldSimplesSerializer"><code class="docutils literal notranslate"><span class="pre">TipoEmbalagemQldSimplesSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.UnidadeMedidaSerialzer"><code class="docutils literal notranslate"><span class="pre">UnidadeMedidaSerialzer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create">serializers_create</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaCreateSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaPontoAPontoCreateSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaPontoAPontoCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.EtapasDoCronogramaCreateSerializer"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.EtapasDoCronogramaPontoAPontoCreateSerializer"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaPontoAPontoCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.ProgramacaoDoRecebimentoDoCronogramaCreateSerializer"><code class="docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronogramaCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.SolicitacaoDeAlteracaoCronogramaCreateSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDeAlteracaoCronogramaCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.novo_numero_solicitacao"><code class="docutils literal notranslate"><span class="pre">novo_numero_solicitacao()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cronograma_entrega/admin.html">admin</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.CronogramaAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaAdmin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.CronogramaAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">CronogramaAdmin.inlines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.CronogramaAdmin.media"><code class="docutils literal notranslate"><span class="pre">CronogramaAdmin.media</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasAntigasInline"><code class="docutils literal notranslate"><span class="pre">EtapasAntigasInline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasAntigasInline.extra"><code class="docutils literal notranslate"><span class="pre">EtapasAntigasInline.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasAntigasInline.media"><code class="docutils literal notranslate"><span class="pre">EtapasAntigasInline.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasAntigasInline.model"><code class="docutils literal notranslate"><span class="pre">EtapasAntigasInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasInline"><code class="docutils literal notranslate"><span class="pre">EtapasInline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasInline.extra"><code class="docutils literal notranslate"><span class="pre">EtapasInline.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasInline.media"><code class="docutils literal notranslate"><span class="pre">EtapasInline.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasInline.model"><code class="docutils literal notranslate"><span class="pre">EtapasInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasNovasInline"><code class="docutils literal notranslate"><span class="pre">EtapasNovasInline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasNovasInline.extra"><code class="docutils literal notranslate"><span class="pre">EtapasNovasInline.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasNovasInline.media"><code class="docutils literal notranslate"><span class="pre">EtapasNovasInline.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasNovasInline.model"><code class="docutils literal notranslate"><span class="pre">EtapasNovasInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.SolicitacaoAdmin"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAdmin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.SolicitacaoAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAdmin.inlines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.SolicitacaoAdmin.media"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAdmin.media</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cronograma_entrega/fixtures.html">fixtures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cronograma_entrega/fixtures.html#module-src.pre_recebimento.cronograma_entrega.fixtures.factories">factories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.CronogramaFactory"><code class="docutils literal notranslate"><span class="pre">CronogramaFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.CronogramaFactory.contrato"><code class="docutils literal notranslate"><span class="pre">CronogramaFactory.contrato</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.CronogramaFactory.empresa"><code class="docutils literal notranslate"><span class="pre">CronogramaFactory.empresa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.CronogramaFactory.ficha_tecnica"><code class="docutils literal notranslate"><span class="pre">CronogramaFactory.ficha_tecnica</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.CronogramaFactory.numero"><code class="docutils literal notranslate"><span class="pre">CronogramaFactory.numero</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.CronogramaFactory.qtd_total_programada"><code class="docutils literal notranslate"><span class="pre">CronogramaFactory.qtd_total_programada</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.CronogramaFactory.unidade_medida"><code class="docutils literal notranslate"><span class="pre">CronogramaFactory.unidade_medida</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory.cronograma"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory.cronograma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory.data_programada"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory.data_programada</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory.etapa"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory.etapa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory.numero_empenho"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory.numero_empenho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory.parte"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory.parte</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory.qtd_total_empenho"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory.qtd_total_empenho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory.quantidade"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory.quantidade</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cronograma_entrega/fixtures.html#src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory.EtapasDoCronogramaFactory.total_embalagens"><code class="docutils literal notranslate"><span class="pre">EtapasDoCronogramaFactory.total_embalagens</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../pre_recebimento.html" class="btn btn-neutral float-left" title="pre_recebimento" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cronograma_entrega/models.html" class="btn btn-neutral float-right" title="models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

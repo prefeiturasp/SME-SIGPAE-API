@@ -1,0 +1,658 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotAuthenticated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xworkflows.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidTransitionError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">update_instance_from_dict</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UnidadeMedida</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Cronograma</span><span class="p">,</span>
+    <span class="n">EtapasDoCronograma</span><span class="p">,</span>
+    <span class="n">ProgramacaoDoRecebimentoDoCronograma</span><span class="p">,</span>
+    <span class="n">SolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.ficha_tecnica.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FichaTecnicaDoProduto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.qualidade.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoEmbalagemQld</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.terceirizada.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Contrato</span><span class="p">,</span> <span class="n">Terceirizada</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">cria_etapas_de_cronograma</span><span class="p">,</span>
+    <span class="n">cria_programacao_de_cronograma</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">contrato_pertence_a_empresa</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="ProgramacaoDoRecebimentoDoCronogramaCreateSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.ProgramacaoDoRecebimentoDoCronogramaCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProgramacaoDoRecebimentoDoCronogramaCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">tipo_carga</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">ProgramacaoDoRecebimentoDoCronograma</span><span class="o">.</span><span class="n">TIPO_CARGA_CHOICES</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">allow_blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="ProgramacaoDoRecebimentoDoCronogramaCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.ProgramacaoDoRecebimentoDoCronogramaCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ProgramacaoDoRecebimentoDoCronograma</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;cronograma&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaCreateSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.EtapasDoCronogramaCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtapasDoCronogramaCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">numero_empenho</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">etapa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">parte</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">total_embalagens</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">qtd_total_empenho</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EtapasDoCronogramaCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.EtapasDoCronogramaCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">EtapasDoCronograma</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;cronograma&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaCreateSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">armazem</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Terceirizada</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">tipo_servico</span><span class="o">=</span><span class="n">Terceirizada</span><span class="o">.</span><span class="n">DISTRIBUIDOR_ARMAZEM</span>
+        <span class="p">),</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Terceirizada</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">tipo_servico__in</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">Terceirizada</span><span class="o">.</span><span class="n">FORNECEDOR</span><span class="p">,</span>
+                <span class="n">Terceirizada</span><span class="o">.</span><span class="n">FORNECEDOR_E_DISTRIBUIDOR</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">contrato</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Contrato</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">UnidadeMedida</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">qtd_total_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">etapas</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaCreateSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">programacoes_de_recebimento</span> <span class="o">=</span> <span class="n">ProgramacaoDoRecebimentoDoCronogramaCreateSerializer</span><span class="p">(</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">cadastro_finalizado</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ficha_tecnica</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tipo_embalagem_secundaria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">TipoEmbalagemQld</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">custo_unitario_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CronogramaCreateSerializer.gera_proximo_numero_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaCreateSerializer.gera_proximo_numero_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gera_proximo_numero_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ano</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
+        <span class="c1"># Filtra apenas cronogramas com sufixo &#39;A&#39; do ano atual e ordena pelo número</span>
+        <span class="c1"># para encontrar o último sequencial corretamente, independente da ordem de inserção.</span>
+        <span class="n">ultimo_cronograma</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">numero__endswith</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ano</span><span class="si">}</span><span class="s2">A&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;numero&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">last</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ultimo_cronograma</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sequencial</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ultimo_cronograma</span><span class="o">.</span><span class="n">numero</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">sequencial</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ano</span><span class="si">}</span><span class="s2">A&quot;</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;001/</span><span class="si">{</span><span class="n">ano</span><span class="si">}</span><span class="s2">A&quot;</span></div>
+
+
+<div class="viewcode-block" id="CronogramaCreateSerializer.validate">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaCreateSerializer.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">cadastro_finalizado</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cadastro_finalizado&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cadastro_finalizado</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">verificar_autenticidade</span><span class="p">(</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">NotAuthenticated</span><span class="p">(</span>
+                <span class="s2">&quot;Assinatura do cronograma não foi validada. Verifique sua senha.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">contrato</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;contrato&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">empresa</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;empresa&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">contrato_pertence_a_empresa</span><span class="p">(</span><span class="n">contrato</span><span class="p">,</span> <span class="n">empresa</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaCreateSerializer.create">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaCreateSerializer.create">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">cadastro_finalizado</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cadastro_finalizado&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">etapas</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">programacoes_de_recebimento</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+            <span class="s2">&quot;programacoes_de_recebimento&quot;</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="p">)</span>
+        <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gera_proximo_numero_cronograma</span><span class="p">()</span>
+        <span class="n">cronograma</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">numero</span><span class="o">=</span><span class="n">numero_cronograma</span><span class="p">,</span> <span class="o">**</span><span class="n">validated_data</span>
+        <span class="p">)</span>
+        <span class="n">cronograma</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA_CRIADO</span><span class="p">,</span> <span class="n">usuario</span><span class="o">=</span><span class="n">user</span>
+        <span class="p">)</span>
+
+        <span class="n">cria_etapas_de_cronograma</span><span class="p">(</span><span class="n">etapas</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">)</span>
+        <span class="n">cria_programacao_de_cronograma</span><span class="p">(</span><span class="n">programacoes_de_recebimento</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cadastro_finalizado</span><span class="p">:</span>
+            <span class="n">cronograma</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cronograma</span></div>
+
+
+<div class="viewcode-block" id="CronogramaCreateSerializer.update">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaCreateSerializer.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">cadastro_finalizado</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cadastro_finalizado&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">etapas</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">programacoes_de_recebimento</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+            <span class="s2">&quot;programacoes_de_recebimento&quot;</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="p">)</span>
+
+        <span class="n">instance</span><span class="o">.</span><span class="n">etapas</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+        <span class="n">update_instance_from_dict</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">cria_etapas_de_cronograma</span><span class="p">(</span><span class="n">etapas</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="n">cria_programacao_de_cronograma</span><span class="p">(</span><span class="n">programacoes_de_recebimento</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cadastro_finalizado</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">instance</span></div>
+
+
+<div class="viewcode-block" id="CronogramaCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;numero&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="novo_numero_solicitacao">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.novo_numero_solicitacao">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">novo_numero_solicitacao</span><span class="p">(</span><span class="n">objeto</span><span class="p">):</span>
+    <span class="c1"># Nova regra para sequência de numeração.</span>
+    <span class="n">objeto</span><span class="o">.</span><span class="n">numero_solicitacao</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">objeto</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="si">}</span><span class="s2">-ALT&quot;</span>
+    <span class="n">objeto</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaCreateSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.SolicitacaoDeAlteracaoCronogramaCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDeAlteracaoCronogramaCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">()</span>
+    <span class="n">etapas</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">JSONField</span><span class="p">(</span><span class="n">write_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">programacoes_de_recebimento</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">JSONField</span><span class="p">(</span><span class="n">write_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaCreateSerializer.validate_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.SolicitacaoDeAlteracaoCronogramaCreateSerializer.validate_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">cronograma</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cronograma</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Cronograma não existe&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">ASSINADO_CODAE</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;Não é possivel criar Solicitação de alteração neste momento!&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaCreateSerializer.valida_campo_etapa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.SolicitacaoDeAlteracaoCronogramaCreateSerializer.valida_campo_etapa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">valida_campo_etapa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etapa</span><span class="p">,</span> <span class="n">campo</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">etapa</span><span class="p">[</span><span class="n">campo</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">({</span><span class="n">campo</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Este campo é obrigatório.&quot;</span><span class="p">]})</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaCreateSerializer.validate">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.SolicitacaoDeAlteracaoCronogramaCreateSerializer.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">etapa</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;etapas&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">valida_campo_etapa</span><span class="p">(</span><span class="n">etapa</span><span class="p">,</span> <span class="s2">&quot;etapa&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">valida_campo_etapa</span><span class="p">(</span><span class="n">etapa</span><span class="p">,</span> <span class="s2">&quot;data_programada&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">valida_campo_etapa</span><span class="p">(</span><span class="n">etapa</span><span class="p">,</span> <span class="s2">&quot;quantidade&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">valida_campo_etapa</span><span class="p">(</span><span class="n">etapa</span><span class="p">,</span> <span class="s2">&quot;total_embalagens&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_criar_etapas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etapas</span><span class="p">):</span>
+        <span class="n">etapas_created</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">etapa</span> <span class="ow">in</span> <span class="n">etapas</span><span class="p">:</span>
+            <span class="n">etapas_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EtapasDoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">etapa</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">etapas_created</span>
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaCreateSerializer.create">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.SolicitacaoDeAlteracaoCronogramaCreateSerializer.create">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">uuid_cronograma</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cronograma&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">etapas</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">programacoes</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;programacoes_de_recebimento&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">cronograma</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">uuid_cronograma</span><span class="p">)</span>
+        <span class="n">alteracao_cronograma</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">usuario_solicitante</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+            <span class="n">cronograma</span><span class="o">=</span><span class="n">cronograma</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">validated_data</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">alteracao_cronograma</span><span class="o">.</span><span class="n">etapas_antigas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cronograma</span><span class="o">.</span><span class="n">etapas</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+        <span class="n">etapas_created</span> <span class="o">=</span> <span class="n">cria_etapas_de_cronograma</span><span class="p">(</span><span class="n">etapas</span><span class="p">)</span>
+        <span class="n">alteracao_cronograma</span><span class="o">.</span><span class="n">etapas_novas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">etapas_created</span><span class="p">)</span>
+        <span class="n">programacoes_criadas</span> <span class="o">=</span> <span class="n">cria_programacao_de_cronograma</span><span class="p">(</span><span class="n">programacoes</span><span class="p">)</span>
+        <span class="n">alteracao_cronograma</span><span class="o">.</span><span class="n">programacoes_novas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">programacoes_criadas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alterna_estado_cronograma</span><span class="p">(</span><span class="n">cronograma</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">alteracao_cronograma</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alterna_estado_solicitacao_alteracao_cronograma</span><span class="p">(</span>
+            <span class="n">alteracao_cronograma</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">validated_data</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">alteracao_cronograma</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_alterna_estado_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">alteracao_cronograma</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">eh_fornecedor</span><span class="p">:</span>
+                <span class="n">cronograma</span><span class="o">.</span><span class="n">fornecedor_solicita_alteracao</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">alteracao_cronograma</span><span class="o">.</span><span class="n">uuid</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cronograma</span><span class="o">.</span><span class="n">codae_realiza_alteracao</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">alteracao_cronograma</span><span class="o">.</span><span class="n">uuid</span>
+                <span class="p">)</span>
+                <span class="n">cronograma</span><span class="o">.</span><span class="n">finaliza_solicitacao_alteracao</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                    <span class="n">justificativa</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">alteracao_cronograma</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Erro de transição de estado do cronograma: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_alterna_estado_solicitacao_alteracao_cronograma</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">alteracao_cronograma</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">validated_data</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">eh_fornecedor</span><span class="p">:</span>
+                <span class="n">alteracao_cronograma</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">alteracao_cronograma</span><span class="o">.</span><span class="n">inicia_fluxo_codae</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="n">InvalidTransitionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Erro de transição de estado da alteração: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDeAlteracaoCronogramaCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.SolicitacaoDeAlteracaoCronogramaCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;usuario_solicitante&quot;</span><span class="p">,</span> <span class="s2">&quot;etapas_antigas&quot;</span><span class="p">,</span> <span class="s2">&quot;etapas_novas&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaPontoAPontoCreateSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.EtapasDoCronogramaPontoAPontoCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtapasDoCronogramaPontoAPontoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serializer simplificado para etapas do cronograma Ponto a Ponto (FLV).</span>
+<span class="sd">    Omitidos campos de empenho e total de embalagens.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EtapasDoCronogramaPontoAPontoCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.EtapasDoCronogramaPontoAPontoCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">EtapasDoCronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;etapa&quot;</span><span class="p">,</span> <span class="s2">&quot;data_programada&quot;</span><span class="p">,</span> <span class="s2">&quot;quantidade&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EtapasDoCronogramaPontoAPontoCreateSerializer.validate_data_programada">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.EtapasDoCronogramaPontoAPontoCreateSerializer.validate_data_programada">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_data_programada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converte MM/YYYY para o dia 01 do mês para salvamento.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span>
+            <span class="n">mes</span><span class="p">,</span> <span class="n">ano</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">date</span><span class="p">(</span><span class="n">ano</span><span class="p">,</span> <span class="n">mes</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Formato de data inválido. Use MM/YYYY.&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaPontoAPontoCreateSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaPontoAPontoCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaPontoAPontoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serializer para criação de cronogramas FLV Ponto a Ponto.</span>
+<span class="sd">    - Omitidos: Armazém, Embalagem Secundária e Programações de Recebimento.</span>
+<span class="sd">    - Numeração com sufixo &quot;P&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Terceirizada</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">tipo_servico__in</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">Terceirizada</span><span class="o">.</span><span class="n">FORNECEDOR</span><span class="p">,</span>
+                <span class="n">Terceirizada</span><span class="o">.</span><span class="n">FORNECEDOR_E_DISTRIBUIDOR</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">contrato</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Contrato</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">UnidadeMedida</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ficha_tecnica</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">etapas</span> <span class="o">=</span> <span class="n">EtapasDoCronogramaPontoAPontoCreateSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">cadastro_finalizado</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CronogramaPontoAPontoCreateSerializer.gera_proximo_numero_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaPontoAPontoCreateSerializer.gera_proximo_numero_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gera_proximo_numero_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ano</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
+        <span class="c1"># Filtra apenas cronogramas com sufixo &#39;P&#39; do ano atual e ordena pelo número</span>
+        <span class="c1"># para encontrar o último sequencial corretamente, independente da ordem de inserção.</span>
+        <span class="n">ultimo_cronograma</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">numero__endswith</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ano</span><span class="si">}</span><span class="s2">P&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;numero&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">last</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ultimo_cronograma</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sequencial</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ultimo_cronograma</span><span class="o">.</span><span class="n">numero</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">sequencial</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ano</span><span class="si">}</span><span class="s2">P&quot;</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;001/</span><span class="si">{</span><span class="n">ano</span><span class="si">}</span><span class="s2">P&quot;</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_etapas_finalizacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etapas</span><span class="p">):</span>
+        <span class="n">etapas_errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">has_errors</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">etapa</span> <span class="ow">in</span> <span class="n">etapas</span><span class="p">:</span>
+            <span class="n">etapa_error</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">etapa</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_programada&quot;</span><span class="p">):</span>
+                <span class="n">etapa_error</span><span class="p">[</span><span class="s2">&quot;data_programada&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Este campo é obrigatório.&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">etapa</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quantidade&quot;</span><span class="p">):</span>
+                <span class="n">etapa_error</span><span class="p">[</span><span class="s2">&quot;quantidade&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Este campo é obrigatório.&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">etapa_error</span><span class="p">:</span>
+                <span class="n">has_errors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">etapas_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etapa_error</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">etapas_errors</span> <span class="k">if</span> <span class="n">has_errors</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_finalizacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">verificar_autenticidade</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">NotAuthenticated</span><span class="p">(</span>
+                <span class="s2">&quot;Assinatura do cronograma não foi validada. Verifique sua senha.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unidade_medida&quot;</span><span class="p">):</span>
+            <span class="n">errors</span><span class="p">[</span><span class="s2">&quot;unidade_medida&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Este campo é obrigatório.&quot;</span><span class="p">]</span>
+
+        <span class="n">etapas</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">etapas</span><span class="p">:</span>
+            <span class="n">errors</span><span class="p">[</span><span class="s2">&quot;etapas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Pelo menos uma etapa deve ser informada.&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">etapas_errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_etapas_finalizacao</span><span class="p">(</span><span class="n">etapas</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">etapas_errors</span><span class="p">:</span>
+                <span class="n">errors</span><span class="p">[</span><span class="s2">&quot;etapas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etapas_errors</span>
+
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CronogramaPontoAPontoCreateSerializer.validate">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaPontoAPontoCreateSerializer.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="n">cadastro_finalizado</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cadastro_finalizado&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cadastro_finalizado</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_finalizacao</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+
+        <span class="n">contrato</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;contrato&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">empresa</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;empresa&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">contrato_pertence_a_empresa</span><span class="p">(</span><span class="n">contrato</span><span class="p">,</span> <span class="n">empresa</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaPontoAPontoCreateSerializer.create">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaPontoAPontoCreateSerializer.create">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">cadastro_finalizado</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cadastro_finalizado&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">etapas</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gera_proximo_numero_cronograma</span><span class="p">()</span>
+        <span class="n">cronograma</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">numero</span><span class="o">=</span><span class="n">numero_cronograma</span><span class="p">,</span> <span class="o">**</span><span class="n">validated_data</span>
+        <span class="p">)</span>
+        <span class="n">cronograma</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CRONOGRAMA_CRIADO</span><span class="p">,</span> <span class="n">usuario</span><span class="o">=</span><span class="n">user</span>
+        <span class="p">)</span>
+
+        <span class="n">cria_etapas_de_cronograma</span><span class="p">(</span><span class="n">etapas</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cadastro_finalizado</span><span class="p">:</span>
+            <span class="n">cronograma</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cronograma</span></div>
+
+
+<div class="viewcode-block" id="CronogramaPontoAPontoCreateSerializer.update">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaPontoAPontoCreateSerializer.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">cadastro_finalizado</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cadastro_finalizado&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">etapas</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="c1"># Para Ponto a Ponto, não temos programacoes_de_recebimento</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">etapas</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+        <span class="c1"># Remove campos que não devem ser atualizados via dict se necessário</span>
+        <span class="c1"># mas aqui o validate já filtrou</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="n">cria_etapas_de_cronograma</span><span class="p">(</span><span class="n">etapas</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cadastro_finalizado</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">instance</span></div>
+
+
+<div class="viewcode-block" id="CronogramaPontoAPontoCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create.CronogramaPontoAPontoCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Cronograma</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contrato&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_programada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ficha_tecnica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;custo_unitario_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observacoes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qtd_total_empenho&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etapas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cadastro_finalizado&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;password&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
