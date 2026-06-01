@@ -733,22 +733,17 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
     dias_no_mes = list(range(recreio.data_inicio.day, recreio.data_fim.day + 1))
     valores = medicao_recreio.valores_medicao.all()
 
-    # ── 1. Faixas de ALIMENTAÇÃO (categoria 1, frequencia) ──────────────────
-    faixas_alim = list(
-        FaixaEtaria.objects.filter(
-            id__in=valores.filter(nome_campo="frequencia", categoria_medicao_id=1)
-            .exclude(faixa_etaria=None)
-            .values_list("faixa_etaria_id", flat=True)
-            .distinct(),
-            ativo=True,
-        ).order_by("fim").values_list("id", "inicio", "fim")
-    )
+    # ── 1. Faixas de ALIMENTAÇÃO ─────────────────────────────────────────────
     faixas_alim_objs = FaixaEtaria.objects.filter(
-        id__in=[f[0] for f in faixas_alim], ativo=True
+        id__in=valores.filter(nome_campo="frequencia", categoria_medicao_id=1)
+        .exclude(faixa_etaria=None)
+        .values_list("faixa_etaria_id", flat=True)
+        .distinct(),
+        ativo=True,
     ).order_by("fim")
     faixas_alim = [(fe.id, str(fe)) for fe in faixas_alim_objs]
 
-    # ── 2. Categorias de DIETA que existem nessa medicao ────────────────────
+    # ── 2. Categorias de DIETA presentes ────────────────────────────────────
     CATEGORIAS_DIETA = {2: "DIETA ESPECIAL - TIPO A", 4: "DIETA ESPECIAL - TIPO B"}
     categorias_presentes = list(
         valores.filter(nome_campo="dietas_autorizadas")
@@ -779,9 +774,9 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
             "faixas": faixas,
         })
 
-    # ── 4. Montar lista de colunas ───────────────────────────────────────────
-    # Cada coluna: {"tipo": "alim"|"dieta_aprovadas"|"dieta_freq", "cat_id", "faixa_id", "faixa_nome", "cat_nome"}
-    # Estrutura: [Participantes(fixo)] + [freq alim por faixa] + [Total(fixo)] + [por dieta: aprovadas+freq por faixa]
+    # ── 4. Montar lista de colunas variáveis ────────────────────────────────
+    # Alimentação: uma coluna por faixa (frequencia)
+    # Dieta: duas colunas por faixa (aprovadas + frequencia)
     colunas_alim = [
         {"tipo": "alim_freq", "faixa_id": fid, "faixa_nome": fnome}
         for fid, fnome in faixas_alim
@@ -815,42 +810,6 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
             ).values_list("valor", flat=True).first() or 0
         )
 
-    def get_participantes(dia_str):
-        return (
-            valores.filter(dia=dia_str, nome_campo="participantes")
-            .values_list("valor", flat=True).first() or "0"
-        )
-
-    # ── 6. Quebrar em blocos de até 15 colunas ──────────────────────────────
-    # Colunas "fixas" por linha: Dias(1) + Participantes(1) + Total(1) = 3
-    # Restam 12 para colunas variáveis
-    MAX_VAR_COLS = 12
-    todas_colunas = colunas_alim + [{"tipo": "total"}] + colunas_dieta
-
-    blocos = []
-    bloco_atual = []
-    count_var = 0
-    total_inserido = False
-
-    for col in todas_colunas:
-        if col["tipo"] == "total":
-            bloco_atual.append(col)
-            total_inserido = True
-            continue
-        if count_var >= MAX_VAR_COLS:
-            blocos.append(bloco_atual)
-            bloco_atual = []
-            count_var = 0
-            total_inserido = False
-        bloco_atual.append(col)
-        count_var += 1
-
-    if bloco_atual:
-        blocos.append(bloco_atual)
-
-    # ── 7. Montar tabelas ────────────────────────────────────────────────────
-    tabelas = []
-    # Pré-calcular totais globais
     totais_alim = {fid: 0 for fid, _ in faixas_alim}
     totais_dieta_aprov = {}
     totais_dieta_freq = {}
@@ -860,11 +819,13 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
             totais_dieta_freq[(dieta["cat_id"], fid)] = 0
     total_geral = 0
 
-    # Calcular valores por dia primeiro
     dados_dias = {}
     for dia in dias_no_mes:
         dia_str = f"{dia:02d}"
-        participantes = get_participantes(dia_str)
+        participantes = (
+            valores.filter(dia=dia_str, nome_campo="participantes")
+            .values_list("valor", flat=True).first() or "0"
+        )
         freq_alim = {}
         for fid, _ in faixas_alim:
             v = get_valor(dia_str, "frequencia", fid, 1)
@@ -874,13 +835,13 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
         total_geral += total_dia
 
         dieta_aprov = {}
-        dieta_freq = {}
+        dieta_freq_vals = {}
         for dieta in dietas_estrutura:
             for fid, _ in dieta["faixas"]:
                 a = get_valor(dia_str, "dietas_autorizadas", fid, dieta["cat_id"])
                 f = get_valor(dia_str, "frequencia", fid, dieta["cat_id"])
                 dieta_aprov[(dieta["cat_id"], fid)] = a
-                dieta_freq[(dieta["cat_id"], fid)] = f
+                dieta_freq_vals[(dieta["cat_id"], fid)] = f
                 totais_dieta_aprov[(dieta["cat_id"], fid)] += a
                 totais_dieta_freq[(dieta["cat_id"], fid)] += f
 
@@ -889,14 +850,82 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
             "freq_alim": freq_alim,
             "total_dia": total_dia,
             "dieta_aprov": dieta_aprov,
-            "dieta_freq": dieta_freq,
+            "dieta_freq": dieta_freq_vals,
         }
 
-    for bloco in blocos:
+        # ── 6. Quebrar em blocos de até 12 colunas variáveis ────────────────────
+        MAX_VAR_COLS = 12
+
+        todos_blocos_colunas = []
+        bloco_atual = []
+        count_var = 0
+
+        # Alimentação + total primeiro
+        for col in colunas_alim:
+            if count_var >= MAX_VAR_COLS:
+                todos_blocos_colunas.append(bloco_atual)
+                bloco_atual = []
+                count_var = 0
+            bloco_atual.append(col)
+            count_var += 1
+
+        # Inserir total ao final do bloco de alimentação
+        bloco_atual.append({"tipo": "total"})
+
+        # Dietas: iterar por categoria > por faixa (par aprovadas+freq juntos)
+        for dieta in dietas_estrutura:
+            for fid, fnome in dieta["faixas"]:
+                par = [
+                    {"tipo": "dieta_aprovadas", "cat_id": dieta["cat_id"], "cat_nome": dieta["cat_nome"],
+                     "faixa_id": fid, "faixa_nome": fnome},
+                    {"tipo": "dieta_freq", "cat_id": dieta["cat_id"], "cat_nome": dieta["cat_nome"], "faixa_id": fid,
+                     "faixa_nome": fnome},
+                ]
+                # Se o par não cabe no bloco atual, fecha e abre novo
+                if count_var + 2 > MAX_VAR_COLS:
+                    todos_blocos_colunas.append(bloco_atual)
+                    bloco_atual = []
+                    count_var = 0
+                bloco_atual.extend(par)
+                count_var += 2
+
+        if bloco_atual:
+            todos_blocos_colunas.append(bloco_atual)
+
+    # ── 7. Montar tabelas ────────────────────────────────────────────────────
+    tabelas = []
+    for bloco in todos_blocos_colunas:
+        tem_alim = any(c["tipo"] == "alim_freq" for c in bloco)
+        tem_total = any(c["tipo"] == "total" for c in bloco)
+
+        # Grupos de dieta presentes neste bloco (para o header)
+        grupos_dieta_no_bloco = []
+        for dieta in dietas_estrutura:
+            faixas_no_bloco = []
+            seen_faixas = set()
+            for c in bloco:
+                if (
+                    c["tipo"] == "dieta_aprovadas"
+                    and c.get("cat_id") == dieta["cat_id"]
+                    and c["faixa_id"] not in seen_faixas
+                ):
+                    faixas_no_bloco.append(c["faixa_nome"])
+                    seen_faixas.add(c["faixa_id"])
+            if faixas_no_bloco:
+                grupos_dieta_no_bloco.append({
+                    "cat_id": dieta["cat_id"],
+                    "cat_nome": dieta["cat_nome"],
+                    "faixas": faixas_no_bloco,
+                    "num_colunas": len(faixas_no_bloco) * 2,  # aprovadas + freq por faixa
+                })
+
+        num_cols_alim = sum(1 for c in bloco if c["tipo"] == "alim_freq")
+
         linhas = []
         for dia in dias_no_mes + ["Total"]:
             if dia == "Total":
-                linha = ["Total", ""]
+                # Participantes só em bloco com alimentação
+                linha = ["Total"] + ([""] if tem_alim else [])
                 for col in bloco:
                     if col["tipo"] == "total":
                         linha.append(str(total_geral))
@@ -908,7 +937,8 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
                         linha.append(str(totais_dieta_freq.get((col["cat_id"], col["faixa_id"]), 0)))
             else:
                 d = dados_dias[dia]
-                linha = [dia, d["participantes"]]
+                # Participantes só em bloco com alimentação
+                linha = [dia] + ([d["participantes"]] if tem_alim else [])
                 for col in bloco:
                     if col["tipo"] == "total":
                         linha.append(str(d["total_dia"]))
@@ -920,36 +950,16 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
                         linha.append(str(d["dieta_freq"].get((col["cat_id"], col["faixa_id"]), 0)))
             linhas.append(linha)
 
-        num_cols_alim = sum(1 for c in bloco if c["tipo"] == "alim_freq")
-        tem_total_no_bloco = any(c["tipo"] == "total" for c in bloco)
-        grupos_dieta_no_bloco = [
-            {
-                "cat_id": dieta["cat_id"],
-                "cat_nome": dieta["cat_nome"],
-                "num_colunas": sum(
-                    1 for c in bloco
-                    if c["tipo"] == "dieta_aprovadas" and c.get("cat_id") == dieta["cat_id"]
-                ) * 2,
-            }
-            for dieta in dietas_estrutura
-            if any(
-                c.get("cat_id") == dieta["cat_id"] and c["tipo"] == "dieta_aprovadas"
-                for c in bloco
-            )  # ← .get("cat_id") não estoura em colunas sem essa chave
-        ]
-
         tabelas.append({
             "titulo": recreio.titulo,
             "bloco": bloco,
-            "dietas_estrutura": dietas_estrutura,
-            "valores_campos": linhas,
+            "tem_alim": tem_alim,
+            "tem_total": tem_total,
             "num_cols_alim": num_cols_alim,
-            "tem_total_no_bloco": tem_total_no_bloco,
             "grupos_dieta_no_bloco": grupos_dieta_no_bloco,
+            "valores_campos": linhas,
         })
 
-    print("BLOCO 0 primeiras colunas:", tabelas[0]["bloco"][:5])
-    print("GRUPOS DIETA BLOCO 0:", tabelas[0]["grupos_dieta_no_bloco"])
     return tabelas
 
 
