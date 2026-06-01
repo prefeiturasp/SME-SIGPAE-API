@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.cronograma_entrega.api.helpers &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.cronograma_entrega.api.helpers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.cronograma_entrega.api.helpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models.query</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuerySet</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaWorkflow</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EtapasDoCronograma</span><span class="p">,</span>
+    <span class="n">ProgramacaoDoRecebimentoDoCronograma</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="cria_etapas_de_cronograma">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.cria_etapas_de_cronograma">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cria_etapas_de_cronograma</span><span class="p">(</span><span class="n">etapas</span><span class="p">,</span> <span class="n">cronograma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cria registros de EtapasDoCronograma a partir de uma lista de dicionários.</span>
+
+<span class="sd">    Retorna a lista das etapas criadas, já persistidas no banco.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">etapas_criadas</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">etapa</span> <span class="ow">in</span> <span class="n">etapas</span><span class="p">:</span>
+        <span class="n">etapas_criadas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">EtapasDoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">cronograma</span><span class="o">=</span><span class="n">cronograma</span><span class="p">,</span> <span class="o">**</span><span class="n">etapa</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">etapas_criadas</span></div>
+
+
+
+<div class="viewcode-block" id="cria_programacao_de_cronograma">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.cria_programacao_de_cronograma">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cria_programacao_de_cronograma</span><span class="p">(</span><span class="n">programacoes</span><span class="p">,</span> <span class="n">cronograma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cria registros de ProgramacaoDoRecebimentoDoCronograma.</span>
+
+<span class="sd">    Retorna a lista das programações criadas, já persistidas no banco.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">programacoes_criadas</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">programacao</span> <span class="ow">in</span> <span class="n">programacoes</span><span class="p">:</span>
+        <span class="n">programacoes_criadas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ProgramacaoDoRecebimentoDoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">cronograma</span><span class="o">=</span><span class="n">cronograma</span><span class="p">,</span> <span class="o">**</span><span class="n">programacao</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">programacoes_criadas</span></div>
+
+
+
+<div class="viewcode-block" id="totalizador_relatorio_cronograma">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.totalizador_relatorio_cronograma">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">totalizador_relatorio_cronograma</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">QuerySet</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calcula a quantidade de itens por status do cronograma.</span>
+
+<span class="sd">    Aceita tanto um QuerySet (usando ORM) quanto uma lista de dicionários</span>
+<span class="sd">    já serializados, mantendo o mesmo formato de saída.</span>
+
+<span class="sd">    Retorna dicionário ordenado de forma decrescente pela quantidade,</span>
+<span class="sd">    onde a chave é o título do status e o valor é a contagem.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_queryset</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">QuerySet</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_queryset</span><span class="p">:</span>
+        <span class="n">status_count</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">states</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">status_count</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">:</span> <span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">s</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">CronogramaWorkflow</span><span class="o">.</span><span class="n">states</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">status_count</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="parse_date">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.parse_date">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_date</span><span class="p">(</span><span class="n">date_str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converte string de data DD/MM/YYYY para datetime.date.</span>
+
+<span class="sd">    Retorna None se a string for inválida.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date_str</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="passa_filtro_data_etapa">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.passa_filtro_data_etapa">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">passa_filtro_data_etapa</span><span class="p">(</span><span class="n">etapa_data</span><span class="p">,</span> <span class="n">data_inicio_obj</span><span class="p">,</span> <span class="n">data_fim_obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica se a data da etapa está dentro do intervalo informado.&quot;&quot;&quot;</span>
+    <span class="n">data_programada</span> <span class="o">=</span> <span class="n">etapa_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_programada&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_programada</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data_etapa</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">data_programada</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">data_inicio_obj</span> <span class="ow">and</span> <span class="n">data_etapa</span> <span class="o">&lt;</span> <span class="n">data_inicio_obj</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">data_fim_obj</span> <span class="ow">and</span> <span class="n">data_etapa</span> <span class="o">&gt;</span> <span class="n">data_fim_obj</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="processar_situacao_recebido">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.processar_situacao_recebido">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">processar_situacao_recebido</span><span class="p">(</span>
+    <span class="n">situacoes</span><span class="p">,</span>
+    <span class="n">tem_fichas_sem_ocorrencia</span><span class="p">,</span>
+    <span class="n">fichas_recebimento</span><span class="p">,</span>
+    <span class="n">incluir_etapa</span><span class="p">,</span>
+    <span class="n">fichas_finais</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Processa o filtro de situação \&quot;Recebido\&quot; nas fichas de recebimento.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;Recebido&quot;</span> <span class="ow">in</span> <span class="n">situacoes</span> <span class="ow">and</span> <span class="n">tem_fichas_sem_ocorrencia</span><span class="p">:</span>
+        <span class="n">incluir_etapa</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">fichas_finais</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fichas_recebimento</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;houve_ocorrencia&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="n">incluir_etapa</span><span class="p">,</span> <span class="n">fichas_finais</span></div>
+
+
+
+<div class="viewcode-block" id="processar_situacao_ocorrencia">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.processar_situacao_ocorrencia">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">processar_situacao_ocorrencia</span><span class="p">(</span>
+    <span class="n">situacoes</span><span class="p">,</span>
+    <span class="n">tem_fichas_com_ocorrencia</span><span class="p">,</span>
+    <span class="n">tem_fichas_sem_ocorrencia</span><span class="p">,</span>
+    <span class="n">fichas_recebimento</span><span class="p">,</span>
+    <span class="n">incluir_etapa</span><span class="p">,</span>
+    <span class="n">fichas_finais</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Processa o filtro de situação \&quot;Ocorrência\&quot; nas fichas de recebimento.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;Ocorrência&quot;</span> <span class="ow">in</span> <span class="n">situacoes</span> <span class="ow">and</span> <span class="n">tem_fichas_com_ocorrencia</span><span class="p">:</span>
+        <span class="n">incluir_etapa</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">fichas_com_ocorrencia</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fichas_recebimento</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;houve_ocorrencia&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;Recebido&quot;</span> <span class="ow">in</span> <span class="n">situacoes</span> <span class="ow">and</span> <span class="n">tem_fichas_sem_ocorrencia</span><span class="p">:</span>
+            <span class="n">fichas_finais</span> <span class="o">=</span> <span class="n">fichas_finais</span> <span class="o">+</span> <span class="n">fichas_com_ocorrencia</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fichas_finais</span> <span class="o">=</span> <span class="n">fichas_com_ocorrencia</span>
+    <span class="k">return</span> <span class="n">incluir_etapa</span><span class="p">,</span> <span class="n">fichas_finais</span></div>
+
+
+
+<div class="viewcode-block" id="processar_situacao_a_receber">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.processar_situacao_a_receber">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">processar_situacao_a_receber</span><span class="p">(</span>
+    <span class="n">situacoes</span><span class="p">,</span>
+    <span class="n">fichas_recebimento</span><span class="p">,</span>
+    <span class="n">tem_fichas_com_ocorrencia</span><span class="p">,</span>
+    <span class="n">tem_fichas_sem_ocorrencia</span><span class="p">,</span>
+    <span class="n">incluir_etapa</span><span class="p">,</span>
+    <span class="n">fichas_finais</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Processa o filtro de situação \&quot;A Receber\&quot; nas fichas de recebimento.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;A Receber&quot;</span> <span class="ow">in</span> <span class="n">situacoes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fichas_recebimento</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">tem_fichas_com_ocorrencia</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tem_fichas_sem_ocorrencia</span>
+        <span class="p">):</span>
+            <span class="n">incluir_etapa</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="s2">&quot;Ocorrência&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">situacoes</span><span class="p">:</span>
+                <span class="n">fichas_finais</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">incluir_etapa</span><span class="p">,</span> <span class="n">fichas_finais</span></div>
+
+
+
+<div class="viewcode-block" id="aplicar_filtros_etapa">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.aplicar_filtros_etapa">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">aplicar_filtros_etapa</span><span class="p">(</span>
+    <span class="n">etapa_data</span><span class="p">,</span> <span class="n">data_inicio_obj</span><span class="p">,</span> <span class="n">data_fim_obj</span><span class="p">,</span> <span class="n">situacoes</span><span class="p">,</span> <span class="n">tem_filtro_situacao</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Aplica os filtros de data e situação a uma etapa do relatório.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data_inicio_obj</span> <span class="ow">or</span> <span class="n">data_fim_obj</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">passa_filtro_data_etapa</span><span class="p">(</span><span class="n">etapa_data</span><span class="p">,</span> <span class="n">data_inicio_obj</span><span class="p">,</span> <span class="n">data_fim_obj</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">tem_filtro_situacao</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">passa_filtro_situacao</span><span class="p">(</span><span class="n">etapa_data</span><span class="p">,</span> <span class="n">situacoes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="passa_filtro_situacao">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.passa_filtro_situacao">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">passa_filtro_situacao</span><span class="p">(</span><span class="n">etapa_data</span><span class="p">,</span> <span class="n">situacoes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica se a etapa atende ao filtro de situação selecionado.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">situacoes</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">situacoes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">fichas_recebimento</span> <span class="o">=</span> <span class="n">etapa_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fichas_recebimento&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="n">tem_fichas_com_ocorrencia</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;houve_ocorrencia&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fichas_recebimento</span>
+    <span class="p">)</span>
+    <span class="n">tem_fichas_sem_ocorrencia</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;houve_ocorrencia&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fichas_recebimento</span>
+    <span class="p">)</span>
+
+    <span class="n">incluir_etapa</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">fichas_finais</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">incluir_etapa</span><span class="p">,</span> <span class="n">fichas_finais</span> <span class="o">=</span> <span class="n">processar_situacao_recebido</span><span class="p">(</span>
+        <span class="n">situacoes</span><span class="p">,</span>
+        <span class="n">tem_fichas_sem_ocorrencia</span><span class="p">,</span>
+        <span class="n">fichas_recebimento</span><span class="p">,</span>
+        <span class="n">incluir_etapa</span><span class="p">,</span>
+        <span class="n">fichas_finais</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">incluir_etapa</span><span class="p">,</span> <span class="n">fichas_finais</span> <span class="o">=</span> <span class="n">processar_situacao_ocorrencia</span><span class="p">(</span>
+        <span class="n">situacoes</span><span class="p">,</span>
+        <span class="n">tem_fichas_com_ocorrencia</span><span class="p">,</span>
+        <span class="n">tem_fichas_sem_ocorrencia</span><span class="p">,</span>
+        <span class="n">fichas_recebimento</span><span class="p">,</span>
+        <span class="n">incluir_etapa</span><span class="p">,</span>
+        <span class="n">fichas_finais</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">incluir_etapa</span><span class="p">,</span> <span class="n">fichas_finais</span> <span class="o">=</span> <span class="n">processar_situacao_a_receber</span><span class="p">(</span>
+        <span class="n">situacoes</span><span class="p">,</span>
+        <span class="n">fichas_recebimento</span><span class="p">,</span>
+        <span class="n">tem_fichas_com_ocorrencia</span><span class="p">,</span>
+        <span class="n">tem_fichas_sem_ocorrencia</span><span class="p">,</span>
+        <span class="n">incluir_etapa</span><span class="p">,</span>
+        <span class="n">fichas_finais</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">incluir_etapa</span><span class="p">:</span>
+        <span class="n">etapa_data</span><span class="p">[</span><span class="s2">&quot;fichas_recebimento&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fichas_finais</span>
+
+    <span class="k">return</span> <span class="n">incluir_etapa</span></div>
+
+
+
+<div class="viewcode-block" id="filtrar_etapas">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.filtrar_etapas">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filtrar_etapas</span><span class="p">(</span><span class="n">serialized_data</span><span class="p">,</span> <span class="n">filtros</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filtra uma lista de cronogramas por data e situação das etapas.&quot;&quot;&quot;</span>
+    <span class="n">data_inicial</span> <span class="o">=</span> <span class="n">filtros</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_inicial&quot;</span><span class="p">)</span>
+    <span class="n">data_final</span> <span class="o">=</span> <span class="n">filtros</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_final&quot;</span><span class="p">)</span>
+    <span class="n">situacoes</span> <span class="o">=</span> <span class="n">filtros</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;situacao&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="n">sem_datas</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">data_inicial</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data_final</span>
+    <span class="n">sem_filtros</span> <span class="o">=</span> <span class="p">(</span><span class="n">sem_datas</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">situacoes</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">sem_datas</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">situacoes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sem_filtros</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">serialized_data</span>
+
+    <span class="n">data_inicio_obj</span> <span class="o">=</span> <span class="n">parse_date</span><span class="p">(</span><span class="n">data_inicial</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_inicial</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">data_fim_obj</span> <span class="o">=</span> <span class="n">parse_date</span><span class="p">(</span><span class="n">data_final</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_final</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">tem_filtro_situacao</span> <span class="o">=</span> <span class="n">situacoes</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">situacoes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">serialized_data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">cronograma_data</span> <span class="o">=</span> <span class="n">serialized_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">etapas</span> <span class="o">=</span> <span class="n">cronograma_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;etapas&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="n">etapas</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">etapa</span>
+            <span class="k">for</span> <span class="n">etapa</span> <span class="ow">in</span> <span class="n">etapas</span>
+            <span class="k">if</span> <span class="n">aplicar_filtros_etapa</span><span class="p">(</span>
+                <span class="n">etapa</span><span class="p">,</span>
+                <span class="n">data_inicio_obj</span><span class="p">,</span>
+                <span class="n">data_fim_obj</span><span class="p">,</span>
+                <span class="n">situacoes</span><span class="p">,</span>
+                <span class="n">tem_filtro_situacao</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">etapas</span><span class="p">:</span>
+            <span class="n">serialized_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">serialized_data</span></div>
+
+
+
+<div class="viewcode-block" id="extrair_numero_quantidade">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.extrair_numero_quantidade">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extrair_numero_quantidade</span><span class="p">(</span><span class="n">quantidade_str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extrai apenas os números da string de quantidade, removendo unidades.</span>
+
+<span class="sd">    Exemplo: ``&quot;10.000,00 kg&quot;`` → ``&quot;10.000,00&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">quantidade_str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([0-9.,]+)&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">quantidade_str</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">quantidade_str</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="converter_para_numero">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.converter_para_numero">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">converter_para_numero</span><span class="p">(</span><span class="n">quantidade_str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converte string formatada para número float.</span>
+
+<span class="sd">    Exemplo: ``&quot;10.000,00 kg&quot;`` → ``10000.00``.</span>
+<span class="sd">    Retorna None se a conversão falhar.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">numero_str</span> <span class="o">=</span> <span class="n">extrair_numero_quantidade</span><span class="p">(</span><span class="n">quantidade_str</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">numero_str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">numero_limpo</span> <span class="o">=</span> <span class="n">numero_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">numero_limpo</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

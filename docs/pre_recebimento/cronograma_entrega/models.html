@@ -1,0 +1,964 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="api" href="api.html" />
+    <link rel="prev" title="cronograma_entrega" href="../cronograma_entrega.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../cronograma_entrega.html">cronograma_entrega</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.gerar_numero_solicitacao"><code class="docutils literal notranslate"><span class="pre">gerar_numero_solicitacao()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#cronograma">Cronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#etapasdocronograma">EtapasDoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#programacaodorecebimentodocronograma">ProgramacaoDoRecebimentoDoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#solicitacaoalteracaocronograma">SolicitacaoAlteracaoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#solicitacaoalteracaocronogramaqueryset">SolicitacaoAlteracaoCronogramaQuerySet</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#interrupcaoprogramadaentrega">InterrupcaoProgramadaEntrega</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api.html">api</a></li>
+<li class="toctree-l4"><a class="reference internal" href="admin.html">admin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../pre_recebimento.html">pre_recebimento</a></li>
+          <li class="breadcrumb-item"><a href="../cronograma_entrega.html">cronograma_entrega</a></li>
+      <li class="breadcrumb-item active">models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/pre_recebimento/cronograma_entrega/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.pre_recebimento.cronograma_entrega.models">
+<span id="models"></span><h1>models<a class="headerlink" href="#module-src.pre_recebimento.cronograma_entrega.models" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.gerar_numero_solicitacao">
+<span class="sig-name descname"><span class="pre">gerar_numero_solicitacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#gerar_numero_solicitacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.gerar_numero_solicitacao" title="Link to this definition"></a></dt>
+<dd><p>Sinal post_save que gera o número da solicitação de alteração.</p>
+<p>Executado automaticamente após a criação de uma
+SolicitacaoAlteracaoCronograma, atribuindo o número no formato
+XXXXXXXX-ALT.</p>
+</dd></dl>
+
+<section id="cronograma">
+<h2>Cronograma<a class="headerlink" href="#cronograma" title="Link to this heading"></a></h2>
+<p>Cronograma é o modelo central do módulo de pré-recebimento. Representa o
+planejamento de entregas de um produto alimentício ao longo de um período,
+vinculado a um contrato e empresa fornecedora. Cada cronograma possui um
+fluxo de aprovação que envolve fornecedor, DILOG Abastecimento e CODAE.</p>
+<p>Um cronograma pode ser de dois tipos:</p>
+<ul class="simple">
+<li><p><strong>Armazenável</strong>: Produtos comuns estocados em armazém. Possui etapas com datas específicas (DD/MM/YYYY), programações de recebimento e embalagem secundária.</p></li>
+<li><p><strong>FLV Ponto a Ponto</strong>: Hortifrutigranjeiros entregues diretamente pelo fornecedor às escolas. Possui apenas etapas mensais (MM/YYYY), sem armazém, embalagem secundária ou programações de recebimento.</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Cronograma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#Cronograma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoCronograma</span></code></p>
+<p>Cronograma de entrega de produtos alimentícios para as escolas.</p>
+<p>Registra o planejamento de entregas de um produto vinculado a uma ficha técnica,
+contrato e empresa fornecedora. Passa por um fluxo de aprovação (FluxoCronograma):
+RASCUNHO, ASSINADO_E_ENVIADO_AO_FORNECEDOR, ASSINADO_FORNECEDOR,
+ASSINADO_DILOG_ABASTECIMENTO, ASSINADO_CODAE.</p>
+<p>Divide-se em dois tipos conforme a categoria do produto e o tipo de entrega:</p>
+<dl class="simple">
+<dt><strong>Armazenável</strong></dt><dd><p>Produtos comuns, armazenados em almoxarifado/distribuidor. Possui etapas
+com data específica (DD/MM/YYYY) e programações de recebimento. A numeração
+utiliza o sufixo <code class="docutils literal notranslate"><span class="pre">A</span></code> (ex.: <code class="docutils literal notranslate"><span class="pre">001/2025A</span></code>).</p>
+</dd>
+<dt><strong>FLV Ponto a Ponto</strong></dt><dd><p>Produtos hortifrutigranjeiros (FLV) entregues diretamente pelo fornecedor
+às unidades escolares. Possui etapas mensais (MM/YYYY) e não possui
+armazém, embalagem secundária nem programações de recebimento. A numeração
+utiliza o sufixo <code class="docutils literal notranslate"><span class="pre">P</span></code> (ex.: <code class="docutils literal notranslate"><span class="pre">001/2025P</span></code>).</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">ModeloBase</span></code>)</p>
+<p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django para identificar o cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único do cronograma, usado em integrações e endpoints que expõem UUID.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.numero">
+<span class="sig-name descname"><span class="pre">numero</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.numero" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número único do cronograma, gerado automaticamente no formato <code class="docutils literal notranslate"><span class="pre">XXX/YYYYA</span></code> (armazenável)
+ou <code class="docutils literal notranslate"><span class="pre">XXX/YYYYP</span></code> (ponto a ponto), onde <code class="docutils literal notranslate"><span class="pre">XXX</span></code> é o sequencial e <code class="docutils literal notranslate"><span class="pre">YYYY</span></code> o ano.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.status" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/fluxo_status.py</span></code> (<code class="docutils literal notranslate"><span class="pre">FluxoCronograma</span></code>)</p>
+<p><strong>Descrição:</strong>
+Status atual do workflow do cronograma. Os estados possíveis são:
+<code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code>, <code class="docutils literal notranslate"><span class="pre">ASSINADO_E_ENVIADO_AO_FORNECEDOR</span></code>, <code class="docutils literal notranslate"><span class="pre">ASSINADO_FORNECEDOR</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ASSINADO_DILOG_ABASTECIMENTO</span></code>, <code class="docutils literal notranslate"><span class="pre">ASSINADO_CODAE</span></code>, <code class="docutils literal notranslate"><span class="pre">SOLICITADO_ALTERACAO</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ALTERACAO_CODAE</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação do cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.alterado_em">
+<span class="sig-name descname"><span class="pre">alterado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.alterado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemAlteradoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na última alteração do cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.contrato">
+<span class="sig-name descname"><span class="pre">contrato</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Contrato</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.contrato" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Contrato vinculado ao cronograma. Define o número do contrato, pregão/chamada pública,
+ata e demais informações contratuais.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.empresa">
+<span class="sig-name descname"><span class="pre">empresa</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Terceirizada</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.empresa" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Empresa fornecedora responsável pela entrega dos produtos.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.qtd_total_programada">
+<span class="sig-name descname"><span class="pre">qtd_total_programada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.qtd_total_programada" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Quantidade total programada para entrega, na unidade de medida definida
+em <code class="docutils literal notranslate"><span class="pre">unidade_medida</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.unidade_medida">
+<span class="sig-name descname"><span class="pre">unidade_medida</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">UnidadeMedida</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.unidade_medida" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida da quantidade programada (ex.: kg, ton, unidades).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.armazem">
+<span class="sig-name descname"><span class="pre">armazem</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Terceirizada</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.armazem" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Distribuidor/armazém responsável pelo armazenamento dos produtos.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.ficha_tecnica">
+<span class="sig-name descname"><span class="pre">ficha_tecnica</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ficha_tecnica.FichaTecnicaDoProduto</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.ficha_tecnica" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Ficha técnica do produto alimentício, contendo especificações, embalagens,
+marca, categoria e programa (ex.: LEVE_LEITE).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.tipo_embalagem_secundaria">
+<span class="sig-name descname"><span class="pre">tipo_embalagem_secundaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">qualidade.TipoEmbalagemQld</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.tipo_embalagem_secundaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Tipo de embalagem secundária utilizada no produto, conforme cadastro
+no módulo de qualidade.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.custo_unitario_produto">
+<span class="sig-name descname"><span class="pre">custo_unitario_produto</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.custo_unitario_produto" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Custo unitário do produto em reais (R$).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.numero_empenho">
+<span class="sig-name descname"><span class="pre">numero_empenho</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.numero_empenho" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número do empenho associado ao cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.qtd_total_empenho">
+<span class="sig-name descname"><span class="pre">qtd_total_empenho</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.qtd_total_empenho" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Quantidade total registrada no empenho.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.observacoes">
+<span class="sig-name descname"><span class="pre">observacoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.observacoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Observações gerais sobre o cronograma, registradas durante a criação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.etapas">
+<span class="sig-name descname"><span class="pre">etapas</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma"><span class="pre">EtapasDoCronograma</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.etapas" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">EtapasDoCronograma</span></code></a>.</p>
+<p>Lista as etapas programadas de entrega do cronograma, cada uma com
+data, quantidade, empenho e embalagens.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.programacoes_de_recebimento">
+<span class="sig-name descname"><span class="pre">programacoes_de_recebimento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma"><span class="pre">ProgramacaoDoRecebimentoDoCronograma</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.programacoes_de_recebimento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma</span></code></a>.</p>
+<p>Lista as programações de recebimento associadas ao cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.solicitacoes_de_alteracao">
+<span class="sig-name descname"><span class="pre">solicitacoes_de_alteracao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma" title="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma"><span class="pre">SolicitacaoAlteracaoCronograma</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.solicitacoes_de_alteracao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma" title="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolicitacaoAlteracaoCronograma</span></code></a>.</p>
+<p>Lista as solicitações de alteração já realizadas para este cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.logs">
+<span class="sig-name descname"><span class="pre">logs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">LogSolicitacoesUsuario</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.logs" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">Logs</span></code>)</p>
+<p><strong>Descrição:</strong>
+Lista dos registros de log de transições de status do cronograma,
+ordenados por <code class="docutils literal notranslate"><span class="pre">criado_em</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.log_mais_recente">
+<span class="sig-name descname"><span class="pre">log_mais_recente</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LogSolicitacoesUsuario</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.log_mais_recente" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">Logs</span></code>)</p>
+<p><strong>Descrição:</strong>
+Último registro de log de transição de status do cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.id_externo">
+<span class="sig-name descname"><span class="pre">id_externo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.id_externo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo amigável composto pelos 5 primeiros caracteres
+maiúsculos do UUID.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.ponto_a_ponto">
+<span class="sig-name descname"><span class="pre">ponto_a_ponto</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.ponto_a_ponto" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Propriedade que indica se o cronograma é do tipo Ponto a Ponto (FLV).
+Retorna <code class="docutils literal notranslate"><span class="pre">True</span></code> quando a ficha técnica tem categoria <code class="docutils literal notranslate"><span class="pre">FLV</span></code> e
+tipo de entrega <code class="docutils literal notranslate"><span class="pre">PONTO_A_PONTO</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.Cronograma.salvar_log_transicao">
+<span class="sig-name descname"><span class="pre">salvar_log_transicao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span></span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#Cronograma.salvar_log_transicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma.salvar_log_transicao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Registra no log uma transição de status do cronograma, criando um
+<code class="docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code> com o tipo <code class="docutils literal notranslate"><span class="pre">CRONOGRAMA</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="etapasdocronograma">
+<h2>EtapasDoCronograma<a class="headerlink" href="#etapasdocronograma" title="Link to this heading"></a></h2>
+<p>Cada cronograma é dividido em uma ou mais etapas de entrega. Uma etapa
+representa uma remessa programada, com data, quantidade, empenho e total de
+embalagens. As etapas são a unidade que efetivamente aparece no calendário
+de entregas e são validadas contra as <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega" title="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega"><code class="xref py py-class docutils literal notranslate"><span class="pre">interrupções</span></code></a>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">EtapasDoCronograma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#EtapasDoCronograma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code></p>
+<p>Etapa individual de um cronograma de entrega.</p>
+<p>Cada etapa representa uma parcela programada dentro do cronograma,
+com data, quantidade, empenho e total de embalagens. Pode ser
+subdividida em partes.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django para identificar a etapa.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único da etapa, usado em integrações.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.cronograma">
+<span class="sig-name descname"><span class="pre">cronograma</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><span class="pre">Cronograma</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.cronograma" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Cronograma ao qual a etapa pertence.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.numero_empenho">
+<span class="sig-name descname"><span class="pre">numero_empenho</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.numero_empenho" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número do empenho específico para esta etapa.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.qtd_total_empenho">
+<span class="sig-name descname"><span class="pre">qtd_total_empenho</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.qtd_total_empenho" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Quantidade total do empenho alocada para esta etapa.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapa">
+<span class="sig-name descname"><span class="pre">etapa</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapa" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número sequencial da etapa (1 a 100), utilizado para ordenação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.parte">
+<span class="sig-name descname"><span class="pre">parte</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.parte" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Subdivisão da etapa (parte), quando a etapa é desmembrada em entregas
+menores.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.data_programada">
+<span class="sig-name descname"><span class="pre">data_programada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.data_programada" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Data programada para entrega da etapa.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.quantidade">
+<span class="sig-name descname"><span class="pre">quantidade</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.quantidade" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Quantidade a ser entregue nesta etapa, na unidade de medida do cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.total_embalagens">
+<span class="sig-name descname"><span class="pre">total_embalagens</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.total_embalagens" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Total de embalagens previstas para esta etapa.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação do registro.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.alterado_em">
+<span class="sig-name descname"><span class="pre">alterado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.alterado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na última alteração do registro.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapas_antigas">
+<span class="sig-name descname"><span class="pre">etapas_antigas</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapas_antigas" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the forward and reverse sides of
+a many-to-many relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
+instances.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapas_novas">
+<span class="sig-name descname"><span class="pre">etapas_novas</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.etapas_novas" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the forward and reverse sides of
+a many-to-many relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
+instances.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="programacaodorecebimentodocronograma">
+<h2>ProgramacaoDoRecebimentoDoCronograma<a class="headerlink" href="#programacaodorecebimentodocronograma" title="Link to this heading"></a></h2>
+<p>Exclusiva para cronogramas do tipo armazenável. Define as datas em que o
+recebimento físico dos produtos deve ocorrer e o tipo de carga (paletizada ou
+estivada/batida). Serve como guia para a logística de recebimento nos armazéns.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ProgramacaoDoRecebimentoDoCronograma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#ProgramacaoDoRecebimentoDoCronograma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code></p>
+<p>Programação de recebimento associada a um cronograma.</p>
+<p>Define as datas programadas e o tipo de carga (paletizada ou
+estivada/batida) para o recebimento dos produtos.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django para identificar a programação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único da programação, usado em integrações.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.cronograma">
+<span class="sig-name descname"><span class="pre">cronograma</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><span class="pre">Cronograma</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.cronograma" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Cronograma ao qual a programação de recebimento está vinculada.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.data_programada">
+<span class="sig-name descname"><span class="pre">data_programada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.data_programada" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Data programada para recebimento. Campo texto para aceitar tanto
+datas completas quanto formato MM/YYYY (usado em cronogramas ponto a ponto).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.tipo_carga">
+<span class="sig-name descname"><span class="pre">tipo_carga</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.tipo_carga" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Tipo de carga para recebimento. Valores possíveis:
+<code class="docutils literal notranslate"><span class="pre">PALETIZADA</span></code> (Paletizada) ou <code class="docutils literal notranslate"><span class="pre">ESTIVADA_BATIDA</span></code> (Estivada / Batida).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.ESTIVADA_BATIDA">
+<span class="sig-name descname"><span class="pre">ESTIVADA_BATIDA</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ESTIVADA_BATIDA'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.ESTIVADA_BATIDA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.PALETIZADA">
+<span class="sig-name descname"><span class="pre">PALETIZADA</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PALETIZADA'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.PALETIZADA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.TIPO_CARGA_CHOICES">
+<span class="sig-name descname"><span class="pre">TIPO_CARGA_CHOICES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('PALETIZADA',</span> <span class="pre">'Paletizada'),</span> <span class="pre">('ESTIVADA_BATIDA',</span> <span class="pre">'Estivada</span> <span class="pre">/</span> <span class="pre">Batida'))</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.TIPO_CARGA_CHOICES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.get_tipo_carga_display">
+<span class="sig-name descname"><span class="pre">get_tipo_carga_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.CharField:</span> <span class="pre">tipo_carga&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.get_tipo_carga_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.programacoes_novas">
+<span class="sig-name descname"><span class="pre">programacoes_novas</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma.programacoes_novas" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the forward and reverse sides of
+a many-to-many relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
+instances.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="solicitacaoalteracaocronograma">
+<h2>SolicitacaoAlteracaoCronograma<a class="headerlink" href="#solicitacaoalteracaocronograma" title="Link to this heading"></a></h2>
+<p>Quando um cronograma já está assinado e em vigor, fornecedores ou a CODAE
+podem solicitar alterações nas etapas e programações de recebimento. Esta
+solicitação passa por um fluxo de aprovação próprio: a DILOG Abastecimento
+revisa, o cronograma toma ciência, a DILOG Abastecimento aprova ou reprova,
+e por fim a DILOG aprova ou reprova. Se aprovada, as etapas e programações
+novas substituem as antigas no <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">cronograma</span></code></a> original.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SolicitacaoAlteracaoCronograma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#SolicitacaoAlteracaoCronograma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoAlteracaoCronograma</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code></p>
+<p>Solicitação de alteração de um cronograma já assinado.</p>
+<p>Permite que fornecedores ou CODAE solicitem alterações nas etapas
+e programações de recebimento de um cronograma. Passa por um fluxo
+de aprovação próprio (FluxoAlteracaoCronograma).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django para identificar a solicitação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único da solicitação, usado em integrações e endpoints.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet" title="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet"><span class="pre">SolicitacaoAlteracaoCronogramaQuerySet</span></a></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.objects" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Manager personalizado que fornece métodos de filtro por status
+(<code class="docutils literal notranslate"><span class="pre">filtrar_por_status</span></code>, <code class="docutils literal notranslate"><span class="pre">em_analise</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.numero_solicitacao">
+<span class="sig-name descname"><span class="pre">numero_solicitacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.numero_solicitacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número único da solicitação, gerado automaticamente no formato
+<code class="docutils literal notranslate"><span class="pre">XXXXXXXX-ALT</span></code>, onde <code class="docutils literal notranslate"><span class="pre">XXXXXXXX</span></code> é o PK preenchido com zeros.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.status" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/fluxo_status.py</span></code> (<code class="docutils literal notranslate"><span class="pre">FluxoAlteracaoCronograma</span></code>)</p>
+<p><strong>Descrição:</strong>
+Status atual do workflow de alteração. Os estados possíveis são:
+<code class="docutils literal notranslate"><span class="pre">SOLICITACAO_CRIADA</span></code>, <code class="docutils literal notranslate"><span class="pre">EM_ANALISE</span></code>, <code class="docutils literal notranslate"><span class="pre">CRONOGRAMA_CIENTE</span></code>,
+<code class="docutils literal notranslate"><span class="pre">APROVADO_DILOG_ABASTECIMENTO</span></code>, <code class="docutils literal notranslate"><span class="pre">REPROVADO_DILOG_ABASTECIMENTO</span></code>,
+<code class="docutils literal notranslate"><span class="pre">APROVADO_DILOG</span></code>, <code class="docutils literal notranslate"><span class="pre">REPROVADO_DILOG</span></code>, <code class="docutils literal notranslate"><span class="pre">ALTERACAO_ENVIADA_FORNECEDOR</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FORNECEDOR_CIENTE</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.cronograma">
+<span class="sig-name descname"><span class="pre">cronograma</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><span class="pre">Cronograma</span></a></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.cronograma" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Cronograma original ao qual a solicitação de alteração se refere.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.qtd_total_programada">
+<span class="sig-name descname"><span class="pre">qtd_total_programada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.qtd_total_programada" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Nova quantidade total programada proposta na alteração.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.etapas_antigas">
+<span class="sig-name descname"><span class="pre">etapas_antigas</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma"><span class="pre">EtapasDoCronograma</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.etapas_antigas" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação M:N com <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">EtapasDoCronograma</span></code></a>.</p>
+<p>Etapas originais do cronograma no momento da solicitação, mantidas
+como referência para comparação com as etapas novas.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.etapas_novas">
+<span class="sig-name descname"><span class="pre">etapas_novas</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma"><span class="pre">EtapasDoCronograma</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.etapas_novas" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação M:N com <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">EtapasDoCronograma</span></code></a>.</p>
+<p>Novas etapas propostas na solicitação de alteração. Em caso de
+aprovação pela DILOG, substituem as <code class="docutils literal notranslate"><span class="pre">etapas_antigas</span></code> no cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.programacoes_novas">
+<span class="sig-name descname"><span class="pre">programacoes_novas</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma"><span class="pre">ProgramacaoDoRecebimentoDoCronograma</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.programacoes_novas" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação M:N com <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.ProgramacaoDoRecebimentoDoCronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramacaoDoRecebimentoDoCronograma</span></code></a>.</p>
+<p>Novas programações de recebimento propostas para substituir as
+programações atuais do cronograma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.justificativa">
+<span class="sig-name descname"><span class="pre">justificativa</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.justificativa" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Justificativa fornecida pelo solicitante (fornecedor ou CODAE)
+para a alteração.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.usuario_solicitante">
+<span class="sig-name descname"><span class="pre">usuario_solicitante</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.usuario_solicitante" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Usuário que criou a solicitação de alteração.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação da solicitação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.logs">
+<span class="sig-name descname"><span class="pre">logs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">LogSolicitacoesUsuario</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.logs" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">Logs</span></code>)</p>
+<p><strong>Descrição:</strong>
+Lista dos registros de log de transições de status da solicitação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.cronograma_ciente">
+<span class="sig-name descname"><span class="pre">cronograma_ciente</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.cronograma_ciente" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_abastecimento_aprova">
+<span class="sig-name descname"><span class="pre">dilog_abastecimento_aprova</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_abastecimento_aprova" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_abastecimento_reprova">
+<span class="sig-name descname"><span class="pre">dilog_abastecimento_reprova</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_abastecimento_reprova" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_aprova">
+<span class="sig-name descname"><span class="pre">dilog_aprova</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_aprova" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_reprova">
+<span class="sig-name descname"><span class="pre">dilog_reprova</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.dilog_reprova" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.fornecedor_ciente">
+<span class="sig-name descname"><span class="pre">fornecedor_ciente</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.fornecedor_ciente" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.inicia_fluxo">
+<span class="sig-name descname"><span class="pre">inicia_fluxo</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.inicia_fluxo" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.inicia_fluxo_codae">
+<span class="sig-name descname"><span class="pre">inicia_fluxo_codae</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronograma.inicia_fluxo_codae" title="Link to this definition"></a></dt>
+<dd><p>NoOp function, ignores all arguments.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="solicitacaoalteracaocronogramaqueryset">
+<h2>SolicitacaoAlteracaoCronogramaQuerySet<a class="headerlink" href="#solicitacaoalteracaocronogramaqueryset" title="Link to this heading"></a></h2>
+<p>QuerySet personalizado que ordena as solicitações pelo log mais recente e
+oferece filtros por fornecedor, número do cronograma e nome do produto.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SolicitacaoAlteracaoCronogramaQuerySet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">using</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#SolicitacaoAlteracaoCronogramaQuerySet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QuerySet</span></code></p>
+<p>QuerySet personalizado para SolicitacaoAlteracaoCronograma.</p>
+<p>Fornece métodos de filtro por status com ordenação pelo log
+mais recente e filtros por fornecedor, cronograma e produto.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet.em_analise">
+<span class="sig-name descname"><span class="pre">em_analise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#SolicitacaoAlteracaoCronogramaQuerySet.em_analise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet.em_analise" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet.filtrar_por_status">
+<span class="sig-name descname"><span class="pre">filtrar_por_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filtros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#SolicitacaoAlteracaoCronogramaQuerySet.filtrar_por_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.SolicitacaoAlteracaoCronogramaQuerySet.filtrar_por_status" title="Link to this definition"></a></dt>
+<dd><p>Filtra solicitações por status, ordenando pelo log mais recente.</p>
+<p>Aceita filtros opcionais por nome_fornecedor, numero_cronograma
+e nome_produto, além de parâmetros init/end para paginação.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="interrupcaoprogramadaentrega">
+<h2>InterrupcaoProgramadaEntrega<a class="headerlink" href="#interrupcaoprogramadaentrega" title="Link to this heading"></a></h2>
+<p>Gerencia os dias em que não pode haver entrega. Feriados, emendas, reuniões
+e inventários são cadastrados aqui e consultados pelo calendário de cronogramas
+para impedir que <a class="reference internal" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma" title="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">etapas</span></code></a> sejam agendadas nessas
+datas. A interrupção é separada por tipo de calendário: armazenável ou ponto a
+ponto.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InterrupcaoProgramadaEntrega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/models.html#InterrupcaoProgramadaEntrega"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code></p>
+<p>Interrupção programada em que não há recebimento de entregas.</p>
+<p>Utilizada pelo calendário de cronogramas para bloquear datas específicas
+em que as entregas não podem ocorrer (feriados, emendas de feriado,
+reuniões, inventários, etc.).</p>
+<p>A interrupção é separada por tipo de calendário:
+- <code class="docutils literal notranslate"><span class="pre">ARMAZENAVEL</span></code>: Bloqueia o calendário de cronogramas armazenáveis.
+- <code class="docutils literal notranslate"><span class="pre">PONTO_A_PONTO</span></code>: Bloqueia o calendário de cronogramas FLV.</p>
+<p>A combinação <code class="docutils literal notranslate"><span class="pre">data</span></code> + <code class="docutils literal notranslate"><span class="pre">tipo_calendario</span></code> é única, garantindo que
+não haja duplicidade de registros para o mesmo dia e tipo.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único da interrupção, usado em integrações.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.data">
+<span class="sig-name descname"><span class="pre">data</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.data" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Data em que a entrega está suspensa. Utilizada pelo calendário de
+cronogramas para impedir o cadastro de etapas nesta data.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.motivo">
+<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.motivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Motivo da interrupção. Valores possíveis:
+<code class="docutils literal notranslate"><span class="pre">EMENDA</span></code>, <code class="docutils literal notranslate"><span class="pre">REUNIAO</span></code>, <code class="docutils literal notranslate"><span class="pre">INVENTARIO</span></code>, <code class="docutils literal notranslate"><span class="pre">FERIADO</span></code>, <code class="docutils literal notranslate"><span class="pre">OUTROS</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.descricao_motivo">
+<span class="sig-name descname"><span class="pre">descricao_motivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.descricao_motivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Descrição detalhada do motivo. Obrigatório quando <code class="docutils literal notranslate"><span class="pre">motivo</span> <span class="pre">=</span> <span class="pre">OUTROS</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.tipo_calendario">
+<span class="sig-name descname"><span class="pre">tipo_calendario</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.tipo_calendario" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Tipo de calendário ao qual a interrupção se aplica.
+<code class="docutils literal notranslate"><span class="pre">ARMAZENAVEL</span></code> (Armazenável): bloqueia o calendário de cronogramas
+armazenáveis. <code class="docutils literal notranslate"><span class="pre">PONTO_A_PONTO</span></code> (Ponto a Ponto): bloqueia o
+calendário de cronogramas FLV.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_CHOICES">
+<span class="sig-name descname"><span class="pre">MOTIVO_CHOICES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('EMENDA',</span> <span class="pre">'Emenda'),</span> <span class="pre">('REUNIAO',</span> <span class="pre">'Reunião'),</span> <span class="pre">('INVENTARIO',</span> <span class="pre">'Inventário'),</span> <span class="pre">('FERIADO',</span> <span class="pre">'Feriado'),</span> <span class="pre">('OUTROS',</span> <span class="pre">'Outros'))</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_CHOICES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_EMENDA">
+<span class="sig-name descname"><span class="pre">MOTIVO_EMENDA</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'EMENDA'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_EMENDA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_FERIADO">
+<span class="sig-name descname"><span class="pre">MOTIVO_FERIADO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FERIADO'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_FERIADO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_INVENTARIO">
+<span class="sig-name descname"><span class="pre">MOTIVO_INVENTARIO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INVENTARIO'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_INVENTARIO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_OUTROS">
+<span class="sig-name descname"><span class="pre">MOTIVO_OUTROS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'OUTROS'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_OUTROS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_REUNIAO">
+<span class="sig-name descname"><span class="pre">MOTIVO_REUNIAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'REUNIAO'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.MOTIVO_REUNIAO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL">
+<span class="sig-name descname"><span class="pre">TIPO_CALENDARIO_ARMAZENAVEL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ARMAZENAVEL'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_ARMAZENAVEL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_CHOICES">
+<span class="sig-name descname"><span class="pre">TIPO_CALENDARIO_CHOICES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('ARMAZENAVEL',</span> <span class="pre">'Armazenável'),</span> <span class="pre">('PONTO_A_PONTO',</span> <span class="pre">'Ponto</span> <span class="pre">a</span> <span class="pre">Ponto'))</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_CHOICES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO">
+<span class="sig-name descname"><span class="pre">TIPO_CALENDARIO_PONTO_A_PONTO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PONTO_A_PONTO'</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.TIPO_CALENDARIO_PONTO_A_PONTO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_motivo_display">
+<span class="sig-name descname"><span class="pre">get_motivo_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.CharField:</span> <span class="pre">motivo&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_motivo_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_next_by_data">
+<span class="sig-name descname"><span class="pre">get_next_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_next_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_previous_by_data">
+<span class="sig-name descname"><span class="pre">get_previous_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_previous_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_tipo_calendario_display">
+<span class="sig-name descname"><span class="pre">get_tipo_calendario_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.CharField:</span> <span class="pre">tipo_calendario&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.InterrupcaoProgramadaEntrega.get_tipo_calendario_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../cronograma_entrega.html" class="btn btn-neutral float-left" title="cronograma_entrega" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="api" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
