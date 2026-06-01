@@ -906,6 +906,15 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
         return unidade
 
+    def _get_periodos_recreio_nas_ferias_unidade(self, escola_uuid):
+        return RecreioNasFeriasUnidadeParticipante.objects.filter(
+            unidade_educacional__uuid=escola_uuid,
+            liberar_medicao=True,
+        ).values_list(
+            "recreio_nas_ferias__data_inicio",
+            "recreio_nas_ferias__data_fim",
+        )
+
     @action(detail=False, methods=["GET"], url_path=f"{KIT_LANCHES_AUTORIZADAS}")
     def kit_lanches_autorizadas(self, request):
         escola_uuid = request.query_params.get("escola_uuid")
@@ -927,6 +936,20 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 data_evento__gte=recreio.data_inicio,
                 data_evento__lte=recreio.data_fim,
             )
+        else:
+            periodos_recreio = self._get_periodos_recreio_nas_ferias_unidade(
+                escola_uuid
+            )
+            filtro_fora_de_todos_os_recreios = Q()
+            tem_periodo_recreio = False
+            for data_inicio, data_fim in periodos_recreio:
+                tem_periodo_recreio = True
+                filtro_fora_de_todos_os_recreios &= Q(data_evento__lt=data_inicio) | Q(
+                    data_evento__gt=data_fim
+                )
+
+            if tem_periodo_recreio:
+                query_set = query_set.filter(filtro_fora_de_todos_os_recreios)
 
         query_set = self.remove_duplicados_do_query_set(query_set)
 
