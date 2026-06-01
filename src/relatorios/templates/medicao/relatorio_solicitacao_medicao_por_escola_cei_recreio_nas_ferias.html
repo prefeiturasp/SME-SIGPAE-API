@@ -9,12 +9,17 @@
 <table class="tabela-valores-medicao mt-3">
   <thead class="texto-branco">
 
-    {# ── Linha 1: Título ── #}
+    {# ── Linha 1: Títulos dos blocos ── #}
     <tr>
       <th rowspan="3">Dias</th>
-      {% if tabela.num_cols_alim %}
+
+      {# Bloco Alimentação #}
+      {% if tabela.tem_alim %}
+        {# +2 = Participantes + Total do Dia #}
         <th colspan="{{ tabela.num_cols_alim|add:2 }}">{{ tabela.titulo|upper }}</th>
       {% endif %}
+
+      {# Blocos de Dieta #}
       {% for grupo in tabela.grupos_dieta_no_bloco %}
         <th colspan="{{ grupo.num_colunas }}">{{ tabela.titulo|upper }}</th>
       {% endfor %}
@@ -22,7 +27,7 @@
 
     {# ── Linha 2: Categorias ── #}
     <tr>
-      {% if tabela.num_cols_alim %}
+      {% if tabela.tem_alim %}
         <th class="cor-periodo-grupo-9" colspan="{{ tabela.num_cols_alim|add:2 }}">
           ALIMENTAÇÃO PARA ALUNOS PARTICIPANTES
         </th>
@@ -36,16 +41,20 @@
 
     {# ── Linha 3: Subcolunas ── #}
     <tr>
-      <th>Participantes</th>
+      {# Participantes só existe em bloco de alimentação #}
+      {% if tabela.tem_alim %}
+        <th>Participantes</th>
+      {% endif %}
+
       {% for col in tabela.bloco %}
         {% if col.tipo == "alim_freq" %}
           <th>{{ col.faixa_nome }}</th>
         {% elif col.tipo == "total" %}
           <th>Total do Dia</th>
         {% elif col.tipo == "dieta_aprovadas" %}
-          <th>Aprovadas</th>
+          <th>{{ col.faixa_nome }}<br><small>Aprovadas</small></th>
         {% elif col.tipo == "dieta_freq" %}
-          <th>Frequência</th>
+          <th>{{ col.faixa_nome }}<br><small>Frequência</small></th>
         {% endif %}
       {% endfor %}
     </tr>
