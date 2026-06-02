@@ -31,33 +31,25 @@
 
     {# ── Linha 3: Faixas etárias ── #}
     <tr>
-      {% if tabela.tem_alim %}
-        {# Participantes — sem faixa etária, célula vazia #}
-        <th></th>
-      {% endif %}
+      {% if tabela.tem_alim %}<th></th>{% endif %}
       {% for col in tabela.bloco %}
         {% if col.tipo == "alim_freq" %}
           <th>{{ col.faixa_nome }}</th>
-        {% elif col.tipo == "total" %}
-          {# Total do Dia — sem faixa etária, célula vazia #}
-          <th></th>
+        {% elif col.tipo == "total" or col.tipo == "dieta_total" %}
+          <th></th> {# Celula vazia acima do Total #}
         {% elif col.tipo == "dieta_aprovadas" %}
-          {# Faixa etária da dieta com colspan=2 (aprovadas + freq) #}
           <th colspan="2">{{ col.faixa_nome }}</th>
         {% endif %}
-        {# dieta_freq é ignorado aqui pois já está coberto pelo colspan=2 acima #}
       {% endfor %}
     </tr>
 
     {# ── Linha 4: Subcolunas ── #}
     <tr>
-      {% if tabela.tem_alim %}
-        <th>Participantes</th>
-      {% endif %}
+      {% if tabela.tem_alim %}<th>Participantes</th>{% endif %}
       {% for col in tabela.bloco %}
         {% if col.tipo == "alim_freq" %}
           <th>Frequência</th>
-        {% elif col.tipo == "total" %}
+        {% elif col.tipo == "total" or col.tipo == "dieta_total" %}
           <th>Total do Dia</th>
         {% elif col.tipo == "dieta_aprovadas" %}
           <th>Aprovadas</th>
