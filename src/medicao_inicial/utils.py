@@ -31,6 +31,7 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
     TIPOS_TURMAS_EMEBS,
+    NOMES_CAMPOS,
 )
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
@@ -964,8 +965,6 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
 
 
 def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
-    from src.dados_comuns.constants import NOMES_CAMPOS
-
     recreio = solicitacao.recreio_nas_ferias
     dias_range = range(recreio.data_inicio.day, recreio.data_fim.day + 1)
 
@@ -4440,7 +4439,8 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
                     nome_campo=campo, faixa_etaria=None
                 ).values_list("valor", flat=True) if v.isdigit()
             )
-            linhas_colab.append([campo, str(total)])
+            nome_normalizado = NOMES_CAMPOS.get(campo, campo)
+            linhas_colab.append([nome_normalizado, str(total)])
 
         tabela_colaboradores = {
             "header": ["Tipos de Alimentação", "Total de Alimentações para Colaboradores"],
