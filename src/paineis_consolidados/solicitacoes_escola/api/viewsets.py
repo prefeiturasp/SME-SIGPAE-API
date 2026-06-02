@@ -927,33 +927,66 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         query_set = query_set.filter(data_evento__lt=datetime.date.today())
 
         if recreio_uuid:
-            unidade = self._get_recreio_nas_ferias_unidade(recreio_uuid, escola_uuid)
-            if unidade is None:
-                return Response({"results": []})
-            recreio = unidade.recreio_nas_ferias
-            query_set = query_set.filter(
-                data_evento__gte=recreio.data_inicio,
-                data_evento__lte=recreio.data_fim,
+            query_set = self._filtra_por_recreio_especifico(
+                query_set,
+                recreio_uuid,
+                escola_uuid,
             )
-        else:
-            periodos_recreio = self._get_periodos_recreio_nas_ferias_unidade(
-                escola_uuid
-            )
-            filtro_fora_de_todos_os_recreios = Q()
-            tem_periodo_recreio = False
-            for data_inicio, data_fim in periodos_recreio:
-                tem_periodo_recreio = True
-                filtro_fora_de_todos_os_recreios &= Q(data_evento__lt=data_inicio) | Q(
-                    data_evento__gt=data_fim
-                )
 
-            if tem_periodo_recreio:
-                query_set = query_set.filter(filtro_fora_de_todos_os_recreios)
+            if query_set is None:
+                return Response({"results": []})
+        else:
+            query_set = self._remove_eventos_em_periodos_de_recreio(
+                query_set,
+                escola_uuid,
+            )
 
         query_set = self.remove_duplicados_do_query_set(query_set)
 
         results = self._build_results_kit_lanches(query_set, escola_uuid)
         return Response({"results": results})
+
+    def _filtra_por_recreio_especifico(
+        self,
+        query_set,
+        recreio_uuid,
+        escola_uuid,
+    ):
+        unidade = self._get_recreio_nas_ferias_unidade(
+            recreio_uuid,
+            escola_uuid,
+        )
+
+        if unidade is None:
+            return None
+
+        recreio = unidade.recreio_nas_ferias
+
+        return query_set.filter(
+            data_evento__gte=recreio.data_inicio,
+            data_evento__lte=recreio.data_fim,
+        )
+
+    def _remove_eventos_em_periodos_de_recreio(
+        self,
+        query_set,
+        escola_uuid,
+    ):
+        periodos_recreio = self._get_periodos_recreio_nas_ferias_unidade(escola_uuid)
+
+        filtro_fora_de_todos_os_recreios = Q()
+        tem_periodo_recreio = False
+
+        for data_inicio, data_fim in periodos_recreio:
+            tem_periodo_recreio = True
+            filtro_fora_de_todos_os_recreios &= Q(data_evento__lt=data_inicio) | Q(
+                data_evento__gt=data_fim
+            )
+
+        if tem_periodo_recreio:
+            return query_set.filter(filtro_fora_de_todos_os_recreios)
+
+        return query_set
 
     def _build_results_kit_lanches(self, query_set, escola_uuid):
         results = []
