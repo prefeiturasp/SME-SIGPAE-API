@@ -9,15 +9,10 @@
 <table class="tabela-valores-medicao mt-3">
   <thead class="texto-branco">
 
-    {# ── Linha 1: Títulos dos blocos ── #}
+    {# ── Linha 1: Título único por tabela ── #}
     <tr>
       <th rowspan="4">Dias</th>
-      {% if tabela.tem_alim %}
-        <th colspan="{{ tabela.num_cols_alim|add:2 }}">{{ tabela.titulo|upper }}</th>
-      {% endif %}
-      {% for grupo in tabela.grupos_dieta_no_bloco %}
-        <th colspan="{{ grupo.num_colunas }}">{{ tabela.titulo|upper }}</th>
-      {% endfor %}
+      <th colspan="{{ tabela.colspan_titulo }}">{{ tabela.titulo|upper }}</th>
     </tr>
 
     {# ── Linha 2: Categorias ── #}

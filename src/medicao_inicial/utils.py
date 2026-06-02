@@ -951,6 +951,11 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
                         linha.append(str(d["dieta_freq"].get((col["cat_id"], col["faixa_id"]), 0)))
             linhas.append(linha)
 
+        colspan_titulo = (
+            (num_cols_alim + 2 if tem_alim else 0)
+            + sum(g["num_colunas"] for g in grupos_dieta_no_bloco)
+        )
+
         tabelas.append({
             "titulo": recreio.titulo,
             "bloco": bloco,
@@ -959,6 +964,7 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
             "num_cols_alim": num_cols_alim,
             "grupos_dieta_no_bloco": grupos_dieta_no_bloco,
             "valores_campos": linhas,
+            "colspan_titulo": colspan_titulo,
         })
 
     return tabelas
