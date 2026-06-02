@@ -894,11 +894,10 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         except RecreioNasFerias.DoesNotExist:
             return None
 
-        try:
-            unidade = recreio.unidades_participantes.get(
-                unidade_educacional__uuid=escola_uuid
-            )
-        except RecreioNasFeriasUnidadeParticipante.DoesNotExist:
+        unidade = recreio.unidades_participantes.filter(
+            unidade_educacional__uuid=escola_uuid
+        ).first()
+        if unidade is None:
             return None
 
         if not unidade.liberar_medicao:
