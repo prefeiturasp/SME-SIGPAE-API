@@ -380,6 +380,7 @@ NOMES_CAMPOS = {
     "lanche_emergencial": "Lanche Emerg.",
     "colacao": "Colação",
     "desjejum": "Desjejum",
+    "frequencia": "Frequência",
 }
 
 ORDEM_UNIDADES_GRUPO_EMEF = {
