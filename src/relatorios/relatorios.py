@@ -56,9 +56,11 @@ from ..medicao_inicial.utils import (
     build_tabela_relatorio_consolidado,
     build_tabela_somatorio_body,
     build_tabela_somatorio_body_cei,
+    build_tabela_somatorio_body_cei_recreio_nas_ferias,
     build_tabela_somatorio_dietas_body,
     build_tabelas_relatorio_medicao,
     build_tabelas_relatorio_medicao_cei,
+    build_tabelas_relatorio_medicao_cei_recreio_nas_ferias,
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
     calcula_totais_consumo_por_grupo,
@@ -1804,6 +1806,46 @@ def _ajustar_labels_recreio_nas_ferias(tabelas: list, titulo_recreio: str) -> No
             MAP_CATEGORIA[era_colaboradores] if cat == CATEGORIA_ALIMENTACAO else cat
             for cat in tabela["categorias"]
         ]
+
+
+def relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias(solicitacao):
+    tabela_recreio, tabela_colaboradores, dias_letivos = (
+        build_tabelas_relatorio_medicao_cei_recreio_nas_ferias(solicitacao)
+    )
+    tabelas_somatorios = build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao)
+    tabela_observacoes = build_lista_campos_observacoes(solicitacao)
+
+
+    html_string = render_to_string(
+        "medicao/relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias.html",
+        {
+            "solicitacao": solicitacao,
+            "responsaveis": solicitacao.responsaveis.all(),
+            "assinatura_escola": solicitacao.assinatura_ue,
+            "assinatura_dre": solicitacao.assinatura_dre,
+            "quantidade_dias_mes": range(
+                solicitacao.recreio_nas_ferias.data_inicio.day,
+                solicitacao.recreio_nas_ferias.data_fim.day + 1,
+            ),
+            "tabela_recreio": tabela_recreio,
+            "tabela_colaboradores": tabela_colaboradores,
+            "dias_letivos": dias_letivos,
+            "tabelas_somatorios": tabelas_somatorios,
+            "tabela_observacoes": tabela_observacoes,
+        },
+    )
+    if (
+        solicitacao.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
+    ):
+        return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+    else:
+        return html_to_pdf_watermark(
+            html_string,
+            "relatorio_dieta_especial.pdf",
+            ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+            is_async=True,
+        )
 
 
 def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
