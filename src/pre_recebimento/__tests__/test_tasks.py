@@ -16,6 +16,8 @@ from src.pre_recebimento.tasks import (
     _deve_mostrar_linha_a_receber,
     _processar_fichas_recebimento,
     importa_feriados_para_interrupcoes_programadas,
+    avisa_empresa_sobre_etapa_programada_proxima,
+    avisa_empresa_sobre_documentos_pagamento,
 )
 
 
@@ -234,3 +236,108 @@ class TestImportaFeriadosTask:
             motivo=InterrupcaoProgramadaEntrega.MOTIVO_FERIADO
         )
         assert novos_feriados.count() == 3
+
+
+@pytest.mark.django_db
+class TestAvisaEmpresaEtapaProgramadaProxima:
+
+    @freeze_time("2025-01-10")
+    @patch("src.pre_recebimento.tasks.envia_email_em_massa_task")
+    @patch("src.pre_recebimento.tasks.render_to_string", return_value="<html>teste</html>")
+    @patch("src.pre_recebimento.tasks.PartesInteressadasService")
+    def test_envia_email_para_cada_etapa(
+        self, mock_partes_service, mock_render, mock_envia, cronograma_assinado_perfil_dilog
+    ):
+        from model_bakery import baker
+        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
+
+        data_alvo = date(2025, 1, 13)
+        data_incorreta = date(2025, 1, 14)
+        etapa1 = baker.make(EtapasDoCronograma, cronograma=cronograma_assinado_perfil_dilog, data_programada=data_alvo, etapa=1)
+        etapa2 = baker.make(EtapasDoCronograma, cronograma=cronograma_assinado_perfil_dilog, data_programada=data_alvo, etapa=2)
+
+        mock_partes_service.usuarios_vinculados_a_empresa_do_objeto.return_value = ["empresa@teste.com"]
+
+        avisa_empresa_sobre_etapa_programada_proxima()
+
+        assert mock_envia.delay.call_count == 2
+
+        assuntos = [c.kwargs["assunto"] for c in mock_envia.delay.call_args_list]
+        assert any("Etapa 1" in a for a in assuntos)
+        assert any("Etapa 2" in a for a in assuntos)
+        assert all(cronograma_assinado_perfil_dilog.numero in a for a in assuntos)
+
+    @freeze_time("2025-01-10")
+    @patch("src.pre_recebimento.tasks.envia_email_em_massa_task")
+    @patch("src.pre_recebimento.tasks.render_to_string", return_value="<html>teste</html>")
+    @patch("src.pre_recebimento.tasks.PartesInteressadasService")
+    def test_nao_envia_para_cronogramas_nao_assinados(
+        self, mock_partes_service, mock_render, mock_envia
+    ):
+        from model_bakery import baker
+        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
+
+        cronograma_rascunho = baker.make("Cronograma", status="RASCUNHO")
+        baker.make(EtapasDoCronograma, cronograma=cronograma_rascunho, data_programada=date(2025, 1, 13), etapa=1)
+
+        avisa_empresa_sobre_etapa_programada_proxima()
+
+        mock_envia.delay.assert_not_called()
+
+    @freeze_time("2025-01-10")
+    @patch("src.pre_recebimento.tasks.envia_email_em_massa_task")
+    @patch("src.pre_recebimento.tasks.render_to_string", return_value="<html>teste</html>")
+    @patch("src.pre_recebimento.tasks.PartesInteressadasService")
+    def test_nao_envia_para_etapas_de_outra_data(
+        self, mock_partes_service, mock_render, mock_envia, cronograma_assinado_perfil_dilog
+    ):
+        from model_bakery import baker
+        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
+
+        baker.make(EtapasDoCronograma, cronograma=cronograma_assinado_perfil_dilog, data_programada=date(2025, 1, 20), etapa=1)
+
+        avisa_empresa_sobre_etapa_programada_proxima()
+
+        mock_envia.delay.assert_not_called()
+
+
+@pytest.mark.django_db
+class TestAvisaEmpresaDocumentosPagamento:
+
+    @freeze_time("2025-01-10")
+    @patch("src.pre_recebimento.tasks.envia_email_em_massa_task")
+    @patch("src.pre_recebimento.tasks.render_to_string", return_value="<html>teste</html>")
+    @patch("src.pre_recebimento.tasks.PartesInteressadasService")
+    def test_envia_email_para_etapas_do_dia_anterior(
+        self, mock_partes_service, mock_render, mock_envia, cronograma_assinado_perfil_dilog
+    ):
+        from model_bakery import baker
+        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
+
+        data_alvo = date(2025, 1, 9)
+        baker.make(EtapasDoCronograma, cronograma=cronograma_assinado_perfil_dilog, data_programada=data_alvo, etapa=1)
+
+        mock_partes_service.usuarios_vinculados_a_empresa_do_objeto.return_value = ["empresa@teste.com"]
+
+        avisa_empresa_sobre_documentos_pagamento()
+
+        assert mock_envia.delay.call_count == 1
+        assunto = mock_envia.delay.call_args.kwargs["assunto"]
+        assert "Documentos para Pagamento" in assunto
+        assert cronograma_assinado_perfil_dilog.numero in assunto
+
+    @freeze_time("2025-01-10")
+    @patch("src.pre_recebimento.tasks.envia_email_em_massa_task")
+    @patch("src.pre_recebimento.tasks.render_to_string", return_value="<html>teste</html>")
+    @patch("src.pre_recebimento.tasks.PartesInteressadasService")
+    def test_nao_envia_para_etapas_de_outra_data(
+        self, mock_partes_service, mock_render, mock_envia, cronograma_assinado_perfil_dilog
+    ):
+        from model_bakery import baker
+        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
+
+        baker.make(EtapasDoCronograma, cronograma=cronograma_assinado_perfil_dilog, data_programada=date(2025, 1, 5), etapa=1)
+
+        avisa_empresa_sobre_documentos_pagamento()
+
+        mock_envia.delay.assert_not_called()
