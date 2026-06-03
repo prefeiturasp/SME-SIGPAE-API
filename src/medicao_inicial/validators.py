@@ -2179,6 +2179,14 @@ def validate_lancamento_dietas_cei_cemei(
 
 
 def remover_duplicados(query_set):
+    """Remove itens duplicados de um queryset com base no UUID.
+
+    Args:
+        query_set (Iterable): Colecao de objetos que possuem o atributo ``uuid``.
+
+    Returns:
+        list: Lista com os objetos sem repeticao de UUID.
+    """
     aux = []
     sem_uuid_repetido = []
     for resultado in query_set:
@@ -2193,14 +2201,47 @@ def _eh_fim_de_semana(data):
 
 
 def _formatar_dia(data):
+    """Formata o dia da data com dois digitos.
+
+    Args:
+        data (datetime.date): Data a ser formatada.
+
+    Returns:
+        str: Dia no formato ``DD``.
+    """
     return str(data.day).rjust(2, "0")
 
 
 def _dia_esta_no_recreio(data_dia, periodos_recreio):
+    """Verifica se uma data pertence a algum intervalo de recreio.
+
+    Args:
+        data_dia (datetime.date): Dia a ser avaliado.
+        periodos_recreio (list[tuple[datetime.date, datetime.date]]):
+            Intervalos ``(inicio, fim)`` do recreio nas ferias.
+
+    Returns:
+        bool: ``True`` quando o dia esta em pelo menos um intervalo.
+    """
     return any(inicio <= data_dia <= fim for inicio, fim in periodos_recreio)
 
 
 def _filtra_dias_kit_lanche_por_recreio(solicitacao, dias_kit_lanche):
+    """Filtra os dias de kit lanche conforme contexto de recreio nas ferias.
+
+    Regras:
+        - Quando a solicitacao e de recreio, considera apenas dias dentro
+          do intervalo do recreio da solicitacao.
+        - Quando nao e recreio, mas a escola participa de recreio no mes com
+          ``liberar_medicao=True``, considera apenas dias fora desses periodos.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitacao em validacao.
+        dias_kit_lanche (list[str]): Dias autorizados para kit lanche no formato ``DD``.
+
+    Returns:
+        list[str]: Dias filtrados que devem ser validados no lancamento.
+    """
     if not dias_kit_lanche:
         return dias_kit_lanche
 
@@ -2259,6 +2300,15 @@ def formatar_query_set_alteracao(query_set, mes, ano):
 
 
 def get_lista_dias_solicitacoes(params, escola):
+    """Retorna dias de solicitações autorizadas no mês/ano informado.
+
+    Args:
+        params (dict): Parâmetros de filtro usados em ``SolicitacoesEscola.busca_filtro``.
+        escola (Escola): Escola para busca das solicitações autorizadas.
+
+    Returns:
+        list[str]: Dias no formato ``DD`` para kit lanche ou lanche emergencial.
+    """
     query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola.uuid)
     query_set = SolicitacoesEscola.busca_filtro(query_set, params)
     query_set = query_set.filter(
@@ -2278,6 +2328,18 @@ def get_lista_dias_solicitacoes(params, escola):
 
 
 def validate_lancamento_kit_lanche(solicitacao, lista_erros):
+    """Valida se os kits lanches autorizados possuem lançamento em ``ValorMedicao``.
+
+    A validação considera regras de recreio nas férias para decidir quais dias
+    devem ser conferidos (dentro ou fora do período de recreio).
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação em processo de finalização.
+        lista_erros (list[dict]): Lista acumulada de erros de validação.
+
+    Returns:
+        list[dict]: Lista de erros sem duplicidades.
+    """
     escola = solicitacao.escola
     mes = solicitacao.mes
     ano = solicitacao.ano
