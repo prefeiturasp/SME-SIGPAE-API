@@ -38,6 +38,7 @@ from .models import (
     SolicitacaoMedicaoInicial,
     ValorMedicao,
 )
+from .recreio_nas_ferias.models import RecreioNasFeriasUnidadeParticipante
 from .utils import (
     agrupa_permissoes_especiais_por_dia,
     get_linhas_da_tabela,
@@ -2195,6 +2196,52 @@ def _formatar_dia(data):
     return str(data.day).rjust(2, "0")
 
 
+def _dia_esta_no_recreio(data_dia, periodos_recreio):
+    return any(inicio <= data_dia <= fim for inicio, fim in periodos_recreio)
+
+
+def _filtra_dias_kit_lanche_por_recreio(solicitacao, dias_kit_lanche):
+    if not dias_kit_lanche:
+        return dias_kit_lanche
+
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+    inicio_mes = datetime.date(ano, mes, 1)
+    fim_mes = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+    recreio = getattr(solicitacao, "recreio_nas_ferias", None)
+
+    if recreio:
+        periodos_recreio = [(recreio.data_inicio, recreio.data_fim)]
+    else:
+        participacoes = RecreioNasFeriasUnidadeParticipante.objects.filter(
+            unidade_educacional=solicitacao.escola,
+            liberar_medicao=True,
+            recreio_nas_ferias__data_inicio__lte=fim_mes,
+            recreio_nas_ferias__data_fim__gte=inicio_mes,
+        ).values_list(
+            "recreio_nas_ferias__data_inicio",
+            "recreio_nas_ferias__data_fim",
+        )
+        periodos_recreio = list(set(participacoes))
+
+    if not periodos_recreio:
+        return dias_kit_lanche
+
+    dias_filtrados = []
+
+    for dia in dias_kit_lanche:
+        data_dia = datetime.date(ano, mes, int(dia))
+        dia_no_recreio = _dia_esta_no_recreio(data_dia, periodos_recreio)
+
+        deve_incluir = dia_no_recreio if recreio else not dia_no_recreio
+
+        if deve_incluir:
+            dias_filtrados.append(dia)
+
+    return dias_filtrados
+
+
 def formatar_query_set_alteracao(query_set, mes, ano):
     datas = []
     for alteracao_alimentacao in query_set:
@@ -2243,6 +2290,7 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
     }
     dias_kit_lanche = get_lista_dias_solicitacoes(params, escola)
     dias_kit_lanche = list(set(dias_kit_lanche))
+    dias_kit_lanche = _filtra_dias_kit_lanche_por_recreio(solicitacao, dias_kit_lanche)
 
     valores_da_medicao = (
         ValorMedicao.objects.filter(
