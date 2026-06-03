@@ -729,6 +729,195 @@ def add_periodo_to_table(  # noqa: C901
         ]
 
 
+# ── Helpers exclusivos de Recreio nas Férias CEI ────────────────────────────
+
+def _cei_rnf_get_valor(valores, dia_str, nome_campo, faixa_id, cat_id):
+    return int(
+        valores.filter(
+            dia=dia_str,
+            nome_campo=nome_campo,
+            faixa_etaria_id=faixa_id,
+            categoria_medicao_id=cat_id,
+        )
+        .values_list("valor", flat=True)
+        .first()
+        or 0
+    )
+
+
+def _cei_rnf_calcular_dados_dias(valores, dias_no_mes, faixas_alim, dietas_estrutura):
+    """Itera pelos dias e acumula frequências, dietas e totais."""
+    totais_alim = {fid: 0 for fid, _ in faixas_alim}
+    totais_dieta_aprov = {}
+    totais_dieta_freq = {}
+    totais_dieta_total = {}
+    for dieta in dietas_estrutura:
+        totais_dieta_total[dieta["cat_id"]] = 0
+        for fid, _ in dieta["faixas"]:
+            totais_dieta_aprov[(dieta["cat_id"], fid)] = 0
+            totais_dieta_freq[(dieta["cat_id"], fid)] = 0
+    total_geral = 0
+
+    dados_dias = {}
+    for dia in dias_no_mes:
+        dia_str = f"{dia:02d}"
+        participantes = (
+            valores.filter(dia=dia_str, nome_campo="participantes")
+            .values_list("valor", flat=True)
+            .first()
+            or "0"
+        )
+        freq_alim = {}
+        for fid, _ in faixas_alim:
+            v = _cei_rnf_get_valor(valores, dia_str, "frequencia", fid, 1)
+            freq_alim[fid] = v
+            totais_alim[fid] += v
+        total_dia = sum(freq_alim.values())
+        total_geral += total_dia
+
+        dieta_aprov = {}
+        dieta_freq_vals = {}
+        dieta_total_dia = {}
+        for dieta in dietas_estrutura:
+            soma_freq_dieta = 0
+            for fid, _ in dieta["faixas"]:
+                a = _cei_rnf_get_valor(
+                    valores, dia_str, "dietas_autorizadas", fid, dieta["cat_id"]
+                )
+                f = _cei_rnf_get_valor(
+                    valores, dia_str, "frequencia", fid, dieta["cat_id"]
+                )
+                dieta_aprov[(dieta["cat_id"], fid)] = a
+                dieta_freq_vals[(dieta["cat_id"], fid)] = f
+                totais_dieta_aprov[(dieta["cat_id"], fid)] += a
+                totais_dieta_freq[(dieta["cat_id"], fid)] += f
+                soma_freq_dieta += f
+            dieta_total_dia[dieta["cat_id"]] = soma_freq_dieta
+            totais_dieta_total[dieta["cat_id"]] += soma_freq_dieta
+
+        dados_dias[dia] = {
+            "participantes": participantes,
+            "freq_alim": freq_alim,
+            "total_dia": total_dia,
+            "dieta_aprov": dieta_aprov,
+            "dieta_freq": dieta_freq_vals,
+            "dieta_total_dia": dieta_total_dia,
+        }
+
+    totais = {
+        "alim": totais_alim,
+        "dieta_aprov": totais_dieta_aprov,
+        "dieta_freq": totais_dieta_freq,
+        "dieta_total": totais_dieta_total,
+        "geral": total_geral,
+    }
+    return dados_dias, totais
+
+
+def _cei_rnf_montar_blocos(faixas_alim, dietas_estrutura):
+    """Distribui colunas em blocos de até MAX_VAR_COLS colunas variáveis."""
+    MAX_VAR_COLS = 12
+    todos_blocos_colunas = []
+    bloco_atual = []
+    count_var = 0
+
+    colunas_alim = [
+        {"tipo": "alim_freq", "faixa_id": fid, "faixa_nome": fnome}
+        for fid, fnome in faixas_alim
+    ]
+
+    for col in colunas_alim:
+        if count_var >= MAX_VAR_COLS:
+            todos_blocos_colunas.append(bloco_atual)
+            bloco_atual = []
+            count_var = 0
+        bloco_atual.append(col)
+        count_var += 1
+    bloco_atual.append({"tipo": "total"})  # Total Alimentação (não conta no MAX)
+
+    for dieta in dietas_estrutura:
+        for fid, fnome in dieta["faixas"]:
+            par = [
+                {
+                    "tipo": "dieta_aprovadas",
+                    "cat_id": dieta["cat_id"],
+                    "cat_nome": dieta["cat_nome"],
+                    "faixa_id": fid,
+                    "faixa_nome": fnome,
+                },
+                {
+                    "tipo": "dieta_freq",
+                    "cat_id": dieta["cat_id"],
+                    "cat_nome": dieta["cat_nome"],
+                    "faixa_id": fid,
+                    "faixa_nome": fnome,
+                },
+            ]
+            if count_var + 2 > MAX_VAR_COLS:
+                todos_blocos_colunas.append(bloco_atual)
+                bloco_atual = []
+                count_var = 0
+            bloco_atual.extend(par)
+            count_var += 2
+
+        # Total da dieta — tenta manter no mesmo bloco
+        if count_var + 1 > MAX_VAR_COLS:
+            todos_blocos_colunas.append(bloco_atual)
+            bloco_atual = []
+            count_var = 0
+        bloco_atual.append(
+            {"tipo": "dieta_total", "cat_id": dieta["cat_id"], "cat_nome": dieta["cat_nome"]}
+        )
+        count_var += 1
+
+    if bloco_atual:
+        todos_blocos_colunas.append(bloco_atual)
+
+    return todos_blocos_colunas
+
+
+def _cei_rnf_montar_linhas(bloco, dias_no_mes, dados_dias, totais, tem_alim):
+    """Gera as linhas de dados (incluindo a linha de Total) para um bloco."""
+    total_geral = totais["geral"]
+    totais_alim = totais["alim"]
+    totais_dieta_freq = totais["dieta_freq"]
+    totais_dieta_total = totais["dieta_total"]
+
+    linhas = []
+    for dia in dias_no_mes + ["Total"]:
+        if dia == "Total":
+            # Participantes e Aprovadas exibem "-" na linha de Total
+            linha = ["Total"] + (["-"] if tem_alim else [])
+            for col in bloco:
+                if col["tipo"] == "total":
+                    linha.append(str(total_geral))
+                elif col["tipo"] == "alim_freq":
+                    linha.append(str(totais_alim.get(col["faixa_id"], 0)))
+                elif col["tipo"] == "dieta_aprovadas":
+                    linha.append("-")
+                elif col["tipo"] == "dieta_freq":
+                    linha.append(str(totais_dieta_freq.get((col["cat_id"], col["faixa_id"]), 0)))
+                elif col["tipo"] == "dieta_total":
+                    linha.append(str(totais_dieta_total.get(col["cat_id"], 0)))
+        else:
+            d = dados_dias[dia]
+            linha = [dia] + ([d["participantes"]] if tem_alim else [])
+            for col in bloco:
+                if col["tipo"] == "total":
+                    linha.append(str(d["total_dia"]))
+                elif col["tipo"] == "alim_freq":
+                    linha.append(str(d["freq_alim"].get(col["faixa_id"], 0)))
+                elif col["tipo"] == "dieta_aprovadas":
+                    linha.append(str(d["dieta_aprov"].get((col["cat_id"], col["faixa_id"]), 0)))
+                elif col["tipo"] == "dieta_freq":
+                    linha.append(str(d["dieta_freq"].get((col["cat_id"], col["faixa_id"]), 0)))
+                elif col["tipo"] == "dieta_total":
+                    linha.append(str(d["dieta_total_dia"].get(col["cat_id"], 0)))
+        linhas.append(linha)
+
+    return linhas
+
+
 def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
     recreio = solicitacao.recreio_nas_ferias
     dias_no_mes = list(range(recreio.data_inicio.day, recreio.data_fim.day + 1))
@@ -762,118 +951,33 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
     dietas_estrutura = []
     for cat_id, cat_nome in categorias_dieta:
         faixas_dieta_objs = FaixaEtaria.objects.filter(
-            id__in=valores.filter(nome_campo="dietas_autorizadas", categoria_medicao_id=cat_id)
+            id__in=valores.filter(
+                nome_campo="dietas_autorizadas", categoria_medicao_id=cat_id
+            )
             .exclude(faixa_etaria=None)
             .values_list("faixa_etaria_id", flat=True)
             .distinct(),
             ativo=True,
         ).order_by("fim")
         faixas = [(fe.id, str(fe)) for fe in faixas_dieta_objs]
-        dietas_estrutura.append({
-            "cat_id": cat_id,
-            "cat_nome": cat_nome,
-            "faixas": faixas,
-        })
-
-    # ── 4. Pré-calcular valores por dia ─────────────────────────────────────
-    def get_valor(dia_str, nome_campo, faixa_id, cat_id):
-        return int(
-            valores.filter(
-                dia=dia_str,
-                nome_campo=nome_campo,
-                faixa_etaria_id=faixa_id,
-                categoria_medicao_id=cat_id,
-            ).values_list("valor", flat=True).first() or 0
+        dietas_estrutura.append(
+            {"cat_id": cat_id, "cat_nome": cat_nome, "faixas": faixas}
         )
 
-    totais_alim = {fid: 0 for fid, _ in faixas_alim}
-    totais_dieta_aprov = {}
-    totais_dieta_freq = {}
-    totais_dieta_total = {}  # total por cat_id
-    for dieta in dietas_estrutura:
-        totais_dieta_total[dieta["cat_id"]] = 0
-        for fid, _ in dieta["faixas"]:
-            totais_dieta_aprov[(dieta["cat_id"], fid)] = 0
-            totais_dieta_freq[(dieta["cat_id"], fid)] = 0
-    total_geral = 0
-
-    dados_dias = {}
-    for dia in dias_no_mes:
-        dia_str = f"{dia:02d}"
-        participantes = (
-            valores.filter(dia=dia_str, nome_campo="participantes")
-            .values_list("valor", flat=True).first() or "0"
-        )
-        freq_alim = {}
-        for fid, _ in faixas_alim:
-            v = get_valor(dia_str, "frequencia", fid, 1)
-            freq_alim[fid] = v
-            totais_alim[fid] += v
-        total_dia = sum(freq_alim.values())
-        total_geral += total_dia
-
-        dieta_aprov = {}
-        dieta_freq_vals = {}
-        dieta_total_dia = {}  # total por cat_id no dia
-        for dieta in dietas_estrutura:
-            soma_freq_dieta = 0
-            for fid, _ in dieta["faixas"]:
-                a = get_valor(dia_str, "dietas_autorizadas", fid, dieta["cat_id"])
-                f = get_valor(dia_str, "frequencia", fid, dieta["cat_id"])
-                dieta_aprov[(dieta["cat_id"], fid)] = a
-                dieta_freq_vals[(dieta["cat_id"], fid)] = f
-                totais_dieta_aprov[(dieta["cat_id"], fid)] += a
-                totais_dieta_freq[(dieta["cat_id"], fid)] += f
-                soma_freq_dieta += f
-            dieta_total_dia[dieta["cat_id"]] = soma_freq_dieta
-            totais_dieta_total[dieta["cat_id"]] += soma_freq_dieta
-
-        dados_dias[dia] = {
-            "participantes": participantes,
-            "freq_alim": freq_alim,
-            "total_dia": total_dia,
-            "dieta_aprov": dieta_aprov,
-            "dieta_freq": dieta_freq_vals,
-            "dieta_total_dia": dieta_total_dia,
-        }
+    # ── 4. Calcular dados por dia e totais ───────────────────────────────────
+    dados_dias, totais = _cei_rnf_calcular_dados_dias(
+        valores, dias_no_mes, faixas_alim, dietas_estrutura
+    )
 
     # ── 5. Quebrar em blocos de até 12 colunas variáveis ────────────────────
-    MAX_VAR_COLS = 12
-    todos_blocos_colunas = []
-    bloco_atual = []
-    count_var = 0
-
-    colunas_alim = [{"tipo": "alim_freq", "faixa_id": fid, "faixa_nome": fnome} for fid, fnome in faixas_alim]
-
-    for col in colunas_alim:
-        if count_var >= MAX_VAR_COLS:
-            todos_blocos_colunas.append(bloco_atual); bloco_atual = []; count_var = 0
-        bloco_atual.append(col); count_var += 1
-    bloco_atual.append({"tipo": "total"})  # Total Alimentação (não conta no MAX)
-
-    for dieta in dietas_estrutura:
-        for fid, fnome in dieta["faixas"]:
-            par = [
-                {"tipo": "dieta_aprovadas", "cat_id": dieta["cat_id"], "cat_nome": dieta["cat_nome"], "faixa_id": fid, "faixa_nome": fnome},
-                {"tipo": "dieta_freq",      "cat_id": dieta["cat_id"], "cat_nome": dieta["cat_nome"], "faixa_id": fid, "faixa_nome": fnome},
-            ]
-            if count_var + 2 > MAX_VAR_COLS:
-                todos_blocos_colunas.append(bloco_atual); bloco_atual = []; count_var = 0
-            bloco_atual.extend(par); count_var += 2
-
-        # Total da dieta — tenta manter no mesmo bloco
-        if count_var + 1 > MAX_VAR_COLS:
-            todos_blocos_colunas.append(bloco_atual); bloco_atual = []; count_var = 0
-        bloco_atual.append({"tipo": "dieta_total", "cat_id": dieta["cat_id"], "cat_nome": dieta["cat_nome"]})
-        count_var += 1
-
-    if bloco_atual:
-        todos_blocos_colunas.append(bloco_atual)
+    todos_blocos_colunas = _cei_rnf_montar_blocos(faixas_alim, dietas_estrutura)
 
     # ── 6. Montar tabelas ────────────────────────────────────────────────────
     tabelas = []
     for bloco in todos_blocos_colunas:
         tem_alim = any(c["tipo"] == "alim_freq" for c in bloco)
+        tem_total_alim = any(c["tipo"] == "total" for c in bloco)
+        num_cols_alim = sum(1 for c in bloco if c["tipo"] == "alim_freq")
 
         grupos_dieta_no_bloco = []
         for dieta in dietas_estrutura:
@@ -893,83 +997,75 @@ def build_tabela_recreio_nas_ferias_cei(solicitacao, medicao_recreio):
                     seen_faixas.add(c["faixa_id"])
             if faixas_no_bloco:
                 num_colunas = len(faixas_no_bloco) * 2 + (1 if tem_total_dieta else 0)
-                grupos_dieta_no_bloco.append({
-                    "cat_id": dieta["cat_id"],
-                    "cat_nome": dieta["cat_nome"],
-                    "faixas": faixas_no_bloco,
-                    "num_colunas": num_colunas,
-                })
+                grupos_dieta_no_bloco.append(
+                    {
+                        "cat_id": dieta["cat_id"],
+                        "cat_nome": dieta["cat_nome"],
+                        "faixas": faixas_no_bloco,
+                        "num_colunas": num_colunas,
+                    }
+                )
 
-        num_cols_alim = sum(1 for c in bloco if c["tipo"] == "alim_freq")
-        tem_total_alim = any(c["tipo"] == "total" for c in bloco)
-
-        linhas = []
-        for dia in dias_no_mes + ["Total"]:
-            if dia == "Total":
-                linha = ["Total"] + ([""] if tem_alim else [])
-                for col in bloco:
-                    if col["tipo"] == "total":
-                        linha.append(str(total_geral))
-                    elif col["tipo"] == "alim_freq":
-                        linha.append(str(totais_alim.get(col["faixa_id"], 0)))
-                    elif col["tipo"] == "dieta_aprovadas":
-                        linha.append(str(totais_dieta_aprov.get((col["cat_id"], col["faixa_id"]), 0)))
-                    elif col["tipo"] == "dieta_freq":
-                        linha.append(str(totais_dieta_freq.get((col["cat_id"], col["faixa_id"]), 0)))
-                    elif col["tipo"] == "dieta_total":
-                        linha.append(str(totais_dieta_total.get(col["cat_id"], 0)))
-            else:
-                d = dados_dias[dia]
-                linha = [dia] + ([d["participantes"]] if tem_alim else [])
-                for col in bloco:
-                    if col["tipo"] == "total":
-                        linha.append(str(d["total_dia"]))
-                    elif col["tipo"] == "alim_freq":
-                        linha.append(str(d["freq_alim"].get(col["faixa_id"], 0)))
-                    elif col["tipo"] == "dieta_aprovadas":
-                        linha.append(str(d["dieta_aprov"].get((col["cat_id"], col["faixa_id"]), 0)))
-                    elif col["tipo"] == "dieta_freq":
-                        linha.append(str(d["dieta_freq"].get((col["cat_id"], col["faixa_id"]), 0)))
-                    elif col["tipo"] == "dieta_total":
-                        linha.append(str(d["dieta_total_dia"].get(col["cat_id"], 0)))
-            linhas.append(linha)
-
-        colspan_titulo = (
-            (num_cols_alim + 2 if tem_alim else 0)
-            + sum(g["num_colunas"] for g in grupos_dieta_no_bloco)
+        linhas = _cei_rnf_montar_linhas(
+            bloco, dias_no_mes, dados_dias, totais, tem_alim
         )
 
-        tabelas.append({
-            "titulo": recreio.titulo,
-            "bloco": bloco,
-            "tem_alim": tem_alim,
-            "tem_total": tem_total_alim,
-            "num_cols_alim": num_cols_alim,
-            "grupos_dieta_no_bloco": grupos_dieta_no_bloco,
-            "valores_campos": linhas,
-            "colspan_titulo": colspan_titulo,
-        })
+        colspan_titulo = (num_cols_alim + 2 if tem_alim else 0) + sum(
+            g["num_colunas"] for g in grupos_dieta_no_bloco
+        )
+
+        tabelas.append(
+            {
+                "titulo": recreio.titulo,
+                "bloco": bloco,
+                "tem_alim": tem_alim,
+                "tem_total": tem_total_alim,
+                "num_cols_alim": num_cols_alim,
+                "grupos_dieta_no_bloco": grupos_dieta_no_bloco,
+                "valores_campos": linhas,
+                "colspan_titulo": colspan_titulo,
+            }
+        )
 
     return tabelas
 
 
-def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
-    recreio = solicitacao.recreio_nas_ferias
-    dias_range = range(recreio.data_inicio.day, recreio.data_fim.day + 1)
+def _cei_colaboradores_linha_total(campos_ordenados, totais_raw, total_pgto_refeicao, total_pgto_sobremesa):
+    """Monta a linha 'Total' para a tabela de Colaboradores CEI."""
+    _CEI_COLAB_CAMPOS_SOMAM_TOTAL = {"lanche", "lanche_4h"}
+    _CEI_COLAB_CAMPOS_PGTO_TOTAL = {"total_refeicoes_pagamento", "total_sobremesas_pagamento"}
 
-    campos_raw = list(
-        medicao_colaboradores.valores_medicao
-        .filter(faixa_etaria=None)
-        .exclude(nome_campo__in=["observacoes", "participantes"])
-        .values_list("nome_campo", flat=True)
-        .distinct()
-    )
+    linha = ["Total", "-"]
+    for c in campos_ordenados:
+        if c in _CEI_COLAB_CAMPOS_PGTO_TOTAL:
+            valor = (
+                total_pgto_refeicao
+                if c == "total_refeicoes_pagamento"
+                else total_pgto_sobremesa
+            )
+            linha.append(str(valor))
+        elif c in _CEI_COLAB_CAMPOS_SOMAM_TOTAL:
+            linha.append(str(totais_raw.get(c, 0)))
+        else:
+            linha.append("-")
+    return linha
 
-    # Se existir "refeicao" (ou repetição), mostra o total p/ pagamento (calculado em runtime)
-    tem_refeicao = any(c in ["refeicao", "repeticao_refeicao"] for c in campos_raw)
-    tem_sobremesa = any(c in ["sobremesa", "repeticao_sobremesa"] for c in campos_raw)
 
-    # Ordem base (sem os "total_*_pagamento" aqui — eles entram logo após o bloco correspondente)
+def _cei_colaboradores_linha_dia(dia_int, participantes, campos_ordenados, valores_dia, pgto_ref, pgto_sob):
+    """Monta a linha de um dia normal para a tabela de Colaboradores CEI."""
+    linha = [dia_int, str(participantes)]
+    for c in campos_ordenados:
+        if c == "total_refeicoes_pagamento":
+            linha.append(str(pgto_ref))
+        elif c == "total_sobremesas_pagamento":
+            linha.append(str(pgto_sob))
+        else:
+            linha.append(str(valores_dia.get(c, 0)))
+    return linha
+
+
+def _cei_colaboradores_ordenar_campos(campos_raw, tem_refeicao, tem_sobremesa):
+    """Ordena os campos e insere os totais calculados no lugar correto."""
     ORDEM_BASE = [
         "frequencia",
         "lanche",
@@ -990,80 +1086,83 @@ def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
         "colacao",
         "desjejum",
     ]
-
-    # Mantém os desconhecidos no final (não quebra caso apareça campo novo)
     campos_raw_set = set(campos_raw)
     campos_raw_ordenados = [c for c in ORDEM_BASE if c in campos_raw_set]
     campos_raw_ordenados += [c for c in campos_raw if c not in ORDEM_BASE]
 
-    # Monta a lista final de colunas, inserindo os totais calculados no lugar certo
     campos_ordenados = []
     for c in campos_raw_ordenados:
         campos_ordenados.append(c)
 
-        # Insere "total_refeicoes_pagamento" após repetição (se existir),
-        # senão, após a própria refeição (caso só exista "refeicao")
         if tem_refeicao and c == "repeticao_refeicao":
             campos_ordenados.append("total_refeicoes_pagamento")
-        if tem_refeicao and ("repeticao_refeicao" not in campos_raw_set) and c == "refeicao":
+        if tem_refeicao and "repeticao_refeicao" not in campos_raw_set and c == "refeicao":
             campos_ordenados.append("total_refeicoes_pagamento")
 
-        # Mesma regra para sobremesa
         if tem_sobremesa and c == "repeticao_sobremesa":
             campos_ordenados.append("total_sobremesas_pagamento")
-        if tem_sobremesa and ("repeticao_sobremesa" not in campos_raw_set) and c == "sobremesa":
+        if tem_sobremesa and "repeticao_sobremesa" not in campos_raw_set and c == "sobremesa":
             campos_ordenados.append("total_sobremesas_pagamento")
 
-    # Header: sem "Dias" (porque "Dias" fica fixo no template)
+    return campos_ordenados
+
+
+def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
+    recreio = solicitacao.recreio_nas_ferias
+    dias_range = range(recreio.data_inicio.day, recreio.data_fim.day + 1)
+
+    campos_raw = list(
+        medicao_colaboradores.valores_medicao
+        .filter(faixa_etaria=None)
+        .exclude(nome_campo__in=["observacoes", "participantes"])
+        .values_list("nome_campo", flat=True)
+        .distinct()
+    )
+
+    tem_refeicao = any(c in ["refeicao", "repeticao_refeicao"] for c in campos_raw)
+    tem_sobremesa = any(c in ["sobremesa", "repeticao_sobremesa"] for c in campos_raw)
+    campos_ordenados = _cei_colaboradores_ordenar_campos(campos_raw, tem_refeicao, tem_sobremesa)
     header_labels = ["Participantes"] + [NOMES_CAMPOS.get(c, c) for c in campos_ordenados]
 
-    valores_campos = []
-
-    # Totais
     totais_raw = {c: 0 for c in campos_raw}
     total_participantes = 0
     total_pgto_refeicao = 0
     total_pgto_sobremesa = 0
+    valores_campos = []
 
     for dia_int in list(dias_range) + ["Total"]:
         if dia_int == "Total":
-            linha = ["Total", str(total_participantes)]
-            for c in campos_ordenados:
-                if c == "total_refeicoes_pagamento":
-                    linha.append(str(total_pgto_refeicao))
-                elif c == "total_sobremesas_pagamento":
-                    linha.append(str(total_pgto_sobremesa))
-                else:
-                    linha.append(str(totais_raw.get(c, 0)))
+            linha = _cei_colaboradores_linha_total(
+                campos_ordenados, totais_raw, total_pgto_refeicao, total_pgto_sobremesa
+            )
             valores_campos.append(linha)
             continue
 
         dia_str = f"{dia_int:02d}"
 
-        # Participantes do dia (coluna obrigatória)
         valor_part = (
             medicao_colaboradores.valores_medicao
             .filter(dia=dia_str, nome_campo="participantes", faixa_etaria=None)
             .values_list("valor", flat=True)
-            .first() or "0"
+            .first()
+            or "0"
         )
         participantes = int(valor_part) if str(valor_part).isdigit() else 0
         total_participantes += participantes
 
-        # Valores do dia para cada campo raw
         valores_dia = {}
         for c in campos_raw:
             v = (
                 medicao_colaboradores.valores_medicao
                 .filter(dia=dia_str, nome_campo=c, faixa_etaria=None)
                 .values_list("valor", flat=True)
-                .first() or "0"
+                .first()
+                or "0"
             )
             v_int = int(v) if str(v).isdigit() else 0
             valores_dia[c] = v_int
             totais_raw[c] += v_int
 
-        # Totais para pagamento (regra: min(refeicao+repeticao, participantes))
         pgto_ref = 0
         if tem_refeicao:
             soma_ref = valores_dia.get("refeicao", 0) + valores_dia.get("repeticao_refeicao", 0)
@@ -1076,16 +1175,9 @@ def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
             pgto_sob = min(soma_sob, participantes)
             total_pgto_sobremesa += pgto_sob
 
-        # Linha: Dia | Participantes | colunas ordenadas
-        linha = [dia_int, str(participantes)]
-        for c in campos_ordenados:
-            if c == "total_refeicoes_pagamento":
-                linha.append(str(pgto_ref))
-            elif c == "total_sobremesas_pagamento":
-                linha.append(str(pgto_sob))
-            else:
-                linha.append(str(valores_dia.get(c, 0)))
-
+        linha = _cei_colaboradores_linha_dia(
+            dia_int, participantes, campos_ordenados, valores_dia, pgto_ref, pgto_sob
+        )
         valores_campos.append(linha)
 
     return {
@@ -1278,9 +1370,8 @@ def adiciona_campo_total_faixa_etaria(tabelas, nome_periodo, indice_atual):
         tabelas[indice_atual]["faixas_etarias"].append("total")
 
 
-GRUPOS_ESPECIAIS_CEI = {"Recreio nas Férias", "Colaboradores"}
-
 def get_medicoes_ordenadas(solicitacao, ordem_campos):
+    GRUPOS_ESPECIAIS_CEI = {"Recreio nas Férias", "Colaboradores"}
     return sorted(
         [
             m for m in solicitacao.medicoes.all()
