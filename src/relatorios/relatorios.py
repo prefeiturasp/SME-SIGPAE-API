@@ -1815,7 +1815,6 @@ def relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias(solicitacao)
     tabelas_somatorios = build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao)
     tabela_observacoes = build_lista_campos_observacoes(solicitacao)
 
-
     html_string = render_to_string(
         "medicao/relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias.html",
         {
