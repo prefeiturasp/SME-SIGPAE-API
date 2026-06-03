@@ -2218,13 +2218,6 @@ def get_lista_dias_solicitacoes(params, escola):
         data_evento__month=params["mes"], data_evento__year=params["ano"]
     )
     query_set = query_set.filter(data_evento__lt=datetime.date.today())
-    """
-    TODO: remover essa regra posteriormente quando definir calendário de Recreio Férias
-    """
-    if "tipo_solicitacao" in params and params["tipo_solicitacao"] == "Kit Lanche":
-        query_set = query_set.exclude(
-            data_evento__gte="2025-07-07", data_evento__lte="2025-07-18"
-        )
     if params.get("eh_lanche_emergencial", False):
         query_set = query_set.filter(motivo__icontains="Emergencial")
         query_set = remover_duplicados(query_set)
@@ -3183,7 +3176,6 @@ def _validate_medicao_cei_cemei(
     categorias_dieta = CategoriaMedicao.objects.exclude(
         nome__icontains="ALIMENTAÇÃO"
     ).exclude(nome__icontains="ENTERAL")
-
     faixas_etarias = FaixaEtaria.objects.filter(ativo=True)
     logs_faixas_etarias = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
         escola=escola, data__month=mes, data__year=ano
@@ -3195,7 +3187,6 @@ def _validate_medicao_cei_cemei(
             ).distinct()
         )
     )
-
     logs_dietas_autorizadas = LogQuantidadeDietasAutorizadasCEI.objects.filter(
         escola=escola, data__month=mes, data__year=ano
     )
@@ -3210,7 +3201,6 @@ def _validate_medicao_cei_cemei(
             ).distinct()
         )
     )
-
     lista_erros = validate_lancamento_alimentacoes_medicao_cei_cemei(
         lista_erros,
         dias_letivos,
@@ -3253,7 +3243,6 @@ def _validate_medicao_cei_cemei(
         logs_dietas_autorizadas,
         medicao,
     )
-
     return lista_erros
 
 
@@ -3345,7 +3334,6 @@ def validate_medicao_cemei(solicitacao):
         dias_motivos_da_inclusao_cemei__cancelado=False,
     ).order_by("dias_motivos_da_inclusao_cemei__data")
     lista_erros = []
-
     for medicao in solicitacao.medicoes.all():
         tipo_medicao = medicao.nome_periodo_grupo.upper()
         if tipo_medicao in ["INTEGRAL", "PARCIAL"]:
@@ -3358,7 +3346,7 @@ def validate_medicao_cemei(solicitacao):
                 dias_letivos_uteis,
                 categoria_alimentacao,
                 dias_nao_letivos,
-                inclusoes,
+                inclusoes.filter(quantidade_alunos_cei_da_inclusao_cemei__isnull=False),
             )
         elif tipo_medicao == "PROGRAMAS E PROJETOS":
             lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(
@@ -3374,13 +3362,14 @@ def validate_medicao_cemei(solicitacao):
                 escola,
                 categoria_alimentacao,
                 dias_letivos_uteis,
-                inclusoes,
+                inclusoes.filter(
+                    quantidade_alunos_emei_da_inclusao_cemei__isnull=False
+                ),
                 medicao,
                 mes,
                 ano,
                 dias_nao_letivos,
             )
-
     return lista_erros
 
 
