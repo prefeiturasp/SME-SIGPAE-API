@@ -12,7 +12,7 @@
     {# ── Linha 1: Título único por tabela ── #}
     <tr>
       <th rowspan="4">Dias</th>
-      <th colspan="{{ tabela.colspan_titulo }}">{{ tabela.titulo|upper }}</th>
+      <th class="cor-periodo-grupo-1" colspan="{{ tabela.colspan_titulo }}">{{ tabela.titulo|upper }}</th>
     </tr>
 
     {# ── Linha 2: Categorias ── #}
@@ -23,7 +23,7 @@
         </th>
       {% endif %}
       {% for grupo in tabela.grupos_dieta_no_bloco %}
-        <th class="cor-periodo-grupo-9" colspan="{{ grupo.num_colunas }}">
+        <th class="cor-periodo-grupo-1" colspan="{{ grupo.num_colunas }}">
           {{ grupo.cat_nome }}
         </th>
       {% endfor %}
@@ -80,7 +80,7 @@
   <thead class="texto-branco">
     <tr>
       <th rowspan="3">Dias</th>
-      <th colspan="{{ tabela_colaboradores.campos|length }}">
+      <th class="cor-periodo-grupo-1" colspan="{{ tabela_colaboradores.campos|length }}">
         {{ solicitacao.recreio_nas_ferias.titulo|upper }}
       </th>
     </tr>
