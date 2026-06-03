@@ -1254,6 +1254,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance, lista_erros
         )
         lista_erros = validate_lancamento_dietas_medicao_recreio(instance, lista_erros)
+        lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 
@@ -1285,6 +1286,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_dietas_medicao_recreio_cei(
             instance, lista_erros
         )
+        lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 
@@ -1315,6 +1317,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_dietas_medicao_recreio_cemei(
             instance, lista_erros
         )
+        lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 

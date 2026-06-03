@@ -3061,6 +3061,56 @@ def test_url_endpoint_finaliza_medicao_recreio_emef(
     assert json["logs"][0]["status_evento_explicacao"] == "Enviado pela UE"
 
 
+def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento_kit_lanche(
+    client_autenticado_adm_da_escola,
+    escola,
+    solicitacao_recreio_emef,
+    responsavel,
+    tipo_contagem_alimentacao,
+):
+    from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
+        LogSolicitacoesUsuarioFactory,
+    )
+    from src.dados_comuns.models import LogSolicitacoesUsuario
+    from src.kit_lanche.fixtures.factories.base_factory import (
+        SolicitacaoKitLancheAvulsaFactory,
+    )
+
+    kit_lanche = SolicitacaoKitLancheAvulsaFactory.create(
+        solicitacao_kit_lanche__data="2025-12-20",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.lote.diretoria_regional,
+        rastro_terceirizada=escola.lote.terceirizada,
+        quantidade_alunos=100,
+        status="CODAE_AUTORIZADO",
+    )
+    LogSolicitacoesUsuarioFactory.create(
+        uuid_original=kit_lanche.uuid,
+        status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        criado_em=datetime.datetime.now(),
+    )
+
+    data_update = {
+        "escola": str(escola.uuid),
+        "tipo_contagem_alimentacoes": str(tipo_contagem_alimentacao.uuid),
+        "com_ocorrencias": False,
+        "finaliza_medicao": True,
+    }
+    response = client_autenticado_adm_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_recreio_emef.uuid}/",
+        content_type="application/json",
+        data=data_update,
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert {
+        "erro": "Restam dias a serem lançados nos Kit Lanches.",
+        "periodo_escolar": "Solicitações de Alimentação",
+    } in response.json()
+
+
 def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento(
     client_autenticado_adm_da_escola,
     escola,
