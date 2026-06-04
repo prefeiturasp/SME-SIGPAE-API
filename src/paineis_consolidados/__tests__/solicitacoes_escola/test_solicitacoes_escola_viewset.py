@@ -1035,6 +1035,93 @@ class TestEndpointAlteracoesAutorizadas:
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"results": []}
 
+    def test_alteracoes_autorizadas_lanche_emergencial_sem_recreio_exclui_datas_no_recreio(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        """Sem recreio_nas_ferias na requisição, dias dentro do período de recreio
+        da escola NÃO devem ser retornados; apenas os dias fora do recreio."""
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        # Recreio cobre os dias 02 e 03 → dia 01 deve ser retornado
+        recreio = baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 2),
+            data_fim=datetime.date(2025, 2, 3),
+        )
+        baker.make(
+            "RecreioNasFeriasUnidadeParticipante",
+            recreio_nas_ferias=recreio,
+            unidade_educacional=escola,
+            lote=escola.lote,
+            liberar_medicao=True,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": "01",
+                "numero_alunos": 0,
+                "inclusao_id_externo": "C76CF",
+                "motivo": "Lanche Emergencial",
+                "periodos_escolares": ["MANHA"],
+                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+            }
+        ]
+
+    def test_alteracoes_autorizadas_lanche_emergencial_sem_recreio_escola_nao_participante_retorna_todos(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        """Quando há um recreio mas a escola NÃO é participante (ou liberar_medicao=False),
+        todos os dias emergenciais devem ser retornados normalmente."""
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        # Recreio existe mas a escola não é participante com liberar_medicao=True
+        baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 2),
+            data_fim=datetime.date(2025, 2, 3),
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        dias_retornados = [r["dia"] for r in response.json()["results"]]
+        assert dias_retornados == ["01", "02", "03"]
+
 
 @pytest.mark.usefixtures("client_autenticado_vinculo_escola_cemei", "escola_cemei")
 @freeze_time("2025-02-05")
@@ -1180,6 +1267,57 @@ class TestEndpointAlteracoesAutorizadasCEMEI:
         assert response.json()["results"] == [
             {
                 "dia": "02",
+                "numero_alunos": 0,
+                "inclusao_id_externo": "C76CF",
+                "motivo": "Lanche Emergencial",
+                "periodos_escolares": ["MANHA"],
+                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+            }
+        ]
+
+    def test_alteracoes_autorizadas_lanche_emergencial_cemei_sem_recreio_exclui_datas_no_recreio(
+        self,
+        client_autenticado_vinculo_escola_cemei,
+        escola_cemei,
+    ):
+        """Sem recreio_nas_ferias na requisição, dias dentro do período de recreio
+        da escola CEMEI NÃO devem ser retornados; apenas os dias fora do recreio."""
+        client, usuario = client_autenticado_vinculo_escola_cemei
+        self.setup_solicitacoes(
+            escola_cemei,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        # Recreio cobre os dias 02 e 03 → dia 01 deve ser retornado
+        recreio = baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 2),
+            data_fim=datetime.date(2025, 2, 3),
+        )
+        baker.make(
+            "RecreioNasFeriasUnidadeParticipante",
+            recreio_nas_ferias=recreio,
+            unidade_educacional=escola_cemei,
+            lote=escola_cemei.lote,
+            liberar_medicao=True,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&nome_periodo_escolar=Infantil+MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": "01",
                 "numero_alunos": 0,
                 "inclusao_id_externo": "C76CF",
                 "motivo": "Lanche Emergencial",
