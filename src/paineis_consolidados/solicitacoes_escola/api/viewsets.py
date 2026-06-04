@@ -741,6 +741,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         return_dict,
         recreio_data_inicio=None,
         recreio_data_fim=None,
+        periodos_recreio_excluir=None,
     ):
         """Monta o retorno das alteracoes classificadas como lanche emergencial.
 
@@ -775,6 +776,12 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 data__gte=recreio_data_inicio,
                 data__lte=recreio_data_fim,
             )
+        elif periodos_recreio_excluir:
+            for data_inicio, data_fim in periodos_recreio_excluir:
+                datas_intervalo = datas_intervalo.exclude(
+                    data__gte=data_inicio,
+                    data__lte=data_fim,
+                )
         for data_evento in datas_intervalo:
             return_dict.append(
                 {
@@ -855,6 +862,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         recreio_nas_ferias = request.query_params.get("recreio_nas_ferias")
         recreio_data_inicio = None
         recreio_data_fim = None
+        periodos_recreio_excluir = None
 
         if eh_lanche_emergencial == "true" and recreio_nas_ferias:
             unidade_recreio = self._get_recreio_nas_ferias_unidade(
@@ -867,6 +875,10 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
             recreio_data_inicio = unidade_recreio.recreio_nas_ferias.data_inicio
             recreio_data_fim = unidade_recreio.recreio_nas_ferias.data_fim
+        elif eh_lanche_emergencial == "true":
+            periodos_recreio_excluir = list(
+                self._get_periodos_recreio_nas_ferias_unidade(escola_uuid)
+            )
 
         query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
@@ -892,6 +904,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 return_dict,
                 recreio_data_inicio,
                 recreio_data_fim,
+                periodos_recreio_excluir,
             )
             return_dict = self.alteracoes_RPL_LPR(
                 eh_lanche_emergencial,
