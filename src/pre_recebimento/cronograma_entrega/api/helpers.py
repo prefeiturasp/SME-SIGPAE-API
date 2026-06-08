@@ -2,9 +2,7 @@ import re
 from collections import Counter
 from datetime import datetime
 from typing import Union
-
 from django.db.models.query import QuerySet
-
 from src.dados_comuns.fluxo_status import (
     CronogramaWorkflow,
 )
@@ -12,6 +10,8 @@ from src.pre_recebimento.cronograma_entrega.models import (
     EtapasDoCronograma,
     ProgramacaoDoRecebimentoDoCronograma,
 )
+from rest_framework.exceptions import ValidationError
+from src.recebimento.models import FichaDeRecebimento
 
 
 def cria_etapas_de_cronograma(etapas, cronograma=None):
@@ -284,3 +284,19 @@ def converter_para_numero(quantidade_str):
         return float(numero_limpo)
     except (ValueError, AttributeError):
         return None
+
+
+def migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas):
+    for indice, etapa_antiga in enumerate(etapas_antigas):
+        try:
+            etapa_nova = etapas_novas[indice]
+        except IndexError:
+            raise ValidationError(
+                f"Não foi possível migrar todas as fichas de recebimento. "
+                f"A etapa de índice {indice} não possui correspondente nas novas etapas."
+            )
+        FichaDeRecebimento.objects.filter(etapa=etapa_antiga).update(
+            etapa=etapa_nova
+        )
+        etapa_antiga.cronograma = None
+        etapa_antiga.save(update_fields=["cronograma"])
