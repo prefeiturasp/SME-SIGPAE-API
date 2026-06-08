@@ -156,7 +156,6 @@ class SolicitacaoAlteracaoCronogramaSerializer(serializers.ModelSerializer):
 
     def get_programa_leve_leite(self, obj):
         try:
-            print(obj.cronograma.ficha_tecnica)
             return obj.cronograma.ficha_tecnica.programa == "LEVE_LEITE"
         except AttributeError:
             return False
