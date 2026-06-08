@@ -448,6 +448,9 @@
     &:last-child {
       flex: 0 0 36%;
     }
+    &:only-child {
+      flex: 0 0 60%;
+    }
   }
 
   .tabela-dieta-participantes-cei {
