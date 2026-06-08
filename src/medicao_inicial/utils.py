@@ -242,9 +242,7 @@ def build_dict_relacao_categorias_e_campos_cei(medicao):
     CATEGORIA = 0
     FAIXA = 1
 
-    print("build_dict_relacao_categorias_e_campos_cei")
     lista_categorias_campos = get_lista_categorias_campos_cei(medicao)
-    print(lista_categorias_campos)
     dict_categorias_campos = {}
     for categoria_campo in lista_categorias_campos:
         if categoria_campo[CATEGORIA] not in dict_categorias_campos.keys():
@@ -1181,9 +1179,7 @@ def build_headers_tabelas_cei(solicitacao):
     tabelas = [create_new_table()]
     indice_atual = 0
     cont_faixas = 1
-    print("build_headers_tabelas_cei")
     for medicao in get_medicoes_ordenadas(solicitacao, ORDEM_PERIODOS_GRUPOS_CEI):
-        print("build_headers_tabelas_cei")
         dict_categorias_campos = build_dict_relacao_categorias_e_campos_cei(medicao)
         for categoria, faixas in dict_categorias_campos.items():
             nome_periodo = medicao.periodo_escolar.nome
@@ -1213,8 +1209,6 @@ def build_headers_tabelas_cei(solicitacao):
                         dict_categorias_campos,
                     )
 
-    print("build_headers_tabelas_cei")
-    print(tabelas)
     get_ordem_grupos_cei(tabelas, ORDEM_PERIODOS_GRUPOS_CEI)
 
     return tabelas
@@ -4421,11 +4415,79 @@ def build_valores_campos(solicitacao, tabela):  # noqa C901
     return valores_campos
 
 
+def _calcular_pgto_colaboradores(principal, repeticao, participantes):
+    return min(int(principal) + int(repeticao), int(participantes))
+
+
+def _calcular_pgto_refeicao_sobremesa(medicao_colaboradores, dias):
+    def get(dia_str, nome_campo):
+        v = (
+            medicao_colaboradores.valores_medicao
+            .filter(dia=dia_str, nome_campo=nome_campo, faixa_etaria=None)
+            .values_list("valor", flat=True)
+            .first()
+            or "0"
+        )
+        return int(v) if str(v).isdigit() else 0
+
+    total_ref, total_sob = 0, 0
+    for d in dias:
+        participantes = get(d, "participantes")
+        total_ref += _calcular_pgto_colaboradores(get(d, "refeicao"), get(d, "repeticao_refeicao"), participantes)
+        total_sob += _calcular_pgto_colaboradores(get(d, "sobremesa"), get(d, "repeticao_sobremesa"), participantes)
+
+    return total_ref, total_sob
+
+
+def _build_linhas_colab_somatorio(medicao_colaboradores):
+    campos_colab = list(
+        medicao_colaboradores.valores_medicao
+        .filter(faixa_etaria=None)
+        .exclude(nome_campo__in=["observacoes", "participantes"])
+        .values_list("nome_campo", flat=True)
+        .distinct()
+    )
+    dias = list(
+        medicao_colaboradores.valores_medicao
+        .filter(faixa_etaria=None, nome_campo="participantes")
+        .values_list("dia", flat=True)
+        .distinct()
+    )
+
+    campos_repeticao = ["refeicao", "repeticao_refeicao", "sobremesa", "repeticao_sobremesa"]
+    linhas = []
+
+    for campo in [c for c in campos_colab if c not in campos_repeticao]:
+        total = sum(
+            int(v) for v in medicao_colaboradores.valores_medicao.filter(
+                nome_campo=campo, faixa_etaria=None
+            ).values_list("valor", flat=True) if v.isdigit()
+        )
+        linhas.append([NOMES_CAMPOS.get(campo, campo), str(total)])
+
+    total_ref, total_sob = _calcular_pgto_refeicao_sobremesa(medicao_colaboradores, dias)
+
+    if any(c in ["refeicao", "repeticao_refeicao"] for c in campos_colab):
+        linhas.append([NOMES_CAMPOS.get("refeicao", "Refeição"), str(total_ref)])
+
+    if any(c in ["sobremesa", "repeticao_sobremesa"] for c in campos_colab):
+        linhas.append([NOMES_CAMPOS.get("sobremesa", "Sobremesa"), str(total_sob)])
+
+    return linhas
+
+
 def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
     medicao_recreio = solicitacao.medicoes.get(grupo__nome="Recreio nas Férias")
-    medicao_colaboradores = solicitacao.medicoes.filter(
-        grupo__nome="Colaboradores"
-    ).first()
+    medicao_colaboradores = solicitacao.medicoes.filter(grupo__nome="Colaboradores").first()
+
+    DIETAS_FIXAS = ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
+    categorias_dieta_db = list(
+        medicao_recreio.valores_medicao
+        .exclude(categoria_medicao__nome="ALIMENTAÇÃO")
+        .values_list("categoria_medicao__nome", flat=True)
+        .distinct()
+    )
+    categorias_dieta = DIETAS_FIXAS + [c for c in categorias_dieta_db if c not in DIETAS_FIXAS]
 
     faixas_etarias_objs = FaixaEtaria.objects.filter(
         id__in=medicao_recreio.valores_medicao
@@ -4435,15 +4497,6 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
         ativo=True,
     ).order_by("fim")
 
-    DIETAS_FIXAS = ["DIETA TIPO A", "DIETA TIPO B"]
-    categorias_dieta_db = list(
-        medicao_recreio.valores_medicao
-        .exclude(categoria_medicao__nome="ALIMENTAÇÃO")
-        .values_list("categoria_medicao__nome", flat=True)
-        .distinct()
-    )
-    categorias_dieta = DIETAS_FIXAS + [c for c in categorias_dieta_db if c not in DIETAS_FIXAS]
-
     linhas_tabela1 = []
     totais_tabela1 = {"alimentacao": 0, "total": 0}
     totais_dietas = {cat: 0 for cat in categorias_dieta}
@@ -4451,19 +4504,14 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
     for fe in faixas_etarias_objs:
         soma_alimentacao = sum(
             int(v) for v in medicao_recreio.valores_medicao.filter(
-                faixa_etaria=fe,
-                nome_campo="frequencia",
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                faixa_etaria=fe, nome_campo="frequencia", categoria_medicao__nome="ALIMENTAÇÃO",
             ).values_list("valor", flat=True) if v.isdigit()
         )
-
         soma_dietas = {}
         for cat in categorias_dieta:
             soma = sum(
                 int(v) for v in medicao_recreio.valores_medicao.filter(
-                    faixa_etaria=fe,
-                    nome_campo="frequencia",
-                    categoria_medicao__nome=cat,
+                    faixa_etaria=fe, nome_campo="frequencia", categoria_medicao__nome=cat,
                 ).values_list("valor", flat=True) if v.isdigit()
             )
             soma_dietas[cat] = soma
@@ -4472,86 +4520,23 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
         total_faixa = soma_alimentacao + sum(soma_dietas.values())
         totais_tabela1["alimentacao"] += soma_alimentacao
         totais_tabela1["total"] += total_faixa
-
-        linha = [str(fe), str(soma_alimentacao)]
-        linha += [str(soma_dietas[cat]) for cat in categorias_dieta]
-        linha += [str(total_faixa)]
+        linha = [str(fe), str(soma_alimentacao)] + [str(soma_dietas[cat]) for cat in categorias_dieta] + [str(total_faixa)]
         linhas_tabela1.append(linha)
 
-    linha_total = ["Total", str(totais_tabela1["alimentacao"])]
-    linha_total += [str(totais_dietas[cat]) for cat in categorias_dieta]
-    linha_total += [str(totais_tabela1["total"])]
+    linha_total = ["Total", str(totais_tabela1["alimentacao"])] + [str(totais_dietas[cat]) for cat in categorias_dieta] + [str(totais_tabela1["total"])]
     linhas_tabela1.append(linha_total)
 
     tabela1 = {
-        "header": ["Faixa Etária", "Alimentação"]
-        + categorias_dieta
-        + ["Total por Faixa Etária"],
+        "header": ["Faixa Etária", "Alimentação"] + categorias_dieta + ["Total por Faixa Etária"],
         "valores_campos": linhas_tabela1,
         "legenda": f"*A tabela acima representa a soma das alimentações lançadas para os alunos em Recreio nas Férias - {solicitacao.mes}/{solicitacao.ano}",
     }
 
     tabela_colaboradores = None
     if medicao_colaboradores:
-        campos_colab = list(
-            medicao_colaboradores.valores_medicao
-            .filter(faixa_etaria=None)
-            .exclude(nome_campo__in=["observacoes", "participantes"])
-            .values_list("nome_campo", flat=True)
-            .distinct()
-        )
-
-        tem_refeicao = any(c in ["refeicao", "repeticao_refeicao"] for c in campos_colab)
-        tem_sobremesa = any(c in ["sobremesa", "repeticao_sobremesa"] for c in campos_colab)
-
-        dias = list(
-            medicao_colaboradores.valores_medicao
-            .filter(faixa_etaria=None, nome_campo="participantes")
-            .values_list("dia", flat=True)
-            .distinct()
-        )
-
-        def get_valor(dia_str, nome_campo):
-            v = (
-                medicao_colaboradores.valores_medicao
-                .filter(dia=dia_str, nome_campo=nome_campo, faixa_etaria=None)
-                .values_list("valor", flat=True)
-                .first()
-                or "0"
-            )
-            return int(v) if str(v).isdigit() else 0
-
-        linhas_colab = []
-
-        campos_extras = [
-            c for c in campos_colab
-            if c not in ["refeicao", "repeticao_refeicao", "sobremesa", "repeticao_sobremesa"]
-        ]
-        for campo in campos_extras:
-            total = sum(
-                int(v) for v in medicao_colaboradores.valores_medicao.filter(
-                    nome_campo=campo, faixa_etaria=None
-                ).values_list("valor", flat=True) if v.isdigit()
-            )
-            linhas_colab.append([NOMES_CAMPOS.get(campo, campo), str(total)])
-
-        if tem_refeicao:
-            total_pgto_ref = sum(
-                min(get_valor(d, "refeicao") + get_valor(d, "repeticao_refeicao"), get_valor(d, "participantes"))
-                for d in dias
-            )
-            linhas_colab.append([NOMES_CAMPOS.get("refeicao", "Refeição"), str(total_pgto_ref)])
-
-        if tem_sobremesa:
-            total_pgto_sob = sum(
-                min(get_valor(d, "sobremesa") + get_valor(d, "repeticao_sobremesa"), get_valor(d, "participantes"))
-                for d in dias
-            )
-            linhas_colab.append([NOMES_CAMPOS.get("sobremesa", "Sobremesa"), str(total_pgto_sob)])
-
         tabela_colaboradores = {
             "header": ["Tipos de Alimentação", "Total de Alimentações para Colaboradores"],
-            "valores_campos": linhas_colab,
+            "valores_campos": _build_linhas_colab_somatorio(medicao_colaboradores),
             "legenda": f"*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - {solicitacao.mes}/{solicitacao.ano}",
         }
 
