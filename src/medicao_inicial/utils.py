@@ -4435,12 +4435,14 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
         ativo=True,
     ).order_by("fim")
 
-    categorias_dieta = list(
+    DIETAS_FIXAS = ["DIETA TIPO A", "DIETA TIPO B"]
+    categorias_dieta_db = list(
         medicao_recreio.valores_medicao
         .exclude(categoria_medicao__nome="ALIMENTAÇÃO")
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
     )
+    categorias_dieta = DIETAS_FIXAS + [c for c in categorias_dieta_db if c not in DIETAS_FIXAS]
 
     linhas_tabela1 = []
     totais_tabela1 = {"alimentacao": 0, "total": 0}
@@ -4499,15 +4501,53 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
             .distinct()
         )
 
+        tem_refeicao = any(c in ["refeicao", "repeticao_refeicao"] for c in campos_colab)
+        tem_sobremesa = any(c in ["sobremesa", "repeticao_sobremesa"] for c in campos_colab)
+
+        dias = list(
+            medicao_colaboradores.valores_medicao
+            .filter(faixa_etaria=None, nome_campo="participantes")
+            .values_list("dia", flat=True)
+            .distinct()
+        )
+
+        def get_valor(dia_str, nome_campo):
+            v = (
+                medicao_colaboradores.valores_medicao
+                .filter(dia=dia_str, nome_campo=nome_campo, faixa_etaria=None)
+                .values_list("valor", flat=True)
+                .first()
+                or "0"
+            )
+            return int(v) if str(v).isdigit() else 0
+
         linhas_colab = []
-        for campo in campos_colab:
+
+        campos_extras = [
+            c for c in campos_colab
+            if c not in ["refeicao", "repeticao_refeicao", "sobremesa", "repeticao_sobremesa"]
+        ]
+        for campo in campos_extras:
             total = sum(
                 int(v) for v in medicao_colaboradores.valores_medicao.filter(
                     nome_campo=campo, faixa_etaria=None
                 ).values_list("valor", flat=True) if v.isdigit()
             )
-            nome_normalizado = NOMES_CAMPOS.get(campo, campo)
-            linhas_colab.append([nome_normalizado, str(total)])
+            linhas_colab.append([NOMES_CAMPOS.get(campo, campo), str(total)])
+
+        if tem_refeicao:
+            total_pgto_ref = sum(
+                min(get_valor(d, "refeicao") + get_valor(d, "repeticao_refeicao"), get_valor(d, "participantes"))
+                for d in dias
+            )
+            linhas_colab.append([NOMES_CAMPOS.get("refeicao", "Refeição"), str(total_pgto_ref)])
+
+        if tem_sobremesa:
+            total_pgto_sob = sum(
+                min(get_valor(d, "sobremesa") + get_valor(d, "repeticao_sobremesa"), get_valor(d, "participantes"))
+                for d in dias
+            )
+            linhas_colab.append([NOMES_CAMPOS.get("sobremesa", "Sobremesa"), str(total_pgto_sob)])
 
         tabela_colaboradores = {
             "header": ["Tipos de Alimentação", "Total de Alimentações para Colaboradores"],
