@@ -4443,7 +4443,7 @@ def _build_linhas_colab_somatorio(medicao_colaboradores):
     campos_colab = list(
         medicao_colaboradores.valores_medicao
         .filter(faixa_etaria=None)
-        .exclude(nome_campo__in=["observacoes", "participantes"])
+        .exclude(nome_campo__in=["observacoes", "participantes", "frequencia"])
         .values_list("nome_campo", flat=True)
         .distinct()
     )
@@ -4480,14 +4480,12 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
     medicao_recreio = solicitacao.medicoes.get(grupo__nome="Recreio nas Férias")
     medicao_colaboradores = solicitacao.medicoes.filter(grupo__nome="Colaboradores").first()
 
-    DIETAS_FIXAS = ["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
-    categorias_dieta_db = list(
+    categorias_dieta = list(
         medicao_recreio.valores_medicao
         .exclude(categoria_medicao__nome="ALIMENTAÇÃO")
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
     )
-    categorias_dieta = DIETAS_FIXAS + [c for c in categorias_dieta_db if c not in DIETAS_FIXAS]
 
     faixas_etarias_objs = FaixaEtaria.objects.filter(
         id__in=medicao_recreio.valores_medicao
