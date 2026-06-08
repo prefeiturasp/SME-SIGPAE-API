@@ -125,14 +125,14 @@
       <table class="tabela-dieta-participantes-cei">
         <thead class="head-tabelas-somatorio">
           <tr class="texto-branco">
-            <th class="col-1">Faixa Etária</th>
-            <th class="col-1">Alimentação</th>
+            <th class="col-1 uppercase">Faixa Etária</th>
+            <th class="col-1 uppercase">Alimentação</th>
             {% for dieta in tabelas_somatorios.tabela_alimentacao.header %}
               {% if dieta != "Faixa Etária" and dieta != "Alimentação" and dieta != "Total por Faixa Etária" %}
                 <th class="col-1">{{ dieta }}</th>
               {% endif %}
             {% endfor %}
-            <th class="col-1">Total por Faixa Etária</th>
+            <th class="col-1 uppercase">Total por Faixa Etária</th>
           </tr>
         </thead>
         <tbody class="body-tabelas-somatorio">
@@ -160,7 +160,7 @@
         <thead class="head-tabelas-somatorio">
           <tr class="texto-branco">
             {% for col in tabelas_somatorios.tabela_colaboradores.header %}
-              <th>{{ col }}</th>
+              <th class="uppercase">{{ col }}</th>
             {% endfor %}
           </tr>
         </thead>
