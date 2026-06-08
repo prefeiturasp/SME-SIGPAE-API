@@ -442,7 +442,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
-        periodos_escolares = escola.periodos_escolares(ano=instance.ano).values_list(
+        periodos_escolares = escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list(
             "nome", flat=True
         )
         for dia in range(1, quantidade_dias_mes + 1):
@@ -513,7 +513,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             1
         ]
         periodos_escolares = list(
-            escola.periodos_escolares(ano=instance.ano).values_list("nome", flat=True)
+            escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list("nome", flat=True)
         )
         if instance.ue_possui_alunos_periodo_parcial:
             periodos_escolares.append("PARCIAL")
@@ -612,7 +612,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
-        periodos_escolares = escola.periodos_escolares(ano=instance.ano).values_list(
+        periodos_escolares = escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list(
             "nome", flat=True
         )
         for dia in range(1, quantidade_dias_mes + 1):
@@ -751,7 +751,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             1
         ]
         periodos_escolares = list(
-            escola.periodos_escolares(ano=instance.ano).values_list("nome", flat=True)
+            escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list("nome", flat=True)
         )
         if instance.ue_possui_alunos_periodo_parcial:
             periodos_escolares.append("PARCIAL")
