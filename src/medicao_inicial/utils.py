@@ -1355,12 +1355,8 @@ def adiciona_campo_total_faixa_etaria(tabelas, nome_periodo, indice_atual):
 
 
 def get_medicoes_ordenadas(solicitacao, ordem_campos):
-    GRUPOS_ESPECIAIS_CEI = {"Recreio nas Férias", "Colaboradores"}
     return sorted(
-        [
-            m for m in solicitacao.medicoes.all()
-            if m.nome_periodo_grupo not in GRUPOS_ESPECIAIS_CEI
-        ],
+        solicitacao.medicoes.all(),
         key=lambda k: ordem_campos[k.nome_periodo_grupo],
     )
 
@@ -4008,14 +4004,27 @@ def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes,
         ]
     ]
 
+    MAPA_TIPO_DIETA = {
+        "TIPO A": "DIETA ESPECIAL - TIPO A",
+        "ENTERAL": "ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "TIPO B": "DIETA ESPECIAL - TIPO B",
+    }
+
+    categorias_existentes = set(
+        medicao_recreio.valores_medicao
+        .exclude(categoria_medicao__nome="ALIMENTAÇÃO")
+        .values_list("categoria_medicao__nome", flat=True)
+        .distinct()
+    ) if medicao_recreio else set()
+
+    header_dietas = [
+        nome_categoria
+        for nome_categoria in MAPA_TIPO_DIETA.values()
+        if nome_categoria in categorias_existentes
+    ]
+
     tabela_participantes = {
-        "header": [
-            "TIPOS ALIMENTAÇÃO",
-            "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
-            "DIETA TIPO A",
-            "DIETA ENTERAL / REST. DE AMINOÁCIDOS",
-            "DIETA TIPO B",
-        ],
+        "header": ["TIPOS ALIMENTAÇÃO", "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES"] + header_dietas,
         "body": _build_body_tabela_participantes(medicao_recreio, campos_alimentacao, dict_total_refeicoes, dict_total_sobremesas),
     }
     tabela_colaboradores = {
@@ -4024,7 +4033,6 @@ def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes,
     }
 
     return tabela_participantes, tabela_colaboradores
-
 
 def adiciona_nomes_header(
     primeira_tabela_somatorio, segunda_tabela_somatorio, categoria, nome
