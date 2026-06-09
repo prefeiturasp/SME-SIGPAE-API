@@ -4034,6 +4034,7 @@ def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes,
 
     return tabela_participantes, tabela_colaboradores
 
+
 def adiciona_nomes_header(
     primeira_tabela_somatorio, segunda_tabela_somatorio, categoria, nome
 ):
