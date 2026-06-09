@@ -310,7 +310,6 @@ def build_xlsx(
     unidades_educacionais,
     instituicao,
 ):
-    print(queryset)
     ALTURA_COLUNA_30 = 30
     ALTURA_COLUNA_50 = 50
 
@@ -479,7 +478,7 @@ def gera_xls_relatorio_solicitacoes_alimentacao_async(
             many=True,
         )
         output = io.BytesIO()
-        print('DATA: ', serializer.data)
+
         build_xlsx(
             output,
             serializer,
