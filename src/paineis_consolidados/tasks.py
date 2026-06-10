@@ -1,9 +1,9 @@
 import datetime
 import io
 import logging
-import re
 from pathlib import Path
 
+from bs4 import BeautifulSoup
 import numpy as np
 from celery import shared_task
 from django.template.loader import render_to_string
@@ -123,17 +123,31 @@ def cria_nova_linha(df, index, model_obj, qt_periodo, observacoes):
     return nova_linha
 
 
+def _obter_observacoes(observacoes_html):
+    soup = BeautifulSoup(observacoes_html or "", "html.parser")
+
+    observacoes = [
+        p.get_text(" ", strip=True)
+        for p in soup.find_all("p")
+        if p.get_text(strip=True)
+    ]
+
+    if not observacoes:
+        texto = soup.get_text(" ", strip=True)
+        observacoes = [texto] if texto else []
+
+    return observacoes
+
+
 def novas_linhas_inc_continua_e_kit_lanche(df, queryset, instituicao):
     novas_linhas, lista_uuids = [], []
     for index, solicitacao in enumerate(queryset):
         model_obj = solicitacao.get_raw_model.objects.get(uuid=solicitacao.uuid)
         if solicitacao.tipo_doc == "INC_ALIMENTA_CONTINUA":
-            observacoes = re.sub(
-                r"<p>|</p>", "", re.sub(r"</p>,\s*<p>", "::", model_obj.observacoes)
-            ).split("::")
+            observacoes = _obter_observacoes(model_obj.observacoes)
             for idx, qt_periodo in enumerate(model_obj.quantidades_periodo.all()):
                 obs_periodo = (
-                    observacoes[idx] if observacoes and len(observacoes) > idx else ""
+                    observacoes[idx] if len(observacoes) > idx else ""
                 )
                 nova_linha = cria_nova_linha(
                     df, index, model_obj, qt_periodo, obs_periodo
@@ -464,6 +478,7 @@ def gera_xls_relatorio_solicitacoes_alimentacao_async(
             many=True,
         )
         output = io.BytesIO()
+
         build_xlsx(
             output,
             serializer,

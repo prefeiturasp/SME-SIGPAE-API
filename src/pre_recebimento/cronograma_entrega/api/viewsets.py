@@ -938,13 +938,6 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
             )
             if aprovado is True:
                 solicitacao_cronograma.dilog_aprova(user=usuario)
-                cronograma = solicitacao_cronograma.cronograma
-                cronograma.etapas.set(solicitacao_cronograma.etapas_novas.all())
-                cronograma.programacoes_de_recebimento.all().delete()
-                cronograma.programacoes_de_recebimento.set(
-                    solicitacao_cronograma.programacoes_novas.all()
-                )
-                cronograma.save()
             elif aprovado is False:
                 justificativa = request.data.get("justificativa_dilog")
                 solicitacao_cronograma.dilog_reprova(

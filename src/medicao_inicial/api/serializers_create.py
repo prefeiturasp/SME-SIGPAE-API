@@ -442,7 +442,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
-        periodos_escolares = escola.periodos_escolares(ano=instance.ano).values_list(
+        periodos_escolares = escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list(
             "nome", flat=True
         )
         for dia in range(1, quantidade_dias_mes + 1):
@@ -513,7 +513,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             1
         ]
         periodos_escolares = list(
-            escola.periodos_escolares(ano=instance.ano).values_list("nome", flat=True)
+            escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list("nome", flat=True)
         )
         if instance.ue_possui_alunos_periodo_parcial:
             periodos_escolares.append("PARCIAL")
@@ -612,7 +612,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
-        periodos_escolares = escola.periodos_escolares(ano=instance.ano).values_list(
+        periodos_escolares = escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list(
             "nome", flat=True
         )
         for dia in range(1, quantidade_dias_mes + 1):
@@ -751,7 +751,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             1
         ]
         periodos_escolares = list(
-            escola.periodos_escolares(ano=instance.ano).values_list("nome", flat=True)
+            escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list("nome", flat=True)
         )
         if instance.ue_possui_alunos_periodo_parcial:
             periodos_escolares.append("PARCIAL")
@@ -1254,6 +1254,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance, lista_erros
         )
         lista_erros = validate_lancamento_dietas_medicao_recreio(instance, lista_erros)
+        lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 
@@ -1285,6 +1286,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_dietas_medicao_recreio_cei(
             instance, lista_erros
         )
+        lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 
@@ -1315,6 +1317,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_dietas_medicao_recreio_cemei(
             instance, lista_erros
         )
+        lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
 

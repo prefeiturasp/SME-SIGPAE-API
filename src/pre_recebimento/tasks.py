@@ -1,3 +1,4 @@
+import datetime
 import io
 import logging
 from datetime import date
@@ -8,6 +9,8 @@ from django.template.loader import render_to_string
 from workalendar.america import BrazilSaoPauloCity
 
 from src.dados_comuns.constants import TRADUCOES_FERIADOS
+from src.dados_comuns.services import PartesInteressadasService
+from src.dados_comuns.tasks import envia_email_em_massa_task
 from src.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
@@ -23,6 +26,7 @@ from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
 )
 from src.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
+    EtapasDoCronograma,
     InterrupcaoProgramadaEntrega,
 )
 from src.relatorios.utils import html_to_pdf_file
@@ -574,3 +578,75 @@ def importa_feriados_para_interrupcoes_programadas():
         f"x-x-x-x Finaliza importação de feriados. "
         f"Criados: {feriados_criados}, Ignorados: {feriados_ignorados} x-x-x-x"
     )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+)
+def avisa_empresa_sobre_etapa_programada_proxima():
+    data_alvo = datetime.date.today() + datetime.timedelta(days=3)
+
+    etapas = EtapasDoCronograma.objects.filter(
+        data_programada=data_alvo, cronograma__status="ASSINADO_CODAE"
+    ).select_related("cronograma__empresa")
+
+    for etapa in etapas:
+        cronograma = etapa.cronograma
+
+        html = render_to_string(
+            template_name="logistica_avisa_sobre_docs_recebimento.html",
+            context={
+                "titulo": "Lembrete – Cadastro de Laudo",
+                "etapa": etapa.etapa,
+                "numero_cronograma": cronograma.numero,
+                "nome_produto": cronograma.ficha_tecnica.produto,
+            },
+        )
+
+        assunto_str = f"Lembrete – Cadastro de Laudo para a Etapa {etapa.etapa} do Cronograma nº {etapa.cronograma.numero}"
+
+        envia_email_em_massa_task.delay(
+            assunto=assunto_str,
+            emails=PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
+                cronograma, True
+            ),
+            corpo="",
+            html=html,
+        )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+)
+def avisa_empresa_sobre_documentos_pagamento():
+    data_alvo = datetime.date.today() + datetime.timedelta(days=-1)
+
+    etapas = EtapasDoCronograma.objects.filter(
+        data_programada=data_alvo, cronograma__status="ASSINADO_CODAE"
+    ).select_related("cronograma__empresa")
+
+    for etapa in etapas:
+        cronograma = etapa.cronograma
+
+        html = render_to_string(
+            template_name="logistica_avisa_sobre_docs_pagamento.html",
+            context={
+                "titulo": "Lembrete – Cadastro de Documentos para Pagamento",
+                "etapa": etapa.etapa,
+                "numero_cronograma": cronograma.numero,
+                "nome_produto": cronograma.ficha_tecnica.produto,
+            },
+        )
+
+        assunto_str = f"Lembrete – Cadastro de Documentos para Pagamento para a Etapa {etapa.etapa} do Cronograma nº {etapa.cronograma.numero}"
+
+        envia_email_em_massa_task.delay(
+            assunto=assunto_str,
+            emails=PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
+                cronograma, True
+            ),
+            corpo="",
+            html=html,
+        )

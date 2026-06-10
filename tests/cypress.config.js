@@ -17,7 +17,10 @@ module.exports = defineConfig({
 			})
 			return cloudPlugin(on, config)
 		},
-		baseUrl: 'https://qa-sigpae.sme.prefeitura.sp.gov.br/',
+		baseUrl:
+			process.env.CYPRESS_BASE_URL ||
+			process.env.BASE_URL ||
+			'https://qa-sigpae.sme.prefeitura.sp.gov.br/',
 		env: {
 			usuario_coordenador_logistica: process.env.COORDENADOR_LOGISTICA,
 			usuario_coordenador_codae_dilog_logistica:

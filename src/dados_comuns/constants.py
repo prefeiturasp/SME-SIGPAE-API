@@ -321,6 +321,7 @@ ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS = {
     "Recreio nas Férias - de 0 a 3 anos e 11 meses": 2,
     "Recreio nas Férias - 4 a 14 anos": 3,
     "Colaboradores": 4,
+    "Solicitações de Alimentação": 5,
 }
 
 MAX_COLUNAS = 15
