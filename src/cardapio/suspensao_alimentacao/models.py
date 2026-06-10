@@ -22,6 +22,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.utils import patch_docs
 
 
 class MotivoSuspensao(
@@ -249,3 +250,6 @@ class SuspensaoAlimentacaoNoPeriodoEscolar(
     class Meta:
         verbose_name = "Suspensão de alimentação no período"
         verbose_name_plural = "Suspensões de alimentação no período"
+
+
+patch_docs(GrupoSuspensaoAlimentacao)
