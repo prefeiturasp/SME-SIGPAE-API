@@ -3517,6 +3517,8 @@ def validate_medicao_cemei(solicitacao):
         dias_motivos_da_inclusao_cemei__cancelado=False,
     ).order_by("dias_motivos_da_inclusao_cemei__data")
     lista_erros = []
+    lista_erros = validate_lancamento_kit_lanche(solicitacao, lista_erros)
+    lista_erros = validate_lanche_emergencial(solicitacao, lista_erros)
     for medicao in solicitacao.medicoes.all():
         tipo_medicao = medicao.nome_periodo_grupo.upper()
         if tipo_medicao in ["INTEGRAL", "PARCIAL"]:
@@ -3536,8 +3538,7 @@ def validate_medicao_cemei(solicitacao):
                 solicitacao, lista_erros, medicao
             )
         elif tipo_medicao == "SOLICITAÇÕES DE ALIMENTAÇÃO":
-            lista_erros = validate_lancamento_kit_lanche(solicitacao, lista_erros)
-            lista_erros = validate_lanche_emergencial(solicitacao, lista_erros)
+            continue
         else:
             lista_erros = _validate_medicao_emei_cemei(
                 lista_erros,
