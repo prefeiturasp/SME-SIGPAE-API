@@ -93,6 +93,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoInformativoPartindoDaEscola</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch_docs</span>
 
 
 <div class="viewcode-block" id="MotivoSuspensao">
@@ -350,6 +351,8 @@
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Suspensão de alimentação no período&quot;</span>
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Suspensões de alimentação no período&quot;</span></div>
 
+
+<span class="n">patch_docs</span><span class="p">(</span><span class="n">GrupoSuspensaoAlimentacao</span><span class="p">)</span>
 </pre></div>
 
            </div>

@@ -270,7 +270,15 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.escola_cancela">
 <span class="sig-name descname"><span class="pre">escola_cancela</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.escola_cancela" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>A unidade educacional cancela a suspensão de alimentação; ou seja, vai ter aula normal e precisa do fornecimento de alimentação da empresa.</p>
+<p>Necessário informar até 48h úteis previamente à data de suspensão.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_escola_cancela_hook</span></code>) para, após a resposta:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -323,7 +331,17 @@ object the first time, the query is executed.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.informa">
 <span class="sig-name descname"><span class="pre">informa</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.informa" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>A unidade educacional informa à empresa que não haverá expediente no dia de suspensão, não sendo necessária a disponibilização de alimentações para os alunos.</p>
+<p>Único fluxo que não precisa de validação da DRE nem autorização da CODAE, é apenas informativo.</p>
+<p>Mesmo sem precisar de autorização da CODAE, ainda é preciso ser informado 48h úteis antes por questões contratuais.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<dl class="simple">
+<dt>Possui um hook (<code class="docutils literal notranslate"><span class="pre">_informa_hook</span></code>) para, após a resposta:</dt><dd><ul class="simple">
+<li><p>criar uma entrada de log específico para esta ação, utilizando o método <code class="docutils literal notranslate"><span class="pre">salvar_log_transicao</span></code>.</p></li>
+<li><p>enviar e-mail para as partes interessadas notificando sobre a não validação.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -475,7 +493,18 @@ object the first time, the query is executed.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.terceirizada_toma_ciencia">
 <span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
-<dd><p>NoOp function, ignores all arguments.</p>
+<dd><p>Deprecado.</p>
+<p>Este método é herdado de django_xworkflows.</p>
+<p>Antigamente, este método era utilizado para registrar a ciência da empresa terceirizada sobre a solicitação.</p>
+<p>O status final do fluxo era <strong>TERCEIRIZADA_TOMOU_CIENCIA</strong>.</p>
+<dl class="simple">
+<dt>Atualmente:</dt><dd><ul class="simple">
+<li><p>o status final é <strong>CODAE_AUTORIZADO</strong>.</p></li>
+<li><p>o status TERCEIRIZADA_TOMOU_CIENCIA foi deprecado.</p></li>
+<li><p>a empresa toma ciência sem alterar o status da solicitação, através do campo <code class="docutils literal notranslate"><span class="pre">terceirizada_conferiu_gestao</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">

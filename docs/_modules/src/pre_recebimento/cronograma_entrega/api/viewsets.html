@@ -1103,13 +1103,6 @@
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">aprovado</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_aprova</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span>
-                <span class="n">cronograma</span> <span class="o">=</span> <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">cronograma</span>
-                <span class="n">cronograma</span><span class="o">.</span><span class="n">etapas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">etapas_novas</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
-                <span class="n">cronograma</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                <span class="n">cronograma</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-                    <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">programacoes_novas</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-                <span class="p">)</span>
-                <span class="n">cronograma</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
             <span class="k">elif</span> <span class="n">aprovado</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
                 <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa_dilog&quot;</span><span class="p">)</span>
                 <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_reprova</span><span class="p">(</span>
