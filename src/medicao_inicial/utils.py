@@ -2765,17 +2765,13 @@ def get_lista_dias_letivos(solicitacao):
 
     if eh_recreio:
         recreio = solicitacao.recreio_nas_ferias
-        dias = [
+        return [
             get_eh_dia_letivo(dia, solicitacao)
             for dia in range(recreio.data_inicio.day, recreio.data_fim.day + 1)
         ]
-        dias.append(False)  # linha "Total"
-        return dias
 
     _, num_dias = monthrange(int(solicitacao.ano), int(solicitacao.mes))
-    dias = [get_eh_dia_letivo(dia, solicitacao) for dia in range(1, num_dias + 1)]
-    dias.append(False)  # linha "Total"
-    return dias
+    return [get_eh_dia_letivo(dia, solicitacao) for dia in range(1, num_dias + 1)]
 
 
 def popula_tabelas_cei(solicitacao, tabelas):
