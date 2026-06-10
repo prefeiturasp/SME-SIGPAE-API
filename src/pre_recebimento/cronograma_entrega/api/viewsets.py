@@ -947,7 +947,8 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
                 raise ValidationError("Parametro aprovado deve ser true ou false.")
             solicitacao_cronograma.save()
             solicitacao_cronograma.cronograma.finaliza_solicitacao_alteracao(
-                user=usuario
+                user=usuario,
+                justificativa=str(solicitacao_cronograma.uuid),
             )
             serializer = SolicitacaoAlteracaoCronogramaSerializer(
                 solicitacao_cronograma
