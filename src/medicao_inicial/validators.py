@@ -2283,6 +2283,64 @@ def _filtra_dias_kit_lanche_por_recreio(solicitacao, dias_kit_lanche):
     return dias_filtrados
 
 
+def _filtra_dias_lanche_emergencial_por_recreio(solicitacao, dias_lanche_emergencial):
+    """Filtra os dias de lanche emergencial conforme contexto de recreio nas ferias.
+
+    Regras:
+        - Quando a solicitacao e de recreio, considera apenas dias dentro
+          do intervalo do recreio da solicitacao.
+        - Quando nao e recreio, mas a escola participa de recreio no mes com
+          ``liberar_medicao=True``, considera apenas dias fora desses periodos.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitacao em validacao.
+        dias_lanche_emergencial (list[str]): Dias autorizados para lanche
+            emergencial no formato ``DD``.
+
+    Returns:
+        list[str]: Dias filtrados que devem ser validados no lancamento.
+    """
+    if not dias_lanche_emergencial:
+        return dias_lanche_emergencial
+
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+    inicio_mes = datetime.date(ano, mes, 1)
+    fim_mes = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+    recreio = getattr(solicitacao, "recreio_nas_ferias", None)
+
+    if recreio:
+        periodos_recreio = [(recreio.data_inicio, recreio.data_fim)]
+    else:
+        participacoes = RecreioNasFeriasUnidadeParticipante.objects.filter(
+            unidade_educacional=solicitacao.escola,
+            liberar_medicao=True,
+            recreio_nas_ferias__data_inicio__lte=fim_mes,
+            recreio_nas_ferias__data_fim__gte=inicio_mes,
+        ).values_list(
+            "recreio_nas_ferias__data_inicio",
+            "recreio_nas_ferias__data_fim",
+        )
+        periodos_recreio = list(set(participacoes))
+
+    if not periodos_recreio:
+        return dias_lanche_emergencial
+
+    dias_filtrados = []
+
+    for dia in dias_lanche_emergencial:
+        data_dia = datetime.date(ano, mes, int(dia))
+        dia_no_recreio = _dia_esta_no_recreio(data_dia, periodos_recreio)
+
+        deve_incluir = dia_no_recreio if recreio else not dia_no_recreio
+
+        if deve_incluir:
+            dias_filtrados.append(dia)
+
+    return dias_filtrados
+
+
 def formatar_query_set_alteracao(query_set, mes, ano):
     datas = []
     for alteracao_alimentacao in query_set:
@@ -2377,6 +2435,18 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
 
 
 def validate_lanche_emergencial(solicitacao, lista_erros):
+    """Valida se os lanches emergenciais autorizados possuem lancamento em ``ValorMedicao``.
+
+    A validacao considera regras de recreio nas ferias para decidir quais dias
+    devem ser conferidos (dentro ou fora do periodo de recreio).
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitacao em processo de finalizacao.
+        lista_erros (list[dict]): Lista acumulada de erros de validacao.
+
+    Returns:
+        list[dict]: Lista de erros sem duplicidades.
+    """
     escola = solicitacao.escola
     mes = solicitacao.mes
     ano = solicitacao.ano
@@ -2392,6 +2462,9 @@ def validate_lanche_emergencial(solicitacao, lista_erros):
     }
     dias_lanche_emergencial = get_lista_dias_solicitacoes(params, escola)
     dias_lanche_emergencial = list(set(dias_lanche_emergencial))
+    dias_lanche_emergencial = _filtra_dias_lanche_emergencial_por_recreio(
+        solicitacao, dias_lanche_emergencial
+    )
 
     valores_da_medicao = (
         ValorMedicao.objects.filter(
