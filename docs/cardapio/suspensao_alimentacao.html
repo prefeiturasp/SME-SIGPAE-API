@@ -65,7 +65,6 @@
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.suspensao_alimentacao.models.MotivoSuspensao"><code class="docutils literal notranslate"><span class="pre">MotivoSuspensao</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacao</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacao</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoNoPeriodoEscolar</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.suspensao_alimentacao.api">api</a><ul>
@@ -244,12 +243,32 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.data">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna a primeira data da suspensão ordenada cronologicamente.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data da primeira suspensão.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>datetime.date</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.datas">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">datas</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.datas" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna as datas de suspensão formatadas para exibição em relatórios.</p>
+<p>As datas são ordenadas cronologicamente e exibidas no formato
+<code class="docutils literal notranslate"><span class="pre">dd/mm/YYYY</span></code>, separadas por vírgula.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String com as datas formatadas e separadas por <code class="docutils literal notranslate"><span class="pre">&quot;,</span> <span class="pre">&quot;</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.desta_semana">
@@ -296,12 +315,38 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.existe_dia_cancelado">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">existe_dia_cancelado</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.existe_dia_cancelado" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Verifica se a solicitação possui algum dia de suspensão cancelado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">True</span></code> se houver ao menos uma suspensão cancelada,</dt><dd><p><code class="docutils literal notranslate"><span class="pre">False</span></code> caso contrário.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.get_informados">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_informados</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#GrupoSuspensaoAlimentacao.get_informados"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.get_informados" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna as solicitações de suspensão com status INFORMADO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Queryset contendo as solicitações da</dt><dd><p>classe com status de informado.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>django.db.models.QuerySet</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.get_next_by_criado_em">
@@ -316,7 +361,24 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.get_rascunhos_do_usuario">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_rascunhos_do_usuario</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#GrupoSuspensaoAlimentacao.get_rascunhos_do_usuario"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.get_rascunhos_do_usuario" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna as solicitações de suspensão com status RASCUNHO de um usuário.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>usuario</strong> (<em>django.contrib.auth.models.AbstractUser</em>) – Usuário autor das
+solicitações.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Queryset contendo as solicitações da</dt><dd><p>classe com status de rascunho criadas pelo usuário informado.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>django.db.models.QuerySet</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.get_status_display">
@@ -326,7 +388,20 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.get_tomados_ciencia">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_tomados_ciencia</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#GrupoSuspensaoAlimentacao.get_tomados_ciencia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.get_tomados_ciencia" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna as solicitações de suspensão com status TERCEIRIZADA_TOMOU_CIENCIA.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Queryset contendo as solicitações da</dt><dd><p>classe com status de terceirizada tomou ciência.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>django.db.models.QuerySet</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.id">
@@ -354,7 +429,17 @@ object the first time, the query is executed.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.numero_alunos">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">numero_alunos</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.numero_alunos" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna o total de alunos sem alimentação na solicitação.</p>
+<p>Soma as quantidades de todos os períodos escolares associados.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Número total de alunos sem alimentação.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.objects">
@@ -371,7 +456,20 @@ object the first time, the query is executed.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.path">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.path" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna o caminho relativo do relatório desta solicitação no frontend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>URL relativa do frontend para a tela de relatório da</dt><dd><p>solicitação de suspensão.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.quantidades_por_periodo">
@@ -463,12 +561,50 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.salvar_log_transicao">
 <span class="sig-name descname"><span class="pre">salvar_log_transicao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status_evento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#GrupoSuspensaoAlimentacao.salvar_log_transicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.salvar_log_transicao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Registra no log a transição de status da solicitação.</p>
+<p>Cria uma entrada em <code class="docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code> associada a esta
+solicitação de suspensão de alimentação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status_evento</strong> (<em>int</em>) – Código do evento de status que será registrado.</p></li>
+<li><p><strong>usuario</strong> (<em>django.contrib.auth.models.AbstractUser</em>) – Usuário
+responsável pela transição.</p></li>
+<li><p><strong>**kwargs</strong> – Parâmetros opcionais do log.
+<cite>justificativa</cite> (str): Texto justificando a transição.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>O método apenas persiste o log da transição.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.solicitacao_dict_para_relatorio">
 <span class="sig-name descname"><span class="pre">solicitacao_dict_para_relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instituicao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#GrupoSuspensaoAlimentacao.solicitacao_dict_para_relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.solicitacao_dict_para_relatorio" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Monta o dicionário usado na geração do relatório da solicitação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label_data</strong> (<em>str</em>) – Rótulo textual da data exibida no relatório.</p></li>
+<li><p><strong>data_log</strong> (<em>datetime.date</em>) – Data do log de referência exibida no
+relatório.</p></li>
+<li><p><strong>instituicao</strong> (<em>object</em>) – Instituição solicitante. Mantido por
+compatibilidade de interface, sem uso direto no método.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dicionário com os campos utilizados no relatório.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.status">
@@ -517,7 +653,16 @@ object the first time, the query is executed.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.tipo">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tipo</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.tipo" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna a descrição textual do tipo da solicitação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String <code class="docutils literal notranslate"><span class="pre">&quot;Suspensão</span> <span class="pre">de</span> <span class="pre">Alimentação&quot;</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.uuid">
@@ -876,119 +1021,8 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao.suspensoes_periodo_escolar">
-<span class="sig-name descname"><span class="pre">suspensoes_periodo_escolar</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao.suspensoes_periodo_escolar" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the reverse side of a
-many-to-one relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao.uuid">
 <span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoNoPeriodoEscolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suspensao_alimentacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qtd_alunos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#SuspensaoAlimentacaoNoPeriodoEscolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('suspensao_periodo_escolar')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.periodo_escolar" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.periodo_escolar_id">
-<span class="sig-name descname"><span class="pre">periodo_escolar_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.periodo_escolar_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.qtd_alunos">
-<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.qtd_alunos" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.suspensao_alimentacao">
-<span class="sig-name descname"><span class="pre">suspensao_alimentacao</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.suspensao_alimentacao" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.suspensao_alimentacao_id">
-<span class="sig-name descname"><span class="pre">suspensao_alimentacao_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.suspensao_alimentacao_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.tipos_alimentacao" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar.uuid" title="Link to this definition"></a></dt>
 <dd><p>A wrapper for a deferred-loading field. When the value is read from this
 object the first time, the query is executed.</p>
 </dd></dl>
@@ -1139,29 +1173,6 @@ object the first time, the query is executed.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoNoPeriodoEscolarSerializer">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoNoPeriodoEscolarSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/api/serializers.html#SuspensaoAlimentacaoNoPeriodoEscolarSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoNoPeriodoEscolarSerializer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoNoPeriodoEscolarSerializer.Meta">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/api/serializers.html#SuspensaoAlimentacaoNoPeriodoEscolarSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoNoPeriodoEscolarSerializer.Meta" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoNoPeriodoEscolarSerializer.Meta.exclude">
-<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'suspensao_alimentacao')</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoNoPeriodoEscolarSerializer.Meta.exclude" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoNoPeriodoEscolarSerializer.Meta.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoNoPeriodoEscolarSerializer.Meta.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar" title="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoNoPeriodoEscolar</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/api/serializers.html#SuspensaoAlimentacaoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
@@ -1286,29 +1297,6 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoCreateSerializer.validate_data">
 <span class="sig-name descname"><span class="pre">validate_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/api/serializers_create.html#SuspensaoAlimentacaoCreateSerializer.validate_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoCreateSerializer.validate_data" title="Link to this definition"></a></dt>
 <dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/api/serializers_create.html#SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/api/serializers_create.html#SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta.exclude">
-<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'suspensao_alimentacao')</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta.exclude" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer.Meta.model" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar" title="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacaoNoPeriodoEscolar"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoNoPeriodoEscolar</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
 
 </dd></dl>
 
@@ -1526,32 +1514,6 @@ serializations depending on the incoming request.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory.motivo">
 <span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(MotivoSuspensaoFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory.motivo" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoNoPeriodoEscolarFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/fixtures/factories/suspensao_alimentacao_factory.html#SuspensaoAlimentacaoNoPeriodoEscolarFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.periodo_escolar">
-<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(PeriodoEscolarFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.periodo_escolar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.qtd_alunos">
-<span class="sig-name descname"><span class="pre">qtd_alunos</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.Sequence</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.qtd_alunos" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.suspensao_alimentacao">
-<span class="sig-name descname"><span class="pre">suspensao_alimentacao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(SuspensaoAlimentacaoFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.suspensao_alimentacao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.tipos_alimentacao">
-<span class="sig-name descname"><span class="pre">tipos_alimentacao</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.PostGeneration</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory.tipos_alimentacao" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

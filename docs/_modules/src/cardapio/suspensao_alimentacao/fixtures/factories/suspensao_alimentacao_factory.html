@@ -79,7 +79,6 @@
     <span class="n">MotivoSuspensao</span><span class="p">,</span>
     <span class="n">QuantidadePorPeriodoSuspensaoAlimentacao</span><span class="p">,</span>
     <span class="n">SuspensaoAlimentacao</span><span class="p">,</span>
-    <span class="n">SuspensaoAlimentacaoNoPeriodoEscolar</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.fixtures.factories.escola_factory</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DiretoriaRegionalFactory</span><span class="p">,</span>
@@ -147,27 +146,6 @@
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">QuantidadePorPeriodoSuspensaoAlimentacao</span></div>
-
-
-
-<div class="viewcode-block" id="SuspensaoAlimentacaoNoPeriodoEscolarFactory">
-<a class="viewcode-back" href="../../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoNoPeriodoEscolarFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
-    <span class="n">suspensao_alimentacao</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">SuspensaoAlimentacaoFactory</span><span class="p">)</span>
-    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">PeriodoEscolarFactory</span><span class="p">)</span>
-    <span class="n">qtd_alunos</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">fake</span><span class="o">.</span><span class="n">random_int</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
-
-    <span class="nd">@factory</span><span class="o">.</span><span class="n">post_generation</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="p">,</span> <span class="n">extracted</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="k">if</span> <span class="n">extracted</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">tipo_alimentacao</span> <span class="ow">in</span> <span class="n">extracted</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tipo_alimentacao</span><span class="p">)</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoNoPeriodoEscolar</span></div>
 
 </pre></div>
 
