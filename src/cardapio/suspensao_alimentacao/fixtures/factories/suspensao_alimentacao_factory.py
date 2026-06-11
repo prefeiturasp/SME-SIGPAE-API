@@ -8,7 +8,6 @@ from src.cardapio.suspensao_alimentacao.models import (
     MotivoSuspensao,
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
-    SuspensaoAlimentacaoNoPeriodoEscolar,
 )
 from src.escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
@@ -65,21 +64,3 @@ class QuantidadePorPeriodoSuspensaoAlimentacaoFactory(DjangoModelFactory):
 
     class Meta:
         model = QuantidadePorPeriodoSuspensaoAlimentacao
-
-
-class SuspensaoAlimentacaoNoPeriodoEscolarFactory(DjangoModelFactory):
-    suspensao_alimentacao = SubFactory(SuspensaoAlimentacaoFactory)
-    periodo_escolar = SubFactory(PeriodoEscolarFactory)
-    qtd_alunos = Sequence(lambda n: fake.random_int(min=1, max=100))
-
-    @factory.post_generation
-    def tipos_alimentacao(self, create, extracted, **kwargs):
-        if not create:
-            return
-
-        if extracted:
-            for tipo_alimentacao in extracted:
-                self.tipos_alimentacao.add(tipo_alimentacao)
-
-    class Meta:
-        model = SuspensaoAlimentacaoNoPeriodoEscolar

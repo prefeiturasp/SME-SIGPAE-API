@@ -5,7 +5,6 @@ from src.cardapio.suspensao_alimentacao.models import (
     MotivoSuspensao,
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
-    SuspensaoAlimentacaoNoPeriodoEscolar,
 )
 from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
@@ -39,15 +38,6 @@ class SuspensaoAlimentacaoDaCEISerializer(serializers.ModelSerializer):
     class Meta:
         model = SuspensaoAlimentacaoDaCEI
         exclude = ("id",)
-
-
-class SuspensaoAlimentacaoNoPeriodoEscolarSerializer(serializers.ModelSerializer):
-    periodo_escolar = PeriodoEscolarSimplesSerializer()
-    tipos_alimentacao = TipoAlimentacaoSerializer(many=True)
-
-    class Meta:
-        model = SuspensaoAlimentacaoNoPeriodoEscolar
-        exclude = ("id", "suspensao_alimentacao")
 
 
 class SuspensaoAlimentacaoSerializer(serializers.ModelSerializer):

@@ -6,7 +6,6 @@ from src.cardapio.suspensao_alimentacao.models import (
     MotivoSuspensao,
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
-    SuspensaoAlimentacaoNoPeriodoEscolar,
 )
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import (
@@ -14,19 +13,6 @@ from src.dados_comuns.validators import (
     nao_pode_ser_no_passado,
 )
 from src.escola.models import Escola, PeriodoEscolar
-
-
-class SuspensaoAlimentacaoNoPeriodoEscolarCreateSerializer(serializers.ModelSerializer):
-    periodo_escolar = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=PeriodoEscolar.objects.all()
-    )
-    tipos_alimentacao = serializers.SlugRelatedField(
-        slug_field="uuid", many=True, queryset=TipoAlimentacao.objects.all()
-    )
-
-    class Meta:
-        model = SuspensaoAlimentacaoNoPeriodoEscolar
-        exclude = ("id", "suspensao_alimentacao")
 
 
 class SuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):

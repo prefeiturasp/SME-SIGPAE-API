@@ -245,32 +245,4 @@ class GrupoSuspensaoAlimentacao(
         verbose_name_plural = "Grupo de suspensão de alimentação"
 
 
-class SuspensaoAlimentacaoNoPeriodoEscolar(
-    ExportModelOperationsMixin("suspensao_periodo_escolar"), TemChaveExterna
-):
-    suspensao_alimentacao = models.ForeignKey(
-        SuspensaoAlimentacao,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="suspensoes_periodo_escolar",
-    )
-    qtd_alunos = models.PositiveSmallIntegerField(default=0)
-    periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
-        on_delete=models.PROTECT,
-        related_name="suspensoes_periodo_escolar",
-    )
-    tipos_alimentacao = models.ManyToManyField(
-        "TipoAlimentacao", related_name="suspensoes_periodo_escolar"
-    )
-
-    def __str__(self):
-        return f"Suspensão de alimentação da Alteração de Cardápio: {self.suspensao_alimentacao}"
-
-    class Meta:
-        verbose_name = "Suspensão de alimentação no período"
-        verbose_name_plural = "Suspensões de alimentação no período"
-
-
 patch_docs(GrupoSuspensaoAlimentacao)

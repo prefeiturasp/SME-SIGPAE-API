@@ -47,7 +47,6 @@ from .cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_fa
     MotivoSuspensaoFactory,
     QuantidadePorPeriodoSuspensaoAlimentacaoFactory,
     SuspensaoAlimentacaoFactory,
-    SuspensaoAlimentacaoNoPeriodoEscolarFactory,
 )
 from .dados_comuns import constants
 from .dados_comuns.fixtures.factories.dados_comuns_factories import (
@@ -358,7 +357,6 @@ register(GrupoSuspensaoAlimentacaoFactory)
 register(MotivoSuspensaoFactory)
 register(SuspensaoAlimentacaoFactory)
 register(QuantidadePorPeriodoSuspensaoAlimentacaoFactory)
-register(SuspensaoAlimentacaoNoPeriodoEscolarFactory)
 register(InversaoCardapioFactory)
 register(MotivoAlteracaoUEFactory)
 register(RecreioNasFeriasFactory)
