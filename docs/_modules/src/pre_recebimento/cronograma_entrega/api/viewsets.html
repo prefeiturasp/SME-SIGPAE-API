@@ -1112,7 +1112,8 @@
                 <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Parametro aprovado deve ser true ou false.&quot;</span><span class="p">)</span>
             <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
             <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">finaliza_solicitacao_alteracao</span><span class="p">(</span>
-                <span class="n">user</span><span class="o">=</span><span class="n">usuario</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+                <span class="n">justificativa</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="n">serializer</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronogramaSerializer</span><span class="p">(</span>
                 <span class="n">solicitacao_cronograma</span>

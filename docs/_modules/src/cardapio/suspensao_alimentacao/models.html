@@ -101,11 +101,12 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivoSuspensao</span><span class="p">(</span>
     <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;motivo_suspensao&quot;</span><span class="p">),</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trabalha em conjunto com SuspensaoAlimentacao.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Motivo de Suspensão de um dia letivo em uma unidade educacional.</span>
 
 <span class="sd">    Exemplos:</span>
-<span class="sd">        - greve</span>
-<span class="sd">        - reforma</span>
+<span class="sd">            - Unidade sem atendimento</span>
+<span class="sd">            - Parada Pedagógica</span>
+<span class="sd">        - Outro</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -125,7 +126,12 @@
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trabalha em conjunto com GrupoSuspensaoAlimentacao.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.</span>
+
+<span class="sd">    Uma Solicitação de Suspensão de Alimentação pode ter N datas.</span>
+
+<span class="sd">    Cada linha da tabela armazena um par data/motivo da solicitação.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">prioritario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">MotivoSuspensao</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">)</span>
@@ -152,6 +158,18 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacao</span><span class="p">(</span>
     <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;quantidade_periodo&quot;</span><span class="p">),</span> <span class="n">TemChaveExterna</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.</span>
+
+<span class="sd">    Uma Solicitação de Suspensão de Alimentação pode ter N períodos escolares.</span>
+
+<span class="sd">    Cada linha da tabela armazena um período escolar da UE, a quantidade de alunos sem alimentação e os tipos de alimentação que estão suspensos.</span>
+
+<span class="sd">    Normalmente, em uma solicitação são escolhidos todos os períodos escolares, todos os tipos de alimentação e todos os alunos matriculados, dado que, normalmente, é um dia sem aula na unidade inteira.</span>
+
+<span class="sd">    O campo `CEI_OU_EMEI_CHOICES` é necessário apenas para solicitações de unidades educacionais com tipo de unidade escolar CEMEI/CEU CEMEI.</span>
+<span class="sd">      - nele, armazenamos se a suspensão é destinada aos alunos CEI, EMEI ou ambos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">CEI_OU_EMEI_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="s2">&quot;TODOS&quot;</span><span class="p">,</span> <span class="s2">&quot;Todos&quot;</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;CEI&quot;</span><span class="p">,</span> <span class="s2">&quot;CEI&quot;</span><span class="p">),</span>
@@ -168,7 +186,6 @@
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;quantidades_por_periodo&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># TODO: SUBSTITUIR POR COMBOS DO TIPO DE ALIMENTACAO</span>
     <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">TipoAlimentacao</span><span class="p">)</span>
     <span class="n">alunos_cei_ou_emei</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">CEI_OU_EMEI_CHOICES</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
@@ -197,9 +214,13 @@
     <span class="n">TemPrioridade</span><span class="p">,</span>
     <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serve para agrupar suspensões.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solicitação de Suspensão de Alimentação.</span>
 
-<span class="sd">    Vide SuspensaoAlimentacao e QuantidadePorPeriodoSuspensaoAlimentacao</span>
+<span class="sd">    **Objetivo**: informar à empresa que atende a unidade educacional que um dia previamente letivo não haverá aula por força maior.</span>
+
+<span class="sd">    **Motivos mais comuns**:</span>
+<span class="sd">      - Unidade sem atendimento</span>
+<span class="sd">      - Parada Pedagógica</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Suspensão de Alimentação&quot;</span>
@@ -350,6 +371,7 @@
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Suspensão de alimentação no período&quot;</span>
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Suspensões de alimentação no período&quot;</span></div>
+
 
 
 <span class="n">patch_docs</span><span class="p">(</span><span class="n">GrupoSuspensaoAlimentacao</span><span class="p">)</span>

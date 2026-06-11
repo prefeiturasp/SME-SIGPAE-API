@@ -138,7 +138,7 @@ class GrupoSuspensaoAlimentacao(
 
     **Motivos mais comuns**:
       - Unidade sem atendimento
-          - Parada Pedagógica
+      - Parada Pedagógica
     """
 
     DESCRICAO = "Suspensão de Alimentação"

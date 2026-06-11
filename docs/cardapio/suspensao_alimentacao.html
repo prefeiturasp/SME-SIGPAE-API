@@ -190,8 +190,15 @@
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">GrupoSuspensaoAlimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#GrupoSuspensaoAlimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('grupo_suspensao_alimentacao')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoPor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemObservacao</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemPrioridade</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemTerceirizadaConferiuGestaoAlimentacao</span></code></p>
-<p>Serve para agrupar suspensões.</p>
-<p>Vide SuspensaoAlimentacao e QuantidadePorPeriodoSuspensaoAlimentacao</p>
+<p>Solicitação de Suspensão de Alimentação.</p>
+<p><strong>Objetivo</strong>: informar à empresa que atende a unidade educacional que um dia previamente letivo não haverá aula por força maior.</p>
+<dl class="simple">
+<dt><strong>Motivos mais comuns</strong>:</dt><dd><ul class="simple">
+<li><p>Unidade sem atendimento</p></li>
+<li><p>Parada Pedagógica</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.DESCRICAO">
 <span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Suspensão</span> <span class="pre">de</span> <span class="pre">Alimentação'</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao.DESCRICAO" title="Link to this definition"></a></dt>
@@ -525,11 +532,16 @@ object the first time, the query is executed.</p>
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.MotivoSuspensao">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MotivoSuspensao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#MotivoSuspensao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.MotivoSuspensao" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('motivo_suspensao')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Nomeavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
-<p>Trabalha em conjunto com SuspensaoAlimentacao.</p>
-<dl class="simple">
-<dt>Exemplos:</dt><dd><ul class="simple">
-<li><p>greve</p></li>
-<li><p>reforma</p></li>
+<p>Motivo de Suspensão de um dia letivo em uma unidade educacional.</p>
+<dl>
+<dt>Exemplos:</dt><dd><blockquote>
+<div><ul class="simple">
+<li><p>Unidade sem atendimento</p></li>
+<li><p>Parada Pedagógica</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Outro</p></li>
 </ul>
 </dd>
 </dl>
@@ -605,8 +617,18 @@ object the first time, the query is executed.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numero_alunos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grupo_suspensao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alunos_cei_ou_emei</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#QuantidadePorPeriodoSuspensaoAlimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#QuantidadePorPeriodoSuspensaoAlimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('quantidade_periodo')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
+<p>Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.</p>
+<p>Uma Solicitação de Suspensão de Alimentação pode ter N períodos escolares.</p>
+<p>Cada linha da tabela armazena um período escolar da UE, a quantidade de alunos sem alimentação e os tipos de alimentação que estão suspensos.</p>
+<p>Normalmente, em uma solicitação são escolhidos todos os períodos escolares, todos os tipos de alimentação e todos os alunos matriculados, dado que, normalmente, é um dia sem aula na unidade inteira.</p>
+<dl class="simple">
+<dt>O campo <cite>CEI_OU_EMEI_CHOICES</cite> é necessário apenas para solicitações de unidades educacionais com tipo de unidade escolar CEMEI/CEU CEMEI.</dt><dd><ul class="simple">
+<li><p>nele, armazenamos se a suspensão é destinada aos alunos CEI, EMEI ou ambos.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao.CEI_OU_EMEI_CHOICES">
 <span class="sig-name descname"><span class="pre">CEI_OU_EMEI_CHOICES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('TODOS',</span> <span class="pre">'Todos'),</span> <span class="pre">('CEI',</span> <span class="pre">'CEI'),</span> <span class="pre">('EMEI',</span> <span class="pre">'EMEI')]</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao.CEI_OU_EMEI_CHOICES" title="Link to this definition"></a></dt>
@@ -720,7 +742,9 @@ object the first time, the query is executed.</p>
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao/models.html#SuspensaoAlimentacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('suspensao_alimentacao')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemData</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CanceladoIndividualmente</span></code></p>
-<p>Trabalha em conjunto com GrupoSuspensaoAlimentacao.</p>
+<p>Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.</p>
+<p>Uma Solicitação de Suspensão de Alimentação pode ter N datas.</p>
+<p>Cada linha da tabela armazena um par data/motivo da solicitação.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao.DoesNotExist">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao.DoesNotExist" title="Link to this definition"></a></dt>
