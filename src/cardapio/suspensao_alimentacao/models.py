@@ -28,11 +28,12 @@ from src.dados_comuns.utils import patch_docs
 class MotivoSuspensao(
     ExportModelOperationsMixin("motivo_suspensao"), Nomeavel, TemChaveExterna
 ):
-    """Trabalha em conjunto com SuspensaoAlimentacao.
+    """Motivo de Suspensão de um dia letivo em uma unidade educacional.
 
     Exemplos:
-        - greve
-        - reforma
+            - Unidade sem atendimento
+            - Parada Pedagógica
+        - Outro
     """
 
     def __str__(self):
@@ -49,7 +50,12 @@ class SuspensaoAlimentacao(
     TemChaveExterna,
     CanceladoIndividualmente,
 ):
-    """Trabalha em conjunto com GrupoSuspensaoAlimentacao."""
+    """Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.
+
+    Uma Solicitação de Suspensão de Alimentação pode ter N datas.
+
+    Cada linha da tabela armazena um par data/motivo da solicitação.
+    """
 
     prioritario = models.BooleanField(default=False)
     motivo = models.ForeignKey(MotivoSuspensao, on_delete=models.DO_NOTHING)
@@ -73,6 +79,18 @@ class SuspensaoAlimentacao(
 class QuantidadePorPeriodoSuspensaoAlimentacao(
     ExportModelOperationsMixin("quantidade_periodo"), TemChaveExterna
 ):
+    """Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.
+
+    Uma Solicitação de Suspensão de Alimentação pode ter N períodos escolares.
+
+    Cada linha da tabela armazena um período escolar da UE, a quantidade de alunos sem alimentação e os tipos de alimentação que estão suspensos.
+
+    Normalmente, em uma solicitação são escolhidos todos os períodos escolares, todos os tipos de alimentação e todos os alunos matriculados, dado que, normalmente, é um dia sem aula na unidade inteira.
+
+    O campo `CEI_OU_EMEI_CHOICES` é necessário apenas para solicitações de unidades educacionais com tipo de unidade escolar CEMEI/CEU CEMEI.
+      - nele, armazenamos se a suspensão é destinada aos alunos CEI, EMEI ou ambos.
+    """
+
     CEI_OU_EMEI_CHOICES = [
         ("TODOS", "Todos"),
         ("CEI", "CEI"),
@@ -89,7 +107,6 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(
         null=True,
         related_name="quantidades_por_periodo",
     )
-    # TODO: SUBSTITUIR POR COMBOS DO TIPO DE ALIMENTACAO
     tipos_alimentacao = models.ManyToManyField(TipoAlimentacao)
     alunos_cei_ou_emei = models.CharField(
         max_length=10, choices=CEI_OU_EMEI_CHOICES, blank=True
@@ -115,9 +132,13 @@ class GrupoSuspensaoAlimentacao(
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 ):
-    """Serve para agrupar suspensões.
+    """Solicitação de Suspensão de Alimentação.
 
-    Vide SuspensaoAlimentacao e QuantidadePorPeriodoSuspensaoAlimentacao
+    **Objetivo**: informar à empresa que atende a unidade educacional que um dia previamente letivo não haverá aula por força maior.
+
+    **Motivos mais comuns**:
+      - Unidade sem atendimento
+          - Parada Pedagógica
     """
 
     DESCRICAO = "Suspensão de Alimentação"
