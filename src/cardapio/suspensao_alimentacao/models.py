@@ -37,6 +37,11 @@ class MotivoSuspensao(
     """
 
     def __str__(self):
+        """Retorna a representação textual do motivo de suspensão.
+
+        Returns:
+            str: Nome do motivo de suspensão.
+        """
         return self.nome
 
     class Meta:
@@ -69,6 +74,11 @@ class SuspensaoAlimentacao(
     )
 
     def __str__(self):
+        """Retorna a representação textual da suspensão de alimentação.
+
+        Returns:
+            str: Descrição do motivo associado a esta suspensão.
+        """
         return f"{self.motivo}"
 
     class Meta:
@@ -113,6 +123,11 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(
     )
 
     def __str__(self):
+        """Retorna a representação textual com a quantidade de alunos.
+
+        Returns:
+            str: Texto informando a quantidade de alunos sem alimentação.
+        """
         return f"Quantidade de alunos: {self.numero_alunos}"
 
     class Meta:
@@ -149,41 +164,99 @@ class GrupoSuspensaoAlimentacao(
 
     @classmethod
     def get_informados(cls):
+        """Retorna as solicitações de suspensão com status INFORMADO.
+
+        Returns:
+            django.db.models.QuerySet: Queryset contendo as solicitações da
+                classe com status de informado.
+        """
         return cls.objects.filter(status=cls.workflow_class.INFORMADO)
 
     @classmethod
     def get_tomados_ciencia(cls):
+        """Retorna as solicitações de suspensão com status TERCEIRIZADA_TOMOU_CIENCIA.
+
+        Returns:
+            django.db.models.QuerySet: Queryset contendo as solicitações da
+                classe com status de terceirizada tomou ciência.
+        """
         return cls.objects.filter(status=cls.workflow_class.TERCEIRIZADA_TOMOU_CIENCIA)
 
     @classmethod
     def get_rascunhos_do_usuario(cls, usuario):
+        """Retorna as solicitações de suspensão com status RASCUNHO de um usuário.
+
+        Args:
+            usuario (django.contrib.auth.models.AbstractUser): Usuário autor das
+                solicitações.
+
+        Returns:
+            django.db.models.QuerySet: Queryset contendo as solicitações da
+                classe com status de rascunho criadas pelo usuário informado.
+        """
         return cls.objects.filter(
             criado_por=usuario, status=cls.workflow_class.RASCUNHO
         )
 
     @property  # type: ignore
     def quantidades_por_periodo(self):
+        """Retorna as quantidades de alunos por período associadas à solicitação.
+
+        Returns:
+            django.db.models.QuerySet: Queryset com as quantidades por período
+                da solicitação.
+        """
         return self.quantidades_por_periodo
 
     @property  # type: ignore
     def suspensoes_alimentacao(self):
+        """Retorna as datas de suspensão associadas à solicitação.
+
+        Returns:
+            django.db.models.QuerySet: Queryset com as datas de suspensão da
+                solicitação.
+        """
         return self.suspensoes_alimentacao
 
     @property
     def tipo(self):
+        """Retorna a descrição textual do tipo da solicitação.
+
+        Returns:
+            str: String ``"Suspensão de Alimentação"``.
+        """
         return "Suspensão de Alimentação"
 
     @property
     def path(self):
+        """Retorna o caminho relativo do relatório desta solicitação no frontend.
+
+        Returns:
+            str: URL relativa do frontend para a tela de relatório da
+                solicitação de suspensão.
+        """
         return f"suspensao-de-alimentacao/relatorio?uuid={self.uuid}&tipoSolicitacao=solicitacao-normal"
 
     @property
     def data(self):
+        """Retorna a primeira data da suspensão ordenada cronologicamente.
+
+        Returns:
+            datetime.date: Data da primeira suspensão.
+        """
         query = self.suspensoes_alimentacao.order_by("data")
         return query.first().data
 
     @property
     def datas(self):
+        """Retorna as datas de suspensão formatadas para exibição em relatórios.
+
+        As datas são ordenadas cronologicamente e exibidas no formato
+        ``dd/mm/YYYY``, separadas por vírgula.
+
+        Returns:
+            str: String com as datas formatadas e separadas por ``", "``.
+        """
         return ", ".join(
             [
                 data.strftime("%d/%m/%Y")
@@ -195,11 +268,30 @@ class GrupoSuspensaoAlimentacao(
 
     @property
     def numero_alunos(self):
+        """Retorna o total de alunos sem alimentação na solicitação.
+
+        Soma as quantidades de todos os períodos escolares associados.
+
+        Returns:
+            int: Número total de alunos sem alimentação.
+        """
         return self.quantidades_por_periodo.aggregate(Sum("numero_alunos"))[
             "numero_alunos__sum"
         ]
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
+        """Monta o dicionário usado na geração do relatório da solicitação.
+
+        Args:
+            label_data (str): Rótulo textual da data exibida no relatório.
+            data_log (datetime.date): Data do log de referência exibida no
+                relatório.
+            instituicao (object): Instituição solicitante. Mantido por
+                compatibilidade de interface, sem uso direto no método.
+
+        Returns:
+            dict: Dicionário com os campos utilizados no relatório.
+        """
         datas = list(
             self.suspensoes_alimentacao.order_by("data").values_list("data", flat=True)
         )
@@ -224,12 +316,38 @@ class GrupoSuspensaoAlimentacao(
 
     @property
     def existe_dia_cancelado(self):
+        """Verifica se a solicitação possui algum dia de suspensão cancelado.
+
+        Returns:
+            bool: ``True`` se houver ao menos uma suspensão cancelada,
+                ``False`` caso contrário.
+        """
         return self.suspensoes_alimentacao.all().filter(cancelado=True).exists()
 
     def __str__(self):
+        """Retorna a representação textual resumida da solicitação.
+
+        Returns:
+            str: Texto da observação da solicitação.
+        """
         return f"{self.observacao}"
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra no log a transição de status da solicitação.
+
+        Cria uma entrada em ``LogSolicitacoesUsuario`` associada a esta
+        solicitação de suspensão de alimentação.
+
+        Args:
+            status_evento (int): Código do evento de status que será registrado.
+            usuario (django.contrib.auth.models.AbstractUser): Usuário
+                responsável pela transição.
+            **kwargs: Parâmetros opcionais do log.
+                `justificativa` (str): Texto justificando a transição.
+
+        Returns:
+            None: O método apenas persiste o log da transição.
+        """
         justificativa = kwargs.get("justificativa", "")
         LogSolicitacoesUsuario.objects.create(
             descricao=str(self),
