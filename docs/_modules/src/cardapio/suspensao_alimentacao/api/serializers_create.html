@@ -89,6 +89,17 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoCreateSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoCreateSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a criação de uma data de suspensão de alimentação.</span>
+
+<span class="sd">    Recebe a referência do motivo por UUID e valida que a data não seja</span>
+<span class="sd">    no passado e pertença ao ano corrente.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: uso indireto,</span>
+<span class="sd">          aninhado em ``GrupoSuspensaoAlimentacaoCreateSerializer`` nas</span>
+<span class="sd">          actions ``create``, ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">MotivoSuspensao</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="p">)</span>
@@ -96,6 +107,16 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoCreateSerializer.validate_data">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers_create.SuspensaoAlimentacaoCreateSerializer.validate_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Valida que a data da suspensão atende às regras de negócio.</span>
+
+<span class="sd">        A data não pode ser no passado e deve pertencer ao ano corrente.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (datetime.date): Data da suspensão a ser validada.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date: A mesma data, após passar pelas validações.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">deve_ser_no_mesmo_ano_corrente</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span></div>
@@ -115,6 +136,17 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer</span><span class="p">(</span>
     <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a criação de uma quantidade de alunos por período escolar.</span>
+
+<span class="sd">    Recebe referências por UUID para o período escolar e tipos de</span>
+<span class="sd">    alimentação associados.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: uso indireto,</span>
+<span class="sd">          aninhado em ``GrupoSuspensaoAlimentacaoCreateSerializer`` nas</span>
+<span class="sd">          actions ``create``, ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="p">)</span>
@@ -135,6 +167,19 @@
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacaoCreateSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GrupoSuspensaoAlimentacaoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a criação e atualização de suspensões de alimentação.</span>
+
+<span class="sd">    Resolve referências por UUID para a escola e recebe listas aninhadas</span>
+<span class="sd">    de ``quantidades_por_periodo`` e ``suspensoes_alimentacao``. No</span>
+<span class="sd">    ``create``, persiste o grupo e seus relacionamentos; no ``update``,</span>
+<span class="sd">    remove e recria os itens vinculados.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: retornado por</span>
+<span class="sd">          ``get_serializer_class()`` nas actions ``create``, ``update`` e</span>
+<span class="sd">          ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">Escola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="p">)</span>
@@ -146,6 +191,17 @@
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacaoCreateSerializer.create">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer.create">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cria uma solicitação de suspensão com quantidades e datas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            validated_data (dict): Dados validados da solicitação, incluindo</span>
+<span class="sd">                listas aninhadas de ``quantidades_por_periodo`` e</span>
+<span class="sd">                ``suspensoes_alimentacao``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            GrupoSuspensaoAlimentacao: Instância criada com seus</span>
+<span class="sd">            relacionamentos vinculados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">quantidades_por_periodo_array</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;quantidades_por_periodo&quot;</span><span class="p">)</span>
         <span class="n">suspensoes_alimentacao_array</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;suspensoes_alimentacao&quot;</span><span class="p">)</span>
         <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;criado_por&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">user</span>
@@ -173,6 +229,17 @@
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacaoCreateSerializer.update">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers_create.GrupoSuspensaoAlimentacaoCreateSerializer.update">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atualiza uma solicitação de suspensão recriando seus itens.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance (GrupoSuspensaoAlimentacao): Instância existente a ser</span>
+<span class="sd">                atualizada.</span>
+<span class="sd">            validated_data (dict): Dados validados da requisição.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            GrupoSuspensaoAlimentacao: Instância atualizada com seus</span>
+<span class="sd">            relacionamentos recriados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">quantidades_por_periodo_array</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;quantidades_por_periodo&quot;</span><span class="p">)</span>
         <span class="n">suspensoes_alimentacao_array</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;suspensoes_alimentacao&quot;</span><span class="p">)</span>
 

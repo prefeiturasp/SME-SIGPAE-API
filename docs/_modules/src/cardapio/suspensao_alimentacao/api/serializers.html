@@ -95,6 +95,18 @@
 <div class="viewcode-block" id="MotivoSuspensaoSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.MotivoSuspensaoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivoSuspensaoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa os motivos de suspensão de alimentação.</span>
+
+<span class="sd">    Expoe os campos públicos de ``MotivoSuspensao`` usados para listar e</span>
+<span class="sd">    embutir o motivo selecionado em respostas de solicitações.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``MotivosSuspensaoCardapioViewSet``: uso direto como</span>
+<span class="sd">          ``serializer_class`` nas ações ``list`` e ``retrieve``.</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: uso indireto,</span>
+<span class="sd">          aninhado nos serializers de leitura e criação.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="MotivoSuspensaoSerializer.Meta">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.MotivoSuspensaoSerializer.Meta">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -107,6 +119,16 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoDaCEISerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoDaCEISerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoDaCEISerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a representação completa de uma suspensão de CEI.</span>
+
+<span class="sd">    Inclui escola, motivo, períodos escolares, logs e rastro da terceirizada</span>
+<span class="sd">    usados nas respostas detalhadas da API de suspensão de alimentação CEI.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``SuspensaoAlimentacaoDaCEIViewSet``: uso direto nas respostas de</span>
+<span class="sd">          leitura da API de suspensão de alimentação CEI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaSimplesSerializer</span><span class="p">()</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">MotivoSuspensaoSerializer</span><span class="p">()</span>
     <span class="n">periodos_escolares</span> <span class="o">=</span> <span class="n">PeriodoEscolarSimplesSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -126,6 +148,17 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.SuspensaoAlimentacaoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa uma data de suspensão de alimentação.</span>
+
+<span class="sd">    Inclui o motivo aninhado para representar cada item da lista</span>
+<span class="sd">    ``suspensoes_alimentacao`` da solicitação.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: uso indireto,</span>
+<span class="sd">          aninhado em ``GrupoSuspensaoAlimentacaoSerializer`` nas respostas</span>
+<span class="sd">          de leitura.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">MotivoSuspensaoSerializer</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SuspensaoAlimentacaoSerializer.Meta">
@@ -140,6 +173,17 @@
 <div class="viewcode-block" id="QuantidadePorPeriodoSuspensaoAlimentacaoSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.QuantidadePorPeriodoSuspensaoAlimentacaoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacaoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a quantidade de alunos por período escolar.</span>
+
+<span class="sd">    Inclui o período escolar e os tipos de alimentação aninhados para</span>
+<span class="sd">    representar cada item da lista ``quantidades_por_periodo`` da suspensão.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: uso indireto,</span>
+<span class="sd">          aninhado em ``GrupoSuspensaoAlimentacaoSerializer`` nas respostas</span>
+<span class="sd">          de leitura.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">PeriodoEscolarSimplesSerializer</span><span class="p">()</span>
     <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">TipoAlimentacaoSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -155,6 +199,18 @@
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacaoSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.GrupoSuspensaoAlimentacaoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GrupoSuspensaoAlimentacaoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a representação detalhada de uma suspensão de alimentação.</span>
+
+<span class="sd">    Inclui escola, quantidades por período, datas de suspensão, logs e</span>
+<span class="sd">    rastro da terceirizada usados nas respostas completas da API.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: retornado por</span>
+<span class="sd">          ``get_serializer_class()`` em todas as ações de leitura e nas</span>
+<span class="sd">          actions customizadas que respondem com o objeto serializado, exceto</span>
+<span class="sd">          ``create``, ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaSimplesSerializer</span><span class="p">()</span>
     <span class="n">quantidades_por_periodo</span> <span class="o">=</span> <span class="n">QuantidadePorPeriodoSuspensaoAlimentacaoSerializer</span><span class="p">(</span>
         <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
@@ -176,6 +232,16 @@
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacaoSimplesSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.GrupoSuspensaoAlimentacaoSimplesSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GrupoSuspensaoAlimentacaoSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa uma visão resumida da suspensão de alimentação.</span>
+
+<span class="sd">    Remove campos mais pesados e relacionamentos aninhados para atender</span>
+<span class="sd">    listagens que precisam de um payload menor.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: uso direto nas</span>
+<span class="sd">          actions ``solicitacoes_codae`` e ``solicitacoes_terceirizada``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacaoSimplesSerializer.Meta">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.GrupoSuspensaoAlimentacaoSimplesSerializer.Meta">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -188,6 +254,17 @@
 <div class="viewcode-block" id="GrupoSupensaoAlimentacaoListagemSimplesSerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.api.serializers.GrupoSupensaoAlimentacaoListagemSimplesSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GrupoSupensaoAlimentacaoListagemSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa uma visão enxuta da suspensão para listagens.</span>
+
+<span class="sd">    Retorna apenas os campos essenciais para listagens de solicitações</span>
+<span class="sd">    informadas e rascunhos, incluindo UUID, id externo, status, prioridade</span>
+<span class="sd">    e escola.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``GrupoSuspensaoAlimentacaoSerializerViewSet``: uso direto nas</span>
+<span class="sd">          actions ``informadas``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaListagemSimplesSelializer</span><span class="p">()</span>
     <span class="n">prioridade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
 
