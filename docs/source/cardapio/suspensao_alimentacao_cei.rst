@@ -366,3 +366,21 @@ viewsets
 .. automodule:: src.cardapio.suspensao_alimentacao_cei.api.viewsets
    :members:
    :show-inheritance:
+
+fixtures
+--------
+
+.. automodule:: src.cardapio.suspensao_alimentacao_cei.fixtures
+   :members:
+   :show-inheritance:
+
+fixtures/factories
+~~~~~~~~~~~~~~~~~~
+
+.. automodule:: src.cardapio.suspensao_alimentacao_cei.fixtures.factories
+   :members:
+   :show-inheritance:
+
+.. automodule:: src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory
+   :members:
+   :show-inheritance:

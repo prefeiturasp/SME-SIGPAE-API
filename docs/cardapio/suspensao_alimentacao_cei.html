@@ -66,6 +66,10 @@
 <li class="toctree-l5"><a class="reference internal" href="#module-src.cardapio.suspensao_alimentacao_cei.api.viewsets">viewsets</a></li>
 </ul>
 </li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.suspensao_alimentacao_cei.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-src.cardapio.suspensao_alimentacao_cei.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -733,6 +737,70 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida">
 <span class="sig-name descname"><span class="pre">terceirizada_marca_inclusao_como_conferida</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="module-src.cardapio.suspensao_alimentacao_cei.fixtures">
+<span id="fixtures"></span><h2>fixtures<a class="headerlink" href="#module-src.cardapio.suspensao_alimentacao_cei.fixtures" title="Link to this heading"></a></h2>
+<section id="module-src.cardapio.suspensao_alimentacao_cei.fixtures.factories">
+<span id="fixtures-factories"></span><h3>fixtures/factories<a class="headerlink" href="#module-src.cardapio.suspensao_alimentacao_cei.fixtures.factories" title="Link to this heading"></a></h3>
+<p id="module-src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory">Factories para o modelo de Suspensão de Alimentação de CEI.</p>
+<p>Utiliza <code class="docutils literal notranslate"><span class="pre">factory_boy</span></code> para criação de instâncias de teste do modelo
+de suspensão de alimentação escolar de CEI.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEIFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/fixtures/factories/suspensao_alimentacao_cei_factory.html#SuspensaoAlimentacaoDaCEIFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DjangoModelFactory</span></code></p>
+<p>Factory para o modelo <code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code>.</p>
+<p>Cria uma solicitação de suspensão de alimentação de CEI com escola,
+motivo, data e campos de rastreio via subfactories. Suporta adição de
+períodos escolares via parâmetro <code class="docutils literal notranslate"><span class="pre">periodos_escolares</span></code> no pós-create.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.criado_por">
+<span class="sig-name descname"><span class="pre">criado_por</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(UsuarioFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.criado_por" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.data">
+<span class="sig-name descname"><span class="pre">data</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.faker.Faker</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EscolaFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.escola" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.motivo">
+<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(MotivoSuspensaoFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.motivo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.periodos_escolares">
+<span class="sig-name descname"><span class="pre">periodos_escolares</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;factory.declarations.PostGeneration</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.periodos_escolares" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.rastro_dre">
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(DiretoriaRegionalFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.rastro_dre" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.rastro_escola">
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EscolaFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.rastro_escola" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.rastro_lote">
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(LoteFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.rastro_lote" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.rastro_terceirizada">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SubFactory(EmpresaFactory)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.fixtures.factories.suspensao_alimentacao_cei_factory.SuspensaoAlimentacaoDaCEIFactory.rastro_terceirizada" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
