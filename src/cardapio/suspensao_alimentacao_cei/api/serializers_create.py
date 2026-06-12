@@ -14,6 +14,18 @@ from src.escola.models import Escola, PeriodoEscolar
 
 
 class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
+    """Serializa a criação e atualização de suspensões de alimentação de CEI.
+
+    Resolve referências por UUID para a escola, motivo e períodos escolares.
+    Valida datas e regras de negócio e persiste os relacionamentos M2M de
+    períodos escolares.
+
+    Viewsets que utilizam este serializer:
+        - ``SuspensaoAlimentacaoDaCEIViewSet``: retornado por
+          ``get_serializer_class()`` nas actions ``create``, ``update`` e
+          ``partial_update``.
+    """
+
     escola = serializers.SlugRelatedField(
         slug_field="uuid", required=True, queryset=Escola.objects.all()
     )
@@ -29,6 +41,18 @@ class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, attrs):
+        """Valida as regras de negócio para a data da solicitação CEI.
+
+        A data não pode ser no passado, deve pedir com antecedência e deve
+        pertencer ao ano corrente.
+
+        Args:
+            attrs (dict): Atributos validados contendo a chave ``data``.
+
+        Returns:
+            dict: Atributos validados após a aplicação das regras de
+            negócio.
+        """
         data = attrs["data"]
         nao_pode_ser_no_passado(data)
         deve_pedir_com_antecedencia(data)
@@ -36,6 +60,16 @@ class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """Cria uma solicitação de suspensão de CEI com os períodos escolares.
+
+        Args:
+            validated_data (dict): Dados validados da solicitação, incluindo
+                a lista ``periodos_escolares``.
+
+        Returns:
+            SuspensaoAlimentacaoDaCEI: Instância criada com os períodos
+            escolares vinculados.
+        """
         periodos_escolares = validated_data.pop("periodos_escolares", "")
         validated_data["criado_por"] = self.context["request"].user
         suspensao_alimentacao = SuspensaoAlimentacaoDaCEI.objects.create(
@@ -46,6 +80,20 @@ class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
         return suspensao_alimentacao
 
     def update(self, instance, validated_data):
+        """Atualiza uma solicitação de suspensão de CEI recriando seus períodos.
+
+        Remove os períodos escolares existentes e define os novos a partir
+        dos dados validados.
+
+        Args:
+            instance (SuspensaoAlimentacaoDaCEI): Instância existente a ser
+                atualizada.
+            validated_data (dict): Dados validados da requisição.
+
+        Returns:
+            SuspensaoAlimentacaoDaCEI: Instância atualizada com os novos
+            períodos escolares.
+        """
         periodos_escolares = validated_data.pop("periodos_escolares", "")
         update_instance_from_dict(instance, validated_data)
         instance.periodos_escolares.set([])

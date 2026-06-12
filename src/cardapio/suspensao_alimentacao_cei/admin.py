@@ -30,7 +30,7 @@ class SuspensaoAlimentacaoDaCEIModelAdmin(admin.ModelAdmin):
     list_filter = (
         ("data", DateRangeFilter),
         "escola__lote",
-        "escola__diretoria_regional__iniciais",
+        "status",
     )
     list_select_related = ("escola",)
     readonly_fields = ("escola",)

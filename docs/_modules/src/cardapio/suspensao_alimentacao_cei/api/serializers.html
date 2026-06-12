@@ -90,6 +90,18 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoDaCEISerializer">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoDaCEISerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializa a representação completa de uma suspensão de CEI.</span>
+
+<span class="sd">    Inclui escola, motivo, períodos escolares, logs e rastro da terceirizada</span>
+<span class="sd">    usados nas respostas detalhadas da API de suspensão de alimentação CEI.</span>
+
+<span class="sd">    Viewsets que utilizam este serializer:</span>
+<span class="sd">        - ``SuspensaoAlimentacaoDaCEIViewSet``: retornado por</span>
+<span class="sd">          ``get_serializer_class()`` em todas as ações de leitura e nas</span>
+<span class="sd">          actions customizadas que respondem com o objeto serializado, exceto</span>
+<span class="sd">          ``create``, ``update`` e ``partial_update``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaSimplesSerializer</span><span class="p">()</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">MotivoSuspensaoSerializer</span><span class="p">()</span>
     <span class="n">periodos_escolares</span> <span class="o">=</span> <span class="n">PeriodoEscolarSimplesSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

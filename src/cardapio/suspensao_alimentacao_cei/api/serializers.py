@@ -17,6 +17,18 @@ from src.terceirizada.api.serializers.serializers import (
 
 
 class SuspensaoAlimentacaoDaCEISerializer(serializers.ModelSerializer):
+    """Serializa a representação completa de uma suspensão de CEI.
+
+    Inclui escola, motivo, períodos escolares, logs e rastro da terceirizada
+    usados nas respostas detalhadas da API de suspensão de alimentação CEI.
+
+    Viewsets que utilizam este serializer:
+        - ``SuspensaoAlimentacaoDaCEIViewSet``: retornado por
+          ``get_serializer_class()`` em todas as ações de leitura e nas
+          actions customizadas que respondem com o objeto serializado, exceto
+          ``create``, ``update`` e ``partial_update``.
+    """
+
     escola = EscolaSimplesSerializer()
     motivo = MotivoSuspensaoSerializer()
     periodos_escolares = PeriodoEscolarSimplesSerializer(many=True)

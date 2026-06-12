@@ -55,7 +55,10 @@
 <li class="toctree-l3"><a class="reference internal" href="models.html">models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="suspensao_alimentacao.html">suspensao_alimentacao</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">suspensao_alimentacao_cei</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.suspensao_alimentacao_cei.admin">admin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.suspensao_alimentacao_cei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEIModelAdmin</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="#module-src.cardapio.suspensao_alimentacao_cei.models">models</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code></a></li>
 </ul>
@@ -109,6 +112,75 @@
 <span id="suspensao-alimentacao-cei"></span><h1>suspensao_alimentacao_cei<a class="headerlink" href="#module-src.cardapio.suspensao_alimentacao_cei" title="Link to this heading"></a></h1>
 <section id="module-src.cardapio.suspensao_alimentacao_cei.admin">
 <span id="admin"></span><h2>admin<a class="headerlink" href="#module-src.cardapio.suspensao_alimentacao_cei.admin" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEIModelAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/admin.html#SuspensaoAlimentacaoDaCEIModelAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Django para solicitações de suspensão de alimentação de CEI.</p>
+<p>Configura a listagem administrativa de
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code>, exibindo informações da escola,
+data, status, motivo e períodos escolares. Habilita busca textual por
+nome e código EOL da escola, filtros por lote, DRE, intervalo de data
+e motivo.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.get_periodos_escolares">
+<span class="sig-name descname"><span class="pre">get_periodos_escolares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/admin.html#SuspensaoAlimentacaoDaCEIModelAdmin.get_periodos_escolares"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.get_periodos_escolares" title="Link to this definition"></a></dt>
+<dd><p>Retorna os períodos escolares vinculados à suspensão.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference internal" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI" title="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><em>SuspensaoAlimentacaoDaCEI</em></a>) – Solicitação exibida na linha
+atual.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Nomes dos períodos escolares separados por vírgula, ou</dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;-&quot;</span></code> quando nenhum.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('escola__codigo_eol',</span> <span class="pre">'escola__nome',</span> <span class="pre">'data',</span> <span class="pre">'status',</span> <span class="pre">'motivo__nome',</span> <span class="pre">'get_periodos_escolares')</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.list_filter">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('data',</span> <span class="pre">&lt;class</span> <span class="pre">'rangefilter.filters.DateRangeFilter'&gt;),</span> <span class="pre">'escola__lote',</span> <span class="pre">'escola__diretoria_regional__iniciais')</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.list_select_related">
+<span class="sig-name descname"><span class="pre">list_select_related</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('escola',)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.list_select_related" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('escola',)</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'escola__nome',</span> <span class="pre">'escola__codigo_eol')</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.search_help_text">
+<span class="sig-name descname"><span class="pre">search_help_text</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Pesquisar</span> <span class="pre">por:</span> <span class="pre">UUID,</span> <span class="pre">nome</span> <span class="pre">da</span> <span class="pre">escola,</span> <span class="pre">código</span> <span class="pre">EOL</span> <span class="pre">da</span> <span class="pre">escola'</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin.search_help_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-src.cardapio.suspensao_alimentacao_cei.models">
 <span id="models"></span><h2>models<a class="headerlink" href="#module-src.cardapio.suspensao_alimentacao_cei.models" title="Link to this heading"></a></h2>
@@ -582,6 +654,18 @@ compatibilidade de interface, sem uso direto no método.</p></li>
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/serializers.html#SuspensaoAlimentacaoDaCEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa a representação completa de uma suspensão de CEI.</p>
+<p>Inclui escola, motivo, períodos escolares, logs e rastro da terceirizada
+usados nas respostas detalhadas da API de suspensão de alimentação CEI.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEIViewSet</span></code>: retornado por
+<code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> em todas as ações de leitura e nas
+actions customizadas que respondem com o objeto serializado, exceto
+<code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/serializers.html#SuspensaoAlimentacaoDaCEISerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.serializers.SuspensaoAlimentacaoDaCEISerializer.Meta" title="Link to this definition"></a></dt>
@@ -608,6 +692,18 @@ compatibilidade de interface, sem uso direto no método.</p></li>
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaodeCEICreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializa a criação e atualização de suspensões de alimentação de CEI.</p>
+<p>Resolve referências por UUID para a escola, motivo e períodos escolares.
+Valida datas e regras de negócio e persiste os relacionamentos M2M de
+períodos escolares.</p>
+<dl class="simple">
+<dt>Viewsets que utilizam este serializer:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEIViewSet</span></code>: retornado por
+<code class="docutils literal notranslate"><span class="pre">get_serializer_class()</span></code> nas actions <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e
+<code class="docutils literal notranslate"><span class="pre">partial_update</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.Meta">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.Meta" title="Link to this definition"></a></dt>
@@ -628,35 +724,65 @@ compatibilidade de interface, sem uso direto no método.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.create" title="Link to this definition"></a></dt>
-<dd><p>We have a bit of extra checking around this in order to provide
-descriptive messages when something goes wrong, but this method is
-essentially just:</p>
-<blockquote>
-<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
-</div></blockquote>
-<p>If there are many to many fields present on the instance then they
-cannot be set until the model is instantiated, in which case the
-implementation is like so:</p>
-<blockquote>
-<div><p>example_relationship = validated_data.pop(‘example_relationship’)
-instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
-instance.example_relationship = example_relationship
-return instance</p>
-</div></blockquote>
-<p>The default implementation also does not handle nested relationships.
-If you want to support writable nested relationships you’ll need
-to write an explicit <cite>.create()</cite> method.</p>
+<dd><p>Cria uma solicitação de suspensão de CEI com os períodos escolares.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados da solicitação, incluindo
+a lista <code class="docutils literal notranslate"><span class="pre">periodos_escolares</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instância criada com os períodos
+escolares vinculados.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI" title="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI">SuspensaoAlimentacaoDaCEI</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Atualiza uma solicitação de suspensão de CEI recriando seus períodos.</p>
+<p>Remove os períodos escolares existentes e define os novos a partir
+dos dados validados.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instance</strong> (<a class="reference internal" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI" title="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><em>SuspensaoAlimentacaoDaCEI</em></a>) – Instância existente a ser
+atualizada.</p></li>
+<li><p><strong>validated_data</strong> (<em>dict</em>) – Dados validados da requisição.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instância atualizada com os novos
+períodos escolares.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI" title="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI">SuspensaoAlimentacaoDaCEI</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.validate">
 <span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/serializers_create.html#SuspensaoAlimentacaodeCEICreateSerializer.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.serializers_create.SuspensaoAlimentacaodeCEICreateSerializer.validate" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Valida as regras de negócio para a data da solicitação CEI.</p>
+<p>A data não pode ser no passado, deve pedir com antecedência e deve
+pertencer ao ano corrente.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attrs</strong> (<em>dict</em>) – Atributos validados contendo a chave <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Atributos validados após a aplicação das regras de
+negócio.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -667,41 +793,163 @@ to write an explicit <cite>.create()</cite> method.</p>
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SuspensaoAlimentacaoDaCEIViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataSolicitacaoContextMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code></p>
+<p>ViewSet para gerenciamento de solicitações de suspensão de CEI.</p>
+<p>Gerencia o ciclo de vida completo das solicitações de suspensão de
+alimentação de CEI: criação, leitura, atualização, exclusão e ações do
+fluxo informativo partindo da escola.</p>
+<dl class="simple">
+<dt>Actions de fluxo disponíveis:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">informa_suspensao</span></code>: Escola informa a suspensão (RASCUNHO → INFORMADO).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cancela_suspensao_cei</span></code>: Escola cancela a suspensão (INFORMADO/TERCEIRIZADA_TOMOU_CIENCIA → ESCOLA_CANCELOU).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.cancela_suspensao_cei">
 <span class="sig-name descname"><span class="pre">cancela_suspensao_cei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.cancela_suspensao_cei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.cancela_suspensao_cei" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Cancela a suspensão de CEI pela escola.</p>
+<p>Passa do status INFORMADO ou TERCEIRIZADA_TOMOU_CIENCIA para
+ESCOLA_CANCELOU.</p>
+<ul class="simple">
+<li><p>permissão: Escola terceirizada.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP. Deve conter
+<code class="docutils literal notranslate"><span class="pre">justificativa</span></code> no body.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instância de
+<code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code>. Padrão: None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dados serializados da solicitação após o cancelamento,
+ou erro 400 em caso de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>InvalidTransitionError</strong> – Quando a transição de estado não é
+    permitida pelo workflow.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.destroy">
 <span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.destroy" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Remove a solicitação se o status permitir exclusão.
+- somente solicitações com status RASCUNHO podem ser excluídas.
+- permissão: Escola terceirizada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP.</p></li>
+<li><p><strong>*args</strong> – Argumentos posicionais adicionais.</p></li>
+<li><p><strong>**kwargs</strong> – Argumentos nomeados adicionais, incluindo <code class="docutils literal notranslate"><span class="pre">uuid</span></code> do
+objeto.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta vazia com status 204 em caso de sucesso, ou
+erro 403 quando o status não permite exclusão.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_permissions">
 <span class="sig-name descname"><span class="pre">get_permissions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.get_permissions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_permissions" title="Link to this definition"></a></dt>
-<dd><p>Instantiates and returns the list of permissions that this view requires.</p>
+<dd><p>Retorna a lista de permissões necessárias para a ação atual.</p>
+<ul class="simple">
+<li><p>Para a ação <code class="docutils literal notranslate"><span class="pre">list</span></code>: requer <code class="docutils literal notranslate"><span class="pre">IsAdminUser</span></code>.</p></li>
+<li><p>Para as ações <code class="docutils literal notranslate"><span class="pre">retrieve</span></code> e <code class="docutils literal notranslate"><span class="pre">update</span></code>: requer autenticação e
+<code class="docutils literal notranslate"><span class="pre">PermissaoParaRecuperarObjeto</span></code>.</p></li>
+<li><p>Para as ações <code class="docutils literal notranslate"><span class="pre">create</span></code> e <code class="docutils literal notranslate"><span class="pre">destroy</span></code>: requer
+<code class="docutils literal notranslate"><span class="pre">UsuarioEscolaTercTotal</span></code>.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Lista de instâncias de classes de permissão configuradas
+para a ação atual.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_serializer_class">
 <span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_serializer_class" title="Link to this definition"></a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
+<dd><p>Retorna a classe de serializer adequada para a ação atual.</p>
+<ul class="simple">
+<li><p>Para as ações <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> e <code class="docutils literal notranslate"><span class="pre">partial_update</span></code>: utiliza
+<code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaodeCEICreateSerializer</span></code>.</p></li>
+<li><p>Para as demais ações: utiliza
+<code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEISerializer</span></code>.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Classe de serializer a ser utilizada na ação corrente.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informa_suspensao">
 <span class="sig-name descname"><span class="pre">informa_suspensao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.informa_suspensao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informa_suspensao" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Informa a suspensão de CEI, iniciando o fluxo pela escola.
+- sai do status RASCUNHO e passa para INFORMADO.
+- permissão: Escola terceirizada.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP contendo o usuário
+autenticado.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instância de
+<code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code>. Padrão: None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dados serializados da solicitação após a transição, ou
+erro 400 em caso de transição inválida.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>InvalidTransitionError</strong> – Quando a transição de estado não é
+    permitida pelo workflow.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informadas">
 <span class="sig-name descname"><span class="pre">informadas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.informadas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informadas" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna as suspensões de CEI com status INFORMADO.
+- permissão: qualquer usuário autenticado.</p>
+<p>Os resultados são ordenados por ID decrescente.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lista serializada das suspensões de CEI informadas.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.lookup_field">
@@ -711,7 +959,22 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.meus_rascunhos">
 <span class="sig-name descname"><span class="pre">meus_rascunhos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.meus_rascunhos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.meus_rascunhos" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Retorna as suspensões de CEI em rascunho do usuário logado.
+- permissão: Escola terceirizada.</p>
+<p>Os resultados são paginados.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP contendo o usuário
+autenticado.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta paginada com a lista de rascunhos do usuário.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.permission_classes">
@@ -726,7 +989,24 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.relatorio">
 <span class="sig-name descname"><span class="pre">relatorio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.relatorio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.relatorio" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gera e retorna o relatório da suspensão de CEI em PDF.
+- permissão: qualquer usuário autenticado com acesso à solicitação.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instância de
+<code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code>. Padrão: None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resposta contendo o PDF do relatório gerado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.serializer_class">
@@ -737,7 +1017,27 @@ serializations depending on the incoming request.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida">
 <span class="sig-name descname"><span class="pre">terceirizada_marca_inclusao_como_conferida</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/cardapio/suspensao_alimentacao_cei/api/viewsets.html#SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.terceirizada_marca_inclusao_como_conferida" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Marca a suspensão de CEI como conferida pela empresa terceirizada.
+- ou seja, a empresa visualizou a solicitação e está ciente.
+- permissão: qualquer usuário autenticado.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Request</em>) – Objeto da requisição HTTP contendo o usuário
+autenticado.</p></li>
+<li><p><strong>uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – UUID da instância de
+<code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code>. Padrão: None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dados serializados da solicitação após a marcação, ou
+erro 400 em caso de falha.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Response</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
