@@ -119,65 +119,267 @@ CEI que um dia previamente letivo não haverá aula por força maior.</p>
 unidades de CEI e utiliza um relacionamento M2M com períodos escolares
 em vez de uma tabela auxiliar de quantidades por período.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.DESCRICAO">
-<span class="sig-name descname"><span class="pre">DESCRICAO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Suspensão</span> <span class="pre">de</span> <span class="pre">Alimentação</span> <span class="pre">de</span> <span class="pre">CEI'</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.DESCRICAO" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.DoesNotExist">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.DoesNotExist" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.MultipleObjectsReturned">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.MultipleObjectsReturned" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_em">
-<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_em" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação do registro.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por">
-<span class="sig-name descname"><span class="pre">criado_por</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+<span class="sig-name descname"><span class="pre">criado_por</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Usuário responsável pela criação do registro. O campo ainda permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por_id">
-<span class="sig-name descname"><span class="pre">criado_por_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">criado_por_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.criado_por_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador do usuário responsável pela criação do registro.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">perfil.Usuario</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.data">
-<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.data" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
+<span class="sig-name descname"><span class="pre">data</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.data" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Data da suspensão de alimentação de CEI.</p>
+<p>Representa o dia letivo em que não haverá aula na unidade educacional de CEI.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola">
-<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+<span class="sig-name descname"><span class="pre">escola</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Escola</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ForeignKey</span></code></p>
+<p><strong>Descrição:</strong>
+Escola de CEI que efetuou a solicitação de suspensão de alimentação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ForeignKey</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da escola de CEI que efetuou a solicitação de suspensão de alimentação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Escola</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.Model</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador interno do registro no banco de dados.</p>
+<p>Corresponde à chave primária gerada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo">
+<span class="sig-name descname"><span class="pre">motivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cardapio.MotivoSuspensao</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ForeignKey</span></code></p>
+<p><strong>Descrição:</strong>
+Motivo associado à solicitação de suspensão de alimentação de CEI.</p>
+<dl class="simple">
+<dt>Motivos disponíveis:</dt><dd><ul class="simple">
+<li><p>Unidade sem atendimento</p></li>
+<li><p>Parada Pedagógica</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo_id">
+<span class="sig-name descname"><span class="pre">motivo_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ForeignKey</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador do motivo associado à solicitação de suspensão de alimentação de CEI.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">MotivoSuspensao</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.outro_motivo">
+<span class="sig-name descname"><span class="pre">outro_motivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.outro_motivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.CharField</span></code></p>
+<p><strong>Descrição:</strong>
+Campo de texto livre para registrar um motivo alternativo, quando o motivo principal for “Outro”.</p>
+<p>Pode ser uma string vazia, pois o campo permite <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.observacao">
+<span class="sig-name descname"><span class="pre">observacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.observacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Campo de texto livre para registrar observações complementares da solicitação.</p>
+<p>Pode ser uma string vazia, pois o campo permite <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.periodos_escolares">
+<span class="sig-name descname"><span class="pre">periodos_escolares</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.Manager</span><span class="p"><span class="pre">[</span></span><span class="pre">escola.PeriodoEscolar</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.periodos_escolares" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django.db.models.ManyToManyField</span></code></p>
+<p><strong>Descrição:</strong>
+Períodos escolares associados à solicitação de suspensão de alimentação de CEI.</p>
+<p>Exemplo: manhã, tarde, noite ou integral, conforme os períodos cadastrados para a unidade.</p>
+<p>Trata-se de uma relação muitos-para-muitos com <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.PeriodoEscolar</span></code>.
+Pode ser uma lista vazia, pois o campo permite <code class="docutils literal notranslate"><span class="pre">blank</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre">
+<span class="sig-name descname"><span class="pre">rastro_dre</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.DiretoriaRegional</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Diretoria Regional de Educação vinculada ao rastro histórico da solicitação.</p>
+<p>Representa a DRE da escola no momento em que o rastro do pedido foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre_id">
+<span class="sig-name descname"><span class="pre">rastro_dre_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da DRE vinculada ao rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.DiretoriaRegional</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola">
+<span class="sig-name descname"><span class="pre">rastro_escola</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Escola</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Escola registrada no rastro histórico da solicitação.</p>
+<p>Representa a escola vinculada ao pedido no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola_id">
+<span class="sig-name descname"><span class="pre">rastro_escola_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da escola registrada no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Escola</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote">
+<span class="sig-name descname"><span class="pre">rastro_lote</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">escola.Lote</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Lote registrado no rastro histórico da solicitação.</p>
+<p>Representa o lote da escola no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote_id">
+<span class="sig-name descname"><span class="pre">rastro_lote_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador do lote registrado no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">escola.Lote</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Terceirizada</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Terceirizada registrada no rastro histórico da solicitação.</p>
+<p>Representa a empresa terceirizada vinculada ao lote da escola no momento em que o rastro foi salvo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada_id">
+<span class="sig-name descname"><span class="pre">rastro_terceirizada_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada_id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoInformativoPartindoDaEscola</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador da terceirizada registrada no rastro histórico da solicitação.</p>
+<p>Corresponde à chave primária de <code class="xref py py-class docutils literal notranslate"><span class="pre">terceirizada.Terceirizada</span></code>.
+Pode ser <code class="docutils literal notranslate"><span class="pre">None</span></code> (campo permite <code class="docutils literal notranslate"><span class="pre">null</span></code> e <code class="docutils literal notranslate"><span class="pre">blank</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.status" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django_xworkflows.models.StateField</span></code></p>
+<p><strong>Descrição:</strong>
+Estado atual da solicitação dentro do workflow informativo partindo da escola.</p>
+<p>Armazena um dos valores definidos em <code class="xref py py-class docutils literal notranslate"><span class="pre">InformativoPartindoDaEscolaWorkflow</span></code>, como <code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code>, <code class="docutils literal notranslate"><span class="pre">INFORMADO</span></code>, <code class="docutils literal notranslate"><span class="pre">TERCEIRIZADA_TOMOU_CIENCIA</span></code> ou <code class="docutils literal notranslate"><span class="pre">ESCOLA_CANCELOU</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_conferiu_gestao">
+<span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Indica se a terceirizada marcou ciência da solicitação na Gestão de Alimentação.</p>
+<p>Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, registra que a empresa conferiu o pedido sem necessariamente alterar o status do workflow.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_status_display">
+<span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_status_display" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">django_xworkflows.models.StateField</span></code></p>
+<p><strong>Descrição:</strong>
+Relacionado ao campo <code class="docutils literal notranslate"><span class="pre">status</span></code> do workflow.</p>
+<p>Retorna a representação legível (label) do status atual da instância.</p>
+<p>O valor retornado corresponde ao texto definido em <code class="docutils literal notranslate"><span class="pre">states</span></code> do workflow,
+sendo mais apropriado para exibição em interfaces (ex: telas e relatórios).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Texto legível do status</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+<p>Exemplo: <code class="docutils literal notranslate"><span class="pre">INFORMADO</span></code> retorna <code class="docutils literal notranslate"><span class="pre">&quot;Informado&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code></p>
+<p><strong>Descrição:</strong>
+Identificador único do registro.</p>
+<p>Gerado automaticamente no momento da criação, sendo utilizado como
+identificador externo amigável.</p>
+<p>Pode ser utilizado em integrações externas e URLs públicas,
+evitando a exposição do identificador interno (ID).</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -193,11 +395,6 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola_id">
-<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.escola_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_informados">
@@ -216,26 +413,6 @@ one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_next_by_criado_em">
-<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_next_by_criado_em" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_next_by_data">
-<span class="sig-name descname"><span class="pre">get_next_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_next_by_data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_previous_by_criado_em">
-<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_previous_by_criado_em" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_previous_by_data">
-<span class="sig-name descname"><span class="pre">get_previous_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_previous_by_data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_rascunhos_do_usuario">
@@ -259,18 +436,6 @@ solicitações.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_status_display">
-<span class="sig-name descname"><span class="pre">get_status_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django_xworkflows.models.StateField:</span> <span class="pre">status&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.get_status_display" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.id" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.informa">
 <span class="sig-name descname"><span class="pre">informa</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.informa" title="Link to this definition"></a></dt>
@@ -286,24 +451,6 @@ object the first time, the query is executed.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo">
-<span class="sig-name descname"><span class="pre">motivo</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo_id">
-<span class="sig-name descname"><span class="pre">motivo_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.motivo_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.numero_alunos">
@@ -323,25 +470,6 @@ todos os tipos de solicitação.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.objects">
-<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.objects" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.observacao">
-<span class="sig-name descname"><span class="pre">observacao</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.observacao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.outro_motivo">
-<span class="sig-name descname"><span class="pre">outro_motivo</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.outro_motivo" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.path">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.path" title="Link to this definition"></a></dt>
@@ -359,94 +487,6 @@ object the first time, the query is executed.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.periodos_escolares">
-<span class="sig-name descname"><span class="pre">periodos_escolares</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.periodos_escolares" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related objects manager on the forward and reverse sides of
-a many-to-many relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pizza</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">toppings</span> <span class="o">=</span> <span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Topping</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;pizzas&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Pizza.toppings</span></code> and <code class="docutils literal notranslate"><span class="pre">Topping.pizzas</span></code> are <code class="docutils literal notranslate"><span class="pre">ManyToManyDescriptor</span></code>
-instances.</p>
-<p>Most of the implementation is delegated to a dynamically defined manager
-class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre">
-<span class="sig-name descname"><span class="pre">rastro_dre</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre_id">
-<span class="sig-name descname"><span class="pre">rastro_dre_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_dre_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola">
-<span class="sig-name descname"><span class="pre">rastro_escola</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola_id">
-<span class="sig-name descname"><span class="pre">rastro_escola_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_escola_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote">
-<span class="sig-name descname"><span class="pre">rastro_lote</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote_id">
-<span class="sig-name descname"><span class="pre">rastro_lote_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_lote_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada">
-<span class="sig-name descname"><span class="pre">rastro_terceirizada</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada" title="Link to this definition"></a></dt>
-<dd><p>Accessor to the related object on the forward side of a many-to-one or
-one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
-<p>In the example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada_id">
-<span class="sig-name descname"><span class="pre">rastro_terceirizada_id</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.rastro_terceirizada_id" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.salvar_log_transicao">
@@ -497,18 +537,6 @@ compatibilidade de interface, sem uso direto no método.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.status">
-<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;src.dados_comuns.fluxo_status.InformativoPartindoDaEscolaWorkflow</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.status" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_conferiu_gestao">
-<span class="sig-name descname"><span class="pre">terceirizada_conferiu_gestao</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_conferiu_gestao" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_toma_ciencia">
 <span class="sig-name descname"><span class="pre">terceirizada_toma_ciencia</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.terceirizada_toma_ciencia" title="Link to this definition"></a></dt>
 <dd><p>Deprecado.</p>
@@ -537,13 +565,6 @@ object the first time, the query is executed.</p>
 <dd class="field-even"><p>str</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI.uuid" title="Link to this definition"></a></dt>
-<dd><p>A wrapper for a deferred-loading field. When the value is read from this
-object the first time, the query is executed.</p>
 </dd></dl>
 
 </dd></dl>
