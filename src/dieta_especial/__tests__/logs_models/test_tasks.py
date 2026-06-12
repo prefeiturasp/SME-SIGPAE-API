@@ -126,7 +126,7 @@ def setup_dietas_especiais(
 
 
 @freeze_time("2025-02-02")
-def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados(
+def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados_sem_duplicidade(
     escola_cemei,
     escola_emebs,
     escola_cei,
@@ -137,6 +137,12 @@ def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados(
     aluno_factory,
     monkeypatch,
 ):
+    """
+    Garante que, ao executar a task de geração de logs de dietas especiais
+    autorizadas os mesmos sejam criados, e em caso de execução mais de uma
+    vez para a mesma data, não sejam criados registros duplicados
+    de ``LogQuantidadeDietasAutorizadas``.
+    """
     set_up_faixas_etarias(faixa_etaria_factory)
     setup_dietas_especiais(
         escola_cemei,
@@ -159,5 +165,9 @@ def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados(
         },
     )
     assert Aluno.objects.filter(dietas_especiais__isnull=False).count() == 5
+
+    gera_logs_dietas_especiais_diariamente()
+    assert LogQuantidadeDietasAutorizadas.objects.count() == 18
+
     gera_logs_dietas_especiais_diariamente()
     assert LogQuantidadeDietasAutorizadas.objects.count() == 18
