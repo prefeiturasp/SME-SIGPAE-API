@@ -3946,16 +3946,26 @@ def somar_campos_somatorio_recreio_nas_ferias(medicao, campo, dict_total_refeico
 def _get_total_dieta_por_tipo(medicao, tipo_dieta: str, nome_categoria: str, campo: str) -> int:
     if not medicao:
         return 0
+
+    # MAPEAMENTO: Campos de dieta no Recreio nas Férias usam sufixo 1ª oferta
+    # para Refeição e Sobremesa
+    MAPA_CAMPOS_DIETA = {
+        "refeicao": "refeicao_1_oferta",
+        "sobremesa": "sobremesa_1_oferta",
+    }
+    campo_busca = MAPA_CAMPOS_DIETA.get(campo, campo)
+
     if tipo_dieta == "TIPO A":
         values = medicao.valores_medicao.filter(
             categoria_medicao__nome=nome_categoria,
-            nome_campo=campo,
+            nome_campo=campo_busca,
         )
     else:
         values = medicao.valores_medicao.filter(
             categoria_medicao__nome__icontains=nome_categoria,
-            nome_campo=campo,
+            nome_campo=campo_busca,
         )
+
     return sum(int(v.valor) for v in values)
 
 
@@ -4006,7 +4016,7 @@ def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes,
 
     MAPA_TIPO_DIETA = {
         "TIPO A": "DIETA ESPECIAL - TIPO A",
-        "ENTERAL": "ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "ENTERAL": "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
         "TIPO B": "DIETA ESPECIAL - TIPO B",
     }
 
@@ -4017,7 +4027,6 @@ def build_tabela_somatorio_recreio_nas_ferias(solicitacao, dict_total_refeicoes,
         .distinct()
     ) if medicao_recreio else set()
 
-    # Apenas as dietas que existem na medição, mantendo a ordem do MAPA
     dietas_ativas = {
         tipo: nome_categoria
         for tipo, nome_categoria in MAPA_TIPO_DIETA.items()
