@@ -23,6 +23,8 @@ from src.dieta_especial.tasks.utils.logs import (
     gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei,
     filtrar_logs_comuns_ja_existentes,
     filtrar_logs_cei_ja_existentes,
+    filtrar_logs_recreio_ferias_ja_existentes,
+    filtrar_logs_recreio_ferias_cei_ja_existentes,
 )
 from src.escola.models import Escola
 from src.escola.utils import datas_para_gerar_logs
@@ -195,9 +197,18 @@ def gera_logs_dietas_recreio_ferias_diariamente():
             )
             logs_a_criar_comuns += logs_comuns
 
+    logs_a_criar_comuns = filtrar_logs_recreio_ferias_ja_existentes(
+        logs_a_criar_comuns
+    )
+
+    logs_a_criar_cei = filtrar_logs_recreio_ferias_cei_ja_existentes(
+        logs_a_criar_cei
+    )
+
     LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.bulk_create(
         logs_a_criar_comuns
     )
+
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.bulk_create(
         logs_a_criar_cei
     )
