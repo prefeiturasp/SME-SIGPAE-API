@@ -70,7 +70,7 @@
              
   <h1>Source code for src.pre_recebimento.cronograma_entrega.models</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OuterRef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OuterRef</span><span class="p">,</span> <span class="n">Sum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models.signals</span><span class="w"> </span><span class="kn">import</span> <span class="n">post_save</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">receiver</span>
 
@@ -241,7 +241,51 @@
         <span class="k">for</span> <span class="n">numero</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span>
             <span class="n">choice</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">numero</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Etapa </span><span class="si">{</span><span class="n">numero</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span></div>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_estimada_disponivel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calcula a quantidade remanescente disponível para este mês.</span>
+
+<span class="sd">        Agrega a quantidade de TODAS as etapas do mesmo cronograma e mês,</span>
+<span class="sd">        subtrai a soma de todas as programações semanais (ProgramacaoEntregaSemanal)</span>
+<span class="sd">        vinculadas ao mesmo cronograma e mesmo mês.</span>
+
+<span class="sd">        Todas as etapas do mesmo mês retornam o mesmo valor (o saldo agregado do mês),</span>
+<span class="sd">        evitando dupla-contagem quando há múltiplas etapas no mesmo período.</span>
+
+<span class="sd">        Retorna None se não for possível calcular (sem data ou sem cronograma),</span>
+<span class="sd">        ou um float com o saldo restante.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_programada</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cronograma</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_semanal.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">ProgramacaoEntregaSemanal</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">mes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%m/%Y&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Soma da quantidade de TODAS as etapas deste cronograma e mês</span>
+        <span class="n">total_etapas</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">EtapasDoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">cronograma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cronograma</span><span class="p">,</span>
+                <span class="n">data_programada__month</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+                <span class="n">data_programada__year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_programada</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;quantidade&quot;</span><span class="p">))[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span>
+            <span class="ow">or</span> <span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Soma de todas as programações semanais deste cronograma e mês</span>
+        <span class="n">total_entregue</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ProgramacaoEntregaSemanal</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">cronograma_semanal__cronograma_mensal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cronograma</span><span class="p">,</span>
+                <span class="n">mes_programado</span><span class="o">=</span><span class="n">mes</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;quantidade&quot;</span><span class="p">))[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span>
+            <span class="ow">or</span> <span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_etapas</span><span class="p">)</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_entregue</span><span class="p">)</span></div>
 
 
 

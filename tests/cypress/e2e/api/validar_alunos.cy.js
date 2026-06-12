@@ -48,7 +48,7 @@ describe('Validar rotas de alunos da aplicação SIGPAE', () => {
 
 		it('Validar GET aluno pertence a escola retornando verdadeiro', () => {
 			var codigo_eol = 6577549
-			var escola_codigo_eol = 123456
+			var escola_codigo_eol = '019769'
 			cy.validar_alunos_e_escola_codigo_eol(codigo_eol, escola_codigo_eol).then(
 				(response) => {
 					expect(response.status).to.eq(200)

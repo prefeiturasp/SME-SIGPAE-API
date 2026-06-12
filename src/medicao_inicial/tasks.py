@@ -38,6 +38,7 @@ from ..relatorios.relatorios import (
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
     relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
+    relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
     relatorio_solicitacao_medicao_por_escola_emebs,
@@ -133,7 +134,7 @@ def criar_nova_solicitacao(solicitacao_anterior, escola, data_hoje):
 
 def copiar_responsaveis(solicitacao_origem, solicitacao_destino):
     for responsavel in solicitacao_origem.responsaveis.all():
-        Responsavel.objects.create(
+        Responsavel.objects.get_or_create(
             solicitacao_medicao_inicial=solicitacao_destino,
             nome=responsavel.nome,
             rf=responsavel.rf,
@@ -145,7 +146,7 @@ def copiar_alunos_periodo_parcial(solicitacao_origem, solicitacao_destino):
         data_removido__isnull=True
     )
     for aluno in alunos_em_periodo_parcial:
-        AlunoPeriodoParcial.objects.create(
+        AlunoPeriodoParcial.objects.get_or_create(
             solicitacao_medicao_inicial=solicitacao_destino,
             aluno=aluno.aluno,
             escola=solicitacao_destino.escola,
@@ -223,16 +224,24 @@ def gera_pdf_relatorio_solicitacao_medicao_por_escola_async(
 
 
 def get_relatorio_solicitacao_medicao_por_escola(solicitacao):
-    if solicitacao.escola.eh_cei_data(solicitacao.data_referencia):
-        return relatorio_solicitacao_medicao_por_escola_cei
-    elif solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
-        return relatorio_solicitacao_medicao_por_escola_cemei
-    elif solicitacao.escola.eh_emebs_data(solicitacao.data_referencia):
-        return relatorio_solicitacao_medicao_por_escola_emebs
-    elif getattr(solicitacao, "recreio_nas_ferias", None):
-        return relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias
-    else:
-        return relatorio_solicitacao_medicao_por_escola
+    escola = solicitacao.escola
+    data_ref = solicitacao.data_referencia
+    tem_recreio = getattr(solicitacao, "recreio_nas_ferias", None)
+    eh_cei = escola.eh_cei_data(data_ref)
+
+    _RELATORIO_MAP = [
+        (tem_recreio and eh_cei, relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias),
+        (tem_recreio, relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias),
+        (eh_cei, relatorio_solicitacao_medicao_por_escola_cei),
+        (escola.eh_cemei_data(data_ref), relatorio_solicitacao_medicao_por_escola_cemei),
+        (escola.eh_emebs_data(data_ref), relatorio_solicitacao_medicao_por_escola_emebs),
+    ]
+
+    for condicao, relatorio_fn in _RELATORIO_MAP:
+        if condicao:
+            return relatorio_fn
+
+    return relatorio_solicitacao_medicao_por_escola
 
 
 @shared_task(

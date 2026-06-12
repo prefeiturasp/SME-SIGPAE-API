@@ -11,7 +11,6 @@ from src.cardapio.suspensao_alimentacao.models import (
     MotivoSuspensao,
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
-    SuspensaoAlimentacaoNoPeriodoEscolar,
 )
 from src.dados_comuns.fluxo_status import InformativoPartindoDaEscolaWorkflow
 
@@ -89,14 +88,6 @@ def grupo_suspensao_alimentacao_params(request):
 @pytest.fixture
 def suspensao_alimentacao(motivo_suspensao_alimentacao):
     return baker.make(SuspensaoAlimentacao, motivo=motivo_suspensao_alimentacao)
-
-
-@pytest.fixture
-def suspensao_periodo_escolar(suspensao_alimentacao):
-    return baker.make(
-        SuspensaoAlimentacaoNoPeriodoEscolar,
-        suspensao_alimentacao=suspensao_alimentacao,
-    )
 
 
 @pytest.fixture

@@ -20,6 +20,10 @@ from src.escola.models import Escola, PeriodoEscolar
 from src.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
 from src.kit_lanche.models import SolicitacaoKitLancheUnificada
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
+from src.medicao_inicial.recreio_nas_ferias.models import (
+    RecreioNasFerias,
+    RecreioNasFeriasUnidadeParticipante,
+)
 from src.paineis_consolidados.api.constants import (
     AGUARDANDO_INICIO_VIGENCIA_DIETA_ESPECIAL,
     ALTERACOES_ALIMENTACAO_AUTORIZADAS,
@@ -735,6 +739,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         mes,
         ano,
         return_dict,
+        recreio_data_inicio=None,
+        recreio_data_fim=None,
+        periodos_recreio_excluir=None,
     ):
         """Monta o retorno das alteracoes classificadas como lanche emergencial.
 
@@ -764,6 +771,17 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         datas_intervalo = self.filtra_por_periodo_escolar(
             datas_intervalo, alteracao, nome_periodo_escolar
         )
+        if recreio_data_inicio and recreio_data_fim:
+            datas_intervalo = datas_intervalo.filter(
+                data__gte=recreio_data_inicio,
+                data__lte=recreio_data_fim,
+            )
+        elif periodos_recreio_excluir:
+            for data_inicio, data_fim in periodos_recreio_excluir:
+                datas_intervalo = datas_intervalo.exclude(
+                    data__gte=data_inicio,
+                    data__lte=data_fim,
+                )
         for data_evento in datas_intervalo:
             return_dict.append(
                 {
@@ -841,6 +859,26 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         ano = request.query_params.get("ano")
         nome_periodo_escolar = request.query_params.get("nome_periodo_escolar")
         eh_lanche_emergencial = request.query_params.get("eh_lanche_emergencial", "")
+        recreio_nas_ferias = request.query_params.get("recreio_nas_ferias")
+        recreio_data_inicio = None
+        recreio_data_fim = None
+        periodos_recreio_excluir = None
+
+        if eh_lanche_emergencial == "true" and recreio_nas_ferias:
+            unidade_recreio = self._get_recreio_nas_ferias_unidade(
+                recreio_nas_ferias,
+                escola_uuid,
+            )
+
+            if unidade_recreio is None:
+                return Response({"results": []}, status=status.HTTP_200_OK)
+
+            recreio_data_inicio = unidade_recreio.recreio_nas_ferias.data_inicio
+            recreio_data_fim = unidade_recreio.recreio_nas_ferias.data_fim
+        elif eh_lanche_emergencial == "true":
+            periodos_recreio_excluir = list(
+                self._get_periodos_recreio_nas_ferias_unidade(escola_uuid)
+            )
 
         query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
@@ -864,6 +902,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 mes,
                 ano,
                 return_dict,
+                recreio_data_inicio,
+                recreio_data_fim,
+                periodos_recreio_excluir,
             )
             return_dict = self.alteracoes_RPL_LPR(
                 eh_lanche_emergencial,
@@ -879,22 +920,168 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
         return Response(data)
 
+    def _get_recreio_nas_ferias_unidade(self, recreio_uuid, escola_uuid):
+        """Retorna o RecreioNasFeriasUnidadeParticipante ativo para a escola, ou None.
+
+        Retorna None se o objeto RecreioNasFerias não existir, se a escola não
+        for participante ou se liberar_medicao for False.
+        """
+        try:
+            recreio = RecreioNasFerias.objects.get(uuid=recreio_uuid)
+        except RecreioNasFerias.DoesNotExist:
+            return None
+
+        unidade = recreio.unidades_participantes.filter(
+            unidade_educacional__uuid=escola_uuid
+        ).first()
+        if unidade is None:
+            return None
+
+        if not unidade.liberar_medicao:
+            return None
+
+        return unidade
+
+    def _get_periodos_recreio_nas_ferias_unidade(self, escola_uuid):
+        return RecreioNasFeriasUnidadeParticipante.objects.filter(
+            unidade_educacional__uuid=escola_uuid,
+            liberar_medicao=True,
+        ).values_list(
+            "recreio_nas_ferias__data_inicio",
+            "recreio_nas_ferias__data_fim",
+        )
+
     @action(detail=False, methods=["GET"], url_path=f"{KIT_LANCHES_AUTORIZADAS}")
     def kit_lanches_autorizadas(self, request):
+        """Retorna kits lanches autorizados para a escola no mes e ano informados.
+
+        A consulta considera apenas solicitações autorizadas e eventos anteriores
+        ao dia atual. Quando um UUID de recreio é informado, o retorno fica
+        restrito ao intervalo daquele recreio (desde que a unidade participe e
+        tenha medição liberada). Sem esse parâmetro, os eventos em períodos de
+        recreio com medição liberada são removidos.
+
+        Args:
+            request (Request): Requisição HTTP com os parâmetros de query:
+                escola_uuid (str): UUID da escola.
+                mes (str | int): Mês de referência.
+                ano (str | int): Ano de referência.
+                recreio_nas_ferias (str, optional): UUID do recreio para
+                    filtrar um período específico.
+
+        Returns:
+            Response: Payload no formato
+                {"results": [{"dia", "numero_alunos", "kit_lanche_id_externo"}]}
+        """
         escola_uuid = request.query_params.get("escola_uuid")
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
+        recreio_uuid = request.query_params.get("recreio_nas_ferias")
 
         query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
         query_set = query_set.filter(data_evento__month=mes, data_evento__year=ano)
         query_set = query_set.filter(data_evento__lt=datetime.date.today())
+
+        if recreio_uuid:
+            query_set = self._filtra_por_recreio_especifico(
+                query_set,
+                recreio_uuid,
+                escola_uuid,
+            )
+
+            if query_set is None:
+                return Response({"results": []})
+        else:
+            query_set = self._remove_eventos_em_periodos_de_recreio(
+                query_set,
+                escola_uuid,
+            )
+
         query_set = self.remove_duplicados_do_query_set(query_set)
 
         results = self._build_results_kit_lanches(query_set, escola_uuid)
         return Response({"results": results})
 
+    def _filtra_por_recreio_especifico(
+        self,
+        query_set,
+        recreio_uuid,
+        escola_uuid,
+    ):
+        """Filtra eventos para o intervalo de um recreio especifico.
+
+        Args:
+            query_set (QuerySet): Solicitações consolidadas candidatas.
+            recreio_uuid (str): UUID do Recreio nas férias.
+            escola_uuid (str): UUID da escola usada para validar participação.
+
+        Returns:
+            QuerySet | None: QuerySet filtrado por data quando a unidade e
+            participante com medicao liberada. Retorna None quando o recreio
+            não existe, a escola não participa ou a medicao não esta liberada.
+        """
+        unidade = self._get_recreio_nas_ferias_unidade(
+            recreio_uuid,
+            escola_uuid,
+        )
+
+        if unidade is None:
+            return None
+
+        recreio = unidade.recreio_nas_ferias
+
+        return query_set.filter(
+            data_evento__gte=recreio.data_inicio,
+            data_evento__lte=recreio.data_fim,
+        )
+
+    def _remove_eventos_em_periodos_de_recreio(
+        self,
+        query_set,
+        escola_uuid,
+    ):
+        """Remove eventos que acontecem durante periodos de recreio liberados.
+
+        Args:
+            query_set (QuerySet): Solicitações consolidadas candidatas.
+            escola_uuid (str): UUID da escola para obter os períodos de recreio.
+
+        Returns:
+            QuerySet: QuerySet contendo apenas eventos fora de todos os
+            intervalos de recreio com medição liberada para a unidade.
+        """
+        periodos_recreio = self._get_periodos_recreio_nas_ferias_unidade(escola_uuid)
+
+        filtro_fora_de_todos_os_recreios = Q()
+        tem_periodo_recreio = False
+
+        for data_inicio, data_fim in periodos_recreio:
+            tem_periodo_recreio = True
+            filtro_fora_de_todos_os_recreios &= Q(data_evento__lt=data_inicio) | Q(
+                data_evento__gt=data_fim
+            )
+
+        if tem_periodo_recreio:
+            return query_set.filter(filtro_fora_de_todos_os_recreios)
+
+        return query_set
+
     def _build_results_kit_lanches(self, query_set, escola_uuid):
+        """Monta a lista de itens de resposta para kits lanches autorizados.
+
+        Para Kit Lanche CEMEI, usa `total_kits_medicao_inicial`. Para os
+        demais casos, usa `total_kit_lanche_escola` em solicitações unificadas
+        e `quantidade_alimentacoes` nos demais modelos.
+
+        Args:
+            query_set (QuerySet): Solicitações consolidadas já filtradas.
+            escola_uuid (str): UUID da escola usado no cálculo de unificadas.
+
+        Returns:
+            list[dict]: Lista no formato
+                [{"dia", "numero_alunos", "kit_lanche_id_externo"}].
+        """
         results = []
 
         for item in query_set:

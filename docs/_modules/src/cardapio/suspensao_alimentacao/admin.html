@@ -82,6 +82,12 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoInline">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacaoInline">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoInline</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">TabularInline</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inline para gerenciar ``SuspensaoAlimentacao`` vinculadas ao grupo.</span>
+
+<span class="sd">    Permite adicionar e editar as datas de suspensão diretamente no formulário</span>
+<span class="sd">    de administração da solicitação de suspensão de alimentação.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">model</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacao</span>
     <span class="n">extra</span> <span class="o">=</span> <span class="mi">1</span></div>
 
@@ -90,6 +96,12 @@
 <div class="viewcode-block" id="QuantidadePorPeriodoSuspensaoAlimentacaoInline">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.QuantidadePorPeriodoSuspensaoAlimentacaoInline">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacaoInline</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">TabularInline</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inline para gerenciar ``QuantidadePorPeriodoSuspensaoAlimentacao``.</span>
+
+<span class="sd">    Permite adicionar e editar as quantidades de alunos por período escolar</span>
+<span class="sd">    diretamente no formulário de administração da solicitação.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">model</span> <span class="o">=</span> <span class="n">QuantidadePorPeriodoSuspensaoAlimentacao</span>
     <span class="n">extra</span> <span class="o">=</span> <span class="mi">1</span></div>
 
@@ -99,6 +111,13 @@
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacaoModelAdmin">[docs]</a>
 <span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">GrupoSuspensaoAlimentacao</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GrupoSuspensaoAlimentacaoModelAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Admin do Django para solicitações de suspensão de alimentação.</span>
+
+<span class="sd">    Configura a listagem administrativa de :class:`GrupoSuspensaoAlimentacao`,</span>
+<span class="sd">    com inlines para gerenciar as datas de suspensão e as quantidades por</span>
+<span class="sd">    período escolar associadas à solicitação.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">SuspensaoAlimentacaoInline</span><span class="p">,</span>
         <span class="n">QuantidadePorPeriodoSuspensaoAlimentacaoInline</span><span class="p">,</span>

@@ -20,13 +20,6 @@ def test_suspensao_alimentacao(suspensao_alimentacao):
     assert suspensao_alimentacao.__str__() == "Não vai ter aula"
 
 
-def test_suspensao_alimentacao_no_periodo_escolar(suspensao_periodo_escolar):
-    assert (
-        suspensao_periodo_escolar.__str__()
-        == "Suspensão de alimentação da Alteração de Cardápio: Não vai ter aula"
-    )
-
-
 def test_grupo_suspensao_alimentacao(grupo_suspensao_alimentacao):
     assert grupo_suspensao_alimentacao.__str__() == "lorem ipsum"
 
