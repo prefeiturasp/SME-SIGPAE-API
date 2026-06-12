@@ -131,9 +131,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Sobremesas para Pagamento") == 1
 
     assert df.iloc[0].tolist() == [
         "EMEF",
@@ -195,9 +195,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Sobremesas para Pagamento") == 1
 
     assert df.iloc[0].tolist() == [
         "EMEI",

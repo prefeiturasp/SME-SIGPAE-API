@@ -435,6 +435,37 @@
   }
 }
 
+.somatorio-recreio-wrapper-cei {
+  display: flex;
+  gap: 2%;
+  align-items: flex-start;
+  width: 100%;
+
+  > div {
+    &:first-child {
+      flex: 0 0 60%;
+    }
+    &:last-child {
+      flex: 0 0 36%;
+    }
+    &:only-child {
+      flex: 0 0 60%;
+    }
+  }
+
+  .tabela-dieta-participantes-cei {
+    width: 100%;
+  }
+
+  .tabela-dieta-colaboradores-cei {
+    width: 100%;
+  }
+
+  .uppercase {
+    text-transform: uppercase;
+  }
+}
+
 .tabelas-somatorio-dietas {
   display: flex;
 

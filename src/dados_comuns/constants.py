@@ -304,6 +304,8 @@ ORDEM_PERIODOS_GRUPOS_CEI = {
     "PARCIAL": 2,
     "MANHA": 3,
     "TARDE": 4,
+    "Recreio nas Férias": 5,
+    "Colaboradores": 6,
 }
 
 ORDEM_PERIODOS_GRUPOS_CEMEI = {
@@ -370,15 +372,16 @@ NOMES_CAMPOS = {
     "2_refeicao_1_oferta": "2ª Refeição 1ª Oferta",
     "repeticao_2_refeicao": "Repetição 2ª Refeição",
     "kit_lanche": "Kit Lanche",
-    "total_refeicoes_pagamento": "Refeições p/ Pagamento",
+    "total_refeicoes_pagamento": "Total de Refeições para Pagamento",
     "sobremesa": "Sobremesa",
     "repeticao_sobremesa": "Repetição de Sobremesa",
     "2_sobremesa_1_oferta": "2ª Sobremesa 1ª Oferta",
     "repeticao_2_sobremesa": "Repetição 2ª Sobremesa",
-    "total_sobremesas_pagamento": "Sobremesas p/ Pagamento",
+    "total_sobremesas_pagamento": "Total de Sobremesas para Pagamento",
     "lanche_emergencial": "Lanche Emerg.",
     "colacao": "Colação",
     "desjejum": "Desjejum",
+    "frequencia": "Frequência",
 }
 
 ORDEM_UNIDADES_GRUPO_EMEF = {
