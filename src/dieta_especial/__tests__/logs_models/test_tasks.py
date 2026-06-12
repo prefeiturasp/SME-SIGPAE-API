@@ -1,17 +1,22 @@
 from collections import Counter
 
 import pytest
+import datetime
+
 from freezegun import freeze_time
 
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
+    LogQuantidadeDietasAutorizadasRecreioNasFerias,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.dieta_especial.tasks.logs import (
     gera_logs_dietas_especiais_diariamente,
+    gera_logs_dietas_recreio_ferias_diariamente,
 )
 from src.escola.models import Aluno, Escola
 
@@ -126,7 +131,7 @@ def setup_dietas_especiais(
 
 
 @freeze_time("2025-02-02")
-def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados(
+def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados_sem_duplicidade(
     escola_cemei,
     escola_emebs,
     escola_cei,
@@ -137,6 +142,12 @@ def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados(
     aluno_factory,
     monkeypatch,
 ):
+    """
+    Garante que, ao executar a task de geração de logs de dietas especiais
+    autorizadas os mesmos sejam criados, e em caso de execução mais de uma
+    vez para a mesma data, não sejam criados registros duplicados
+    de ``LogQuantidadeDietasAutorizadas``.
+    """
     set_up_faixas_etarias(faixa_etaria_factory)
     setup_dietas_especiais(
         escola_cemei,
@@ -159,5 +170,68 @@ def test_gera_logs_dietas_especiais_diariamente_com_logs_gerados(
         },
     )
     assert Aluno.objects.filter(dietas_especiais__isnull=False).count() == 5
+
     gera_logs_dietas_especiais_diariamente()
     assert LogQuantidadeDietasAutorizadas.objects.count() == 18
+
+    gera_logs_dietas_especiais_diariamente()
+    assert LogQuantidadeDietasAutorizadas.objects.count() == 18
+
+
+@freeze_time("2026-02-02")
+def test_gera_logs_dietas_recreio_ferias_diariamente_sem_duplicidade(
+        escola_cei,
+        periodo_escolar_integral,
+        solicitacao_dieta_especial_factory,
+        faixa_etaria_factory,
+        aluno_factory,
+    ):
+        """
+        Verifica que a geração diária dos logs de Recreio nas Férias não gera duplicidade.
+
+        Ao executar a task mais de uma vez para a mesma data, não devem ser
+        gerados registros duplicados.
+        """
+        set_up_faixas_etarias(faixa_etaria_factory)
+
+        aluno_cei = aluno_factory.create(
+            escola=escola_cei,
+            periodo_escolar=periodo_escolar_integral,
+            data_nascimento="2021-08-02",
+            ciclo=Aluno.CICLO_ALUNO_CEI,
+        )
+
+        solicitacao_dieta_especial_factory.create(
+            rastro_escola=escola_cei,
+            escola_destino=escola_cei,
+            rastro_terceirizada=escola_cei.lote.terceirizada,
+            aluno=aluno_cei,
+            tipo_solicitacao="ALUNO_NAO_MATRICULADO",
+            ativo=True,
+            dieta_para_recreio_ferias=True,
+            status=SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
+            data_inicio=datetime.date(2026, 2, 1),
+            data_termino=datetime.date(2026, 2, 28),
+        )
+
+        gera_logs_dietas_recreio_ferias_diariamente()
+
+        qtd_comuns = (
+            LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.count()
+        )
+
+        qtd_cei = (
+            LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count()
+        )
+
+        gera_logs_dietas_recreio_ferias_diariamente()
+
+        assert (
+            LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.count()
+            == qtd_comuns
+        )
+
+        assert (
+            LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.count()
+            == qtd_cei
+        )
