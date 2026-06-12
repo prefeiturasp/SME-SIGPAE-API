@@ -3947,24 +3947,10 @@ def _get_total_dieta_por_tipo(medicao, tipo_dieta: str, nome_categoria: str, cam
     if not medicao:
         return 0
 
-    # MAPEAMENTO: Campos de dieta no Recreio nas Férias usam sufixo 1ª oferta
-    # para Refeição e Sobremesa
-    MAPA_CAMPOS_DIETA = {
-        "refeicao": "refeicao_1_oferta",
-        "sobremesa": "sobremesa_1_oferta",
-    }
-    campo_busca = MAPA_CAMPOS_DIETA.get(campo, campo)
-
-    if tipo_dieta == "TIPO A":
-        values = medicao.valores_medicao.filter(
-            categoria_medicao__nome=nome_categoria,
-            nome_campo=campo_busca,
-        )
-    else:
-        values = medicao.valores_medicao.filter(
-            categoria_medicao__nome__icontains=nome_categoria,
-            nome_campo=campo_busca,
-        )
+    values = medicao.valores_medicao.filter(
+        categoria_medicao__nome=nome_categoria,
+        nome_campo=campo,
+    )
 
     return sum(int(v.valor) for v in values)
 
