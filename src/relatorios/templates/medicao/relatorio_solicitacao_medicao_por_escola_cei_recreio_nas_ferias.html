@@ -62,7 +62,7 @@
   </thead>
   <tbody>
     {% for valores in tabela.valores_campos %}
-      <tr class="{% if dias_letivos|get_nao_eh_dia_letivo_cei:forloop.counter0 %} nao-dia-letivo {% endif %}">
+      <tr class="{% if dias_letivos|get_nao_eh_dia_letivo_cei:forloop.counter0 or forloop.last %} nao-dia-letivo {% endif %}">
         {% for valor in valores %}
           <td>{{ valor }}</td>
         {% endfor %}
@@ -97,7 +97,7 @@
   </thead>
   <tbody>
     {% for valores in tabela_colaboradores.valores_campos %}
-      <tr class="{% if dias_letivos|get_nao_eh_dia_letivo_cei:forloop.counter0 %} nao-dia-letivo {% endif %}">
+      <tr class="{% if dias_letivos|get_nao_eh_dia_letivo_cei:forloop.counter0 or forloop.last %} nao-dia-letivo {% endif %}">
         {% for valor in valores %}
           <td>{{ valor }}</td>
         {% endfor %}

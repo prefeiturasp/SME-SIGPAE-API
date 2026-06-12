@@ -242,10 +242,10 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
                 "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
             ],
             "body": [
-                ["Lanche", 40, 0, 0, 0],
-                ["Lanche 4h", 40, 0, 0, 0],
-                ["Refeição", 40, 0, 0, 0],
-                ["Sobremesa", 40, 0, 0, 0],
+                ["Lanche", 40],
+                ["Lanche 4h", 40],
+                ["Refeição", 40],
+                ["Sobremesa", 40],
             ],
         }
 
