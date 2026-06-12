@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
+<span></span><span class="sd">&quot;&quot;&quot;Factories para os modelos de Suspensão de Alimentação.</span>
+
+<span class="sd">Utiliza ``factory_boy`` para criação de instâncias de teste dos modelos</span>
+<span class="sd">relacionados à suspensão de alimentação escolar.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">factory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">SubFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">factory.django</span><span class="w"> </span><span class="kn">import</span> <span class="n">DjangoModelFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">faker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Faker</span>
@@ -79,7 +85,6 @@
     <span class="n">MotivoSuspensao</span><span class="p">,</span>
     <span class="n">QuantidadePorPeriodoSuspensaoAlimentacao</span><span class="p">,</span>
     <span class="n">SuspensaoAlimentacao</span><span class="p">,</span>
-    <span class="n">SuspensaoAlimentacaoNoPeriodoEscolar</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.fixtures.factories.escola_factory</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DiretoriaRegionalFactory</span><span class="p">,</span>
@@ -97,6 +102,12 @@
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacaoFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.GrupoSuspensaoAlimentacaoFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GrupoSuspensaoAlimentacaoFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``GrupoSuspensaoAlimentacao``.</span>
+
+<span class="sd">    Cria a escola solicitante e os campos de rastreio (escola, lote, DRE e</span>
+<span class="sd">    terceirizada) via subfactories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">escola</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">EscolaFactory</span><span class="p">)</span>
     <span class="n">rastro_escola</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">EscolaFactory</span><span class="p">)</span>
     <span class="n">rastro_dre</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">DiretoriaRegionalFactory</span><span class="p">)</span>
@@ -111,6 +122,11 @@
 <div class="viewcode-block" id="MotivoSuspensaoFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.MotivoSuspensaoFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivoSuspensaoFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``MotivoSuspensao``.</span>
+
+<span class="sd">    Gera instâncias com nome único usando sequência + Faker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">nome</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;nome - </span><span class="si">{</span><span class="n">fake</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -121,6 +137,12 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``SuspensaoAlimentacao``.</span>
+
+<span class="sd">    Associa automaticamente um ``GrupoSuspensaoAlimentacao`` e um</span>
+<span class="sd">    ``MotivoSuspensao`` via subfactories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">grupo_suspensao</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">GrupoSuspensaoAlimentacaoFactory</span><span class="p">)</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">MotivoSuspensaoFactory</span><span class="p">)</span>
 
@@ -132,12 +154,27 @@
 <div class="viewcode-block" id="QuantidadePorPeriodoSuspensaoAlimentacaoFactory">
 <a class="viewcode-back" href="../../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.QuantidadePorPeriodoSuspensaoAlimentacaoFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacaoFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory para o modelo ``QuantidadePorPeriodoSuspensaoAlimentacao``.</span>
+
+<span class="sd">    Cria a instância com um grupo de suspensão, um período escolar e</span>
+<span class="sd">    um número aleatório de alunos via subfactories. Suporta adição de</span>
+<span class="sd">    tipos de alimentação via parâmetro ``tipos_alimentacao``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">grupo_suspensao</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">GrupoSuspensaoAlimentacaoFactory</span><span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">PeriodoEscolarFactory</span><span class="p">)</span>
     <span class="n">numero_alunos</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">fake</span><span class="o">.</span><span class="n">random_int</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
 
     <span class="nd">@factory</span><span class="o">.</span><span class="n">post_generation</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="p">,</span> <span class="n">extracted</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adiciona os tipos de alimentação suspensos à instância criada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            create (bool): Indica se a instância está sendo criada (``True``) ou</span>
+<span class="sd">                apenas construída em memória (``False``).</span>
+<span class="sd">            extracted: Lista de tipos de alimentação a associar, ou ``None``.</span>
+<span class="sd">            **kwargs: Argumentos adicionais ignorados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
             <span class="k">return</span>
 
@@ -147,27 +184,6 @@
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">QuantidadePorPeriodoSuspensaoAlimentacao</span></div>
-
-
-
-<div class="viewcode-block" id="SuspensaoAlimentacaoNoPeriodoEscolarFactory">
-<a class="viewcode-back" href="../../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_factory.SuspensaoAlimentacaoNoPeriodoEscolarFactory">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoNoPeriodoEscolarFactory</span><span class="p">(</span><span class="n">DjangoModelFactory</span><span class="p">):</span>
-    <span class="n">suspensao_alimentacao</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">SuspensaoAlimentacaoFactory</span><span class="p">)</span>
-    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">SubFactory</span><span class="p">(</span><span class="n">PeriodoEscolarFactory</span><span class="p">)</span>
-    <span class="n">qtd_alunos</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">fake</span><span class="o">.</span><span class="n">random_int</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
-
-    <span class="nd">@factory</span><span class="o">.</span><span class="n">post_generation</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">tipos_alimentacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="p">,</span> <span class="n">extracted</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="k">if</span> <span class="n">extracted</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">tipo_alimentacao</span> <span class="ow">in</span> <span class="n">extracted</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tipos_alimentacao</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tipo_alimentacao</span><span class="p">)</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoNoPeriodoEscolar</span></div>
 
 </pre></div>
 

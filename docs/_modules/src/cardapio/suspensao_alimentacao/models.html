@@ -93,6 +93,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoInformativoPartindoDaEscola</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch_docs</span>
 
 
 <div class="viewcode-block" id="MotivoSuspensao">
@@ -100,14 +101,20 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">MotivoSuspensao</span><span class="p">(</span>
     <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;motivo_suspensao&quot;</span><span class="p">),</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trabalha em conjunto com SuspensaoAlimentacao.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Motivo de Suspensão de um dia letivo em uma unidade educacional.</span>
 
 <span class="sd">    Exemplos:</span>
-<span class="sd">        - greve</span>
-<span class="sd">        - reforma</span>
+<span class="sd">            - Unidade sem atendimento</span>
+<span class="sd">            - Parada Pedagógica</span>
+<span class="sd">        - Outro</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a representação textual do motivo de suspensão.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Nome do motivo de suspensão.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -124,7 +131,12 @@
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trabalha em conjunto com GrupoSuspensaoAlimentacao.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.</span>
+
+<span class="sd">    Uma Solicitação de Suspensão de Alimentação pode ter N datas.</span>
+
+<span class="sd">    Cada linha da tabela armazena um par data/motivo da solicitação.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">prioritario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">MotivoSuspensao</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">)</span>
@@ -138,6 +150,11 @@
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a representação textual da suspensão de alimentação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Descrição do motivo associado a esta suspensão.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">motivo</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -151,6 +168,18 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacao</span><span class="p">(</span>
     <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;quantidade_periodo&quot;</span><span class="p">),</span> <span class="n">TemChaveExterna</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.</span>
+
+<span class="sd">    Uma Solicitação de Suspensão de Alimentação pode ter N períodos escolares.</span>
+
+<span class="sd">    Cada linha da tabela armazena um período escolar da UE, a quantidade de alunos sem alimentação e os tipos de alimentação que estão suspensos.</span>
+
+<span class="sd">    Normalmente, em uma solicitação são escolhidos todos os períodos escolares, todos os tipos de alimentação e todos os alunos matriculados, dado que, normalmente, é um dia sem aula na unidade inteira.</span>
+
+<span class="sd">    O campo `CEI_OU_EMEI_CHOICES` é necessário apenas para solicitações de unidades educacionais com tipo de unidade escolar CEMEI/CEU CEMEI.</span>
+<span class="sd">      - nele, armazenamos se a suspensão é destinada aos alunos CEI, EMEI ou ambos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">CEI_OU_EMEI_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="s2">&quot;TODOS&quot;</span><span class="p">,</span> <span class="s2">&quot;Todos&quot;</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;CEI&quot;</span><span class="p">,</span> <span class="s2">&quot;CEI&quot;</span><span class="p">),</span>
@@ -167,13 +196,17 @@
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;quantidades_por_periodo&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># TODO: SUBSTITUIR POR COMBOS DO TIPO DE ALIMENTACAO</span>
     <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">TipoAlimentacao</span><span class="p">)</span>
     <span class="n">alunos_cei_ou_emei</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">CEI_OU_EMEI_CHOICES</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a representação textual com a quantidade de alunos.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Texto informando a quantidade de alunos sem alimentação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Quantidade de alunos: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_alunos</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -196,9 +229,13 @@
     <span class="n">TemPrioridade</span><span class="p">,</span>
     <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serve para agrupar suspensões.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solicitação de Suspensão de Alimentação.</span>
 
-<span class="sd">    Vide SuspensaoAlimentacao e QuantidadePorPeriodoSuspensaoAlimentacao</span>
+<span class="sd">    **Objetivo**: informar à empresa que atende a unidade educacional que um dia previamente letivo não haverá aula por força maior.</span>
+
+<span class="sd">    **Motivos mais comuns**:</span>
+<span class="sd">      - Unidade sem atendimento</span>
+<span class="sd">      - Parada Pedagógica</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">&quot;Suspensão de Alimentação&quot;</span>
@@ -211,6 +248,12 @@
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.get_informados">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_informados</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitações de suspensão com status INFORMADO.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.QuerySet: Queryset contendo as solicitações da</span>
+<span class="sd">                classe com status de informado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">INFORMADO</span><span class="p">)</span></div>
 
 
@@ -218,6 +261,12 @@
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.get_tomados_ciencia">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_tomados_ciencia</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitações de suspensão com status TERCEIRIZADA_TOMOU_CIENCIA.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.QuerySet: Queryset contendo as solicitações da</span>
+<span class="sd">                classe com status de terceirizada tomou ciência.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA</span><span class="p">)</span></div>
 
 
@@ -225,6 +274,16 @@
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.get_rascunhos_do_usuario">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_rascunhos_do_usuario</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">usuario</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as solicitações de suspensão com status RASCUNHO de um usuário.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            usuario (django.contrib.auth.models.AbstractUser): Usuário autor das</span>
+<span class="sd">                solicitações.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.QuerySet: Queryset contendo as solicitações da</span>
+<span class="sd">                classe com status de rascunho criadas pelo usuário informado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">criado_por</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">RASCUNHO</span>
         <span class="p">)</span></div>
@@ -232,27 +291,63 @@
 
     <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">quantidades_por_periodo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as quantidades de alunos por período associadas à solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.QuerySet: Queryset com as quantidades por período</span>
+<span class="sd">                da solicitação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantidades_por_periodo</span>
 
     <span class="nd">@property</span>  <span class="c1"># type: ignore</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">suspensoes_alimentacao</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as datas de suspensão associadas à solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            django.db.models.QuerySet: Queryset com as datas de suspensão da</span>
+<span class="sd">                solicitação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tipo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a descrição textual do tipo da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String ``&quot;Suspensão de Alimentação&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Suspensão de Alimentação&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o caminho relativo do relatório desta solicitação no frontend.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: URL relativa do frontend para a tela de relatório da</span>
+<span class="sd">                solicitação de suspensão.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;suspensao-de-alimentacao/relatorio?uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&amp;tipoSolicitacao=solicitacao-normal&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a primeira data da suspensão ordenada cronologicamente.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            datetime.date: Data da primeira suspensão.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">query</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">datas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as datas de suspensão formatadas para exibição em relatórios.</span>
+
+<span class="sd">        As datas são ordenadas cronologicamente e exibidas no formato</span>
+<span class="sd">        ``dd/mm/YYYY``, separadas por vírgula.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String com as datas formatadas e separadas por ``&quot;, &quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
@@ -264,6 +359,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o total de alunos sem alimentação na solicitação.</span>
+
+<span class="sd">        Soma as quantidades de todos os períodos escolares associados.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Número total de alunos sem alimentação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantidades_por_periodo</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;numero_alunos&quot;</span><span class="p">))[</span>
             <span class="s2">&quot;numero_alunos__sum&quot;</span>
         <span class="p">]</span>
@@ -271,6 +373,18 @@
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacao.solicitacao_dict_para_relatorio">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.solicitacao_dict_para_relatorio">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">solicitacao_dict_para_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_data</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">instituicao</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Monta o dicionário usado na geração do relatório da solicitação.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label_data (str): Rótulo textual da data exibida no relatório.</span>
+<span class="sd">            data_log (datetime.date): Data do log de referência exibida no</span>
+<span class="sd">                relatório.</span>
+<span class="sd">            instituicao (object): Instituição solicitante. Mantido por</span>
+<span class="sd">                compatibilidade de interface, sem uso direto no método.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dicionário com os campos utilizados no relatório.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">datas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">)</span>
@@ -296,14 +410,40 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">existe_dia_cancelado</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica se a solicitação possui algum dia de suspensão cancelado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: ``True`` se houver ao menos uma suspensão cancelada,</span>
+<span class="sd">                ``False`` caso contrário.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">suspensoes_alimentacao</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cancelado</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a representação textual resumida da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Texto da observação da solicitação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">observacao</span><span class="si">}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacao.salvar_log_transicao">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao.salvar_log_transicao">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra no log a transição de status da solicitação.</span>
+
+<span class="sd">        Cria uma entrada em ``LogSolicitacoesUsuario`` associada a esta</span>
+<span class="sd">        solicitação de suspensão de alimentação.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            status_evento (int): Código do evento de status que será registrado.</span>
+<span class="sd">            usuario (django.contrib.auth.models.AbstractUser): Usuário</span>
+<span class="sd">                responsável pela transição.</span>
+<span class="sd">            **kwargs: Parâmetros opcionais do log.</span>
+<span class="sd">                `justificativa` (str): Texto justificando a transição.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None: O método apenas persiste o log da transição.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
             <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
@@ -321,35 +461,7 @@
 
 
 
-<div class="viewcode-block" id="SuspensaoAlimentacaoNoPeriodoEscolar">
-<a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacaoNoPeriodoEscolar">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoNoPeriodoEscolar</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;suspensao_periodo_escolar&quot;</span><span class="p">),</span> <span class="n">TemChaveExterna</span>
-<span class="p">):</span>
-    <span class="n">suspensao_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">SuspensaoAlimentacao</span><span class="p">,</span>
-        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
-        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;suspensoes_periodo_escolar&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">qtd_alunos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">&quot;escola.PeriodoEscolar&quot;</span><span class="p">,</span>
-        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
-        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;suspensoes_periodo_escolar&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
-        <span class="s2">&quot;TipoAlimentacao&quot;</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;suspensoes_periodo_escolar&quot;</span>
-    <span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Suspensão de alimentação da Alteração de Cardápio: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">suspensao_alimentacao</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Suspensão de alimentação no período&quot;</span>
-        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Suspensões de alimentação no período&quot;</span></div>
-
+<span class="n">patch_docs</span><span class="p">(</span><span class="n">GrupoSuspensaoAlimentacao</span><span class="p">)</span>
 </pre></div>
 
            </div>
