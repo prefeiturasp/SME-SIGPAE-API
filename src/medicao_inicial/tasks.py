@@ -134,7 +134,7 @@ def criar_nova_solicitacao(solicitacao_anterior, escola, data_hoje):
 
 def copiar_responsaveis(solicitacao_origem, solicitacao_destino):
     for responsavel in solicitacao_origem.responsaveis.all():
-        Responsavel.objects.create(
+        Responsavel.objects.get_or_create(
             solicitacao_medicao_inicial=solicitacao_destino,
             nome=responsavel.nome,
             rf=responsavel.rf,
@@ -146,7 +146,7 @@ def copiar_alunos_periodo_parcial(solicitacao_origem, solicitacao_destino):
         data_removido__isnull=True
     )
     for aluno in alunos_em_periodo_parcial:
-        AlunoPeriodoParcial.objects.create(
+        AlunoPeriodoParcial.objects.get_or_create(
             solicitacao_medicao_inicial=solicitacao_destino,
             aluno=aluno.aluno,
             escola=solicitacao_destino.escola,
