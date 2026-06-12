@@ -664,3 +664,123 @@ def _criar_logs_faixas_sem_alunos(escola, data_log, classificacao, logs_existent
         logs.append(log_zero)
 
     return logs
+
+
+def filtrar_logs_comuns_ja_existentes(logs):
+    chaves_existentes = set(
+        LogQuantidadeDietasAutorizadas.objects.filter(
+            data__in={log.data for log in logs}
+        ).values_list(
+            "escola_id",
+            "data",
+            "classificacao_id",
+            "periodo_escolar_id",
+            "cei_ou_emei",
+            "infantil_ou_fundamental",
+        )
+    )
+
+    logs_filtrados = []
+
+    for log in logs:
+        chave = (
+            log.escola_id,
+            log.data,
+            log.classificacao_id,
+            log.periodo_escolar_id,
+            log.cei_ou_emei,
+            log.infantil_ou_fundamental,
+        )
+
+        if chave not in chaves_existentes:
+            logs_filtrados.append(log)
+            chaves_existentes.add(chave)
+
+    return logs_filtrados
+
+
+def filtrar_logs_cei_ja_existentes(logs):
+    chaves_existentes = set(
+        LogQuantidadeDietasAutorizadasCEI.objects.filter(
+            data__in={log.data for log in logs}
+        ).values_list(
+            "escola_id",
+            "data",
+            "classificacao_id",
+            "periodo_escolar_id",
+            "faixa_etaria_id",
+        )
+    )
+
+    logs_filtrados = []
+
+    for log in logs:
+        chave = (
+            log.escola_id,
+            log.data,
+            log.classificacao_id,
+            log.periodo_escolar_id,
+            log.faixa_etaria_id,
+        )
+
+        if chave not in chaves_existentes:
+            logs_filtrados.append(log)
+            chaves_existentes.add(chave)
+
+    return logs_filtrados
+
+
+def filtrar_logs_recreio_ferias_ja_existentes(logs):
+    chaves_existentes = set(
+        LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.filter(
+            data__in={log.data for log in logs}
+        ).values_list(
+            "escola_id",
+            "data",
+            "classificacao_id",
+        )
+    )
+
+    logs_filtrados = []
+
+    for log in logs:
+        chave = (
+            log.escola_id,
+            log.data,
+            log.classificacao_id,
+        )
+
+        if chave not in chaves_existentes:
+            logs_filtrados.append(log)
+            chaves_existentes.add(chave)
+
+    return logs_filtrados
+
+
+def filtrar_logs_recreio_ferias_cei_ja_existentes(logs):
+    chaves_existentes = set(
+        LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects.filter(
+            data__in={log.data for log in logs}
+        ).values_list(
+            "escola_id",
+            "data",
+            "classificacao_id",
+            "faixa_etaria_id",
+        )
+    )
+
+    logs_filtrados = []
+
+    for log in logs:
+        chave = (
+            log.escola_id,
+            log.data,
+            log.classificacao_id,
+            log.faixa_etaria_id,
+        )
+
+        if chave not in chaves_existentes:
+            logs_filtrados.append(log)
+            chaves_existentes.add(chave)
+
+    return logs_filtrados
