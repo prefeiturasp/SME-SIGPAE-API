@@ -48,9 +48,6 @@ from src.dieta_especial.forms import (
     RelatorioQuantitativoSolicDietaEspForm,
     SolicitacoesAtivasInativasPorAlunoForm,
 )
-from src.dieta_especial.gera_historico_protocolo import (
-    atualiza_historico_protocolo,
-)
 from src.dieta_especial.protocolo_padrao.api.serializers import (
     AlimentoSerializer,
 )
@@ -90,6 +87,9 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoAlteracaoUE,
     MotivoNegacao,
     SolicitacaoDietaEspecial,
+)
+from src.dieta_especial.solicitacao_dieta_especial.services import (
+    atualiza_historico_protocolo,
 )
 from src.dieta_especial.tasks import (
     gera_pdf_relatorio_dieta_especial_async,

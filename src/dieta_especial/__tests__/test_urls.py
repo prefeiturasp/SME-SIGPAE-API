@@ -7,16 +7,16 @@ from rest_framework import status
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Terceirizada
-from ..constants import (
-    ENDPOINT_ALERGIAS_INTOLERANCIAS,
-    ENDPOINT_ALIMENTOS,
-    ENDPOINT_CLASSIFICACOES_DIETA,
-    ENDPOINT_MOTIVOS_NEGACAO,
-)
+from ..protocolo_padrao.constants import ENDPOINT_ALIMENTOS
 from ..protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
+)
+from ..solicitacao_dieta_especial.constants import (
+    ENDPOINT_ALERGIAS_INTOLERANCIAS,
+    ENDPOINT_CLASSIFICACOES_DIETA,
+    ENDPOINT_MOTIVOS_NEGACAO,
 )
 from ..solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
