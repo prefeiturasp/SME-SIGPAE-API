@@ -131,4 +131,27 @@ DOCS_FLUXO_PARTINDO_ESCOLA_GESTAO_ALIMENTACAO_DJANGO_WORKFLOW = {
           - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
           - registrar no log a justificativa informada e a resposta booleana em ``resposta_sim_nao``.
     """,
+    "informa": """
+        A unidade educacional informa à empresa que não haverá expediente no dia de suspensão, não sendo necessária a disponibilização de alimentações para os alunos.
+
+        Único fluxo que não precisa de validação da DRE nem autorização da CODAE, é apenas informativo.
+
+        Mesmo sem precisar de autorização da CODAE, ainda é preciso ser informado 48h úteis antes por questões contratuais.
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_informa_hook``) para, após a resposta:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+          - enviar e-mail para as partes interessadas notificando sobre a não validação.
+    """,
+    "escola_cancela": """
+        A unidade educacional cancela a suspensão de alimentação; ou seja, vai ter aula normal e precisa do fornecimento de alimentação da empresa.
+
+        Necessário informar até 48h úteis previamente à data de suspensão.
+
+        Este método é herdado de django_xworkflows.
+
+        Possui um hook (``_escola_cancela_hook``) para, após a resposta:
+          - criar uma entrada de log específico para esta ação, utilizando o método ``salvar_log_transicao``.
+    """,
 }

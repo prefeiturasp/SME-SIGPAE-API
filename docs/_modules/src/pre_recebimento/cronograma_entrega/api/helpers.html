@@ -73,9 +73,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models.query</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuerySet</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CronogramaWorkflow</span><span class="p">,</span>
 <span class="p">)</span>
@@ -83,6 +81,8 @@
     <span class="n">EtapasDoCronograma</span><span class="p">,</span>
     <span class="n">ProgramacaoDoRecebimentoDoCronograma</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.recebimento.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FichaDeRecebimento</span>
 
 
 <div class="viewcode-block" id="cria_etapas_de_cronograma">
@@ -393,6 +393,25 @@
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">numero_limpo</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="migrar_fichas_para_etapas_novas">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.helpers.migrar_fichas_para_etapas_novas">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">migrar_fichas_para_etapas_novas</span><span class="p">(</span><span class="n">etapas_antigas</span><span class="p">,</span> <span class="n">etapas_novas</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">indice</span><span class="p">,</span> <span class="n">etapa_antiga</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">etapas_antigas</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">etapa_nova</span> <span class="o">=</span> <span class="n">etapas_novas</span><span class="p">[</span><span class="n">indice</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Não foi possível migrar todas as fichas de recebimento. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;A etapa de índice </span><span class="si">{</span><span class="n">indice</span><span class="si">}</span><span class="s2"> não possui correspondente nas novas etapas.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">FichaDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">etapa</span><span class="o">=</span><span class="n">etapa_antiga</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">etapa</span><span class="o">=</span><span class="n">etapa_nova</span>
+        <span class="p">)</span>
+        <span class="n">etapa_antiga</span><span class="o">.</span><span class="n">cronograma</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">etapa_antiga</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">update_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cronograma&quot;</span><span class="p">])</span></div>
 
 </pre></div>
 
