@@ -42,12 +42,7 @@ from src.dados_comuns.permissions import (
 )
 from src.dados_comuns.services import enviar_email_codae_atualiza_protocolo
 from src.dados_comuns.utils import convert_dict_to_querydict
-from src.dieta_especial.forms import (
-    NegaDietaEspecialForm,
-    RelatorioDietaForm,
-    RelatorioQuantitativoSolicDietaEspForm,
-    SolicitacoesAtivasInativasPorAlunoForm,
-)
+from src.dieta_especial.forms import RelatorioDietaForm
 from src.dieta_especial.protocolo_padrao.api.serializers import (
     AlimentoSerializer,
 )
@@ -60,6 +55,11 @@ from src.dieta_especial.solicitacao_dieta_especial.api.filters import (
     AlimentoFilter,
     DietaEspecialFilter,
     MotivoNegacaoFilter,
+)
+from src.dieta_especial.solicitacao_dieta_especial.api.forms import (
+    NegaDietaEspecialForm,
+    RelatorioQuantitativoSolicDietaEspForm,
+    SolicitacoesAtivasInativasPorAlunoForm,
 )
 from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
     AlergiaIntoleranciaSerializer,
