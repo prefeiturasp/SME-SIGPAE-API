@@ -710,6 +710,11 @@ Retorna None se a conversão falhar.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.helpers.migrar_fichas_para_etapas_novas">
+<span class="sig-name descname"><span class="pre">migrar_fichas_para_etapas_novas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">etapas_antigas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etapas_novas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/helpers.html#migrar_fichas_para_etapas_novas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.helpers.migrar_fichas_para_etapas_novas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.helpers.parse_date">
 <span class="sig-name descname"><span class="pre">parse_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/helpers.html#parse_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.helpers.parse_date" title="Link to this definition"></a></dt>
 <dd><p>Converte string de data DD/MM/YYYY para datetime.date.</p>
@@ -1354,7 +1359,7 @@ onde a chave é o título do status e o valor é a contagem.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaSerializer.Meta.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'numero_empenho',</span> <span class="pre">'qtd_total_empenho',</span> <span class="pre">'etapa',</span> <span class="pre">'parte',</span> <span class="pre">'data_programada',</span> <span class="pre">'quantidade',</span> <span class="pre">'total_embalagens')</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'numero_empenho',</span> <span class="pre">'qtd_total_empenho',</span> <span class="pre">'etapa',</span> <span class="pre">'parte',</span> <span class="pre">'data_programada',</span> <span class="pre">'quantidade',</span> <span class="pre">'total_embalagens',</span> <span class="pre">'quantidade_estimada_disponivel')</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaSerializer.Meta.fields" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1378,6 +1383,11 @@ onde a chave é o título do status e o valor é a contagem.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaSerializer.get_parte">
 <span class="sig-name descname"><span class="pre">get_parte</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#EtapasDoCronogramaSerializer.get_parte"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaSerializer.get_parte" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaSerializer.get_quantidade_estimada_disponivel">
+<span class="sig-name descname"><span class="pre">get_quantidade_estimada_disponivel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#EtapasDoCronogramaSerializer.get_quantidade_estimada_disponivel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.EtapasDoCronogramaSerializer.get_quantidade_estimada_disponivel" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

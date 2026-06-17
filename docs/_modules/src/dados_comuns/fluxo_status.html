@@ -4947,25 +4947,6 @@
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_migrar_fichas_para_etapas_novas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etapas_antigas</span><span class="p">,</span> <span class="n">etapas_novas</span><span class="p">):</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
-
-        <span class="kn">from</span><span class="w"> </span><span class="nn">src.recebimento.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FichaDeRecebimento</span>
-
-        <span class="k">for</span> <span class="n">indice</span><span class="p">,</span> <span class="n">etapa_antiga</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">etapas_antigas</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">etapa_nova</span> <span class="o">=</span> <span class="n">etapas_novas</span><span class="p">[</span><span class="n">indice</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Não foi possível migrar todas as fichas de recebimento. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;A etapa de índice </span><span class="si">{</span><span class="n">indice</span><span class="si">}</span><span class="s2"> não possui correspondente nas novas etapas.&quot;</span>
-                <span class="p">)</span>
-            <span class="n">FichaDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">etapa</span><span class="o">=</span><span class="n">etapa_antiga</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="n">etapa</span><span class="o">=</span><span class="n">etapa_nova</span>
-            <span class="p">)</span>
-            <span class="n">etapa_antiga</span><span class="o">.</span><span class="n">cronograma</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">etapa_antiga</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">update_fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cronograma&quot;</span><span class="p">])</span>
-
     <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">&quot;finaliza_solicitacao_alteracao&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_finaliza_solicitacao_alteracao_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">transaction</span>
@@ -4974,6 +4955,7 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">SolicitacaoAlteracaoCronograma</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..pre_recebimento.cronograma_entrega.api.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">migrar_fichas_para_etapas_novas</span>
 
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span>
         <span class="n">solicitacao_uuid</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">)</span>
@@ -4989,7 +4971,7 @@
                     <span class="n">etapas_antigas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">solicitacao</span><span class="o">.</span><span class="n">etapas_antigas</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
                     <span class="n">etapas_novas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">solicitacao</span><span class="o">.</span><span class="n">etapas_novas</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
 
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_migrar_fichas_para_etapas_novas</span><span class="p">(</span><span class="n">etapas_antigas</span><span class="p">,</span> <span class="n">etapas_novas</span><span class="p">)</span>
+                    <span class="n">migrar_fichas_para_etapas_novas</span><span class="p">(</span><span class="n">etapas_antigas</span><span class="p">,</span> <span class="n">etapas_novas</span><span class="p">)</span>
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">etapas</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">etapas_novas</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">programacoes_de_recebimento</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>

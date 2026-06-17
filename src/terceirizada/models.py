@@ -6,8 +6,6 @@ from django.db.models import Q
 from django.db.utils import IntegrityError
 from django_prometheus.models import ExportModelOperationsMixin
 
-from src.dieta_especial.managers import EditalManager
-
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
 from ..cardapio.inversao_dia_cardapio.models import InversaoCardapio
@@ -34,6 +32,7 @@ from ..kit_lanche.models import (
     SolicitacaoKitLancheUnificada,
 )
 from ..perfil.models.usuario import Usuario
+from .managers import EditalManager
 
 
 class Edital(ExportModelOperationsMixin("edital"), TemChaveExterna):

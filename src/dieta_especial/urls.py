@@ -9,9 +9,9 @@ from src.dieta_especial.solicitacao_dieta_especial.api import (
     viewsets as solicitacao_dieta_especial_viewsets,
 )
 
-from .constants import (
+from .protocolo_padrao.constants import ENDPOINT_ALIMENTOS
+from .solicitacao_dieta_especial.constants import (
     ENDPOINT_ALERGIAS_INTOLERANCIAS,
-    ENDPOINT_ALIMENTOS,
     ENDPOINT_CLASSIFICACOES_DIETA,
     ENDPOINT_MOTIVOS_NEGACAO,
 )

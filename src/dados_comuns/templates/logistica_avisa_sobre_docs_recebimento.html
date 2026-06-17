@@ -1,0 +1,29 @@
+{% extends 'email_base.html' %}
+
+{% block conteudo %}
+<div>
+  Olá!
+</div>
+
+<br/><br/>
+
+<div>
+  Este é um lembrete de que, para a <strong>Etapa {{ etapa }}</strong> do <strong>Cronograma nº {{ numero_cronograma }}</strong>, 
+  referente a <strong>{{ nome_produto }}</strong>, é necessário realizar o cadastro do laudo no SIGPAE com 
+  antecedência mínima de 24 horas em relação à data de entrega.
+</div>
+
+<br/><br/>
+
+<div>
+  Destacamos que o cumprimento desse prazo é indispensável para a regularidade do processo 
+  de entrega e pagamento.
+</div>
+
+<br/><br/>
+
+<div>
+  Caso o laudo correspondente já tenha sido previamente cadastrado, pedimos a gentileza 
+  de desconsiderar esta mensagem.
+</div>
+{% endblock %}

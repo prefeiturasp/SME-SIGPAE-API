@@ -3223,6 +3223,7 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
     class Meta:
         verbose_name = "Aluno no período parcial"
         verbose_name_plural = "Alunos no período parcial"
+        unique_together = ("escola", "aluno", "solicitacao_medicao_inicial")
         ordering = ("criado_em",)
 
 
