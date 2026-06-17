@@ -100,6 +100,17 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoDaCEIViewSet</span><span class="p">(</span>
     <span class="n">DataSolicitacaoContextMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ViewSet para gerenciamento de solicitações de suspensão de CEI.</span>
+
+<span class="sd">    Gerencia o ciclo de vida completo das solicitações de suspensão de</span>
+<span class="sd">    alimentação de CEI: criação, leitura, atualização, exclusão e ações do</span>
+<span class="sd">    fluxo informativo partindo da escola.</span>
+
+<span class="sd">    Actions de fluxo disponíveis:</span>
+<span class="sd">        - ``informa_suspensao``: Escola informa a suspensão (RASCUNHO → INFORMADO).</span>
+<span class="sd">        - ``cancela_suspensao_cei``: Escola cancela a suspensão (INFORMADO/TERCEIRIZADA_TOMOU_CIENCIA → ESCOLA_CANCELOU).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
     <span class="n">queryset</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoDaCEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,)</span>
@@ -108,6 +119,18 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoDaCEIViewSet.get_permissions">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_permissions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a lista de permissões necessárias para a ação atual.</span>
+
+<span class="sd">        - Para a ação ``list``: requer ``IsAdminUser``.</span>
+<span class="sd">        - Para as ações ``retrieve`` e ``update``: requer autenticação e</span>
+<span class="sd">          ``PermissaoParaRecuperarObjeto``.</span>
+<span class="sd">        - Para as ações ``create`` e ``destroy``: requer</span>
+<span class="sd">          ``UsuarioEscolaTercTotal``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: Lista de instâncias de classes de permissão configuradas</span>
+<span class="sd">            para a ação atual.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;list&quot;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">IsAdminUser</span><span class="p">,)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;retrieve&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">]:</span>
@@ -120,6 +143,16 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoDaCEIViewSet.get_serializer_class">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.get_serializer_class">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a classe de serializer adequada para a ação atual.</span>
+
+<span class="sd">        - Para as ações ``create``, ``update`` e ``partial_update``: utiliza</span>
+<span class="sd">          ``SuspensaoAlimentacaodeCEICreateSerializer``.</span>
+<span class="sd">        - Para as demais ações: utiliza</span>
+<span class="sd">          ``SuspensaoAlimentacaoDaCEISerializer``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: Classe de serializer a ser utilizada na ação corrente.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;partial_update&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">SuspensaoAlimentacaodeCEICreateSerializer</span>
         <span class="k">return</span> <span class="n">SuspensaoAlimentacaoDaCEISerializer</span></div>
@@ -129,6 +162,17 @@
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.informadas">[docs]</a>
     <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">informadas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as suspensões de CEI com status INFORMADO.</span>
+<span class="sd">        - permissão: qualquer usuário autenticado.</span>
+
+<span class="sd">        Os resultados são ordenados por ID decrescente.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisição HTTP.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Lista serializada das suspensões de CEI informadas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">informados</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoDaCEI</span><span class="o">.</span><span class="n">get_informados</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-id&quot;</span><span class="p">)</span>
         <span class="n">serializer</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoDaCEISerializer</span><span class="p">(</span><span class="n">informados</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
@@ -138,6 +182,18 @@
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.meus_rascunhos">[docs]</a>
     <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEscolaTercTotal</span><span class="p">,))</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">meus_rascunhos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as suspensões de CEI em rascunho do usuário logado.</span>
+<span class="sd">        - permissão: Escola terceirizada.</span>
+
+<span class="sd">        Os resultados são paginados.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisição HTTP contendo o usuário</span>
+<span class="sd">                autenticado.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta paginada com a lista de rascunhos do usuário.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">suspensoes</span> <span class="o">=</span> <span class="n">SuspensaoAlimentacaoDaCEI</span><span class="o">.</span><span class="n">get_rascunhos_do_usuario</span><span class="p">(</span><span class="n">usuario</span><span class="p">)</span>
         <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">suspensoes</span><span class="p">)</span>
@@ -154,6 +210,24 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">ESCOLA_INFORMA_SUSPENSAO</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">informa_suspensao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Informa a suspensão de CEI, iniciando o fluxo pela escola.</span>
+<span class="sd">        - sai do status RASCUNHO e passa para INFORMADO.</span>
+<span class="sd">        - permissão: Escola terceirizada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisição HTTP contendo o usuário</span>
+<span class="sd">                autenticado.</span>
+<span class="sd">            uuid (str, optional): UUID da instância de</span>
+<span class="sd">                ``SuspensaoAlimentacaoDaCEI``. Padrão: None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Dados serializados da solicitação após a transição, ou</span>
+<span class="sd">            erro 400 em caso de transição inválida.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            InvalidTransitionError: Quando a transição de estado não é</span>
+<span class="sd">                permitida pelo workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">suspensao_de_alimentacao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">suspensao_de_alimentacao</span><span class="o">.</span><span class="n">informa</span><span class="p">(</span>
@@ -177,6 +251,27 @@
         <span class="n">url_path</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">CANCELA_SUSPENSAO_CEI</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cancela_suspensao_cei</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cancela a suspensão de CEI pela escola.</span>
+
+<span class="sd">        Passa do status INFORMADO ou TERCEIRIZADA_TOMOU_CIENCIA para</span>
+<span class="sd">        ESCOLA_CANCELOU.</span>
+
+<span class="sd">        - permissão: Escola terceirizada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisição HTTP. Deve conter</span>
+<span class="sd">                ``justificativa`` no body.</span>
+<span class="sd">            uuid (str, optional): UUID da instância de</span>
+<span class="sd">                ``SuspensaoAlimentacaoDaCEI``. Padrão: None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Dados serializados da solicitação após o cancelamento,</span>
+<span class="sd">            ou erro 400 em caso de transição inválida.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            InvalidTransitionError: Quando a transição de estado não é</span>
+<span class="sd">                permitida pelo workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">suspensao_de_alimentacao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -195,6 +290,20 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoDaCEIViewSet.destroy">
 <a class="viewcode-back" href="../../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.api.viewsets.SuspensaoAlimentacaoDaCEIViewSet.destroy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a solicitação se o status permitir exclusão.</span>
+<span class="sd">        - somente solicitações com status RASCUNHO podem ser excluídas.</span>
+<span class="sd">        - permissão: Escola terceirizada.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisição HTTP.</span>
+<span class="sd">            *args: Argumentos posicionais adicionais.</span>
+<span class="sd">            **kwargs: Argumentos nomeados adicionais, incluindo ``uuid`` do</span>
+<span class="sd">                objeto.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Resposta vazia com status 204 em caso de sucesso, ou</span>
+<span class="sd">            erro 403 quando o status não permite exclusão.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">suspensao_de_alimentacao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">suspensao_de_alimentacao</span><span class="o">.</span><span class="n">pode_excluir</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -214,6 +323,20 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">terceirizada_marca_inclusao_como_conferida</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Marca a suspensão de CEI como conferida pela empresa terceirizada.</span>
+<span class="sd">        - ou seja, a empresa visualizou a solicitação e está ciente.</span>
+<span class="sd">        - permissão: qualquer usuário autenticado.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisição HTTP contendo o usuário</span>
+<span class="sd">                autenticado.</span>
+<span class="sd">            uuid (str, optional): UUID da instância de</span>
+<span class="sd">                ``SuspensaoAlimentacaoDaCEI``. Padrão: None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Response: Dados serializados da solicitação após a marcação, ou</span>
+<span class="sd">            erro 400 em caso de falha.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">suspensao_alimentacao_cei</span><span class="p">:</span> <span class="n">SuspensaoAlimentacaoDaCEI</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">suspensao_alimentacao_cei</span><span class="o">.</span><span class="n">terceirizada_conferiu_gestao</span> <span class="o">=</span> <span class="kc">True</span>
@@ -236,6 +359,17 @@
         <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gera e retorna o relatório da suspensão de CEI em PDF.</span>
+<span class="sd">        - permissão: qualquer usuário autenticado com acesso à solicitação.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Request): Objeto da requisição HTTP.</span>
+<span class="sd">            uuid (str, optional): UUID da instância de</span>
+<span class="sd">                ``SuspensaoAlimentacaoDaCEI``. Padrão: None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HttpResponse: Resposta contendo o PDF do relatório gerado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">relatorio_suspensao_de_alimentacao_cei</span><span class="p">(</span>
             <span class="n">request</span><span class="p">,</span> <span class="n">solicitacao</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
         <span class="p">)</span></div>

@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import OuterRef
+from django.db.models import OuterRef, Sum
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -163,6 +163,50 @@ class EtapasDoCronograma(ModeloBase):
             choice = {"uuid": numero, "value": f"Etapa {numero}"}
             result.append(choice)
         return result
+
+    @property
+    def quantidade_estimada_disponivel(self):
+        """Calcula a quantidade remanescente disponível para este mês.
+
+        Agrega a quantidade de TODAS as etapas do mesmo cronograma e mês,
+        subtrai a soma de todas as programações semanais (ProgramacaoEntregaSemanal)
+        vinculadas ao mesmo cronograma e mesmo mês.
+
+        Todas as etapas do mesmo mês retornam o mesmo valor (o saldo agregado do mês),
+        evitando dupla-contagem quando há múltiplas etapas no mesmo período.
+
+        Retorna None se não for possível calcular (sem data ou sem cronograma),
+        ou um float com o saldo restante.
+        """
+        if not self.data_programada or not self.cronograma:
+            return None
+
+        from src.pre_recebimento.cronograma_semanal.models import (
+            ProgramacaoEntregaSemanal,
+        )
+
+        mes = self.data_programada.strftime("%m/%Y")
+
+        # Soma da quantidade de TODAS as etapas deste cronograma e mês
+        total_etapas = (
+            EtapasDoCronograma.objects.filter(
+                cronograma=self.cronograma,
+                data_programada__month=self.data_programada.month,
+                data_programada__year=self.data_programada.year,
+            ).aggregate(total=Sum("quantidade"))["total"]
+            or 0
+        )
+
+        # Soma de todas as programações semanais deste cronograma e mês
+        total_entregue = (
+            ProgramacaoEntregaSemanal.objects.filter(
+                cronograma_semanal__cronograma_mensal=self.cronograma,
+                mes_programado=mes,
+            ).aggregate(total=Sum("quantidade"))["total"]
+            or 0
+        )
+
+        return float(total_etapas) - float(total_entregue)
 
 
 class ProgramacaoDoRecebimentoDoCronograma(ModeloBase):

@@ -485,6 +485,19 @@ instances.</p>
 class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.quantidade_estimada_disponivel">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">quantidade_estimada_disponivel</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.models.EtapasDoCronograma.quantidade_estimada_disponivel" title="Link to this definition"></a></dt>
+<dd><p>Calcula a quantidade remanescente disponível para este mês.</p>
+<p>Agrega a quantidade de TODAS as etapas do mesmo cronograma e mês,
+subtrai a soma de todas as programações semanais (ProgramacaoEntregaSemanal)
+vinculadas ao mesmo cronograma e mesmo mês.</p>
+<p>Todas as etapas do mesmo mês retornam o mesmo valor (o saldo agregado do mês),
+evitando dupla-contagem quando há múltiplas etapas no mesmo período.</p>
+<p>Retorna None se não for possível calcular (sem data ou sem cronograma),
+ou um float com o saldo restante.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>

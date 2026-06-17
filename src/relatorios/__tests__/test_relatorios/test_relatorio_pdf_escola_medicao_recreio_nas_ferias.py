@@ -240,15 +240,12 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             "header": [
                 "TIPOS ALIMENTAÇÃO",
                 "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
-                "DIETA TIPO A",
-                "DIETA ENTERAL / REST. DE AMINOÁCIDOS",
-                "DIETA TIPO B",
             ],
             "body": [
-                ["Lanche", 40, 0, 0, 0],
-                ["Lanche 4h", 40, 0, 0, 0],
-                ["Refeição", 40, 0, 0, 0],
-                ["Sobremesa", 40, 0, 0, 0],
+                ["Lanche", 40],
+                ["Lanche 4h", 40],
+                ["Refeição", 40],
+                ["Sobremesa", 40],
             ],
         }
 

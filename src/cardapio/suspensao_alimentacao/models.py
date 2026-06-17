@@ -22,19 +22,26 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.utils import patch_docs
 
 
 class MotivoSuspensao(
     ExportModelOperationsMixin("motivo_suspensao"), Nomeavel, TemChaveExterna
 ):
-    """Trabalha em conjunto com SuspensaoAlimentacao.
+    """Motivo de Suspensão de um dia letivo em uma unidade educacional.
 
     Exemplos:
-        - greve
-        - reforma
+            - Unidade sem atendimento
+            - Parada Pedagógica
+        - Outro
     """
 
     def __str__(self):
+        """Retorna a representação textual do motivo de suspensão.
+
+        Returns:
+            str: Nome do motivo de suspensão.
+        """
         return self.nome
 
     class Meta:
@@ -48,7 +55,12 @@ class SuspensaoAlimentacao(
     TemChaveExterna,
     CanceladoIndividualmente,
 ):
-    """Trabalha em conjunto com GrupoSuspensaoAlimentacao."""
+    """Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.
+
+    Uma Solicitação de Suspensão de Alimentação pode ter N datas.
+
+    Cada linha da tabela armazena um par data/motivo da solicitação.
+    """
 
     prioritario = models.BooleanField(default=False)
     motivo = models.ForeignKey(MotivoSuspensao, on_delete=models.DO_NOTHING)
@@ -62,6 +74,11 @@ class SuspensaoAlimentacao(
     )
 
     def __str__(self):
+        """Retorna a representação textual da suspensão de alimentação.
+
+        Returns:
+            str: Descrição do motivo associado a esta suspensão.
+        """
         return f"{self.motivo}"
 
     class Meta:
@@ -72,6 +89,18 @@ class SuspensaoAlimentacao(
 class QuantidadePorPeriodoSuspensaoAlimentacao(
     ExportModelOperationsMixin("quantidade_periodo"), TemChaveExterna
 ):
+    """Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.
+
+    Uma Solicitação de Suspensão de Alimentação pode ter N períodos escolares.
+
+    Cada linha da tabela armazena um período escolar da UE, a quantidade de alunos sem alimentação e os tipos de alimentação que estão suspensos.
+
+    Normalmente, em uma solicitação são escolhidos todos os períodos escolares, todos os tipos de alimentação e todos os alunos matriculados, dado que, normalmente, é um dia sem aula na unidade inteira.
+
+    O campo `CEI_OU_EMEI_CHOICES` é necessário apenas para solicitações de unidades educacionais com tipo de unidade escolar CEMEI/CEU CEMEI.
+      - nele, armazenamos se a suspensão é destinada aos alunos CEI, EMEI ou ambos.
+    """
+
     CEI_OU_EMEI_CHOICES = [
         ("TODOS", "Todos"),
         ("CEI", "CEI"),
@@ -88,13 +117,17 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(
         null=True,
         related_name="quantidades_por_periodo",
     )
-    # TODO: SUBSTITUIR POR COMBOS DO TIPO DE ALIMENTACAO
     tipos_alimentacao = models.ManyToManyField(TipoAlimentacao)
     alunos_cei_ou_emei = models.CharField(
         max_length=10, choices=CEI_OU_EMEI_CHOICES, blank=True
     )
 
     def __str__(self):
+        """Retorna a representação textual com a quantidade de alunos.
+
+        Returns:
+            str: Texto informando a quantidade de alunos sem alimentação.
+        """
         return f"Quantidade de alunos: {self.numero_alunos}"
 
     class Meta:
@@ -114,9 +147,13 @@ class GrupoSuspensaoAlimentacao(
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 ):
-    """Serve para agrupar suspensões.
+    """Solicitação de Suspensão de Alimentação.
 
-    Vide SuspensaoAlimentacao e QuantidadePorPeriodoSuspensaoAlimentacao
+    **Objetivo**: informar à empresa que atende a unidade educacional que um dia previamente letivo não haverá aula por força maior.
+
+    **Motivos mais comuns**:
+      - Unidade sem atendimento
+      - Parada Pedagógica
     """
 
     DESCRICAO = "Suspensão de Alimentação"
@@ -127,41 +164,99 @@ class GrupoSuspensaoAlimentacao(
 
     @classmethod
     def get_informados(cls):
+        """Retorna as solicitações de suspensão com status INFORMADO.
+
+        Returns:
+            django.db.models.QuerySet: Queryset contendo as solicitações da
+                classe com status de informado.
+        """
         return cls.objects.filter(status=cls.workflow_class.INFORMADO)
 
     @classmethod
     def get_tomados_ciencia(cls):
+        """Retorna as solicitações de suspensão com status TERCEIRIZADA_TOMOU_CIENCIA.
+
+        Returns:
+            django.db.models.QuerySet: Queryset contendo as solicitações da
+                classe com status de terceirizada tomou ciência.
+        """
         return cls.objects.filter(status=cls.workflow_class.TERCEIRIZADA_TOMOU_CIENCIA)
 
     @classmethod
     def get_rascunhos_do_usuario(cls, usuario):
+        """Retorna as solicitações de suspensão com status RASCUNHO de um usuário.
+
+        Args:
+            usuario (django.contrib.auth.models.AbstractUser): Usuário autor das
+                solicitações.
+
+        Returns:
+            django.db.models.QuerySet: Queryset contendo as solicitações da
+                classe com status de rascunho criadas pelo usuário informado.
+        """
         return cls.objects.filter(
             criado_por=usuario, status=cls.workflow_class.RASCUNHO
         )
 
     @property  # type: ignore
     def quantidades_por_periodo(self):
+        """Retorna as quantidades de alunos por período associadas à solicitação.
+
+        Returns:
+            django.db.models.QuerySet: Queryset com as quantidades por período
+                da solicitação.
+        """
         return self.quantidades_por_periodo
 
     @property  # type: ignore
     def suspensoes_alimentacao(self):
+        """Retorna as datas de suspensão associadas à solicitação.
+
+        Returns:
+            django.db.models.QuerySet: Queryset com as datas de suspensão da
+                solicitação.
+        """
         return self.suspensoes_alimentacao
 
     @property
     def tipo(self):
+        """Retorna a descrição textual do tipo da solicitação.
+
+        Returns:
+            str: String ``"Suspensão de Alimentação"``.
+        """
         return "Suspensão de Alimentação"
 
     @property
     def path(self):
+        """Retorna o caminho relativo do relatório desta solicitação no frontend.
+
+        Returns:
+            str: URL relativa do frontend para a tela de relatório da
+                solicitação de suspensão.
+        """
         return f"suspensao-de-alimentacao/relatorio?uuid={self.uuid}&tipoSolicitacao=solicitacao-normal"
 
     @property
     def data(self):
+        """Retorna a primeira data da suspensão ordenada cronologicamente.
+
+        Returns:
+            datetime.date: Data da primeira suspensão.
+        """
         query = self.suspensoes_alimentacao.order_by("data")
         return query.first().data
 
     @property
     def datas(self):
+        """Retorna as datas de suspensão formatadas para exibição em relatórios.
+
+        As datas são ordenadas cronologicamente e exibidas no formato
+        ``dd/mm/YYYY``, separadas por vírgula.
+
+        Returns:
+            str: String com as datas formatadas e separadas por ``", "``.
+        """
         return ", ".join(
             [
                 data.strftime("%d/%m/%Y")
@@ -173,11 +268,30 @@ class GrupoSuspensaoAlimentacao(
 
     @property
     def numero_alunos(self):
+        """Retorna o total de alunos sem alimentação na solicitação.
+
+        Soma as quantidades de todos os períodos escolares associados.
+
+        Returns:
+            int: Número total de alunos sem alimentação.
+        """
         return self.quantidades_por_periodo.aggregate(Sum("numero_alunos"))[
             "numero_alunos__sum"
         ]
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
+        """Monta o dicionário usado na geração do relatório da solicitação.
+
+        Args:
+            label_data (str): Rótulo textual da data exibida no relatório.
+            data_log (datetime.date): Data do log de referência exibida no
+                relatório.
+            instituicao (object): Instituição solicitante. Mantido por
+                compatibilidade de interface, sem uso direto no método.
+
+        Returns:
+            dict: Dicionário com os campos utilizados no relatório.
+        """
         datas = list(
             self.suspensoes_alimentacao.order_by("data").values_list("data", flat=True)
         )
@@ -202,12 +316,38 @@ class GrupoSuspensaoAlimentacao(
 
     @property
     def existe_dia_cancelado(self):
+        """Verifica se a solicitação possui algum dia de suspensão cancelado.
+
+        Returns:
+            bool: ``True`` se houver ao menos uma suspensão cancelada,
+                ``False`` caso contrário.
+        """
         return self.suspensoes_alimentacao.all().filter(cancelado=True).exists()
 
     def __str__(self):
+        """Retorna a representação textual resumida da solicitação.
+
+        Returns:
+            str: Texto da observação da solicitação.
+        """
         return f"{self.observacao}"
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra no log a transição de status da solicitação.
+
+        Cria uma entrada em ``LogSolicitacoesUsuario`` associada a esta
+        solicitação de suspensão de alimentação.
+
+        Args:
+            status_evento (int): Código do evento de status que será registrado.
+            usuario (django.contrib.auth.models.AbstractUser): Usuário
+                responsável pela transição.
+            **kwargs: Parâmetros opcionais do log.
+                `justificativa` (str): Texto justificando a transição.
+
+        Returns:
+            None: O método apenas persiste o log da transição.
+        """
         justificativa = kwargs.get("justificativa", "")
         LogSolicitacoesUsuario.objects.create(
             descricao=str(self),
@@ -223,29 +363,4 @@ class GrupoSuspensaoAlimentacao(
         verbose_name_plural = "Grupo de suspensão de alimentação"
 
 
-class SuspensaoAlimentacaoNoPeriodoEscolar(
-    ExportModelOperationsMixin("suspensao_periodo_escolar"), TemChaveExterna
-):
-    suspensao_alimentacao = models.ForeignKey(
-        SuspensaoAlimentacao,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="suspensoes_periodo_escolar",
-    )
-    qtd_alunos = models.PositiveSmallIntegerField(default=0)
-    periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
-        on_delete=models.PROTECT,
-        related_name="suspensoes_periodo_escolar",
-    )
-    tipos_alimentacao = models.ManyToManyField(
-        "TipoAlimentacao", related_name="suspensoes_periodo_escolar"
-    )
-
-    def __str__(self):
-        return f"Suspensão de alimentação da Alteração de Cardápio: {self.suspensao_alimentacao}"
-
-    class Meta:
-        verbose_name = "Suspensão de alimentação no período"
-        verbose_name_plural = "Suspensões de alimentação no período"
+patch_docs(GrupoSuspensaoAlimentacao)
