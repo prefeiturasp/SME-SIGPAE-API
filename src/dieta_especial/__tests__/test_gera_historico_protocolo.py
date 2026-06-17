@@ -1,7 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from src.dieta_especial.gera_historico_protocolo import (
+from src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo import (
     _compara_alergias,
     _compara_classificacao,
     _compara_data_de_termino,

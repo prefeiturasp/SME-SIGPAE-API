@@ -2,7 +2,9 @@ import datetime
 from collections import namedtuple
 
 import pytest
+from django.db.models import Q
 from freezegun.api import freeze_time
+from model_bakery import baker
 from rest_framework import status
 
 from src.cardapio.alteracao_tipo_alimentacao.fixtures.factories.alteracao_tipo_alimentacao_factory import (
@@ -47,7 +49,11 @@ from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     QuantidadePorPeriodoFactory,
 )
 from src.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
+from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.paineis_consolidados.models import SolicitacoesEscola
+from src.paineis_consolidados.solicitacoes_escola.api.viewsets import (
+    EscolaSolicitacoesViewSet,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -947,6 +953,175 @@ class TestEndpointAlteracoesAutorizadas:
             ]
         }
 
+    def test_alteracoes_autorizadas_lanche_emergencial_recreio_filtra_periodo(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        recreio = baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 2),
+            data_fim=datetime.date(2025, 2, 2),
+        )
+        baker.make(
+            "RecreioNasFeriasUnidadeParticipante",
+            recreio_nas_ferias=recreio,
+            unidade_educacional=escola,
+            lote=escola.lote,
+            liberar_medicao=True,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&recreio_nas_ferias={recreio.uuid}"
+            f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": "02",
+                "numero_alunos": 0,
+                "inclusao_id_externo": "C76CF",
+                "motivo": "Lanche Emergencial",
+                "periodos_escolares": ["MANHA"],
+                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+            }
+        ]
+
+    def test_alteracoes_autorizadas_lanche_emergencial_recreio_sem_unidade_participante(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        recreio = baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 1),
+            data_fim=datetime.date(2025, 2, 3),
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&recreio_nas_ferias={recreio.uuid}"
+            f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"results": []}
+
+    def test_alteracoes_autorizadas_lanche_emergencial_sem_recreio_exclui_datas_no_recreio(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        """Sem recreio_nas_ferias na requisição, dias dentro do período de recreio
+        da escola NÃO devem ser retornados; apenas os dias fora do recreio."""
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        # Recreio cobre os dias 02 e 03 → dia 01 deve ser retornado
+        recreio = baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 2),
+            data_fim=datetime.date(2025, 2, 3),
+        )
+        baker.make(
+            "RecreioNasFeriasUnidadeParticipante",
+            recreio_nas_ferias=recreio,
+            unidade_educacional=escola,
+            lote=escola.lote,
+            liberar_medicao=True,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": "01",
+                "numero_alunos": 0,
+                "inclusao_id_externo": "C76CF",
+                "motivo": "Lanche Emergencial",
+                "periodos_escolares": ["MANHA"],
+                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+            }
+        ]
+
+    def test_alteracoes_autorizadas_lanche_emergencial_sem_recreio_escola_nao_participante_retorna_todos(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        """Quando há um recreio mas a escola NÃO é participante (ou liberar_medicao=False),
+        todos os dias emergenciais devem ser retornados normalmente."""
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self.setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        # Recreio existe mas a escola não é participante com liberar_medicao=True
+        baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 2),
+            data_fim=datetime.date(2025, 2, 3),
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&nome_periodo_escolar=MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        dias_retornados = [r["dia"] for r in response.json()["results"]]
+        assert dias_retornados == ["01", "02", "03"]
+
 
 @pytest.mark.usefixtures("client_autenticado_vinculo_escola_cemei", "escola_cemei")
 @freeze_time("2025-02-05")
@@ -1050,6 +1225,106 @@ class TestEndpointAlteracoesAutorizadasCEMEI:
                 },
             ]
         }
+
+    def test_alteracoes_autorizadas_lanche_emergencial_cemei_recreio_filtra_periodo(
+        self,
+        client_autenticado_vinculo_escola_cemei,
+        escola_cemei,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_cemei
+        self.setup_solicitacoes(
+            escola_cemei,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        recreio = baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 2),
+            data_fim=datetime.date(2025, 2, 2),
+        )
+        baker.make(
+            "RecreioNasFeriasUnidadeParticipante",
+            recreio_nas_ferias=recreio,
+            unidade_educacional=escola_cemei,
+            lote=escola_cemei.lote,
+            liberar_medicao=True,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&recreio_nas_ferias={recreio.uuid}"
+            f"&nome_periodo_escolar=Infantil+MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": "02",
+                "numero_alunos": 0,
+                "inclusao_id_externo": "C76CF",
+                "motivo": "Lanche Emergencial",
+                "periodos_escolares": ["MANHA"],
+                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+            }
+        ]
+
+    def test_alteracoes_autorizadas_lanche_emergencial_cemei_sem_recreio_exclui_datas_no_recreio(
+        self,
+        client_autenticado_vinculo_escola_cemei,
+        escola_cemei,
+    ):
+        """Sem recreio_nas_ferias na requisição, dias dentro do período de recreio
+        da escola CEMEI NÃO devem ser retornados; apenas os dias fora do recreio."""
+        client, usuario = client_autenticado_vinculo_escola_cemei
+        self.setup_solicitacoes(
+            escola_cemei,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+
+        # Recreio cobre os dias 02 e 03 → dia 01 deve ser retornado
+        recreio = baker.make(
+            RecreioNasFerias,
+            data_inicio=datetime.date(2025, 2, 2),
+            data_fim=datetime.date(2025, 2, 3),
+        )
+        baker.make(
+            "RecreioNasFeriasUnidadeParticipante",
+            recreio_nas_ferias=recreio,
+            unidade_educacional=escola_cemei,
+            lote=escola_cemei.lote,
+            liberar_medicao=True,
+        )
+
+        response = client.get(
+            "/escola-solicitacoes/alteracoes-alimentacao-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Alteração"
+            f"&mes=02"
+            f"&ano=2025&"
+            f"eh_lanche_emergencial=true"
+            f"&nome_periodo_escolar=Infantil+MANHA"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == [
+            {
+                "dia": "01",
+                "numero_alunos": 0,
+                "inclusao_id_externo": "C76CF",
+                "motivo": "Lanche Emergencial",
+                "periodos_escolares": ["MANHA"],
+                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+            }
+        ]
 
 
 @freeze_time("2025-06-30")
@@ -1215,3 +1490,393 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
     }
     assert len(resultado_lista) == 2
     assert {item.tipo_doc for item in resultado_lista} == tipos_validos
+
+
+@freeze_time("2026-03-20")
+def test_kit_lanches_autorizadas_recreio_sem_unidade_participante(
+    client_autenticado_escola_paineis_consolidados,
+    escola,
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+
+    recreio = baker.make(
+        RecreioNasFerias,
+        data_inicio=datetime.date(2026, 3, 10),
+        data_fim=datetime.date(2026, 3, 15),
+    )
+
+    params = {
+        "escola_uuid": str(escola.uuid),
+        "mes": "03",
+        "ano": "2026",
+        "tipo_solicitacao": "Kit Lanche",
+        "recreio_nas_ferias": str(recreio.uuid),
+    }
+
+    response = client.get("/escola-solicitacoes/kit-lanches-autorizadas/", params)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"results": []}
+
+
+@freeze_time("2026-03-20")
+def test_kit_lanches_autorizadas_recreio_liberar_medicao_false(
+    client_autenticado_escola_paineis_consolidados,
+    escola,
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+
+    recreio = baker.make(
+        RecreioNasFerias,
+        data_inicio=datetime.date(2026, 3, 10),
+        data_fim=datetime.date(2026, 3, 15),
+    )
+    baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio,
+        unidade_educacional=escola,
+        lote=escola.lote,
+        liberar_medicao=False,
+    )
+
+    params = {
+        "escola_uuid": str(escola.uuid),
+        "mes": "03",
+        "ano": "2026",
+        "tipo_solicitacao": "Kit Lanche",
+        "recreio_nas_ferias": str(recreio.uuid),
+    }
+
+    response = client.get("/escola-solicitacoes/kit-lanches-autorizadas/", params)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"results": []}
+
+
+@freeze_time("2026-03-20")
+def test_kit_lanches_autorizadas_recreio_filtra_periodo_para_todos_tipos(
+    client_autenticado_escola_paineis_consolidados,
+    escola,
+    monkeypatch,
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+
+    recreio = baker.make(
+        RecreioNasFerias,
+        data_inicio=datetime.date(2026, 3, 10),
+        data_fim=datetime.date(2026, 3, 15),
+    )
+    baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio,
+        unidade_educacional=escola,
+        lote=escola.lote,
+        liberar_medicao=True,
+    )
+
+    Linha = namedtuple("Linha", ["uuid", "data_evento", "tipo_doc"])
+
+    linhas = [
+        Linha(
+            uuid="uuid-kit-padrao",
+            data_evento=datetime.date(2026, 3, 12),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+        ),
+        Linha(
+            uuid="uuid-kit-cemei",
+            data_evento=datetime.date(2026, 3, 13),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+        ),
+        Linha(
+            uuid="uuid-kit-unificado",
+            data_evento=datetime.date(2026, 3, 14),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+        ),
+        Linha(
+            uuid="uuid-fora-antes",
+            data_evento=datetime.date(2026, 3, 9),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+        ),
+        Linha(
+            uuid="uuid-fora-depois",
+            data_evento=datetime.date(2026, 3, 16),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+        ),
+    ]
+
+    class FakeQS:
+        def __init__(self, items):
+            self.items = list(items)
+
+        def _matches_q(self, item, q_object):
+            resultados = []
+            for filho in q_object.children:
+                if isinstance(filho, Q):
+                    resultados.append(self._matches_q(item, filho))
+                    continue
+
+                lookup, value = filho
+                if lookup == "data_evento__lt":
+                    resultados.append(item.data_evento < value)
+                elif lookup == "data_evento__gt":
+                    resultados.append(item.data_evento > value)
+                elif lookup == "data_evento__lte":
+                    resultados.append(item.data_evento <= value)
+                elif lookup == "data_evento__gte":
+                    resultados.append(item.data_evento >= value)
+                else:
+                    raise AssertionError(f"Lookup não suportado no teste: {lookup}")
+
+            if q_object.connector == "AND":
+                matched = all(resultados)
+            else:
+                matched = any(resultados)
+
+            return not matched if q_object.negated else matched
+
+        def filter(self, *args, **kwargs):
+            filtrados = self.items
+            for q_object in args:
+                filtrados = [x for x in filtrados if self._matches_q(x, q_object)]
+
+            for lookup, value in kwargs.items():
+                if lookup == "data_evento__month":
+                    filtrados = [
+                        x for x in filtrados if x.data_evento.month == int(value)
+                    ]
+                elif lookup == "data_evento__year":
+                    filtrados = [
+                        x for x in filtrados if x.data_evento.year == int(value)
+                    ]
+                elif lookup == "data_evento__lt":
+                    filtrados = [x for x in filtrados if x.data_evento < value]
+                elif lookup == "data_evento__gt":
+                    filtrados = [x for x in filtrados if x.data_evento > value]
+                elif lookup == "data_evento__gte":
+                    filtrados = [x for x in filtrados if x.data_evento >= value]
+                elif lookup == "data_evento__lte":
+                    filtrados = [x for x in filtrados if x.data_evento <= value]
+            return FakeQS(filtrados)
+
+        def __iter__(self):
+            return iter(self.items)
+
+    fake_qs = FakeQS(linhas)
+
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "get_autorizados",
+        classmethod(lambda cls, escola_uuid=None: fake_qs),
+    )
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "busca_filtro",
+        classmethod(lambda cls, qs, params: qs),
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "remove_duplicados_do_query_set",
+        lambda self, qs: qs,
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "_build_results_kit_lanches",
+        lambda self, qs, escola_uuid: [
+            {"kit_lanche_id_externo": item.uuid, "tipo_doc": item.tipo_doc}
+            for item in qs
+        ],
+    )
+
+    params = {
+        "escola_uuid": str(escola.uuid),
+        "mes": "03",
+        "ano": "2026",
+        "tipo_solicitacao": "Kit Lanche",
+        "recreio_nas_ferias": str(recreio.uuid),
+    }
+    response = client.get("/escola-solicitacoes/kit-lanches-autorizadas/", params)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "results": [
+            {
+                "kit_lanche_id_externo": "uuid-kit-padrao",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+            },
+            {
+                "kit_lanche_id_externo": "uuid-kit-cemei",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+            },
+            {
+                "kit_lanche_id_externo": "uuid-kit-unificado",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+            },
+        ]
+    }
+
+
+@freeze_time("2026-03-20")
+def test_kit_lanches_autorizadas_sem_recreio_exclui_periodo_de_recreio_para_todos_tipos(
+    client_autenticado_escola_paineis_consolidados,
+    escola,
+    monkeypatch,
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+
+    recreio = baker.make(
+        RecreioNasFerias,
+        data_inicio=datetime.date(2026, 3, 3),
+        data_fim=datetime.date(2026, 3, 10),
+    )
+    baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio,
+        unidade_educacional=escola,
+        lote=escola.lote,
+        liberar_medicao=True,
+    )
+
+    Linha = namedtuple("Linha", ["uuid", "data_evento", "tipo_doc"])
+
+    linhas = [
+        Linha(
+            uuid="uuid-fora-padrao",
+            data_evento=datetime.date(2026, 3, 1),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+        ),
+        Linha(
+            uuid="uuid-dentro-padrao",
+            data_evento=datetime.date(2026, 3, 5),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+        ),
+        Linha(
+            uuid="uuid-fora-cemei",
+            data_evento=datetime.date(2026, 3, 2),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+        ),
+        Linha(
+            uuid="uuid-dentro-cemei",
+            data_evento=datetime.date(2026, 3, 6),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+        ),
+        Linha(
+            uuid="uuid-fora-unificado",
+            data_evento=datetime.date(2026, 3, 11),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+        ),
+        Linha(
+            uuid="uuid-dentro-unificado",
+            data_evento=datetime.date(2026, 3, 8),
+            tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+        ),
+    ]
+
+    class FakeQS:
+        def __init__(self, items):
+            self.items = list(items)
+
+        def _matches_q(self, item, q_object):
+            resultados = []
+            for filho in q_object.children:
+                if isinstance(filho, Q):
+                    resultados.append(self._matches_q(item, filho))
+                    continue
+
+                lookup, value = filho
+                if lookup == "data_evento__lt":
+                    resultados.append(item.data_evento < value)
+                elif lookup == "data_evento__gt":
+                    resultados.append(item.data_evento > value)
+                elif lookup == "data_evento__lte":
+                    resultados.append(item.data_evento <= value)
+                elif lookup == "data_evento__gte":
+                    resultados.append(item.data_evento >= value)
+                else:
+                    raise AssertionError(f"Lookup não suportado no teste: {lookup}")
+
+            if q_object.connector == "AND":
+                matched = all(resultados)
+            else:
+                matched = any(resultados)
+
+            return not matched if q_object.negated else matched
+
+        def filter(self, *args, **kwargs):
+            filtrados = self.items
+            for q_object in args:
+                filtrados = [x for x in filtrados if self._matches_q(x, q_object)]
+
+            for lookup, value in kwargs.items():
+                if lookup == "data_evento__month":
+                    filtrados = [
+                        x for x in filtrados if x.data_evento.month == int(value)
+                    ]
+                elif lookup == "data_evento__year":
+                    filtrados = [
+                        x for x in filtrados if x.data_evento.year == int(value)
+                    ]
+                elif lookup == "data_evento__lt":
+                    filtrados = [x for x in filtrados if x.data_evento < value]
+                elif lookup == "data_evento__gt":
+                    filtrados = [x for x in filtrados if x.data_evento > value]
+                elif lookup == "data_evento__gte":
+                    filtrados = [x for x in filtrados if x.data_evento >= value]
+                elif lookup == "data_evento__lte":
+                    filtrados = [x for x in filtrados if x.data_evento <= value]
+
+            return FakeQS(filtrados)
+
+        def __iter__(self):
+            return iter(self.items)
+
+    fake_qs = FakeQS(linhas)
+
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "get_autorizados",
+        classmethod(lambda cls, escola_uuid=None: fake_qs),
+    )
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "busca_filtro",
+        classmethod(lambda cls, qs, params: qs),
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "remove_duplicados_do_query_set",
+        lambda self, qs: qs,
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "_build_results_kit_lanches",
+        lambda self, qs, escola_uuid: [
+            {"kit_lanche_id_externo": item.uuid, "tipo_doc": item.tipo_doc}
+            for item in qs
+        ],
+    )
+
+    params = {
+        "escola_uuid": str(escola.uuid),
+        "mes": "03",
+        "ano": "2026",
+        "tipo_solicitacao": "Kit Lanche",
+    }
+    response = client.get("/escola-solicitacoes/kit-lanches-autorizadas/", params)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "results": [
+            {
+                "kit_lanche_id_externo": "uuid-fora-padrao",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_AVULSA,
+            },
+            {
+                "kit_lanche_id_externo": "uuid-fora-cemei",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_CEMEI,
+            },
+            {
+                "kit_lanche_id_externo": "uuid-fora-unificado",
+                "tipo_doc": SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
+            },
+        ]
+    }

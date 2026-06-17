@@ -802,6 +802,65 @@ class CriaSolicitacaoMedicaoInicialMesAtualUsuarioAdmin(TestCase):
             nova_solicitacao.rastro_terceirizada, self.escola.lote.terceirizada
         )
 
+    @freeze_time("2026-03-04")
+    def test_cria_solicitacao_medicao_inicial_sem_duplicidade(self):
+        """
+        Testa a criação completa de uma solicitação de medição inicial
+        e verifica se aluno do período parcial foi duplicado (não deve ser)
+        """
+
+        data_atual = datetime.date(2026, 3, 4)
+        data_mes_anterior = data_atual + relativedelta(months=-1)
+
+        solicitacao_mes_anterior = baker.make(
+            SolicitacaoMedicaoInicial,
+            escola=self.escola,
+            ano=data_mes_anterior.year,
+            mes=f"{data_mes_anterior.month:02d}",
+            criado_por=self.usuario_admin,
+            ue_possui_alunos_periodo_parcial=True,
+            status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        )
+
+        tipos_contagem = baker.make(
+            "medicao_inicial.TipoContagemAlimentacao", _quantity=3
+        )
+        solicitacao_mes_anterior.tipos_contagem_alimentacao.set(tipos_contagem)
+
+        baker.make(
+            Responsavel,
+            solicitacao_medicao_inicial=solicitacao_mes_anterior,
+            _quantity=2,
+            nome=lambda: f"Responsavel {Responsavel.objects.count() + 1}",
+            rf=lambda: f"RF{Responsavel.objects.count() + 1000}",
+        )
+
+        baker.make(
+            AlunoPeriodoParcial,
+            solicitacao_medicao_inicial=solicitacao_mes_anterior,
+            escola=self.escola,
+            data=datetime.date(data_mes_anterior.year, data_mes_anterior.month, 1),
+            data_removido=None,
+            _quantity=2,
+        )
+
+        cria_solicitacao_medicao_inicial_mes_atual()
+
+        self.assertEqual(SolicitacaoMedicaoInicial.objects.count(), 2)
+        self.assertEqual(LogSolicitacoesUsuario.objects.count(), 1)
+
+        nova_solicitacao = SolicitacaoMedicaoInicial.objects.exclude(
+            id=solicitacao_mes_anterior.id
+        ).get()
+
+        alunos = list(
+            AlunoPeriodoParcial.objects.filter(
+                solicitacao_medicao_inicial=nova_solicitacao
+            ).values_list("aluno_id", flat=True)
+        )
+
+        self.assertEqual(len(alunos), len(set(alunos)))
+
 
 @pytest.mark.django_db
 def test_exporta_relatorio_historico_correcoes_pdf(

@@ -49,6 +49,7 @@ class EtapasDoCronogramaSerializer(serializers.ModelSerializer):
     data_programada = serializers.SerializerMethodField()
     etapa = serializers.SerializerMethodField()
     parte = serializers.SerializerMethodField()
+    quantidade_estimada_disponivel = serializers.SerializerMethodField()
 
     def get_data_programada(self, obj):
         if not obj.data_programada:
@@ -63,6 +64,9 @@ class EtapasDoCronogramaSerializer(serializers.ModelSerializer):
     def get_parte(self, obj):
         return f"Parte {obj.parte}" if obj.parte is not None else None
 
+    def get_quantidade_estimada_disponivel(self, obj):
+        return obj.quantidade_estimada_disponivel
+
     class Meta:
         model = EtapasDoCronograma
         fields = (
@@ -74,6 +78,7 @@ class EtapasDoCronogramaSerializer(serializers.ModelSerializer):
             "data_programada",
             "quantidade",
             "total_embalagens",
+            "quantidade_estimada_disponivel",
         )
 
 
