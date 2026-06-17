@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "fd1c4a7fa75a1b1eff9c13dd12dc4c25e9478a9f6c9f005e733ad6400627d665"
+            "sha256": "0d66d720d9e3e51162638c2b475bb7f0952e17680a8769c883f3189e1b7426e0"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -164,12 +164,12 @@
         },
         "bleach": {
             "hashes": [
-                "sha256:6f3b91b1c0a02bb9a78b5a454c92506aa0fdf197e1d5e114d2e00c6f64306d22",
-                "sha256:fe10ec77c93ddf3d13a73b035abaac7a9f5e436513864ccdad516693213c65d6"
+                "sha256:4202482733d85cedd04e59fcb2f89f4e4c7c385a78d3c3c23c30446843a37452",
+                "sha256:4b6b6a54fff2e69a3dde9d21cc6301220bee3c3cb792187d11403fd795031081"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==6.3.0"
+            "version": "==6.4.0"
         },
         "brazilnum": {
             "hashes": [
