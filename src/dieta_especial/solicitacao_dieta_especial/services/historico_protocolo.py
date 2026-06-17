@@ -5,12 +5,12 @@ from bs4 import BeautifulSoup
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 
-from .protocolo_padrao.models import (
+from src.dieta_especial.protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
     SubstituicaoAlimento,
 )
-from .solicitacao_dieta_especial.models import (
+from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
@@ -145,7 +145,7 @@ def _compara_classificacao(
         nova_classificacao (str): ID da nova classificação.
 
     Returns:
-        Optional[dict]: Dicionário com os nomes antigo e novo se houver diferença, None caso contrário.ription_
+        Optional[dict]: Dicionário com os nomes antigo e novo se houver diferença, None caso contrário.
     """
     if not nova_classificacao:
         return None
@@ -169,7 +169,7 @@ def _compara_protocolo(
         uuid_novo_procotolo (Optional[str]): UUID do novo protocolo.
 
     Returns:
-        Optional[dict]:  Dicionário com os nomes antigo e novo se houver diferença,  None caso contrário.
+        Optional[dict]: Dicionário com os nomes antigo e novo se houver diferença, None caso contrário.
     """
     if not uuid_novo_procotolo:
         return None
@@ -194,10 +194,10 @@ def _compara_orientacoes(
 
     Args:
         instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as orientações atuais.
-        nova_orientacao (str): Novas orientações em formato HTML
+        nova_orientacao (str): Novas orientações em formato HTML.
 
     Returns:
-        Optional[dict]:  Dicionário com os textos antigo e novo se houver diferença, None caso contrário
+        Optional[dict]: Dicionário com os textos antigo e novo se houver diferença, None caso contrário.
     """
     if not nova_orientacao:
         return None
@@ -220,7 +220,7 @@ def _compara_data_de_termino(
         nova_data_termino (Optional[str]): Nova data de término no formato YYYY-MM-DD.
 
     Returns:
-        Optional[dict]: Dicionário com as datas formatadas antiga e nova se houver diferença, None caso contrário
+        Optional[dict]: Dicionário com as datas formatadas antiga e nova se houver diferença, None caso contrário.
     """
     data_termino_instance = instance.data_termino
     nova_data_termino = (
@@ -249,7 +249,7 @@ def _formata_data_termino(data_termino: Optional[datetime.date]) -> str:
     if data_termino is None:
         texto = "Sem data término"
     else:
-        texto = f"Com data de término {data_termino.strftime("%d/%m/%Y")}"
+        texto = f"Com data de término {data_termino.strftime('%d/%m/%Y')}"
     return texto
 
 
@@ -260,7 +260,7 @@ def _compara_informacoes_adicionais(
     Compara as informações adicionais atuais com as novas.
 
     Args:
-        instance (SolicitacaoDietaEspecial):  Instância do modelo SolicitacaoDietaEspecial com as informações atuais.
+        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as informações atuais.
         nova_informacao (Optional[str]): Novas informações adicionais em formato HTML.
 
     Returns:
@@ -281,7 +281,8 @@ def normalizar_substituicao(sub: Union[SubstituicaoAlimento, dict]) -> dict:
     Normaliza os dados de substituição de alimento para comparação.
 
     Args:
-        sub (Union[SubstituicaoAlimento, dict]): Pode ser uma instância de SubstituicaoAlimento ou um dicionário com os dados da substituição.
+        sub (Union[SubstituicaoAlimento, dict]): Pode ser uma instância de SubstituicaoAlimento
+            ou um dicionário com os dados da substituição.
 
     Returns:
         dict: Dicionário normalizado com alimento, tipo e substitutos.
@@ -314,7 +315,7 @@ def _compara_substituicoes(
     Compara as substituições de alimentos atuais com as novas.
 
     Args:
-        instance (SolicitacaoDietaEspecial):  Instância do modelo SolicitacaoDietaEspecial com as substituições atuais..
+        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as substituições atuais.
         substituicoes_novas (list[dict]): Lista de novas substituições.
 
     Returns:

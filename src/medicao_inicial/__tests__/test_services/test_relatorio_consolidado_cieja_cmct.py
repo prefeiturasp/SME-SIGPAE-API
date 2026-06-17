@@ -112,9 +112,9 @@ def test_insere_tabela_periodos_na_planilha_unidade_cieja(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 4
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeições p/ Pagamento") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento") == 3
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesas p/ Pagamento") == 3
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Sobremesas para Pagamento") == 3
 
     assert df.iloc[0].tolist() == [
         "CIEJA",

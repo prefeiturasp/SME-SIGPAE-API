@@ -420,3 +420,102 @@ def test_cria_valores_medicao_logs_matriculados_cei_nao_duplica(
     serializer.cria_valores_medicao_logs_alunos_matriculados_cei(solicitacao)
 
     assert solicitacao.medicoes.count() == total
+
+
+def test_cria_valores_medicao_logs_matriculados_emef_emei_periodo_vigente(
+    escola,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+    periodo_escolar_noite,
+):
+    """Verifica que método EMEF/EMEI não cria valores para período não vigente."""
+    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+
+    for periodo in [periodo_escolar_manha, periodo_escolar_tarde]:
+        AlunosMatriculadosPeriodoEscolaFactory(
+            escola=escola,
+            tipo_turma="REGULAR",
+            periodo_escolar=periodo,
+            quantidade_alunos=100,
+        )
+        log = LogAlunosMatriculadosPeriodoEscolaFactory(
+            escola=escola,
+            tipo_turma="REGULAR",
+            periodo_escolar=periodo,
+            quantidade_alunos=100,
+        )
+        log.criado_em = date(2026, 4, 1)
+        log.save()
+
+    AlunosMatriculadosPeriodoEscolaFactory(
+        escola=escola,
+        tipo_turma="REGULAR",
+        periodo_escolar=periodo_escolar_noite,
+        quantidade_alunos=100,
+    )
+    log = LogAlunosMatriculadosPeriodoEscolaFactory(
+        escola=escola,
+        tipo_turma="REGULAR",
+        periodo_escolar=periodo_escolar_noite,
+        quantidade_alunos=100,
+    )
+    log.criado_em = date(2026, 3, 1)
+    log.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=4,
+        ano=2026,
+        escola=escola,
+        rastro_lote=escola.lote,
+    )
+
+    serializer = SolicitacaoMedicaoInicialCreateSerializer()
+    serializer.cria_valores_medicao_logs_alunos_matriculados_emef_emei(solicitacao)
+
+    total = solicitacao.medicoes.count()
+    assert total == 2
+    assert solicitacao.medicoes.count() == total
+
+
+def test_cria_valores_medicao_logs_matriculados_cei_periodo_vigente(
+    escola_cei,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+):
+    """Verifica que método CEI não cria valores para período não vigente."""
+    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+
+    for periodo in [
+        (periodo_escolar_manha, date(2026, 4, 1)),
+        (periodo_escolar_tarde, date(2026, 3, 1)),
+    ]:
+        AlunosMatriculadosPeriodoEscolaFactory(
+            escola=escola_cei,
+            tipo_turma="REGULAR",
+            periodo_escolar=periodo[0],
+            quantidade_alunos=100,
+        )
+        log = LogAlunosMatriculadosPeriodoEscolaFactory(
+            escola=escola_cei,
+            tipo_turma="REGULAR",
+            periodo_escolar=periodo[0],
+            quantidade_alunos=100,
+        )
+        log.criado_em = periodo[1]
+        log.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=4,
+        ano=2026,
+        escola=escola_cei,
+        rastro_lote=escola_cei.lote,
+    )
+
+    serializer = SolicitacaoMedicaoInicialCreateSerializer()
+    serializer.cria_valores_medicao_logs_alunos_matriculados_cei(solicitacao)
+
+    total = solicitacao.medicoes.count()
+    assert total == 1
+    assert solicitacao.medicoes.count() == total
