@@ -159,7 +159,7 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
                 dia_semana = python_weekday_to_business(current.weekday())
 
                 if dia_semana in dias_semana:
-                    self._check_duplicates(current, periodos, escolas)
+                    self._checa_duplicacao(current, periodos, escolas)
 
                     dia_letivo = DiaLetivoSIGPAE.objects.create(
                         data=current,
@@ -176,7 +176,7 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
 
         return created
 
-    def _check_duplicates(self, data, periodos, escolas):
+    def _checa_duplicacao(self, data, periodos, escolas):
         """Verifica se já existe DiaLetivo duplicado para os parâmetros informados.
 
         Para cada período, verifica se já existe um registro com a mesma
@@ -193,11 +193,11 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
         """
         for periodo in periodos:
             if escolas:
-                self._check_duplicate_with_escolas(data, periodo, escolas)
+                self._checa_duplicacao_com_escolas(data, periodo, escolas)
             else:
-                self._check_duplicate_without_escolas(data, periodo)
+                self._checa_duplicacao_sem_escolas(data, periodo)
 
-    def _check_duplicate_with_escolas(self, data, periodo, escolas):
+    def _checa_duplicacao_com_escolas(self, data, periodo, escolas):
         """Verifica duplicata de DiaLetivo considerando escolas específicas.
 
         Args:
@@ -221,7 +221,7 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
                     f"período escolar {periodo.nome}"
                 )
 
-    def _check_duplicate_without_escolas(self, data, periodo):
+    def _checa_duplicacao_sem_escolas(self, data, periodo):
         """Verifica duplicata de DiaLetivo sem escolas vinculadas.
 
         Args:
