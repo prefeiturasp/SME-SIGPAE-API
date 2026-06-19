@@ -48,20 +48,12 @@
           </div>
           <div class="col-10">
             <table>
-            {% with periodo=solicitacao.aluno.periodo %}
               <tr>
                 <th scope="col" class="w-25">Cód. EOL do Aluno</th>
-                {% if solicitacao.status == 'CODAE_AUTORIZADO' and solicitacao.ativo and not solicitacao.dieta_alterada and periodo %}
-                  <th scope="col" class="w-25">Período</th>
-                {% endif %}
               </tr>
               <tr>
                 <td>{{ solicitacao.aluno.codigo_eol }}</td>
-                {% if solicitacao.status == 'CODAE_AUTORIZADO' and solicitacao.ativo and not solicitacao.dieta_alterada and periodo %}
-                  <td>{{ periodo|title }}</td>
-                {% endif %}
               </tr>
-            {% endwith %}
               <tr>
                 <th scope="col" class="w-25">Nome completo do Aluno</th>
                 <th scope="col" class="w-25">Data de nascimento</th>
