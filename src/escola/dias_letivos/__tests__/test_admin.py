@@ -21,12 +21,12 @@ def test_dia_semana_filter_lookups():
 
 
 def test_dia_semana_filter_queryset_with_value():
-    baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))  # Monday
-    baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 21))  # Sunday
+    baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
+    baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 21))
 
     filter_instance = DiaSemanaFilter(
         Mock(),
-        {"dia_semana": ["2"]},  # Monday (Django week_day = 2)
+        {"dia_semana": ["2"]},
         DiaLetivoSIGPAE,
         DiaLetivoSIGPAEAdmin,
     )
@@ -35,7 +35,7 @@ def test_dia_semana_filter_queryset_with_value():
 
     filter_instance_sunday = DiaSemanaFilter(
         Mock(),
-        {"dia_semana": ["1"]},  # Sunday (Django week_day = 1)
+        {"dia_semana": ["1"]},
         DiaLetivoSIGPAE,
         DiaLetivoSIGPAEAdmin,
     )
@@ -115,25 +115,25 @@ def test_get_dia_semana():
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.prepare(DiaLetivoSIGPAE)
 
-    dia.data = datetime.date(2026, 6, 22)  # Monday
+    dia.data = datetime.date(2026, 6, 22)
     assert admin_instance.get_dia_semana(dia) == "Segunda"
 
-    dia.data = datetime.date(2026, 6, 23)  # Tuesday
+    dia.data = datetime.date(2026, 6, 23)
     assert admin_instance.get_dia_semana(dia) == "Terça"
 
-    dia.data = datetime.date(2026, 6, 24)  # Wednesday
+    dia.data = datetime.date(2026, 6, 24)
     assert admin_instance.get_dia_semana(dia) == "Quarta"
 
-    dia.data = datetime.date(2026, 6, 25)  # Thursday
+    dia.data = datetime.date(2026, 6, 25)
     assert admin_instance.get_dia_semana(dia) == "Quinta"
 
-    dia.data = datetime.date(2026, 6, 26)  # Friday
+    dia.data = datetime.date(2026, 6, 26)
     assert admin_instance.get_dia_semana(dia) == "Sexta"
 
-    dia.data = datetime.date(2026, 6, 27)  # Saturday
+    dia.data = datetime.date(2026, 6, 27)
     assert admin_instance.get_dia_semana(dia) == "Sábado"
 
-    dia.data = datetime.date(2026, 6, 28)  # Sunday
+    dia.data = datetime.date(2026, 6, 28)
     assert admin_instance.get_dia_semana(dia) == "Domingo"
 
 
