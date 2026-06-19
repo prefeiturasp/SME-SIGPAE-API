@@ -386,3 +386,5 @@ admin.site.register(TipoGestao)
 admin.site.register(TipoUnidadeEscolar)
 admin.site.register(GrupoUnidadeEscolar)
 admin.site.register(HistoricoEscola)
+
+from .dias_letivos import admin as dias_letivos_admin  # noqa E402 F401
