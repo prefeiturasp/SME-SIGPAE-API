@@ -193,30 +193,55 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
         """
         for periodo in periodos:
             if escolas:
-                for escola in escolas:
-                    if DiaLetivoSIGPAE.objects.filter(
-                        data=data,
-                        periodos_escolares=periodo,
-                        escolas=escola,
-                    ).exists():
-                        raise ValidationError(
-                            f"Já existe um DiaLetivo cadastrado para a data "
-                            f"{data.strftime('%d/%m/%Y')}, "
-                            f"escola {escola.nome} e "
-                            f"período escolar {periodo.nome}"
-                        )
+                self._check_duplicate_with_escolas(data, periodo, escolas)
             else:
-                if (
-                    DiaLetivoSIGPAE.objects.filter(
-                        data=data,
-                        periodos_escolares=periodo,
-                    )
-                    .annotate(escola_count=Count("escolas"))
-                    .filter(escola_count=0)
-                    .exists()
-                ):
-                    raise ValidationError(
-                        f"Já existe um DiaLetivo cadastrado para a data "
-                        f"{data.strftime('%d/%m/%Y')} e "
-                        f"período escolar {periodo.nome}"
-                    )
+                self._check_duplicate_without_escolas(data, periodo)
+
+    def _check_duplicate_with_escolas(self, data, periodo, escolas):
+        """Verifica duplicata de DiaLetivo considerando escolas específicas.
+
+        Args:
+            data: Data do dia letivo a ser verificada.
+            periodo: Instância de PeriodoEscolar.
+            escolas: Lista de instâncias de Escola.
+
+        Raises:
+            ValidationError: Se encontrar um registro duplicado.
+        """
+        for escola in escolas:
+            if DiaLetivoSIGPAE.objects.filter(
+                data=data,
+                periodos_escolares=periodo,
+                escolas=escola,
+            ).exists():
+                raise ValidationError(
+                    f"Já existe um DiaLetivo cadastrado para a data "
+                    f"{data.strftime('%d/%m/%Y')}, "
+                    f"escola {escola.nome} e "
+                    f"período escolar {periodo.nome}"
+                )
+
+    def _check_duplicate_without_escolas(self, data, periodo):
+        """Verifica duplicata de DiaLetivo sem escolas vinculadas.
+
+        Args:
+            data: Data do dia letivo a ser verificada.
+            periodo: Instância de PeriodoEscolar.
+
+        Raises:
+            ValidationError: Se encontrar um registro duplicado.
+        """
+        if (
+            DiaLetivoSIGPAE.objects.filter(
+                data=data,
+                periodos_escolares=periodo,
+            )
+            .annotate(escola_count=Count("escolas"))
+            .filter(escola_count=0)
+            .exists()
+        ):
+            raise ValidationError(
+                f"Já existe um DiaLetivo cadastrado para a data "
+                f"{data.strftime('%d/%m/%Y')} e "
+                f"período escolar {periodo.nome}"
+            )
