@@ -11,6 +11,13 @@ from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
 
 
 class DiaLetivoSIGPAE(CriadoEm, CriadoPor, TemAlteradoEm, TemChaveExterna, TemData):
+    """Modelo que representa um dia letivo no sistema SIGPAE.
+
+    Associa uma data a lotes, tipos de unidade escolar, escolas e
+    períodos escolares, determinando quais instituições possuem aula
+    naquele dia.
+    """
+
     lotes = models.ManyToManyField(Lote, related_name="dias_letivos_sigpae")
     tipos_unidade_escolar = models.ManyToManyField(
         TipoUnidadeEscolar, related_name="dias_letivos_sigpae"

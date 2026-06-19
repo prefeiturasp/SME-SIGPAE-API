@@ -7,6 +7,12 @@ from ...models import DiaLetivoSIGPAE
 
 
 class DiaLetivoSIGPAEFactory(DjangoModelFactory):
+    """Factory para criar instâncias do modelo DiaLetivoSIGPAE em testes.
+
+    Utiliza post_generation hooks para configurar relacionamentos
+    ManyToMany (lotes, tipos_unidade_escolar, escolas e periodos_escolares).
+    """
+
     data = factory.LazyFunction(datetime.date.today)
 
     @factory.post_generation
