@@ -2756,16 +2756,7 @@ class Aluno(TemChaveExterna):
         ):
             return None
 
-        tipos_nao_considerados = [
-            "CEI",
-            "CEU CEI",
-            "CCI/CIPS",
-            "CEI DO CEMEI",
-        ]
-
-        tipo_unidade = self.escola.tipo_unidade.iniciais or ""
-
-        if tipo_unidade.upper() in tipos_nao_considerados:
+        if self.escola.eh_cei:
             return None
 
         if self.escola.eh_cemei and self.ciclo == self.CICLO_ALUNO_CEI:
