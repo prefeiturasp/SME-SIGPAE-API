@@ -95,6 +95,33 @@ def test_create_dias_letivos_duplicate(
     assert "Já existe um DiaLetivo" in response.json()[0]
 
 
+def test_create_dias_letivos_duplicate_sem_escolas(
+    client_autenticado_codae_gestao_alimentacao,
+):
+    client = client_autenticado_codae_gestao_alimentacao
+    periodo = baker.make("escola.PeriodoEscolar")
+    lote = baker.make("escola.Lote")
+    tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
+
+    payload = _build_payload([periodo], [lote], [tipo_unidade])
+
+    response = client.post(
+        "/dias-letivos/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    response = client.post(
+        "/dias-letivos/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "Já existe um DiaLetivo" in response.json()[0]
+
+
 def test_create_dias_letivos_missing_lotes(
     client_autenticado_codae_gestao_alimentacao,
 ):
