@@ -2745,13 +2745,15 @@ class Aluno(TemChaveExterna):
             return None
         except Exception:
             return None
-    
+
     @property
     def periodo(self):
-        if not self.codigo_eol or self.nao_matriculado:
-            return None
-
-        if not self.escola or not self.escola.tipo_unidade:
+        if (
+            not self.codigo_eol
+            or self.nao_matriculado
+            or not self.escola
+            or not self.escola.tipo_unidade
+        ):
             return None
 
         tipos_nao_considerados = [
