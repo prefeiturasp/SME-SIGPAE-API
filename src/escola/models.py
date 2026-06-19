@@ -2745,6 +2745,48 @@ class Aluno(TemChaveExterna):
             return None
         except Exception:
             return None
+    
+    @property
+    def periodo(self):
+        if not self.codigo_eol or self.nao_matriculado:
+            return None
+
+        if not self.escola or not self.escola.tipo_unidade:
+            return None
+
+        tipos_nao_considerados = [
+            "CEI",
+            "CEU CEI",
+            "CCI/CIPS",
+            "CEI DO CEMEI",
+        ]
+
+        tipo_unidade = self.escola.tipo_unidade.iniciais or ""
+
+        if tipo_unidade.upper() in tipos_nao_considerados:
+            return None
+
+        if self.escola.eh_cemei and self.ciclo == self.CICLO_ALUNO_CEI:
+            return None
+
+        if not self.periodo_escolar:
+            return None
+
+        periodo = self.periodo_escolar.nome.upper()
+
+        periodos_permitidos = {
+            "MANHA",
+            "TARDE",
+            "INTEGRAL",
+            "NOITE",
+            "VESPERTINO",
+            "INTERMEDIARIO",
+        }
+
+        if periodo not in periodos_permitidos:
+            return None
+
+        return self.periodo_escolar.nome
 
     def inativar_dieta_especial(self):
         try:
