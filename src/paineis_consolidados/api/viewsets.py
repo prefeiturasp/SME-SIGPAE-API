@@ -162,24 +162,37 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
 
         return Response({"results": []})
 
+    @staticmethod
+    def _prioridade_efetiva(solicitacao):
+        """Solicitações de Lanche Emergencial vencidas são tratadas como PRIORITARIO."""
+        if (
+            solicitacao.prioridade == "VENCIDO"
+            and solicitacao.motivo == "Lanche Emergencial"
+        ):
+            return "PRIORITARIO"
+        return solicitacao.prioridade
+
     def _agrupar_solicitacoes(self, tipo_visao: str, query_set: QuerySet):
         if tipo_visao == TIPO_VISAO_SOLICITACOES:
             descricao_prioridade = [
-                (solicitacao.desc_doc, solicitacao.prioridade)
+                (solicitacao.desc_doc, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
+                or solicitacao.motivo == "Lanche Emergencial"
             ]
         elif tipo_visao == TIPO_VISAO_LOTE:
             descricao_prioridade = [
-                (solicitacao.lote_nome, solicitacao.prioridade)
+                (solicitacao.lote_nome, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
+                or solicitacao.motivo == "Lanche Emergencial"
             ]
         else:
             descricao_prioridade = [
-                (solicitacao.dre_nome, solicitacao.prioridade)
+                (solicitacao.dre_nome, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
+                or solicitacao.motivo == "Lanche Emergencial"
             ]
         return descricao_prioridade
 
