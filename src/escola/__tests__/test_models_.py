@@ -179,6 +179,32 @@ def test_sub_prefeitura(sub_prefeitura):
 def test_aluno(aluno):
     assert aluno.__str__() == "Fulano da Silva - 000001"
 
+def test_aluno_retorna_periodo_escolar(aluno):
+    aluno.nao_matriculado = False
+    aluno.escola.tipo_unidade.iniciais = "EMEF"
+    assert aluno.periodo == aluno.periodo_escolar.nome
+
+def test_aluno_nao_retorna_periodo_quando_nao_tem_codigo_eol(aluno):
+    aluno.codigo_eol = None
+    aluno.nao_matriculado = False
+    aluno.escola.tipo_unidade.iniciais = "EMEF"
+    assert aluno.periodo is None
+
+def test_aluno_nao_retorna_periodo_quando_nao_matriculado(aluno):
+    aluno.nao_matriculado = True
+    aluno.escola.tipo_unidade.iniciais = "EMEF"
+    assert aluno.periodo is None
+
+def test_aluno_nao_retorna_periodo_para_tipo_unidade_cei(aluno):
+    aluno.nao_matriculado = False
+    aluno.escola.tipo_unidade.iniciais = "CEI"
+    assert aluno.periodo is None
+
+def test_aluno_nao_retorna_periodo_para_cei_do_cemei(aluno, escola_cemei):
+    aluno.nao_matriculado = False
+    aluno.escola = escola_cemei
+    aluno.ciclo = aluno.CICLO_ALUNO_CEI
+    assert aluno.periodo is None
 
 @freeze_time("2019-06-20")
 def test_data_pertence_faixa_etaria_hoje(datas_e_faixas):
