@@ -1,8 +1,6 @@
 from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
-from .models import DiaLetivoSIGPAE
-
 DIAS_SEMANA = [
     (2, "Segunda"),
     (3, "Terça"),
@@ -27,7 +25,6 @@ class DiaSemanaFilter(admin.SimpleListFilter):
         return queryset
 
 
-@admin.register(DiaLetivoSIGPAE)
 class DiaLetivoSIGPAEAdmin(admin.ModelAdmin):
     list_display = (
         "data",

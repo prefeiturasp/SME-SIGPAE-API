@@ -7,6 +7,8 @@ from django.urls import path
 from rangefilter.filters import DateRangeFilter
 
 from .api.viewsets import exportar_planilha_importacao_tipo_gestao_escola
+from .dias_letivos.admin import DiaLetivoSIGPAEAdmin
+from .dias_letivos.models import DiaLetivoSIGPAE
 from .models import (
     Aluno,
     AlunoPeriodoParcial,
@@ -386,5 +388,4 @@ admin.site.register(TipoGestao)
 admin.site.register(TipoUnidadeEscolar)
 admin.site.register(GrupoUnidadeEscolar)
 admin.site.register(HistoricoEscola)
-
-from .dias_letivos import admin as dias_letivos_admin  # noqa E402 F401
+admin.site.register(DiaLetivoSIGPAE, DiaLetivoSIGPAEAdmin)
