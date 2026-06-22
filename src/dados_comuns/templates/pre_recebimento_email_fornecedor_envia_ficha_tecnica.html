@@ -1,0 +1,26 @@
+{% extends 'email_base.html' %}
+{% load email_templatetags %}
+
+{% block conteudo %}
+  <p>Olá!</p>
+
+  <p><strong>{{ nome_fornecedor }}</strong> enviou a Ficha Técnica <strong>({{ numero_ficha_tecnica }})</strong> referente ao produto <strong>{{ nome_produto }}</strong>.</p>
+
+  <br/>
+
+  <div style="text-align: left;">
+    {% if numero_cp %}CP: {{ numero_cp }}<br/>{% endif %}
+    {% if numero_ata %}ATA: {{ numero_ata }}<br/>{% endif %}
+    <strong>Data do Envio:</strong> {{ data_envio }}
+  </div>
+
+  <br/><br/>
+
+  <p>Para visualizar os detalhes da Ficha Técnica e dar andamento à análise, acesse o sistema por meio do link abaixo:</p>
+
+  <p><a href="{{ url_detalhes_ficha_tecnica }}">Clique aqui para acessar os detalhes da Ficha Técnica</a></p>
+
+  <br/>
+
+  <p><em>Este é um e-mail automático. Não é necessário respondê-lo.</em></p>
+{% endblock %}
