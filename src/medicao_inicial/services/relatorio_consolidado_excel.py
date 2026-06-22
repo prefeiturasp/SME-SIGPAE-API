@@ -57,6 +57,9 @@ def gera_relatorio_consolidado_xlsx(
             modulo_da_unidade, parametros = _obter_modulo_da_unidade_recreio(
                 tipos_de_unidade
             )
+            colunas = modulo_da_unidade.get_alimentacoes_por_periodo(
+                solicitacoes, query_params=query_params
+            )
         else:
             modulo_da_unidade, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
             colunas = modulo_da_unidade.get_alimentacoes_por_periodo(
