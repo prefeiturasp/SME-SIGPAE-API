@@ -489,3 +489,53 @@ class TestEndpointsPainelGerencialDietaEspecial:
         response = client.get("/codae-solicitacoes/inativas-dieta/?sem_paginacao=true")
         assert "count" not in response.json()
         assert len(response.json()["results"]) == 1
+
+
+class TestPrioridadeEfetiva:
+    """Testa o método estático _prioridade_efetiva do SolicitacoesViewSet."""
+
+    @staticmethod
+    def _make_mock(prioridade, motivo):
+        """Cria um objeto mock com os atributos necessários."""
+        from unittest.mock import Mock
+
+        mock = Mock()
+        mock.prioridade = prioridade
+        mock.motivo = motivo
+        return mock
+
+    def test_vencido_lanche_emergencial_retorna_prioritario(self):
+        from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
+
+        mock = self._make_mock("VENCIDO", "Lanche Emergencial")
+        assert SolicitacoesViewSet._prioridade_efetiva(mock) == "PRIORITARIO"
+
+    def test_vencido_outro_motivo_retorna_vencido(self):
+        from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
+
+        mock = self._make_mock("VENCIDO", "RPL - Refeição por Lanche")
+        assert SolicitacoesViewSet._prioridade_efetiva(mock) == "VENCIDO"
+
+    def test_prioritario_lanche_emergencial_retorna_prioritario(self):
+        from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
+
+        mock = self._make_mock("PRIORITARIO", "Lanche Emergencial")
+        assert SolicitacoesViewSet._prioridade_efetiva(mock) == "PRIORITARIO"
+
+    def test_limite_retorna_limite(self):
+        from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
+
+        mock = self._make_mock("LIMITE", "Lanche Emergencial")
+        assert SolicitacoesViewSet._prioridade_efetiva(mock) == "LIMITE"
+
+    def test_regular_retorna_regular(self):
+        from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
+
+        mock = self._make_mock("REGULAR", "Lanche Emergencial")
+        assert SolicitacoesViewSet._prioridade_efetiva(mock) == "REGULAR"
+
+    def test_vencido_sem_motivo_retorna_vencido(self):
+        from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
+
+        mock = self._make_mock("VENCIDO", None)
+        assert SolicitacoesViewSet._prioridade_efetiva(mock) == "VENCIDO"

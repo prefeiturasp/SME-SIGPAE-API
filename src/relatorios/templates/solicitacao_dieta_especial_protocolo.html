@@ -24,35 +24,50 @@
         {% endif %}
         </div>
         <div class="col-9">
-          <table>
+         <table>
+          {% with periodo=solicitacao.aluno.periodo %}
             <tr style="height: 2em">
-              {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO'%}
+              {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO' %}
                 <th scope="col" class="w-25">CPF do Aluno</th>
-                 {% if solicitacao.dieta_para_recreio_ferias %}
-                    <th scope="col">
-                      <div class="tag-recreio-nas-ferias">Dieta para Recreio nas Férias</div>
-                    </th>
-                 {% endif %}
-              {%else%}
+                {% if solicitacao.dieta_para_recreio_ferias %}
+                  <th scope="col">
+                    <div class="tag-recreio-nas-ferias">
+                      Dieta para Recreio nas Férias
+                    </div>
+                  </th>
+                {% endif %}
+              {% else %}
                 <th scope="col" class="w-25">Cód. EOL do Aluno</th>
-              {%endif%}
+                {% if solicitacao.status == 'CODAE_AUTORIZADO' and solicitacao.ativo and not solicitacao.dieta_alterada and periodo %}
+                  <th scope="col" class="w-25">Período</th>
+                {% endif %}
+              {% endif %}
             </tr>
             <tr style="height: 2em">
-              {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO'%}
+              {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO' %}
                 <td>{{ solicitacao.aluno.cpf|default:'' }}</td>
-              {%else%}
+              {% else %}
                 <td>{{ solicitacao.aluno.codigo_eol }}</td>
-              {%endif%}
+
+                {% if solicitacao.status == 'CODAE_AUTORIZADO' and solicitacao.ativo and not solicitacao.dieta_alterada and periodo %}
+                  <td>{{ periodo|title }}</td>
+                {% endif %}
+              {% endif %}
             </tr>
-            <tr style="height: 3em">
-              <th scope="col" style="height: 2em" class="w-25">Nome completo do Aluno</th>
-              <th scope="col" class="w-25">Data de nascimento</th>
-            </tr>
-            <tr style="height: 2em">
-                <td>{{ solicitacao.aluno.nome }}</td>
-                <td>{{ solicitacao.aluno.data_nascimento|date:"SHORT_DATE_FORMAT" }}</td>
-            </tr>
-          </table>
+          {% endwith %}
+          <tr style="height: 3em">
+            <th scope="col" style="height: 2em" class="w-25">
+              Nome completo do Aluno
+            </th>
+            <th scope="col" class="w-25">Data de nascimento</th>
+          </tr>
+          <tr style="height: 2em">
+            <td>{{ solicitacao.aluno.nome }}</td>
+            <td>
+              {{ solicitacao.aluno.data_nascimento|date:"SHORT_DATE_FORMAT" }}
+            </td>
+          </tr>
+        </table>
         </div>
       </div>
     {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO' %}
