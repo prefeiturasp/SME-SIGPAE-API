@@ -5939,16 +5939,6 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
             nome_produto = self.produto.nome if self.produto else "-"
             data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
 
-            # Obtém CP/ATA via cronograma vinculado, se houver
-            numero_cp = None
-            numero_ata = None
-            cronograma = self.cronograma_set.first()
-            if cronograma and cronograma.contrato:
-                if cronograma.contrato.numero_chamada_publica:
-                    numero_cp = cronograma.contrato.numero_chamada_publica
-                if cronograma.contrato.ata:
-                    numero_ata = cronograma.contrato.ata
-
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/ficha-tecnica/{self.uuid}"
             )
@@ -5957,8 +5947,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
                 "nome_fornecedor": nome_fornecedor,
                 "numero_ficha_tecnica": numero_ficha_tecnica,
                 "nome_produto": nome_produto,
-                "numero_cp": numero_cp,
-                "numero_ata": numero_ata,
+                "pregao_chamada_publica": self.pregao_chamada_publica,
                 "data_envio": data_envio,
                 "url_detalhes_ficha_tecnica": url_detalhes_ficha_tecnica,
             }
