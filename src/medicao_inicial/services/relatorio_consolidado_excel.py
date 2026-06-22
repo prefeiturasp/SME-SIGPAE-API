@@ -22,13 +22,17 @@ from src.medicao_inicial.services import (
     relatorio_consolidado_cieja_cmct,
     relatorio_consolidado_emebs,
     relatorio_consolidado_emei_emef,
+    relatorio_consolidado_recreio_emei_emef,
 )
 
 from ..models import SolicitacaoMedicaoInicial
 
 
 def gera_relatorio_consolidado_xlsx(
-    solicitacoes_uuid: list[UUID], tipos_de_unidade: list[str], query_params: dict
+    solicitacoes_uuid: list[UUID],
+    tipos_de_unidade: list[str],
+    query_params: dict,
+    contem_recreio: bool,
 ) -> bytes:
     """
     Gera relatório consolidado em formato XLSX baseado nas solicitações fornecidas.
@@ -49,17 +53,22 @@ def gera_relatorio_consolidado_xlsx(
     """
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     try:
-        modulo_da_unidade, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
-        colunas = modulo_da_unidade.get_alimentacoes_por_periodo(
-            solicitacoes, query_params=query_params
-        )
-        linhas = modulo_da_unidade.get_valores_tabela(
-            solicitacoes, colunas, *parametros, query_params=query_params
-        )
+        if contem_recreio:
+            modulo_da_unidade, parametros = _obter_modulo_da_unidade_recreio(
+                tipos_de_unidade
+            )
+        else:
+            modulo_da_unidade, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
+            colunas = modulo_da_unidade.get_alimentacoes_por_periodo(
+                solicitacoes, query_params=query_params
+            )
+            linhas = modulo_da_unidade.get_valores_tabela(
+                solicitacoes, colunas, *parametros, query_params=query_params
+            )
 
-        arquivo_excel = _gera_excel(
-            tipos_de_unidade, query_params, colunas, linhas, modulo_da_unidade
-        )
+            arquivo_excel = _gera_excel(
+                tipos_de_unidade, query_params, colunas, linhas, modulo_da_unidade
+            )
     except Exception as e:
         raise e
     return arquivo_excel
@@ -109,6 +118,38 @@ def _obter_modulo_da_unidade(tipos_de_unidade: list[str]) -> tuple:
             "unidades": ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
             "modulo": relatorio_consolidado_cieja_cmct,
             "parametros": [],
+        },
+    ]
+    for estrategia in estrategias:
+        if set(tipos_de_unidade).issubset(estrategia["unidades"]):
+            return estrategia["modulo"], estrategia["parametros"]
+    raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
+
+
+def _obter_modulo_da_unidade_recreio(tipos_de_unidade: list[str]) -> tuple:
+    """
+    Identifica o módulo de relatório consolidado apropriado para os tipos de unidade do Recreio nas Férias.
+
+    Determina qual módulo de geração de relatório consolidado deve ser utilizado baseado nos tipos de unidade fornecidos,
+    seguindo uma estratégia de prioridade definida por grupos pré-estabelecidos
+
+    Args:
+        tipos_de_unidade (list[str]): Lista de tipos de unidade (siglas) para as quais identificar o módulo apropriado.
+
+    Raises:
+        ValueError: Se nenhum módulo for encontrado para os tipos de unidade fornecidos, indicando que os tipos não estão mapeados
+        em nenhum grupo conhecido.
+
+    Returns:
+        tuple: Tupla contendo:
+            - modulo: Módulo de relatório consolidado a ser utilizado
+            - parametros (list): Lista de parâmetros a serem passados para o módulo
+    """
+    estrategias = [
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEI,
+            "modulo": relatorio_consolidado_recreio_emei_emef,
+            "parametros": [tipos_de_unidade],
         },
     ]
     for estrategia in estrategias:
