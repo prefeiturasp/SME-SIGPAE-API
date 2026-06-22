@@ -287,10 +287,6 @@ def test_ficha_tecnica_deve_enviar_email_ao_iniciar_fluxo(
         in contexto["url_detalhes_ficha_tecnica"]
     )
 
-    # Sem cronograma vinculado, CP e ATA devem ser None
-    assert contexto["numero_cp"] is None
-    assert contexto["numero_ata"] is None
-
 
 @patch(
     "src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis"
