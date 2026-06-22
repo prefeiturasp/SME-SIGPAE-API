@@ -1,15 +1,23 @@
 import json
+from typing import Any
 
 import pytest
+from django.test import Client
 from model_bakery import baker
 from rest_framework import status
 
 from src.escola.dias_letivos.models import DiaLetivoSIGPAE
+from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
 
 pytestmark = pytest.mark.django_db
 
 
-def _build_payload(periodos, lotes, tipos_unidades, escolas=None):
+def _build_payload(
+    periodos: list[PeriodoEscolar],
+    lotes: list[Lote],
+    tipos_unidades: list[TipoUnidadeEscolar],
+    escolas: list[Escola] | None = None,
+) -> dict[str, Any]:
     return {
         "recorrencias": [
             {
@@ -26,8 +34,8 @@ def _build_payload(periodos, lotes, tipos_unidades, escolas=None):
 
 
 def test_create_dias_letivos_success(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
     lote = baker.make("escola.Lote")
@@ -47,8 +55,8 @@ def test_create_dias_letivos_success(
 
 
 def test_create_dias_letivos_sem_unidades_educacionais(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
     lote = baker.make("escola.Lote")
@@ -68,8 +76,8 @@ def test_create_dias_letivos_sem_unidades_educacionais(
 
 
 def test_create_dias_letivos_duplicate(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
     lote = baker.make("escola.Lote")
@@ -96,8 +104,8 @@ def test_create_dias_letivos_duplicate(
 
 
 def test_create_dias_letivos_duplicate_sem_escolas(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
     lote = baker.make("escola.Lote")
@@ -123,8 +131,8 @@ def test_create_dias_letivos_duplicate_sem_escolas(
 
 
 def test_create_dias_letivos_missing_lotes(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     payload = {
         "recorrencias": [
@@ -150,8 +158,8 @@ def test_create_dias_letivos_missing_lotes(
 
 
 def test_create_dias_letivos_missing_tipos_unidades(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     payload = {
         "recorrencias": [
@@ -176,8 +184,8 @@ def test_create_dias_letivos_missing_tipos_unidades(
 
 
 def test_create_dias_letivos_empty_recorrencias(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     payload = {
         "recorrencias": [],
@@ -196,8 +204,8 @@ def test_create_dias_letivos_empty_recorrencias(
 
 
 def test_create_dias_letivos_invalid_date_format(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     payload = {
         "recorrencias": [
@@ -222,8 +230,8 @@ def test_create_dias_letivos_invalid_date_format(
 
 
 def test_create_dias_letivos_data_inicial_maior_que_final(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     payload = {
         "recorrencias": [
@@ -249,8 +257,8 @@ def test_create_dias_letivos_data_inicial_maior_que_final(
 
 
 def test_create_dias_letivos_dia_semana_out_of_range(
-    client_autenticado_codae_gestao_alimentacao,
-):
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     payload = {
         "recorrencias": [
@@ -274,7 +282,7 @@ def test_create_dias_letivos_dia_semana_out_of_range(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_create_dias_letivos_unauthenticated(client):
+def test_create_dias_letivos_unauthenticated(client: Client) -> None:
     payload = {
         "recorrencias": [
             {

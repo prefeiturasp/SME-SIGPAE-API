@@ -27,7 +27,7 @@ class DiaLetivoSIGPAE(CriadoEm, CriadoPor, TemAlteradoEm, TemChaveExterna, TemDa
         PeriodoEscolar, related_name="dias_letivos_sigpae"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Dia {self.data} letivo no SIGPAE"
 
     class Meta:

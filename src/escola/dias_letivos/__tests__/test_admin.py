@@ -15,12 +15,12 @@ from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 pytestmark = pytest.mark.django_db
 
 
-def test_dia_semana_filter_lookups():
+def test_dia_semana_filter_lookups() -> None:
     filter_instance = DiaSemanaFilter(Mock(), {}, DiaLetivoSIGPAE, DiaLetivoSIGPAEAdmin)
     assert filter_instance.lookups(Mock(), Mock()) == DIAS_SEMANA
 
 
-def test_dia_semana_filter_queryset_with_value():
+def test_dia_semana_filter_queryset_with_value() -> None:
     baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 21))
 
@@ -45,7 +45,7 @@ def test_dia_semana_filter_queryset_with_value():
     assert queryset_sunday.count() == 1
 
 
-def test_dia_semana_filter_queryset_without_value():
+def test_dia_semana_filter_queryset_without_value() -> None:
     baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 21))
 
@@ -54,13 +54,13 @@ def test_dia_semana_filter_queryset_without_value():
     assert queryset.count() == 2
 
 
-def test_dia_semana_filter_title_and_parameter_name():
+def test_dia_semana_filter_title_and_parameter_name() -> None:
     filter_instance = DiaSemanaFilter(Mock(), {}, DiaLetivoSIGPAE, DiaLetivoSIGPAEAdmin)
     assert filter_instance.title == "Dia da semana"
     assert filter_instance.parameter_name == "dia_semana"
 
 
-def test_dia_letivo_admin_list_display():
+def test_dia_letivo_admin_list_display() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     assert admin_instance.list_display == (
         "data",
@@ -72,12 +72,12 @@ def test_dia_letivo_admin_list_display():
     )
 
 
-def test_dia_letivo_admin_search_fields():
+def test_dia_letivo_admin_search_fields() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     assert admin_instance.search_fields == ("escolas__nome", "escolas__codigo_eol")
 
 
-def test_dia_letivo_admin_search_help_text():
+def test_dia_letivo_admin_search_help_text() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     assert (
         admin_instance.search_help_text
@@ -85,7 +85,7 @@ def test_dia_letivo_admin_search_help_text():
     )
 
 
-def test_dia_letivo_admin_filters():
+def test_dia_letivo_admin_filters() -> None:
     from rangefilter.filters import DateRangeFilter
 
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
@@ -96,12 +96,12 @@ def test_dia_letivo_admin_filters():
     assert filters[3] == DiaSemanaFilter
 
 
-def test_dia_letivo_admin_ordering():
+def test_dia_letivo_admin_ordering() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     assert admin_instance.ordering == ("-data",)
 
 
-def test_dia_letivo_admin_readonly_fields():
+def test_dia_letivo_admin_readonly_fields() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     assert admin_instance.readonly_fields == (
         "uuid",
@@ -111,7 +111,7 @@ def test_dia_letivo_admin_readonly_fields():
     )
 
 
-def test_get_dia_semana():
+def test_get_dia_semana() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.prepare(DiaLetivoSIGPAE)
 
@@ -137,12 +137,12 @@ def test_get_dia_semana():
     assert admin_instance.get_dia_semana(dia) == "Domingo"
 
 
-def test_get_dia_semana_display_decorator():
+def test_get_dia_semana_display_decorator() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     assert admin_instance.get_dia_semana.short_description == "Dia da semana"
 
 
-def test_get_periodos_escolares():
+def test_get_periodos_escolares() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     periodo1 = baker.make("escola.PeriodoEscolar", nome="Manhã")
     periodo2 = baker.make("escola.PeriodoEscolar", nome="Tarde")
@@ -159,13 +159,13 @@ def test_get_periodos_escolares():
     )
 
 
-def test_get_periodos_escolares_empty():
+def test_get_periodos_escolares_empty() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     assert admin_instance.get_periodos_escolares(dia) == ""
 
 
-def test_get_lotes():
+def test_get_lotes() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     lote1 = baker.make("escola.Lote", nome="Lote A")
     lote2 = baker.make("escola.Lote", nome="Lote B")
@@ -177,13 +177,13 @@ def test_get_lotes():
     assert admin_instance.get_lotes.short_description == "Lotes"
 
 
-def test_get_lotes_empty():
+def test_get_lotes_empty() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     assert admin_instance.get_lotes(dia) == ""
 
 
-def test_get_tipos_unidade():
+def test_get_tipos_unidade() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     tipo1 = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
     tipo2 = baker.make("escola.TipoUnidadeEscolar", iniciais="CEI")
@@ -195,13 +195,13 @@ def test_get_tipos_unidade():
     assert admin_instance.get_tipos_unidade.short_description == "Tipos de unidade"
 
 
-def test_get_tipos_unidade_empty():
+def test_get_tipos_unidade_empty() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     assert admin_instance.get_tipos_unidade(dia) == ""
 
 
-def test_get_escolas():
+def test_get_escolas() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     escola1 = baker.make("escola.Escola", nome="EMEF A")
     escola2 = baker.make("escola.Escola", nome="EMEF B")
@@ -213,13 +213,13 @@ def test_get_escolas():
     assert admin_instance.get_escolas.short_description == "Escolas"
 
 
-def test_get_escolas_empty():
+def test_get_escolas_empty() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     assert admin_instance.get_escolas(dia) == ""
 
 
-def test_get_queryset_prefetch_related():
+def test_get_queryset_prefetch_related() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
 
     mock_queryset = Mock()

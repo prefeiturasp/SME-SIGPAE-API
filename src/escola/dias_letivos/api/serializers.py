@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from django.db.models import Count
 from rest_framework import serializers
@@ -9,7 +9,7 @@ from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
 from ..models import DiaLetivoSIGPAE
 
 
-def parse_date(value):
+def parse_date(value: str) -> date:
     """Converte uma string no formato DD/MM/YYYY para um objeto date.
 
     Args:
@@ -27,7 +27,7 @@ def parse_date(value):
         raise ValidationError(f"Formato de data inválido: {value}. Use DD/MM/YYYY")
 
 
-def python_weekday_to_business(weekday):
+def python_weekday_to_business(weekday: int) -> int:
     """Converte o weekday do Python (0=Monday) para o formato de negócio.
 
     Atualmente, retorna o mesmo valor sem conversão. Serve como ponto
@@ -54,15 +54,15 @@ class RecorrenciaSerializer(serializers.Serializer):
     periodos_escolares = serializers.ListField(child=serializers.UUIDField())
     dias_semana = serializers.ListField(child=serializers.CharField())
 
-    def validate_data_inicial(self, value):
+    def validate_data_inicial(self, value: str) -> date:
         """Valida e converte a data inicial para o formato date."""
         return parse_date(value)
 
-    def validate_data_final(self, value):
+    def validate_data_final(self, value: str) -> date:
         """Valida e converte a data final para o formato date."""
         return parse_date(value)
 
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         """Valida regras de negócio da recorrência.
 
         Verifica se data_inicial não é maior que data_final e se todos
@@ -101,25 +101,25 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
         child=serializers.UUIDField(), required=False, default=list
     )
 
-    def validate_lotes(self, value):
+    def validate_lotes(self, value: list) -> list:
         """Valida se o campo lotes não está vazio."""
         if not value:
             raise ValidationError("lotes é obrigatório")
         return value
 
-    def validate_tipos_unidades(self, value):
+    def validate_tipos_unidades(self, value: list) -> list:
         """Valida se o campo tipos_unidades não está vazio."""
         if not value:
             raise ValidationError("tipos_unidades é obrigatório")
         return value
 
-    def validate_recorrencias(self, value):
+    def validate_recorrencias(self, value: list) -> list:
         """Valida se o campo recorrencias não está vazio."""
         if not value:
             raise ValidationError("recorrencias é obrigatório")
         return value
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> list[DiaLetivoSIGPAE]:
         """Cria os dias letivos recursivamente conforme as recorrências.
 
         Itera sobre cada recorrência, percorrendo o intervalo de datas
@@ -176,7 +176,12 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
 
         return created
 
-    def _checa_duplicacao(self, data, periodos, escolas):
+    def _checa_duplicacao(
+        self,
+        data: date,
+        periodos: list[PeriodoEscolar],
+        escolas: list[Escola],
+    ) -> None:
         """Verifica se já existe DiaLetivo duplicado para os parâmetros informados.
 
         Para cada período, verifica se já existe um registro com a mesma
@@ -197,7 +202,12 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
             else:
                 self._checa_duplicacao_sem_escolas(data, periodo)
 
-    def _checa_duplicacao_com_escolas(self, data, periodo, escolas):
+    def _checa_duplicacao_com_escolas(
+        self,
+        data: date,
+        periodo: PeriodoEscolar,
+        escolas: list[Escola],
+    ) -> None:
         """Verifica duplicata de DiaLetivo considerando escolas específicas.
 
         Args:
@@ -221,7 +231,11 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
                     f"período escolar {periodo.nome}"
                 )
 
-    def _checa_duplicacao_sem_escolas(self, data, periodo):
+    def _checa_duplicacao_sem_escolas(
+        self,
+        data: date,
+        periodo: PeriodoEscolar,
+    ) -> None:
         """Verifica duplicata de DiaLetivo sem escolas vinculadas.
 
         Args:

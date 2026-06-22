@@ -1,5 +1,9 @@
 from django.contrib import admin
+from django.db.models import QuerySet
+from django.http import HttpRequest
 from rangefilter.filters import DateRangeFilter
+
+from .models import DiaLetivoSIGPAE
 
 DIAS_SEMANA = [
     (2, "Segunda"),
@@ -22,11 +26,13 @@ class DiaSemanaFilter(admin.SimpleListFilter):
     title = "Dia da semana"
     parameter_name = "dia_semana"
 
-    def lookups(self, request, model_admin):
+    def lookups(
+        self, request: HttpRequest, model_admin: admin.ModelAdmin
+    ) -> list[tuple[int, str]]:
         """Retorna as opções de dias da semana disponíveis para o filtro."""
         return DIAS_SEMANA
 
-    def queryset(self, request, queryset):
+    def queryset(self, request: HttpRequest, queryset: QuerySet) -> QuerySet:
         """Aplica o filtro de dia da semana ao queryset.
 
         Se nenhum valor for selecionado, retorna o queryset sem filtro.
@@ -63,7 +69,7 @@ class DiaLetivoSIGPAEAdmin(admin.ModelAdmin):
     ordering = ("-data",)
     readonly_fields = ("uuid", "criado_em", "criado_por", "alterado_em")
 
-    def get_queryset(self, request):
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
         """Retorna o queryset com prefetch_related para evitar N+1 queries.
 
         Pré-carrega periodos_escolares, lotes, tipos_unidade_escolar e escolas.
@@ -80,26 +86,26 @@ class DiaLetivoSIGPAEAdmin(admin.ModelAdmin):
         )
 
     @admin.display(description="Dia da semana")
-    def get_dia_semana(self, obj):
+    def get_dia_semana(self, obj: DiaLetivoSIGPAE) -> str:
         """Retorna o nome do dia da semana formatado para exibição no admin."""
         return dict(DIAS_SEMANA).get(obj.data.isoweekday() % 7 + 1, "-")
 
     @admin.display(description="Períodos escolares")
-    def get_periodos_escolares(self, obj):
+    def get_periodos_escolares(self, obj: DiaLetivoSIGPAE) -> str:
         """Retorna os nomes dos períodos escolares separados por vírgula."""
         return ", ".join(p.nome for p in obj.periodos_escolares.all())
 
     @admin.display(description="Lotes")
-    def get_lotes(self, obj):
+    def get_lotes(self, obj: DiaLetivoSIGPAE) -> str:
         """Retorna os nomes dos lotes separados por vírgula."""
         return ", ".join(lote.nome for lote in obj.lotes.all())
 
     @admin.display(description="Tipos de unidade")
-    def get_tipos_unidade(self, obj):
+    def get_tipos_unidade(self, obj: DiaLetivoSIGPAE) -> str:
         """Retorna as iniciais dos tipos de unidade escolar separados por vírgula."""
         return ", ".join(t.iniciais for t in obj.tipos_unidade_escolar.all())
 
     @admin.display(description="Escolas")
-    def get_escolas(self, obj):
+    def get_escolas(self, obj: DiaLetivoSIGPAE) -> str:
         """Retorna os nomes das escolas separados por vírgula."""
         return ", ".join(e.nome for e in obj.escolas.all())

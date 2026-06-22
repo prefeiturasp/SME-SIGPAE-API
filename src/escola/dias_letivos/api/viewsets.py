@@ -1,5 +1,8 @@
+from typing import Any
+
 from rest_framework import status
 from rest_framework.mixins import CreateModelMixin
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -22,7 +25,7 @@ class DiaLetivoViewSet(ViewSetActionPermissionMixin, CreateModelMixin, GenericVi
     }
     serializer_class = DiaLetivoCreateSerializer
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """Cria novos dias letivos a partir de recorrências e retorna HTTP 201.
 
         Valida os dados da requisição e, em caso de sucesso, retorna

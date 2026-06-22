@@ -1,19 +1,21 @@
+from typing import Any, Callable
+
 import pytest
 
 
 @pytest.fixture
-def payload_dias_letivos():
+def payload_dias_letivos() -> Callable[..., dict[str, Any]]:
     """Retorna funcao que constroi payload valido com overrides opcionais."""
 
     def _payload(
-        data_inicial="22/06/2026",
-        data_final="26/06/2026",
-        dias_semana=None,
-        periodos_escolares=None,
-        lotes=None,
-        tipos_unidades=None,
-        unidades_educacionais=None,
-    ):
+        data_inicial: str = "22/06/2026",
+        data_final: str = "26/06/2026",
+        dias_semana: list[str] | None = None,
+        periodos_escolares: list[str] | None = None,
+        lotes: list[str] | None = None,
+        tipos_unidades: list[str] | None = None,
+        unidades_educacionais: list[str] | None = None,
+    ) -> dict[str, Any]:
         return {
             "recorrencias": [
                 {
