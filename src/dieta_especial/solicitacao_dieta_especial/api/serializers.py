@@ -736,6 +736,7 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
     protocolo_padrao = ProtocoloPadraoDietaEspecialSimplesSerializer()
     nome_protocolo = serializers.SerializerMethodField()
     data_ultimo_log = serializers.SerializerMethodField()
+    data_autorizacao = serializers.CharField()
     alergias_intolerancias = AlergiaIntoleranciaSerializer(many=True)
     tipo_gestao = serializers.SerializerMethodField()
     dre = serializers.SerializerMethodField()
@@ -805,6 +806,7 @@ class SolicitacaoDietaEspecialRelatorioTercSerializer(serializers.ModelSerialize
             "protocolo_padrao",
             "nome_protocolo",
             "data_ultimo_log",
+            "data_autorizacao",
             "alergias_intolerancias",
             "tipo_gestao",
             "dre",
