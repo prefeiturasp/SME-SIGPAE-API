@@ -3,6 +3,7 @@ from io import BytesIO
 import pandas as pd
 import pytest
 
+from model_bakery import baker
 from src.dados_comuns.constants import NOMES_CAMPOS
 from src.medicao_inicial.services.utils import (
     generate_columns,
@@ -12,6 +13,11 @@ from src.medicao_inicial.services.utils import (
     get_valores_iniciais,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
+)
+from src.medicao_inicial.models import DescontoFinanceiro
+from src.medicao_inicial.utils import (
+    mapear_dados_existentes,
+    obter_instancia_dados,
 )
 
 pytestmark = pytest.mark.django_db
@@ -840,3 +846,83 @@ def test_gera_colunas_alimentacao_emebs(
         25.0,
         25.0,
     ]
+
+
+@pytest.mark.django_db
+def test_mapear_dados_existentes_desconto_financeiro_cei(
+    relatorio_financeiro_cei,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    periodo_escolar_parcial,
+    clausula_desconto,
+):
+    obj = baker.make(
+        DescontoFinanceiro,
+        uuid="11111111-1111-1111-1111-111111111111",
+        relatorio_financeiro=relatorio_financeiro_cei,
+        faixa_etaria=faixas_etarias_ativas[0],
+        periodo_escolar=periodo_escolar_parcial,
+        clausula_desconto=clausula_desconto,
+        quantidade=10,
+        tipo_lancamento="ALIMENTACOES",
+    )
+
+    obj.unidades_educacionais.set([escola_ceu_gestao])
+
+    por_uuid, por_chave = mapear_dados_existentes(
+        DescontoFinanceiro.objects.all(),
+        chave_composta=["tipo_lancamento", "quantidade"]
+    )
+
+    assert por_uuid[str(obj.uuid)] == obj
+    assert por_chave[("ALIMENTACOES", 10)] == obj
+
+
+@pytest.mark.django_db
+def test_obter_instancia_dados_desconto_financeiro_cei(
+    relatorio_financeiro_cei,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    periodo_escolar_parcial,
+    clausula_desconto,
+):
+    obj = baker.make(
+        DescontoFinanceiro,
+        uuid="11111111-1111-1111-1111-111111111111",
+        relatorio_financeiro=relatorio_financeiro_cei,
+        faixa_etaria=faixas_etarias_ativas[0],
+        periodo_escolar=periodo_escolar_parcial,
+        clausula_desconto=clausula_desconto,
+        quantidade=5,
+        tipo_lancamento="DIETA_TIPO_A",
+    )
+
+    obj.unidades_educacionais.set([escola_ceu_gestao])
+
+    existentes_por_uuid, existentes_por_chave = mapear_dados_existentes(
+        DescontoFinanceiro.objects.all(),
+        chave_composta=[
+            "tipo_lancamento",
+            "clausula_desconto_id",
+            "faixa_etaria_id",
+            "periodo_escolar_id",
+        ]
+    )
+
+    resultado = obter_instancia_dados(
+        {
+            "uuid": str(obj.uuid),
+            "tipo_lancamento": "DIETA_TIPO_A",
+            "quantidade": 5,
+        },
+        existentes_por_uuid,
+        existentes_por_chave,
+        [
+            "tipo_lancamento",
+            "clausula_desconto_id",
+            "faixa_etaria_id",
+            "periodo_escolar_id",
+        ]
+    )
+
+    assert resultado == obj
