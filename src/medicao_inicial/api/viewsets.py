@@ -2421,7 +2421,9 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 data_inicial__lte=datetime.date(
                     ano, mes, calendar.monthrange(ano, mes)[1]
                 ),
-                data_final__gte=datetime.date(ano, mes, 1),
+            ).filter(
+                Q(data_final__gte=datetime.date(ano, mes, 1))
+                | Q(data_final__isnull=True)
             ).first()
 
             if not parametrizacao:

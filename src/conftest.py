@@ -63,6 +63,9 @@ from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     SubstituicaoAlimentoFactory,
 )
 from .eol_servico.utils import EOLServicoSGP
+from .escola.dias_letivos.fixtures.factories.dias_letivos_factory import (
+    DiaLetivoSIGPAEFactory,
+)
 from .escola.fixtures.factories.dia_suspensao_atividades_factory import (
     DiaSuspensaoAtividadesFactory,
 )
@@ -366,6 +369,7 @@ register(RecreioNasFeriasUnidadeTipoAlimentacaoFactory)
 register(HistoricoEscolaFactory)
 register(GrupoUnidadeEscolarFactory)
 register(LancheEmergencialDiarioFactory)
+register(DiaLetivoSIGPAEFactory)
 
 EMAIL_TEST = "test@test.com"
 

@@ -2,6 +2,8 @@ import datetime
 import json
 from calendar import monthrange
 
+from django.db.models import Q
+
 import environ
 from rest_framework import serializers
 
@@ -529,7 +531,10 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
                 grupo_unidade_escolar=obj.relatorio_financeiro.grupo_unidade_escolar,
                 lote=obj.relatorio_financeiro.lote,
                 data_inicial__lte=datetime.date(ano, mes, monthrange(ano, mes)[1]),
-                data_final__gte=datetime.date(ano, mes, 1),
+            )
+            .filter(
+                Q(data_final__gte=datetime.date(ano, mes, 1))
+                | Q(data_final__isnull=True)
             )
             .order_by("-data_inicial")
             .first()
