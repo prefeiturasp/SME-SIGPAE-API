@@ -407,7 +407,8 @@ def _processa_periodo_campo(
             total = processa_grupos_recreio(
                 solicitacao, filtros, campo, grupo, query_params
             )
-
+        if total is None:
+            total = "-"
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -499,7 +500,7 @@ def processa_grupos_recreio(
     campo: str,
     grupo: str,
     query_params: dict[str, str],
-    tipo_unidade=str | None,
+    tipo_unidade: str = None,
 ) -> str | float:
     """
     Calcula o valor de um campo para um grupo de alimentação do Recreio.
