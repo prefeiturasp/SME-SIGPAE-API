@@ -10,6 +10,9 @@ from src.medicao_inicial.models import (
     SolicitacaoMedicaoInicial,
 )
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
+from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
+    _get_total_pagamento,
+)
 from src.medicao_inicial.services.utils import (
     filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
@@ -393,6 +396,9 @@ def _processa_periodo_campo(
             )
         else:
             filtros["grupo__nome"] = grupo
+            total = processa_grupos_recreio(
+                solicitacao, filtros, campo, grupo, query_params
+            )
 
         valores.append(total)
     except Exception:
@@ -477,3 +483,48 @@ def _calcula_soma_medicao(
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
     )
+
+
+def processa_grupos_recreio(
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict[str, str],
+    campo: str,
+    grupo: str,
+    query_params: dict[str, str],
+    tipo_unidade=str | None,
+) -> str | float:
+    """
+    Calcula o valor de um campo para um grupo de alimentação do Recreio.
+
+    Localiza a medição correspondente aos filtros informados e retorna o valor agregado para o campo solicitado.
+
+    Para os campos de pagamento, o cálculo é delegado para ``_get_total_pagamento()``, que aplica as regras específicas conforme o tipo da unidade educacional.
+    Para os demais campos, realiza a soma dos valores registrados na medição utilizando as categorias apropriadas para o grupo informado.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação de medição em processamento.
+        filtros (dict[str, str]): Filtros utilizados para localizar a medição.
+        campo (str): Nome do campo que será calculado.
+        grupo (str): Nome do grupo ou período de alimentação.
+        query_params (dict[str, str]): Filtros utilizados para restringir os registros processados.
+        tipo_unidade (str, optional): Sigla do tipo de unidade utilizada no cálculo dos campos de pagamento. Quando não informado,
+            utiliza o tipo da unidade associada à escola da solicitação. Defaults: None.
+
+    Returns:
+        str | float: Valor total calculado para o campo informado ou "-" quando não existirem registros compatíveis.
+    """
+    medicao = solicitacao.medicoes.get(**filtros)
+
+    iniciais = (
+        solicitacao.escola.tipo_unidade.iniciais
+        if tipo_unidade is None
+        else tipo_unidade
+    )
+    if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
+        return _get_total_pagamento(medicao, campo, iniciais, query_params)
+
+    categorias = (
+        [grupo.upper()] if grupo == "Solicitações de Alimentação" else ["ALIMENTAÇÃO"]
+    )
+    soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
+    return soma if soma is not None else "-"
