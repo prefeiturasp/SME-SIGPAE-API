@@ -2601,7 +2601,8 @@ class DadosLiquidacaoViewSet(ModelViewSet):
         )
 
         existentes_por_uuid, existentes_por_chave = mapear_dados_existentes(
-            queryset
+            queryset,
+            chave_composta=["numero_empenho", "tipo_empenho"]
         )
 
         resultado = []
