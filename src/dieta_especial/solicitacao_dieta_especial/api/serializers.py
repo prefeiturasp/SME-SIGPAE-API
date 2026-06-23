@@ -585,6 +585,7 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
     classificacao_dieta = serializers.SerializerMethodField()
     alergias_intolerancias = serializers.SerializerMethodField()
     protocolo_padrao = serializers.SerializerMethodField()
+    data_autorizacao = serializers.SerializerMethodField()
     data_ultimo_log = serializers.SerializerMethodField()
 
     def get_codigo_eol_aluno(self, obj):
@@ -619,6 +620,9 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
             else (obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else "")
         )
 
+    def get_data_autorizacao(self, obj):
+        return obj.data_autorizacao or None
+
     def get_data_ultimo_log(self, obj):
         if obj.logs.exists():
             ultimo_log = obj.logs.last()
@@ -636,6 +640,7 @@ class SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
             "classificacao_dieta",
             "alergias_intolerancias",
             "protocolo_padrao",
+            "data_autorizacao",
             "data_ultimo_log",
         )
 
@@ -660,6 +665,7 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
     nome_escola = serializers.SerializerMethodField()
     classificacao_dieta = serializers.SerializerMethodField()
     protocolo_padrao = serializers.SerializerMethodField()
+    data_autorizacao = serializers.SerializerMethodField()
     data_ultimo_log = serializers.SerializerMethodField()
 
     def get_codigo_eol_aluno(self, obj):
@@ -689,6 +695,9 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
             else (obj.protocolo_padrao.nome_protocolo if obj.protocolo_padrao else "")
         )
 
+    def get_data_autorizacao(self, obj):
+        return obj.data_autorizacao or None
+
     def get_data_ultimo_log(self, obj):
         return (
             datetime.strftime(obj.logs.last().criado_em, DATE_FORMAT)
@@ -705,6 +714,7 @@ class SolicitacaoDietaEspecialExportXLSXSerializer(serializers.ModelSerializer):
             "nome_escola",
             "classificacao_dieta",
             "protocolo_padrao",
+            "data_autorizacao",
             "data_ultimo_log",
         )
 

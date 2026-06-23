@@ -75,7 +75,7 @@ def build_xlsx_relatorio_terceirizadas(
         worksheet.set_row(1, 30)
 
         is_autorizadas = status.upper() == "AUTORIZADAS"
-        ultima_coluna = "H" if is_autorizadas else "F"
+        ultima_coluna = "I" if is_autorizadas else "G"
 
         worksheet.set_column(f"B:{ultima_coluna}", 30)
         merge_format = workbook.add_format({"align": "center", "bg_color": "#a9d18e"})
@@ -129,8 +129,11 @@ def build_xlsx_relatorio_terceirizadas(
             worksheet.write(3, col_index, "Protocolo", single_cell_format)
             col_index += 1
 
+        worksheet.write(3, col_index, "Data da autorização", single_cell_format)
+        col_index += 1
+
         if status.upper() == "CANCELADAS":
-            worksheet.set_column("G:G", 30)
+            worksheet.set_column("H:H", 30)
             worksheet.write(3, col_index, "Data de cancelamento", single_cell_format)
         df.reset_index(drop=True, inplace=True)
     output.seek(0)
