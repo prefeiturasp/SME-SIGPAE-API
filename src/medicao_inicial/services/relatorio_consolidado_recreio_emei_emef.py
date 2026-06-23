@@ -1,12 +1,21 @@
-from django.db.models import Q
+import math
+
+from django.db.models import FloatField, Q, Sum
+from django.db.models.functions import Cast
 
 from src.dados_comuns.constants import ORDEM_CAMPOS, ORDEM_HEADERS_RECREIO_EMEI_EMEF
-from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    Medicao,
+    SolicitacaoMedicaoInicial,
+)
+from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
     filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
     get_categorias_dietas,
     get_nome_periodo,
+    get_valores_iniciais,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -307,3 +316,164 @@ def _sort_and_merge(
     )
 
     return dict_periodos_dietas
+
+
+def get_valores_tabela(
+    solicitacoes: list[SolicitacaoMedicaoInicial],
+    colunas: list[tuple],
+    tipos_de_unidade: list[str],
+    query_params: dict[str, str],
+) -> list:
+    """
+    Monta as linhas da tabela consolidada do relatório.
+
+    Para cada solicitação de medição, calcula os valores correspondentes às colunas previamente geradas pelo relatório. Cada linha resultante representa uma unidade
+    educacional e contém os valores agregados para períodos de alimentação e dietas especiais.
+
+    Args:
+        solicitacoes (list[SolicitacaoMedicaoInicial]): Lista de solicitações de medição que compõem o relatório.
+        colunas (list[tuple]): Lista de colunas formatadas para composição do relatório consolidado.
+        tipos_de_unidade (list[str]): Tipos de unidade considerados na geração do relatório.
+        query_params (dict[str, str]): Filtros utilizados para restringir os registros processados.
+
+    Returns:
+        list: Lista contendo uma linha para cada solicitação processada.
+    """
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+    valores = []
+    for solicitacao in ordenar_unidades(solicitacoes):
+        valores_solicitacao_atual = []
+        valores_solicitacao_atual += get_valores_iniciais(solicitacao)
+        for grupo, campo in colunas:
+            valores_solicitacao_atual = _processa_periodo_campo(
+                solicitacao,
+                grupo,
+                campo,
+                valores_solicitacao_atual,
+                dietas_especiais,
+                query_params,
+            )
+        valores.append(valores_solicitacao_atual)
+    return valores
+
+
+def _processa_periodo_campo(
+    solicitacao: SolicitacaoMedicaoInicial,
+    grupo: str,
+    campo: str,
+    valores: list[str],
+    dietas_especiais: list[CategoriaMedicao],
+    query_params: dict[str, str],
+) -> list:
+    """
+    Processa uma combinação de período e campo da tabela.
+
+    Determina os filtros aplicáveis ao período informado e calcula o valor correspondente para a solicitação atual. Em caso de erro durante
+    o processamento, adiciona "-" como valor padrão.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação de medição em processamento.
+        grupo (str): Nome do grupo ou categoria de dieta especial.
+        campo (str): Nome do campo que será totalizado.
+        valores (list[str]): Lista acumuladora dos valores da linha atual.
+        dietas_especiais (list[CategoriaMedicao]): Lista contendo os nomes das categorias de dietas especiais.
+        query_params (dict[str, str]): Filtros utilizados para restringir os registros processados.
+
+    Returns:
+        list: Lista atualizada com o valor calculado para o campo.
+    """
+    filtros = {}
+    try:
+        if grupo in dietas_especiais:
+            filtros["grupo__nome"] = "Recreio nas Férias"
+            total = processa_dieta_especial(
+                solicitacao, filtros, campo, grupo, query_params
+            )
+        else:
+            filtros["grupo__nome"] = grupo
+
+        valores.append(total)
+    except Exception:
+        valores.append("-")
+    return valores
+
+
+def processa_dieta_especial(
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict[str, str],
+    campo: str,
+    grupo: str,
+    query_params: dict[str, str],
+) -> str | float:
+    """
+    Calcula o total de um campo para uma dieta especial.
+
+    Localiza as medições compatíveis com os filtros informados e soma os
+    valores do campo para a categoria de dieta correspondente.
+
+    A categoria "DIETA ESPECIAL - TIPO A" considera também os registros da
+    categoria "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE
+    AMINOÁCIDOS", consolidando ambos os resultados.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação de medição em processamento.
+        filtros (dict[str, str]): Filtros utilizados para localizar as medições.
+        campo (str): Nome do campo que será totalizado.
+        grupo (str): Nome da categoria de dieta especial.
+        query_params (dict[str, str]): Filtros utilizados para restringir os registros processados.
+
+    Returns:
+        str | float: Valor total calculado ou "-" quando não houver dados.
+    """
+    condicoes = Q()
+    for filtro, valor in filtros.items():
+        condicoes = condicoes | Q(**{filtro: valor})
+
+    medicoes = solicitacao.medicoes.filter(condicoes)
+    if not medicoes.exists():
+        return "-"
+
+    categorias = (
+        [
+            "DIETA ESPECIAL - TIPO A",
+            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        ]
+        if grupo == "DIETA ESPECIAL - TIPO A"
+        else [grupo]
+    )
+    total = 0.0
+    for medicao in medicoes:
+        soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
+        if soma is not None:
+            total += soma
+
+    return "-" if math.isclose(total, 0.0, rel_tol=1e-9) else total
+
+
+def _calcula_soma_medicao(
+    medicao: Medicao, campo: str, categorias: list[str], query_params: dict[str, str]
+) -> float:
+    """
+    Calcula a soma de um campo em uma medição.
+
+    Filtra os valores da medição pelo intervalo de dias informado e realiza
+    a soma dos registros pertencentes às categorias especificadas.
+
+
+    Args:
+        medicao (Medicao): Medição que será processada.
+        campo (str): Nome do campo que será totalizado.
+        categorias (list[str]): Categorias de medição consideradas na soma.
+        query_params (dict[str, str]): Filtros utilizados para restringir os registros processados.
+
+    Returns:
+        float: Soma dos valores encontrados ou None quando não houver registros.
+    """
+    return (
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .filter(nome_campo=campo, categoria_medicao__nome__in=categorias)
+        .annotate(valor_float=Cast("valor", output_field=FloatField()))
+        .aggregate(total=Sum("valor_float"))["total"]
+    )
