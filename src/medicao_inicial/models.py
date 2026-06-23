@@ -1076,9 +1076,9 @@ class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
     TIPO_LANCAMENTO_CHOICES = (
-        ("ALIMENTACOES", "Alimentações"),
-        ("DIETA_TIPO_A", "Dieta Especial grupo A"),
-        ("DIETA_TIPO_B", "Dieta Especial grupo B"),
+        ("ALIMENTACOES", "Alimentação"),
+        ("DIETAS_TIPO_A", "Dieta Especial Tipo A"),
+        ("DIETAS_TIPO_B", "Dieta Especial Tipo B"),
     )
 
     relatorio_financeiro = models.ForeignKey(
