@@ -1072,3 +1072,60 @@ class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
                 name="unique_dados_liquidacao_empenho_por_relatorio",
             )
         ]
+
+
+class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    TIPO_LANCAMENTO_CHOICES = (
+        ("ALIMENTACOES", "Alimentações"),
+        ("DIETA_TIPO_A", "Dieta Especial grupo A"),
+        ("DIETA_TIPO_B", "Dieta Especial grupo B"),
+    )
+
+    relatorio_financeiro = models.ForeignKey(
+        RelatorioFinanceiro,
+        to_field="uuid",
+        on_delete=models.PROTECT,
+        related_name="dados_desconto_financeiro",
+    )
+    unidades_educacionais = models.ManyToManyField(
+        Escola,
+        related_name="dados_desconto_financeiro",
+    )
+    tipo_lancamento = models.CharField(
+        "Tipo de lançamento",
+        max_length=30,
+        choices=TIPO_LANCAMENTO_CHOICES,
+    )
+    faixa_etaria = models.ForeignKey(
+        "escola.FaixaEtaria",
+        on_delete=models.PROTECT,
+        related_name="dados_desconto_financeiro",
+        null=True,
+        blank=True,
+    )
+    periodo_escolar = models.ForeignKey(
+        PeriodoEscolar,
+        on_delete=models.PROTECT,
+        related_name="dados_desconto_financeiro",
+        null=True,
+        blank=True,
+    )
+    clausula_desconto = models.ForeignKey(
+        ClausulaDeDesconto,
+        on_delete=models.PROTECT,
+        related_name="dados_desconto_financeiro",
+    )
+    quantidade = models.PositiveIntegerField(
+        "Quantidade",
+    )
+
+    def __str__(self):
+        return (
+            f"{self.get_tipo_lancamento_display()} - "
+            f"{self.quantidade} - R$ {self.total_desconto}"
+        )
+
+    class Meta:
+        verbose_name = "Dado de desconto financeiro"
+        verbose_name_plural = "Dados de desconto financeiro"
+        ordering = ["-alterado_em"]
