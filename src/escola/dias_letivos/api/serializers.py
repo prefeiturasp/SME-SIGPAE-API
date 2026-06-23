@@ -4,7 +4,12 @@ from django.db.models import Count
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from src.escola.api.serializers import (
+    PeriodoEscolarParaFiltroSerializer,
+    TipoUnidadeParaFiltroSerializer,
+)
 from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
+from src.terceirizada.models import Edital
 
 from ..models import DiaLetivoSIGPAE
 
@@ -259,3 +264,73 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
                 f"{data.strftime('%d/%m/%Y')} e "
                 f"período escolar {periodo.nome}"
             )
+
+
+class LoteNomeIniciaisSerializer(serializers.ModelSerializer):
+    """Serializador reduzido de Lote com uuid, nome e iniciais."""
+
+    class Meta:
+        model = Lote
+        fields = ("uuid", "nome", "iniciais")
+
+
+class DiaLetivoSerializer(serializers.ModelSerializer):
+    """Serializador de leitura para dias letivos.
+
+    Expõe os dados do dia letivo com as entidades relacionadas
+    (lotes, tipos de unidade escolar, períodos escolares), além
+    da contagem de unidades escolares e a lista de números dos
+    editais associados às escolas do registro.
+    """
+
+    lotes = LoteNomeIniciaisSerializer(many=True)
+    tipos_unidade_escolar = TipoUnidadeParaFiltroSerializer(many=True)
+    periodos_escolares = PeriodoEscolarParaFiltroSerializer(many=True)
+    unidades_escolares = serializers.SerializerMethodField()
+    editais_numeros = serializers.SerializerMethodField()
+
+    def get_unidades_escolares(self, obj: DiaLetivoSIGPAE):
+        """Retorna o total de escolas vinculadas ou ``None`` se vazio."""
+        count = obj.escolas.count()
+        return count if count > 0 else None
+
+    def get_editais_numeros(self, obj: DiaLetivoSIGPAE):
+        """Retorna os números dos editais das escolas vinculadas.
+
+        Utiliza a property ``editais`` do model Escola para obter os
+        UUIDs dos editais e, em seguida, consulta os números desses
+        editais no banco. Retorna ``None`` quando não há escolas ou
+        nenhum edital associado.
+        """
+        escolas = obj.escolas.filter(
+            lote__isnull=False,
+            lote__contratos_do_lote__edital__isnull=False,
+            lote__contratos_do_lote__encerrado=False,
+        )
+        if not escolas.exists():
+            return None
+
+        edital_uuids = set()
+        for escola in escolas:
+            edital_uuids.update(escola.editais)
+
+        if not edital_uuids:
+            return None
+
+        return list(
+            Edital.objects.filter(uuid__in=edital_uuids)
+            .values_list("numero", flat=True)
+            .distinct()
+        )
+
+    class Meta:
+        model = DiaLetivoSIGPAE
+        fields = (
+            "uuid",
+            "data",
+            "lotes",
+            "tipos_unidade_escolar",
+            "periodos_escolares",
+            "unidades_escolares",
+            "editais_numeros",
+        )
