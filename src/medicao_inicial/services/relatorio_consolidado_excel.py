@@ -73,7 +73,12 @@ def gera_relatorio_consolidado_xlsx(
             )
 
         arquivo_excel = _gera_excel(
-            tipos_de_unidade, query_params, colunas, linhas, modulo_da_unidade
+            tipos_de_unidade,
+            query_params,
+            colunas,
+            linhas,
+            modulo_da_unidade,
+            contem_recreio,
         )
     except Exception as e:
         raise e
@@ -170,6 +175,7 @@ def _gera_excel(
     colunas: list[tuple],
     linhas: list[list[str | float]],
     modulo_da_unidade: object,
+    contem_recreio: bool,
 ) -> bytes:
     """
     Gera arquivo Excel em memória com relatório consolidado formatado.
@@ -204,7 +210,12 @@ def _gera_excel(
         )
         _preenche_titulo(workbook, worksheet, df.columns)
         _preenche_linha_dos_filtros_selecionados(
-            workbook, worksheet, query_params, df.columns, tipos_de_unidade
+            workbook,
+            worksheet,
+            query_params,
+            df.columns,
+            tipos_de_unidade,
+            contem_recreio,
         )
         modulo_da_unidade.ajusta_layout_tabela(workbook, worksheet, df)
         _formata_total_geral(workbook, worksheet, df, tipos_de_unidade)
@@ -303,6 +314,7 @@ def _preenche_linha_dos_filtros_selecionados(
     query_params: dict,
     colunas: pd.MultiIndex,
     tipos_de_unidade: list[str],
+    contem_recreio: bool,
 ) -> None:
     """
     Adiciona e formata a linha de filtros selecionados na planilha Excel.
@@ -320,7 +332,7 @@ def _preenche_linha_dos_filtros_selecionados(
     Returns:
         None: A função modifica o worksheet in-place e não retorna valores.
     """
-    filtros = _formata_filtros(query_params, tipos_de_unidade)
+    filtros = _formata_filtros(query_params, tipos_de_unidade, contem_recreio)
     formatacao = workbook.add_format(
         {
             "align": "center",
@@ -335,7 +347,9 @@ def _preenche_linha_dos_filtros_selecionados(
     worksheet.set_row(1, 30)
 
 
-def _formata_filtros(query_params: dict, tipos_de_unidade: list[str]) -> str:
+def _formata_filtros(
+    query_params: dict, tipos_de_unidade: list[str], contem_recreio: bool
+) -> str:
     """
     Formata string descritiva dos filtros aplicados no relatório.
 
@@ -351,7 +365,10 @@ def _formata_filtros(query_params: dict, tipos_de_unidade: list[str]) -> str:
     """
     mes = query_params.get("mes")
     ano = query_params.get("ano")
-    filtros = f"{converte_numero_em_mes(int(mes))}/{ano}"
+    sufixo = ""
+    if contem_recreio:
+        sufixo = "RECREIO NAS FÉRIAS - "
+    filtros = f"{sufixo}{converte_numero_em_mes(int(mes))}/{ano}"
 
     dre_uuid = query_params.get("dre")
     if dre_uuid:
@@ -372,5 +389,4 @@ def _formata_filtros(query_params: dict, tipos_de_unidade: list[str]) -> str:
         data_inicial_formatada = date.fromisoformat(data_inicial).strftime("%d/%m/%Y")
         data_final_formatada = date.fromisoformat(data_final).strftime("%d/%m/%Y")
         filtros += f" - {data_inicial_formatada} a {data_final_formatada}"
-
     return filtros
