@@ -290,9 +290,14 @@ class DiaLetivoSerializer(serializers.ModelSerializer):
     editais_numeros = serializers.SerializerMethodField()
 
     def get_unidades_escolares(self, obj: DiaLetivoSIGPAE):
-        """Retorna o total de escolas vinculadas ou ``None`` se vazio."""
+        """Retorna os nomes das escolas vinculadas (até 3) ou o total."""
         count = obj.escolas.count()
-        return count if count > 0 else None
+        if count == 0:
+            return None
+        if 1 <= count <= 3:
+            nomes = obj.escolas.values_list("nome", flat=True)
+            return ", ".join(nomes)
+        return count
 
     def get_editais_numeros(self, obj: DiaLetivoSIGPAE):
         """Retorna os números dos editais das escolas vinculadas.
