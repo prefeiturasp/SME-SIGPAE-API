@@ -162,7 +162,7 @@ def test_get_periodos_escolares() -> None:
 def test_get_periodos_escolares_empty() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
-    assert admin_instance.get_periodos_escolares(dia) == ""
+    assert admin_instance.get_periodos_escolares(dia) == "Nenhum"
 
 
 def test_get_lotes() -> None:
@@ -180,7 +180,7 @@ def test_get_lotes() -> None:
 def test_get_lotes_empty() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
-    assert admin_instance.get_lotes(dia) == ""
+    assert admin_instance.get_lotes(dia) == "Nenhum"
 
 
 def test_get_tipos_unidade() -> None:
@@ -198,7 +198,7 @@ def test_get_tipos_unidade() -> None:
 def test_get_tipos_unidade_empty() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
-    assert admin_instance.get_tipos_unidade(dia) == ""
+    assert admin_instance.get_tipos_unidade(dia) == "Nenhum"
 
 
 def test_get_escolas() -> None:
@@ -216,7 +216,7 @@ def test_get_escolas() -> None:
 def test_get_escolas_empty() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
-    assert admin_instance.get_escolas(dia) == ""
+    assert admin_instance.get_escolas(dia) == "Nenhuma"
 
 
 def test_get_queryset_prefetch_related() -> None:
