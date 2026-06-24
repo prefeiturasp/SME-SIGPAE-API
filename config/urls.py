@@ -16,6 +16,7 @@ from src.cardapio.urls import urlpatterns as cardapio_urls
 from src.dados_comuns.urls import urlpatterns as comuns_urls
 from src.dieta_especial.urls import urlpatterns as dieta_especial_urls
 from src.eol_servico.urls import urlpatterns as eol_servico_urls
+from src.escola.dias_letivos.urls import urlpatterns as dias_letivos_urls
 from src.escola.urls import urlpatterns as escola_urls
 from src.imr.urls import urlpatterns as imr_urls
 from src.inclusao_alimentacao.urls import urlpatterns as inclusao_urls
@@ -75,6 +76,7 @@ urlpatterns += medicao_inicial_urls
 urlpatterns += pre_recebimento_urls
 urlpatterns += recebimento_urls
 urlpatterns += imr_urls
+urlpatterns += dias_letivos_urls
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

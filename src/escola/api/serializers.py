@@ -750,6 +750,7 @@ class AlunoSerializer(serializers.ModelSerializer):
     nome_dre = serializers.SerializerMethodField()
     responsaveis = ReponsavelSerializer(many=True)
     possui_dieta_especial = serializers.SerializerMethodField()
+    periodo = serializers.CharField(read_only=True)
 
     def get_nome_escola(self, obj):
         return f"{obj.escola.nome}" if obj.escola else None
@@ -813,6 +814,7 @@ class AlunoSerializer(serializers.ModelSerializer):
             "cpf",
             "possui_dieta_especial",
             "serie",
+            "periodo",
         )
 
 
