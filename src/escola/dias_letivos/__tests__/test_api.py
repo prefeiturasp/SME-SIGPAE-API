@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from typing import Any
 
 import pytest
@@ -8,6 +9,7 @@ from rest_framework import status
 
 from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
+from src.terceirizada.models import Contrato, Edital
 
 pytestmark = pytest.mark.django_db
 
@@ -303,3 +305,103 @@ def test_create_dias_letivos_unauthenticated(client: Client) -> None:
     )
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_list_dias_letivos_com_unidades(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+    edital = baker.make(Edital, numero="123/2026")
+    contrato = baker.make(Contrato, edital=edital, encerrado=False)
+    lote = baker.make(Lote, nome="Lote A", iniciais="LA")
+    lote.contratos_do_lote.add(contrato)
+    periodo = baker.make(PeriodoEscolar, nome="Manhã")
+    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais="EMEF")
+    escola = baker.make(Escola, nome="EMEF Teste", lote=lote)
+
+    dia = baker.make(
+        DiaLetivoSIGPAE,
+        data=date(2026, 6, 22),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_ue],
+        periodos_escolares=[periodo],
+        escolas=[escola],
+    )
+
+    response = client.get("/dias-letivos/", {"mes": 6, "ano": 2026})
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert len(data) == 1
+
+    item = data[0]
+    assert item["data"] == "22/06/2026"
+    assert len(item["lotes"]) == 1
+    assert item["lotes"][0]["nome"] == lote.nome
+    assert item["lotes"][0]["iniciais"] == lote.iniciais
+    assert len(item["tipos_unidade_escolar"]) == 1
+    assert item["tipos_unidade_escolar"][0]["iniciais"] == "EMEF"
+    assert len(item["periodos_escolares"]) == 1
+    assert item["periodos_escolares"][0]["nome"] == "Manhã"
+    assert item["unidades_escolares"] == "EMEF Teste"
+    assert item["editais_numeros"] == ["123/2026"]
+
+
+def test_list_dias_letivos_sem_unidades(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+    edital = baker.make(Edital, numero="456/2026")
+    contrato = baker.make(Contrato, edital=edital, encerrado=False)
+    lote = baker.make(Lote, nome="Lote B", iniciais="LB")
+    lote.contratos_do_lote.add(contrato)
+    periodo = baker.make(PeriodoEscolar, nome="Tarde")
+    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais="CEI")
+
+    dia = baker.make(
+        DiaLetivoSIGPAE,
+        data=date(2026, 6, 23),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_ue],
+        periodos_escolares=[periodo],
+    )
+
+    response = client.get("/dias-letivos/", {"mes": 6, "ano": 2026})
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert len(data) == 1
+
+    item = data[0]
+    assert item["data"] == "23/06/2026"
+    assert len(item["lotes"]) == 1
+    assert item["lotes"][0]["nome"] == lote.nome
+    assert item["lotes"][0]["iniciais"] == lote.iniciais
+    assert len(item["tipos_unidade_escolar"]) == 1
+    assert item["tipos_unidade_escolar"][0]["iniciais"] == "CEI"
+    assert len(item["periodos_escolares"]) == 1
+    assert item["periodos_escolares"][0]["nome"] == "Tarde"
+    assert item["unidades_escolares"] is None
+    assert item["editais_numeros"] == ["456/2026"]
+
+
+def test_list_dias_letivos_filtro_mes_obrigatorio(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    response = client.get("/dias-letivos/", {"ano": 2026})
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "mes" in response.json()
+
+
+def test_list_dias_letivos_filtro_ano_obrigatorio(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    response = client.get("/dias-letivos/", {"mes": 6})
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "ano" in response.json()
