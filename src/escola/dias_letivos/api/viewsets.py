@@ -13,7 +13,8 @@ from ....dados_comuns.permissions import (
 )
 from ..models import DiaLetivoSIGPAE
 from .filters import DiaLetivoFilter
-from .serializers import DiaLetivoCreateSerializer, DiaLetivoSerializer
+from .serializers import DiaLetivoSerializer
+from .serializers_create import DiaLetivoCreateSerializer
 
 
 class DiaLetivoViewSet(
