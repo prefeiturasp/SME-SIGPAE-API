@@ -10,7 +10,6 @@ from src.escola.api.serializers import (
     TipoUnidadeParaFiltroSerializer,
 )
 from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
-from src.terceirizada.models import Edital
 
 from ..models import DiaLetivoSIGPAE
 
@@ -446,42 +445,30 @@ class DiaLetivoSerializer(serializers.ModelSerializer):
 
     def get_unidades_escolares(self, obj: DiaLetivoSIGPAE):
         """Retorna os nomes das escolas vinculadas (até 3) ou o total."""
-        count = obj.escolas.count()
+        escolas_qs = obj.escolas.all()
+        count = len(escolas_qs)
         if count == 0:
             return None
         if 1 <= count <= 3:
-            nomes = obj.escolas.values_list("nome", flat=True)
-            return ", ".join(nomes)
+            return ", ".join(e.nome for e in escolas_qs)
         return count
 
     def get_editais_numeros(self, obj: DiaLetivoSIGPAE):
         """Retorna os números dos editais das escolas vinculadas.
 
-        Utiliza a property ``editais`` do model Escola para obter os
-        UUIDs dos editais e, em seguida, consulta os números desses
-        editais no banco. Retorna ``None`` quando não há escolas ou
-        nenhum edital associado.
+        Itera sobre os objetos pré-carregados via prefetch_related para
+        evitar consultas adicionais ao banco.
         """
-        escolas = obj.escolas.filter(
-            lote__isnull=False,
-            lote__contratos_do_lote__edital__isnull=False,
-            lote__contratos_do_lote__encerrado=False,
-        )
-        if not escolas.exists():
-            return None
-
-        edital_uuids = set()
-        for escola in escolas:
-            edital_uuids.update(escola.editais)
-
-        if not edital_uuids:
-            return None
-
-        return list(
-            Edital.objects.filter(uuid__in=edital_uuids)
-            .values_list("numero", flat=True)
-            .distinct()
-        )
+        numeros = set()
+        for escola in obj.escolas.all():
+            lote = escola.lote
+            if lote is None:
+                continue
+            for contrato in lote.contratos_do_lote.all():
+                if contrato.encerrado or contrato.edital_id is None:
+                    continue
+                numeros.add(contrato.edital.numero)
+        return list(numeros) if numeros else None
 
     class Meta:
         model = DiaLetivoSIGPAE
