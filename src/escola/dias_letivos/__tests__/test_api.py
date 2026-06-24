@@ -7,6 +7,9 @@ from django.test import Client
 from model_bakery import baker
 from rest_framework import status
 
+from src.escola.dias_letivos.fixtures.factories.dias_letivos_factory import (
+    DiaLetivoSIGPAEFactory,
+)
 from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
 from src.terceirizada.models import Contrato, Edital
@@ -319,8 +322,7 @@ def test_list_dias_letivos_com_unidades(
     tipo_ue = baker.make(TipoUnidadeEscolar, iniciais="EMEF")
     escola = baker.make(Escola, nome="EMEF Teste", lote=lote)
 
-    dia = baker.make(
-        DiaLetivoSIGPAE,
+    DiaLetivoSIGPAEFactory(
         data=date(2026, 6, 22),
         lotes=[lote],
         tipos_unidade_escolar=[tipo_ue],
@@ -358,8 +360,7 @@ def test_list_dias_letivos_sem_unidades(
     periodo = baker.make(PeriodoEscolar, nome="Tarde")
     tipo_ue = baker.make(TipoUnidadeEscolar, iniciais="CEI")
 
-    dia = baker.make(
-        DiaLetivoSIGPAE,
+    DiaLetivoSIGPAEFactory(
         data=date(2026, 6, 23),
         lotes=[lote],
         tipos_unidade_escolar=[tipo_ue],
