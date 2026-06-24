@@ -29,6 +29,5 @@ class AjusteSaldoListagemSerializer(serializers.ModelSerializer):
             "produto",
             "fornecedor",
             "numero_laudo",
-            "empresa",
         ]
         read_only_fields = fields
