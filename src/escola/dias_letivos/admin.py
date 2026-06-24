@@ -66,6 +66,12 @@ class DiaLetivoSIGPAEAdmin(admin.ModelAdmin):
         "lotes",
         DiaSemanaFilter,
     )
+    filter_horizontal = (
+        "periodos_escolares",
+        "lotes",
+        "tipos_unidade_escolar",
+        "escolas",
+    )
     ordering = ("-data",)
     readonly_fields = ("uuid", "criado_em", "criado_por", "alterado_em")
 
@@ -92,20 +98,44 @@ class DiaLetivoSIGPAEAdmin(admin.ModelAdmin):
 
     @admin.display(description="Períodos escolares")
     def get_periodos_escolares(self, obj: DiaLetivoSIGPAE) -> str:
-        """Retorna os nomes dos períodos escolares separados por vírgula."""
-        return ", ".join(p.nome for p in obj.periodos_escolares.all())
+        """Retorna os nomes (até 3) ou o total de períodos vinculados."""
+        count = obj.periodos_escolares.count()
+        if count == 0:
+            return "Nenhum"
+        if 1 <= count <= 3:
+            nomes = obj.periodos_escolares.values_list("nome", flat=True)
+            return ", ".join(nomes)
+        return f"{count} períodos"
 
     @admin.display(description="Lotes")
     def get_lotes(self, obj: DiaLetivoSIGPAE) -> str:
-        """Retorna os nomes dos lotes separados por vírgula."""
-        return ", ".join(lote.nome for lote in obj.lotes.all())
+        """Retorna os nomes (até 3) ou o total de lotes vinculados."""
+        count = obj.lotes.count()
+        if count == 0:
+            return "Nenhum"
+        if 1 <= count <= 3:
+            nomes = obj.lotes.values_list("nome", flat=True)
+            return ", ".join(nomes)
+        return f"{count} lotes"
 
     @admin.display(description="Tipos de unidade")
     def get_tipos_unidade(self, obj: DiaLetivoSIGPAE) -> str:
-        """Retorna as iniciais dos tipos de unidade escolar separados por vírgula."""
-        return ", ".join(t.iniciais for t in obj.tipos_unidade_escolar.all())
+        """Retorna as iniciais (até 3) ou o total de tipos vinculados."""
+        count = obj.tipos_unidade_escolar.count()
+        if count == 0:
+            return "Nenhum"
+        if 1 <= count <= 3:
+            iniciais = obj.tipos_unidade_escolar.values_list("iniciais", flat=True)
+            return ", ".join(iniciais)
+        return f"{count} tipos"
 
     @admin.display(description="Escolas")
     def get_escolas(self, obj: DiaLetivoSIGPAE) -> str:
-        """Retorna os nomes das escolas separados por vírgula."""
-        return ", ".join(e.nome for e in obj.escolas.all())
+        """Retorna os nomes (até 3) ou o total de escolas vinculadas."""
+        count = obj.escolas.count()
+        if count == 0:
+            return "Nenhuma"
+        if 1 <= count <= 3:
+            nomes = obj.escolas.values_list("nome", flat=True)
+            return ", ".join(nomes)
+        return f"{count} escolas"
