@@ -454,21 +454,21 @@ class DiaLetivoSerializer(serializers.ModelSerializer):
         return count
 
     def get_editais_numeros(self, obj: DiaLetivoSIGPAE):
-        """Retorna os números dos editais das escolas vinculadas.
-
-        Itera sobre os objetos pré-carregados via prefetch_related para
-        evitar consultas adicionais ao banco.
-        """
+        """Retorna os números dos editais dos contratos ativos dos lotes."""
         numeros = set()
-        for escola in obj.escolas.all():
-            lote = escola.lote
-            if lote is None:
-                continue
-            for contrato in lote.contratos_do_lote.all():
-                if contrato.encerrado or contrato.edital_id is None:
-                    continue
-                numeros.add(contrato.edital.numero)
+        for lote in obj.lotes.all():
+            self._collect_numeros_do_lote(numeros, lote)
         return list(numeros) if numeros else None
+
+    @staticmethod
+    def _collect_numeros_do_lote(numeros: set, lote) -> None:
+        """Adiciona ao set os números dos editais dos contratos ativos do lote."""
+        if lote is None:
+            return
+        for contrato in lote.contratos_do_lote.all():
+            if contrato.encerrado or contrato.edital_id is None:
+                continue
+            numeros.add(contrato.edital.numero)
 
     class Meta:
         model = DiaLetivoSIGPAE

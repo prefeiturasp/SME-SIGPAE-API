@@ -33,10 +33,10 @@ class DiaLetivoViewSet(
         "list": [UsuarioCODAEGestaoAlimentacao],
     }
     queryset = DiaLetivoSIGPAE.objects.prefetch_related(
-        "lotes",
+        "lotes__contratos_do_lote__edital",
         "tipos_unidade_escolar",
         "periodos_escolares",
-        "escolas__lote__contratos_do_lote__edital",
+        "escolas",
     ).all()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = DiaLetivoFilter
