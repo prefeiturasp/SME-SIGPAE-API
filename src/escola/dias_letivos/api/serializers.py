@@ -153,10 +153,6 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
 
         return created
 
-    # ------------------------------------------------------------------
-    # Resolução de entidades
-    # ------------------------------------------------------------------
-
     def _resolve_entidades(
         self,
         lotes_uuids: list,
@@ -229,10 +225,6 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
                 current += timedelta(days=1)
 
         return dias_a_criar, all_dates, all_periodo_ids
-
-    # ------------------------------------------------------------------
-    # Verificação de duplicatas
-    # ------------------------------------------------------------------
 
     def _checa_duplicacao_consolidada(
         self,
