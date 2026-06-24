@@ -571,7 +571,7 @@ def test_desconto_financeiro_serializer_update(
         periodo_escolar=periodo_escolar_parcial,
         clausula_desconto=clausula_desconto,
         quantidade=5,
-        tipo_lancamento="DIETA_TIPO_A",
+        tipo_lancamento="DIETAS_TIPO_A",
     )
 
     obj.unidades_educacionais.set([escola_ceu_gestao])
