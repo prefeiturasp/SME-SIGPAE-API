@@ -16,6 +16,7 @@ from src.medicao_inicial.models import (
     ParametrizacaoFinanceira,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
+    DescontoFinanceiro,
 )
 
 TIPOS_UNIDADE_PFOM = ["EMEF P FOM", "EMEI P FOM"]
@@ -3370,3 +3371,40 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
 
     for esperado in erros_esperados:
         assert esperado in json, f"Elemento {esperado} não encontrado"
+
+
+@pytest.mark.django_db
+def test_url_endpoint_desconto_financeiro(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_cei,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    periodo_escolar_parcial,
+    clausula_desconto,
+):
+    url = f"/medicao-inicial/desconto-financeiro/aplicar-descontos/{relatorio_financeiro_cei.uuid}/"
+
+    data = [
+        {
+            "tipo_lancamento": "ALIMENTACOES",
+            "faixa_etaria": str(faixas_etarias_ativas[0].uuid),
+            "periodo_escolar": periodo_escolar_parcial.nome,
+            "clausula_desconto": str(clausula_desconto.uuid),
+            "quantidade": 10,
+            "unidades_educacionais": [str(escola_ceu_gestao.uuid)],
+        }
+    ]
+
+    response = client_autenticado_codae_medicao.put(
+        url,
+        content_type="application/json",
+        data=data,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert DescontoFinanceiro.objects.count() == 1
+
+    obj = DescontoFinanceiro.objects.first()
+
+    assert obj.tipo_lancamento == "ALIMENTACOES"
+    assert obj.quantidade == 10
