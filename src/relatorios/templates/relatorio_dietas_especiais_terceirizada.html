@@ -18,11 +18,14 @@
     <div class="contador">Total {{ quantidade_solicitacoes }} dietas</div>
   </div>
   <div class="resultado">
-    <table class="table table-lg table-bordered">
-      <thead>
+    <table class="table table-sm table-bordered">
+       <thead>
         <tr>
           <th scope="col">Cód. EOL do aluno</th>
           <th scope="col">Nome do aluno</th>
+          {% if status == 'autorizadas' %}
+            <th scope="col">Data de Nascimento</th>
+          {% endif %}
           <th scope="col">Nome da escola</th>
           <th scope="col">Classificação da dieta</th>
           <th scope="col">
@@ -35,6 +38,7 @@
           {% if status == 'autorizadas' and diagnostico %}
             <th scope="col">Protocolo</th>
           {% endif %}
+          <th scope="col">Data da autorização</th>
           {% if status == 'canceladas' %}
             <th scope="col">Data de cancelamento</th>
           {% endif %}
@@ -45,6 +49,9 @@
         <tr>
           <td>{{ solicitacao.codigo_eol_aluno }}</td>
           <td>{{ solicitacao.nome_aluno }}</td>
+          {% if status == 'autorizadas' %}
+            <td>{{ solicitacao.data_nascimento_aluno }}</td>
+          {% endif %}
           <td>{{ solicitacao.nome_escola }}</td>
           <td>{{ solicitacao.classificacao }}</td>
           <td>
@@ -59,6 +66,7 @@
           {% if status == 'autorizadas' and diagnostico %}
             <td>{{ solicitacao.protocolo_padrao }}</td>
           {% endif %}
+          <td>{{ solicitacao.data_autorizacao }}</td>
           {% if status == 'canceladas' %}
             <td>{{ solicitacao.data_cancelamento }}</td>
           {% endif %}
