@@ -298,10 +298,6 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
                         f"período escolar {periodo.nome}"
                     )
 
-    # ------------------------------------------------------------------
-    # Inserção em lote dos relacionamentos M2M
-    # ------------------------------------------------------------------
-
     def _bulk_insert_m2m(
         self,
         created: list[DiaLetivoSIGPAE],
