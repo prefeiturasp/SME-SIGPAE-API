@@ -2,6 +2,7 @@ import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
     get_alimentacoes_por_periodo,
+    get_valores_tabela,
 )
 
 pytestmark = pytest.mark.django_db
@@ -24,3 +25,47 @@ def test_get_alimentacoes_por_periodo(solicitacao_recreio_emei):
     assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 2
     assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 2
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 2
+
+
+def test_get_valores_tabela_unidade_emei(solicitacao_recreio_emei):
+    mock_colunas = [
+        ("Recreio nas Férias", "refeicao"),
+        ("Recreio nas Férias", "repeticao_refeicao"),
+        ("Recreio nas Férias", "total_refeicoes_pagamento"),
+        ("Recreio nas Férias", "sobremesa"),
+        ("Recreio nas Férias", "repeticao_sobremesa"),
+        ("Recreio nas Férias", "total_sobremesas_pagamento"),
+        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        ("Colaboradores", "refeicao"),
+        ("Colaboradores", "repeticao_refeicao"),
+        ("Colaboradores", "total_refeicoes_pagamento"),
+        ("Colaboradores", "sobremesa"),
+        ("Colaboradores", "repeticao_sobremesa"),
+        ("Colaboradores", "total_sobremesas_pagamento"),
+    ]
+    tipos_unidade = ["EMEI"]
+    linhas = get_valores_tabela(
+        [solicitacao_recreio_emei], mock_colunas, tipos_unidade, {}
+    )
+    assert isinstance(linhas, list)
+    assert len(linhas) == 1
+    assert isinstance(linhas[0], list)
+    assert len(linhas[0]) == 16
+    assert linhas[0] == [
+        "EMEI",
+        "987654",
+        "EMEI TESTE",
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        "-",
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+    ]
