@@ -530,3 +530,109 @@ table.tabela-valores-medicao {
     content: element(firstFooter);
   }
 }
+
+.tabelas-somatorio-container-direita {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: start;
+  width: 50%;
+}
+
+.somatorio-recreio-wrapper-cei {
+  display: flex;
+  gap: 2%;
+  align-items: flex-start;
+  width: 100%;
+
+  .uppercase {
+    text-transform: uppercase;
+  }
+
+  .tabela-dieta-left {
+    width: 50% !important;
+  }
+  .tabela-dieta-right {
+    width: 46% !important;
+    margin-right: 1%;
+  }
+
+  .tabela-colaboradores {
+    width: 70%
+  }
+
+  table {
+    margin-left: 1.5%;
+    margin-right: 1%;
+    font-size: 10px;
+    text-align: center;
+    border: 1px solid #dadada !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+
+    .head-tabelas-somatorio {
+      tr {
+        th {
+          height: 25px;
+          background-color: $verde-escuro;
+          border-right: solid 1px #dadada;
+          border-bottom: solid 1px #dadada;
+          padding: 5px;
+        }
+
+        th:first-child {
+          height: 25px;
+          background-color: $verde-escuro;
+          border-top-left-radius: 4px;
+          padding: 5px;
+        }
+
+        th:last-child {
+          height: 25px;
+          background-color: $verde-escuro;
+          border-top-right-radius: 4px;
+          border-right: none;
+          padding: 5px;
+        }
+      }
+
+      .texto-branco {
+        color: $branco;
+      }
+    }
+
+    .body-tabelas-somatorio {
+      font-size: 10px;
+      font-weight: 700;
+      color: $cinza-meio-escuro;
+
+      tr {
+        td {
+          border-right: 1px solid #dadada;
+          border-bottom: 1px solid #dadada;
+          padding: 7px;
+        }
+
+        td:last-child {
+          border-right: none;
+          padding: 7px;
+        }
+      }
+
+      tr:last-child {
+        td {
+          border-right: 1px solid #dadada;
+          border-bottom: none;
+          padding: 7px;
+        }
+
+        td:last-child {
+          border-right: none;
+          padding: 7px;
+        }
+      }
+    }
+  }
+}
