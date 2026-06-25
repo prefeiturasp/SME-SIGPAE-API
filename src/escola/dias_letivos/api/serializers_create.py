@@ -1,46 +1,13 @@
 import uuid as uuid_module
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 from django.db.models import Count
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from src.dados_comuns.utils import parse_date
+from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
-
-from ..models import DiaLetivoSIGPAE
-
-
-def parse_date(value: str) -> date:
-    """Converte uma string no formato DD/MM/YYYY para um objeto date.
-
-    Args:
-        value: String contendo a data no formato DD/MM/YYYY.
-
-    Returns:
-        datetime.date correspondente à string informada.
-
-    Raises:
-        ValidationError: Se a string não estiver no formato esperado.
-    """
-    try:
-        return datetime.strptime(value, "%d/%m/%Y").date()
-    except ValueError:
-        raise ValidationError(f"Formato de data inválido: {value}. Use DD/MM/YYYY")
-
-
-def python_weekday_to_business(weekday: int) -> int:
-    """Converte o weekday do Python (0=Monday) para o formato de negócio.
-
-    Atualmente, retorna o mesmo valor sem conversão. Serve como ponto
-    de extensão para futuros mapeamentos de dias da semana.
-
-    Args:
-        weekday: Inteiro representando o dia da semana (0=Monday).
-
-    Returns:
-        Inteiro representando o dia da semana no formato de negócio.
-    """
-    return weekday
 
 
 class RecorrenciaSerializer(serializers.Serializer):
@@ -217,7 +184,7 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
 
             current = data_inicial
             while current <= data_final:
-                if python_weekday_to_business(current.weekday()) in dias_semana:
+                if current.weekday() in dias_semana:
                     dias_a_criar.append((current, periodos))
                     all_dates.add(current)
                     for p in periodos:
