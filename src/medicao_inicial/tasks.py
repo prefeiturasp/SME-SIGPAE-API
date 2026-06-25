@@ -4,6 +4,8 @@ import logging
 from io import BytesIO
 from uuid import UUID
 
+from django.db.models import Q
+
 from celery import shared_task
 from dateutil.relativedelta import relativedelta
 from pypdf import PdfWriter
@@ -545,7 +547,9 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
                 mes,
                 calendar.monthrange(ano, mes)[1],
             ),
-            data_final__gte=datetime.date(ano, mes, 1),
+        ).filter(
+            Q(data_final__gte=datetime.date(ano, mes, 1))
+            | Q(data_final__isnull=True)
         ).first()
 
         if not parametrizacao:

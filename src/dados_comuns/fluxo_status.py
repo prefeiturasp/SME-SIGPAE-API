@@ -5922,11 +5922,48 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
 
     @xworkflows.after_transition("inicia_fluxo")
     def _inicia_fluxo_hook(self, *args, **kwargs):
-        user = kwargs["user"]
+        user = kwargs.get("user")
         if user:
-            self.salvar_log_transicao(
+            log_transicao = self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE,
                 usuario=user,
+            )
+
+            empresa = self.empresa
+            nome_fornecedor = (
+                f"{empresa.nome_fantasia} - {empresa.razao_social}"
+                if empresa
+                else "-"
+            )
+            numero_ficha_tecnica = self.numero
+            nome_produto = self.produto.nome if self.produto else "-"
+            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+
+            url_detalhes_ficha_tecnica = (
+                f"{base_url}/pre-recebimento/ficha-tecnica/{self.uuid}"
+            )
+
+            contexto = {
+                "nome_fornecedor": nome_fornecedor,
+                "numero_ficha_tecnica": numero_ficha_tecnica,
+                "nome_produto": nome_produto,
+                "pregao_chamada_publica": self.pregao_chamada_publica,
+                "data_envio": data_envio,
+                "url_detalhes_ficha_tecnica": url_detalhes_ficha_tecnica,
+            }
+
+            EmailENotificacaoService.enviar_email(
+                titulo=f"Ficha Técnica enviada pelo fornecedor - ({numero_ficha_tecnica})",
+                assunto=f"[SIGPAE] Ficha Técnica enviada pelo fornecedor - ({numero_ficha_tecnica})",
+                template="pre_recebimento_email_fornecedor_envia_ficha_tecnica.html",
+                contexto_template=contexto,
+                destinatarios=PartesInteressadasService.usuarios_por_perfis(
+                    nomes_perfis=[
+                        constants.COORDENADOR_GESTAO_PRODUTO,
+                        constants.ADMINISTRADOR_GESTAO_PRODUTO,
+                    ],
+                    somente_email=True,
+                ),
             )
 
     @xworkflows.after_transition("gpcodae_aprova")

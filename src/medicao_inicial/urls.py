@@ -60,6 +60,11 @@ router.register(
 router.register(
     "dados-liquidacao", viewsets.DadosLiquidacaoViewSet, basename="dados-liquidacao"
 )
+router.register(
+    "desconto-financeiro",
+    viewsets.DescontoFinanceiroViewSet,
+    basename="desconto-financeiro",
+)
 
 urlpatterns = [
     path("medicao-inicial/", include(router.urls)),

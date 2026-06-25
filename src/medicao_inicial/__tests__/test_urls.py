@@ -16,6 +16,7 @@ from src.medicao_inicial.models import (
     ParametrizacaoFinanceira,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
+    DescontoFinanceiro,
 )
 
 TIPOS_UNIDADE_PFOM = ["EMEF P FOM", "EMEI P FOM"]
@@ -2577,6 +2578,45 @@ def test_url_endpoint_relatorio_consolidado_verifica_permissao(
     assert detail_experado in response.json().values()
 
 
+def test_url_endpoint_relatorio_consolidado_com_data_final_nula(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_emef,
+    edital,
+    grupo_unidade_escolar_emef,
+):
+    # Cria uma parametrização financeira SEM data_final
+    # para o mesmo lote e grupo do relatorio_financeiro_emef (mes=10, ano=2025)
+    baker.make(
+        "ParametrizacaoFinanceira",
+        edital=edital,
+        lote=relatorio_financeiro_emef.lote,
+        grupo_unidade_escolar=grupo_unidade_escolar_emef,
+        data_inicial="2025-10-01",
+        data_final=None,
+    )
+
+    response = client_autenticado_codae_medicao.get(
+        f"/medicao-inicial/relatorio-financeiro/relatorio-consolidado/{relatorio_financeiro_emef.uuid}/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK, response.json()
+    assert "lote" in response.json()
+
+
+def test_url_endpoint_relatorio_consolidado_sem_parametrizacao_retorna_404(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_emef,
+):
+    # Sem parametrização financeira, deve retornar 404
+    response = client_autenticado_codae_medicao.get(
+        f"/medicao-inicial/relatorio-financeiro/relatorio-consolidado/{relatorio_financeiro_emef.uuid}/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND, response.json()
+
+
 def test_url_endpoint_solicitacao_medicao_inicial_com_criacao_da_medicao_por_task(
     client_autenticado_da_escola,
     usuario_escola,
@@ -3331,3 +3371,40 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
 
     for esperado in erros_esperados:
         assert esperado in json, f"Elemento {esperado} não encontrado"
+
+
+@pytest.mark.django_db
+def test_url_endpoint_desconto_financeiro(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_cei,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    periodo_escolar_parcial,
+    clausula_desconto,
+):
+    url = f"/medicao-inicial/desconto-financeiro/aplicar-descontos/{relatorio_financeiro_cei.uuid}/"
+
+    data = [
+        {
+            "tipo_lancamento": "ALIMENTACOES",
+            "faixa_etaria": str(faixas_etarias_ativas[0].uuid),
+            "periodo_escolar": periodo_escolar_parcial.nome,
+            "clausula_desconto": str(clausula_desconto.uuid),
+            "quantidade": 10,
+            "unidades_educacionais": [str(escola_ceu_gestao.uuid)],
+        }
+    ]
+
+    response = client_autenticado_codae_medicao.put(
+        url,
+        content_type="application/json",
+        data=data,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert DescontoFinanceiro.objects.count() == 1
+
+    obj = DescontoFinanceiro.objects.first()
+
+    assert obj.tipo_lancamento == "ALIMENTACOES"
+    assert obj.quantidade == 10
