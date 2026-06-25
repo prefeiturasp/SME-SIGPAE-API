@@ -492,6 +492,14 @@ ORDEM_HEADERS_CIEJA_CMCT = {
     "DIETA ESPECIAL - TIPO B": 11,
 }
 
+ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
+    "Solicitações de Alimentação": 1,
+    "Recreio nas Férias": 2,
+    "DIETA ESPECIAL - TIPO A": 3,
+    "DIETA ESPECIAL - TIPO B": 4,
+    "Colaboradores": 5,
+}
+
 
 class StatusProcessamentoArquivo(Enum):
     PENDENTE = "PENDENTE"
