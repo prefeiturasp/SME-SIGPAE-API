@@ -1,6 +1,7 @@
 import datetime
 from calendar import monthrange
 from typing import Callable
+import traceback
 
 import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -57,6 +58,7 @@ from ..medicao_inicial.utils import (
     build_tabela_somatorio_body,
     build_tabela_somatorio_body_cei,
     build_tabela_somatorio_body_cei_recreio_nas_ferias,
+    build_tabela_somatorio_body_cemei_recreio_nas_ferias,
     build_tabela_somatorio_dietas_body,
     build_tabelas_relatorio_medicao,
     build_tabelas_relatorio_medicao_cei,
@@ -1945,6 +1947,70 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
             ARQUIVO_MARCA_DAGUA_PRELIMINAR,
             is_async=True,
         )
+
+
+def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitacao):
+    try:
+        print("relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias")
+        tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
+        dict_total_refeicoes = get_total_por_periodo(
+            tabelas, "total_refeicoes_pagamento", True
+        )
+        dict_total_sobremesas = get_total_por_periodo(
+            tabelas, "total_sobremesas_pagamento", True
+        )
+        tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
+            "nome", flat=True
+        )
+        tipos_contagem_alimentacao = ", ".join(list(set(tipos_contagem_alimentacao)))
+        tabelas_somatorios_cei = build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao)
+        tabelas_somatorios_infantil = build_tabela_somatorio_body(
+            solicitacao, dict_total_refeicoes, dict_total_sobremesas
+        )
+
+        observacoes = build_lista_campos_observacoes(solicitacao)
+
+        tabela_observacoes_cei = []
+        tabela_observacoes_infantil = []
+
+        for observacao in observacoes:
+            if observacao[1] in ["INTEGRAL", "PARCIAL"]:
+                tabela_observacoes_cei.append(observacao)
+            else:
+                tabela_observacoes_infantil.append(observacao)
+
+        html_string = render_to_string(
+            "medicao/relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias.html",
+            {
+                "solicitacao": solicitacao,
+                "tipos_contagem_alimentacao": tipos_contagem_alimentacao,
+                "responsaveis": solicitacao.responsaveis.all(),
+                "assinatura_escola": solicitacao.assinatura_ue,
+                "assinatura_dre": solicitacao.assinatura_dre,
+                "tabelas": tabelas,
+                "tabela_observacoes_cei": tabela_observacoes_cei,
+                "tabela_observacoes_infantil": tabela_observacoes_infantil,
+                "tabelas_somatorios_cei": tabelas_somatorios_cei,
+                "tabelas_somatorios_infantil": tabelas_somatorios_infantil,
+            },
+        )
+        if (
+            solicitacao.status
+            == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
+        ):
+            return html_to_pdf_file(
+                html_string, "relatorio_dieta_especial.pdf", is_async=True
+            )
+        else:
+            return html_to_pdf_watermark(
+                html_string,
+                "relatorio_dieta_especial.pdf",
+                ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+                is_async=True,
+            )
+    except Exception as e:
+        print(traceback.format_exc())
+        raise e
 
 
 def calcula_mostrar_header_fundamental_emebs(
