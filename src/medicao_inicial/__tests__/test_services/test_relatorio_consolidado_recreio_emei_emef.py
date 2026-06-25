@@ -1,9 +1,11 @@
 from io import BytesIO
 
+import openpyxl
 import pandas as pd
 import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
+    ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
@@ -31,25 +33,12 @@ def test_get_alimentacoes_por_periodo(solicitacao_recreio_emei):
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 2
 
 
-def test_get_valores_tabela_unidade_emei(solicitacao_recreio_emei):
-    mock_colunas = [
-        ("Recreio nas Férias", "refeicao"),
-        ("Recreio nas Férias", "repeticao_refeicao"),
-        ("Recreio nas Férias", "total_refeicoes_pagamento"),
-        ("Recreio nas Férias", "sobremesa"),
-        ("Recreio nas Férias", "repeticao_sobremesa"),
-        ("Recreio nas Férias", "total_sobremesas_pagamento"),
-        ("DIETA ESPECIAL - TIPO A", "refeicao"),
-        ("Colaboradores", "refeicao"),
-        ("Colaboradores", "repeticao_refeicao"),
-        ("Colaboradores", "total_refeicoes_pagamento"),
-        ("Colaboradores", "sobremesa"),
-        ("Colaboradores", "repeticao_sobremesa"),
-        ("Colaboradores", "total_sobremesas_pagamento"),
-    ]
+def test_get_valores_tabela_unidade_emei(
+    solicitacao_recreio_emei, mock_colunas_recreio_emei
+):
     tipos_unidade = ["EMEI"]
     linhas = get_valores_tabela(
-        [solicitacao_recreio_emei], mock_colunas, tipos_unidade, {}
+        [solicitacao_recreio_emei], mock_colunas_recreio_emei, tipos_unidade, {}
     )
     assert isinstance(linhas, list)
     assert len(linhas) == 1
@@ -76,47 +65,15 @@ def test_get_valores_tabela_unidade_emei(solicitacao_recreio_emei):
 
 
 def test_insere_tabela_periodos_na_planilha_unidade_emei(
-    solicitacao_recreio_emei, mock_colunas, mock_linhas_emei
+    solicitacao_recreio_emei, mock_colunas_recreio_emei, mock_linhas_recreio_emei
 ):
     arquivo = BytesIO()
     aba = f"Relatório Consolidado {solicitacao_recreio_emei.mes}-{ solicitacao_recreio_emei.ano}"
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
-    mock_colunas = [
-        ("Recreio nas Férias", "refeicao"),
-        ("Recreio nas Férias", "repeticao_refeicao"),
-        ("Recreio nas Férias", "total_refeicoes_pagamento"),
-        ("Recreio nas Férias", "sobremesa"),
-        ("Recreio nas Férias", "repeticao_sobremesa"),
-        ("Recreio nas Férias", "total_sobremesas_pagamento"),
-        ("DIETA ESPECIAL - TIPO A", "refeicao"),
-        ("Colaboradores", "refeicao"),
-        ("Colaboradores", "repeticao_refeicao"),
-        ("Colaboradores", "total_refeicoes_pagamento"),
-        ("Colaboradores", "sobremesa"),
-        ("Colaboradores", "repeticao_sobremesa"),
-        ("Colaboradores", "total_sobremesas_pagamento"),
-    ]
-    mock_linhas_emei = [
-        [
-            "EMEI",
-            "987654",
-            "EMEI TESTE",
-            1260.0,
-            1260.0,
-            1260.0,
-            1260.0,
-            1260.0,
-            1260.0,
-            "-",
-            280.0,
-            280.0,
-            280.0,
-            280.0,
-            280.0,
-            280.0,
-        ]
-    ]
-    df = insere_tabela_periodos_na_planilha(aba, mock_colunas, mock_linhas_emei, writer)
+
+    df = insere_tabela_periodos_na_planilha(
+        aba, mock_colunas_recreio_emei, mock_linhas_recreio_emei, writer
+    )
     assert isinstance(df, pd.DataFrame)
     colunas_df = df.columns.tolist()
     assert len(colunas_df) == 16
@@ -189,3 +146,25 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         280.0,
         280.0,
     ]
+
+
+def test_ajusta_layout_tabela(informacoes_excel_writer_recreio_emei):
+    aba, writer, workbook, worksheet, df, arquivo = (
+        informacoes_excel_writer_recreio_emei
+    )
+    ajusta_layout_tabela(workbook, worksheet, df)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 3
+    esperados = {"A3:C3", "D3:I3", "K3:P3"}
+    assert {str(r) for r in merged_ranges} == esperados
+
+    assert sheet["A3"].value is None
+    assert sheet["D3"].value == "ALIMENTAÇÕES ALUNOS PARTICIPANTES"
+    assert sheet["D3"].fill.fgColor.rgb == "FF198459"
+    assert sheet["J3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["K3"].value == "COLABORADORES"
+    assert sheet["K3"].fill.fgColor.rgb == "FFB40C02"
+    workbook_openpyxl.close()

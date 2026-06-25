@@ -43,6 +43,9 @@ from src.medicao_inicial.services.relatorio_consolidado_emebs import (
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     insere_tabela_periodos_na_planilha as emei_emef_insere_tabela,
 )
+from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
+    insere_tabela_periodos_na_planilha as recreio_emei_emef_insere_tabela,
+)
 
 MODEL_MEDICAO_RESPONSAVEL = "medicao_inicial.Responsavel"
 PROGRAMAS_E_PROOJETOS = "PROGRAMAS E PROJETOS"
@@ -7362,3 +7365,66 @@ def solicitacao_recreio_emei(solicitacao_recreio_emef, escola_emei):
     solicitacao_recreio_emef.escola = escola_emei
     solicitacao_recreio_emef.save()
     return solicitacao_recreio_emef
+
+
+@pytest.fixture
+def mock_colunas_recreio_emei():
+    return [
+        ("Recreio nas Férias", "refeicao"),
+        ("Recreio nas Férias", "repeticao_refeicao"),
+        ("Recreio nas Férias", "total_refeicoes_pagamento"),
+        ("Recreio nas Férias", "sobremesa"),
+        ("Recreio nas Férias", "repeticao_sobremesa"),
+        ("Recreio nas Férias", "total_sobremesas_pagamento"),
+        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        ("Colaboradores", "refeicao"),
+        ("Colaboradores", "repeticao_refeicao"),
+        ("Colaboradores", "total_refeicoes_pagamento"),
+        ("Colaboradores", "sobremesa"),
+        ("Colaboradores", "repeticao_sobremesa"),
+        ("Colaboradores", "total_sobremesas_pagamento"),
+    ]
+
+
+@pytest.fixture
+def mock_linhas_recreio_emei():
+    return [
+        [
+            "EMEI",
+            "987654",
+            "EMEI TESTE",
+            1260.0,
+            1260.0,
+            1260.0,
+            1260.0,
+            1260.0,
+            1260.0,
+            "-",
+            280.0,
+            280.0,
+            280.0,
+            280.0,
+            280.0,
+            280.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_recreio_emei(
+    solicitacao_recreio_emei, mock_colunas_recreio_emei, mock_linhas_recreio_emei
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {solicitacao_recreio_emei.mes}-{ solicitacao_recreio_emei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = recreio_emei_emef_insere_tabela(
+        aba, mock_colunas_recreio_emei, mock_linhas_recreio_emei, writer
+    )
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
