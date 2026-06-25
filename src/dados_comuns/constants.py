@@ -315,7 +315,11 @@ ORDEM_PERIODOS_GRUPOS_CEMEI = {
     "Infantil MANHA": 4,
     "Infantil TARDE": 5,
     "Programas e Projetos": 6,
-    "Solicitações de Alimentação": 7,
+    "Recreio nas Férias": 7,
+    "Recreio nas Férias - de 0 a 3 anos e 11 meses": 8,
+    "Recreio nas Férias - 4 a 14 anos": 9,
+    "Solicitações de Alimentação": 10,
+    "Colaboradores": 11,
 }
 
 ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS = {
