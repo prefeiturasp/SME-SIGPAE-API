@@ -1458,6 +1458,29 @@ def popula_campo_matriculados(
             valores_dia += ["0"]
 
 
+def _get_unidade_participantes_recreio(solicitacao, categoria_corrente, periodo_corrente):
+    recreio = solicitacao.recreio_nas_ferias
+    unidades = recreio.unidades_participantes.filter(
+        unidade_educacional=solicitacao.escola
+    )
+
+    if "Colaboradores" in periodo_corrente or "COLABORADORES" in categoria_corrente:
+        return unidades.first(), True
+
+    if unidades.count() == 1:
+        return unidades.first(), False
+
+    if "4 a 14" in periodo_corrente:
+        unidade = unidades.filter(cei_ou_emei="EMEI").first()
+    else:
+        unidade = unidades.filter(cei_ou_emei="CEI").first()
+
+    if unidade is None:
+        unidade = unidades.first()
+
+    return unidade, False
+
+
 def popula_campo_participantes(
     dia,
     campo,
@@ -1470,28 +1493,15 @@ def popula_campo_participantes(
         return
 
     try:
-        recreio = solicitacao.recreio_nas_ferias
-        unidades = recreio.unidades_participantes.filter(
-            unidade_educacional=solicitacao.escola
+        unidade, eh_colaboradores = _get_unidade_participantes_recreio(
+            solicitacao,
+            categoria_corrente,
+            periodo_corrente,
         )
-
-        if "Colaboradores" in periodo_corrente or "COLABORADORES" in categoria_corrente:
-            unidade = unidades.first()
+        if eh_colaboradores:
             valores_dia += [unidade.num_colaboradores if unidade else 0]
-            return
-
-        if unidades.count() == 1:
-            unidade = unidades.first()
-        elif "4 a 14" in periodo_corrente:
-            unidade = unidades.filter(cei_ou_emei="EMEI").first()
         else:
-            unidade = unidades.filter(cei_ou_emei="CEI").first()
-
-        if unidade is None:
-            unidade = unidades.first()
-
-        valores_dia += [unidade.num_inscritos if unidade else 0]
-
+            valores_dia += [unidade.num_inscritos if unidade else 0]
     except Exception:
         valores_dia += [0]
 

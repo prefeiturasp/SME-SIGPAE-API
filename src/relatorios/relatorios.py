@@ -1951,7 +1951,6 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
 
 def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitacao):
     try:
-        print("relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias")
         tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
         dict_total_refeicoes = get_total_por_periodo(
             tabelas, "total_refeicoes_pagamento", True
