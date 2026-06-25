@@ -3127,68 +3127,56 @@ def popula_campos_nomes(
         indice_nome_por_periodo += 1
 
 
+def _atualiza_indices_categoria(tabela, indice_faixa, len_faixa, indice_categoria, indice_periodo):
+    if len_faixa > tabela["len_categorias"][indice_categoria] - 1:
+        indice_faixa = 0
+        len_faixa = 0
+        indice_categoria += 1
+        periodo_corrente = tabela["periodos"][indice_periodo]
+        categorias_do_periodo = tabela["categorias_dos_periodos"][periodo_corrente]
+        if indice_categoria > len(categorias_do_periodo) - 1 and indice_periodo + 1 < len(tabela["periodos"]):
+            indice_periodo += 1
+    return indice_faixa, len_faixa, indice_categoria, indice_periodo
+
+
+def _popula_faixa_ou_total(faixa, dia, solicitacao, tabela, indice_periodo, categoria_corrente, valores_dia, logs_dietas, indice_categoria, indice_faixa, recreio):
+    if faixa == "total":
+        if dia != "Total":
+            return popula_total_faixas(tabela, indice_periodo, valores_dia, solicitacao, dia, categoria_corrente)
+        popula_campo_total_cemei(tabela, valores_dia, indice_categoria, indice_faixa)
+    else:
+        popula_faixas_dias(
+            dia, solicitacao, tabela, faixa, indice_periodo, categoria_corrente,
+            valores_dia, logs_dietas, recreio=recreio, primeira_faixa=(indice_faixa == 0),
+        )
+    return valores_dia
+
+
 def popula_campos_faixas_etarias(
-    solicitacao,
-    tabela,
-    dia,
-    indice_periodo,
-    logs_dietas,
-    categoria_corrente,
-    indice_campo,
-    faixas_etarias,
-    valores_dia,
-    indice_categoria,
-    recreio: bool = False,
+    solicitacao, tabela, dia, indice_periodo, logs_dietas,
+    categoria_corrente, indice_campo, faixas_etarias, valores_dia,
+    indice_categoria, recreio: bool = False,
 ):
     indice_faixa = 0
     len_faixa = 0
 
     for faixa in faixas_etarias:
-        # No Recreio: +1 por faixa (1 participantes + 1 frequência por faixa, sem matriculados repetido)
-        # Original:   +2 por faixa normal, +1 para "total"
         if recreio:
             len_faixa = 0 if indice_faixa == 0 else len_faixa + 1
         else:
             len_faixa = get_indice_faixa(len_faixa, faixa, indice_faixa)
 
-        if len_faixa > tabela["len_categorias"][indice_categoria] - 1:
-            indice_faixa = 0
-            len_faixa = 0
-            indice_categoria += 1
-            categoria_corrente = tabela["categorias"][indice_categoria]
-            periodo_corrente = tabela["periodos"][indice_periodo]
-            if indice_categoria > len(
-                tabela["categorias_dos_periodos"][periodo_corrente]
-            ) - 1 and indice_periodo + 1 < len(tabela["periodos"]):
-                indice_periodo += 1
-        if faixa == "total":
-            if dia != "Total":
-                valores_dia = popula_total_faixas(
-                    tabela,
-                    indice_periodo,
-                    valores_dia,
-                    solicitacao,
-                    dia,
-                    categoria_corrente,
-                )
-            else:
-                popula_campo_total_cemei(
-                    tabela, valores_dia, indice_categoria, indice_faixa
-                )
-        else:
-            popula_faixas_dias(
-                dia,
-                solicitacao,
-                tabela,
-                faixa,
-                indice_periodo,
-                categoria_corrente,
-                valores_dia,
-                logs_dietas,
-                recreio=recreio,
-                primeira_faixa=(indice_faixa == 0),
-            )
+        indice_faixa, len_faixa, indice_categoria, indice_periodo = _atualiza_indices_categoria(
+            tabela, indice_faixa, len_faixa, indice_categoria, indice_periodo
+        )
+        categoria_corrente = tabela["categorias"][indice_categoria]
+
+        valores_dia = _popula_faixa_ou_total(
+            faixa, dia, solicitacao, tabela, indice_periodo, categoria_corrente,
+            valores_dia, logs_dietas, indice_categoria, indice_faixa, recreio,
+        )
         indice_faixa += 1
+
     indice_periodo += 1
     indice_categoria += 1
     return indice_periodo, indice_categoria
