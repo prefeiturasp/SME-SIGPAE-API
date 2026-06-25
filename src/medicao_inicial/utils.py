@@ -3235,91 +3235,67 @@ def _get_medicao_por_periodo(medicoes, periodo: str):
     return medicoes.get(periodo_escolar__nome=periodo, grupo=None)
 
 
+def _popula_faixas_dias_total(solicitacao, tabela, faixa_id, indice_periodo, categoria_corrente, valores_dia, recreio, primeira_faixa):
+    total = contador_frequencia_total_cei(
+        solicitacao, tabela, faixa_id, indice_periodo, categoria_corrente,
+    )
+    if recreio:
+        if primeira_faixa:
+            valores_dia += ["-"]
+        valores_dia += [str(total if total else 0)]
+    else:
+        valores_dia += ["-", str(total if total else 0)]
+
+
+def _popula_faixas_dias_recreio(solicitacao, tabela, faixa_id, dia, indice_periodo, categoria_corrente, valores_dia, primeira_faixa):
+    if primeira_faixa:
+        valores_dia += [
+            _get_participantes_recreio_cei(solicitacao, tabela, indice_periodo, dia)
+        ]
+    popula_campos_preenchidos_pela_escola_cei(
+        solicitacao, tabela, faixa_id, dia, indice_periodo, categoria_corrente, valores_dia,
+    )
+
+
+def _popula_faixas_dias_normal(solicitacao, tabela, faixa_id, dia, indice_periodo, categoria_corrente, valores_dia, logs_dietas):
+    if categoria_corrente == CHAVE_ALIMENTACAO_REGULAR:
+        popula_campo_matriculados_cei(
+            solicitacao, tabela, faixa_id, dia, indice_periodo, categoria_corrente, valores_dia,
+        )
+    else:
+        popula_campo_aprovadas_cei(
+            solicitacao, faixa_id, dia, categoria_corrente, valores_dia, logs_dietas, tabela, indice_periodo,
+        )
+    popula_campos_preenchidos_pela_escola_cei(
+        solicitacao, tabela, faixa_id, dia, indice_periodo, categoria_corrente, valores_dia,
+    )
+
+
 def popula_faixas_dias(
-    dia,
-    solicitacao,
-    tabela,
-    faixa,
-    indice_periodo,
-    categoria_corrente,
-    valores_dia,
-    logs_dietas,
-    recreio: bool = False,
-    primeira_faixa: bool = False,
+    dia, solicitacao, tabela, faixa, indice_periodo,
+    categoria_corrente, valores_dia, logs_dietas,
+    recreio: bool = False, primeira_faixa: bool = False,
 ):
     if not faixa:
         return
     inicio, fim = string_to_faixa(faixa)
     faixa_id = FaixaEtaria.objects.get(inicio=inicio, fim=fim, ativo=True).id
+
     if dia == "Total":
-        total = contador_frequencia_total_cei(
-            solicitacao,
-            tabela,
-            faixa_id,
-            indice_periodo,
-            categoria_corrente,
+        _popula_faixas_dias_total(
+            solicitacao, tabela, faixa_id, indice_periodo,
+            categoria_corrente, valores_dia, recreio, primeira_faixa,
         )
-        if recreio:
-            # participantes único: "-" só na primeira faixa; depois só frequência
-            if primeira_faixa:
-                valores_dia += ["-"]
-            valores_dia += [str(total if total else 0)]
-        else:
-            valores_dia += ["-", str(total if total else 0)]
-        return
-
-    if recreio:
-        # participantes único do dia: insere só antes da primeira faixa
-        if primeira_faixa:
-            valores_dia += [
-                _get_participantes_recreio_cei(
-                    solicitacao, tabela, indice_periodo, dia
-                )
-            ]
-        # nas faixas, NÃO insere matriculados; só a frequência
-        popula_campos_preenchidos_pela_escola_cei(
-            solicitacao,
-            tabela,
-            faixa_id,
-            dia,
-            indice_periodo,
-            categoria_corrente,
-            valores_dia,
-        )
-        return
-
-    # ---- fluxo original (não-Recreio) ----
-    if categoria_corrente == CHAVE_ALIMENTACAO_REGULAR:
-        popula_campo_matriculados_cei(
-            solicitacao,
-            tabela,
-            faixa_id,
-            dia,
-            indice_periodo,
-            categoria_corrente,
-            valores_dia,
+    elif recreio:
+        _popula_faixas_dias_recreio(
+            solicitacao, tabela, faixa_id, dia,
+            indice_periodo, categoria_corrente, valores_dia, primeira_faixa,
         )
     else:
-        popula_campo_aprovadas_cei(
-            solicitacao,
-            faixa_id,
-            dia,
-            categoria_corrente,
-            valores_dia,
-            logs_dietas,
-            tabela,
-            indice_periodo,
+        _popula_faixas_dias_normal(
+            solicitacao, tabela, faixa_id, dia,
+            indice_periodo, categoria_corrente, valores_dia, logs_dietas,
         )
-
-    popula_campos_preenchidos_pela_escola_cei(
-        solicitacao,
-        tabela,
-        faixa_id,
-        dia,
-        indice_periodo,
-        categoria_corrente,
-        valores_dia,
-    )
 
 
 def _get_participantes_recreio_cei(solicitacao, tabela, indice_periodo, dia):
