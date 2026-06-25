@@ -316,7 +316,7 @@ class FichaTecnicaDoProduto(
 
     def gerar_numero_ficha_tecnica(self):
         self.numero = f"FT{str(self.pk).zfill(3)}"
-    
+
     @property
     def ponto_a_ponto(self) -> bool:
         return self.tipo_entrega == self.PONTO_A_PONTO

@@ -26,7 +26,7 @@ class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
     produto = NomeDeProdutoEditalSerializer()
     uuid_empresa = serializers.SerializerMethodField()
     ponto_a_ponto = serializers.BooleanField(read_only=True)
-    
+
     def get_uuid_empresa(self, obj):
         return obj.empresa.uuid if obj.empresa else None
 
@@ -67,12 +67,13 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source="get_status_display")
     programa = serializers.CharField()
     ponto_a_ponto = serializers.BooleanField(read_only=True)
-    
+
     def get_nome_produto(self, obj):
         return obj.produto.nome if obj.produto else None
 
     def get_criado_em(self, obj):
         return obj.criado_em.strftime("%d/%m/%Y")
+
     class Meta:
         model = FichaTecnicaDoProduto
         fields = (
