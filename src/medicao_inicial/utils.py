@@ -1246,7 +1246,6 @@ def build_headers_tabelas_cemei(solicitacao):
     indice_atual = 0
     len_colunas = 0
 
-
     for medicao in get_medicoes_ordenadas(solicitacao, ORDEM_PERIODOS_GRUPOS_CEMEI):
         dict_categorias_campos = build_dict_relacao_categorias_e_campos_cemei(medicao)
 
@@ -1493,7 +1492,7 @@ def popula_campo_participantes(
 
         valores_dia += [unidade.num_inscritos if unidade else 0]
 
-    except Exception as e:
+    except Exception:
         valores_dia += [0]
 
 
