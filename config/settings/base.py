@@ -111,6 +111,7 @@ THIRD_PARTY_APPS = [
     "rangefilter",
     "drf_spectacular",
     "nested_inline",
+    "elasticapm.contrib.django",
 ]
 LOCAL_APPS = [
     "src.perfil.apps.PerfilConfig",
@@ -185,6 +186,7 @@ AUTH_PASSWORD_VALIDATORS = [
 DEV_MIDDLEWARE = []
 
 MIDDLEWARE = [
+    "elasticapm.contrib.django.middleware.TracingMiddleware",
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
@@ -404,6 +406,10 @@ logging.config.dictConfig(
                 "formatter": "verbose",
                 "filename": "terceirizadas.log",
             },
+            "elasticapm": {
+                "level": "WARNING",
+                "class": "elasticapm.contrib.django.handlers.LoggingHandler",
+            },
         },
         "loggers": {
             "sentry_sdk": {
@@ -415,8 +421,36 @@ logging.config.dictConfig(
                 "level": "DEBUG",
                 "handlers": ["console"],
             },
+            "elasticapm.errors": {
+                "level": "ERROR",
+                "handlers": ["console"],
+                "propagate": False,
+            },
         },
     }
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+ELASTIC_APM = {
+    "SERVICE_NAME": os.getenv("ELASTIC_APM_SERVICE_NAME", "transition-gateway"),
+    "SERVER_URL": os.getenv("ELASTIC_APM_SERVER_URL", "http://localhost:8200"),
+    "SECRET_TOKEN": os.getenv("ELASTIC_APM_SECRET_TOKEN", ""),
+    "ENVIRONMENT": os.getenv("ELASTIC_APM_ENVIRONMENT", "local"),
+    "ENABLED": os.getenv("ELASTIC_APM_ENABLED", "1") == "1",
+    "DEBUG": os.getenv("ELASTIC_APM_DEBUG", "1" if DEBUG else "0") == "1",
+    "CAPTURE_HEADERS": os.getenv("ELASTIC_APM_CAPTURE_HEADERS", "1") == "1",
+    "TRANSACTION_SAMPLE_RATE": float(
+        os.getenv("ELASTIC_APM_TRANSACTION_SAMPLE_RATE", "0.3")
+    ),
+    "METRICS_INTERVAL": os.getenv("ELASTIC_APM_METRICS_INTERVAL", "10s"),
+    "FLUSH_INTERVAL": os.getenv("ELASTIC_APM_FLUSH_INTERVAL", "10s"),
+    "MAX_BATCH_EVENT_COUNT": int(
+        os.getenv("ELASTIC_APM_MAX_BATCH_EVENT_COUNT", "1000")
+    ),
+    "MAX_QUEUE_EVENT_COUNT": int(
+        os.getenv("ELASTIC_APM_MAX_QUEUE_EVENT_COUNT", "1000")
+    ),
+    "TRANSACTION_MAX_SPANS": int(os.getenv("ELASTIC_APM_TRANSACTION_MAX_SPANS", "500")),
+    "LOG_LEVEL": os.getenv("ELASTIC_APM_LOG_LEVEL", "INFO"),
+}

@@ -16,3 +16,41 @@ services:
     ports:
       - 6379:6379
     restart: always
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.22
+    container_name: elasticsearch-sigpae
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.22
+    container_name: kibana-sigpae
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "127.0.0.1:5601:5601"
+    depends_on:
+      - elasticsearch
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:7.17.22
+    container_name: apm-server-sigpae
+    command: >
+      apm-server -e
+        -E output.elasticsearch.hosts=["elasticsearch:9200"]
+        -E apm-server.host="0.0.0.0:8200"
+        -E apm-server.secret_token=""
+        -E apm-server.kibana.enabled=true
+        -E apm-server.kibana.host="kibana:5601"
+    ports:
+      - "127.0.0.1:8200:8200"
+    depends_on:
+      - elasticsearch
+      - kibana
+
+volumes:
+  esdata:

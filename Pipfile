@@ -103,6 +103,7 @@ pypdf = "==6.13.3"
 unidecode = "==1.4.0"
 bleach = "==6.4.0"
 num2words = "==0.5.14"
+elastic-apm = "==6.26.2"
 
 [requires]
 python_version = "3.13.3"
