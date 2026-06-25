@@ -1129,10 +1129,10 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
     def __str__(self):
         return (
             f"{self.get_tipo_lancamento_display()} - "
-            f"{self.quantidade} - R$ {self.total_desconto}"
+            f"{self.tipo_alimentacao.nome if self.tipo_alimentacao else self.faixa_etaria}"
         )
 
     class Meta:
-        verbose_name = "Dado de desconto financeiro"
-        verbose_name_plural = "Dados de desconto financeiro"
+        verbose_name = "Desconto Financeiro"
+        verbose_name_plural = "Descontos Financeiros"
         ordering = ["-alterado_em"]
