@@ -1085,35 +1085,42 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         RelatorioFinanceiro,
         to_field="uuid",
         on_delete=models.PROTECT,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
     )
     unidades_educacionais = models.ManyToManyField(
         Escola,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
     )
     tipo_lancamento = models.CharField(
         "Tipo de lançamento",
         max_length=30,
         choices=TIPO_LANCAMENTO_CHOICES,
     )
+    tipo_alimentacao = models.ForeignKey(
+        "cardapio.TipoAlimentacao",
+        on_delete=models.PROTECT,
+        related_name="descontos_financeiros",
+        null=True,
+        blank=True,
+    )
     faixa_etaria = models.ForeignKey(
         "escola.FaixaEtaria",
         on_delete=models.PROTECT,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
         null=True,
         blank=True,
     )
     periodo_escolar = models.ForeignKey(
         PeriodoEscolar,
         on_delete=models.PROTECT,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
         null=True,
         blank=True,
     )
     clausula_desconto = models.ForeignKey(
         ClausulaDeDesconto,
         on_delete=models.PROTECT,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
     )
     quantidade = models.PositiveIntegerField(
         "Quantidade",
