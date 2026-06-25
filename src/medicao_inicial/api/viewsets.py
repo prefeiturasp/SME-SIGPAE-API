@@ -20,6 +20,7 @@ from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
 
 from src.cardapio.utils import ordem_periodos
+from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
     valida_parametros_periodo_lancamento,
@@ -778,6 +779,8 @@ class SolicitacaoMedicaoInicialViewSet(
         status_solicitacao = request.query_params.get("status")
         uuid_dre = request.query_params.get("dre")
         uuid_lotes = request.query_params.getlist("lotes[]", None)
+        uuid_recreio = request.query_params.get("recreio_uuid", False)
+        contem_recreio = False
 
         query_params = request.query_params.dict()
         filtros = {"mes": mes, "ano": ano, "status": status_solicitacao}
@@ -792,6 +795,20 @@ class SolicitacaoMedicaoInicialViewSet(
 
         grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
         tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
+        nome_arquivo = (
+            f"Relatório Consolidado das Medições Inicias - "
+            f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+            f"{mes}/{ano}.xlsx"
+        )
+        if uuid_recreio:
+            recreio = RecreioNasFerias.objects.get(uuid=uuid_recreio)
+            filtros["recreio_nas_ferias_id"] = recreio.id
+            nome_arquivo = (
+                f"Relatório Consolidado das Medições Inicias - "
+                f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+                f"Recreio nas Férias {mes}/{ano}.xlsx"
+            )
+            contem_recreio = True
 
         historico_valido = HistoricoEscola.objects.filter(
             escola=OuterRef("escola"),
@@ -822,14 +839,11 @@ class SolicitacaoMedicaoInicialViewSet(
 
         exporta_relatorio_consolidado_xlsx.delay(
             user=request.user.get_username(),
-            nome_arquivo=(
-                f"Relatório Consolidado das Medições Inicias - "
-                f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
-                f"{mes}/{ano}.xlsx"
-            ),
+            nome_arquivo=nome_arquivo,
             solicitacoes=list(solicitacoes_com_filtro),
             tipos_de_unidade=list(tipos_unidades.values_list("iniciais", flat=True)),
             query_params=query_params,
+            contem_recreio=contem_recreio,
         )
 
         return Response(
