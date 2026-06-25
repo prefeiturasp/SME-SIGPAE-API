@@ -33,6 +33,7 @@ from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DescontoFinanceiro,
     DadosLiquidacao,
     DiaSobremesaDoce,
     Empenho,
@@ -1815,6 +1816,89 @@ class DadosLiquidacaoUpdateSerializer(serializers.ModelSerializer):
             "numero_empenho",
             "tipo_empenho",
             "unidades_educacionais",
+            "criado_em",
+            "alterado_em",
+        ]
+
+
+class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer para criação e atualização de DescontoFinanceiro.
+
+    Attributes:
+        relatorio_financeiro_id (UUID):
+            UUID do relatório financeiro associado ao registro.
+
+        unidades_educacionais (list[UUID]):
+            Lista de UUIDs das escolas vinculadas ao desconto financeiro.
+
+        faixa_etaria_id (UUID, optional):
+            UUID da faixa etária associada ao desconto financeiro.
+            Pode ser nulo.
+
+        periodo_escolar_id (UUID, optional):
+            UUID do período escolar associado ao desconto financeiro.
+            Pode ser nulo.
+
+        clausula_desconto_id (UUID):
+            UUID da cláusula de desconto aplicada.
+
+        tipo_lancamento (str):
+            Tipo de lançamento do desconto financeiro.
+            Deve ser um dos valores definidos em `TIPO_LANCAMENTO_CHOICES`.
+
+        quantidade (int):
+            Quantidade relacionada ao lançamento do desconto financeiro.
+
+    Notes:
+        - Todos os campos *_id utilizam SlugRelatedField com UUID.
+        - O campo `unidades_educacionais` aceita múltiplos valores.
+        - Campos com sufixo `_id` são write-only e não aparecem na resposta da API.
+    """
+
+    relatorio_financeiro_id = serializers.SlugRelatedField(
+        queryset=RelatorioFinanceiro.objects.all(),
+        slug_field="uuid",
+        source="relatorio_financeiro",
+        write_only=True,
+    )
+    unidades_educacionais = serializers.SlugRelatedField(
+        many=True,
+        queryset=Escola.objects.all(),
+        slug_field="uuid",
+        write_only=True,
+    )
+    faixa_etaria = serializers.SlugRelatedField(
+        queryset=FaixaEtaria.objects.all(),
+        slug_field="uuid",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+    periodo_escolar = serializers.SlugRelatedField(
+        queryset=PeriodoEscolar.objects.all(),
+        slug_field="nome",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+    clausula_desconto = serializers.SlugRelatedField(
+        queryset=ClausulaDeDesconto.objects.all(),
+        slug_field="uuid",
+        write_only=True,
+    )
+
+    class Meta:
+        model = DescontoFinanceiro
+        fields = [
+            "uuid",
+            "relatorio_financeiro_id",
+            "unidades_educacionais",
+            "tipo_lancamento",
+            "faixa_etaria",
+            "periodo_escolar",
+            "clausula_desconto",
+            "quantidade",
             "criado_em",
             "alterado_em",
         ]
