@@ -774,6 +774,7 @@ def test_build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei
             "categorias_dos_periodos": {
                 "INTEGRAL": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 1}]
             },
+            "recreio": False,
         }
     ]
 
