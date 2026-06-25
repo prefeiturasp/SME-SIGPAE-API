@@ -6667,26 +6667,65 @@ def _verifica_dietas_consumidas(
         }
 
 
-def mapear_dados_liquidacao_existentes(queryset):
-    return (
-        {str(obj.uuid): obj for obj in queryset},
-        {(obj.numero_empenho, obj.tipo_empenho): obj for obj in queryset},
-    )
+def mapear_dados_existentes(queryset, uuid_field="uuid", chave_composta=None):
+    """
+    Mapeia instâncias existentes por UUID e por chave composta.
+
+    Args:
+        queryset (QuerySet): Query base com os objetos existentes.
+        uuid_field (str): Nome do campo UUID no model.
+        chave_composta (list[str] | None):
+            Lista de campos usados para chave única composta.
+
+    Returns:
+        tuple:
+            dict: {uuid: instance}
+            dict: {(campo1, campo2, ...): instance}
+    """
+
+    por_uuid = {
+        str(getattr(obj, uuid_field)): obj
+        for obj in queryset
+        if getattr(obj, uuid_field, None)
+    }
+
+    por_chave = {}
+
+    if chave_composta:
+        for obj in queryset:
+            key = tuple(getattr(obj, campo) for campo in chave_composta)
+            por_chave[key] = obj
+
+    return por_uuid, por_chave
 
 
-def obter_instancia_dado_liquidacao(
+def obter_instancia_dados(
     item_data,
     existentes_por_uuid,
     existentes_por_chave,
+    chave_composta
 ):
+    """
+    Resolve instância existente via UUID ou chave composta.
+
+    Args:
+        item_data (dict): Payload recebido.
+        existentes_por_uuid (dict): Mapa UUID -> instance.
+        existentes_por_chave (dict): Mapa chave composta -> instance.
+        chave_composta (list[str]): Campos usados na chave.
+
+    Returns:
+        Model instance | None
+    """
+
     uuid = item_data.get("uuid")
 
     if uuid and str(uuid) in existentes_por_uuid:
         return existentes_por_uuid[str(uuid)]
 
-    return existentes_por_chave.get(
-        (item_data.get("numero_empenho"), item_data.get("tipo_empenho"))
-    )
+    key = tuple(item_data.get(campo) for campo in chave_composta)
+
+    return existentes_por_chave.get(key)
 
 
 def to_decimal_safe(valor):

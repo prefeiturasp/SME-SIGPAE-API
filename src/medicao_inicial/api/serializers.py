@@ -31,6 +31,7 @@ from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DescontoFinanceiro,
     DadosLiquidacao,
     DiaParaCorrigir,
     DiaSobremesaDoce,
@@ -543,3 +544,52 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
             return 0
 
         return calcular_total_pagamento(consumo, parametrizacao, tipo_calculo)
+
+
+class DescontoFinanceiroSerializer(serializers.ModelSerializer):
+    """
+    Serializer de leitura para DescontoFinanceiro.
+
+    Retorna os dados completos com relacionamentos aninhados.
+
+    Attributes:
+        relatorio_financeiro (RelatorioFinanceiroSerializer):
+            Dados do relatório financeiro associado.
+
+        unidades_educacionais (List[EscolaSerializer]):
+            Lista de unidades educacionais associadas ao desconto financeiro.
+
+        faixa_etaria (FaixaEtariaSerializer | None):
+            Dados da faixa etária associada, quando existir.
+
+        periodo_escolar (PeriodoEscolarSerializer | None):
+            Dados do período escolar associado, quando existir.
+
+        clausula_desconto (ClausulaDeDescontoSerializer):
+            Dados da cláusula de desconto aplicada.
+
+    """
+
+    relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
+    unidades_educacionais = EscolaSerializer(many=True, read_only=True)
+    faixa_etaria = FaixaEtariaSerializer(read_only=True)
+    clausula_desconto = ClausulaDeDescontoSerializer(read_only=True)
+    periodo_escolar = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field="nome",
+    )
+
+    class Meta:
+        model = DescontoFinanceiro
+        fields = [
+            "uuid",
+            "relatorio_financeiro",
+            "unidades_educacionais",
+            "tipo_lancamento",
+            "faixa_etaria",
+            "periodo_escolar",
+            "clausula_desconto",
+            "quantidade",
+            "criado_em",
+            "alterado_em",
+        ]
