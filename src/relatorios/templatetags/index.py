@@ -689,7 +689,12 @@ def slice_table(tabela, index):
 @register.filter
 def build_rows_faixas_etarias(tabela):
     html_output = []
+    recreio = tabela.get("recreio", False)
     index_inicial = 0
+
+    if recreio and tabela["faixas_etarias"]:
+        html_output.append("<th>Participantes</th>")
+
     for _, campos_list in tabela["categorias_dos_periodos"].items():
         for campos in campos_list:
             numero_campos = campos["numero_campos"] + 1
@@ -699,6 +704,8 @@ def build_rows_faixas_etarias(tabela):
             for faixa in faixas_limite:
                 if faixa == "total":
                     html_output.append('<th class="faixa-etaria">Total do Dia</th>')
+                elif recreio:
+                    html_output.append("<th>Frequência</th>")
                 else:
                     if campos["categoria"] == "ALIMENTAÇÃO":
                         html_output.append("<th>Matriculados</th><th>Frequência</th>")
@@ -714,13 +721,19 @@ def build_headers_faixas_etarias(tabela):
     faixas_etarias = tabela["faixas_etarias"]
     colunas = faixas_etarias.copy()
     campos = tabela["nomes_campos"]
+    recreio = tabela.get("recreio", False)
 
     if campos and faixas_etarias:
         colunas.extend([""] * len(campos))
 
+    if recreio and faixas_etarias:
+        html_output.append('<th class="faixa-etaria" colspan="1"></th>')
+
     for faixa in colunas:
         if faixa == "total" or faixa == "":
-            html_output.append('<th  class="faixa-etaria" colspan="1"></th>')
+            html_output.append('<th class="faixa-etaria" colspan="1"></th>')
+        elif recreio:
+            html_output.append(f'<th class="faixa-etaria" colspan="1">{faixa}</th>')
         else:
             html_output.append(f'<th class="faixa-etaria" colspan="2">{faixa}</th>')
     return "".join(html_output)
