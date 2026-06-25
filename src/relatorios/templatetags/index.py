@@ -686,6 +686,16 @@ def slice_table(tabela, index):
     return tabela[index * 30 : (index * 30) + 30]
 
 
+def _build_th_faixa(faixa, recreio, categoria):
+    if faixa == "total":
+        return '<th class="faixa-etaria">Total do Dia</th>'
+    if recreio:
+        return "<th>Frequência</th>"
+    if categoria == "ALIMENTAÇÃO":
+        return "<th>Matriculados</th><th>Frequência</th>"
+    return "<th>Aprovadas</th><th>Frequência</th>"
+
+
 @register.filter
 def build_rows_faixas_etarias(tabela):
     html_output = []
@@ -702,16 +712,9 @@ def build_rows_faixas_etarias(tabela):
                 index_inicial : index_inicial + numero_campos
             ]
             for faixa in faixas_limite:
-                if faixa == "total":
-                    html_output.append('<th class="faixa-etaria">Total do Dia</th>')
-                elif recreio:
-                    html_output.append("<th>Frequência</th>")
-                else:
-                    if campos["categoria"] == "ALIMENTAÇÃO":
-                        html_output.append("<th>Matriculados</th><th>Frequência</th>")
-                    else:
-                        html_output.append("<th>Aprovadas</th><th>Frequência</th>")
+                html_output.append(_build_th_faixa(faixa, recreio, campos["categoria"]))
             index_inicial += numero_campos
+
     return "".join(html_output)
 
 
