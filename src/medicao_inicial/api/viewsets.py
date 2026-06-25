@@ -20,6 +20,7 @@ from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
 
 from src.cardapio.utils import ordem_periodos
+from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
     valida_parametros_periodo_lancamento,
@@ -80,6 +81,7 @@ from ..models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
+    DescontoFinanceiro,
 )
 from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
@@ -101,8 +103,8 @@ from ..utils import (
     get_dict_alimentacoes_lancamentos_especiais,
     get_valor_total,
     log_alteracoes_escola_corrige_periodo,
-    mapear_dados_liquidacao_existentes,
-    obter_instancia_dado_liquidacao,
+    mapear_dados_existentes,
+    obter_instancia_dados,
     tratar_valores,
 )
 from .constants import (
@@ -129,6 +131,7 @@ from .serializers import (
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
     DadosLiquidacaoSerializer,
+    DescontoFinanceiroSerializer,
     DadosParametrizacaoFinanceiraSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
@@ -148,6 +151,7 @@ from .serializers import (
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
     DadosLiquidacaoUpdateSerializer,
+    DescontoFinanceiroUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
     EmpenhoCreateUpdateSerializer,
     InformacoesBasicasMedicaoInicialUpdateSerializer,
@@ -775,6 +779,8 @@ class SolicitacaoMedicaoInicialViewSet(
         status_solicitacao = request.query_params.get("status")
         uuid_dre = request.query_params.get("dre")
         uuid_lotes = request.query_params.getlist("lotes[]", None)
+        uuid_recreio = request.query_params.get("recreio_uuid", False)
+        contem_recreio = False
 
         query_params = request.query_params.dict()
         filtros = {"mes": mes, "ano": ano, "status": status_solicitacao}
@@ -789,6 +795,20 @@ class SolicitacaoMedicaoInicialViewSet(
 
         grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
         tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
+        nome_arquivo = (
+            f"Relatório Consolidado das Medições Inicias - "
+            f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+            f"{mes}/{ano}.xlsx"
+        )
+        if uuid_recreio:
+            recreio = RecreioNasFerias.objects.get(uuid=uuid_recreio)
+            filtros["recreio_nas_ferias_id"] = recreio.id
+            nome_arquivo = (
+                f"Relatório Consolidado das Medições Inicias - "
+                f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+                f"Recreio nas Férias {mes}/{ano}.xlsx"
+            )
+            contem_recreio = True
 
         historico_valido = HistoricoEscola.objects.filter(
             escola=OuterRef("escola"),
@@ -819,14 +839,11 @@ class SolicitacaoMedicaoInicialViewSet(
 
         exporta_relatorio_consolidado_xlsx.delay(
             user=request.user.get_username(),
-            nome_arquivo=(
-                f"Relatório Consolidado das Medições Inicias - "
-                f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
-                f"{mes}/{ano}.xlsx"
-            ),
+            nome_arquivo=nome_arquivo,
             solicitacoes=list(solicitacoes_com_filtro),
             tipos_de_unidade=list(tipos_unidades.values_list("iniciais", flat=True)),
             query_params=query_params,
+            contem_recreio=contem_recreio,
         )
 
         return Response(
@@ -2418,7 +2435,9 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 data_inicial__lte=datetime.date(
                     ano, mes, calendar.monthrange(ano, mes)[1]
                 ),
-                data_final__gte=datetime.date(ano, mes, 1),
+            ).filter(
+                Q(data_final__gte=datetime.date(ano, mes, 1))
+                | Q(data_final__isnull=True)
             ).first()
 
             if not parametrizacao:
@@ -2597,18 +2616,20 @@ class DadosLiquidacaoViewSet(ModelViewSet):
             relatorio_financeiro__uuid=uuid_relatorio_financeiro
         )
 
-        existentes_por_uuid, existentes_por_chave = mapear_dados_liquidacao_existentes(
-            queryset
+        existentes_por_uuid, existentes_por_chave = mapear_dados_existentes(
+            queryset,
+            chave_composta=["numero_empenho", "tipo_empenho"]
         )
 
         resultado = []
         ids_processados = set()
 
         for item_data in request.data:
-            instancia = obter_instancia_dado_liquidacao(
+            instancia = obter_instancia_dados(
                 item_data,
                 existentes_por_uuid,
                 existentes_por_chave,
+                ["numero_empenho", "tipo_empenho"]
             )
 
             serializer = DadosLiquidacaoUpdateSerializer(
@@ -2629,5 +2650,182 @@ class DadosLiquidacaoViewSet(ModelViewSet):
 
         return Response(
             DadosLiquidacaoSerializer(resultado, many=True).data,
+            status=status.HTTP_200_OK,
+        )
+
+
+class DescontoFinanceiroViewSet(ModelViewSet):
+    """
+    ViewSet responsável pelo gerenciamento de DescontoFinanceiro.
+
+    Endpoints padrão:
+        - GET /dados-desconto-financeiro/
+        - POST /dados-desconto-financeiro/
+        - PUT /dados-desconto-financeiro/{id}/
+        - PATCH /dados-desconto-financeiro/{id}/
+        - DELETE /dados-desconto-financeiro/{id}/
+
+    Funcionalidades adicionais:
+        - Filtro por relatório financeiro via query param
+        - Registro em lote de dados de desconto financeiro
+
+    Query Params:
+        relatorio_financeiro (UUID, optional):
+            Filtra os registros pelo UUID do relatório financeiro.
+
+    Serializers:
+        - DescontoFinanceiroSerializer: Usado para leitura
+        - DescontoFinanceiroUpdateSerializer: Usado para escrita
+    """
+
+    queryset = DescontoFinanceiro.objects.all()
+
+    def get_permissions(self):
+        """
+        Define permissões baseadas no método HTTP.
+
+        Returns:
+            list: Lista de instâncias de permissões aplicáveis.
+        """
+
+        if self.request.method in SAFE_METHODS:
+            permission_classes = [
+                UsuarioMedicao
+                | UsuarioCODAEGestaoAlimentacao
+                | UsuarioCODAEGabinete
+                | UsuarioCODAENutriManifestacao
+                | UsuarioDinutreDiretoria
+            ]
+        else:
+            permission_classes = [UsuarioMedicao]
+
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        """
+        Retorna o serializer adequado com base na ação.
+
+        Returns:
+            Serializer: Classe de serializer apropriada.
+        """
+
+        if self.action in ["create", "update", "partial_update"]:
+            return DescontoFinanceiroUpdateSerializer
+
+        return DescontoFinanceiroSerializer
+
+    def get_queryset(self):
+        """
+        Filtra o queryset pelo relatório financeiro.
+
+        Returns:
+            QuerySet: Lista filtrada de DescontoFinanceiro.
+        """
+
+        queryset = super().get_queryset()
+        relatorio_uuid = self.request.query_params.get("relatorio_financeiro")
+
+        if relatorio_uuid:
+            queryset = queryset.filter(relatorio_financeiro__uuid=relatorio_uuid)
+
+        return queryset
+
+    @action(
+        detail=False,
+        methods=["put"],
+        url_path=r"aplicar-descontos/(?P<uuid_relatorio_financeiro>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    @transaction.atomic
+    def registrar_descontos(self, request, uuid_relatorio_financeiro=None):
+        """
+        Registra ou atualiza múltiplos dados de desconto financeiro em lote.
+
+        Esse endpoint realiza:
+            - Criação de novos registros
+            - Atualização de registros existentes
+            - Remoção de registros não enviados na requisição
+
+        Args:
+            request (Request): Lista de dados de desconto financeiro.
+            uuid_relatorio_financeiro (UUID): UUID do relatório financeiro.
+
+        Request Body:
+            list[dict]: Lista contendo:
+                - uuid (optional)
+                - tipo_lancamento (str)
+                - faixa_etaria_id (UUID, optional)
+                - periodo_escolar_id (UUID, optional)
+                - clausula_desconto_id (UUID)
+                - quantidade (int)
+                - unidades_educacionais (list[UUID])
+
+        Returns:
+            Response: Lista de registros processados.
+
+        Raises:
+            ValidationError: Caso o payload não seja uma lista ou seja inválido.
+
+        Notes:
+            - Operação é atômica (rollback total em caso de erro).
+            - Registros não enviados serão removidos.
+            - Identificação pode ocorrer por UUID ou chave composta.
+
+        Status Codes:
+            200 OK: Sucesso.
+            400 Bad Request: Erro de validação.
+        """
+
+        if not isinstance(request.data, list):
+            raise ValidationError("Envie uma lista de dados.")
+
+        queryset = DescontoFinanceiro.objects.filter(
+            relatorio_financeiro__uuid=uuid_relatorio_financeiro
+        )
+
+        existentes_por_uuid, existentes_por_chave = mapear_dados_existentes(
+            queryset,
+            chave_composta=[
+                "tipo_lancamento",
+                "clausula_desconto_id",
+                "faixa_etaria_id",
+                "periodo_escolar_id",
+            ],
+        )
+
+        resultado = []
+        ids_processados = set()
+
+        for item_data in request.data:
+            instancia = obter_instancia_dados(
+                item_data,
+                existentes_por_uuid,
+                existentes_por_chave,
+                [
+                    "tipo_lancamento",
+                    "clausula_desconto_id",
+                    "faixa_etaria_id",
+                    "periodo_escolar_id",
+                ],
+            )
+
+            serializer = DescontoFinanceiroUpdateSerializer(
+                instance=instancia,
+                data={
+                    **item_data,
+                    "relatorio_financeiro_id": uuid_relatorio_financeiro,
+                },
+            )
+
+            serializer.is_valid(raise_exception=True)
+            obj = serializer.save()
+
+            ids_processados.add(obj.id)
+            resultado.append(obj)
+
+        queryset.exclude(id__in=ids_processados).delete()
+
+        return Response(
+            DescontoFinanceiroSerializer(resultado, many=True).data,
             status=status.HTTP_200_OK,
         )

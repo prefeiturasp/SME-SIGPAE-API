@@ -1,3 +1,5 @@
+import importlib
+
 from django.contrib import admin
 
 from src.recebimento.forms import QuestaoForm
@@ -11,6 +13,8 @@ from src.recebimento.models import (
     ReposicaoCronogramaFichaRecebimento,
     VeiculoFichaDeRecebimento,
 )
+
+importlib.import_module("src.recebimento.ajuste_saldo_laudo.admin")
 
 
 @admin.register(QuestaoConferencia)
