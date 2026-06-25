@@ -7355,3 +7355,10 @@ def solicitacao_recreio_cemei(
                 )
 
     return solicitacao_recreio_nas_ferias
+
+
+@pytest.fixture
+def solicitacao_recreio_emei(solicitacao_recreio_emef, escola_emei):
+    solicitacao_recreio_emef.escola = escola_emei
+    solicitacao_recreio_emef.save()
+    return solicitacao_recreio_emef
