@@ -186,6 +186,7 @@ AUTH_PASSWORD_VALIDATORS = [
 DEV_MIDDLEWARE = []
 
 MIDDLEWARE = [
+    "src.apm_middleware.APMEnsureTransactionMiddleware",
     "elasticapm.contrib.django.middleware.TracingMiddleware",
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -407,7 +408,7 @@ logging.config.dictConfig(
                 "filename": "terceirizadas.log",
             },
             "elasticapm": {
-                "level": "WARNING",
+                "level": "DEBUG",
                 "class": "elasticapm.contrib.django.handlers.LoggingHandler",
             },
         },
@@ -420,6 +421,11 @@ logging.config.dictConfig(
             "sigpae": {
                 "level": "DEBUG",
                 "handlers": ["console"],
+            },
+            "elasticapm": {
+                "level": "DEBUG",
+                "handlers": ["console"],
+                "propagate": False,
             },
             "elasticapm.errors": {
                 "level": "ERROR",
