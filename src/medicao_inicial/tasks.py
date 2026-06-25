@@ -41,6 +41,7 @@ from ..relatorios.relatorios import (
     relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_cei,
     relatorio_solicitacao_medicao_por_escola_cemei,
+    relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_emebs,
     gerar_relatorio_ateste_financeiro,
 )
@@ -231,6 +232,7 @@ def get_relatorio_solicitacao_medicao_por_escola(solicitacao):
 
     _RELATORIO_MAP = [
         (tem_recreio and eh_cei, relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias),
+        (tem_recreio and escola.eh_cemei_data(data_ref), relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias),
         (tem_recreio, relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias),
         (eh_cei, relatorio_solicitacao_medicao_por_escola_cei),
         (escola.eh_cemei_data(data_ref), relatorio_solicitacao_medicao_por_escola_cemei),
