@@ -739,6 +739,20 @@ def build_headers_faixas_etarias(tabela):
     return "".join(html_output)
 
 
+@register.simple_tag
+def label_categoria_recreio_cemei(categoria, periodo):
+    if categoria.upper() != "ALIMENTAÇÃO":
+        return categoria.upper()
+    periodo_upper = periodo.upper()
+    if "4 A 14" in periodo_upper:
+        return "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES - DE 4 A 14 ANOS"
+    if "0 A 3" in periodo_upper or "0 A 3 ANOS" in periodo_upper:
+        return "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES - DE 0 A 3 ANOS E 11 MESES"
+    if "COLABORADORES" in periodo_upper:
+        return "ALIMENTAÇÕES PARA COLABORADORES"
+    return categoria.upper()
+
+
 @register.filter
 def check_tipo_usuario(tipo_usuario):
     return tipo_usuario in [
