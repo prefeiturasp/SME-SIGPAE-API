@@ -1854,6 +1854,7 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         - Todos os campos *_id utilizam SlugRelatedField com UUID.
         - O campo `unidades_educacionais` aceita múltiplos valores.
         - Campos com sufixo `_id` são write-only e não aparecem na resposta da API.
+        - Quando não houver tipo de alimentação e faixa etária, o desconto é de um kit lanche.
     """
 
     relatorio_financeiro_id = serializers.SlugRelatedField(
@@ -1923,27 +1924,47 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         grupo_nome = (
             getattr(relatorio.grupo_unidade_escolar, "nome", "") or ""
         ).upper()
+
         if "GRUPO 1" in grupo_nome:
-            self._validar_grupo_faixa_etaria(attrs)
-        else:
-            self._validar_grupo_tipo_alimentacao(attrs)
+            self._validar_grupo_cei(attrs)
+        elif "GRUPO 2" not in grupo_nome:
+            self._validar_grupo_emei(attrs)
 
         return attrs
 
-    def _validar_grupo_faixa_etaria(self, attrs):
+    def _validar_grupo_cei(self, attrs):
         errors = {}
 
-        if not attrs.get("faixa_etaria") and not getattr(self.instance, "faixa_etaria", None):
-            errors["faixa_etaria"] = "Campo obrigatório para Grupo 1."
+        faixa_etaria = (
+            attrs.get("faixa_etaria")
+            or getattr(self.instance, "faixa_etaria", None)
+        )
 
-        if not attrs.get("periodo_escolar") and not getattr(self.instance, "periodo_escolar", None):
-            errors["periodo_escolar"] = "Campo obrigatório para Grupo 1."
+        periodo_escolar = (
+            attrs.get("periodo_escolar")
+            or getattr(self.instance, "periodo_escolar", None)
+        )
+
+        if not faixa_etaria:
+            errors["faixa_etaria"] = "Campo obrigatório para o grupo."
+
+        if not periodo_escolar:
+            errors["periodo_escolar"] = "Campo obrigatório para o grupo."
 
         if errors:
             raise serializers.ValidationError(errors)
 
-    def _validar_grupo_tipo_alimentacao(self, attrs):
-        if not attrs.get("tipo_alimentacao") and not getattr(self.instance, "tipo_alimentacao", None):
-            raise serializers.ValidationError({
-                "tipo_alimentacao": "Campo obrigatório para grupos diferentes de Grupo 1."
-            })
+    def _validar_grupo_emei(self, attrs):
+        faixa_etaria = (
+            attrs.get("faixa_etaria")
+            or getattr(self.instance, "faixa_etaria", None)
+        )
+
+        errors = {}
+        if faixa_etaria:
+            errors["faixa_etaria"] = (
+                "Não é permitido informar faixa etária para este grupo."
+            )
+
+        if errors:
+            raise serializers.ValidationError(errors)
