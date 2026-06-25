@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
+    _get_lista_alimentacoes,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
@@ -168,3 +169,46 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_recreio_emei):
     assert sheet["K3"].value == "COLABORADORES"
     assert sheet["K3"].fill.fgColor.rgb == "FFB40C02"
     workbook_openpyxl.close()
+
+
+def test_get_lista_alimentacoes(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    medicao_recreio_nas_ferias = medicoes[1]
+
+    lista_alimentacoes_colaboradores = _get_lista_alimentacoes(
+        medicao_colaboradores, "Colaboradores", {}
+    )
+    assert isinstance(lista_alimentacoes_colaboradores, list)
+    assert lista_alimentacoes_colaboradores == [
+        "refeicao",
+        "repeticao_refeicao",
+        "repeticao_sobremesa",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+
+    lista_alimentacoes_recreio = _get_lista_alimentacoes(
+        medicao_recreio_nas_ferias, "Recreio nas Férias", {}
+    )
+    assert isinstance(lista_alimentacoes_recreio, list)
+    assert lista_alimentacoes_recreio == [
+        "refeicao",
+        "repeticao_refeicao",
+        "repeticao_sobremesa",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+
+    lista_alimentacoes_solicitacao = _get_lista_alimentacoes(
+        medicao_recreio_nas_ferias, "Solicitações de Alimentação", {}
+    )
+    assert isinstance(lista_alimentacoes_solicitacao, list)
+    assert lista_alimentacoes_solicitacao == [
+        "refeicao",
+        "repeticao_refeicao",
+        "repeticao_sobremesa",
+        "sobremesa",
+    ]
