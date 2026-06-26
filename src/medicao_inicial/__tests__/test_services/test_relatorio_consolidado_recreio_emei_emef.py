@@ -7,6 +7,7 @@ import pytest
 
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
+    _calcula_soma_medicao,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _processa_periodo_campo,
@@ -312,7 +313,6 @@ def test_sort_and_merge():
     assert dict_periodos_dietas["Solicitações de Alimentação"] == [
         "lanche_emergencial",
         "kit_lanche",
-
     ]
 
 
@@ -408,3 +408,26 @@ def test_processa_grupos_recreio(solicitacao_recreio_emei):
     campo = "kit_lanche"
     with pytest.raises(Exception):
         processa_grupos_recreio(solicitacao_recreio_emei, filtros, campo, periodo, {})
+
+
+def test_calcula_soma_medicao(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    medicao_recreio = medicoes[1]
+
+    campo = "refeicao"
+    categoria = ["ALIMENTAÇÃO"]
+    total_recreio = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
+    assert total_recreio == 1260.0
+
+    total_colaboradores = _calcula_soma_medicao(
+        medicao_colaboradores, campo, categoria, {}
+    )
+    assert total_colaboradores == 280.0
+
+    categoria = [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+    ]
+    total_dieta = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
+    assert total_dieta == 14.0
