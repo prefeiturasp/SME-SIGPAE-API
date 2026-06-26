@@ -504,6 +504,35 @@ ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
     "Colaboradores": 5,
 }
 
+ORDEM_CAMPOS_RECREIO = [
+    "numero_de_alunos",
+    "participantes",
+    "matriculados",
+    "aprovadas",
+    "frequencia",
+    "solicitado",
+    "consumido",
+    "desjejum",
+    "lanche",
+    "lanche_4h",
+    "2_lanche_4h",
+    "2_lanche_5h",
+    "lanche_extra",
+    "colacao",
+    "refeicao",
+    "repeticao_refeicao",
+    "2_refeicao_1_oferta",
+    "repeticao_2_refeicao",
+    "total_refeicoes_pagamento",
+    "sobremesa",
+    "repeticao_sobremesa",
+    "2_sobremesa_1_oferta",
+    "repeticao_2_sobremesa",
+    "total_sobremesas_pagamento",
+    "lanche_emergencial",
+    "kit_lanche",
+]
+
 
 class StatusProcessamentoArquivo(Enum):
     PENDENTE = "PENDENTE"
