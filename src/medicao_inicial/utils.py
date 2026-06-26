@@ -4751,12 +4751,6 @@ def _build_somatorio_tabela_emei(medicao_4a14, medicao_solicitacoes, mes_ano):
             + [str(soma_sol)]
         )
 
-    linhas.append(
-        ["Total", str(total_alim)]
-        + [str(totais_dietas[cat]) for cat in categorias_dieta]
-        + [str(total_solicitacoes)]
-    )
-
     return {
         "titulo": "Alimentações para alunos - de 4 a 14 anos",
         "header": ["Tipos de Alimentação", "Total de Alimentações"] + categorias_dieta + ["Solicitações de Alimentação"],
