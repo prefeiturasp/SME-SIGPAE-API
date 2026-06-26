@@ -756,6 +756,23 @@ def label_categoria_recreio_cemei(categoria, periodo):
     return categoria.upper()
 
 
+@register.simple_tag
+def classe_periodo_recreio_cemei(categoria, periodo):
+    nome = categoria.nome if hasattr(categoria, "nome") else str(categoria)
+    nome_lower = nome.lower()
+    periodo_lower = str(periodo).lower()
+
+    if "colaborador" in nome_lower or "colaborador" in periodo_lower:
+        return "cor-periodo-grupo-5"
+    if "dieta" in nome_lower:
+        return "cor-periodo-grupo-1"
+    if "0 a 3" in periodo_lower:
+        return "cor-periodo-grupo-2"
+    if "4 a 14" in periodo_lower:
+        return "cor-periodo-grupo-3"
+    return "cor-periodo-grupo-1"
+
+
 @register.filter
 def check_tipo_usuario(tipo_usuario):
     return tipo_usuario in [
