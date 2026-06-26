@@ -355,6 +355,8 @@ def valida_dietas_emei_da_cemei(
         list: Lista de erros atualizada contendo eventuais pendências de lançamentos.
     """
     medicao_recreio_emei = solicitacao.medicoes.filter(grupo__nome=GRUPO_EMEI).first()
+    if not medicao_recreio_emei:
+        return erros_unicos(lista_erros)
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
     valores_medicao = get_valores_medicao_set(
         medicao_recreio_emei,
@@ -429,6 +431,9 @@ def valida_dietas_cei_da_cemei(
         list: Lista única de erros contendo eventuais pendências de lançamentos.
     """
     medicao_recreio_cei = solicitacao.medicoes.filter(grupo__nome=GRUPO_CEI).first()
+
+    if not medicao_recreio_cei:
+        return erros_unicos(lista_erros)
     categorias = list(
         CategoriaMedicao.objects.filter(
             nome__in=["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
@@ -438,6 +443,8 @@ def valida_dietas_cei_da_cemei(
         medicao_recreio_cei,
         categorias,
     )
+    print("valida_dietas_cei_da_cemei")
+    print(valores_medicao)
     logs_indexados = get_logs_indexados_recreio_cei(
         solicitacao.escola,
         solicitacao.recreio_nas_ferias.data_inicio,
