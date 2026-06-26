@@ -1952,20 +1952,12 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
 def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitacao):
     try:
         tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
-        dict_total_refeicoes = get_total_por_periodo(
-            tabelas, "total_refeicoes_pagamento", True
-        )
-        dict_total_sobremesas = get_total_por_periodo(
-            tabelas, "total_sobremesas_pagamento", True
-        )
+
         tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
             "nome", flat=True
         )
         tipos_contagem_alimentacao = ", ".join(list(set(tipos_contagem_alimentacao)))
-        tabelas_somatorios_cei = build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao)
-        tabelas_somatorios_infantil = build_tabela_somatorio_body(
-            solicitacao, dict_total_refeicoes, dict_total_sobremesas
-        )
+        tabelas_somatorios = build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao)
 
         observacoes = build_lista_campos_observacoes(solicitacao)
 
@@ -1989,8 +1981,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitaca
                 "tabelas": tabelas,
                 "tabela_observacoes_cei": tabela_observacoes_cei,
                 "tabela_observacoes_infantil": tabela_observacoes_infantil,
-                "tabelas_somatorios_cei": tabelas_somatorios_cei,
-                "tabelas_somatorios_infantil": tabelas_somatorios_infantil,
+                "tabelas_somatorios": tabelas_somatorios,
             },
         )
         if (
