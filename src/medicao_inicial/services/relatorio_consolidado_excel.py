@@ -22,13 +22,17 @@ from src.medicao_inicial.services import (
     relatorio_consolidado_cieja_cmct,
     relatorio_consolidado_emebs,
     relatorio_consolidado_emei_emef,
+    relatorio_consolidado_recreio_emei_emef,
 )
 
 from ..models import SolicitacaoMedicaoInicial
 
 
 def gera_relatorio_consolidado_xlsx(
-    solicitacoes_uuid: list[UUID], tipos_de_unidade: list[str], query_params: dict
+    solicitacoes_uuid: list[UUID],
+    tipos_de_unidade: list[str],
+    query_params: dict,
+    contem_recreio: bool,
 ) -> bytes:
     """
     Gera relatório consolidado em formato XLSX baseado nas solicitações fornecidas.
@@ -49,16 +53,32 @@ def gera_relatorio_consolidado_xlsx(
     """
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(uuid__in=solicitacoes_uuid)
     try:
-        modulo_da_unidade, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
-        colunas = modulo_da_unidade.get_alimentacoes_por_periodo(
-            solicitacoes, query_params=query_params
-        )
-        linhas = modulo_da_unidade.get_valores_tabela(
-            solicitacoes, colunas, *parametros, query_params=query_params
-        )
+        if contem_recreio:
+            modulo_da_unidade, parametros = _obter_modulo_da_unidade_recreio(
+                tipos_de_unidade
+            )
+            colunas = modulo_da_unidade.get_alimentacoes_por_periodo(
+                solicitacoes, query_params=query_params
+            )
+            linhas = modulo_da_unidade.get_valores_tabela(
+                solicitacoes, colunas, *parametros, query_params=query_params
+            )
+        else:
+            modulo_da_unidade, parametros = _obter_modulo_da_unidade(tipos_de_unidade)
+            colunas = modulo_da_unidade.get_alimentacoes_por_periodo(
+                solicitacoes, query_params=query_params
+            )
+            linhas = modulo_da_unidade.get_valores_tabela(
+                solicitacoes, colunas, *parametros, query_params=query_params
+            )
 
         arquivo_excel = _gera_excel(
-            tipos_de_unidade, query_params, colunas, linhas, modulo_da_unidade
+            tipos_de_unidade,
+            query_params,
+            colunas,
+            linhas,
+            modulo_da_unidade,
+            contem_recreio,
         )
     except Exception as e:
         raise e
@@ -117,12 +137,45 @@ def _obter_modulo_da_unidade(tipos_de_unidade: list[str]) -> tuple:
     raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
 
 
+def _obter_modulo_da_unidade_recreio(tipos_de_unidade: list[str]) -> tuple:
+    """
+    Identifica o módulo de relatório consolidado apropriado para os tipos de unidade do Recreio nas Férias.
+
+    Determina qual módulo de geração de relatório consolidado deve ser utilizado baseado nos tipos de unidade fornecidos,
+    seguindo uma estratégia de prioridade definida por grupos pré-estabelecidos
+
+    Args:
+        tipos_de_unidade (list[str]): Lista de tipos de unidade (siglas) para as quais identificar o módulo apropriado.
+
+    Raises:
+        ValueError: Se nenhum módulo for encontrado para os tipos de unidade fornecidos, indicando que os tipos não estão mapeados
+        em nenhum grupo conhecido.
+
+    Returns:
+        tuple: Tupla contendo:
+            - modulo: Módulo de relatório consolidado a ser utilizado
+            - parametros (list): Lista de parâmetros a serem passados para o módulo
+    """
+    estrategias = [
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEI,
+            "modulo": relatorio_consolidado_recreio_emei_emef,
+            "parametros": [tipos_de_unidade],
+        },
+    ]
+    for estrategia in estrategias:
+        if set(tipos_de_unidade).issubset(estrategia["unidades"]):
+            return estrategia["modulo"], estrategia["parametros"]
+    raise ValueError(f"Unidades inválidas: {tipos_de_unidade}")
+
+
 def _gera_excel(
     tipos_de_unidade: list[str],
     query_params: dict,
     colunas: list[tuple],
     linhas: list[list[str | float]],
     modulo_da_unidade: object,
+    contem_recreio: bool,
 ) -> bytes:
     """
     Gera arquivo Excel em memória com relatório consolidado formatado.
@@ -157,7 +210,12 @@ def _gera_excel(
         )
         _preenche_titulo(workbook, worksheet, df.columns)
         _preenche_linha_dos_filtros_selecionados(
-            workbook, worksheet, query_params, df.columns, tipos_de_unidade
+            workbook,
+            worksheet,
+            query_params,
+            df.columns,
+            tipos_de_unidade,
+            contem_recreio,
         )
         modulo_da_unidade.ajusta_layout_tabela(workbook, worksheet, df)
         _formata_total_geral(workbook, worksheet, df, tipos_de_unidade)
@@ -256,6 +314,7 @@ def _preenche_linha_dos_filtros_selecionados(
     query_params: dict,
     colunas: pd.MultiIndex,
     tipos_de_unidade: list[str],
+    contem_recreio: bool,
 ) -> None:
     """
     Adiciona e formata a linha de filtros selecionados na planilha Excel.
@@ -273,7 +332,7 @@ def _preenche_linha_dos_filtros_selecionados(
     Returns:
         None: A função modifica o worksheet in-place e não retorna valores.
     """
-    filtros = _formata_filtros(query_params, tipos_de_unidade)
+    filtros = _formata_filtros(query_params, tipos_de_unidade, contem_recreio)
     formatacao = workbook.add_format(
         {
             "align": "center",
@@ -288,7 +347,9 @@ def _preenche_linha_dos_filtros_selecionados(
     worksheet.set_row(1, 30)
 
 
-def _formata_filtros(query_params: dict, tipos_de_unidade: list[str]) -> str:
+def _formata_filtros(
+    query_params: dict, tipos_de_unidade: list[str], contem_recreio: bool
+) -> str:
     """
     Formata string descritiva dos filtros aplicados no relatório.
 
@@ -304,7 +365,10 @@ def _formata_filtros(query_params: dict, tipos_de_unidade: list[str]) -> str:
     """
     mes = query_params.get("mes")
     ano = query_params.get("ano")
-    filtros = f"{converte_numero_em_mes(int(mes))}/{ano}"
+    sufixo = ""
+    if contem_recreio:
+        sufixo = "RECREIO NAS FÉRIAS - "
+    filtros = f"{sufixo}{converte_numero_em_mes(int(mes))}/{ano}"
 
     dre_uuid = query_params.get("dre")
     if dre_uuid:
@@ -325,5 +389,4 @@ def _formata_filtros(query_params: dict, tipos_de_unidade: list[str]) -> str:
         data_inicial_formatada = date.fromisoformat(data_inicial).strftime("%d/%m/%Y")
         data_final_formatada = date.fromisoformat(data_final).strftime("%d/%m/%Y")
         filtros += f" - {data_inicial_formatada} a {data_final_formatada}"
-
     return filtros

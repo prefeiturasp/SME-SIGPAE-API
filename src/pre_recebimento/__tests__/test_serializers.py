@@ -42,6 +42,10 @@ from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
 from src.pre_recebimento.layout_embalagem.api.serializers.serializers import (
     PainelLayoutEmbalagemSerializer,
 )
+from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
+    FichaTecnicaSimplesSerializer,
+)
+from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 pytestmark = pytest.mark.django_db
 
@@ -658,3 +662,15 @@ def test_cronograma_relatorio_serializer(cronograma_assinado_perfil_dilog):
     assert data["armazem"] == cronograma.armazem.nome_fantasia
     assert data["marca"] == cronograma.ficha_tecnica.marca.nome
     assert isinstance(data["etapas"], list)
+
+
+def test_ficha_tecnica_simples_serializer_expoe_ponto_a_ponto():
+    ficha_tecnica = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+
+    dados = FichaTecnicaSimplesSerializer(ficha_tecnica).data
+
+    assert dados["ponto_a_ponto"] is True
+    assert "flv_ponto_a_ponto" not in dados

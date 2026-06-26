@@ -25,16 +25,10 @@ from src.terceirizada.api.serializers.serializers import (
 class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
     produto = NomeDeProdutoEditalSerializer()
     uuid_empresa = serializers.SerializerMethodField()
-    flv_ponto_a_ponto = serializers.SerializerMethodField()
+    ponto_a_ponto = serializers.BooleanField(read_only=True)
 
     def get_uuid_empresa(self, obj):
         return obj.empresa.uuid if obj.empresa else None
-
-    def get_flv_ponto_a_ponto(self, obj):
-        return (
-            obj.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV
-            and obj.tipo_entrega == FichaTecnicaDoProduto.PONTO_A_PONTO
-        )
 
     class Meta:
         model = FichaTecnicaDoProduto
@@ -45,7 +39,7 @@ class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
             "uuid_empresa",
             "pregao_chamada_publica",
             "programa",
-            "flv_ponto_a_ponto",
+            "ponto_a_ponto",
         )
 
 
@@ -72,19 +66,13 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
     criado_em = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     programa = serializers.CharField()
-    flv_ponto_a_ponto = serializers.SerializerMethodField()
+    ponto_a_ponto = serializers.BooleanField(read_only=True)
 
     def get_nome_produto(self, obj):
         return obj.produto.nome if obj.produto else None
 
     def get_criado_em(self, obj):
         return obj.criado_em.strftime("%d/%m/%Y")
-
-    def get_flv_ponto_a_ponto(self, obj):
-        return (
-            obj.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV
-            and obj.tipo_entrega == FichaTecnicaDoProduto.PONTO_A_PONTO
-        )
 
     class Meta:
         model = FichaTecnicaDoProduto
@@ -96,7 +84,7 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
             "criado_em",
             "status",
             "programa",
-            "flv_ponto_a_ponto",
+            "ponto_a_ponto",
         )
 
 
