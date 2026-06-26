@@ -16,6 +16,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
     processa_dieta_especial,
+    processa_grupos_recreio,
 )
 
 pytestmark = pytest.mark.django_db
@@ -382,3 +383,27 @@ def test_processa_dieta_especial(solicitacao_recreio_emei):
         solicitacao_recreio_emei, filtros, campo, periodo, {}
     )
     assert total == 14
+
+
+def test_processa_grupos_recreio(solicitacao_recreio_emei):
+    periodo = "Recreio nas Férias"
+    filtros = {"grupo__nome": periodo}
+    campo = "refeicao"
+    total = processa_grupos_recreio(
+        solicitacao_recreio_emei, filtros, campo, periodo, {}
+    )
+    assert total == 1260.0
+
+    periodo = "Colaboradores"
+    filtros = {"grupo__nome": periodo}
+    campo = "refeicao"
+    total = processa_grupos_recreio(
+        solicitacao_recreio_emei, filtros, campo, periodo, {}
+    )
+    assert total == 280.0
+
+    periodo = "Solicitações de Alimentação"
+    filtros = {"grupo__nome": periodo}
+    campo = "kit_lanche"
+    with pytest.raises(Exception):
+        processa_grupos_recreio(solicitacao_recreio_emei, filtros, campo, periodo, {})
