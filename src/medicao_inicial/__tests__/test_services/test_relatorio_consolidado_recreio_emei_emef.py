@@ -4,9 +4,11 @@ import openpyxl
 import pandas as pd
 import pytest
 
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
+    _processa_periodo_campo,
     _sort_and_merge,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
@@ -308,3 +310,50 @@ def test_sort_and_merge():
         "kit_lanche",
         "lanche_emergencial",
     ]
+
+
+def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
+    valores_iniciais = [
+        solicitacao_recreio_emei.escola.tipo_unidade.iniciais,
+        solicitacao_recreio_emei.escola.codigo_eol,
+        solicitacao_recreio_emei.escola.nome,
+    ]
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    recreio_refeicao = _processa_periodo_campo(
+        solicitacao_recreio_emei,
+        "Recreio nas Férias",
+        "refeicao",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(recreio_refeicao, list)
+    assert len(recreio_refeicao) == 4
+    assert recreio_refeicao == ["EMEI", "987654", "EMEI TESTE", 1260.0]
+
+    solicitacao_kit_lanche = _processa_periodo_campo(
+        solicitacao_recreio_emei,
+        "Solicitações de Alimentação",
+        "kit_lanche",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(solicitacao_kit_lanche, list)
+    assert len(solicitacao_kit_lanche) == 5
+    assert solicitacao_kit_lanche == ["EMEI", "987654", "EMEI TESTE", 1260.0, "-"]
+
+    dieta_a_lanche = _processa_periodo_campo(
+        solicitacao_recreio_emei,
+        "DIETA ESPECIAL - TIPO A",
+        "lanche_4h",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(dieta_a_lanche, list)
+    assert len(dieta_a_lanche) == 6
+    assert dieta_a_lanche == ["EMEI", "987654", "EMEI TESTE", 1260.0, "-", "-"]
