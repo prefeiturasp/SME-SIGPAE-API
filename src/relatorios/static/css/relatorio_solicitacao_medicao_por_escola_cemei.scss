@@ -345,6 +345,10 @@
   }
 }
 
+.somatorio-titulo-tabela {
+  height: 16px;
+}
+
 .titulo-tabela-somatorio,
 .titulo-tabela-observacoes {
   font-family: "Roboto", sans-serif;
@@ -574,6 +578,14 @@ table.tabela-valores-medicao {
 
     .head-tabelas-somatorio {
       tr {
+        .somatorio-titulo-tabela-cei {
+            height: 12px !important;
+            background-color: #de9524 !important;
+        }
+        .somatorio-titulo-tabela-emei {
+            height: 12px !important;
+            background-color: #2f80ed !important;
+        }
         th {
           height: 25px;
           background-color: $verde-escuro;

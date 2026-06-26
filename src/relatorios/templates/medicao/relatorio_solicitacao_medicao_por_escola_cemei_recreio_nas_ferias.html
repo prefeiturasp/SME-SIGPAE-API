@@ -214,53 +214,23 @@
     <div class="somatorio-recreio-wrapper-cei">
 
     {% if s.tabela_cei %}
-    <div class="tabela-dieta-left">
-
-      <div class="tabelas-somatorio-dietas mb-2">
-        <table class="tabela-dieta-participantes-cei">
-          <thead class="head-tabelas-somatorio">
-            <tr class="texto-branco">
-              {% for col in s.tabela_cei.header %}
-                <th class="col-1 uppercase">{{ col }}</th>
-              {% endfor %}
-            </tr>
-          </thead>
-
-          <tbody class="body-tabelas-somatorio">
-            {% for linha in s.tabela_cei.valores_campos %}
-              <tr>
-                {% for val in linha %}
-                  <td class="col-1">{{ val }}</td>
-                {% endfor %}
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      {% if s.tabela_cei.legenda %}
-        <div class="info-abaixo-tabela mb-4">
-          {{ s.tabela_cei.legenda }}
-        </div>
-      {% endif %}
-    </div>
-    {% endif %}
-
-    <div class="tabelas-somatorio-container-direita tabela-dieta-right">
-      {% if s.tabela_emei %}
-      <div>
+      <div class="tabela-dieta-left">
         <div class="tabelas-somatorio-dietas mb-2">
           <table class="tabela-dieta-participantes-cei">
             <thead class="head-tabelas-somatorio">
+              {% if s.tabela_cei.titulo %}
+              <tr class="texto-branco somatorio-titulo-tabela-cei">
+                <th class="uppercase text-center somatorio-titulo-tabela-cei" colspan="{{ s.tabela_cei.header|length }}">{{ s.tabela_cei.titulo }}</th>
+              </tr>
+              {% endif %}
               <tr class="texto-branco">
-                {% for col in s.tabela_emei.header %}
+                {% for col in s.tabela_cei.header %}
                   <th class="col-1 uppercase">{{ col }}</th>
                 {% endfor %}
               </tr>
             </thead>
-
             <tbody class="body-tabelas-somatorio">
-              {% for linha in s.tabela_emei.valores_campos %}
+              {% for linha in s.tabela_cei.valores_campos %}
                 <tr>
                   {% for val in linha %}
                     <td class="col-1">{{ val }}</td>
@@ -270,14 +240,49 @@
             </tbody>
           </table>
         </div>
-
-        {% if s.tabela_emei.legenda %}
+        {% if s.tabela_cei.legenda %}
           <div class="info-abaixo-tabela mb-4">
-            {{ s.tabela_emei.legenda }}
+            {{ s.tabela_cei.legenda }}
           </div>
         {% endif %}
       </div>
+    {% endif %}
+
+  <div class="tabelas-somatorio-container-direita tabela-dieta-right">
+    {% if s.tabela_emei %}
+    <div>
+      <div class="tabelas-somatorio-dietas mb-2">
+        <table class="tabela-dieta-participantes-cei">
+          <thead class="head-tabelas-somatorio">
+            {% if s.tabela_emei.titulo %}
+            <tr class="texto-branco somatorio-titulo-tabela-emei">
+              <th class="col-1 uppercase text-center somatorio-titulo-tabela-emei" colspan="{{ s.tabela_emei.header|length }}">{{ s.tabela_emei.titulo }}</th>
+            </tr>
+            {% endif %}
+            <tr class="texto-branco">
+              {% for col in s.tabela_emei.header %}
+                <th class="col-1 uppercase">{{ col }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="body-tabelas-somatorio">
+            {% for linha in s.tabela_emei.valores_campos %}
+              <tr>
+                {% for val in linha %}
+                  <td class="col-1">{{ val }}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if s.tabela_emei.legenda %}
+        <div class="info-abaixo-tabela mb-4">
+          {{ s.tabela_emei.legenda }}
+        </div>
       {% endif %}
+    </div>
+    {% endif %}
 
 
       {% if s.tabela_colaboradores %}
