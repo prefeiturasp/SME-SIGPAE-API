@@ -205,7 +205,10 @@
     {% include "medicao/_header_medicao.html" with referencia=solicitacao.recreio_nas_ferias.titulo %}
 
     <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">
-      SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS NO PERÍODO DE RECREIO NAS FÉRIAS
+      SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS NO PERÍODO DE
+      {{ solicitacao.recreio_nas_ferias.data_inicio|date:"d/m/Y" }}
+      ATÉ
+      {{ solicitacao.recreio_nas_ferias.data_fim|date:"d/m/Y" }}
     </h1>
 
     <div class="somatorio-recreio-wrapper-cei">
