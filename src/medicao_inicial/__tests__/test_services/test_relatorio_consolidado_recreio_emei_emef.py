@@ -1,3 +1,4 @@
+import math
 from io import BytesIO
 
 import openpyxl
@@ -14,6 +15,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import
     get_alimentacoes_por_periodo,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
+    processa_dieta_especial,
 )
 
 pytestmark = pytest.mark.django_db
@@ -357,3 +359,26 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 6
     assert dieta_a_lanche == ["EMEI", "987654", "EMEI TESTE", 1260.0, "-", "-"]
+
+
+def test_processa_dieta_especial(solicitacao_recreio_emei):
+    grupo = "Recreio nas Férias"
+    filtros = {"grupo__nome": grupo}
+    campo = "refeicao"
+    total = processa_dieta_especial(solicitacao_recreio_emei, filtros, campo, grupo, {})
+    assert total == "-"
+
+    grupo = "Solicitações de Alimentação"
+    filtros = {"grupo__nome": grupo}
+    campo = "kit_lanche"
+    total = processa_dieta_especial(solicitacao_recreio_emei, filtros, campo, grupo, {})
+    assert total == "-"
+
+    grupo = "Recreio nas Férias"
+    filtros = {"grupo__nome": grupo}
+    periodo = "DIETA ESPECIAL - TIPO A"
+    campo = "refeicao"
+    total = processa_dieta_especial(
+        solicitacao_recreio_emei, filtros, campo, periodo, {}
+    )
+    assert total == 14
