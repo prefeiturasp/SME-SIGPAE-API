@@ -1,7 +1,6 @@
 import datetime
 from calendar import monthrange
 from typing import Callable
-import traceback
 
 import environ
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -1950,57 +1949,53 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
 
 
 def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitacao):
-    try:
-        tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
+    tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
 
-        tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
-            "nome", flat=True
-        )
-        tipos_contagem_alimentacao = ", ".join(list(set(tipos_contagem_alimentacao)))
-        tabelas_somatorios = build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao)
+    tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
+        "nome", flat=True
+    )
+    tipos_contagem_alimentacao = ", ".join(list(set(tipos_contagem_alimentacao)))
+    tabelas_somatorios = build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao)
 
-        observacoes = build_lista_campos_observacoes(solicitacao)
+    observacoes = build_lista_campos_observacoes(solicitacao)
 
-        tabela_observacoes_cei = []
-        tabela_observacoes_infantil = []
+    tabela_observacoes_cei = []
+    tabela_observacoes_infantil = []
 
-        for observacao in observacoes:
-            if "0 a 3 anos" in observacao[4]:
-                tabela_observacoes_cei.append(observacao)
-            else:
-                tabela_observacoes_infantil.append(observacao)
-
-        html_string = render_to_string(
-            "medicao/relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias.html",
-            {
-                "solicitacao": solicitacao,
-                "tipos_contagem_alimentacao": tipos_contagem_alimentacao,
-                "responsaveis": solicitacao.responsaveis.all(),
-                "assinatura_escola": solicitacao.assinatura_ue,
-                "assinatura_dre": solicitacao.assinatura_dre,
-                "tabelas": tabelas,
-                "tabela_observacoes_cei": tabela_observacoes_cei,
-                "tabela_observacoes_infantil": tabela_observacoes_infantil,
-                "tabelas_somatorios": tabelas_somatorios,
-            },
-        )
-        if (
-            solicitacao.status
-            == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
-        ):
-            return html_to_pdf_file(
-                html_string, "relatorio_dieta_especial.pdf", is_async=True
-            )
+    for observacao in observacoes:
+        if observacao[1] in ["INTEGRAL", "PARCIAL"]:
+            tabela_observacoes_cei.append(observacao)
         else:
-            return html_to_pdf_watermark(
-                html_string,
-                "relatorio_dieta_especial.pdf",
-                ARQUIVO_MARCA_DAGUA_PRELIMINAR,
-                is_async=True,
-            )
-    except Exception as e:
-        print(traceback.format_exc())
-        raise e
+            tabela_observacoes_infantil.append(observacao)
+
+    html_string = render_to_string(
+        "medicao/relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias.html",
+        {
+            "solicitacao": solicitacao,
+            "tipos_contagem_alimentacao": tipos_contagem_alimentacao,
+            "responsaveis": solicitacao.responsaveis.all(),
+            "assinatura_escola": solicitacao.assinatura_ue,
+            "assinatura_dre": solicitacao.assinatura_dre,
+            "tabelas": tabelas,
+            "tabela_observacoes_cei": tabela_observacoes_cei,
+            "tabela_observacoes_infantil": tabela_observacoes_infantil,
+            "tabelas_somatorios": tabelas_somatorios,
+        },
+    )
+    if (
+        solicitacao.status
+        == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
+    ):
+        return html_to_pdf_file(
+            html_string, "relatorio_dieta_especial.pdf", is_async=True
+        )
+    else:
+        return html_to_pdf_watermark(
+            html_string,
+            "relatorio_dieta_especial.pdf",
+            ARQUIVO_MARCA_DAGUA_PRELIMINAR,
+            is_async=True,
+        )
 
 
 def calcula_mostrar_header_fundamental_emebs(
