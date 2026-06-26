@@ -312,12 +312,16 @@ def _sort_and_merge(
         }
     """
     periodos_alimentacoes = {
-        chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS_RECREIO.index(valor))
+        chave: sorted(
+            list(set(valores)), key=lambda valor: ORDEM_CAMPOS_RECREIO.index(valor)
+        )
         for chave, valores in periodos_alimentacoes.items()
     }
 
     dietas_alimentacoes = {
-        chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS_RECREIO.index(valor))
+        chave: sorted(
+            list(set(valores)), key=lambda valor: ORDEM_CAMPOS_RECREIO.index(valor)
+        )
         for chave, valores in dietas_alimentacoes.items()
     }
 
@@ -532,7 +536,7 @@ def processa_grupos_recreio(
         else tipo_unidade
     )
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-        if grupo == 'Colaboradores':
+        if grupo == "Colaboradores":
             return total_pagamento_recreio_emef(medicao, campo, query_params)
         elif iniciais in ORDEM_UNIDADES_GRUPO_EMEF.keys():
             return total_pagamento_recreio_emef(medicao, campo, query_params)
