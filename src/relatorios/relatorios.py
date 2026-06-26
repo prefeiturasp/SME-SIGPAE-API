@@ -1965,7 +1965,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitaca
         tabela_observacoes_infantil = []
 
         for observacao in observacoes:
-            if observacao[1] in ["INTEGRAL", "PARCIAL"]:
+            if "0 a 3 anos" in observacao[4]:
                 tabela_observacoes_cei.append(observacao)
             else:
                 tabela_observacoes_infantil.append(observacao)
