@@ -22,6 +22,7 @@ from .models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
+    DescontoFinanceiro,
 )
 
 admin.site.register(AlimentacaoLancamentoEspecial)
@@ -224,6 +225,11 @@ class RelatorioFinanceiroAdmin(admin.ModelAdmin):
 @admin.register(DadosLiquidacao)
 class DadosLiquidacaoAdmin(admin.ModelAdmin):
     list_display = ("__str__", "relatorio_financeiro")
+
+
+@admin.register(DescontoFinanceiro)
+class DescontoFinanceiroAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "relatorio_financeiro", "quantidade")
 
 
 importlib.import_module("src.medicao_inicial.recreio_nas_ferias.admin")

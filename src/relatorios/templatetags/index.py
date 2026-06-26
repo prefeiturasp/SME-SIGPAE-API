@@ -686,10 +686,25 @@ def slice_table(tabela, index):
     return tabela[index * 30 : (index * 30) + 30]
 
 
+def _build_th_faixa(faixa, recreio, categoria):
+    if faixa == "total":
+        return '<th class="faixa-etaria">Total do Dia</th>'
+    if recreio:
+        return "<th>Frequência</th>"
+    if categoria == "ALIMENTAÇÃO":
+        return "<th>Matriculados</th><th>Frequência</th>"
+    return "<th>Aprovadas</th><th>Frequência</th>"
+
+
 @register.filter
 def build_rows_faixas_etarias(tabela):
     html_output = []
+    recreio = tabela.get("recreio", False)
     index_inicial = 0
+
+    if recreio and tabela["faixas_etarias"]:
+        html_output.append("<th>Participantes</th>")
+
     for _, campos_list in tabela["categorias_dos_periodos"].items():
         for campos in campos_list:
             numero_campos = campos["numero_campos"] + 1
@@ -697,14 +712,9 @@ def build_rows_faixas_etarias(tabela):
                 index_inicial : index_inicial + numero_campos
             ]
             for faixa in faixas_limite:
-                if faixa == "total":
-                    html_output.append('<th class="faixa-etaria">Total do Dia</th>')
-                else:
-                    if campos["categoria"] == "ALIMENTAÇÃO":
-                        html_output.append("<th>Matriculados</th><th>Frequência</th>")
-                    else:
-                        html_output.append("<th>Aprovadas</th><th>Frequência</th>")
+                html_output.append(_build_th_faixa(faixa, recreio, campos["categoria"]))
             index_inicial += numero_campos
+
     return "".join(html_output)
 
 
@@ -714,16 +724,53 @@ def build_headers_faixas_etarias(tabela):
     faixas_etarias = tabela["faixas_etarias"]
     colunas = faixas_etarias.copy()
     campos = tabela["nomes_campos"]
+    recreio = tabela.get("recreio", False)
 
     if campos and faixas_etarias:
         colunas.extend([""] * len(campos))
 
+    if recreio and faixas_etarias:
+        html_output.append('<th class="faixa-etaria" colspan="1"></th>')
+
     for faixa in colunas:
         if faixa == "total" or faixa == "":
-            html_output.append('<th  class="faixa-etaria" colspan="1"></th>')
+            html_output.append('<th class="faixa-etaria" colspan="1"></th>')
+        elif recreio:
+            html_output.append(f'<th class="faixa-etaria" colspan="1">{faixa}</th>')
         else:
             html_output.append(f'<th class="faixa-etaria" colspan="2">{faixa}</th>')
     return "".join(html_output)
+
+
+@register.simple_tag
+def label_categoria_recreio_cemei(categoria, periodo):
+    if categoria.upper() != "ALIMENTAÇÃO":
+        return categoria.upper()
+    periodo_upper = periodo.upper()
+    if "4 A 14" in periodo_upper:
+        return "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES - DE 4 A 14 ANOS"
+    if "0 A 3" in periodo_upper or "0 A 3 ANOS" in periodo_upper:
+        return "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES - DE 0 A 3 ANOS E 11 MESES"
+    if "COLABORADORES" in periodo_upper:
+        return "ALIMENTAÇÕES PARA COLABORADORES"
+    return categoria.upper()
+
+
+@register.simple_tag
+def classe_periodo_recreio_cemei(categoria, periodo):
+    nome = categoria.nome if hasattr(categoria, "nome") else str(categoria)
+    nome_lower = nome.lower()
+    periodo_lower = str(periodo).lower()
+
+    if "colaborador" in nome_lower or "colaborador" in periodo_lower:
+        return "cor-periodo-grupo-5"
+    if "dieta" in nome_lower:
+        return "cor-periodo-grupo-1"
+    if "0 a 3" in periodo_lower:
+        return "cor-periodo-grupo-2"
+    if "4 a 14" in periodo_lower:
+        return "cor-periodo-grupo-3"
+    return "cor-periodo-grupo-1"
 
 
 @register.filter
