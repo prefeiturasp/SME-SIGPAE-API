@@ -2797,6 +2797,9 @@ class DescontoFinanceiroViewSet(ModelViewSet):
         ids_processados = set()
 
         for item_data in request.data:
+            if item_data.get("tipo_alimentacao") == "kit_lanche":
+                item_data["tipo_alimentacao"] = None
+
             instancia = obter_instancia_dados(
                 item_data,
                 existentes_por_uuid,
