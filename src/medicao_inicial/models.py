@@ -1085,35 +1085,42 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         RelatorioFinanceiro,
         to_field="uuid",
         on_delete=models.PROTECT,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
     )
     unidades_educacionais = models.ManyToManyField(
         Escola,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
     )
     tipo_lancamento = models.CharField(
         "Tipo de lançamento",
         max_length=30,
         choices=TIPO_LANCAMENTO_CHOICES,
     )
+    tipo_alimentacao = models.ForeignKey(
+        "cardapio.TipoAlimentacao",
+        on_delete=models.PROTECT,
+        related_name="descontos_financeiros",
+        null=True,
+        blank=True,
+    )
     faixa_etaria = models.ForeignKey(
         "escola.FaixaEtaria",
         on_delete=models.PROTECT,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
         null=True,
         blank=True,
     )
     periodo_escolar = models.ForeignKey(
         PeriodoEscolar,
         on_delete=models.PROTECT,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
         null=True,
         blank=True,
     )
     clausula_desconto = models.ForeignKey(
         ClausulaDeDesconto,
         on_delete=models.PROTECT,
-        related_name="dados_desconto_financeiro",
+        related_name="descontos_financeiros",
     )
     quantidade = models.PositiveIntegerField(
         "Quantidade",
@@ -1122,10 +1129,10 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
     def __str__(self):
         return (
             f"{self.get_tipo_lancamento_display()} - "
-            f"{self.quantidade} - R$ {self.total_desconto}"
+            f"{self.tipo_alimentacao.nome if self.tipo_alimentacao else self.faixa_etaria}"
         )
 
     class Meta:
-        verbose_name = "Dado de desconto financeiro"
-        verbose_name_plural = "Dados de desconto financeiro"
+        verbose_name = "Desconto Financeiro"
+        verbose_name_plural = "Descontos Financeiros"
         ordering = ["-alterado_em"]

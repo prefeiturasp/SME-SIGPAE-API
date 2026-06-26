@@ -1854,6 +1854,7 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         - Todos os campos *_id utilizam SlugRelatedField com UUID.
         - O campo `unidades_educacionais` aceita múltiplos valores.
         - Campos com sufixo `_id` são write-only e não aparecem na resposta da API.
+        - Quando não houver tipo de alimentação e faixa etária, o desconto é de um kit lanche.
     """
 
     relatorio_financeiro_id = serializers.SlugRelatedField(
@@ -1867,6 +1868,13 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         queryset=Escola.objects.all(),
         slug_field="uuid",
         write_only=True,
+    )
+    tipo_alimentacao = serializers.SlugRelatedField(
+        queryset=TipoAlimentacao.objects.all(),
+        slug_field="uuid",
+        write_only=True,
+        required=False,
+        allow_null=True,
     )
     faixa_etaria = serializers.SlugRelatedField(
         queryset=FaixaEtaria.objects.all(),
@@ -1895,6 +1903,7 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             "relatorio_financeiro_id",
             "unidades_educacionais",
             "tipo_lancamento",
+            "tipo_alimentacao",
             "faixa_etaria",
             "periodo_escolar",
             "clausula_desconto",
@@ -1902,3 +1911,60 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             "criado_em",
             "alterado_em",
         ]
+
+    def validate(self, attrs):
+        relatorio = (
+            attrs.get("relatorio_financeiro")
+            or getattr(self.instance, "relatorio_financeiro", None)
+        )
+
+        if not relatorio:
+            return attrs
+
+        grupo_nome = (
+            getattr(relatorio.grupo_unidade_escolar, "nome", "") or ""
+        ).upper()
+
+        if "GRUPO 1" in grupo_nome:
+            self._validar_grupo_cei(attrs)
+        elif "GRUPO 2" not in grupo_nome:
+            self._validar_grupo_emei(attrs)
+
+        return attrs
+
+    def _validar_grupo_cei(self, attrs):
+        errors = {}
+
+        faixa_etaria = (
+            attrs.get("faixa_etaria")
+            or getattr(self.instance, "faixa_etaria", None)
+        )
+
+        periodo_escolar = (
+            attrs.get("periodo_escolar")
+            or getattr(self.instance, "periodo_escolar", None)
+        )
+
+        if not faixa_etaria:
+            errors["faixa_etaria"] = "Campo obrigatório para o grupo."
+
+        if not periodo_escolar:
+            errors["periodo_escolar"] = "Campo obrigatório para o grupo."
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+    def _validar_grupo_emei(self, attrs):
+        faixa_etaria = (
+            attrs.get("faixa_etaria")
+            or getattr(self.instance, "faixa_etaria", None)
+        )
+
+        errors = {}
+        if faixa_etaria:
+            errors["faixa_etaria"] = (
+                "Não é permitido informar faixa etária para este grupo."
+            )
+
+        if errors:
+            raise serializers.ValidationError(errors)

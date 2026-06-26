@@ -573,6 +573,7 @@ class DescontoFinanceiroSerializer(serializers.ModelSerializer):
     relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
     unidades_educacionais = EscolaSerializer(many=True, read_only=True)
     faixa_etaria = FaixaEtariaSerializer(read_only=True)
+    tipo_alimentacao = TipoAlimentacaoSerializer(read_only=True)
     clausula_desconto = ClausulaDeDescontoSerializer(read_only=True)
     periodo_escolar = serializers.SlugRelatedField(
         read_only=True,
@@ -586,6 +587,7 @@ class DescontoFinanceiroSerializer(serializers.ModelSerializer):
             "relatorio_financeiro",
             "unidades_educacionais",
             "tipo_lancamento",
+            "tipo_alimentacao",
             "faixa_etaria",
             "periodo_escolar",
             "clausula_desconto",

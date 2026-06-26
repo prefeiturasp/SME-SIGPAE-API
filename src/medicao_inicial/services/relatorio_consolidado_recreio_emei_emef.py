@@ -8,8 +8,10 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
     NOMES_CAMPOS,
-    ORDEM_CAMPOS,
+    ORDEM_CAMPOS_RECREIO,
     ORDEM_HEADERS_RECREIO_EMEI_EMEF,
+    ORDEM_UNIDADES_GRUPO_EMEF,
+    ORDEM_UNIDADES_GRUPO_EMEI,
 )
 from src.medicao_inicial.models import (
     CategoriaMedicao,
@@ -18,13 +20,15 @@ from src.medicao_inicial.models import (
 )
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
-    _get_total_pagamento,
+    _total_pagamento_emei,
+    calcula_totais_pagamento_emef,
 )
 from src.medicao_inicial.services.utils import (
     filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
     gera_colunas_alimentacao,
     get_categorias_dietas,
+    get_filtros_intervalo_dias,
     get_nome_periodo,
     get_valores_iniciais,
     update_dietas_alimentacoes,
@@ -281,7 +285,7 @@ def _sort_and_merge(
     Regras aplicadas:
 
     - Remove valores duplicados.
-    - Ordena os campos internos conforme ORDEM_CAMPOS.
+    - Ordena os campos internos conforme ORDEM_CAMPOS_RECREIO.
     - Junta períodos e dietas em um único dicionário.
     - Ordena os grupos conforme ORDEM_HEADERS_RECREIO_EMEI_EMEF.
 
@@ -308,12 +312,16 @@ def _sort_and_merge(
         }
     """
     periodos_alimentacoes = {
-        chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
+        chave: sorted(
+            list(set(valores)), key=lambda valor: ORDEM_CAMPOS_RECREIO.index(valor)
+        )
         for chave, valores in periodos_alimentacoes.items()
     }
 
     dietas_alimentacoes = {
-        chave: sorted(list(set(valores)), key=lambda valor: ORDEM_CAMPOS.index(valor))
+        chave: sorted(
+            list(set(valores)), key=lambda valor: ORDEM_CAMPOS_RECREIO.index(valor)
+        )
         for chave, valores in dietas_alimentacoes.items()
     }
 
@@ -407,8 +415,6 @@ def _processa_periodo_campo(
             total = processa_grupos_recreio(
                 solicitacao, filtros, campo, grupo, query_params
             )
-        if total is None:
-            total = "-"
         valores.append(total)
     except Exception:
         valores.append("-")
@@ -530,7 +536,12 @@ def processa_grupos_recreio(
         else tipo_unidade
     )
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
-        return _get_total_pagamento(medicao, campo, iniciais, query_params)
+        if grupo == "Colaboradores":
+            return total_pagamento_recreio_emef(medicao, campo, query_params)
+        elif iniciais in ORDEM_UNIDADES_GRUPO_EMEF.keys():
+            return total_pagamento_recreio_emef(medicao, campo, query_params)
+        elif iniciais in ORDEM_UNIDADES_GRUPO_EMEI.keys():
+            return total_pagamento_recreio_emei(medicao, campo, query_params)
 
     categorias = (
         [grupo.upper()] if grupo == "Solicitações de Alimentação" else ["ALIMENTAÇÃO"]
@@ -637,3 +648,41 @@ def ajusta_layout_tabela(
     worksheet.set_row(4, None, None, {"hidden": True})
     worksheet.set_row(2, 25)
     worksheet.set_row(3, 40)
+
+
+def total_pagamento_recreio_emef(medicao, nome_campo, query_params=None):
+    """
+    Para EMEF: O total é sempre menor valor entre os matriculados e o que foi servido.
+    """
+    total_pagamento = 0
+
+    filtros_dias = get_filtros_intervalo_dias(query_params)
+    recreio = medicao.solicitacao_medicao_inicial.recreio_nas_ferias
+    dia_inicial = int(filtros_dias.get("dia__gte", recreio.data_inicio.day))
+    dia_final = int(filtros_dias.get("dia__lte", recreio.data_fim.day))
+
+    for dia in range(dia_inicial, dia_final + 1):
+        if nome_campo == "total_refeicoes_pagamento":
+            total_pagamento += calcula_totais_pagamento_emef(
+                "refeicao",
+                "repeticao_refeicao",
+                "2_refeicao_1_oferta",
+                "repeticao_2_refeicao",
+                medicao,
+                dia,
+            )
+        elif nome_campo == "total_sobremesas_pagamento":
+            total_pagamento += calcula_totais_pagamento_emef(
+                "sobremesa",
+                "repeticao_sobremesa",
+                "2_sobremesa_1_oferta",
+                "repeticao_2_sobremesa",
+                medicao,
+                dia,
+            )
+    return total_pagamento
+
+
+def total_pagamento_recreio_emei(medicao, campo, query_params):
+    total_pagamento = _total_pagamento_emei(medicao, campo, query_params)
+    return 0 if total_pagamento is None else total_pagamento
