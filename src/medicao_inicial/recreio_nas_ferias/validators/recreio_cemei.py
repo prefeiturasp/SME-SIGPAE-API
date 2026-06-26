@@ -405,35 +405,43 @@ def valida_dietas_emei_da_cemei(
     return lista_erros
 
 
+def _valida_faixas_etarias(
+    dia: str,
+    categoria,
+    classificacoes,
+    valores_medicao,
+    mes: str,
+    ano: str,
+    logs_indexados,
+    faixas
+) -> bool:
+    """Valida todas as faixas etárias para um dia e categoria específicos."""
+    for faixa in faixas:
+        if validate_lancamento_dietas_cei(
+            dia=dia,
+            categoria=categoria,
+            classificacoes=classificacoes,
+            valores_medicao=valores_medicao,
+            mes=mes,
+            ano=ano,
+            logs_indexados=logs_indexados,
+            faixa_etaria=faixa,
+        ):
+            return True
+    return False
+
+
 def valida_dietas_cei_da_cemei(
     solicitacao: SolicitacaoMedicaoInicial,
     alimentacoes: list[str],
     dias_letivos: list[str],
     lista_erros: list,
 ) -> list:
-    """Valida os lançamentos de dietas da medição do grupo CEI da CEMEI para o período de recreio
-    nas férias, considerando as dietas especiais por faixa etária.
-
-    A validação percorre as categorias de dieta especial permitidas, os dias letivos
-    do recreio e todas as faixas etárias ativas, verificando se existem lançamentos
-    pendentes para cada combinação. Caso sejam identificadas pendências, um erro é
-    adicionado à lista e o processamento é interrompido.
-
-    Args:
-        solicitacao (SolicitacaoMedicaoInicial): Solicitação de medição contendo as medições, escola
-            e informações do recreio nas férias.
-        alimentacoes (list[str]): Lista de alimentações disponíveis utilizadas para filtrar as categorias
-            válidas de dietas.
-        dias_letivos (list[str]): Lista dos dias letivos do período do recreio formatados para validação.
-        lista_erros (list): Lista acumulada de erros encontrados durante o processo de validação.
-
-    Returns:
-        list: Lista única de erros contendo eventuais pendências de lançamentos.
-    """
     medicao_recreio_cei = solicitacao.medicoes.filter(grupo__nome=GRUPO_CEI).first()
 
     if not medicao_recreio_cei:
         return erros_unicos(lista_erros)
+
     categorias = list(
         CategoriaMedicao.objects.filter(
             nome__in=["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
@@ -443,8 +451,6 @@ def valida_dietas_cei_da_cemei(
         medicao_recreio_cei,
         categorias,
     )
-    print("valida_dietas_cei_da_cemei")
-    print(valores_medicao)
     logs_indexados = get_logs_indexados_recreio_cei(
         solicitacao.escola,
         solicitacao.recreio_nas_ferias.data_inicio,
@@ -461,28 +467,24 @@ def valida_dietas_cei_da_cemei(
         for dia in dias_letivos:
             if buscar_erro_por_periodo(lista_erros, medicao_recreio_cei, "dietas"):
                 return erros_unicos(lista_erros)
-            for faixa in faixas:
-                periodo_com_erro = validate_lancamento_dietas_cei(
-                    dia=dia,
-                    categoria=categoria,
-                    classificacoes=classificacoes,
-                    valores_medicao=valores_medicao,
-                    mes=solicitacao.mes,
-                    ano=solicitacao.ano,
-                    logs_indexados=logs_indexados,
-                    faixa_etaria=faixa,
-                )
 
-                if periodo_com_erro:
-                    lista_erros.append(
-                        {
-                            "periodo_escolar": medicao_recreio_cei.grupo.nome,
-                            "erro": "Restam dias a serem lançados nas dietas.",
-                        }
-                    )
-                    return erros_unicos(
-                        lista_erros,
-                    )
+            if _valida_faixas_etarias(
+                dia=dia,
+                categoria=categoria,
+                classificacoes=classificacoes,
+                valores_medicao=valores_medicao,
+                mes=solicitacao.mes,
+                ano=solicitacao.ano,
+                logs_indexados=logs_indexados,
+                faixas=faixas,
+            ):
+                lista_erros.append(
+                    {
+                        "periodo_escolar": medicao_recreio_cei.grupo.nome,
+                        "erro": "Restam dias a serem lançados nas dietas.",
+                    }
+                )
+                return erros_unicos(lista_erros)
 
     return erros_unicos(lista_erros)
 
