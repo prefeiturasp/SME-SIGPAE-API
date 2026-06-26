@@ -32,6 +32,7 @@ from django.db.models import Model, QuerySet
 from django.http import QueryDict
 from django.template.loader import render_to_string
 from django_celery_beat.schedulers import DatabaseScheduler
+from rest_framework.exceptions import ValidationError
 from workalendar.america import BrazilSaoPauloCity
 
 from config.settings.base import URL_CONFIGS
@@ -201,6 +202,24 @@ def convert_date_format(date, from_format, to_format):
     return datetime.datetime.strftime(
         datetime.datetime.strptime(date, from_format), to_format
     )
+
+
+def parse_date(value: str) -> datetime.date:
+    """Converte uma string no formato DD/MM/YYYY para um objeto date.
+
+    Args:
+        value: String contendo a data no formato DD/MM/YYYY.
+
+    Returns:
+        datetime.date correspondente à string informada.
+
+    Raises:
+        ValidationError: Se a string não estiver no formato esperado.
+    """
+    try:
+        return datetime.datetime.strptime(value, "%d/%m/%Y").date()
+    except ValueError:
+        raise ValidationError(f"Formato de data inválido: {value}. Use DD/MM/YYYY")
 
 
 def size(b64string):
