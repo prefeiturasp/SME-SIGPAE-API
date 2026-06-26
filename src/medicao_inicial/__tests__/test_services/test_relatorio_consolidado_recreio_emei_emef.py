@@ -7,6 +7,7 @@ import pytest
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
+    _sort_and_merge,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
@@ -257,3 +258,53 @@ def test_get_lista_alimentacoes_dietas(solicitacao_recreio_emei):
     lista_dietas_b = _get_lista_alimentacoes_dietas(medicao_colaboradores, dieta_b, {})
     assert isinstance(lista_dietas_b, list)
     assert len(lista_dietas_b) == 0
+
+
+def test_sort_and_merge():
+    periodos_alimentacoes = {
+        "Recreio nas Férias": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+            "sobremesa",
+            "total_refeicoes_pagamento",
+            "total_sobremesas_pagamento",
+        ],
+        "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+    }
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
+    assert isinstance(dict_periodos_dietas, dict)
+
+    assert "DIETA ESPECIAL - TIPO A" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO A"]) == 3
+    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO A"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+    ]
+
+    assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 2
+    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == ["lanche", "lanche_4h"]
+
+    assert "Recreio nas Férias" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["Recreio nas Férias"]) == 6
+    assert dict_periodos_dietas["Recreio nas Férias"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "total_refeicoes_pagamento",
+        "sobremesa",
+        "total_sobremesas_pagamento",
+    ]
+
+    assert "Solicitações de Alimentação" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["Solicitações de Alimentação"]) == 2
+    assert dict_periodos_dietas["Solicitações de Alimentação"] == [
+        "kit_lanche",
+        "lanche_emergencial",
+    ]
