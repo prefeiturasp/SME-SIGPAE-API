@@ -6,6 +6,7 @@ import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
     _get_lista_alimentacoes,
+    _get_lista_alimentacoes_dietas,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
@@ -212,3 +213,47 @@ def test_get_lista_alimentacoes(solicitacao_recreio_emei):
         "repeticao_sobremesa",
         "sobremesa",
     ]
+
+
+def test_get_lista_alimentacoes_dietas(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_recreio_nas_ferias = medicoes[1]
+    dieta_a = "DIETA ESPECIAL - TIPO A"
+    dieta_a_enteral_restricao = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
+    dieta_b = "DIETA ESPECIAL - TIPO B"
+
+    lista_dietas_a = _get_lista_alimentacoes_dietas(
+        medicao_recreio_nas_ferias, dieta_a, {}
+    )
+    assert isinstance(lista_dietas_a, list)
+    assert len(lista_dietas_a) == 0
+
+    lista_dietas_a_er = _get_lista_alimentacoes_dietas(
+        medicao_recreio_nas_ferias, dieta_a_enteral_restricao, {}
+    )
+    assert isinstance(lista_dietas_a_er, list)
+    assert len(lista_dietas_a_er) == 1
+    assert lista_dietas_a_er == ["refeicao"]
+
+    lista_dietas_b = _get_lista_alimentacoes_dietas(
+        medicao_recreio_nas_ferias, dieta_b, {}
+    )
+    assert isinstance(lista_dietas_b, list)
+    assert len(lista_dietas_b) == 0
+
+    medicao_colaboradores = medicoes[0]
+    lista_dietas_a = _get_lista_alimentacoes_dietas(medicao_colaboradores, dieta_a, {})
+    assert isinstance(lista_dietas_a, list)
+    assert len(lista_dietas_a) == 0
+
+    lista_dietas_a_er = _get_lista_alimentacoes_dietas(
+        medicao_colaboradores, dieta_a_enteral_restricao, {}
+    )
+    assert isinstance(lista_dietas_a_er, list)
+    assert len(lista_dietas_a_er) == 0
+
+    lista_dietas_b = _get_lista_alimentacoes_dietas(medicao_colaboradores, dieta_b, {})
+    assert isinstance(lista_dietas_b, list)
+    assert len(lista_dietas_b) == 0
