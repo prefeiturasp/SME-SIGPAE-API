@@ -2289,35 +2289,8 @@ def popula_campo_solicitado(
 def popula_campo_total(
     tabela, campo, valores_dia, indice_categoria, indice_campo, categoria_corrente
 ):
-    if campo in ["matriculados", "numero_de_alunos", "frequencia", "aprovadas", "participantes"]:
-        valores_dia += ["-"]
-    else:
-        try:
-            if indice_categoria == 0:
-                values = [
-                    valores[tabela["nomes_campos"].index(campo) + 1]
-                    for valores in tabela["valores_campos"]
-                ]
-            else:
-                i = 1
-                indice_valor_campo = 0
-                while i <= indice_categoria:
-                    indice_valor_campo += tabela["len_categorias"][indice_categoria - i]
-                    i += 1
-                indice_valor_campo += indice_campo
-                values = [
-                    valores[indice_valor_campo + 1]
-                    for valores in tabela["valores_campos"]
-                ]
-            valores_dia += [sum(int(x) for x in values)]
-        except Exception:
-            valores_dia += ["0"]
-
-
-def popula_campo_total_cei(
-    tabela, campo, valores_dia, indice_categoria, indice_campo, categoria_corrente
-):
-    if campo in ["matriculados", "numero_de_alunos", "frequencia", "aprovadas"]:
+    if campo in ["matriculados", "numero_de_alunos", "frequencia", "aprovadas", "refeicao", "repeticao_refeicao",
+                 "repeticao_sobremesa", "sobremesa"]:
         valores_dia += ["-"]
     else:
         try:
@@ -4626,29 +4599,29 @@ def build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao):
     mes_ano = f"{solicitacao.mes}/{solicitacao.ano}"
 
     # --- Tabela 1: 0 a 3 anos ---
-    tabela1 = _build_somatorio_tabela1_0a3(medicao_0a3, mes_ano) if medicao_0a3 else None
+    tabela_cei = _build_somatorio_tabela_cei(medicao_0a3, mes_ano) if medicao_0a3 else None
 
     # --- Tabela 2: 4 a 14 anos ---
-    tabela2 = _build_somatorio_tabela2_4a14(medicao_4a14, medicao_solicitacoes, mes_ano) if medicao_4a14 else None
+    tabela_emei = _build_somatorio_tabela_emei(medicao_4a14, medicao_solicitacoes, mes_ano) if medicao_4a14 else None
 
     # --- Tabela 3: Colaboradores ---
-    tabela3 = None
+    tabela_colaboradores = None
     if medicao_colaboradores:
-        tabela3 = {
+        tabela_colaboradores = {
             "header": ["Tipos de Alimentação", "Total de Alimentações para Colaboradores"],
             "valores_campos": _build_linhas_colab_somatorio(medicao_colaboradores),
             "legenda": f"*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - {mes_ano}",
         }
 
     return {
-        "tabela1": tabela1,
-        "tabela2": tabela2,
-        "tabela3": tabela3,
+        "tabela_cei": tabela_cei,
+        "tabela_emei": tabela_emei,
+        "tabela_colaboradores": tabela_colaboradores,
         "periodo": mes_ano,
     }
 
 
-def _build_somatorio_tabela1_0a3(medicao, mes_ano):
+def _build_somatorio_tabela_cei(medicao, mes_ano):
     categorias_dieta = list(
         medicao.valores_medicao
         .exclude(categoria_medicao__nome="ALIMENTAÇÃO")
@@ -4712,7 +4685,7 @@ def _build_somatorio_tabela1_0a3(medicao, mes_ano):
     }
 
 
-def _build_somatorio_tabela2_4a14(medicao_4a14, medicao_solicitacoes, mes_ano):
+def _build_somatorio_tabela_emei(medicao_4a14, medicao_solicitacoes, mes_ano):
     CAMPOS_EXCLUIDOS_SOMATORIO_RECREIO = [
         "observacoes", "participantes", "frequencia",
         "repeticao_refeicao", "repeticao_sobremesa",
