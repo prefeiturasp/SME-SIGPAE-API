@@ -4,7 +4,8 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models import Q
 from django.db.utils import IntegrityError
-from django_prometheus.models import ExportModelOperationsMixin
+
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI

@@ -3,12 +3,12 @@
 import uuid
 
 import django.db.models.deletion
-import django_prometheus.models
 import django_xworkflows.models
 from django.conf import settings
 from django.db import migrations, models
 
 import src.dados_comuns.behaviors
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 
 class Migration(migrations.Migration):
@@ -150,9 +150,7 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Alterações de cardápio CEI",
             },
             bases=(
-                django_prometheus.models.ExportModelOperationsMixin(
-                    "alteracao_cardapio_cei"
-                ),
+                ExportModelOperationsMixin("alteracao_cardapio_cei"),
                 django_xworkflows.models.BaseWorkflowEnabled,
                 src.dados_comuns.behaviors.TemIdentificadorExternoAmigavel,
                 src.dados_comuns.behaviors.Logs,
@@ -220,7 +218,7 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Substituições de alimentação CEI no período",
             },
             bases=(
-                django_prometheus.models.ExportModelOperationsMixin(
+                ExportModelOperationsMixin(
                     "substituicao_cei_alimentacao_periodo_escolar"
                 ),
                 models.Model,
@@ -264,9 +262,7 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Faixas Etárias de substituição de alimentação CEI",
             },
             bases=(
-                django_prometheus.models.ExportModelOperationsMixin(
-                    "faixa_etaria_substituicao_alimentacao_cei"
-                ),
+                ExportModelOperationsMixin("faixa_etaria_substituicao_alimentacao_cei"),
                 models.Model,
             ),
         ),

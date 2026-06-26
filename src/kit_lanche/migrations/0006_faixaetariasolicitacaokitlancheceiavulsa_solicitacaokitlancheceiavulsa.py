@@ -3,12 +3,12 @@
 import uuid
 
 import django.db.models.deletion
-import django_prometheus.models
 import django_xworkflows.models
 from django.conf import settings
 from django.db import migrations, models
 
 import src.dados_comuns.behaviors
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 
 class Migration(migrations.Migration):
@@ -146,9 +146,7 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Solicitações de kit lanche CEI avulsa",
             },
             bases=(
-                django_prometheus.models.ExportModelOperationsMixin(
-                    "kit_lanche_cei_avulsa"
-                ),
+                ExportModelOperationsMixin("kit_lanche_cei_avulsa"),
                 django_xworkflows.models.BaseWorkflowEnabled,
                 src.dados_comuns.behaviors.TemIdentificadorExternoAmigavel,
                 src.dados_comuns.behaviors.TemPrioridade,

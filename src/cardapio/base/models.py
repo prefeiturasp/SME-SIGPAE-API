@@ -1,5 +1,4 @@
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -7,6 +6,7 @@ from src.dados_comuns.behaviors import (
     Posicao,
     TemChaveExterna,
 )
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 
 class TipoAlimentacao(

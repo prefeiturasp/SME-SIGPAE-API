@@ -3,8 +3,9 @@
 import uuid
 
 import django.db.models.deletion
-import django_prometheus.models
 from django.db import migrations, models
+
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 
 class Migration(migrations.Migration):
@@ -31,7 +32,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_prometheus.models.ExportModelOperationsMixin("cat_faq"),
+                ExportModelOperationsMixin("cat_faq"),
                 models.Model,
             ),
         ),
@@ -66,7 +67,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_prometheus.models.ExportModelOperationsMixin("faq"),
+                ExportModelOperationsMixin("faq"),
                 models.Model,
             ),
         ),

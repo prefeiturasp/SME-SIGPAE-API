@@ -43,7 +43,6 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("api-token-auth/", TokenObtainPairView.as_view()),
     path("api-token-refresh/", TokenRefreshView.as_view()),
-    path("", include("django_prometheus.urls")),
     path("docs-swagger/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "docs-swagger/swagger/",

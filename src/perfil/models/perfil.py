@@ -6,7 +6,6 @@ from django.db import models
 from django.db.models.functions import Length
 from django.db.models.query import QuerySet
 from django.db.utils import IntegrityError
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -14,6 +13,7 @@ from src.dados_comuns.behaviors import (
     Nomeavel,
     TemChaveExterna,
 )
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 
 class Perfil(

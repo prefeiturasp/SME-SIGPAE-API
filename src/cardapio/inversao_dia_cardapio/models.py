@@ -1,5 +1,4 @@
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers import (
     InversaoCardapioDestaSemanaManager,
@@ -20,6 +19,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 from src.dados_comuns.utils import patch_docs
 
 FORMATO_DATA_BR = "%d/%m/%Y"

@@ -1,5 +1,4 @@
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
 from src.dados_comuns.behaviors import (
@@ -15,6 +14,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 from src.dados_comuns.utils import patch_docs
 
 

@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.db import models
 from django.db.models import Q, QuerySet
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -19,6 +18,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 from src.dados_comuns.utils import convert_base64_to_contentfile
 from src.escola.api.serializers import AlunoSerializer
 from src.escola.models import Aluno

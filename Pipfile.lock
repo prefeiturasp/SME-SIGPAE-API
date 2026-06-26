@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2e8564e04c87b1372ccc3715705450a4bf5b07b591272ec0958253d4fc5f325a"
+            "sha256": "c2ff1e3503621ad3261469cc00fba9892b71d5e3709530eb8c9da87b88fdcb94"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -869,14 +869,6 @@
             ],
             "index": "pypi",
             "version": "==0.4.6"
-        },
-        "django-prometheus": {
-            "hashes": [
-                "sha256:073628243d2a6de6a8a8c20e5b512872dfb85d66e1b60b28bcf1eca0155dad95",
-                "sha256:7fe5af7f7c9ad9cd8a429fe0f3f1bf651f0e244f77162147869eab7ec09cc5e7"
-            ],
-            "index": "pypi",
-            "version": "==2.4.1"
         },
         "django-redis": {
             "hashes": [
@@ -1806,14 +1798,6 @@
             "index": "pypi",
             "markers": "python_version >= '3.10'",
             "version": "==12.2.0"
-        },
-        "prometheus-client": {
-            "hashes": [
-                "sha256:5e373b75c31afb3c86f1a52fa1ad470c9aace18082d39ec0d2f918d11cc9ba28",
-                "sha256:d5aec89e349a6ec230805d0df882f3807f74fd6c1a2fa86864e3c2279059fed1"
-            ],
-            "markers": "python_version >= '3.9'",
-            "version": "==0.25.0"
         },
         "prompt-toolkit": {
             "hashes": [
@@ -3929,11 +3913,11 @@
         },
         "ipython": {
             "hashes": [
-                "sha256:5d4a9ecaa3b10e6e5f269dd0948bdb58ca9cb851899cd23e07c320d3eb11613c",
-                "sha256:f913bf74df06d458e46ced84ca506c23797590d594b236fe60b14df213291e7b"
+                "sha256:515ad9c3cdf0c932a5a9f6245419e8aba706b7bd03c3e1d3a1c83d9351d6aa6e",
+                "sha256:da2819ce2aa83135257df830660b1176d986c3d2876db24df01974fa955b2756"
             ],
             "markers": "python_version >= '3.11'",
-            "version": "==9.14.1"
+            "version": "==9.15.0"
         },
         "ipython-pygments-lexers": {
             "hashes": [

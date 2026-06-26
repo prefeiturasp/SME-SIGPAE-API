@@ -1,7 +1,8 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
-from django_prometheus.models import ExportModelOperationsMixin
+
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,

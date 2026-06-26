@@ -2,8 +2,9 @@
 
 import uuid
 
-import django_prometheus.models
 from django.db import migrations, models
+
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 
 def cria_modalidades(apps, schema_editor):
@@ -53,7 +54,7 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Modalidades",
             },
             bases=(
-                django_prometheus.models.ExportModelOperationsMixin("modalidade"),
+                ExportModelOperationsMixin("modalidade"),
                 models.Model,
             ),
         ),

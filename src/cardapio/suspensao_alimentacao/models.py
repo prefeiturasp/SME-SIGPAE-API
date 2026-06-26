@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Sum
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.base.models import TipoAlimentacao
 from src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers import (
@@ -22,6 +21,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 from src.dados_comuns.utils import patch_docs
 
 

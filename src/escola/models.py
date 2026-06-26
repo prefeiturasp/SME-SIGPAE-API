@@ -20,8 +20,9 @@ from django.core.validators import (
 )
 from django.db import models, transaction
 from django.db.models import F, Q, Sum
-from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework import status
+
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI

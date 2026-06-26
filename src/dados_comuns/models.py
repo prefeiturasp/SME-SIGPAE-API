@@ -3,7 +3,8 @@ from datetime import datetime
 
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
+
+from src.dados_comuns.prometheus_mixin import ExportModelOperationsMixin
 
 
 class LogSolicitacoesUsuario(
