@@ -62,7 +62,7 @@ def test_get_valores_tabela_unidade_emei(
         1260.0,
         1260.0,
         1260.0,
-        "-",
+        14.0,
         280.0,
         280.0,
         280.0,
@@ -128,7 +128,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         1260.0,
         1260.0,
         1260.0,
-        "-",
+        14.0,
         280.0,
         280.0,
         280.0,
@@ -146,7 +146,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         1260.0,
         1260.0,
         1260.0,
-        0.0,
+        14.0,
         280.0,
         280.0,
         280.0,
@@ -310,8 +310,9 @@ def test_sort_and_merge():
     assert "Solicitações de Alimentação" in dict_periodos_dietas
     assert len(dict_periodos_dietas["Solicitações de Alimentação"]) == 2
     assert dict_periodos_dietas["Solicitações de Alimentação"] == [
-        "kit_lanche",
         "lanche_emergencial",
+        "kit_lanche",
+
     ]
 
 

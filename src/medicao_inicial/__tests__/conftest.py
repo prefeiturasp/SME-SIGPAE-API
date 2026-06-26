@@ -7361,7 +7361,7 @@ def solicitacao_recreio_cemei(
 
 
 @pytest.fixture
-def solicitacao_recreio_emei(solicitacao_recreio_emef, escola_emei):
+def solicitacao_recreio_emei(solicitacao_recreio_emef, escola_emei, categoria_medicao_dieta_a):
     solicitacao_recreio_emef.escola = escola_emei
     solicitacao_recreio_emef.save()
     return solicitacao_recreio_emef
@@ -7399,7 +7399,7 @@ def mock_linhas_recreio_emei():
             1260.0,
             1260.0,
             1260.0,
-            "-",
+            14.0,
             280.0,
             280.0,
             280.0,
