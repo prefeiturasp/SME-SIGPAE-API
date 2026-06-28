@@ -13,8 +13,10 @@ from src.dados_comuns.utils import (
 from src.dieta_especial.tasks.utils.relatorio_historico_logs import (
     build_xlsx_relatorio_historico_dietas,
 )
-from src.dieta_especial.utils_ import (
+from src.dieta_especial.utils.gerar_filtros_relatorio_historico import (
     gerar_filtros_relatorio_historico,
+)
+from src.dieta_especial.utils.get_logs_historico_dietas import (
     get_logs_historico_dietas,
 )
 

@@ -100,9 +100,13 @@ from src.dieta_especial.tasks import (
     gera_xlsx_relatorio_historico_dietas_especiais_async,
     gera_xlsx_relatorio_recreio_nas_ferias_async,
 )
-from src.dieta_especial.utils_ import (
+from src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias import (
     filtra_relatorio_recreio_nas_ferias,
+)
+from src.dieta_especial.utils.gera_dicionario_historico_dietas import (
     gera_dicionario_historico_dietas,
+)
+from src.dieta_especial.utils.gerar_filtros_relatorio_historico import (
     gerar_filtros_relatorio_historico,
 )
 from src.escola.models import (

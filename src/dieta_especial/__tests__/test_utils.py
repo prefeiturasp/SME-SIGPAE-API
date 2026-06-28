@@ -19,25 +19,31 @@ from ..tasks.utils.logs import (
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
 )
-from ..utils_ import (
-    _dados_dietas_escolas_cei,
-    _dados_dietas_escolas_comuns,
+from ..utils.filtra_relatorio_recreio_nas_ferias import (
+    _parse_data,
+    filtra_relatorio_recreio_nas_ferias,
+    gera_filtros_relatorio_recreio_nas_ferias,
+)
+from ..utils.gera_dicionario_historico_dietas import (
     _formatar_informacoes_historioco_dietas,
     _formatar_periodos_cei,
     _formatar_periodos_cemei,
     _formatar_periodos_emebs,
     _formatar_periodos_emei_emef_cieja,
-    _parse_data,
     _transformar_dados_escolas,
     _unidades_tipo_cei,
     _unidades_tipo_cemei,
     _unidades_tipo_emebs,
     _unidades_tipos_cmct_ceugestao,
     _unidades_tipos_emei_emef_cieja,
-    filtra_relatorio_recreio_nas_ferias,
     gera_dicionario_historico_dietas,
-    gera_filtros_relatorio_recreio_nas_ferias,
+)
+from ..utils.gerar_filtros_relatorio_historico import (
     gerar_filtros_relatorio_historico,
+)
+from ..utils.get_logs_historico_dietas import (
+    _dados_dietas_escolas_cei,
+    _dados_dietas_escolas_comuns,
 )
 
 pytestmark = pytest.mark.django_db
@@ -63,7 +69,7 @@ def test_termina_dietas_especiais(
 def test_registrar_historico_criacao(
     protocolo_padrao_dieta_especial_2, substituicao_padrao_dieta_especial_2
 ):
-    from ..utils_ import log_create
+    from ..protocolo_padrao.api.utils import log_create
 
     log_create(protocolo_padrao_dieta_especial_2)
     assert protocolo_padrao_dieta_especial_2.historico
@@ -72,7 +78,7 @@ def test_registrar_historico_criacao(
 def test_diff_protocolo_padrao(
     protocolo_padrao_dieta_especial_2, substituicao_padrao_dieta_especial_2, edital
 ):
-    from ..utils_ import diff_protocolo_padrao
+    from ..protocolo_padrao.api.utils import diff_protocolo_padrao
 
     validated_data = {
         "nome_protocolo": "Alergia a manga",
