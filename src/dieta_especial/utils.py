@@ -9,7 +9,6 @@ from django.db.models import CharField, F, IntegerField, Q, QuerySet, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
 from django.template.loader import render_to_string
-from rest_framework.pagination import PageNumberPagination
 
 from src.dieta_especial.logs_models.models import (
     LogDietasAtivasCanceladasAutomaticamente,
@@ -19,12 +18,10 @@ from src.dieta_especial.logs_models.models import (
 from src.escola.models import Lote
 from src.escola.utils import faixa_to_string
 from src.perfil.models import Usuario
-from src.relatorios.relatorios import relatorio_dieta_especial_conteudo
-from src.relatorios.utils import html_to_pdf_email_anexo
 
 from ..dados_comuns.constants import TIPO_SOLICITACAO_DIETA
 from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ..dados_comuns.utils import envia_email_unico, envia_email_unico_com_anexo_inmemory
+from ..dados_comuns.utils import envia_email_unico
 from ..escola.models import Aluno
 from ..paineis_consolidados.models import SolicitacoesCODAE
 from .constants import (
@@ -78,12 +75,6 @@ def inicia_dietas_temporarias(usuario):
             solicitacao.save()
 
 
-def aluno_pertence_a_escola_ou_esta_na_rede(
-    cod_escola_no_eol, cod_escola_no_sigpae
-) -> bool:
-    return cod_escola_no_eol == cod_escola_no_sigpae
-
-
 def gerar_log_dietas_ativas_canceladas_automaticamente(
     dieta, dados, fora_da_rede=False
 ):
@@ -120,125 +111,6 @@ def _cancelar_dieta_encerramento_matricula(dieta):
     usuario_admin = Usuario.objects.get(pk=1)
     dieta.sistema_cancela_aluno_encerramento_matricula(user=usuario_admin)
     dieta.save()
-
-
-def enviar_email_para_diretor_da_escola_origem(
-    solicitacao_dieta, aluno, escola
-):  # noqa C901
-    assunto = (
-        f"Cancelamento Automático de Dieta Especial Nº {solicitacao_dieta.id_externo}"
-    )
-    hoje = date.today().strftime("%d/%m/%Y")
-    template = ("email/email_dieta_cancelada_automaticamente_escola_origem.html",)
-    dados_template = {
-        "nome_aluno": aluno.nome,
-        "codigo_eol_aluno": aluno.codigo_eol,
-        "dieta_numero": solicitacao_dieta.id_externo,
-        "nome_escola": escola.nome,
-        "hoje": hoje,
-    }
-    html = render_to_string(template, dados_template)
-    terceirizada = escola.lote.terceirizada
-    if terceirizada:
-        emails = [contato.email for contato in terceirizada.contatos.all()]
-        emails.append(escola.contato.email)
-    else:
-        emails = [escola.contato.email]
-
-    for email in emails:
-        envia_email_unico(
-            assunto=assunto,
-            corpo="",
-            email=email,
-            template=template,
-            dados_template=dados_template,
-            html=html,
-        )
-
-
-def enviar_email_para_escola_origem_eol(solicitacao_dieta, aluno, escola):
-    assunto = "Alerta para Criar uma Nova Dieta Especial"
-
-    email_escola_origem_eol = escola.escola_destino.contato.email
-
-    html_string = relatorio_dieta_especial_conteudo(solicitacao_dieta)
-    anexo = html_to_pdf_email_anexo(html_string)
-    anexo_nome = f"dieta_especial_{aluno.codigo_eol}.pdf"
-    html_to_pdf_email_anexo(html_string)
-
-    corpo = render_to_string(
-        template_name="email/email_dieta_cancelada_automaticamente_escola_destino.html",
-        context={
-            "nome_aluno": aluno.nome,
-            "codigo_eol_aluno": aluno.codigo_eol,
-            "nome_escola": escola.nome,
-        },
-    )
-
-    envia_email_unico_com_anexo_inmemory(
-        assunto=assunto,
-        corpo=corpo,
-        email=email_escola_origem_eol,
-        anexo_nome=anexo_nome,
-        mimetypes="application/pdf",
-        anexo=anexo,
-    )
-
-
-def enviar_email_para_escola_destino_eol(solicitacao_dieta, aluno, escola):
-    assunto = "Alerta para Criar uma Nova Dieta Especial"
-
-    email_escola_destino_eol = escola.escola_destino.contato.email
-
-    html_string = relatorio_dieta_especial_conteudo(solicitacao_dieta)
-    anexo = html_to_pdf_email_anexo(html_string)
-    anexo_nome = f"dieta_especial_{aluno.codigo_eol}.pdf"
-    html_to_pdf_email_anexo(html_string)
-
-    corpo = render_to_string(
-        template_name="email/email_dieta_cancelada_automaticamente_escola_destino.html",
-        context={
-            "nome_aluno": aluno.nome,
-            "codigo_eol_aluno": aluno.codigo_eol,
-            "nome_escola": escola.nome,
-        },
-    )
-
-    envia_email_unico_com_anexo_inmemory(
-        assunto=assunto,
-        corpo=corpo,
-        email=email_escola_destino_eol,
-        anexo_nome=anexo_nome,
-        mimetypes="application/pdf",
-        anexo=anexo,
-    )
-
-
-def enviar_email_para_diretor_da_escola_destino(solicitacao_dieta, aluno, escola):
-    assunto = "Alerta para Criar uma Nova Dieta Especial"
-    email = escola.contato.email
-    html_string = relatorio_dieta_especial_conteudo(solicitacao_dieta)
-    anexo = html_to_pdf_email_anexo(html_string)
-    anexo_nome = f"dieta_especial_{aluno.codigo_eol}.pdf"
-    html_to_pdf_email_anexo(html_string)
-
-    corpo = render_to_string(
-        template_name="email/email_dieta_cancelada_automaticamente_escola_destino.html",
-        context={
-            "nome_aluno": aluno.nome,
-            "codigo_eol_aluno": aluno.codigo_eol,
-            "nome_escola": escola.nome,
-        },
-    )
-
-    envia_email_unico_com_anexo_inmemory(
-        assunto=assunto,
-        corpo=corpo,
-        email=email,
-        anexo_nome=anexo_nome,
-        mimetypes="application/pdf",
-        anexo=anexo,
-    )
 
 
 def enviar_email_para_adm_terceirizada_e_escola(
@@ -342,18 +214,6 @@ def cancela_dietas_ativas_automaticamente():  # noqa C901 D205 D400
             )
         else:
             continue
-
-
-class RelatorioPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = "page_size"
-    max_page_size = 100
-
-
-class ProtocoloPadraoPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = "page_size"
-    max_page_size = 100
 
 
 def log_create(protocolo_padrao, user=None):
