@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.urls import path
 
 from src.dieta_especial.tasks import processa_dietas_especiais_task
-from src.dieta_especial.utils import is_alpha_numeric_and_has_single_space
+from src.dieta_especial.utils_ import is_alpha_numeric_and_has_single_space
 
 from ..protocolo_padrao.admin import SubstituicaoAlimentoInline
 from .models import (

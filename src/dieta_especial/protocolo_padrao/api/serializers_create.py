@@ -14,7 +14,7 @@ from src.dieta_especial.protocolo_padrao.models import (
     SubstituicaoAlimento,
     SubstituicaoAlimentoProtocoloPadrao,
 )
-from src.dieta_especial.utils import log_create, log_update
+from src.dieta_especial.utils_ import log_create, log_update
 from src.produto.api.serializers import serializers as ser
 from src.produto.models import Produto
 from src.terceirizada.models import Edital

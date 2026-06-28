@@ -17,7 +17,7 @@ from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from src.dieta_especial.utils import termina_dietas_especiais
+from src.dieta_especial.tasks.utils.processamentos import termina_dietas_especiais
 from src.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
     EscolaFactory,

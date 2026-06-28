@@ -13,7 +13,7 @@ from src.dados_comuns.utils import (
 from src.dieta_especial.tasks.utils.relatorio_historico_logs import (
     build_xlsx_relatorio_historico_dietas,
 )
-from src.dieta_especial.utils import (
+from src.dieta_especial.utils_ import (
     gerar_filtros_relatorio_historico,
     get_logs_historico_dietas,
 )

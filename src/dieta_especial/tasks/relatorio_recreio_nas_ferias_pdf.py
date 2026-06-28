@@ -12,7 +12,7 @@ from src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias import (
     gera_dicionario_relatorio_recreio,
     gera_pdf_relatorio_recreio_nas_ferias,
 )
-from src.dieta_especial.utils import (
+from src.dieta_especial.utils_ import (
     filtra_relatorio_recreio_nas_ferias,
 )
 

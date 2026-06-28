@@ -1,6 +1,7 @@
+import json
 import re
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import datetime
 from itertools import chain
 from typing import List
 
@@ -8,22 +9,13 @@ from django.core.exceptions import ValidationError
 from django.db.models import CharField, F, IntegerField, Q, QuerySet, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
-from django.template.loader import render_to_string
 
 from src.dieta_especial.logs_models.models import (
-    LogDietasAtivasCanceladasAutomaticamente,
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
-from src.escola.models import Lote
 from src.escola.utils import faixa_to_string
-from src.perfil.models import Usuario
 
-from ..dados_comuns.constants import TIPO_SOLICITACAO_DIETA
-from ..dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ..dados_comuns.utils import envia_email_unico
-from ..escola.models import Aluno
-from ..paineis_consolidados.models import SolicitacoesCODAE
 from .constants import (
     UNIDADES_CEI,
     UNIDADES_CEMEI,
@@ -34,192 +26,7 @@ from .constants import (
 from .solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 
 
-def dietas_especiais_a_terminar():
-    return SolicitacaoDietaEspecial.objects.filter(
-        data_termino__lt=date.today(),
-        ativo=True,
-        status__in=[
-            DietaEspecialWorkflow.CODAE_AUTORIZADO,
-            DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-            DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
-        ],
-    )
-
-
-def termina_dietas_especiais(usuario):
-    for solicitacao in dietas_especiais_a_terminar():
-        if solicitacao.tipo_solicitacao == TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"):
-            solicitacao.dieta_alterada.ativo = True
-            solicitacao.dieta_alterada.save()
-        solicitacao.termina(usuario)
-
-
-def dietas_especiais_a_iniciar():
-    return SolicitacaoDietaEspecial.objects.filter(
-        data_inicio__lte=date.today(),
-        ativo=False,
-        status__in=[
-            DietaEspecialWorkflow.CODAE_AUTORIZADO,
-            DietaEspecialWorkflow.TERCEIRIZADA_TOMOU_CIENCIA,
-            DietaEspecialWorkflow.ESCOLA_SOLICITOU_INATIVACAO,
-        ],
-    )
-
-
-def inicia_dietas_temporarias(usuario):
-    for solicitacao in dietas_especiais_a_iniciar():
-        if solicitacao.tipo_solicitacao == TIPO_SOLICITACAO_DIETA.get("ALTERACAO_UE"):
-            solicitacao.dieta_alterada.ativo = False
-            solicitacao.dieta_alterada.save()
-            solicitacao.ativo = True
-            solicitacao.save()
-
-
-def gerar_log_dietas_ativas_canceladas_automaticamente(
-    dieta, dados, fora_da_rede=False
-):
-    data = dict(
-        dieta=dieta,
-        codigo_eol_aluno=dados["codigo_eol_aluno"],
-        nome_aluno=dados["nome_aluno"],
-        codigo_eol_escola_destino=dados.get("codigo_eol_escola_origem"),
-        nome_escola_destino=dados.get("nome_escola_origem"),
-        codigo_eol_escola_origem=dados.get("codigo_eol_escola_destino"),
-        nome_escola_origem=dados.get("nome_escola_destino"),
-    )
-    if fora_da_rede:
-        data["codigo_eol_escola_origem"] = dados.get("codigo_eol_escola_origem")
-        data["nome_escola_origem"] = dados.get("nome_escola_origem")
-        data["codigo_eol_escola_destino"] = ""
-        data["nome_escola_destino"] = ""
-    LogDietasAtivasCanceladasAutomaticamente.objects.create(**data)
-
-
-def _cancelar_dieta(dieta):
-    usuario_admin = Usuario.objects.get(pk=1)
-    dieta.cancelar_aluno_mudou_escola(user=usuario_admin)
-    dieta.save()
-
-
-def _cancelar_dieta_aluno_fora_da_rede(dieta):
-    usuario_admin = Usuario.objects.get(pk=1)
-    dieta.cancelar_aluno_nao_pertence_rede(user=usuario_admin)
-    dieta.save()
-
-
-def _cancelar_dieta_encerramento_matricula(dieta):
-    usuario_admin = Usuario.objects.get(pk=1)
-    dieta.sistema_cancela_aluno_encerramento_matricula(user=usuario_admin)
-    dieta.save()
-
-
-def enviar_email_para_adm_terceirizada_e_escola(
-    solicitacao_dieta, aluno, escola, fora_da_rede=False
-):
-    assunto = (
-        f"Cancelamento Automático de Dieta Especial Nº {solicitacao_dieta.id_externo}"
-    )
-    hoje = date.today().strftime("%d/%m/%Y")
-    template = (
-        "email/email_dieta_cancelada_automaticamente_terceirizada_escola_destino.html"
-    )
-    justificativa_cancelamento = "por não pertencer a unidade educacional"
-    if fora_da_rede:
-        justificativa_cancelamento = "por não estar matriculado"
-    dados_template = {
-        "nome_aluno": aluno.nome,
-        "codigo_eol_aluno": aluno.codigo_eol,
-        "dieta_numero": solicitacao_dieta.id_externo,
-        "nome_escola": escola.nome,
-        "hoje": hoje,
-        "justificativa_cancelamento": justificativa_cancelamento,
-    }
-    html = render_to_string(template, dados_template)
-    emails_terceirizada = solicitacao_dieta.rastro_terceirizada.emails_por_modulo(
-        "Dieta Especial"
-    )
-    email_escola = [escola.contato.email]
-    email_lista = emails_terceirizada + email_escola
-    for email in email_lista:
-        envia_email_unico(
-            assunto=assunto,
-            corpo="",
-            email=email,
-            template=template,
-            dados_template=dados_template,
-            html=html,
-        )
-
-
-def aluno_matriculado_em_outra_ue(aluno, solicitacao_dieta):
-    if aluno.escola:
-        return aluno.escola.codigo_eol != solicitacao_dieta.escola.codigo_eol
-    return False
-
-
-def cancela_dietas_pendente_autorizacao():
-    dietas_pendentes = (
-        SolicitacoesCODAE.get_pendentes_dieta_especial()
-        .filter(tipo_solicitacao_dieta="COMUM")
-        .order_by("pk")
-        .distinct("pk")
-    )
-    for dieta in dietas_pendentes:
-        aluno = Aluno.objects.filter(codigo_eol=dieta.codigo_eol_aluno).first()
-        solicitacao_dieta = SolicitacaoDietaEspecial.objects.filter(pk=dieta.pk).first()
-        if aluno.escola != solicitacao_dieta.escola_destino:
-            _cancelar_dieta_encerramento_matricula(solicitacao_dieta)
-
-
-def cancela_dietas_ativas_automaticamente():  # noqa C901 D205 D400
-    dietas_ativas_comuns = (
-        SolicitacoesCODAE.get_autorizados_dieta_especial()
-        .filter(tipo_solicitacao_dieta="COMUM")
-        .order_by("pk")
-        .distinct("pk")
-    )
-    for dieta in dietas_ativas_comuns:
-        aluno = Aluno.objects.filter(codigo_eol=dieta.codigo_eol_aluno).first()
-        solicitacao_dieta = SolicitacaoDietaEspecial.objects.filter(pk=dieta.pk).first()
-        if aluno.nao_matriculado:
-            dados = dict(
-                codigo_eol_aluno=aluno.codigo_eol,
-                nome_aluno=aluno.nome,
-                codigo_eol_escola_origem=solicitacao_dieta.escola.codigo_eol,
-                nome_escola_origem=solicitacao_dieta.escola.nome,
-            )
-            gerar_log_dietas_ativas_canceladas_automaticamente(
-                solicitacao_dieta, dados, fora_da_rede=True
-            )
-            _cancelar_dieta_aluno_fora_da_rede(dieta=solicitacao_dieta)
-            enviar_email_para_adm_terceirizada_e_escola(
-                solicitacao_dieta,
-                aluno,
-                escola=solicitacao_dieta.escola,
-                fora_da_rede=True,
-            )
-        elif aluno_matriculado_em_outra_ue(aluno, solicitacao_dieta):
-            dados = dict(
-                codigo_eol_aluno=aluno.codigo_eol,
-                nome_aluno=aluno.nome,
-                codigo_eol_escola_destino=aluno.escola.codigo_eol,
-                nome_escola_destino=aluno.escola.nome,
-                nome_escola_origem=solicitacao_dieta.escola.nome,
-                codigo_eol_escola_origem=solicitacao_dieta.escola.codigo_eol,
-            )
-            gerar_log_dietas_ativas_canceladas_automaticamente(solicitacao_dieta, dados)
-            _cancelar_dieta(solicitacao_dieta)
-            enviar_email_para_adm_terceirizada_e_escola(
-                solicitacao_dieta, aluno, escola=solicitacao_dieta.escola
-            )
-        else:
-            continue
-
-
 def log_create(protocolo_padrao, user=None):
-    import json
-    from datetime import datetime
-
     historico = {}
 
     historico["created_at"] = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
@@ -564,37 +371,6 @@ def is_alpha_numeric_and_has_single_space(descricao):
     return bool(re.match(r"[A-Za-z0-9\s]+$", descricao))
 
 
-def verifica_se_existe_dieta_valida(aluno, queryset, status_dieta, escola):
-    return [
-        s
-        for s in aluno.dietas_especiais.all()
-        if s.rastro_escola == escola and s.status in status_dieta
-    ]
-
-
-def filtrar_alunos_com_dietas_nos_status_e_rastro_escola(
-    queryset, status_dieta, escola
-):
-    uuids_alunos_para_excluir = []
-    for aluno in queryset:
-        if not verifica_se_existe_dieta_valida(aluno, queryset, status_dieta, escola):
-            uuids_alunos_para_excluir.append(aluno.uuid)
-    queryset = queryset.exclude(uuid__in=uuids_alunos_para_excluir)
-    return queryset
-
-
-def trata_lotes_dict_duplicados(lotes_dict):
-    lotes_ = []
-    for lote_uuid in lotes_dict.values():
-        try:
-            lotes_.append(
-                tuple([Lote.objects.get(uuid=lote_uuid).__str__(), lote_uuid])
-            )
-        except Lote.DoesNotExist:
-            continue
-    return dict(lotes_)
-
-
 def gerar_filtros_relatorio_historico(query_params: QueryDict) -> tuple:
     map_filtros = {
         "escola__tipo_gestao__uuid": query_params.get("tipo_gestao", None),
@@ -635,7 +411,7 @@ def gerar_filtros_relatorio_historico(query_params: QueryDict) -> tuple:
     return filtros, data_dieta
 
 
-def dados_dietas_escolas_cei(filtros: dict, eh_exportacao: bool = False) -> List[dict]:
+def _dados_dietas_escolas_cei(filtros: dict, eh_exportacao: bool = False) -> List[dict]:
     queryset = LogQuantidadeDietasAutorizadasCEI.objects.filter(**filtros)
     if eh_exportacao:
         queryset = queryset.filter(faixa_etaria__isnull=False)
@@ -681,7 +457,7 @@ def dados_dietas_escolas_cei(filtros: dict, eh_exportacao: bool = False) -> List
     return logs_dietas_escolas_cei
 
 
-def dados_dietas_escolas_comuns(filtros: dict) -> QuerySet[dict]:
+def _dados_dietas_escolas_comuns(filtros: dict) -> QuerySet[dict]:
     filtro_por_tipo_unidade = Q(
         Q(
             escola__tipo_unidade__iniciais__in=UNIDADES_EMEBS,
@@ -733,8 +509,8 @@ def dados_dietas_escolas_comuns(filtros: dict) -> QuerySet[dict]:
 
 
 def get_logs_historico_dietas(filtros, eh_exportacao=False) -> list:
-    log_escolas_cei = dados_dietas_escolas_cei(filtros, eh_exportacao)
-    log_escolas = dados_dietas_escolas_comuns(filtros)
+    log_escolas_cei = _dados_dietas_escolas_cei(filtros, eh_exportacao)
+    log_escolas = _dados_dietas_escolas_comuns(filtros)
     if eh_exportacao:
         log_escolas = [
             log
@@ -753,14 +529,14 @@ def gera_dicionario_historico_dietas(filtros):
     periodo_escolar_selecionado = False
     if "periodo_escolar__uuid__in" in filtros:
         periodo_escolar_selecionado = True
-    escolas, total_dietas = transformar_dados_escolas(
+    escolas, total_dietas = _transformar_dados_escolas(
         log_dietas, periodo_escolar_selecionado
     )
-    informacoes = formatar_informacoes_historioco_dietas(escolas, total_dietas)
+    informacoes = _formatar_informacoes_historioco_dietas(escolas, total_dietas)
     return informacoes
 
 
-def transformar_dados_escolas(dados, periodo_escolar_selecionado=False):
+def _transformar_dados_escolas(dados, periodo_escolar_selecionado=False):
     escolas = defaultdict(
         lambda: {
             "tipo_unidade": None,
@@ -780,11 +556,11 @@ def transformar_dados_escolas(dados, periodo_escolar_selecionado=False):
     )
 
     tipos_unidades = {
-        **{tipo: unidades_tipo_emebs for tipo in UNIDADES_EMEBS},
-        **{tipo: unidades_tipos_emei_emef_cieja for tipo in UNIDADES_EMEI_EMEF_CIEJA},
-        **{tipo: unidades_tipos_cmct_ceugestao for tipo in UNIDADES_SEM_PERIODOS},
-        **{tipo: unidades_tipo_cemei for tipo in UNIDADES_CEMEI},
-        **{tipo: unidades_tipo_cei for tipo in UNIDADES_CEI},
+        **{tipo: _unidades_tipo_emebs for tipo in UNIDADES_EMEBS},
+        **{tipo: _unidades_tipos_emei_emef_cieja for tipo in UNIDADES_EMEI_EMEF_CIEJA},
+        **{tipo: _unidades_tipos_cmct_ceugestao for tipo in UNIDADES_SEM_PERIODOS},
+        **{tipo: _unidades_tipo_cemei for tipo in UNIDADES_CEMEI},
+        **{tipo: _unidades_tipo_cei for tipo in UNIDADES_CEI},
     }
 
     total_dietas = 0
@@ -802,14 +578,15 @@ def transformar_dados_escolas(dados, periodo_escolar_selecionado=False):
     return escolas, total_dietas
 
 
-def formatar_informacoes_historioco_dietas(escolas, total_dietas):
+def _formatar_informacoes_historioco_dietas(escolas, total_dietas):
     tipos_unidades = {
-        **{tipo: formatar_periodos_emebs for tipo in UNIDADES_EMEBS},
+        **{tipo: _formatar_periodos_emebs for tipo in UNIDADES_EMEBS},
         **{
-            tipo: formatar_periodos_emei_emef_cieja for tipo in UNIDADES_EMEI_EMEF_CIEJA
+            tipo: _formatar_periodos_emei_emef_cieja
+            for tipo in UNIDADES_EMEI_EMEF_CIEJA
         },
-        **{tipo: formatar_periodos_cemei for tipo in UNIDADES_CEMEI},
-        **{tipo: formatar_periodos_cei for tipo in UNIDADES_CEI},
+        **{tipo: _formatar_periodos_cemei for tipo in UNIDADES_CEMEI},
+        **{tipo: _formatar_periodos_cei for tipo in UNIDADES_CEI},
     }
 
     resultado = []
@@ -836,7 +613,7 @@ def formatar_informacoes_historioco_dietas(escolas, total_dietas):
     }
 
 
-def unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado=False):
+def _unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado=False):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -858,7 +635,7 @@ def unidades_tipo_emebs(item, escolas, periodo_escolar_selecionado=False):
     return total_dietas
 
 
-def unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado=False):
+def _unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado=False):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -881,7 +658,7 @@ def unidades_tipos_emei_emef_cieja(item, escolas, periodo_escolar_selecionado=Fa
     return total_dietas
 
 
-def unidades_tipos_cmct_ceugestao(item, escolas, periodo_escolar_selecionado=False):
+def _unidades_tipos_cmct_ceugestao(item, escolas, periodo_escolar_selecionado=False):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     quantidade = item["quantidade_total"]
@@ -890,7 +667,7 @@ def unidades_tipos_cmct_ceugestao(item, escolas, periodo_escolar_selecionado=Fal
     return quantidade
 
 
-def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado=False):
+def _unidades_tipo_cei(item, escolas, periodo_escolar_selecionado=False):
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -924,7 +701,7 @@ def unidades_tipo_cei(item, escolas, periodo_escolar_selecionado=False):
     return total_dietas
 
 
-def unidades_tipo_cemei(item, escolas, periodo_escolar_selecionado=False):  # noqa
+def _unidades_tipo_cemei(item, escolas, periodo_escolar_selecionado=False):  # noqa
     nome_escola = item["nome_escola"]
     classificacao = item["nome_classificacao"]
     periodo_escola = item["nome_periodo_escolar"]
@@ -966,7 +743,7 @@ def unidades_tipo_cemei(item, escolas, periodo_escolar_selecionado=False):  # no
     return total_dietas
 
 
-def formatar_periodos_emebs(informacao_escola_por_classificacao, dados_classificacao):
+def _formatar_periodos_emebs(informacao_escola_por_classificacao, dados_classificacao):
     informacao_escola_por_classificacao["periodos"] = {}
     infantil = dados_classificacao["infantil"]
     if len(infantil) > 0:
@@ -980,7 +757,7 @@ def formatar_periodos_emebs(informacao_escola_por_classificacao, dados_classific
         ]
 
 
-def formatar_periodos_emei_emef_cieja(
+def _formatar_periodos_emei_emef_cieja(
     informacao_escola_por_classificacao, dados_classificacao
 ):
     informacao_escola_por_classificacao["periodos"] = [
@@ -989,7 +766,7 @@ def formatar_periodos_emei_emef_cieja(
     ]
 
 
-def formatar_periodos_cemei(informacao_escola_por_classificacao, dados_classificacao):
+def _formatar_periodos_cemei(informacao_escola_por_classificacao, dados_classificacao):
     informacao_escola_por_classificacao["periodos"] = {}
     turma_infantil = dados_classificacao["turma_infantil"]
     if len(turma_infantil) > 0:
@@ -1003,7 +780,7 @@ def formatar_periodos_cemei(informacao_escola_por_classificacao, dados_classific
         ]
 
 
-def formatar_periodos_cei(informacao_escola_por_classificacao, dados_classificacao):
+def _formatar_periodos_cei(informacao_escola_por_classificacao, dados_classificacao):
     informacao_escola_por_classificacao["periodos"] = [
         {"periodo": p, "faixa_etaria": q}
         for p, q in dados_classificacao["periodos"].items()
