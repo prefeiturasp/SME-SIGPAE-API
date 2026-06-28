@@ -148,8 +148,8 @@ def diff_protocolo_padrao(instance, validated_data, new_editais, old_editais):
         changes.append(
             {
                 "field": "editais",
-                "from": list(old_editais_list_ordered),
-                "to": list(new_editais_list_ordered),
+                "from": [edital.numero for edital in old_editais.all()],
+                "to": [edital.numero for edital in new_editais],
             }
         )
 

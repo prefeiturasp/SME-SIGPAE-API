@@ -9,15 +9,15 @@ from model_bakery import baker
 
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...escola.models import Aluno, FaixaEtaria
-from ...tasks.utils.processamentos import (
-    _dietas_especiais_a_terminar,
-    termina_dietas_especiais,
-)
 from ...terceirizada.models import Edital
 from ..solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 from ..tasks.utils.logs import (
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
+)
+from ..tasks.utils.processamentos import (
+    _dietas_especiais_a_terminar,
+    termina_dietas_especiais,
 )
 from ..utils.filtra_relatorio_recreio_nas_ferias import (
     _parse_data,
