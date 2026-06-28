@@ -18,8 +18,8 @@ from src.dieta_especial.protocolo_padrao.api.serializers_create import (
 
 from ....terceirizada.models import Contrato, Edital
 from ...solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
-from ...utils import ProtocoloPadraoPagination
 from ..models import ProtocoloPadraoDietaEspecial
+from .pagination import ProtocoloPadraoPagination
 
 
 class ProtocoloPadraoDietaEspecialViewSet(ModelViewSet):

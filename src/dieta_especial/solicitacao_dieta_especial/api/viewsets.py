@@ -101,7 +101,6 @@ from src.dieta_especial.tasks import (
     gera_xlsx_relatorio_recreio_nas_ferias_async,
 )
 from src.dieta_especial.utils import (
-    RelatorioPagination,
     filtra_relatorio_recreio_nas_ferias,
     filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
     gera_dicionario_historico_dietas,
@@ -126,6 +125,8 @@ from src.relatorios.relatorios import (
     relatorio_quantitativo_diag_dieta_especial_somente_dietas_ativas,
     relatorio_quantitativo_solic_dieta_especial,
 )
+
+from .pagination import RelatorioPagination
 
 
 class SolicitacaoDietaEspecialViewSet(
