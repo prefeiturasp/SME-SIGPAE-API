@@ -7428,3 +7428,26 @@ def informacoes_excel_writer_recreio_emei(
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
+    grupo_escolar = baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 3",
+        uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
+        tipos_unidades=[
+            baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="EMEI P FOM"),
+        ],
+    )
+    return {
+        "dre": solicitacao_recreio_emei.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_recreio_emei.mes,
+        "ano": solicitacao_recreio_emei.ano,
+        "lotes[]": solicitacao_recreio_emei.escola.lote.uuid,
+        "lotes": [solicitacao_recreio_emei.escola.lote.uuid],
+    }
