@@ -14,6 +14,9 @@ from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocumentoDeRecebimentoParaAjusteSaldoSerializer,
 )
+from src.recebimento.ajuste_saldo_laudo.api.filters import (
+    AjusteSaldoFilter,
+)
 from src.recebimento.ajuste_saldo_laudo.api.serializers.serializer_create import (
     AjusteSaldoCreateSerializer,
 )
@@ -22,9 +25,6 @@ from src.recebimento.ajuste_saldo_laudo.api.serializers.serializers import (
 )
 from src.recebimento.ajuste_saldo_laudo.models import (
     AjusteSaldo,
-)
-from src.recebimento.ajuste_saldo_laudo.api.filters import (
-    AjusteSaldoFilter,
 )
 
 from ....dados_comuns.api.paginations import DefaultPagination
@@ -44,15 +44,12 @@ class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSe
     }
 
     def get_queryset(self):
-      return (
-        AjusteSaldo.objects.select_related(
-          "documento_recebimento",
-          "documento_recebimento__cronograma",
-          "documento_recebimento__cronograma__empresa",
-          "documento_recebimento__cronograma__ficha_tecnica__produto",
-        )
-        .order_by("-criado_em")
-      )
+        return AjusteSaldo.objects.select_related(
+            "documento_recebimento",
+            "documento_recebimento__cronograma",
+            "documento_recebimento__cronograma__empresa",
+            "documento_recebimento__cronograma__ficha_tecnica__produto",
+        ).order_by("-criado_em")
 
     def create(self, request):
         """
@@ -70,7 +67,7 @@ class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSe
         """
         Endpoint: GET /ajuste-saldo-laudo/
 
-        Retorna a lista de ajustes de saldo de laudo
+        Retorna a lista de ajustes de saldo do laudo
         """
         queryset = self.filter_queryset(self.get_queryset())
 
