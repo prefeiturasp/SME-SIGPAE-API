@@ -23,14 +23,19 @@ from src.recebimento.ajuste_saldo_laudo.api.serializers.serializers import (
 from src.recebimento.ajuste_saldo_laudo.models import (
     AjusteSaldo,
 )
+from src.recebimento.ajuste_saldo_laudo.api.filters import (
+    AjusteSaldoFilter,
+)
 
 from ....dados_comuns.api.paginations import DefaultPagination
 
 
 class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet):
     lookup_field = "uuid"
+    queryset = AjusteSaldo.objects.all()
     serializer_class = AjusteSaldoListagemSerializer
     filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = AjusteSaldoFilter
     pagination_class = DefaultPagination
     permission_classes = (UsuarioEhDilogQualidade,)
     permission_action_classes = {
@@ -39,7 +44,15 @@ class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSe
     }
 
     def get_queryset(self):
-        return AjusteSaldo.objects.all().order_by("-criado_em")
+      return (
+        AjusteSaldo.objects.select_related(
+          "documento_recebimento",
+          "documento_recebimento__cronograma",
+          "documento_recebimento__cronograma__empresa",
+          "documento_recebimento__cronograma__ficha_tecnica__produto",
+        )
+        .order_by("-criado_em")
+      )
 
     def create(self, request):
         """
@@ -52,6 +65,23 @@ class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSe
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def list(self, request):
+        """
+        Endpoint: GET /ajuste-saldo-laudo/
+
+        Retorna a lista de ajustes de saldo de laudo
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        print(serializer.data)
+        return Response(serializer.data)
 
     @action(
         detail=False,
