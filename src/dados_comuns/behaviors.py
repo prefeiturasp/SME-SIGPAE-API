@@ -368,9 +368,10 @@ class Logs(object):
 
     @property
     def data_autorizacao(self):
-        if LogSolicitacoesUsuario.objects.filter(
+        primeiro_log = LogSolicitacoesUsuario.objects.filter(
             uuid_original=self.uuid
-        ).first().solicitacao_tipo in [
+        ).first()
+        if primeiro_log and primeiro_log.solicitacao_tipo in [
             LogSolicitacoesUsuario.SUSPENSAO_DE_CARDAPIO,
             LogSolicitacoesUsuario.SUSPENSAO_ALIMENTACAO_CEI,
         ]:

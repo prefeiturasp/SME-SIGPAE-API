@@ -4,11 +4,13 @@ import uuid
 import pytest
 from model_bakery import baker
 from openpyxl import load_workbook
+from pypdf import PdfReader
 
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from src.dados_comuns.models import CentralDeDownload
 from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
     SolicitacaoDietaEspecialExportXLSXSerializer,
+    SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
@@ -22,6 +24,7 @@ from src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx import (
     build_titulo,
     build_xlsx_relatorio_terceirizadas,
 )
+from src.perfil.models import Usuario
 
 pytestmark = pytest.mark.django_db
 
@@ -256,6 +259,7 @@ def test_build_xlsx_status_cancelado(
         None,
         None,
         None,
+        None,
     )
     assert rows[1] == (
         "Dietas Canceladas: | Classificação(ões) da dieta: Tipo A,Tipo A Enteral,Tipo B | Protocolo(s) padrão(ões): ALERGIA A ABACAXI, ALERGIA A AVEIA | Data inicial: 2025-01-01 | Data final: 2025-01-31",
@@ -264,9 +268,10 @@ def test_build_xlsx_status_cancelado(
         None,
         None,
         None,
+        None,
         "Total de dietas: 4",
     )
-    assert rows[2] == (None, None, None, None, None, None, None)
+    assert rows[2] == (None, None, None, None, None, None, None, None)
     assert rows[3] == (
         2,
         "COD.EOL do Aluno",
@@ -274,6 +279,7 @@ def test_build_xlsx_status_cancelado(
         "Nome da Escola",
         "Classificação da dieta",
         "Protocolo",
+        "Data da autorização",
         "Data de cancelamento",
     )
     assert rows[4] == (
@@ -281,6 +287,7 @@ def test_build_xlsx_status_cancelado(
         "123456",
         "Roberto Alves da Silva",
         "CEI DIRET JOAO MENDES",
+        None,
         None,
         None,
         None,
@@ -293,6 +300,7 @@ def test_build_xlsx_status_cancelado(
         None,
         None,
         None,
+        None,
     )
     assert rows[6] == (
         5,
@@ -302,12 +310,14 @@ def test_build_xlsx_status_cancelado(
         None,
         None,
         None,
+        None,
     )
     assert rows[7] == (
         6,
         "123456",
         "Roberto Alves da Silva",
         "CEI DIRET JOAO MENDES",
+        None,
         None,
         None,
         None,
@@ -371,6 +381,7 @@ def test_build_xlsx_status_autorizado(
     assert rows[3][4] == "Nome da Escola"
     assert rows[3][5] == "Classificação da dieta"
     assert rows[3][6] == "Protocolo"
+    assert rows[3][7] == "Data da autorização"
 
     for row_idx in range(4, 8):
         assert rows[row_idx][1] == "123456"
@@ -480,3 +491,100 @@ def test_gera_xlsx_relatorio_dietas_especiais_terceirizadas_erro(
     central_download = CentralDeDownload.objects.get(identificador=nome_arquivo)
     assert central_download.arquivo is not None
     assert central_download.status == CentralDeDownload.STATUS_ERRO
+
+
+def test_xlsx_serializer_data_autorizacao_field_present(
+    solicitacoes_processa_dieta_especial,
+):
+    query_set = SolicitacaoDietaEspecial.objects.all()
+    status = "AUTORIZADAS"
+    serializer = SolicitacaoDietaEspecialExportXLSXSerializer(
+        query_set, context={"status": status}, many=True
+    )
+    data = serializer.data
+    assert len(data) > 0
+    assert "data_autorizacao" in data[0]
+
+
+def test_xlsx_nutrisupervisao_serializer_data_autorizacao_field_present(
+    solicitacoes_processa_dieta_especial,
+):
+    query_set = SolicitacaoDietaEspecial.objects.all()
+    status = "AUTORIZADAS"
+    serializer = SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer(
+        query_set, context={"status": status}, many=True
+    )
+    data = serializer.data
+    assert len(data) > 0
+    assert "data_autorizacao" in data[0]
+
+
+def test_xlsx_data_autorizacao_value_from_solicitacao_autorizada(
+    solicitacao_dieta_especial_autorizada,
+    protocolo_padrao_dieta_especial,
+    protocolo_padrao_dieta_especial_2,
+    classificacoes_dietas,
+):
+    output = io.BytesIO()
+    query_set = SolicitacaoDietaEspecial.objects.all()
+    status = "AUTORIZADAS"
+    serializer = SolicitacaoDietaEspecialExportXLSXSerializer(
+        query_set, context={"status": status}, many=True
+    )
+    build_xlsx_relatorio_terceirizadas(
+        output,
+        serializer,
+        query_set,
+        status,
+        lotes=[],
+        classificacoes=[cd.id for cd in classificacoes_dietas],
+        protocolos=[
+            protocolo_padrao_dieta_especial.uuid,
+            protocolo_padrao_dieta_especial_2.uuid,
+        ],
+        data_inicial="01/01/2025",
+        data_final="31/01/2025",
+        exibir_diagnostico=False,
+    )
+    workbook = load_workbook(output)
+    sheet = workbook["Solicitações de dieta especial"]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[3][7] == "Data da autorização"
+
+    solicitacao = solicitacao_dieta_especial_autorizada
+    data_autorizacao_esperada = solicitacao.data_autorizacao
+
+    found = False
+    for row in rows[4:]:
+        if row[7] and isinstance(row[7], str) and "/" in row[7]:
+            found = True
+            break
+    if data_autorizacao_esperada:
+        assert found
+
+
+def test_pdf_relatorio_dietas_especiais_data_autorizacao_column_present(
+    usuario_com_pk, solicitacoes_processa_dieta_especial
+):
+    request_data = {"status_selecionado": "AUTORIZADAS"}
+    ids_dietas = [dieta.pk for dieta in SolicitacaoDietaEspecial.objects.all()]
+    nome_arquivo = "relatorio_dietas_especiais_data_autorizacao.pdf"
+
+    gera_pdf_relatorio_dietas_especiais_terceirizadas_async(
+        user=usuario_com_pk.username,
+        data=request_data,
+        nome_arquivo=nome_arquivo,
+        ids_dietas=ids_dietas,
+        filtros="texto a ser enviado",
+    )
+    central_download = CentralDeDownload.objects.get(identificador=nome_arquivo)
+    assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
+
+    reader = PdfReader(central_download.arquivo.path)
+    page = reader.pages[0]
+    conteudo_pdf = page.extract_text()
+
+    assert "Data da" in conteudo_pdf or "Data  da" in conteudo_pdf
+    assert "autorização" in conteudo_pdf or "autorizacao" in conteudo_pdf
+    assert "Nascimento" in conteudo_pdf

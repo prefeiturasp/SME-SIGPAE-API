@@ -448,6 +448,7 @@ def test_exporta_relatorio_consolidado_xlsx(
             "status": status,
             "dre": escola.diretoria_regional.uuid,
         },
+        contem_recreio=False
     )
 
     assert CentralDeDownload.objects.count() == 1

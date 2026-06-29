@@ -555,7 +555,12 @@ class LoteSimplesViewSet(ModelViewSet):
     serializer_class = LoteNomeSerializer
     queryset = Lote.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = ("uuid", "diretoria_regional__uuid", "terceirizada__uuid")
+    filterset_fields = (
+        "uuid",
+        "diretoria_regional__uuid",
+        "terceirizada__uuid",
+        "contratos_do_lote__edital__uuid",
+    )
 
 
 class CODAESimplesViewSet(ModelViewSet):

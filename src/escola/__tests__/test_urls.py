@@ -913,3 +913,33 @@ def test_url_endpoint_filtrar_total_unico_por_mes_usa_historico_matricula(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["total_matriculados"] == 1
+
+
+ENDPOINT_LOTES_SIMPLES = "lotes-simples"
+
+
+def test_url_endpoint_lotes_simples_filtro_edital(
+    client_autenticado, lote, diretoria_regional
+):
+    from src.terceirizada.models import Edital, Contrato
+
+    edital = baker.make(Edital, numero="Edital Teste")
+    outro_lote = baker.make("Lote", nome="Outro Lote")
+    contrato = baker.make(
+        Contrato,
+        edital=edital,
+        numero="CT-001",
+        lotes=[lote],
+        make_m2m=True,
+    )
+
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LOTES_SIMPLES}/",
+        {"contratos_do_lote__edital__uuid": edital.uuid},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    results = response.data["results"]
+    uuids_retornados = [r["uuid"] for r in results]
+    assert str(lote.uuid) in uuids_retornados
+    assert str(outro_lote.uuid) not in uuids_retornados
