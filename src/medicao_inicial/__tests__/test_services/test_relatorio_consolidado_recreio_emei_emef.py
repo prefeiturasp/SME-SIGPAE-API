@@ -12,12 +12,15 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import
     _get_lista_alimentacoes_dietas,
     _processa_periodo_campo,
     _sort_and_merge,
+    _unificar_dietas_tipo_a,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
     processa_dieta_especial,
     processa_grupos_recreio,
+    total_pagamento_recreio_emef,
+    total_pagamento_recreio_emei,
 )
 
 pytestmark = pytest.mark.django_db
@@ -431,3 +434,93 @@ def test_calcula_soma_medicao(solicitacao_recreio_emei):
     ]
     total_dieta = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
     assert total_dieta == 14.0
+
+
+def test_total_pagamento_recreio_emei_para_estudantes(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_recreio = medicoes[1]
+    total_refeicao = total_pagamento_recreio_emei(
+        medicao_recreio, "total_refeicoes_pagamento", {}
+    )
+    assert total_refeicao == 1260.0
+    total_sobremesa = total_pagamento_recreio_emei(
+        medicao_recreio, "total_sobremesas_pagamento", {}
+    )
+    assert total_sobremesa == 1260.0
+
+
+def test_total_pagamento_recreio_emei_para_colaboradores(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    total_refeicao_colaboradores = total_pagamento_recreio_emef(
+        medicao_colaboradores, "total_refeicoes_pagamento", {}
+    )
+    assert total_refeicao_colaboradores == 280.0
+    total_sobremesa_colaboradores = total_pagamento_recreio_emef(
+        medicao_colaboradores, "total_sobremesas_pagamento", {}
+    )
+    assert total_sobremesa_colaboradores == 280.0
+
+
+def test_unificar_dietas_tipo_a():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h"],
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+        ],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 5
+
+
+def test_unificar_dietas_tipo_a_sem_dieta_enteral():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 2
+
+
+def test_unificar_dietas_tipo_a_sem_dieta_principal():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+        ],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 3
+
+
+def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" not in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO B"]) == 2
