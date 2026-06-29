@@ -8,7 +8,7 @@ import uuid
 from calendar import monthrange
 from collections import defaultdict
 from copy import deepcopy
-from mimetypes import guess_extension, guess_type
+from mimetypes import guess_extension
 from typing import Any
 
 import environ
@@ -78,21 +78,6 @@ def envia_email_unico(
     return send_mail(
         assunto, corpo, config.from_email or None, [email], html_message=html
     )
-
-
-def envia_email_unico_com_anexo(assunto: str, corpo: str, email: str, anexo=[]):
-    # Anexa um arquivo no email.
-    # Usado em enviar_email_para_diretor_da_escola_destino.
-    config = DynamicEmailConfiguration.get_solo()
-
-    email = EmailMessage(assunto, corpo, config.from_email or None, [email])
-    email.content_subtype = "html"
-    _mimetypes, _ = guess_type(anexo.name)
-    # Este anexo vem da pasta media.
-    nome_anexo = anexo.name.split("/")[-1]
-    nome_anexo = nome_anexo.replace("_auto", "")
-    email.attach(nome_anexo, anexo.read(), _mimetypes)
-    email.send()
 
 
 def envia_email_unico_com_anexo_inmemory(

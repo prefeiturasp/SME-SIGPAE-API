@@ -1,12 +1,13 @@
 from celery import shared_task
 
-from src.dieta_especial.utils import (
+from src.perfil.models import Usuario
+
+from .utils.processamentos import (
     cancela_dietas_ativas_automaticamente,
     cancela_dietas_pendente_autorizacao,
     inicia_dietas_temporarias,
     termina_dietas_especiais,
 )
-from src.perfil.models import Usuario
 
 
 @shared_task(
@@ -16,7 +17,7 @@ from src.perfil.models import Usuario
 )
 def processa_dietas_especiais_task():
     usuario_admin = Usuario.objects.get(pk=1)
-    inicia_dietas_temporarias(usuario=usuario_admin)
+    inicia_dietas_temporarias()
     termina_dietas_especiais(usuario=usuario_admin)
 
 
