@@ -85,11 +85,11 @@ class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronogr
     observacoes = models.TextField("Observações", blank=True)
 
     @property
-    def ponto_a_ponto(self):
+    def ponto_a_ponto(self) -> bool:
         if not self.ficha_tecnica:
             return False
-        return (
-            self.ficha_tecnica.categoria == "FLV"
+        return bool(
+            self.ficha_tecnica
             and self.ficha_tecnica.tipo_entrega == "PONTO_A_PONTO"
         )
 

@@ -4,6 +4,8 @@ import logging
 from io import BytesIO
 from uuid import UUID
 
+from django.db.models import Q
+
 from celery import shared_task
 from dateutil.relativedelta import relativedelta
 from pypdf import PdfWriter
@@ -34,15 +36,16 @@ from ..dados_comuns.utils import (
 )
 from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
+    gerar_relatorio_ateste_financeiro,
     obter_relatorio_da_unidade,
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
-    relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
-    relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_cei,
+    relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_cemei,
+    relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_emebs,
-    gerar_relatorio_ateste_financeiro,
+    relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
 )
 from .historico_acesso_ue import tasks as historico_acesso_ue_tasks
 from .models import (
@@ -51,8 +54,8 @@ from .models import (
     Responsavel,
     SolicitacaoMedicaoInicial,
 )
-from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
 from .services.relatorio_ateste_financeiro import obter_config_grupo
+from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
 
 cria_historico_acesso_ue = historico_acesso_ue_tasks.cria_historico_acesso_ue
 finaliza_historico_acesso_ue = historico_acesso_ue_tasks.finaliza_historico_acesso_ue
@@ -231,6 +234,7 @@ def get_relatorio_solicitacao_medicao_por_escola(solicitacao):
 
     _RELATORIO_MAP = [
         (tem_recreio and eh_cei, relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias),
+        (tem_recreio and escola.eh_cemei_data(data_ref), relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias),
         (tem_recreio, relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias),
         (eh_cei, relatorio_solicitacao_medicao_por_escola_cei),
         (escola.eh_cemei_data(data_ref), relatorio_solicitacao_medicao_por_escola_cemei),
@@ -437,7 +441,7 @@ def exporta_relatorio_controle_frequencia_para_pdf(
     soft_time_limit=3000,
 )
 def exporta_relatorio_consolidado_xlsx(
-    user, nome_arquivo, solicitacoes, tipos_de_unidade, query_params
+    user, nome_arquivo, solicitacoes, tipos_de_unidade, query_params, contem_recreio
 ):
     logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
     obj_central_download = gera_objeto_na_central_download(
@@ -445,7 +449,7 @@ def exporta_relatorio_consolidado_xlsx(
     )
     try:
         arquivo = gera_relatorio_consolidado_xlsx(
-            solicitacoes, tipos_de_unidade, query_params
+            solicitacoes, tipos_de_unidade, query_params, contem_recreio
         )
         atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
 
@@ -512,9 +516,7 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
     nome_arquivo,
     uuid_relatorio_financeiro,
 ):
-    logger.info(
-        f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x"
-    )
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
 
     obj_central_download = gera_objeto_na_central_download(
         user=user,
@@ -522,13 +524,10 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
     )
 
     try:
-        relatorio_financeiro = (
-            RelatorioFinanceiro.objects.select_related(
-                "lote",
-                "grupo_unidade_escolar",
-            )
-            .get(uuid=uuid_relatorio_financeiro)
-        )
+        relatorio_financeiro = RelatorioFinanceiro.objects.select_related(
+            "lote",
+            "grupo_unidade_escolar",
+        ).get(uuid=uuid_relatorio_financeiro)
 
         mes = int(relatorio_financeiro.mes)
         ano = int(relatorio_financeiro.ano)
@@ -541,7 +540,9 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
                 mes,
                 calendar.monthrange(ano, mes)[1],
             ),
-            data_final__gte=datetime.date(ano, mes, 1),
+        ).filter(
+            Q(data_final__gte=datetime.date(ano, mes, 1))
+            | Q(data_final__isnull=True)
         ).first()
 
         if not parametrizacao:
@@ -550,9 +551,7 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
                 "para o tipo de unidade e lote do relatório financeiro."
             )
 
-        config = obter_config_grupo(
-            relatorio_financeiro.grupo_unidade_escolar.nome
-        )
+        config = obter_config_grupo(relatorio_financeiro.grupo_unidade_escolar.nome)
 
         arquivo = gerar_relatorio_ateste_financeiro(
             relatorio_financeiro=relatorio_financeiro,
@@ -569,15 +568,11 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         )
 
     except Exception as e:
-        logger.exception(
-            "Erro ao gerar relatório financeiro consolidado"
-        )
+        logger.exception("Erro ao gerar relatório financeiro consolidado")
 
         atualiza_central_download_com_erro(
             obj_central_download,
             str(e),
         )
 
-    logger.info(
-        f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x"
-    )
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")

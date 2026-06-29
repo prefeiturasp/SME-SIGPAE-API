@@ -15,41 +15,49 @@ from ..tasks.utils.logs import (
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
 )
-from ..utils import (
-    _parse_data,
-    dados_dietas_escolas_cei,
-    dados_dietas_escolas_comuns,
-    dietas_especiais_a_terminar,
-    filtra_relatorio_recreio_nas_ferias,
-    formatar_informacoes_historioco_dietas,
-    formatar_periodos_cei,
-    formatar_periodos_cemei,
-    formatar_periodos_emebs,
-    formatar_periodos_emei_emef_cieja,
-    gera_dicionario_historico_dietas,
-    gera_filtros_relatorio_recreio_nas_ferias,
-    gerar_filtros_relatorio_historico,
+from ..tasks.utils.processamentos import (
+    _dietas_especiais_a_terminar,
     termina_dietas_especiais,
-    transformar_dados_escolas,
-    unidades_tipo_cei,
-    unidades_tipo_cemei,
-    unidades_tipo_emebs,
-    unidades_tipos_cmct_ceugestao,
-    unidades_tipos_emei_emef_cieja,
+)
+from ..utils.filtra_relatorio_recreio_nas_ferias import (
+    _parse_data,
+    filtra_relatorio_recreio_nas_ferias,
+    gera_filtros_relatorio_recreio_nas_ferias,
+)
+from ..utils.gera_dicionario_historico_dietas import (
+    _formatar_informacoes_historioco_dietas,
+    _formatar_periodos_cei,
+    _formatar_periodos_cemei,
+    _formatar_periodos_emebs,
+    _formatar_periodos_emei_emef_cieja,
+    _transformar_dados_escolas,
+    _unidades_tipo_cei,
+    _unidades_tipo_cemei,
+    _unidades_tipo_emebs,
+    _unidades_tipos_cmct_ceugestao,
+    _unidades_tipos_emei_emef_cieja,
+    gera_dicionario_historico_dietas,
+)
+from ..utils.gerar_filtros_relatorio_historico import (
+    gerar_filtros_relatorio_historico,
+)
+from ..utils.get_logs_historico_dietas import (
+    _dados_dietas_escolas_cei,
+    _dados_dietas_escolas_comuns,
 )
 
 pytestmark = pytest.mark.django_db
 
 
 def test_dietas_especiais_a_terminar(solicitacoes_dieta_especial_com_data_termino):
-    assert dietas_especiais_a_terminar().count() == 3
+    assert _dietas_especiais_a_terminar().count() == 3
 
 
 def test_termina_dietas_especiais(
     solicitacoes_dieta_especial_com_data_termino, usuario_admin
 ):
     termina_dietas_especiais(usuario_admin)
-    assert dietas_especiais_a_terminar().count() == 0
+    assert _dietas_especiais_a_terminar().count() == 0
     assert (
         SolicitacaoDietaEspecial.objects.filter(
             status=DietaEspecialWorkflow.TERMINADA_AUTOMATICAMENTE_SISTEMA
@@ -61,7 +69,7 @@ def test_termina_dietas_especiais(
 def test_registrar_historico_criacao(
     protocolo_padrao_dieta_especial_2, substituicao_padrao_dieta_especial_2
 ):
-    from ..utils import log_create
+    from ..protocolo_padrao.api.utils import log_create
 
     log_create(protocolo_padrao_dieta_especial_2)
     assert protocolo_padrao_dieta_especial_2.historico
@@ -70,7 +78,7 @@ def test_registrar_historico_criacao(
 def test_diff_protocolo_padrao(
     protocolo_padrao_dieta_especial_2, substituicao_padrao_dieta_especial_2, edital
 ):
-    from ..utils import diff_protocolo_padrao
+    from ..protocolo_padrao.api.utils import diff_protocolo_padrao
 
     validated_data = {
         "nome_protocolo": "Alergia a manga",
@@ -344,7 +352,7 @@ def test_unidades_tipo_emebs(escolas_tipo_emebs):
     item, item_somatorio, classificacao = escolas_tipo_emebs
     total_dietas = 0
 
-    dietas = unidades_tipo_emebs(item, classificacao)
+    dietas = _unidades_tipo_emebs(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao["Escola EMEBS"]["classificacoes"]["Tipo A"]
     total_dietas += dietas
@@ -356,7 +364,7 @@ def test_unidades_tipo_emebs(escolas_tipo_emebs):
     assert "TARDE" in periodo
     assert periodo["TARDE"] == 6
 
-    dietas = unidades_tipo_emebs(item_somatorio, classificacao)
+    dietas = _unidades_tipo_emebs(item_somatorio, classificacao)
     assert dietas == 6
     informacao_classificacao = classificacao["Escola EMEBS"]["classificacoes"]["Tipo A"]
     total_dietas += dietas
@@ -373,7 +381,7 @@ def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
     item, item_somatorio, classificacao = escolas_tipo_emei_emef_cieja
     total_dietas = 0
 
-    dietas = unidades_tipos_emei_emef_cieja(item, classificacao)
+    dietas = _unidades_tipos_emei_emef_cieja(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao["Escola EMEF"]["classificacoes"]["Tipo A"]
     total_dietas += dietas
@@ -385,7 +393,7 @@ def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
     assert "TARDE" in periodo
     assert periodo["TARDE"] == 6
 
-    dietas = unidades_tipos_emei_emef_cieja(item_somatorio, classificacao)
+    dietas = _unidades_tipos_emei_emef_cieja(item_somatorio, classificacao)
     assert dietas == 6
     informacao_classificacao = classificacao["Escola EMEF"]["classificacoes"]["Tipo A"]
     total_dietas += dietas
@@ -398,13 +406,13 @@ def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
     assert periodo["TARDE"] == 6
 
 
-def test_unidades_tipos_cmct_ceugestao(escolas_tipos_cmct_ceugestao):
+def test__unidades_tipos_cmct_ceugestao(escolas_tipos_cmct_ceugestao):
     item, item_somatorio, classificacao = escolas_tipos_cmct_ceugestao
     total_dietas = classificacao["Escola CEU GESTAO"]["classificacoes"]["Tipo A"][
         "total"
     ]
 
-    dietas = unidades_tipos_cmct_ceugestao(item, classificacao)
+    dietas = _unidades_tipos_cmct_ceugestao(item, classificacao)
     assert dietas == 10
     informacao_classificacao = classificacao["Escola CEU GESTAO"]["classificacoes"][
         "Tipo A"
@@ -412,7 +420,7 @@ def test_unidades_tipos_cmct_ceugestao(escolas_tipos_cmct_ceugestao):
     total_dietas += dietas
     assert informacao_classificacao["total"] == total_dietas
 
-    dietas = unidades_tipos_cmct_ceugestao(item_somatorio, classificacao)
+    dietas = _unidades_tipos_cmct_ceugestao(item_somatorio, classificacao)
     assert dietas == 5
     informacao_classificacao = classificacao["Escola CEU GESTAO"]["classificacoes"][
         "Tipo A"
@@ -421,11 +429,11 @@ def test_unidades_tipos_cmct_ceugestao(escolas_tipos_cmct_ceugestao):
     assert informacao_classificacao["total"] == total_dietas
 
 
-def test_unidades_tipo_cei(escolas_tipo_cei):
+def test__unidades_tipo_cei(escolas_tipo_cei):
     item, item_somatorio, classificacao = escolas_tipo_cei
     total_dietas = 0
 
-    dietas = unidades_tipo_cei(item, classificacao)
+    dietas = _unidades_tipo_cei(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao["Escola CEI DIRET"]["classificacoes"][
         "Tipo A"
@@ -439,7 +447,7 @@ def test_unidades_tipo_cei(escolas_tipo_cei):
     assert periodo[1]["autorizadas"] == 3
     assert periodo[1]["faixa"] == "07 a 11 meses"
 
-    dietas = unidades_tipo_cei(item_somatorio, classificacao)
+    dietas = _unidades_tipo_cei(item_somatorio, classificacao)
     assert dietas == 4
     informacao_classificacao = classificacao["Escola CEI DIRET"]["classificacoes"][
         "Tipo A"
@@ -454,11 +462,11 @@ def test_unidades_tipo_cei(escolas_tipo_cei):
     assert periodo[1]["faixa"] == "07 a 11 meses"
 
 
-def test_unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etaria):
+def test__unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etaria):
     item, item_somatorio, classificacao = escolas_tipo_cemei_por_faixa_etaria
     total_dietas = 0
 
-    dietas = unidades_tipo_cemei(item, classificacao)
+    dietas = _unidades_tipo_cemei(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
     total_dietas += dietas
@@ -469,7 +477,7 @@ def test_unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etari
     assert "INTEGRAL" in periodo
     assert len(periodo["INTEGRAL"]) == 2
 
-    dietas = unidades_tipo_cemei(item_somatorio, classificacao)
+    dietas = _unidades_tipo_cemei(item_somatorio, classificacao)
     assert dietas == 4
     informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
     total_dietas += dietas
@@ -481,11 +489,11 @@ def test_unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etari
     assert len(periodo["INTEGRAL"]) == 2
 
 
-def test_unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
+def test__unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
     item, item_somatorio, classificacao = escolas_tipo_cemei_por_periodo
     total_dietas = 0
 
-    dietas = unidades_tipo_cemei(item, classificacao)
+    dietas = _unidades_tipo_cemei(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
     total_dietas += dietas
@@ -497,7 +505,7 @@ def test_unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
     assert "INTEGRAL" in periodo
     assert periodo["INTEGRAL"] == 3
 
-    dietas = unidades_tipo_cemei(item_somatorio, classificacao)
+    dietas = _unidades_tipo_cemei(item_somatorio, classificacao)
     assert dietas == 4
     informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
     total_dietas += dietas
@@ -602,8 +610,8 @@ def test_gera_dicionario_historico_dietas_escola_emebs(
 
 
 def test_cria_dicionario_historico_dietas_autorizadas_cei(log_dietas_autorizadas_cei):
-    informacoes_logs = dados_dietas_escolas_cei({})
-    informacoes, total_dietas = transformar_dados_escolas(informacoes_logs)
+    informacoes_logs = _dados_dietas_escolas_cei({})
+    informacoes, total_dietas = _transformar_dados_escolas(informacoes_logs)
 
     assert total_dietas == 57
     assert isinstance(informacoes, dict)
@@ -613,8 +621,8 @@ def test_cria_dicionario_historico_dietas_autorizadas_cei(log_dietas_autorizadas
 
 
 def test_cria_dicionario_historico_dietas_autorizadas(log_dietas_autorizadas):
-    informacoes_logs = dados_dietas_escolas_comuns({})
-    informacoes, total_dietas = transformar_dados_escolas(informacoes_logs)
+    informacoes_logs = _dados_dietas_escolas_comuns({})
+    informacoes, total_dietas = _transformar_dados_escolas(informacoes_logs)
 
     assert total_dietas == 26
     assert isinstance(informacoes, dict)
@@ -630,7 +638,7 @@ def test_dados_dietas_escolas_cei(log_dietas_autorizadas_cei):
         "data__month": data.month,
         "data__year": data.year,
     }
-    logs = dados_dietas_escolas_cei(filtros)
+    logs = _dados_dietas_escolas_cei(filtros)
     assert len(logs) == 6
     assert logs[0]["nome_escola"] == "CEI DIRET JOAO MENDES"
     assert logs[0]["nome_classificacao"] == "Tipo B"
@@ -668,7 +676,7 @@ def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
         "data__month": data.month,
         "data__year": data.year,
     }
-    logs = dados_dietas_escolas_comuns(filtros)
+    logs = _dados_dietas_escolas_comuns(filtros)
     assert len(logs) == 6
 
     assert logs[0]["nome_escola"] == "CEMEI"
@@ -696,7 +704,7 @@ def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
     assert logs[5]["nome_periodo_escolar"] is None
 
 
-def test_formatar_periodos_emebs():
+def test__formatar_periodos_emebs():
     informacao = {
         "data": datetime.date(2024, 2, 12),
         "unidade_educacional": "Escola EMEBS",
@@ -714,7 +722,7 @@ def test_formatar_periodos_emebs():
         "faixa_etaria": {},
         "total": 2,
     }
-    formatar_periodos_emebs(informacao, classificacao)
+    _formatar_periodos_emebs(informacao, classificacao)
     assert "periodos" in informacao
     assert isinstance(informacao["periodos"], dict)
 
@@ -733,7 +741,7 @@ def test_formatar_periodos_emebs():
     ]
 
 
-def test_formatar_periodos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
+def test__formatar_periodos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
     _, _, classificacao = escolas_tipo_emei_emef_cieja
     informacao = {
         "data": datetime.date(2024, 2, 12),
@@ -743,7 +751,7 @@ def test_formatar_periodos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
         "classificacao": "Tipo A",
         "total": 1,
     }
-    formatar_periodos_emei_emef_cieja(
+    _formatar_periodos_emei_emef_cieja(
         informacao, classificacao["Escola EMEF"]["classificacoes"]["Tipo A"]
     )
     assert "periodos" in informacao
@@ -752,7 +760,7 @@ def test_formatar_periodos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
     assert {"periodo": "TARDE", "autorizadas": 1} == informacao["periodos"][0]
 
 
-def test_formatar_periodos_cemei():
+def test__formatar_periodos_cemei():
     informacao = {
         "data": datetime.date(2024, 2, 12),
         "unidade_educacional": "Escola CEMEI",
@@ -772,7 +780,7 @@ def test_formatar_periodos_cemei():
         "faixa_etaria": {},
         "total": 2,
     }
-    formatar_periodos_cemei(informacao, classificacao)
+    _formatar_periodos_cemei(informacao, classificacao)
 
     assert "periodos" in informacao
     assert isinstance(informacao["periodos"], dict)
@@ -795,7 +803,7 @@ def test_formatar_periodos_cemei():
     ]["por_idade"][0]["faixa_etaria"]
 
 
-def test_formatar_periodos_cei(escolas_tipo_cei):
+def test__formatar_periodos_cei(escolas_tipo_cei):
     _, _, classificacao = escolas_tipo_cei
     informacao = {
         "data": datetime.date(2024, 2, 12),
@@ -806,7 +814,7 @@ def test_formatar_periodos_cei(escolas_tipo_cei):
         "total": 1,
     }
 
-    formatar_periodos_cei(
+    _formatar_periodos_cei(
         informacao, classificacao["Escola CEI DIRET"]["classificacoes"]["Tipo A"]
     )
 
@@ -836,7 +844,7 @@ def test_formatar_informacoes_historioco_dietas(
 
     escolas = {**emebs, **emef, **ceu_gestao, **cei, **cemei_cei, **cemei_emei}
     total_dietas = 8
-    resultado = formatar_informacoes_historioco_dietas(escolas, total_dietas)
+    resultado = _formatar_informacoes_historioco_dietas(escolas, total_dietas)
     assert isinstance(resultado, dict)
     assert "total_dietas" in resultado
     assert resultado["total_dietas"] == total_dietas

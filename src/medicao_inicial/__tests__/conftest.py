@@ -43,6 +43,9 @@ from src.medicao_inicial.services.relatorio_consolidado_emebs import (
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     insere_tabela_periodos_na_planilha as emei_emef_insere_tabela,
 )
+from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
+    insere_tabela_periodos_na_planilha as recreio_emei_emef_insere_tabela,
+)
 
 MODEL_MEDICAO_RESPONSAVEL = "medicao_inicial.Responsavel"
 PROGRAMAS_E_PROOJETOS = "PROGRAMAS E PROJETOS"
@@ -7355,3 +7358,96 @@ def solicitacao_recreio_cemei(
                 )
 
     return solicitacao_recreio_nas_ferias
+
+
+@pytest.fixture
+def solicitacao_recreio_emei(solicitacao_recreio_emef, escola_emei, categoria_medicao_dieta_a):
+    solicitacao_recreio_emef.escola = escola_emei
+    solicitacao_recreio_emef.save()
+    return solicitacao_recreio_emef
+
+
+@pytest.fixture
+def mock_colunas_recreio_emei():
+    return [
+        ("Recreio nas Férias", "refeicao"),
+        ("Recreio nas Férias", "repeticao_refeicao"),
+        ("Recreio nas Férias", "total_refeicoes_pagamento"),
+        ("Recreio nas Férias", "sobremesa"),
+        ("Recreio nas Férias", "repeticao_sobremesa"),
+        ("Recreio nas Férias", "total_sobremesas_pagamento"),
+        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        ("Colaboradores", "refeicao"),
+        ("Colaboradores", "repeticao_refeicao"),
+        ("Colaboradores", "total_refeicoes_pagamento"),
+        ("Colaboradores", "sobremesa"),
+        ("Colaboradores", "repeticao_sobremesa"),
+        ("Colaboradores", "total_sobremesas_pagamento"),
+    ]
+
+
+@pytest.fixture
+def mock_linhas_recreio_emei():
+    return [
+        [
+            "EMEI",
+            "987654",
+            "EMEI TESTE",
+            1260.0,
+            1260.0,
+            1260.0,
+            1260.0,
+            1260.0,
+            1260.0,
+            14.0,
+            280.0,
+            280.0,
+            280.0,
+            280.0,
+            280.0,
+            280.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_recreio_emei(
+    solicitacao_recreio_emei, mock_colunas_recreio_emei, mock_linhas_recreio_emei
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {solicitacao_recreio_emei.mes}-{ solicitacao_recreio_emei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = recreio_emei_emef_insere_tabela(
+        aba, mock_colunas_recreio_emei, mock_linhas_recreio_emei, writer
+    )
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
+
+
+@pytest.fixture
+def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
+    grupo_escolar = baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 3",
+        uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
+        tipos_unidades=[
+            baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="EMEI P FOM"),
+        ],
+    )
+    return {
+        "dre": solicitacao_recreio_emei.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_recreio_emei.mes,
+        "ano": solicitacao_recreio_emei.ano,
+        "lotes[]": solicitacao_recreio_emei.escola.lote.uuid,
+        "lotes": [solicitacao_recreio_emei.escola.lote.uuid],
+    }

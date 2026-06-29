@@ -289,18 +289,23 @@ def calcula_totais_pagamento_emef(
     primeira_oferta, repeticao_primeira, segunda_oferta, repeticao_segunda, medicao, dia
 ):
     categoria = MEDICAO_CATEGORIA_ALIMENTACAO
-    matriculados = medicao.valores_medicao.filter(
-        nome_campo="matriculados", dia=f"{dia:02d}"
-    ).first()
-    numero_de_alunos = medicao.valores_medicao.filter(
-        nome_campo="numero_de_alunos", dia=f"{dia:02d}"
-    ).first()
-
-    valor_comparativo = (
-        matriculados.valor
-        if matriculados
-        else numero_de_alunos.valor if numero_de_alunos else 0
-    )
+    if medicao.solicitacao_medicao_inicial.recreio_nas_ferias is None:
+        matriculados = medicao.valores_medicao.filter(
+            nome_campo="matriculados", dia=f"{dia:02d}"
+        ).first()
+        numero_de_alunos = medicao.valores_medicao.filter(
+            nome_campo="numero_de_alunos", dia=f"{dia:02d}"
+        ).first()
+        valor_comparativo = (
+            matriculados.valor
+            if matriculados
+            else numero_de_alunos.valor if numero_de_alunos else 0
+        )
+    else:
+        participantes = medicao.valores_medicao.filter(
+            nome_campo="participantes", dia=f"{dia:02d}"
+        ).first()
+        valor_comparativo = participantes.valor if participantes else 0
 
     refeicao = medicao.valores_medicao.filter(
         nome_campo=primeira_oferta, dia=f"{dia:02d}", categoria_medicao__nome=categoria

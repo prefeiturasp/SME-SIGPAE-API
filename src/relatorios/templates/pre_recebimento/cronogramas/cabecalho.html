@@ -57,7 +57,7 @@
       </div>
     </section>
 
-    <section class="flex">
+    <section class="flex pb-2">
       {% if not cronograma.ponto_a_ponto %}
       <div class="dados-empresa">
         <b>Responsável:</b> {{empresa.responsavel_nome}}
@@ -70,6 +70,13 @@
         <b>E-mail:</b> {{empresa.responsavel_email}}
       </div>
     </section>
+    {% if cronograma.ponto_a_ponto %}
+    <section class="flex">
+      <div class="dados-empresa" style="width: 100%;">
+        <b>Local de Entrega:</b> Unidade Educacional da RME
+      </div>
+    </section>
+    {% endif %}
 	</header>
 </body>
 </html>

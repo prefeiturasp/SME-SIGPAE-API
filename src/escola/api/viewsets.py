@@ -205,13 +205,20 @@ class EscolaSimplissimaComEolViewSet(ReadOnlyModelViewSet):
     def escolas_com_cod_eol(self, request):
         escolas = self.get_queryset()
         lote_uuid = request.data.get("lote")
-        tipos_uuids = request.data.get("tipos_unidades_selecionadas", [])
+        lotes_uuids = request.data.get("lotes", [])
+        tipos_uuids = (
+            request.data.get("tipos_unidades_selecionadas")
+            or request.data.get("tipos_unidades")
+            or []
+        )
         if isinstance(tipos_uuids, str):
             tipos_uuids = [tipos_uuids]
         if lote_uuid:
             escolas = escolas.filter(lote__uuid=lote_uuid)
-            if tipos_uuids:
-                escolas = escolas.filter(tipo_unidade__uuid__in=tipos_uuids)
+        if lotes_uuids:
+            escolas = escolas.filter(lote__uuid__in=lotes_uuids)
+        if tipos_uuids:
+            escolas = escolas.filter(tipo_unidade__uuid__in=tipos_uuids)
 
         escolas = escolas.distinct().order_by("nome")
         if not escolas.exists():
@@ -548,7 +555,12 @@ class LoteSimplesViewSet(ModelViewSet):
     serializer_class = LoteNomeSerializer
     queryset = Lote.objects.all()
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = ("uuid", "diretoria_regional__uuid", "terceirizada__uuid")
+    filterset_fields = (
+        "uuid",
+        "diretoria_regional__uuid",
+        "terceirizada__uuid",
+        "contratos_do_lote__edital__uuid",
+    )
 
 
 class CODAESimplesViewSet(ModelViewSet):

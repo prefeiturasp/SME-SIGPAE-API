@@ -6,7 +6,11 @@ from rest_framework import status
 
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.escola.models import LogAlunosMatriculadosPeriodoEscola, TipoTurma
-from src.medicao_inicial.api.viewsets import SolicitacaoMedicaoInicialViewSet
+from src.medicao_inicial.api.viewsets import (
+    SolicitacaoMedicaoInicialViewSet,
+    DescontoFinanceiroViewSet,
+)
+from src.medicao_inicial.models import DescontoFinanceiro
 
 pytestmark = pytest.mark.django_db
 
@@ -235,3 +239,48 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
     assert response.data == {
         "results": ["Infantil TARDE", "Infantil INTEGRAL", "Infantil MANHÃ"]
     }
+
+
+@pytest.mark.django_db
+def test_registrar_descontos_cria_desconto_emei(
+    mock_request,
+    relatorio_financeiro_emei,
+    escola_emei,
+    clausula_desconto,
+):
+    mock_request.data = [
+        {
+            "tipo_lancamento": "ALIMENTACOES",
+            "clausula_desconto": str(clausula_desconto.uuid),
+            "quantidade": 15,
+            "unidades_educacionais": [
+                str(escola_emei.uuid),
+            ],
+        }
+    ]
+
+    view = DescontoFinanceiroViewSet()
+    view.request = mock_request
+
+    response = view.registrar_descontos(
+        mock_request,
+        uuid_relatorio_financeiro=relatorio_financeiro_emei.uuid,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert DescontoFinanceiro.objects.count() == 1
+
+    desconto = DescontoFinanceiro.objects.first()
+
+    assert desconto.relatorio_financeiro == relatorio_financeiro_emei
+    assert desconto.tipo_lancamento == "ALIMENTACOES"
+    assert desconto.clausula_desconto == clausula_desconto
+    assert desconto.quantidade == 15
+    assert desconto.faixa_etaria is None
+    assert desconto.periodo_escolar is None
+    assert list(desconto.unidades_educacionais.all()) == [
+        escola_emei
+    ]
+
+    assert len(response.data) == 1
