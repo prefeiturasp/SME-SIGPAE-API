@@ -1,0 +1,526 @@
+import math
+from io import BytesIO
+
+import openpyxl
+import pandas as pd
+import pytest
+
+from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
+    _calcula_soma_medicao,
+    _get_lista_alimentacoes,
+    _get_lista_alimentacoes_dietas,
+    _processa_periodo_campo,
+    _sort_and_merge,
+    _unificar_dietas_tipo_a,
+    ajusta_layout_tabela,
+    get_alimentacoes_por_periodo,
+    get_valores_tabela,
+    insere_tabela_periodos_na_planilha,
+    processa_dieta_especial,
+    processa_grupos_recreio,
+    total_pagamento_recreio_emef,
+    total_pagamento_recreio_emei,
+)
+
+pytestmark = pytest.mark.django_db
+
+
+def test_get_alimentacoes_por_periodo(solicitacao_recreio_emei):
+    colunas = get_alimentacoes_por_periodo([solicitacao_recreio_emei], {})
+    assert isinstance(colunas, list)
+    assert len(colunas) == 13
+    assert sum(1 for tupla in colunas if tupla[0] == "Recreio nas Férias") == 6
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 1
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 0
+    assert sum(1 for tupla in colunas if tupla[0] == "Colaboradores") == 6
+
+    assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 0
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 0
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 0
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 0
+    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 3
+    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 2
+    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 2
+    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 2
+
+
+def test_get_valores_tabela_unidade_emei(
+    solicitacao_recreio_emei, mock_colunas_recreio_emei
+):
+    tipos_unidade = ["EMEI"]
+    linhas = get_valores_tabela(
+        [solicitacao_recreio_emei], mock_colunas_recreio_emei, tipos_unidade, {}
+    )
+    assert isinstance(linhas, list)
+    assert len(linhas) == 1
+    assert isinstance(linhas[0], list)
+    assert len(linhas[0]) == 16
+    assert linhas[0] == [
+        "EMEI",
+        "987654",
+        "EMEI TESTE",
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        14.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+    ]
+
+
+def test_insere_tabela_periodos_na_planilha_unidade_emei(
+    solicitacao_recreio_emei, mock_colunas_recreio_emei, mock_linhas_recreio_emei
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {solicitacao_recreio_emei.mes}-{ solicitacao_recreio_emei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+
+    df = insere_tabela_periodos_na_planilha(
+        aba, mock_colunas_recreio_emei, mock_linhas_recreio_emei, writer
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 16
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[0] == "ALIMENTAÇÕES ALUNOS PARTICIPANTES"
+        )
+        == 6
+    )
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 1
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
+        )
+        == 2
+    )
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 2
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == "Total de Sobremesas para Pagamento"
+        )
+        == 2
+    )
+    assert sum(1 for tupla in colunas_df if tupla[0] == "COLABORADORES") == 6
+
+    assert df.iloc[0].tolist() == [
+        "EMEI",
+        "987654",
+        "EMEI TESTE",
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        14.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        987654.0,
+        0.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        1260.0,
+        14.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+        280.0,
+    ]
+
+
+def test_ajusta_layout_tabela(informacoes_excel_writer_recreio_emei):
+    aba, writer, workbook, worksheet, df, arquivo = (
+        informacoes_excel_writer_recreio_emei
+    )
+    ajusta_layout_tabela(workbook, worksheet, df)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 3
+    esperados = {"A3:C3", "D3:I3", "K3:P3"}
+    assert {str(r) for r in merged_ranges} == esperados
+
+    assert sheet["A3"].value is None
+    assert sheet["D3"].value == "ALIMENTAÇÕES ALUNOS PARTICIPANTES"
+    assert sheet["D3"].fill.fgColor.rgb == "FF198459"
+    assert sheet["J3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["K3"].value == "COLABORADORES"
+    assert sheet["K3"].fill.fgColor.rgb == "FFB40C02"
+    workbook_openpyxl.close()
+
+
+def test_get_lista_alimentacoes(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    medicao_recreio_nas_ferias = medicoes[1]
+
+    lista_alimentacoes_colaboradores = _get_lista_alimentacoes(
+        medicao_colaboradores, "Colaboradores", {}
+    )
+    assert isinstance(lista_alimentacoes_colaboradores, list)
+    assert lista_alimentacoes_colaboradores == [
+        "refeicao",
+        "repeticao_refeicao",
+        "repeticao_sobremesa",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+
+    lista_alimentacoes_recreio = _get_lista_alimentacoes(
+        medicao_recreio_nas_ferias, "Recreio nas Férias", {}
+    )
+    assert isinstance(lista_alimentacoes_recreio, list)
+    assert lista_alimentacoes_recreio == [
+        "refeicao",
+        "repeticao_refeicao",
+        "repeticao_sobremesa",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+
+    lista_alimentacoes_solicitacao = _get_lista_alimentacoes(
+        medicao_recreio_nas_ferias, "Solicitações de Alimentação", {}
+    )
+    assert isinstance(lista_alimentacoes_solicitacao, list)
+    assert lista_alimentacoes_solicitacao == [
+        "refeicao",
+        "repeticao_refeicao",
+        "repeticao_sobremesa",
+        "sobremesa",
+    ]
+
+
+def test_get_lista_alimentacoes_dietas(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_recreio_nas_ferias = medicoes[1]
+    dieta_a = "DIETA ESPECIAL - TIPO A"
+    dieta_a_enteral_restricao = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
+    dieta_b = "DIETA ESPECIAL - TIPO B"
+
+    lista_dietas_a = _get_lista_alimentacoes_dietas(
+        medicao_recreio_nas_ferias, dieta_a, {}
+    )
+    assert isinstance(lista_dietas_a, list)
+    assert len(lista_dietas_a) == 0
+
+    lista_dietas_a_er = _get_lista_alimentacoes_dietas(
+        medicao_recreio_nas_ferias, dieta_a_enteral_restricao, {}
+    )
+    assert isinstance(lista_dietas_a_er, list)
+    assert len(lista_dietas_a_er) == 1
+    assert lista_dietas_a_er == ["refeicao"]
+
+    lista_dietas_b = _get_lista_alimentacoes_dietas(
+        medicao_recreio_nas_ferias, dieta_b, {}
+    )
+    assert isinstance(lista_dietas_b, list)
+    assert len(lista_dietas_b) == 0
+
+    medicao_colaboradores = medicoes[0]
+    lista_dietas_a = _get_lista_alimentacoes_dietas(medicao_colaboradores, dieta_a, {})
+    assert isinstance(lista_dietas_a, list)
+    assert len(lista_dietas_a) == 0
+
+    lista_dietas_a_er = _get_lista_alimentacoes_dietas(
+        medicao_colaboradores, dieta_a_enteral_restricao, {}
+    )
+    assert isinstance(lista_dietas_a_er, list)
+    assert len(lista_dietas_a_er) == 0
+
+    lista_dietas_b = _get_lista_alimentacoes_dietas(medicao_colaboradores, dieta_b, {})
+    assert isinstance(lista_dietas_b, list)
+    assert len(lista_dietas_b) == 0
+
+
+def test_sort_and_merge():
+    periodos_alimentacoes = {
+        "Recreio nas Férias": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+            "sobremesa",
+            "total_refeicoes_pagamento",
+            "total_sobremesas_pagamento",
+        ],
+        "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+    }
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
+    assert isinstance(dict_periodos_dietas, dict)
+
+    assert "DIETA ESPECIAL - TIPO A" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO A"]) == 3
+    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO A"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+    ]
+
+    assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 2
+    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == ["lanche", "lanche_4h"]
+
+    assert "Recreio nas Férias" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["Recreio nas Férias"]) == 6
+    assert dict_periodos_dietas["Recreio nas Férias"] == [
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "total_refeicoes_pagamento",
+        "sobremesa",
+        "total_sobremesas_pagamento",
+    ]
+
+    assert "Solicitações de Alimentação" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["Solicitações de Alimentação"]) == 2
+    assert dict_periodos_dietas["Solicitações de Alimentação"] == [
+        "lanche_emergencial",
+        "kit_lanche",
+    ]
+
+
+def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
+    valores_iniciais = [
+        solicitacao_recreio_emei.escola.tipo_unidade.iniciais,
+        solicitacao_recreio_emei.escola.codigo_eol,
+        solicitacao_recreio_emei.escola.nome,
+    ]
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    recreio_refeicao = _processa_periodo_campo(
+        solicitacao_recreio_emei,
+        "Recreio nas Férias",
+        "refeicao",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(recreio_refeicao, list)
+    assert len(recreio_refeicao) == 4
+    assert recreio_refeicao == ["EMEI", "987654", "EMEI TESTE", 1260.0]
+
+    solicitacao_kit_lanche = _processa_periodo_campo(
+        solicitacao_recreio_emei,
+        "Solicitações de Alimentação",
+        "kit_lanche",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(solicitacao_kit_lanche, list)
+    assert len(solicitacao_kit_lanche) == 5
+    assert solicitacao_kit_lanche == ["EMEI", "987654", "EMEI TESTE", 1260.0, "-"]
+
+    dieta_a_lanche = _processa_periodo_campo(
+        solicitacao_recreio_emei,
+        "DIETA ESPECIAL - TIPO A",
+        "lanche_4h",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(dieta_a_lanche, list)
+    assert len(dieta_a_lanche) == 6
+    assert dieta_a_lanche == ["EMEI", "987654", "EMEI TESTE", 1260.0, "-", "-"]
+
+
+def test_processa_dieta_especial(solicitacao_recreio_emei):
+    grupo = "Recreio nas Férias"
+    filtros = {"grupo__nome": grupo}
+    campo = "refeicao"
+    total = processa_dieta_especial(solicitacao_recreio_emei, filtros, campo, grupo, {})
+    assert total == "-"
+
+    grupo = "Solicitações de Alimentação"
+    filtros = {"grupo__nome": grupo}
+    campo = "kit_lanche"
+    total = processa_dieta_especial(solicitacao_recreio_emei, filtros, campo, grupo, {})
+    assert total == "-"
+
+    grupo = "Recreio nas Férias"
+    filtros = {"grupo__nome": grupo}
+    periodo = "DIETA ESPECIAL - TIPO A"
+    campo = "refeicao"
+    total = processa_dieta_especial(
+        solicitacao_recreio_emei, filtros, campo, periodo, {}
+    )
+    assert total == 14
+
+
+def test_processa_grupos_recreio(solicitacao_recreio_emei):
+    periodo = "Recreio nas Férias"
+    filtros = {"grupo__nome": periodo}
+    campo = "refeicao"
+    total = processa_grupos_recreio(
+        solicitacao_recreio_emei, filtros, campo, periodo, {}
+    )
+    assert total == 1260.0
+
+    periodo = "Colaboradores"
+    filtros = {"grupo__nome": periodo}
+    campo = "refeicao"
+    total = processa_grupos_recreio(
+        solicitacao_recreio_emei, filtros, campo, periodo, {}
+    )
+    assert total == 280.0
+
+    periodo = "Solicitações de Alimentação"
+    filtros = {"grupo__nome": periodo}
+    campo = "kit_lanche"
+    with pytest.raises(Exception):
+        processa_grupos_recreio(solicitacao_recreio_emei, filtros, campo, periodo, {})
+
+
+def test_calcula_soma_medicao(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    medicao_recreio = medicoes[1]
+
+    campo = "refeicao"
+    categoria = ["ALIMENTAÇÃO"]
+    total_recreio = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
+    assert total_recreio == 1260.0
+
+    total_colaboradores = _calcula_soma_medicao(
+        medicao_colaboradores, campo, categoria, {}
+    )
+    assert total_colaboradores == 280.0
+
+    categoria = [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+    ]
+    total_dieta = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
+    assert total_dieta == 14.0
+
+
+def test_total_pagamento_recreio_emei_para_estudantes(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_recreio = medicoes[1]
+    total_refeicao = total_pagamento_recreio_emei(
+        medicao_recreio, "total_refeicoes_pagamento", {}
+    )
+    assert total_refeicao == 1260.0
+    total_sobremesa = total_pagamento_recreio_emei(
+        medicao_recreio, "total_sobremesas_pagamento", {}
+    )
+    assert total_sobremesa == 1260.0
+
+
+def test_total_pagamento_recreio_emei_para_colaboradores(solicitacao_recreio_emei):
+    medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    total_refeicao_colaboradores = total_pagamento_recreio_emef(
+        medicao_colaboradores, "total_refeicoes_pagamento", {}
+    )
+    assert total_refeicao_colaboradores == 280.0
+    total_sobremesa_colaboradores = total_pagamento_recreio_emef(
+        medicao_colaboradores, "total_sobremesas_pagamento", {}
+    )
+    assert total_sobremesa_colaboradores == 280.0
+
+
+def test_unificar_dietas_tipo_a():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h"],
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+        ],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 5
+
+
+def test_unificar_dietas_tipo_a_sem_dieta_enteral():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h"],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 2
+
+
+def test_unificar_dietas_tipo_a_sem_dieta_principal():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+            "lanche",
+            "lanche_4h",
+            "refeicao",
+        ],
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO A"]) == 3
+
+
+def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+    }
+    resultado = _unificar_dietas_tipo_a(dietas_alimentacoes)
+    assert "DIETA ESPECIAL - TIPO A" not in resultado
+    assert "DIETA ESPECIAL - TIPO B" in resultado
+    assert (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+    )
+    assert len(resultado["DIETA ESPECIAL - TIPO B"]) == 2
