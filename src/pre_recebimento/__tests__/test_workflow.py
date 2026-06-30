@@ -227,9 +227,7 @@ def test_deve_enviar_email_e_notificacao_para_usuarios_vinculados(
     assert funcionario in kwargs_notificacao["usuarios"]
 
 
-@patch(
-    "src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis"
-)
+@patch("src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis")
 @patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
 def test_ficha_tecnica_deve_enviar_email_ao_iniciar_fluxo(
     mock_enviar_email,
@@ -259,8 +257,7 @@ def test_ficha_tecnica_deve_enviar_email_ao_iniciar_fluxo(
     _, kwargs = mock_enviar_email.call_args
 
     assert (
-        kwargs["titulo"]
-        == f"Ficha Técnica enviada pelo fornecedor - ({ficha.numero})"
+        kwargs["titulo"] == f"Ficha Técnica enviada pelo fornecedor - ({ficha.numero})"
     )
     assert (
         kwargs["assunto"]
@@ -283,14 +280,12 @@ def test_ficha_tecnica_deve_enviar_email_ao_iniciar_fluxo(
     assert contexto["nome_produto"] == ficha.produto.nome
     assert "data_envio" in contexto
     assert (
-        f"/pre-recebimento/ficha-tecnica/{ficha.uuid}"
+        f"/pre-recebimento/detalhar-ficha-tecnica?uuid={ficha.uuid}"
         in contexto["url_detalhes_ficha_tecnica"]
     )
 
 
-@patch(
-    "src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis"
-)
+@patch("src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis")
 @patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
 def test_ficha_tecnica_deve_salvar_log_ao_iniciar_fluxo(
     mock_enviar_email,
@@ -320,9 +315,7 @@ def test_ficha_tecnica_deve_salvar_log_ao_iniciar_fluxo(
     ).exists()
 
 
-@patch(
-    "src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis"
-)
+@patch("src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis")
 @patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
 def test_ficha_tecnica_deve_consultar_perfis_corretos(
     mock_enviar_email,
@@ -385,7 +378,4 @@ def test_ficha_tecnica_deve_alterar_status_ao_iniciar_fluxo(
 
     ficha.refresh_from_db()
 
-    assert (
-        ficha.status
-        == ficha.workflow_class.ENVIADA_PARA_ANALISE
-    )
+    assert ficha.status == ficha.workflow_class.ENVIADA_PARA_ANALISE

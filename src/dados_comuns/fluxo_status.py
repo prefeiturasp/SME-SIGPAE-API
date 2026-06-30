@@ -4884,7 +4884,10 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         from src.pre_recebimento.cronograma_entrega.models import (
             SolicitacaoAlteracaoCronograma,
         )
-        from ..pre_recebimento.cronograma_entrega.api.helpers import migrar_fichas_para_etapas_novas
+
+        from ..pre_recebimento.cronograma_entrega.api.helpers import (
+            migrar_fichas_para_etapas_novas,
+        )
 
         user = kwargs["user"]
         solicitacao_uuid = kwargs.get("justificativa")
@@ -5931,16 +5934,14 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
 
             empresa = self.empresa
             nome_fornecedor = (
-                f"{empresa.nome_fantasia} - {empresa.razao_social}"
-                if empresa
-                else "-"
+                f"{empresa.nome_fantasia} - {empresa.razao_social}" if empresa else "-"
             )
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
             data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
 
             url_detalhes_ficha_tecnica = (
-                f"{base_url}/pre-recebimento/ficha-tecnica/{self.uuid}"
+                f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
             )
 
             contexto = {
