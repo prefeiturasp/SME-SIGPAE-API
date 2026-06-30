@@ -2969,6 +2969,19 @@ def popula_campos_cemei(
     if len(tabela["nomes_campos"]):
         indice_categoria_nomes = 0
         indice_periodo_nomes = 0
+        if recreio:
+            logs_dietas_nomes = LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.filter(
+                escola=solicitacao.escola,
+                data__month=solicitacao.mes,
+                data__year=solicitacao.ano,
+            )
+        else:
+            logs_dietas_nomes = LogQuantidadeDietasAutorizadas.objects.filter(
+                escola=solicitacao.escola,
+                data__month=solicitacao.mes,
+                data__year=solicitacao.ano,
+            )
+
         popula_campos_nomes(
             solicitacao,
             tabela,
@@ -2978,7 +2991,7 @@ def popula_campos_cemei(
             indice_periodo_nomes,
             valores_dia,
             logs_alunos_matriculados,
-            logs_dietas,
+            logs_dietas_nomes,
             tabelas,
             indice_tabela,
             alteracoes_lanche_emergencial,
