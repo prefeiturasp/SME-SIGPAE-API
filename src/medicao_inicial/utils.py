@@ -1499,7 +1499,14 @@ def popula_campo_participantes(
             periodo_corrente,
         )
         if eh_colaboradores:
-            valores_dia += [unidade.num_colaboradores if unidade else 0]
+            recreio = solicitacao.recreio_nas_ferias
+            total = sum(
+                u.num_colaboradores
+                for u in recreio.unidades_participantes.filter(
+                    unidade_educacional=solicitacao.escola
+                )
+            )
+            valores_dia.append(total)
         else:
             valores_dia += [unidade.num_inscritos if unidade else 0]
     except Exception:
