@@ -444,7 +444,7 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
             )
             cemei_base_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
                 status="CODAE_AUTORIZADO",
-                rastro_escola=instituicao,
+                escola=instituicao,
                 dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
                 dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
                 dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
@@ -457,7 +457,11 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
                 "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
                 "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__uuid",
             )
-            cemei_tuples = set(chain(cemei_periodos_cei, cemei_periodos_emei))
+            cemei_tuples = {
+                (nome, uuid)
+                for nome, uuid in chain(cemei_periodos_cei, cemei_periodos_emei)
+                if nome is not None
+            }
             periodos.update(dict(cemei_tuples))
             return Response({"periodos": periodos if len(periodos) else None})
         except ValidationError as e:
