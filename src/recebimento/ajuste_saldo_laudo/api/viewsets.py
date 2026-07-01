@@ -57,7 +57,6 @@ class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSe
 
         Cria um novo ajuste de Saldo de Laudo
         """
-        print(request.data)
         serializer = AjusteSaldoCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
