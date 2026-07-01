@@ -1,8 +1,21 @@
-from src.dados_comuns.constants import ORDEM_HEADERS_RECREIO_CEI, ORDEM_CAMPOS_RECREIO
+import math
+
+from django.db.models import FloatField, Q, Sum
+from django.db.models.functions import Cast
+
+from src.dados_comuns.constants import ORDEM_CAMPOS_RECREIO, ORDEM_HEADERS_RECREIO_CEI
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
-from src.medicao_inicial.services.utils import filtra_queryset_pelo_intervalo_de_dias, generate_columns, get_categorias_dietas, get_nome_periodo, update_dietas_alimentacoes, update_periodos_alimentacoes
-from django.db.models import Q
+from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
+from src.medicao_inicial.services.utils import (
+    filtra_queryset_pelo_intervalo_de_dias,
+    generate_columns,
+    get_categorias_dietas,
+    get_nome_periodo,
+    get_valores_iniciais,
+    update_dietas_alimentacoes,
+    update_periodos_alimentacoes,
+)
 
 
 def get_alimentacoes_por_periodo(
@@ -33,7 +46,9 @@ def get_alimentacoes_por_periodo(
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
             nome_periodo = get_nome_periodo(medicao)
-            lista_alimentacoes = _get_lista_alimentacoes(medicao, nome_periodo, query_params)
+            lista_alimentacoes = _get_lista_alimentacoes(
+                medicao, nome_periodo, query_params
+            )
             periodos_alimentacoes = update_periodos_alimentacoes(
                 periodos_alimentacoes, nome_periodo, lista_alimentacoes
             )
@@ -119,8 +134,8 @@ def _get_lista_alimentacoes(
             .distinct()
             .order_by("inicio")
         )
-        
-        
+
+
 def _get_lista_alimentacoes_dietas(
     medicao: Medicao, categoria: str, query_params: dict | None = None
 ) -> list[int | str]:
@@ -210,8 +225,169 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
 
     dict_periodos_dietas = dict(
         sorted(
-            dict_periodos_dietas.items(), key=lambda item: ORDEM_HEADERS_RECREIO_CEI[item[0]]
+            dict_periodos_dietas.items(),
+            key=lambda item: ORDEM_HEADERS_RECREIO_CEI[item[0]],
         )
     )
 
     return dict_periodos_dietas
+
+
+def get_valores_tabela(
+    solicitacoes: list[SolicitacaoMedicaoInicial],
+    colunas: list[tuple],
+    tipos_de_unidade: list[str],
+    query_params: dict | None = None,
+) -> list[list[str | float]]:
+    """
+    Monta as linhas da tabela do relatório de Recreio nas Férias.
+
+    Para cada solicitação de medição inicial, são obtidas as informações
+    iniciais da unidade e os valores correspondentes às colunas previamente
+    definidas. Cada linha representa uma unidade educacional e contém os
+    totais calculados para cada período e categoria de dieta especial.
+
+
+    Args:
+        solicitacoes (list[SolicitacaoMedicaoInicial]): Lista de solicitações que serão processadas.
+        colunas (list[tuple]): Lista de colunas do relatório, composta pelo período e respectivo
+            campo ou faixa etária.
+        tipos_de_unidade (list[str]): Tipos de unidades considerados na geração da tabela.
+        query_params (dict | None, optional):Parâmetros utilizados para filtrar os valores das medições,
+            normalmente relacionados ao intervalo de dias.
+            Defaults to None.
+
+    Returns:
+        list[list[str | float]]: Lista de linhas que compõem a tabela do relatório.
+    """
+    valores = []
+    for solicitacao in ordenar_unidades(solicitacoes):
+        valores_solicitacao_atual = []
+        valores_solicitacao_atual += get_valores_iniciais(solicitacao)
+        for periodo, campo in colunas:
+            valores_solicitacao_atual = _processa_periodo_campo(
+                solicitacao,
+                periodo,
+                campo,
+                valores_solicitacao_atual,
+                query_params,
+            )
+        valores.append(valores_solicitacao_atual)
+    return valores
+
+
+def _processa_periodo_campo(
+    solicitacao: SolicitacaoMedicaoInicial,
+    periodo: str,
+    campo: int | str,
+    valores: list[str],
+    query_params: dict | None = None,
+) -> list[str | float]:
+    """
+    Processa uma coluna do relatório para uma solicitação específica.
+
+    Quando a coluna representa uma categoria de dieta especial, calcula o
+    total correspondente ao campo informado e adiciona o resultado à lista de
+    valores da linha. Caso ocorra algum erro durante o processamento,
+    adiciona "-" para indicar ausência de informação
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação que está sendo processada.
+        periodo (str): Nome do período ou da categoria correspondente à coluna.
+        campo (int | str): Identificador do campo associado à coluna. Dependendo do contexto,
+            pode representar uma faixa etária ou outro identificador utilizado
+            no cálculo dos valores.
+        valores (list[str]): Lista de valores da linha atualmente em construção.
+        query_params (dict | None, optional):  Parâmetros utilizados para filtrar os valores das medições,
+            normalmente relacionados ao intervalo de dias.
+            Defaults to None.
+    Returns:
+        list[str | float]: Lista de valores atualizada com o resultado da coluna processada.
+    """
+    filtros = {}
+    try:
+        if "DIETA ESPECIAL" in periodo:
+            filtros["grupo__nome"] = "Recreio nas Férias"
+            total = processa_dieta_especial(
+                solicitacao, filtros, campo, periodo, query_params
+            )
+            valores.append(total)
+    except Exception:
+        valores.append("-")
+    return valores
+
+
+def processa_dieta_especial(
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict,
+    faixa_etaria: int,
+    periodo: str,
+    query_params: dict | None = None,
+) -> float | str:
+    """
+     Calcula o total de atendimentos de uma categoria de dieta especial.
+
+    Percorre todas as medições da solicitação que atendem aos filtros
+    informados, somando os valores registrados para a faixa etária e categoria
+    de dieta. Caso não existam registros ou o total seja igual a zero, retorna
+    "-"
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação cujas medições serão processadas.
+        filtros (dict): Filtros utilizados para selecionar as medições.
+        faixa_etaria (int): Identificador da faixa etária considerada no cálculo.
+        periodo (str): Nome da categoria de dieta especial.
+        query_params (dict | None, optional): Parâmetros utilizados para filtrar os valores das medições.
+            Defaults to None.
+
+    Returns:
+        float | str: Soma dos valores encontrados ou "-" quando não houver registros
+            válidos.
+    """
+    medicoes = solicitacao.medicoes.filter(**filtros)
+    if not medicoes.exists():
+        return "-"
+
+    total = 0.0
+    for medicao in medicoes:
+        soma = _calcula_soma_medicao(medicao, faixa_etaria, periodo, query_params)
+        if soma is not None:
+            total += soma
+
+    return "-" if math.isclose(total, 0.0, rel_tol=1e-9) else total
+
+
+def _calcula_soma_medicao(
+    medicao: Medicao,
+    faixa_etaria: int,
+    categoria: str,
+    query_params: dict | None = None,
+) -> float | None:
+    """
+    Calcula a soma dos valores registrados para uma medição.
+
+    Considera apenas os registros de frequência pertencentes à faixa etária e
+    categoria informadas, aplicando os filtros do intervalo de dias quando
+    necessário.
+
+    Args:
+        medicao (Medicao): Medição que será utilizada no cálculo.
+        faixa_etaria (int): Identificador da faixa etária.
+        categoria (str): Nome da categoria de dieta especial.
+        query_params (dict | None, optional):  Parâmetros utilizados para filtrar os valores da medição.
+            Defaults to None.
+
+    Returns:
+        float | None: Soma dos valores encontrados ou ``None`` quando não existirem
+            registros correspondentes.
+    """
+    return (
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .filter(
+            nome_campo="frequencia",
+            faixa_etaria_id=faixa_etaria,
+            categoria_medicao__nome=categoria,
+        )
+        .annotate(valor_float=Cast("valor", output_field=FloatField()))
+        .aggregate(total=Sum("valor_float"))["total"]
+    )

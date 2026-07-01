@@ -22,8 +22,8 @@ from src.medicao_inicial.services import (
     relatorio_consolidado_cieja_cmct,
     relatorio_consolidado_emebs,
     relatorio_consolidado_emei_emef,
+    relatorio_consolidado_recreio_cei,
     relatorio_consolidado_recreio_emei_emef,
-    relatorio_consolidado_recreio_cei
 )
 
 from ..models import SolicitacaoMedicaoInicial
