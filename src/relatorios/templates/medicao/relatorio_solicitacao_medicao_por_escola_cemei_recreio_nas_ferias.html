@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+{% load index %}
+{% load static %}
+{% load sass_tags %}
+{% load safe_html_tags %}
+
+<html lang="pt-BR">
+<head>
+  <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/relatorio_solicitacao_medicao_por_escola_cemei.scss' %}" type="text/css">
+  <title>SIGPAE</title>
+</head>
+<body>
+  {% if solicitacao.status == 'MEDICAO_APROVADA_PELA_CODAE' %}
+  <div class="first-footer-approved mr-2">
+    Aprovado por CODAE em {{
+    solicitacao.log_mais_recente.criado_em|date:"d/m/Y - H:i" }} - {{
+    solicitacao.log_mais_recente.usuario.nome }}
+  </div>
+  {% endif %}
+  {% include "medicao/_header_medicao.html" with referencia=solicitacao.recreio_nas_ferias.titulo %}
+
+  <div class="row p-0 mx-4 my-5">
+    <div class="col-12">
+      <h1 class="text-center titulo-body-p1">INFORMAÇÕES BÁSICAS DA MEDIÇÃO</h1>
+    </div>
+  </div>
+
+  <div class="row p-0 mx-4 tipo-contagem">
+    <div class="col-2"></div>
+    <div class="col-4 label-contagem">
+      Método de Contagem das Alimentações Servidas
+    </div>
+    <div class="col-4 value-contagem">
+      {{tipos_contagem_alimentacao}}
+    </div>
+    <div class="col-2"></div>
+  </div>
+
+  <div class="row p-0 mx-4 mt-5 tipo-avaliacao">
+    <div class="col-3 avaliacao-left">
+      Avaliação do Serviço
+    </div>
+    <div class="col-6 avaliacao-center">
+      Neste mês, a direção da Unidade Educacional considera que o serviço foi realizado a contento?
+    </div>
+    <div class="col-3 avaliacao-right">
+      {% if solicitacao.com_ocorrencias %}
+      Não, com ocorrências
+      {% else %}
+      Sim, sem ocorrências
+      {% endif %}
+    </div>
+  </div>
+  <div class="mt-5"></div>
+  <div class="row p-0 mx-4 mt-5">
+    <div class="col-12 usuario-title"><span><b>Responsáveis por acompanhar a prestação de serviços</b></span></div>
+  </div>
+  <div class="bloco-usuarios">
+    {% for responsavel in responsaveis %}
+    <div class="row p-0 mx-4 mt-2 usuarios">
+      <div class="usuario-label mr-2"><span><b>Nome: {{responsavel.nome}}</b></span></div>
+      <div class="usuario-values"><span><b>{% if responsavel.rf|length == 11 %}CPF{% else %}RF{% endif %}: {{responsavel.rf}}</b></span></div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="bloco-assinaturas">
+    <div class="row p-0 mx-4 mt-3">
+      <div class="col-6 mr-3 assinatura">
+        {% if assinatura_escola %}
+        <div class="row p-0 mx-1">
+          <div class="col-2">
+            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+          </div>
+          <div class="col-10 texto">
+            <span>
+              {{assinatura_escola}}
+            </span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="col-6 assinatura">
+        {% if assinatura_dre %}
+        <div class="row p-0 mx-1">
+          <div class="col-2">
+            <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+          </div>
+          <div class="col-10 texto">
+            <span>
+              {{assinatura_dre}}
+            </span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% for tabela in tabelas %}
+    {% include "medicao/_header_medicao.html" with referencia=solicitacao.recreio_nas_ferias.titulo %}
+    <table class="tabela-valores-medicao mt-3">
+      <thead class="texto-branco">
+        <tr>
+          <th scope="col" rowspan="4">Dias</th>
+          {% for periodo in tabela.periodos %}
+            {% if "Solicitações de Alimentação" in periodo %}
+              <th scope="col" class="periodo-grupo cor-periodo-grupo-6" colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}">
+                  {{ periodo|upper }}
+              </th>
+            {% else %}
+              <th scope="col" class="periodo-grupo cor-periodo-grupo-1" colspan="{{ tabela.len_periodos|get_element_by_index:forloop.counter0 }}">
+                  {{ solicitacao.recreio_nas_ferias.titulo|upper }}
+              </th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        <tr>
+          {% for periodo, cats in tabela.categorias_dos_periodos.items %}
+            {% for cat_info in cats %}
+              {% classe_periodo_recreio_cemei cat_info.categoria periodo as classe_cor %}
+              <th scope="col" class="categoria {{ classe_cor }}" colspan="{{ tabela.len_categorias|get_element_by_index:forloop.counter0 }}">
+                {% label_categoria_recreio_cemei cat_info.categoria periodo %}
+              </th>
+            {% endfor %}
+          {% endfor %}
+        </tr>
+
+
+        <tr>
+          {{ tabela|build_headers_faixas_etarias | safe }}
+        </tr>
+
+        <tr>
+          {{ tabela|build_rows_faixas_etarias | safe }}
+
+          {% for campo in tabela.nomes_campos %}
+            <th scope="col">{{ campo|get_nome_campo }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for valores in tabela.valores_campos %}
+          <tr class="{% if tabela.dias_letivos|get_nao_eh_dia_letivo:forloop.counter0 %} nao-dia-letivo {% endif %}">
+            {% for valor in valores %}
+              <td>{{ valor }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+
+  {% for tabela in tabela_observacoes_cei|formatar_observacoes:"CEMEI" %}
+    {% include "medicao/_header_medicao.html" with referencia=solicitacao.recreio_nas_ferias.titulo %}
+    <h1 class="titulo-tabela-observacoes text-center mt-3 mb-3">OBSERVAÇÕES DIÁRIAS DOS LANÇAMENTOS</h1>
+    <table class="tabela-valores-medicao mt-1">
+      <thead class="head-tabela-observacoes">
+        <tr class="texto-branco">
+          <th class="tabela-observacoes-dia">DIA</th>
+          <th class="tabela-observacoes-periodo">PERÍODO</th>
+          <th class="tabela-observacoes-tipo">TIPO</th>
+          <th class="tabela-observacoes-observacoes">OBSERVAÇÕES</th>
+        </tr>
+      </thead>
+      <tbody class="body-tabela-observacoes">
+        {% for row in tabela %}
+          <tr>
+            <td class="tabela-observacoes-dia">{{ row.0|safe_content }}</td>
+            <td class="tabela-observacoes-periodo">{{ row.4|safe_content }}</td>
+            <td class="tabela-observacoes-tipo">{{ row.2|safe_content }}</td>
+            <td class="tabela-observacoes-observacoes text-left">{{ row.3|safe_content }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+
+  {% for tabela in tabela_observacoes_infantil|formatar_observacoes:"CEMEI" %}
+    {% include "medicao/_header_medicao.html" with referencia=solicitacao.recreio_nas_ferias.titulo %}
+    <h1 class="titulo-tabela-observacoes text-center mt-3 mb-3">OBSERVAÇÕES DIÁRIAS DOS LANÇAMENTOS</h1>
+    <table class="tabela-valores-medicao mt-1">
+      <thead class="head-tabela-observacoes">
+        <tr class="texto-branco">
+          <th class="tabela-observacoes-dia">DIA</th>
+          <th class="tabela-observacoes-periodo">PERÍODO</th>
+          <th class="tabela-observacoes-tipo">TIPO</th>
+          <th class="tabela-observacoes-observacoes">OBSERVAÇÕES</th>
+        </tr>
+      </thead>
+      <tbody class="body-tabela-observacoes">
+        {% for row in tabela %}
+          <tr>
+            <td class="tabela-observacoes-dia">{{ row.0|safe_content }}</td>
+            <td class="tabela-observacoes-periodo">{{ row.4|safe_content }}</td>
+            <td class="tabela-observacoes-tipo">{{ row.2|safe_content }}</td>
+            <td class="tabela-observacoes-observacoes text-left">{{ row.3|safe_content }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+
+  {% with s=tabelas_somatorios %}
+    {% include "medicao/_header_medicao.html" with referencia=solicitacao.recreio_nas_ferias.titulo %}
+
+    <h1 class="titulo-tabela-somatorio text-center mt-4 mb-4">
+      SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS NO PERÍODO DE
+      {{ solicitacao.recreio_nas_ferias.data_inicio|date:"d/m/Y" }}
+      ATÉ
+      {{ solicitacao.recreio_nas_ferias.data_fim|date:"d/m/Y" }}
+    </h1>
+
+    <div class="somatorio-recreio-wrapper-cei">
+
+    {% if s.tabela_cei %}
+      <div class="tabela-dieta-left">
+        <div class="tabelas-somatorio-dietas mb-2">
+          <table class="tabela-dieta-participantes-cei">
+            <thead class="head-tabelas-somatorio">
+              {% if s.tabela_cei.titulo %}
+              <tr class="texto-branco somatorio-titulo-tabela-cei">
+                <th class="uppercase text-center somatorio-titulo-tabela-cei" colspan="{{ s.tabela_cei.header|length }}">{{ s.tabela_cei.titulo }}</th>
+              </tr>
+              {% endif %}
+              <tr class="texto-branco">
+                {% for col in s.tabela_cei.header %}
+                  <th class="col-1 uppercase">{{ col }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody class="body-tabelas-somatorio">
+              {% for linha in s.tabela_cei.valores_campos %}
+                <tr>
+                  {% for val in linha %}
+                    <td class="col-1">{{ val }}</td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if s.tabela_cei.legenda %}
+          <div class="info-abaixo-tabela mb-4">
+            {{ s.tabela_cei.legenda }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  <div class="tabelas-somatorio-container-direita tabela-dieta-right">
+    {% if s.tabela_emei %}
+    <div>
+      <div class="tabelas-somatorio-dietas mb-2">
+        <table class="tabela-dieta-participantes-cei">
+          <thead class="head-tabelas-somatorio">
+            {% if s.tabela_emei.titulo %}
+            <tr class="texto-branco somatorio-titulo-tabela-emei">
+              <th class="col-1 uppercase text-center somatorio-titulo-tabela-emei" colspan="{{ s.tabela_emei.header|length }}">{{ s.tabela_emei.titulo }}</th>
+            </tr>
+            {% endif %}
+            <tr class="texto-branco">
+              {% for col in s.tabela_emei.header %}
+                <th class="col-1 uppercase">{{ col }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="body-tabelas-somatorio">
+            {% for linha in s.tabela_emei.valores_campos %}
+              <tr>
+                {% for val in linha %}
+                  <td class="col-1">{{ val }}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if s.tabela_emei.legenda %}
+        <div class="info-abaixo-tabela mb-4">
+          {{ s.tabela_emei.legenda }}
+        </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+
+      {% if s.tabela_colaboradores %}
+      <div class="tabela-colaboradores">
+        <div class="tabelas-somatorio-dietas mb-2">
+          <table class="tabela-dieta-colaboradores-cei">
+            <thead class="head-tabelas-somatorio">
+              <tr class="texto-branco">
+                {% for col in s.tabela_colaboradores.header %}
+                  <th class="uppercase">{{ col }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+
+            <tbody class="body-tabelas-somatorio">
+              {% for linha in s.tabela_colaboradores.valores_campos %}
+                <tr>
+                  {% for val in linha %}
+                    <td class="col-1">{{ val }}</td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if s.tabela_colaboradores.legenda %}
+          <div class="info-abaixo-tabela mb-4">
+            {{ s.tabela_colaboradores.legenda }}
+          </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endwith %}
+
+  <div id="last-page-footer">
+      <div class="row p-0 mx-4 mt-5">
+        <div class="col-6 mr-3 titulo-assinatura">
+          <b>ASSINATURA UNIDADE EDUCACIONAL</b>
+        </div>
+        <div class="col-5 titulo-assinatura">
+          <b>RESPONSÁVEL PELA CONFERÊNCIA NA DRE</b>
+        </div>
+      </div>
+      <div class="bloco-assinaturas mt-auto">
+        <div class="row p-0 mx-4 mt-3">
+          <div class="col-6 mr-3 assinatura">
+            {% if assinatura_escola %}
+            <div class="row p-0 mx-1">
+              <div class="col-2">
+                <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+              </div>
+              <div class="col-10 texto">
+                <span>
+                  {{assinatura_escola}}
+                </span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-6 assinatura">
+            {% if assinatura_dre %}
+            <div class="row p-0 mx-1">
+              <div class="col-2">
+                <img src="{% static 'images/logo-sigpae.png' %}" alt=""/>
+              </div>
+              <div class="col-10 texto">
+                <span>
+                  {{assinatura_dre}}
+                </span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>
+

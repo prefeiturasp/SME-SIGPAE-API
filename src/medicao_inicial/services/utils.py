@@ -245,6 +245,10 @@ def gera_colunas_alimentacao(
         columns=index,
     )
     df.loc["TOTAL"] = df.apply(pd.to_numeric, errors="coerce").sum()
-
+    df.rename(
+        columns={"RECREIO NAS FÉRIAS": "ALIMENTAÇÕES ALUNOS PARTICIPANTES"},
+        level=0,
+        inplace=True,
+    )
     df.to_excel(writer, sheet_name=aba, startrow=2, startcol=-1)
     return df

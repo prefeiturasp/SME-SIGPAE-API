@@ -1,6 +1,10 @@
+from unittest.mock import patch
+
 import pytest
 
 from src.escola.api.serializers import DiaCalendarioSerializer
+
+from src.escola.api.serializers import AlunoSerializer
 
 pytestmark = pytest.mark.django_db
 
@@ -59,3 +63,19 @@ def test_serialize_dia_calendario_sem_periodo_escolar(dia_calendario_diurno):
     assert data["escola"] == dia_calendario_diurno.escola.nome
     assert data["dia_letivo"] is True
     assert data["periodo_escolar"] is None
+
+
+def test_aluno_serializer_exibe_periodo(aluno):
+    aluno.nao_matriculado = False
+    aluno.escola.tipo_unidade.iniciais = "EMEF"
+
+    with patch.object(
+        AlunoSerializer,
+        "get_possui_dieta_especial",
+        return_value=False,
+    ):
+        serializer = AlunoSerializer(aluno)
+        data = serializer.data
+
+    assert "periodo" in data
+    assert data["periodo"] == aluno.periodo_escolar.nome

@@ -36,6 +36,7 @@ register = template.Library()
 
 # Add support for multi-line template tags
 template_base.tag_re = re.compile(template_base.tag_re.pattern, re.DOTALL)
+CHAVE_ALIMENTACAO_REGULAR = "ALIMENTAÇÃO"
 
 
 @register.filter
@@ -686,44 +687,120 @@ def slice_table(tabela, index):
     return tabela[index * 30 : (index * 30) + 30]
 
 
+def _build_th_faixa(faixa, recreio, categoria):
+    if faixa == "total":
+        return '<th class="faixa-etaria">Total do Dia</th>'
+    if recreio:
+        if categoria == "ALIMENTAÇÃO":
+            return "<th>Frequência</th>"
+        return "<th>Aprovadas</th><th>Frequência</th>"
+
+    if categoria == "ALIMENTAÇÃO":
+        return "<th>Matriculados</th><th>Frequência</th>"
+    return "<th>Aprovadas</th><th>Frequência</th>"
+
+
+def _build_ths_categoria(faixas_limite, recreio, categoria):
+    html = []
+    if recreio and categoria == CHAVE_ALIMENTACAO_REGULAR:
+        html.append("<th>Participantes</th>")
+    for faixa in faixas_limite:
+        html.append(_build_th_faixa(faixa, recreio, categoria))
+    return html
+
+
 @register.filter
 def build_rows_faixas_etarias(tabela):
+    faixas_etarias = tabela["faixas_etarias"]
+    if not faixas_etarias:
+        return ""
+
+    recreio = tabela.get("recreio", False)
     html_output = []
     index_inicial = 0
+
     for _, campos_list in tabela["categorias_dos_periodos"].items():
         for campos in campos_list:
             numero_campos = campos["numero_campos"] + 1
-            faixas_limite = tabela["faixas_etarias"][
-                index_inicial : index_inicial + numero_campos
-            ]
-            for faixa in faixas_limite:
-                if faixa == "total":
-                    html_output.append('<th class="faixa-etaria">Total do Dia</th>')
-                else:
-                    if campos["categoria"] == "ALIMENTAÇÃO":
-                        html_output.append("<th>Matriculados</th><th>Frequência</th>")
-                    else:
-                        html_output.append("<th>Aprovadas</th><th>Frequência</th>")
+            faixas_limite = faixas_etarias[index_inicial:index_inicial + numero_campos]
+            if faixas_limite:
+                html_output += _build_ths_categoria(faixas_limite, recreio, campos["categoria"])
             index_inicial += numero_campos
+
     return "".join(html_output)
+
+
+def _build_th_header_faixa(faixa, recreio, categoria):
+    if faixa == "total":
+        return '<th class="faixa-etaria" colspan="1"></th>'
+    if recreio:
+        colspan = 1 if categoria == CHAVE_ALIMENTACAO_REGULAR else 2
+        return f'<th class="faixa-etaria" colspan="{colspan}">{faixa}</th>'
+    return f'<th class="faixa-etaria" colspan="2">{faixa}</th>'
+
+
+def _build_ths_header_categoria(faixas_limite, recreio, categoria):
+    html = []
+    if recreio and categoria == CHAVE_ALIMENTACAO_REGULAR:
+        html.append('<th class="faixa-etaria" colspan="1"></th>')
+    for faixa in faixas_limite:
+        html.append(_build_th_header_faixa(faixa, recreio, categoria))
+    return html
 
 
 @register.filter
 def build_headers_faixas_etarias(tabela):
-    html_output = []
     faixas_etarias = tabela["faixas_etarias"]
-    colunas = faixas_etarias.copy()
-    campos = tabela["nomes_campos"]
+    if not faixas_etarias:
+        return ""
 
-    if campos and faixas_etarias:
-        colunas.extend([""] * len(campos))
+    recreio = tabela.get("recreio", False)
+    html_output = []
+    index_inicial = 0
 
-    for faixa in colunas:
-        if faixa == "total" or faixa == "":
-            html_output.append('<th  class="faixa-etaria" colspan="1"></th>')
-        else:
-            html_output.append(f'<th class="faixa-etaria" colspan="2">{faixa}</th>')
+    for _, campos_list in tabela["categorias_dos_periodos"].items():
+        for campos in campos_list:
+            numero_campos = campos["numero_campos"] + 1
+            faixas_limite = faixas_etarias[index_inicial:index_inicial + numero_campos]
+            if faixas_limite:
+                html_output += _build_ths_header_categoria(faixas_limite, recreio, campos["categoria"])
+            index_inicial += numero_campos
+
+    for _ in tabela["nomes_campos"]:
+        html_output.append('<th class="faixa-etaria" colspan="1"></th>')
+
     return "".join(html_output)
+
+
+@register.simple_tag
+def label_categoria_recreio_cemei(categoria, periodo):
+    if categoria.upper() != "ALIMENTAÇÃO":
+        return categoria.upper()
+    periodo_upper = periodo.upper()
+    if "4 A 14" in periodo_upper:
+        return "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES - DE 4 A 14 ANOS"
+    if "0 A 3" in periodo_upper or "0 A 3 ANOS" in periodo_upper:
+        return "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES - DE 0 A 3 ANOS E 11 MESES"
+    if "COLABORADORES" in periodo_upper:
+        return "ALIMENTAÇÕES PARA COLABORADORES"
+    return categoria.upper()
+
+
+@register.simple_tag
+def classe_periodo_recreio_cemei(categoria, periodo):
+    nome = categoria.nome if hasattr(categoria, "nome") else str(categoria)
+    nome_lower = nome.lower()
+    periodo_lower = str(periodo).lower()
+
+    if "colaborador" in nome_lower or "colaborador" in periodo_lower:
+        return "cor-periodo-grupo-5"
+    if "dieta" in nome_lower:
+        return "cor-periodo-grupo-1"
+    if "0 a 3" in periodo_lower:
+        return "cor-periodo-grupo-2"
+    if "4 a 14" in periodo_lower:
+        return "cor-periodo-grupo-3"
+    return "cor-periodo-grupo-1"
 
 
 @register.filter

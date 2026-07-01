@@ -14,9 +14,13 @@ from src.dieta_especial.tasks.utils.relatorio_historico_logs import (
     formata_logs_para_titulo,
     gera_pdf_relatorio_historico_dieta_especial,
 )
-from src.dieta_especial.utils import (
+from src.dieta_especial.utils.gera_dicionario_historico_dietas import (
     gera_dicionario_historico_dietas,
+)
+from src.dieta_especial.utils.gerar_filtros_relatorio_historico import (
     gerar_filtros_relatorio_historico,
+)
+from src.dieta_especial.utils.get_logs_historico_dietas import (
     get_logs_historico_dietas,
 )
 

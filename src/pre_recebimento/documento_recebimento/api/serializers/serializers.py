@@ -15,6 +15,7 @@ from src.pre_recebimento.documento_recebimento.models import (
 from src.pre_recebimento.qualidade.api.serializers.serializers import (
     LaboratorioCredenciadoSimplesSerializer,
 )
+from src.recebimento.ajuste_saldo_laudo.models import AjusteSaldo
 from src.recebimento.models import DocumentoFichaDeRecebimento
 
 from .....dados_comuns.api.serializers import (
@@ -43,13 +44,22 @@ def calcular_saldo_laudo(documento_recebimento):
     else:
         total_recebido = Decimal(str(total_recebido))
 
+    total_ajustes = AjusteSaldo.objects.filter(
+        documento_recebimento=documento_recebimento
+    ).aggregate(total=Sum("quantidade_descontada"))["total"]
+
+    if total_ajustes is None:
+        total_ajustes = Decimal("0.00")
+    else:
+        total_ajustes = Decimal(str(total_ajustes))
+
     quantidade_laudo = documento_recebimento.quantidade_laudo
     if quantidade_laudo is None:
         quantidade_laudo = Decimal("0.00")
     else:
         quantidade_laudo = Decimal(str(quantidade_laudo))
 
-    return quantidade_laudo - total_recebido
+    return quantidade_laudo - total_recebido - total_ajustes
 
 
 class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
@@ -369,3 +379,23 @@ class CronogramaRelatorioDocumentosSerializer(serializers.Serializer):
             "laboratorio", "unidade_medida"
         ).prefetch_related("datas_fabricacao_e_prazos")
         return DocumentoDeRecebimentoDetalheRelatorioSerializer(docs, many=True).data
+
+
+class DocumentoDeRecebimentoParaAjusteSaldoSerializer(serializers.ModelSerializer):
+    unidade_medida = serializers.CharField(
+        source="unidade_medida.abreviacao", read_only=True
+    )
+    saldo_atual = serializers.SerializerMethodField()
+
+    def get_saldo_atual(self, obj):
+        return calcular_saldo_laudo(obj)
+
+    class Meta:
+        model = DocumentoDeRecebimento
+        fields = (
+            "uuid",
+            "numero_laudo",
+            "unidade_medida",
+            "quantidade_laudo",
+            "saldo_atual",
+        )

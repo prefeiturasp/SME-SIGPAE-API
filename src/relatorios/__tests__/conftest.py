@@ -969,6 +969,32 @@ def ficha_recebimento_observacao_com_none():
 
 
 @pytest.fixture
+def escola_cemei():
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    tipo_gestao = baker.make("TipoGestao", nome="TERC_TOTAL")
+    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@gmail.com")
+    diretoria_regional = baker.make(
+        "DiretoriaRegional",
+        nome="DIRETORIA_REGIONAL_IPIRANGA",
+        uuid="012f7722-9ab4-4e21-b0f6-85e17b58b0d1",
+    )
+    escola = baker.make(
+        "Escola",
+        lote=lote,
+        nome="CEMEI JOAO MENDES",
+        codigo_eol="000546",
+        uuid="a627fc63-16fd-482c-a877-16ebc1a82e57",
+        contato=contato,
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade,
+    )
+    return escola
+
+
+@pytest.fixture
 def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
@@ -1012,6 +1038,40 @@ def recreio_nas_ferias_cei(escola_cei):
         liberar_medicao=True,
         cei_ou_emei="CEI",
     )
+    return recreio
+
+
+@pytest.fixture
+def recreio_nas_ferias_cemei(escola_cemei):
+    recreio = baker.make(
+        "RecreioNasFerias",
+        titulo="Recreio nas Férias - Julho 2025",
+        data_inicio=datetime.date(2025, 7, 14),
+        data_fim=datetime.date(2025, 8, 1),
+    )
+
+    baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio,
+        lote=escola_cemei.lote,
+        unidade_educacional=escola_cemei,
+        num_inscritos=100,
+        num_colaboradores=50,
+        liberar_medicao=True,
+        cei_ou_emei="CEI",
+    )
+
+    baker.make(
+        "RecreioNasFeriasUnidadeParticipante",
+        recreio_nas_ferias=recreio,
+        lote=escola_cemei.lote,
+        unidade_educacional=escola_cemei,
+        num_inscritos=100,
+        num_colaboradores=50,
+        liberar_medicao=True,
+        cei_ou_emei="EMEI",
+    )
+
     return recreio
 
 
@@ -1150,3 +1210,219 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cei_aprovada_codae(
     solicitacao_medicao_inicial_recreio_nas_ferias_cei.save()
 
     return solicitacao_medicao_inicial_recreio_nas_ferias_cei
+
+
+@pytest.fixture
+def solicitacao_medicao_inicial_recreio_nas_ferias_cemei(
+    escola_cemei,
+    recreio_nas_ferias_cemei,
+):
+    tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
+
+    grupo_0a3 = baker.make(
+        "GrupoMedicao",
+        nome="Recreio nas Férias - de 0 a 3 anos e 11 meses",
+    )
+    grupo_4a14 = baker.make(
+        "GrupoMedicao",
+        nome="Recreio nas Férias - 4 a 14 anos",
+    )
+    grupo_solicitacoes = baker.make(
+        "GrupoMedicao",
+        nome="Solicitações de Alimentação",
+    )
+    grupo_colaboradores = baker.make(
+        "GrupoMedicao",
+        nome="Colaboradores",
+    )
+
+    categoria_alimentacao = baker.make(
+        "CategoriaMedicao",
+        nome="ALIMENTAÇÃO",
+    )
+    categoria_dieta_a = baker.make(
+        "CategoriaMedicao",
+        nome="DIETA TIPO A",
+    )
+    categoria_dieta_b = baker.make(
+        "CategoriaMedicao",
+        nome="DIETA TIPO B",
+    )
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=7,
+        ano=2025,
+        escola=escola_cemei,
+        recreio_nas_ferias=recreio_nas_ferias_cemei,
+        rastro_lote=escola_cemei.lote,
+    )
+    solicitacao.tipos_contagem_alimentacao.set([tipo_contagem])
+
+    medicao_0a3 = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_0a3,
+    )
+
+    medicao_4a14 = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_4a14,
+    )
+
+    medicao_solicitacoes = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_solicitacoes,
+    )
+
+    medicao_colaboradores = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_colaboradores,
+    )
+
+    faixa_1 = baker.make(
+        "FaixaEtaria",
+        inicio=0,
+        fim=11,
+        ativo=True,
+    )
+
+    #
+    # Recreio 0-3
+    #
+    for dia in ("01", "02"):
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            semana="1",
+            nome_campo="frequencia",
+            medicao=medicao_0a3,
+            categoria_medicao=categoria_alimentacao,
+            faixa_etaria=faixa_1,
+            valor="100",
+        )
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            semana="1",
+            nome_campo="frequencia",
+            medicao=medicao_0a3,
+            categoria_medicao=categoria_dieta_a,
+            faixa_etaria=faixa_1,
+            valor="4",
+        )
+
+    #
+    # Recreio 4-14
+    #
+    for dia in ("01", "02"):
+        for campo in ("lanche", "lanche_4h", "refeicao", "sobremesa"):
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                semana="1",
+                nome_campo=campo,
+                medicao=medicao_4a14,
+                categoria_medicao=categoria_alimentacao,
+                valor="100",
+            )
+
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            semana="1",
+            nome_campo="lanche",
+            medicao=medicao_4a14,
+            categoria_medicao=categoria_dieta_a,
+            valor="4",
+        )
+
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            semana="1",
+            nome_campo="lanche",
+            medicao=medicao_4a14,
+            categoria_medicao=categoria_dieta_b,
+            valor="4",
+        )
+
+    #
+    # Solicitações
+    #
+    for dia in ("01", "02"):
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            semana="1",
+            nome_campo="lanche",
+            medicao=medicao_solicitacoes,
+            categoria_medicao=categoria_alimentacao,
+            valor="10",
+        )
+
+    #
+    # Colaboradores
+    #
+    for dia in ("01", "02"):
+        for campo, valor in {
+            "participantes": "50",
+            "frequencia": "50",
+            "lanche": "50",
+            "refeicao": "40",
+            "repeticao_refeicao": "20",
+            "sobremesa": "30",
+            "repeticao_sobremesa": "25",
+        }.items():
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                semana="1",
+                nome_campo=campo,
+                medicao=medicao_colaboradores,
+                categoria_medicao=categoria_alimentacao,
+                valor=valor,
+            )
+
+    return solicitacao
+
+
+@pytest.fixture
+def solicitacao_medicao_inicial_recreio_nas_ferias_cemei_aprovada_codae(
+    solicitacao_medicao_inicial_recreio_nas_ferias_cemei,
+    django_user_model,
+):
+    usuario = django_user_model.objects.create_user(
+        nome="Usuário TESTE",
+        username="medicao_recreio_cemei_teste",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="medicao_recreio_cemei@escola.com",
+        registro_funcional="654321",
+    )
+
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao_medicao_inicial_recreio_nas_ferias_cemei.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+        criado_em=datetime.datetime(
+            2025, 8, 5, 10, 0, 0, tzinfo=datetime.timezone.utc
+        ),
+        usuario=usuario,
+    )
+
+    for medicao in solicitacao_medicao_inicial_recreio_nas_ferias_cemei.medicoes.all():
+        medicao.status = (
+            solicitacao_medicao_inicial_recreio_nas_ferias_cemei.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+        )
+        medicao.save()
+
+    solicitacao_medicao_inicial_recreio_nas_ferias_cemei.status = (
+        solicitacao_medicao_inicial_recreio_nas_ferias_cemei.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+    )
+    solicitacao_medicao_inicial_recreio_nas_ferias_cemei.save()
+
+    return solicitacao_medicao_inicial_recreio_nas_ferias_cemei

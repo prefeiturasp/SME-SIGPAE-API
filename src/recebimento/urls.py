@@ -1,6 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
+from .ajuste_saldo_laudo.api.viewsets import AjusteSaldoModelViewSet
 from .api import viewsets
 
 router = routers.DefaultRouter()
@@ -32,6 +33,11 @@ router.register(
     "reposicao-cronograma-ficha-recebimento",
     viewsets.ReposicaoCronogramaFichaRecebimentoViewSet,
     basename="reposicao-cronograma-ficha-recebimento",
+)
+router.register(
+    "ajuste-saldo-laudo",
+    AjusteSaldoModelViewSet,
+    basename="ajuste-saldo-laudo",
 )
 
 

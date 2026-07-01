@@ -16,6 +16,7 @@ from src.medicao_inicial.models import (
     ParametrizacaoFinanceira,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
+    DescontoFinanceiro,
 )
 
 TIPOS_UNIDADE_PFOM = ["EMEF P FOM", "EMEI P FOM"]
@@ -3370,3 +3371,98 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
 
     for esperado in erros_esperados:
         assert esperado in json, f"Elemento {esperado} não encontrado"
+
+
+@pytest.mark.django_db
+def test_url_endpoint_desconto_financeiro_cei(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_cei,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    periodo_escolar_parcial,
+    clausula_desconto,
+):
+    url = f"/medicao-inicial/desconto-financeiro/aplicar-descontos/{relatorio_financeiro_cei.uuid}/"
+
+    data = [
+        {
+            "tipo_lancamento": "ALIMENTACOES",
+            "faixa_etaria": str(faixas_etarias_ativas[0].uuid),
+            "periodo_escolar": periodo_escolar_parcial.nome,
+            "clausula_desconto": str(clausula_desconto.uuid),
+            "quantidade": 10,
+            "unidades_educacionais": [str(escola_ceu_gestao.uuid)],
+        }
+    ]
+
+    response = client_autenticado_codae_medicao.put(
+        url,
+        content_type="application/json",
+        data=data,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert DescontoFinanceiro.objects.count() == 1
+
+    obj = DescontoFinanceiro.objects.first()
+
+    assert obj.tipo_lancamento == "ALIMENTACOES"
+    assert obj.quantidade == 10
+
+
+@pytest.mark.django_db
+def test_url_endpoint_desconto_financeiro_emei(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_emei,
+    escola_emei,
+    clausula_desconto,
+):
+    url = (
+        f"/medicao-inicial/desconto-financeiro/aplicar-descontos/"
+        f"{relatorio_financeiro_emei.uuid}/"
+    )
+
+    data = [
+        {
+            "tipo_lancamento": "ALIMENTACOES",
+            "clausula_desconto": str(clausula_desconto.uuid),
+            "quantidade": 10,
+            "unidades_educacionais": [str(escola_emei.uuid)],
+        }
+    ]
+
+    response = client_autenticado_codae_medicao.put(
+        url,
+        content_type="application/json",
+        data=data,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert DescontoFinanceiro.objects.count() == 1
+
+    obj = DescontoFinanceiro.objects.first()
+
+    assert obj.relatorio_financeiro == relatorio_financeiro_emei
+    assert obj.tipo_lancamento == "ALIMENTACOES"
+    assert obj.quantidade == 10
+    assert obj.faixa_etaria is None
+    assert obj.periodo_escolar is None
+
+
+@pytest.mark.django_db
+def test_url_endpoint_desconto_financeiro_sem_permissao(
+    client_autenticado_diretoria_regional,
+    relatorio_financeiro_emei,
+):
+    url = (
+        f"/medicao-inicial/desconto-financeiro/aplicar-descontos/"
+        f"{relatorio_financeiro_emei.uuid}/"
+    )
+
+    response = client_autenticado_diretoria_regional.put(
+        url,
+        content_type="application/json",
+        data=[],
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN

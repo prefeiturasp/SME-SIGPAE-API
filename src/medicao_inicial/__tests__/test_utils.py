@@ -40,7 +40,11 @@ from src.medicao_inicial.utils import (
     get_somatorio_total_tabela,
     substitui_criador_system_por_usuario_real,
     tratar_valores,
+    mapear_dados_existentes,
+    obter_instancia_dados,
 )
+from src.medicao_inicial.models import DescontoFinanceiro
+
 
 from .data import (
     HEADERS_TABELAS_EMEBS,
@@ -292,7 +296,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
                 [29, "0", "0", "0", 0, "0", 0, "0", "0", "0", "0", "0", "0"],
                 [30, "0", "0", "0", 0, "0", 0, "0", "0", "0", "0", "0", "0"],
                 [31, "0", "0", "0", 0, "0", 0, "0", "0", "0", "0", "0", "0"],
-                ["Total", "-", 50, 50, 0, 50, 0, 50, "-", 50, 50, 50, 50],
+                ["Total", "-", 50, "-", 0, "-", 0, 50, "-", 50, 50, "-", 50],
             ],
             "ordem_periodos_grupos": [1],
             "dias_letivos": [
@@ -390,7 +394,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
                 [29, "0", "0", "0", "0", "0", "0", "0", "0", 0, "0", 0, "0"],
                 [30, "0", "0", "0", "0", "0", "0", "0", "0", 0, "0", 0, "0"],
                 [31, "0", "0", "0", "0", "0", "0", "0", "0", 0, "0", 0, "0"],
-                ["Total", "-", 50, 50, 50, 50, "-", 50, 50, 0, 50, 0, 50],
+                ["Total", "-", 50, 50, "-", 50, "-", 50, "-", 0, "-", 0, 50],
             ],
             "ordem_periodos_grupos": [1, 2],
             "dias_letivos": [
@@ -484,7 +488,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
                 [29, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
                 [30, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
                 [31, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
-                ["Total", "-", 50, 50, 50, 50, "-", 50, 50, 50, 50],
+                ["Total", "-", 50, 50, "-", 50, "-", 50, 50, "-", 50],
             ],
             "ordem_periodos_grupos": [2],
             "dias_letivos": [
@@ -770,6 +774,7 @@ def test_build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei
             "categorias_dos_periodos": {
                 "INTEGRAL": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 1}]
             },
+            "recreio": False,
         }
     ]
 
@@ -1792,3 +1797,83 @@ def test_atualiza_alunos_periodo_parcial_cria_logs_dieta_cei_em_multiplas_faixas
         faixa_etaria__in=faixas_etarias,
         data=datetime.date(2026, 2, 28),
     ).exists()
+
+
+@pytest.mark.django_db
+def test_mapear_dados_existentes_desconto_financeiro_cei(
+    relatorio_financeiro_cei,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    periodo_escolar_parcial,
+    clausula_desconto,
+):
+    obj = baker.make(
+        DescontoFinanceiro,
+        uuid="11111111-1111-1111-1111-111111111111",
+        relatorio_financeiro=relatorio_financeiro_cei,
+        faixa_etaria=faixas_etarias_ativas[0],
+        periodo_escolar=periodo_escolar_parcial,
+        clausula_desconto=clausula_desconto,
+        quantidade=10,
+        tipo_lancamento="ALIMENTACOES",
+    )
+
+    obj.unidades_educacionais.set([escola_ceu_gestao])
+
+    por_uuid, por_chave = mapear_dados_existentes(
+        DescontoFinanceiro.objects.all(),
+        chave_composta=["tipo_lancamento", "quantidade"]
+    )
+
+    assert por_uuid[str(obj.uuid)] == obj
+    assert por_chave[("ALIMENTACOES", 10)] == obj
+
+
+@pytest.mark.django_db
+def test_obter_instancia_dados_desconto_financeiro_cei(
+    relatorio_financeiro_cei,
+    escola_ceu_gestao,
+    faixas_etarias_ativas,
+    periodo_escolar_parcial,
+    clausula_desconto,
+):
+    obj = baker.make(
+        DescontoFinanceiro,
+        uuid="11111111-1111-1111-1111-111111111111",
+        relatorio_financeiro=relatorio_financeiro_cei,
+        faixa_etaria=faixas_etarias_ativas[0],
+        periodo_escolar=periodo_escolar_parcial,
+        clausula_desconto=clausula_desconto,
+        quantidade=5,
+        tipo_lancamento="DIETAS_TIPO_A",
+    )
+
+    obj.unidades_educacionais.set([escola_ceu_gestao])
+
+    existentes_por_uuid, existentes_por_chave = mapear_dados_existentes(
+        DescontoFinanceiro.objects.all(),
+        chave_composta=[
+            "tipo_lancamento",
+            "clausula_desconto_id",
+            "faixa_etaria_id",
+            "periodo_escolar_id",
+        ]
+    )
+
+    resultado = obter_instancia_dados(
+        {
+            "uuid": str(obj.uuid),
+            "tipo_lancamento": "DIETA_TIPO_A",
+            "quantidade": 5,
+        },
+        existentes_por_uuid,
+        existentes_por_chave,
+        [
+            "tipo_lancamento",
+            "clausula_desconto_id",
+            "faixa_etaria_id",
+            "periodo_escolar_id",
+        ]
+    )
+
+    assert resultado == obj

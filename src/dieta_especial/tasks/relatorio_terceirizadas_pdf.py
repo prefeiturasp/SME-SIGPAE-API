@@ -55,6 +55,12 @@ def gera_pdf_relatorio_dietas_especiais_terceirizadas_async(
                     )
                 ),
                 "alergias_intolerancias": solicitacao.alergias_intolerancias,
+                "data_nascimento_aluno": (
+                    solicitacao.aluno.data_nascimento.strftime("%d/%m/%Y")
+                    if solicitacao.aluno and solicitacao.aluno.data_nascimento
+                    else None
+                ),
+                "data_autorizacao": solicitacao.data_autorizacao or None,
             }
             if data.get("status_selecionado") == "CANCELADAS":
                 dados_solicitacoes["data_cancelamento"] = solicitacao.data_ultimo_log

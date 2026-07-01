@@ -315,7 +315,11 @@ ORDEM_PERIODOS_GRUPOS_CEMEI = {
     "Infantil MANHA": 4,
     "Infantil TARDE": 5,
     "Programas e Projetos": 6,
-    "Solicitações de Alimentação": 7,
+    "Recreio nas Férias": 7,
+    "Recreio nas Férias - de 0 a 3 anos e 11 meses": 8,
+    "Recreio nas Férias - 4 a 14 anos": 9,
+    "Solicitações de Alimentação": 10,
+    "Colaboradores": 11,
 }
 
 ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS = {
@@ -491,6 +495,43 @@ ORDEM_HEADERS_CIEJA_CMCT = {
     "DIETA ESPECIAL - TIPO A": 10,
     "DIETA ESPECIAL - TIPO B": 11,
 }
+
+ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
+    "Solicitações de Alimentação": 1,
+    "Recreio nas Férias": 2,
+    "DIETA ESPECIAL - TIPO A": 3,
+    "DIETA ESPECIAL - TIPO B": 4,
+    "Colaboradores": 5,
+}
+
+ORDEM_CAMPOS_RECREIO = [
+    "numero_de_alunos",
+    "participantes",
+    "matriculados",
+    "aprovadas",
+    "frequencia",
+    "solicitado",
+    "consumido",
+    "desjejum",
+    "lanche",
+    "lanche_4h",
+    "2_lanche_4h",
+    "2_lanche_5h",
+    "lanche_extra",
+    "colacao",
+    "refeicao",
+    "repeticao_refeicao",
+    "2_refeicao_1_oferta",
+    "repeticao_2_refeicao",
+    "total_refeicoes_pagamento",
+    "sobremesa",
+    "repeticao_sobremesa",
+    "2_sobremesa_1_oferta",
+    "repeticao_2_sobremesa",
+    "total_sobremesas_pagamento",
+    "lanche_emergencial",
+    "kit_lanche",
+]
 
 
 class StatusProcessamentoArquivo(Enum):

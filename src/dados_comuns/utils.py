@@ -8,7 +8,7 @@ import uuid
 from calendar import monthrange
 from collections import defaultdict
 from copy import deepcopy
-from mimetypes import guess_extension, guess_type
+from mimetypes import guess_extension
 from typing import Any
 
 import environ
@@ -32,6 +32,7 @@ from django.db.models import Model, QuerySet
 from django.http import QueryDict
 from django.template.loader import render_to_string
 from django_celery_beat.schedulers import DatabaseScheduler
+from rest_framework.exceptions import ValidationError
 from workalendar.america import BrazilSaoPauloCity
 
 from config.settings.base import URL_CONFIGS
@@ -77,21 +78,6 @@ def envia_email_unico(
     return send_mail(
         assunto, corpo, config.from_email or None, [email], html_message=html
     )
-
-
-def envia_email_unico_com_anexo(assunto: str, corpo: str, email: str, anexo=[]):
-    # Anexa um arquivo no email.
-    # Usado em enviar_email_para_diretor_da_escola_destino.
-    config = DynamicEmailConfiguration.get_solo()
-
-    email = EmailMessage(assunto, corpo, config.from_email or None, [email])
-    email.content_subtype = "html"
-    _mimetypes, _ = guess_type(anexo.name)
-    # Este anexo vem da pasta media.
-    nome_anexo = anexo.name.split("/")[-1]
-    nome_anexo = nome_anexo.replace("_auto", "")
-    email.attach(nome_anexo, anexo.read(), _mimetypes)
-    email.send()
 
 
 def envia_email_unico_com_anexo_inmemory(
@@ -201,6 +187,24 @@ def convert_date_format(date, from_format, to_format):
     return datetime.datetime.strftime(
         datetime.datetime.strptime(date, from_format), to_format
     )
+
+
+def parse_date(value: str) -> datetime.date:
+    """Converte uma string no formato DD/MM/YYYY para um objeto date.
+
+    Args:
+        value: String contendo a data no formato DD/MM/YYYY.
+
+    Returns:
+        datetime.date correspondente à string informada.
+
+    Raises:
+        ValidationError: Se a string não estiver no formato esperado.
+    """
+    try:
+        return datetime.datetime.strptime(value, "%d/%m/%Y").date()
+    except ValueError:
+        raise ValidationError(f"Formato de data inválido: {value}. Use DD/MM/YYYY")
 
 
 def size(b64string):

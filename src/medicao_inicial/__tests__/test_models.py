@@ -4,7 +4,10 @@ from unittest.mock import patch
 import pytest
 from django.db.utils import IntegrityError
 from model_bakery import baker
-from src.medicao_inicial.models import SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import (
+    SolicitacaoMedicaoInicial,
+    DescontoFinanceiro,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -332,3 +335,27 @@ def test_cria_medicoes_dos_periodos_nao_cria_quando_sem_periodos(
 
         mock_periodos.assert_called_once_with("2024", 3)
         assert solicitacao.medicoes.count() == 0
+
+
+def test_cria_desconto_financeiro_emei(
+    relatorio_financeiro_emei,
+    clausula_desconto,
+    tipo_alimentacao_lanche,
+):
+    desconto = baker.make(
+        DescontoFinanceiro,
+        relatorio_financeiro=relatorio_financeiro_emei,
+        clausula_desconto=clausula_desconto,
+        quantidade=10,
+        tipo_lancamento="ALIMENTACOES",
+        tipo_alimentacao=tipo_alimentacao_lanche,
+    )
+
+    assert desconto.relatorio_financeiro == relatorio_financeiro_emei
+    assert desconto.clausula_desconto == clausula_desconto
+    assert desconto.quantidade == 10
+    assert desconto.tipo_lancamento == "ALIMENTACOES"
+    assert desconto.tipo_alimentacao == tipo_alimentacao_lanche
+    assert desconto.faixa_etaria is None
+
+    assert str(desconto) == "Alimentação - Lanche"

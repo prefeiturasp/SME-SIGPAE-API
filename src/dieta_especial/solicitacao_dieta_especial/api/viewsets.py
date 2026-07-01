@@ -100,13 +100,14 @@ from src.dieta_especial.tasks import (
     gera_xlsx_relatorio_historico_dietas_especiais_async,
     gera_xlsx_relatorio_recreio_nas_ferias_async,
 )
-from src.dieta_especial.utils import (
-    RelatorioPagination,
+from src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias import (
     filtra_relatorio_recreio_nas_ferias,
-    filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
+)
+from src.dieta_especial.utils.gera_dicionario_historico_dietas import (
     gera_dicionario_historico_dietas,
+)
+from src.dieta_especial.utils.gerar_filtros_relatorio_historico import (
     gerar_filtros_relatorio_historico,
-    trata_lotes_dict_duplicados,
 )
 from src.escola.models import (
     Aluno,
@@ -125,6 +126,12 @@ from src.relatorios.relatorios import (
     relatorio_quantitativo_diag_dieta_especial,
     relatorio_quantitativo_diag_dieta_especial_somente_dietas_ativas,
     relatorio_quantitativo_solic_dieta_especial,
+)
+
+from .pagination import RelatorioPagination
+from .utils import (
+    filtrar_alunos_com_dietas_nos_status_e_rastro_escola,
+    trata_lotes_dict_duplicados,
 )
 
 
