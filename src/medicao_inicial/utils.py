@@ -41,6 +41,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
     LogQuantidadeDietasAutorizadasRecreioNasFerias,
+    LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
@@ -272,32 +273,30 @@ def _nome_periodo_tem_faixas_etarias_cemei(nome_periodo: str) -> bool:
     )
 
 
+def _get_total_colunas_periodo(tabela, periodo, tipo_unidade=None):
+    recreio = tabela.get("recreio", False)
+    categorias = tabela["categorias_dos_periodos"][periodo]
+
+    if tipo_unidade == "CEMEI" and periodo in ["INTEGRAL", "PARCIAL"]:
+        return sum((x["numero_campos"] * 2) + 1 for x in categorias)
+
+    if recreio and _nome_periodo_tem_faixas_etarias_cemei(periodo):
+        return sum(
+            x["numero_campos"] + 2
+            if x["categoria"] == CHAVE_ALIMENTACAO_REGULAR
+            else (x["numero_campos"] * 2) + 1
+            for x in categorias
+        )
+
+    return sum(x["numero_campos"] for x in categorias)
+
+
 def get_tamanho_colunas_periodos(tabelas, ordem_periodos_grupos, tipo_unidade=None):
     for tabela in tabelas:
-        recreio = tabela.get("recreio", False)
         for periodo in tabela["periodos"]:
-            if tipo_unidade == "CEMEI" and periodo in ["INTEGRAL", "PARCIAL"]:
-                tabela["len_periodos"] += [
-                    sum(
-                        (x["numero_campos"] * 2) + 1
-                        for x in tabela["categorias_dos_periodos"][periodo]
-                    )
-                ]
-            elif recreio and _nome_periodo_tem_faixas_etarias_cemei(periodo):
-                # Recreio 0-3: n faixas + 1 coluna participantes + 1 coluna total do dia
-                tabela["len_periodos"] += [
-                    sum(
-                        x["numero_campos"] + 1
-                        for x in tabela["categorias_dos_periodos"][periodo]
-                    ) + 1  # +1 para a coluna "Total do Dia"
-                ]
-            else:
-                tabela["len_periodos"] += [
-                    sum(
-                        x["numero_campos"]
-                        for x in tabela["categorias_dos_periodos"][periodo]
-                    )
-                ]
+            tabela["len_periodos"] += [
+                _get_total_colunas_periodo(tabela, periodo, tipo_unidade)
+            ]
             tabela["ordem_periodos_grupos"] += [ordem_periodos_grupos[periodo]]
 
 
@@ -1264,7 +1263,7 @@ def build_headers_tabelas_cemei(solicitacao):
 
             n = len(dict_categorias_campos[categoria])
             if _nome_periodo_tem_faixas_etarias_cemei(nome_periodo):
-                len_colunas = (n + 1) if recreio else (n * 2) + 1
+                len_colunas = (n * 2) + 1
             else:
                 len_colunas = n
 
@@ -1330,7 +1329,7 @@ def build_headers_tabelas_cemei(solicitacao):
                     indice_atual,
                     categoria,
                     "CEMEI",
-                    recreio=recreio,  # ← corrigido
+                    recreio=recreio,
                 )
                 get_categorias_dos_periodos(
                     nome_periodo,
@@ -1364,10 +1363,7 @@ def adiciona_valores_header(
         faixas_categoria = [faixa for faixa in dict_categorias_campos[categoria]]
         tabelas[indice_atual]["faixas_etarias"] += faixas_categoria
         n = len(dict_categorias_campos[categoria])
-        if recreio:
-            tabelas[indice_atual]["len_categorias"] += [n + 2]
-        else:
-            tabelas[indice_atual]["len_categorias"] += [(n * 2) + 1]
+        tabelas[indice_atual]["len_categorias"] += [(n * 2) + 1]
     else:
         tabelas[indice_atual]["len_categorias"] += [
             len(dict_categorias_campos[categoria])
@@ -1619,6 +1615,7 @@ def popula_campo_aprovadas_cei(
     logs_dietas,
     tabela,
     indice_periodo,
+    recreio: bool = False,
 ):
     try:
         periodo = tabela["periodos"][indice_periodo]
@@ -1630,15 +1627,19 @@ def popula_campo_aprovadas_cei(
             ]
         else:
             nomes_classificacoes = ["Tipo B"]
+
+        filtros = dict(
+            data__day=dia,
+            data__month=solicitacao.mes,
+            data__year=solicitacao.ano,
+            faixa_etaria=faixa_id,
+            classificacao__nome__in=nomes_classificacoes,
+        )
+        if not recreio:
+            filtros["periodo_escolar__nome"] = periodo
+
         quantidade = (
-            logs_dietas.filter(
-                data__day=dia,
-                data__month=solicitacao.mes,
-                data__year=solicitacao.ano,
-                faixa_etaria=faixa_id,
-                periodo_escolar__nome=periodo,
-                classificacao__nome__in=nomes_classificacoes,
-            )
+            logs_dietas.filter(**filtros)
             .aggregate(Sum("quantidade"))
             .get("quantidade__sum")
         )
@@ -1721,7 +1722,6 @@ def contador_frequencia_diaria_cei(
         periodo = tabela["periodos"][indice_periodo]
         medicoes = solicitacao.medicoes.all()
 
-        # Mesma lógica de grupos usada em popula_campos_preenchidos_pela_escola
         if periodo.startswith("Recreio nas Férias") or periodo == "Colaboradores":
             medicao = medicoes.get(grupo__nome=periodo)
         elif periodo in [
@@ -2293,33 +2293,44 @@ def popula_campo_solicitado(
         valores_dia += ["0"]
 
 
+def _campo_sem_total(campo, categoria_corrente):
+    campos_fixos = [
+        "matriculados", "numero_de_alunos", "frequencia", "aprovadas",
+        "repeticao_refeicao", "repeticao_sobremesa", "sobremesa",
+    ]
+    if campo in campos_fixos:
+        return True
+    if campo == "refeicao":
+        return "DIETA" not in categoria_corrente.upper()
+    return False
+
+
 def popula_campo_total(
     tabela, campo, valores_dia, indice_categoria, indice_campo, categoria_corrente
 ):
-    if campo in ["matriculados", "numero_de_alunos", "frequencia", "aprovadas", "refeicao", "repeticao_refeicao",
-                 "repeticao_sobremesa", "sobremesa"]:
+    if _campo_sem_total(campo, categoria_corrente):
         valores_dia += ["-"]
-    else:
-        try:
-            if indice_categoria == 0:
-                values = [
-                    valores[tabela["nomes_campos"].index(campo) + 1]
-                    for valores in tabela["valores_campos"]
-                ]
-            else:
-                i = 1
-                indice_valor_campo = 0
-                while i <= indice_categoria:
-                    indice_valor_campo += tabela["len_categorias"][indice_categoria - i]
-                    i += 1
-                indice_valor_campo += indice_campo
-                values = [
-                    valores[indice_valor_campo + 1]
-                    for valores in tabela["valores_campos"]
-                ]
-            valores_dia += [sum(int(x) for x in values)]
-        except Exception:
-            valores_dia += ["0"]
+        return
+    try:
+        if indice_categoria == 0:
+            values = [
+                valores[tabela["nomes_campos"].index(campo) + 1]
+                for valores in tabela["valores_campos"]
+            ]
+        else:
+            i = 1
+            indice_valor_campo = 0
+            while i <= indice_categoria:
+                indice_valor_campo += tabela["len_categorias"][indice_categoria - i]
+                i += 1
+            indice_valor_campo += indice_campo
+            values = [
+                valores[indice_valor_campo + 1]
+                for valores in tabela["valores_campos"]
+            ]
+        valores_dia += [sum(int(x) for x in values)]
+    except Exception:
+        valores_dia += ["0"]
 
 
 def get_eh_dia_letivo(dia, solicitacao):
@@ -2936,11 +2947,18 @@ def popula_campos_cemei(
     faixas_etarias = tabela["faixas_etarias"]
     periodo_corrente = tabela["periodos"][indice_periodo]
 
-    modelo = (
-        LogQuantidadeDietasAutorizadasCEI
-        if _nome_periodo_tem_faixas_etarias_cemei(periodo_corrente)
-        else LogQuantidadeDietasAutorizadas
-    )
+    if recreio:
+        modelo = (
+            LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI
+            if _nome_periodo_tem_faixas_etarias_cemei(periodo_corrente)
+            else LogQuantidadeDietasAutorizadasRecreioNasFerias
+        )
+    else:
+        modelo = (
+            LogQuantidadeDietasAutorizadasCEI
+            if _nome_periodo_tem_faixas_etarias_cemei(periodo_corrente)
+            else LogQuantidadeDietasAutorizadas
+        )
 
     logs_dietas = modelo.objects.filter(
         escola=solicitacao.escola,
@@ -3162,22 +3180,27 @@ def popula_campos_faixas_etarias(
     return indice_periodo, indice_categoria
 
 
+def _get_total_categoria_recreio(tabela, valores_dia, indice_categoria):
+    inicio_categoria = 1
+    for i in range(indice_categoria):
+        inicio_categoria += tabela["len_categorias"][i]
+    largura_sem_total = tabela["len_categorias"][indice_categoria] - 1
+    segmento = valores_dia[inicio_categoria:inicio_categoria + largura_sem_total]
+    return sum(int(valor) for valor in segmento if valor.isdigit())
+
+
 def popula_campo_total_cemei(tabela, valores_dia, indice_categoria, indice_faixa):
     try:
-        indice_valor_campo = tabela["len_categorias"][indice_categoria]
+        if tabela.get("recreio", False):
+            valores_dia += [str(_get_total_categoria_recreio(tabela, valores_dia, indice_categoria))]
+            return
 
-        if indice_categoria == 0:
-            values = [
-                valores[indice_valor_campo] for valores in tabela["valores_campos"]
-            ]
-        else:
-            i = 1
-            while i <= indice_categoria:
-                indice_valor_campo += tabela["len_categorias"][indice_categoria - i]
-                i += 1
-            values = [
-                valores[indice_valor_campo] for valores in tabela["valores_campos"]
-            ]
+        indice_valor_campo = tabela["len_categorias"][indice_categoria]
+        if indice_categoria != 0:
+            for i in range(indice_categoria):
+                indice_valor_campo += tabela["len_categorias"][i]
+
+        values = [valores[indice_valor_campo] for valores in tabela["valores_campos"]]
         valores_dia += [sum(int(x) for x in values)]
     except Exception:
         valores_dia += ["0"]
@@ -3215,23 +3238,35 @@ def _get_medicao_por_periodo(medicoes, periodo: str):
     return medicoes.get(periodo_escolar__nome=periodo, grupo=None)
 
 
-def _popula_faixas_dias_total(solicitacao, tabela, faixa_id, indice_periodo, categoria_corrente, valores_dia, recreio, primeira_faixa):
+def _popula_faixas_dias_total(
+    solicitacao, tabela, faixa_id, indice_periodo,
+    categoria_corrente, valores_dia, recreio, primeira_faixa
+):
     total = contador_frequencia_total_cei(
         solicitacao, tabela, faixa_id, indice_periodo, categoria_corrente,
     )
     if recreio:
-        if primeira_faixa:
-            valores_dia += ["-"]
-        valores_dia += [str(total if total else 0)]
+        if categoria_corrente == "ALIMENTAÇÃO":
+            if primeira_faixa:
+                valores_dia += ["-"]
+            valores_dia += [str(total if total else 0)]
+        else:
+            valores_dia += ["-", str(total if total else 0)]
     else:
         valores_dia += ["-", str(total if total else 0)]
 
 
-def _popula_faixas_dias_recreio(solicitacao, tabela, faixa_id, dia, indice_periodo, categoria_corrente, valores_dia, primeira_faixa):
+def _popula_faixas_dias_recreio(solicitacao, tabela, faixa_id, dia, indice_periodo, categoria_corrente, valores_dia, primeira_faixa, logs_dietas):
     if primeira_faixa:
-        valores_dia += [
-            _get_participantes_recreio_cei(solicitacao, tabela, indice_periodo, dia)
-        ]
+        if categoria_corrente == CHAVE_ALIMENTACAO_REGULAR:
+            valores_dia += [
+                _get_participantes_recreio_cei(solicitacao, tabela, indice_periodo, dia)
+            ]
+    if categoria_corrente != CHAVE_ALIMENTACAO_REGULAR:
+        popula_campo_aprovadas_cei(
+            solicitacao, faixa_id, dia, categoria_corrente, valores_dia, logs_dietas, tabela, indice_periodo,
+            recreio=True,
+        )
     popula_campos_preenchidos_pela_escola_cei(
         solicitacao, tabela, faixa_id, dia, indice_periodo, categoria_corrente, valores_dia,
     )
@@ -3270,6 +3305,7 @@ def popula_faixas_dias(
         _popula_faixas_dias_recreio(
             solicitacao, tabela, faixa_id, dia,
             indice_periodo, categoria_corrente, valores_dia, primeira_faixa,
+            logs_dietas,
         )
     else:
         _popula_faixas_dias_normal(

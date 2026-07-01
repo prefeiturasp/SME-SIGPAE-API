@@ -36,6 +36,7 @@ register = template.Library()
 
 # Add support for multi-line template tags
 template_base.tag_re = re.compile(template_base.tag_re.pattern, re.DOTALL)
+CHAVE_ALIMENTACAO_REGULAR = "ALIMENTAÇÃO"
 
 
 @register.filter
@@ -690,55 +691,84 @@ def _build_th_faixa(faixa, recreio, categoria):
     if faixa == "total":
         return '<th class="faixa-etaria">Total do Dia</th>'
     if recreio:
-        return "<th>Frequência</th>"
+        if categoria == "ALIMENTAÇÃO":
+            return "<th>Frequência</th>"
+        return "<th>Aprovadas</th><th>Frequência</th>"
+
     if categoria == "ALIMENTAÇÃO":
         return "<th>Matriculados</th><th>Frequência</th>"
     return "<th>Aprovadas</th><th>Frequência</th>"
 
 
+def _build_ths_categoria(faixas_limite, recreio, categoria):
+    html = []
+    if recreio and categoria == CHAVE_ALIMENTACAO_REGULAR:
+        html.append("<th>Participantes</th>")
+    for faixa in faixas_limite:
+        html.append(_build_th_faixa(faixa, recreio, categoria))
+    return html
+
+
 @register.filter
 def build_rows_faixas_etarias(tabela):
-    html_output = []
-    recreio = tabela.get("recreio", False)
-    index_inicial = 0
+    faixas_etarias = tabela["faixas_etarias"]
+    if not faixas_etarias:
+        return ""
 
-    if recreio and tabela["faixas_etarias"]:
-        html_output.append("<th>Participantes</th>")
+    recreio = tabela.get("recreio", False)
+    html_output = []
+    index_inicial = 0
 
     for _, campos_list in tabela["categorias_dos_periodos"].items():
         for campos in campos_list:
             numero_campos = campos["numero_campos"] + 1
-            faixas_limite = tabela["faixas_etarias"][
-                index_inicial : index_inicial + numero_campos
-            ]
-            for faixa in faixas_limite:
-                html_output.append(_build_th_faixa(faixa, recreio, campos["categoria"]))
+            faixas_limite = faixas_etarias[index_inicial:index_inicial + numero_campos]
+            if faixas_limite:
+                html_output += _build_ths_categoria(faixas_limite, recreio, campos["categoria"])
             index_inicial += numero_campos
 
     return "".join(html_output)
 
 
+def _build_th_header_faixa(faixa, recreio, categoria):
+    if faixa == "total":
+        return '<th class="faixa-etaria" colspan="1"></th>'
+    if recreio:
+        colspan = 1 if categoria == CHAVE_ALIMENTACAO_REGULAR else 2
+        return f'<th class="faixa-etaria" colspan="{colspan}">{faixa}</th>'
+    return f'<th class="faixa-etaria" colspan="2">{faixa}</th>'
+
+
+def _build_ths_header_categoria(faixas_limite, recreio, categoria):
+    html = []
+    if recreio and categoria == CHAVE_ALIMENTACAO_REGULAR:
+        html.append('<th class="faixa-etaria" colspan="1"></th>')
+    for faixa in faixas_limite:
+        html.append(_build_th_header_faixa(faixa, recreio, categoria))
+    return html
+
+
 @register.filter
 def build_headers_faixas_etarias(tabela):
-    html_output = []
     faixas_etarias = tabela["faixas_etarias"]
-    colunas = faixas_etarias.copy()
-    campos = tabela["nomes_campos"]
+    if not faixas_etarias:
+        return ""
+
     recreio = tabela.get("recreio", False)
+    html_output = []
+    index_inicial = 0
 
-    if campos and faixas_etarias:
-        colunas.extend([""] * len(campos))
+    for _, campos_list in tabela["categorias_dos_periodos"].items():
+        for campos in campos_list:
+            numero_campos = campos["numero_campos"] + 1
+            faixas_limite = faixas_etarias[index_inicial:index_inicial + numero_campos]
+            if faixas_limite:
+                html_output += _build_ths_header_categoria(faixas_limite, recreio, campos["categoria"])
+            index_inicial += numero_campos
 
-    if recreio and faixas_etarias:
+    for _ in tabela["nomes_campos"]:
         html_output.append('<th class="faixa-etaria" colspan="1"></th>')
 
-    for faixa in colunas:
-        if faixa == "total" or faixa == "":
-            html_output.append('<th class="faixa-etaria" colspan="1"></th>')
-        elif recreio:
-            html_output.append(f'<th class="faixa-etaria" colspan="1">{faixa}</th>')
-        else:
-            html_output.append(f'<th class="faixa-etaria" colspan="2">{faixa}</th>')
     return "".join(html_output)
 
 
