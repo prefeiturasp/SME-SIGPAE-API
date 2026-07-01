@@ -3618,7 +3618,11 @@ def validate_medicao_cemei(solicitacao):
                 dias_letivos_uteis,
                 categoria_alimentacao,
                 dias_nao_letivos,
-                inclusoes.filter(quantidade_alunos_cei_da_inclusao_cemei__isnull=False),
+                inclusoes.filter(
+                    quantidade_alunos_cei_da_inclusao_cemei__isnull=False
+                ).exclude(
+                    dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico"
+                ),
             )
         elif tipo_medicao == "PROGRAMAS E PROJETOS":
             lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(
@@ -3635,6 +3639,8 @@ def validate_medicao_cemei(solicitacao):
                 dias_letivos_uteis,
                 inclusoes.filter(
                     quantidade_alunos_emei_da_inclusao_cemei__isnull=False
+                ).exclude(
+                    dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico"
                 ),
                 medicao,
                 mes,
