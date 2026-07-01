@@ -496,14 +496,7 @@ ORDEM_HEADERS_CIEJA_CMCT = {
     "DIETA ESPECIAL - TIPO B": 11,
 }
 
-ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
-    "Solicitações de Alimentação": 1,
-    "Recreio nas Férias": 2,
-    "DIETA ESPECIAL - TIPO A": 3,
-    "DIETA ESPECIAL - TIPO B": 4,
-    "Colaboradores": 5,
-}
-
+# Para o recreio nas Férias
 ORDEM_CAMPOS_RECREIO = [
     "numero_de_alunos",
     "participantes",
@@ -532,6 +525,22 @@ ORDEM_CAMPOS_RECREIO = [
     "lanche_emergencial",
     "kit_lanche",
 ]
+
+ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
+    "Solicitações de Alimentação": 1,
+    "Recreio nas Férias": 2,
+    "DIETA ESPECIAL - TIPO A": 3,
+    "DIETA ESPECIAL - TIPO B": 4,
+    "Colaboradores": 5,
+}
+
+ORDEM_HEADERS_RECREIO_CEI = {
+    "Solicitações de Alimentação": 1,
+    "Recreio nas Férias": 2,
+    "DIETA ESPECIAL - TIPO A": 3,
+    "DIETA ESPECIAL - TIPO B": 4,
+    "Colaboradores": 5,
+}
 
 
 class StatusProcessamentoArquivo(Enum):
