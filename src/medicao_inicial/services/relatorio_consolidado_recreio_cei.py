@@ -1,5 +1,6 @@
 import math
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
 
@@ -13,6 +14,7 @@ from src.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
+    total_pagamento_colaboradores,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -278,7 +280,7 @@ def get_valores_tabela(
 
 def _processa_periodo_campo(
     solicitacao: SolicitacaoMedicaoInicial,
-    periodo: str,
+    grupo: str,
     campo: int | str,
     valores: list[str],
     query_params: dict | None = None,
@@ -293,7 +295,7 @@ def _processa_periodo_campo(
 
     Args:
         solicitacao (SolicitacaoMedicaoInicial): Solicitação que está sendo processada.
-        periodo (str): Nome do período ou da categoria correspondente à coluna.
+        grupo (str): Nome do grupo ou da categoria correspondente à coluna.
         campo (int | str): Identificador do campo associado à coluna. Dependendo do contexto,
             pode representar uma faixa etária ou outro identificador utilizado
             no cálculo dos valores.
@@ -306,12 +308,17 @@ def _processa_periodo_campo(
     """
     filtros = {}
     try:
-        if "DIETA ESPECIAL" in periodo:
+        if "DIETA ESPECIAL" in grupo:
             filtros["grupo__nome"] = "Recreio nas Férias"
             total = processa_dieta_especial(
-                solicitacao, filtros, campo, periodo, query_params
+                solicitacao, filtros, campo, grupo, query_params
             )
-            valores.append(total)
+        else:
+            filtros["grupo__nome"] = grupo
+            total = processa_grupos_recreio(
+                solicitacao, filtros, campo, grupo, query_params
+            )
+        valores.append(total)
     except Exception:
         valores.append("-")
     return valores
@@ -350,7 +357,9 @@ def processa_dieta_especial(
 
     total = 0.0
     for medicao in medicoes:
-        soma = _calcula_soma_medicao(medicao, faixa_etaria, periodo, query_params)
+        soma = _calcula_soma_medicao(
+            medicao, "frequencia", faixa_etaria, periodo, query_params
+        )
         if soma is not None:
             total += soma
 
@@ -359,6 +368,7 @@ def processa_dieta_especial(
 
 def _calcula_soma_medicao(
     medicao: Medicao,
+    nome_campo: str,
     faixa_etaria: int,
     categoria: str,
     query_params: dict | None = None,
@@ -366,15 +376,17 @@ def _calcula_soma_medicao(
     """
     Calcula a soma dos valores registrados para uma medição.
 
-    Considera apenas os registros de frequência pertencentes à faixa etária e
-    categoria informadas, aplicando os filtros do intervalo de dias quando
-    necessário.
+    Considera apenas os registros que correspondem ao nome do campo, à faixa
+    etária e à categoria informados, aplicando os filtros do intervalo de dias
+    quando necessário.
 
     Args:
-        medicao (Medicao): Medição que será utilizada no cálculo.
-        faixa_etaria (int): Identificador da faixa etária.
-        categoria (str): Nome da categoria de dieta especial.
-        query_params (dict | None, optional):  Parâmetros utilizados para filtrar os valores da medição.
+        medicao (Medicao):  Medição utilizada no cálculo.
+        nome_campo (str): Nome do campo cujos valores serão somados.
+        faixa_etaria (int):  Identificador da faixa etária utilizada na consulta. Pode ser
+        ``None`` quando o cálculo não depende de faixa etária.
+        categoria (str): Nome da categoria da medição.
+        query_params (dict | None, optional): Parâmetros utilizados para filtrar os valores da medição.
             Defaults to None.
 
     Returns:
@@ -384,10 +396,62 @@ def _calcula_soma_medicao(
     return (
         filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
         .filter(
-            nome_campo="frequencia",
+            nome_campo=nome_campo,
             faixa_etaria_id=faixa_etaria,
             categoria_medicao__nome=categoria,
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
     )
+
+
+def processa_grupos_recreio(
+    solicitacao: SolicitacaoMedicaoInicial,
+    filtros: dict,
+    campo_de_busca: int | str,
+    periodo: str,
+    query_params: dict | None = None,
+) -> float | str:
+    """
+    Processa os valores de um grupo do relatório de Recreio nas Férias.
+
+    Localiza a medição correspondente aos filtros informados e calcula o valor da
+    coluna de acordo com o período. Para colaboradores, o cálculo pode considerar
+    campos específicos ou os totais de pagamento de refeições e sobremesas. Para
+    os demais grupos, o cálculo é realizado com base na faixa etária.
+
+    Args:
+        solicitacao (SolicitacaoMedicaoInicial): Solicitação cujas medições serão processadas.
+        filtros (dict): Filtros utilizados para localizar a medição.
+        campo_de_busca (int | str): Identificador utilizado no cálculo da coluna. Dependendo do período,
+            pode representar o nome de um campo ou o identificador de uma faixa etária.
+        periodo (str): Nome do período correspondente à coluna do relatório.
+        query_params (dict | None, optional): Parâmetros utilizados para filtrar os valores das medições.
+            Defaults to None.
+    Returns:
+        float | str: Valor calculado para a coluna ou "-" quando não houver registros
+            correspondentes.
+    """
+
+    try:
+        medicao = solicitacao.medicoes.get(**filtros)
+    except ObjectDoesNotExist:
+        return "-"
+
+    if periodo == "Colaboradores":
+        nome_campo = campo_de_busca
+        faixa_etaria_id = None
+    else:
+        nome_campo = "frequencia"
+        faixa_etaria_id = campo_de_busca
+
+    if (
+        nome_campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]
+        and periodo == "Colaboradores"
+    ):
+        return total_pagamento_colaboradores(medicao, nome_campo, query_params)
+    else:
+        soma = _calcula_soma_medicao(
+            medicao, nome_campo, faixa_etaria_id, "ALIMENTAÇÃO", query_params
+        )
+        return soma if soma is not None else "-"
