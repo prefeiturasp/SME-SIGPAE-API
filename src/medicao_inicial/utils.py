@@ -2293,33 +2293,44 @@ def popula_campo_solicitado(
         valores_dia += ["0"]
 
 
+def _campo_sem_total(campo, categoria_corrente):
+    campos_fixos = [
+        "matriculados", "numero_de_alunos", "frequencia", "aprovadas",
+        "repeticao_refeicao", "repeticao_sobremesa", "sobremesa",
+    ]
+    if campo in campos_fixos:
+        return True
+    if campo == "refeicao":
+        return "DIETA" not in categoria_corrente.upper()
+    return False
+
+
 def popula_campo_total(
     tabela, campo, valores_dia, indice_categoria, indice_campo, categoria_corrente
 ):
-    if campo in ["matriculados", "numero_de_alunos", "frequencia", "aprovadas", "refeicao", "repeticao_refeicao",
-                 "repeticao_sobremesa", "sobremesa"]:
+    if _campo_sem_total(campo, categoria_corrente):
         valores_dia += ["-"]
-    else:
-        try:
-            if indice_categoria == 0:
-                values = [
-                    valores[tabela["nomes_campos"].index(campo) + 1]
-                    for valores in tabela["valores_campos"]
-                ]
-            else:
-                i = 1
-                indice_valor_campo = 0
-                while i <= indice_categoria:
-                    indice_valor_campo += tabela["len_categorias"][indice_categoria - i]
-                    i += 1
-                indice_valor_campo += indice_campo
-                values = [
-                    valores[indice_valor_campo + 1]
-                    for valores in tabela["valores_campos"]
-                ]
-            valores_dia += [sum(int(x) for x in values)]
-        except Exception:
-            valores_dia += ["0"]
+        return
+    try:
+        if indice_categoria == 0:
+            values = [
+                valores[tabela["nomes_campos"].index(campo) + 1]
+                for valores in tabela["valores_campos"]
+            ]
+        else:
+            i = 1
+            indice_valor_campo = 0
+            while i <= indice_categoria:
+                indice_valor_campo += tabela["len_categorias"][indice_categoria - i]
+                i += 1
+            indice_valor_campo += indice_campo
+            values = [
+                valores[indice_valor_campo + 1]
+                for valores in tabela["valores_campos"]
+            ]
+        valores_dia += [sum(int(x) for x in values)]
+    except Exception:
+        valores_dia += ["0"]
 
 
 def get_eh_dia_letivo(dia, solicitacao):
