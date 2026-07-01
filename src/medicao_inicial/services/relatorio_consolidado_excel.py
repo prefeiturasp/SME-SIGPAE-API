@@ -23,6 +23,7 @@ from src.medicao_inicial.services import (
     relatorio_consolidado_emebs,
     relatorio_consolidado_emei_emef,
     relatorio_consolidado_recreio_emei_emef,
+    relatorio_consolidado_recreio_cei
 )
 
 from ..models import SolicitacaoMedicaoInicial
@@ -160,6 +161,11 @@ def _obter_modulo_da_unidade_recreio(tipos_de_unidade: list[str]) -> tuple:
         {
             "unidades": ORDEM_UNIDADES_GRUPO_EMEI,
             "modulo": relatorio_consolidado_recreio_emei_emef,
+            "parametros": [tipos_de_unidade],
+        },
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_CEI,
+            "modulo": relatorio_consolidado_recreio_cei,
             "parametros": [tipos_de_unidade],
         },
     ]
