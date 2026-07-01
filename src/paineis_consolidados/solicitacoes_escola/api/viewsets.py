@@ -774,7 +774,10 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         return_dict = self.inclusoes_normal_continua(
             query_set, periodos_escolares, mes, ano, return_dict
         )
-        if cemei_cei or cemei_emei:
+        excluir_continuas = (
+            request.query_params.get("excluir_inclusoes_continuas") == "true"
+        )
+        if (cemei_cei or cemei_emei) and not excluir_continuas:
             return_dict = self.inclusoes_cemei_evento_especifico(
                 mes,
                 ano,
