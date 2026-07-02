@@ -1,0 +1,39 @@
+import pytest
+
+from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
+    get_alimentacoes_por_periodo,
+)
+
+pytestmark = pytest.mark.django_db
+
+
+def test_get_alimentacoes_por_periodo(solicitacao_recreio_cei, faixas_etarias_ativas):
+    colunas = get_alimentacoes_por_periodo([solicitacao_recreio_cei])
+    assert isinstance(colunas, list)
+    assert len(colunas) == 22
+    assert sum(1 for tupla in colunas if tupla[0] == "Recreio nas Férias") == 8
+    assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 0
+    assert sum(1 for tupla in colunas if tupla[0] == "PARCIAL") == 0
+    assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 0
+    assert sum(1 for tupla in colunas if tupla[0] == "TARDE") == 0
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 8
+    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 0
+    assert sum(1 for tupla in colunas if tupla[0] == "Colaboradores") == 6
+
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[0].id) == 2
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[1].id) == 2
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[2].id) == 2
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[3].id) == 2
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[4].id) == 2
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[5].id) == 2
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[6].id) == 2
+    assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[7].id) == 2
+
+    assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 0
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 0
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche") == 0
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_4h") == 0
+    assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
+    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
