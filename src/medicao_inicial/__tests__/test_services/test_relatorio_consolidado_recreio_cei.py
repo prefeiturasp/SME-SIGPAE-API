@@ -5,6 +5,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _get_lista_alimentacoes_dietas,
     _sort_and_merge,
     get_alimentacoes_por_periodo,
+    get_valores_tabela,
 )
 
 pytestmark = pytest.mark.django_db
@@ -129,3 +130,41 @@ def test_sort_and_merge(faixas_etarias_ativas):
     assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
     assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 2
     assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == [faixas[1], faixas[2]]
+
+
+def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
+    tipos_unidade = ["CEI"]
+    linhas = get_valores_tabela(
+        [solicitacao_recreio_cei], mock_colunas_recreio_cei, tipos_unidade
+    )
+    assert isinstance(linhas, list)
+    assert len(linhas) == 1
+    assert isinstance(linhas[0], list)
+    assert len(linhas[0]) == 27
+    assert linhas[0] == [
+        "CEI DIRET",
+        "765432",
+        "CEI DIRET TESTE",
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        280.0,
+        280.0,
+        560.0,
+        280.0,
+        280.0,
+        560.0,
+    ]
