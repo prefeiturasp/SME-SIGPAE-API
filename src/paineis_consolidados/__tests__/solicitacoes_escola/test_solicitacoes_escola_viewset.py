@@ -44,11 +44,15 @@ from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     InclusaoAlimentacaoNormalFactory,
     InclusaoDeAlimentacaoCEMEIFactory,
     MotivoInclusaoContinuaFactory,
+    MotivoInclusaoNormalFactory,
     QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEIFactory,
     QuantidadePorPeriodoFactory,
 )
-from src.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
+from src.inclusao_alimentacao.models import (
+    GrupoInclusaoAlimentacaoNormal,
+    InclusaoDeAlimentacaoCEMEI,
+)
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.paineis_consolidados.models import SolicitacoesEscola
 from src.paineis_consolidados.solicitacoes_escola.api.viewsets import (
@@ -714,6 +718,61 @@ class TestEndpointInclusoesAutorizadas:
                 "faixas_etarias": [str(self.faixa_etaria.uuid)],
             }
         ]
+
+    def test_inclusoes_autorizadas_cemei_evento_especifico_respeita_excluir_continuas(
+        self,
+        client_autenticado_vinculo_escola_cemei,
+        escola_cemei,
+    ):
+        client, usuario = client_autenticado_vinculo_escola_cemei
+        motivo_evento_especifico = MotivoInclusaoNormalFactory.create(
+            nome="Evento Específico"
+        )
+        self.setup_solicitacoes(
+            escola_cemei,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+        inclusao_cemei = InclusaoDeAlimentacaoCEMEI.objects.first()
+        dias_motivo = inclusao_cemei.dias_motivos_da_inclusao_cemei.first()
+        dias_motivo.motivo = motivo_evento_especifico
+        dias_motivo.save()
+
+        response_com = client.get(
+            "/escola-solicitacoes/inclusoes-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Inclus%C3%A3o+de"
+            f"&mes=2"
+            f"&ano=2025"
+            f"&periodos_escolares[]=MANHA"
+            f"&excluir_inclusoes_continuas=true"
+            f"&cemei_emei=true"
+        )
+        assert response_com.status_code == status.HTTP_200_OK
+        assert response_com.json()["results"] == []
+
+        response_sem = client.get(
+            "/escola-solicitacoes/inclusoes-autorizadas/"
+            f"?escola_uuid={escola_cemei.uuid}"
+            f"&tipo_solicitacao=Inclus%C3%A3o+de"
+            f"&mes=2"
+            f"&ano=2025"
+            f"&periodos_escolares[]=MANHA"
+            f"&cemei_emei=true"
+        )
+        assert response_sem.status_code == status.HTTP_200_OK
+        results = response_sem.json()["results"]
+        assert len(results) >= 1
+        result = results[0]
+        result.pop("inclusao_id_externo")
+        assert result == {
+            "dia": "03",
+            "periodo": "MANHA",
+            "alimentacoes": "refeicao",
+            "numero_alunos": 20,
+            "dias_semana": None,
+        }
 
 
 @pytest.mark.usefixtures("client_autenticado_escola_paineis_consolidados", "escola")

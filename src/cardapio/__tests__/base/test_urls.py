@@ -1,10 +1,20 @@
+import datetime
 import json
 
 import pytest
+from model_bakery import baker
 from rest_framework import status
 
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
+from src.dados_comuns import constants as dados_comuns_constants
+from src.escola.models import PeriodoEscolar
+from src.inclusao_alimentacao.models import (
+    DiasMotivosInclusaoDeAlimentacaoCEMEI,
+    InclusaoDeAlimentacaoCEMEI,
+    MotivoInclusaoNormal,
+    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
 )
 
 pytestmark = pytest.mark.django_db
@@ -255,3 +265,91 @@ def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_mes_diferente(
     json = response.json()["results"]
     # Deve retornar períodos filtrados para dezembro de 2025
     assert len(json) >= 0
+
+
+def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(
+    client,
+    django_user_model,
+):
+    terceirizada = baker.make("Terceirizada")
+    lote = baker.make("Lote", terceirizada=terceirizada)
+    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade_cemei = baker.make("escola.TipoUnidadeEscolar", iniciais="CEMEI")
+    diretoria_regional = baker.make("DiretoriaRegional")
+    escola_cemei = baker.make(
+        "escola.Escola",
+        lote=lote,
+        nome="CEMEI JOAO MENDES",
+        codigo_eol="000546",
+        diretoria_regional=diretoria_regional,
+        tipo_gestao=tipo_gestao,
+        tipo_unidade=tipo_unidade_cemei,
+    )
+
+    email = "test_cemei_evento@test.com"
+    password = dados_comuns_constants.DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="8888889"
+    )
+    perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
+    hoje = datetime.date.today()
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=escola_cemei,
+        perfil=perfil_diretor,
+        data_inicial=hoje,
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+
+    motivo = baker.make(MotivoInclusaoNormal, nome="Evento Específico")
+    periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
+    refeicao = baker.make("cardapio.TipoAlimentacao", nome="Refeicao")
+
+    inclusao = baker.make(
+        InclusaoDeAlimentacaoCEMEI,
+        escola=escola_cemei,
+        rastro_escola=escola_cemei,
+        rastro_lote=lote,
+        rastro_dre=diretoria_regional,
+        status="CODAE_AUTORIZADO",
+    )
+
+    baker.make(
+        DiasMotivosInclusaoDeAlimentacaoCEMEI,
+        inclusao_alimentacao_cemei=inclusao,
+        motivo=motivo,
+        data="2025-02-03",
+    )
+
+    baker.make(
+        QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
+        inclusao_alimentacao_cemei=inclusao,
+        periodo_escolar=periodo_manha,
+        quantidade_alunos=20,
+        tipos_alimentacao=[refeicao],
+    )
+
+    tipo_unidade_emei = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEI")
+    baker.make(
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
+        tipo_unidade_escolar=tipo_unidade_emei,
+        periodo_escolar=periodo_manha,
+        ativo=True,
+        tipos_alimentacao=[refeicao],
+    )
+
+    response = client.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/vinculos-inclusoes-evento-especifico-autorizadas/"
+        f"?escola_uuid={escola_cemei.uuid}"
+        f"&mes=2"
+        f"&ano=2025"
+        f"&tipo_solicitacao=Inclus%C3%A3o+de"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    results = response.json()
+    assert len(results) > 0
+    periodos_nomes = [r["periodo_escolar"]["nome"] for r in results]
+    assert "MANHA" in periodos_nomes
