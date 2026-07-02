@@ -377,3 +377,46 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
 
         if escola_batch:
             EscolaThrough.objects.bulk_create(escola_batch)
+
+
+class DiaLetivoUpdateSerializer(serializers.Serializer):
+    """Serializador para atualização de um dia letivo existente.
+
+    Atualiza apenas os relacionamentos M2M (lotes, tipos de unidade,
+    unidades educacionais e períodos escolares) de um registro já existente.
+    """
+
+    lotes = serializers.ListField(child=serializers.UUIDField())
+    tipos_unidades = serializers.ListField(child=serializers.UUIDField())
+    unidades_educacionais = serializers.ListField(
+        child=serializers.UUIDField(), required=False, default=list
+    )
+    periodos_escolares = serializers.ListField(child=serializers.UUIDField())
+
+    def validate_lotes(self, value: list) -> list:
+        if not value:
+            raise ValidationError("lotes é obrigatório")
+        return value
+
+    def validate_tipos_unidades(self, value: list) -> list:
+        if not value:
+            raise ValidationError("tipos_unidades é obrigatório")
+        return value
+
+    def validate_periodos_escolares(self, value: list) -> list:
+        if not value:
+            raise ValidationError("periodos_escolares é obrigatório")
+        return value
+
+    def update(self, instance: DiaLetivoSIGPAE, validated_data: dict) -> DiaLetivoSIGPAE:
+        lotes = Lote.objects.filter(uuid__in=validated_data["lotes"])
+        tipos_unidades = TipoUnidadeEscolar.objects.filter(uuid__in=validated_data["tipos_unidades"])
+        periodos_escolares = PeriodoEscolar.objects.filter(uuid__in=validated_data["periodos_escolares"])
+        escolas = Escola.objects.filter(uuid__in=validated_data.get("unidades_educacionais", []))
+
+        instance.lotes.set(lotes)
+        instance.tipos_unidade_escolar.set(tipos_unidades)
+        instance.periodos_escolares.set(periodos_escolares)
+        instance.escolas.set(escolas)
+
+        return instance
