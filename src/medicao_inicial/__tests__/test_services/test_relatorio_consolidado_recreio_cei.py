@@ -3,6 +3,7 @@ import math
 import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
+    _calcula_soma_medicao,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _processa_periodo_campo,
@@ -237,3 +238,40 @@ def test_processa_grupos_recreio(solicitacao_recreio_cei, faixas_etarias_ativas)
         solicitacao_recreio_cei, filtros, "total_refeicoes_pagamento", periodo
     )
     assert math.isclose(total, 560.0, rel_tol=1e-9)
+
+
+def test_calcula_soma_medicao_alimentacao(
+    solicitacao_recreio_cei, faixas_etarias_ativas
+):
+    medicoes = solicitacao_recreio_cei.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    colaboradores = _calcula_soma_medicao(
+        medicao_colaboradores, "sobremesa", None, "ALIMENTAÇÃO"
+    )
+    assert math.isclose(colaboradores, 280.0, rel_tol=1e-9)
+
+    medicao_recreio = medicoes[1]
+    recreio = _calcula_soma_medicao(
+        medicao_recreio, "frequencia", faixas_etarias_ativas[0].id, "ALIMENTAÇÃO"
+    )
+    assert math.isclose(recreio, 168.0, rel_tol=1e-9)
+
+
+def test_calcula_soma_medicao_dieta_especial(
+    solicitacao_recreio_cei, faixas_etarias_ativas
+):
+    medicoes = solicitacao_recreio_cei.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    colaboradores = _calcula_soma_medicao(
+        medicao_colaboradores, "refeicao", None, "DIETA ESPECIAL - TIPO A"
+    )
+    assert colaboradores is None
+
+    medicao_recreio = medicoes[1]
+    recreio = _calcula_soma_medicao(
+        medicao_recreio,
+        "frequencia",
+        faixas_etarias_ativas[0].id,
+        "DIETA ESPECIAL - TIPO A",
+    )
+    assert math.isclose(recreio, 28.0, rel_tol=1e-9)
