@@ -1,7 +1,6 @@
 import datetime
 import json
 from calendar import monthrange
-from itertools import chain
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Count, F, Max, Q, Sum
@@ -403,6 +402,13 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
         ],
     )
     def inclusao_continua_por_mes(self, request):
+        """Retorna periodos escolares de inclusoes continuas e CEMEI Evento Especifico.
+
+        Consulta ``InclusaoAlimentacaoContinua`` autorizadas (exceto ETEC) e
+        ``InclusaoDeAlimentacaoCEMEI`` com motivo ``Evento Especifico``,
+        retornando os periodos escolares distintos (nome e uuid) com datas
+        contidas no mes informado via query params ``mes`` e ``ano``.
+        """
         try:
             for param in ["mes", "ano"]:
                 if param not in request.query_params:
@@ -449,18 +455,12 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
                 dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
                 dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
             )
-            cemei_periodos_cei = cemei_base_qs.values_list(
-                "quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar__nome",
-                "quantidade_alunos_cei_da_inclusao_cemei__periodo_escolar__uuid",
-            )
             cemei_periodos_emei = cemei_base_qs.values_list(
                 "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
                 "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__uuid",
             )
             cemei_tuples = {
-                (nome, uuid)
-                for nome, uuid in chain(cemei_periodos_cei, cemei_periodos_emei)
-                if nome is not None
+                (nome, uuid) for nome, uuid in cemei_periodos_emei if nome is not None
             }
             periodos.update(dict(cemei_tuples))
             return Response({"periodos": periodos if len(periodos) else None})
