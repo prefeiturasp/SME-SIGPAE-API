@@ -52,7 +52,6 @@ def test_get_alimentacoes_por_periodo(solicitacao_recreio_cei, faixas_etarias_at
     assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
-    print(colunas)
 
 
 def test_get_lista_alimentacoes(solicitacao_recreio_cei, faixas_etarias_ativas):
