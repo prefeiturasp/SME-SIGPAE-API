@@ -301,7 +301,9 @@ def get_quantidade_dietas_autorizadas(medicao, ano, mes, dia, faixa_etaria):
             data__day=dia,
             periodo_escolar=periodo,
             faixa_etaria=faixa_etaria,
-        ).values_list("quantidade", flat=True)
+        )
+        .exclude(classificacao__nome__icontains="Tipo C")
+        .values_list("quantidade", flat=True)
     )
     return quantidade_dietas_autorizadas
 
@@ -404,7 +406,10 @@ def validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias(
             None,
         )
         quantidade = log[QUANTIDADE_INDEX] if log else 0
-        if quantidade == 0:
+        quantidade_dietas_autorizadas = get_quantidade_dietas_autorizadas(
+            medicao, ano, mes, dia, faixa_etaria
+        )
+        if quantidade == 0 or (quantidade - quantidade_dietas_autorizadas <= 0):
             continue
         valor_medicao = next(
             (
