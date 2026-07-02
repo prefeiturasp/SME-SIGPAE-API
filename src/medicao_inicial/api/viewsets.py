@@ -67,6 +67,7 @@ from ..models import (
     CategoriaMedicao,
     ClausulaDeDesconto,
     DadosLiquidacao,
+    DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -81,7 +82,6 @@ from ..models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
-    DescontoFinanceiro,
 )
 from ..tasks import (
     exporta_relatorio_adesao_para_pdf,
@@ -131,8 +131,8 @@ from .serializers import (
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
     DadosLiquidacaoSerializer,
-    DescontoFinanceiroSerializer,
     DadosParametrizacaoFinanceiraSerializer,
+    DescontoFinanceiroSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
     EmpenhoSerializer,
@@ -1000,7 +1000,6 @@ class SolicitacaoMedicaoInicialViewSet(
             if not existe_emei and "INTEGRAL" in lista_periodos:
                 lista_periodos.remove("INTEGRAL")
             lista_periodos = sorted(f"Infantil {periodo}" for periodo in lista_periodos)
-
             ordem_personalizada = ordem_periodos(escola, data_referencia).get(
                 "EMEI", {}
             )
@@ -2429,16 +2428,20 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             mes = int(relatorio_financeiro.mes)
             ano = int(relatorio_financeiro.ano)
 
-            parametrizacao = ParametrizacaoFinanceira.objects.filter(
-                lote=relatorio_financeiro.lote,
-                grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
-                data_inicial__lte=datetime.date(
-                    ano, mes, calendar.monthrange(ano, mes)[1]
-                ),
-            ).filter(
-                Q(data_final__gte=datetime.date(ano, mes, 1))
-                | Q(data_final__isnull=True)
-            ).first()
+            parametrizacao = (
+                ParametrizacaoFinanceira.objects.filter(
+                    lote=relatorio_financeiro.lote,
+                    grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
+                    data_inicial__lte=datetime.date(
+                        ano, mes, calendar.monthrange(ano, mes)[1]
+                    ),
+                )
+                .filter(
+                    Q(data_final__gte=datetime.date(ano, mes, 1))
+                    | Q(data_final__isnull=True)
+                )
+                .first()
+            )
 
             if not parametrizacao:
                 return Response(
@@ -2617,8 +2620,7 @@ class DadosLiquidacaoViewSet(ModelViewSet):
         )
 
         existentes_por_uuid, existentes_por_chave = mapear_dados_existentes(
-            queryset,
-            chave_composta=["numero_empenho", "tipo_empenho"]
+            queryset, chave_composta=["numero_empenho", "tipo_empenho"]
         )
 
         resultado = []
@@ -2629,7 +2631,7 @@ class DadosLiquidacaoViewSet(ModelViewSet):
                 item_data,
                 existentes_por_uuid,
                 existentes_por_chave,
-                ["numero_empenho", "tipo_empenho"]
+                ["numero_empenho", "tipo_empenho"],
             )
 
             serializer = DadosLiquidacaoUpdateSerializer(

@@ -4,17 +4,11 @@ import unicodedata
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 
-from src.cardapio.base.models import (
-    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
-)
 from src.dados_comuns.utils import get_ultimo_dia_mes
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.escola.models import DiretoriaRegional, Lote
-from src.inclusao_alimentacao.models import (
-    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
-)
 from src.terceirizada.models import Terceirizada
 
 
@@ -140,15 +134,9 @@ def tratar_append_return_dict(dia, mes, ano, periodo, inclusao, return_dict, esc
         or dia < datetime.date.today().day
         or (escola.ultimo_dia_letivo and dia == escola.ultimo_dia_letivo.day)
     ):
-        if isinstance(periodo, QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI):
-            queryset_tipos_alimentacao = (
-                VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
-                    tipo_unidade_escolar__iniciais="EMEI",
-                    periodo_escolar=periodo.periodo_escolar,
-                ).tipos_alimentacao.exclude(nome="Lanche Emergencial")
-            )
-        else:
-            queryset_tipos_alimentacao = periodo.tipos_alimentacao.all()
+        queryset_tipos_alimentacao = periodo.tipos_alimentacao.exclude(
+            nome="Lanche Emergencial"
+        )
         alimentacoes = ", ".join(
             [
                 unicodedata.normalize("NFD", alimentacao.nome.replace(" ", "_"))
