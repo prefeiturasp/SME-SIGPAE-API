@@ -6,6 +6,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _sort_and_merge,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
+    _processa_periodo_campo
 )
 
 pytestmark = pytest.mark.django_db
@@ -140,7 +141,7 @@ def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
     assert isinstance(linhas, list)
     assert len(linhas) == 1
     assert isinstance(linhas[0], list)
-    assert len(linhas[0]) == 27
+    assert len(linhas[0]) == 25
     assert linhas[0] == [
         "CEI DIRET",
         "765432",
@@ -168,3 +169,33 @@ def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
         280.0,
         560.0,
     ]
+
+
+def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
+    valores_iniciais = [
+        solicitacao_recreio_cei.escola.tipo_unidade.iniciais,
+        solicitacao_recreio_cei.escola.codigo_eol,
+        solicitacao_recreio_cei.escola.nome,
+    ]
+
+    recreio = _processa_periodo_campo(
+        solicitacao_recreio_cei,
+        "Recreio nas Férias",
+        faixas_etarias_ativas[0].id,
+        valores_iniciais,
+    )
+    assert isinstance(recreio, list)
+    assert len(recreio) == 4
+    assert recreio == ['CEI DIRET', '765432', 'CEI DIRET TESTE', 168.0]
+
+    colaboradores = _processa_periodo_campo(
+        solicitacao_recreio_cei,
+        "Colaboradores",
+        "refeicao",
+        valores_iniciais,
+    )
+    assert isinstance(colaboradores, list)
+    assert len(colaboradores) == 5
+    assert colaboradores == ['CEI DIRET', '765432', 'CEI DIRET TESTE', 168.0, 280.0]
+    
+
