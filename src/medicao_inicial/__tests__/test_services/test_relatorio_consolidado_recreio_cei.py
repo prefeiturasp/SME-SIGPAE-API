@@ -1,12 +1,15 @@
+import math
+
 import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
+    _processa_periodo_campo,
     _sort_and_merge,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
-    _processa_periodo_campo
+    processa_dieta_especial
 )
 
 pytestmark = pytest.mark.django_db
@@ -186,7 +189,7 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     )
     assert isinstance(recreio, list)
     assert len(recreio) == 4
-    assert recreio == ['CEI DIRET', '765432', 'CEI DIRET TESTE', 168.0]
+    assert recreio == ["CEI DIRET", "765432", "CEI DIRET TESTE", 168.0]
 
     colaboradores = _processa_periodo_campo(
         solicitacao_recreio_cei,
@@ -196,6 +199,23 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     )
     assert isinstance(colaboradores, list)
     assert len(colaboradores) == 5
-    assert colaboradores == ['CEI DIRET', '765432', 'CEI DIRET TESTE', 168.0, 280.0]
-    
+    assert colaboradores == ["CEI DIRET", "765432", "CEI DIRET TESTE", 168.0, 280.0]
 
+
+def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas):
+    filtros = {"grupo__nome": "Recreio nas Férias"}
+    periodo = "DIETA ESPECIAL - TIPO A"
+    faixa_etaria = faixas_etarias_ativas[2].id
+    total = processa_dieta_especial(
+        solicitacao_recreio_cei, filtros, faixa_etaria, periodo
+    )
+    assert math.isclose(total, 28.0, rel_tol=1e-9)
+    
+    filtros = {"grupo__nome": "Colaboradores"}
+    periodo = "DIETA ESPECIAL - TIPO A"
+    faixa_etaria = faixas_etarias_ativas[2].id
+    total = processa_dieta_especial(
+        solicitacao_recreio_cei, filtros, faixa_etaria, periodo
+    )
+    assert total == "-"
+    
