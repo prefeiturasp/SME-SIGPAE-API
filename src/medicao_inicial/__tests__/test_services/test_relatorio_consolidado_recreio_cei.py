@@ -1,5 +1,7 @@
 import math
+from io import BytesIO
 
+import pandas as pd
 import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
@@ -10,6 +12,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _sort_and_merge,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
+    insere_tabela_periodos_na_planilha,
     processa_dieta_especial,
     processa_grupos_recreio,
 )
@@ -275,3 +278,121 @@ def test_calcula_soma_medicao_dieta_especial(
         "DIETA ESPECIAL - TIPO A",
     )
     assert math.isclose(recreio, 28.0, rel_tol=1e-9)
+
+
+def test_insere_tabela_periodos_na_planilha(
+    solicitacao_recreio_cei,
+    mock_colunas_recreio_cei,
+    mock_linhas_recreio_cei,
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {solicitacao_recreio_cei.mes}-{ solicitacao_recreio_cei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    df = insere_tabela_periodos_na_planilha(
+        aba, mock_colunas_recreio_cei, mock_linhas_recreio_cei, writer
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 25
+
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[0] == "ALIMENTAÇÕES ALUNOS PARTICIPANTES"
+        )
+        == 8
+    )
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 8
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 1
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
+        )
+        == 1
+    )
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == "Total de Sobremesas para Pagamento"
+        )
+        == 1
+    )
+    assert sum(1 for tupla in colunas_df if tupla[0] == "COLABORADORES") == 6
+
+    assert sum(1 for tupla in colunas_df if tupla[1] == "0 a 1 mes") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 2
+    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 2
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 2
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
+        == 2
+    )
+    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
+
+    assert df.iloc[0].tolist() == [
+        "CEI DIRET",
+        "765432",
+        "CEI DIRET TESTE",
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        280.0,
+        280.0,
+        560.0,
+        280.0,
+        280.0,
+        560.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        765432.0,
+        0.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        168.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        28.0,
+        280.0,
+        280.0,
+        560.0,
+        280.0,
+        280.0,
+        560.0,
+    ]

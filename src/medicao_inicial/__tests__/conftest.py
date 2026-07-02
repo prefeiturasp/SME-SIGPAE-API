@@ -7472,3 +7472,36 @@ def mock_colunas_recreio_cei(faixas_etarias_ativas):
     ]:
         colunas.append(("Colaboradores", campo))
     return colunas
+
+
+@pytest.fixture
+def mock_linhas_recreio_cei():
+    return [
+        [
+            "CEI DIRET",
+            "765432",
+            "CEI DIRET TESTE",
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            280.0,
+            280.0,
+            560.0,
+            280.0,
+            280.0,
+            560.0,
+        ]
+    ]
