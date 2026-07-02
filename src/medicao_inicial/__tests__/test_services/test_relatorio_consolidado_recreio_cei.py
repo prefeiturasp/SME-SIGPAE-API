@@ -3,6 +3,7 @@ import pytest
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
+    _sort_and_merge,
     get_alimentacoes_por_periodo,
 )
 
@@ -86,3 +87,45 @@ def test_get_lista_alimentacoes_dietas(solicitacao_recreio_cei, faixas_etarias_a
     assert isinstance(dietas_recreio, list)
     assert len(dietas_recreio) == 8
     assert dietas_recreio == [faixa.id for faixa in faixas_etarias_ativas]
+
+
+def test_sort_and_merge(faixas_etarias_ativas):
+    faixas = [faixa.id for faixa in faixas_etarias_ativas]
+
+    periodos_alimentacoes = {
+        "Recreio nas Férias": faixas,
+        "Colaboradores": [
+            "lanche",
+            "lanche_4h",
+            "total_refeicoes_pagamento",
+            "total_sobremesas_pagamento",
+        ],
+    }
+
+    dietas_alimentacoes = {
+        "DIETA ESPECIAL - TIPO A": [faixas[0]],
+        "DIETA ESPECIAL - TIPO B": [faixas[1], faixas[2]],
+    }
+    dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
+    assert isinstance(dict_periodos_dietas, dict)
+
+    assert "Recreio nas Férias" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["Recreio nas Férias"]) == 8
+    assert dict_periodos_dietas["Recreio nas Férias"] == faixas
+
+    assert "Colaboradores" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["Colaboradores"]) == 4
+    assert dict_periodos_dietas["Colaboradores"] == [
+        "lanche",
+        "lanche_4h",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+
+    assert "DIETA ESPECIAL - TIPO A" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO A"]) == 1
+    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO A"] == [faixas[0]]
+
+    assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 2
+    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == [faixas[1], faixas[2]]
