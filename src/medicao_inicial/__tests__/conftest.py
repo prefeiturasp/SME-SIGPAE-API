@@ -7528,3 +7528,29 @@ def informacoes_excel_writer_recreio_cei(
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
+    grupo_escolar = baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 1",
+        uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
+        tipos_unidades=[
+            baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CCI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CCI/CIPS"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEI CEU"),
+        ],
+    )
+    return {
+        "dre": solicitacao_recreio_cei.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_recreio_cei.mes,
+        "ano": solicitacao_recreio_cei.ano,
+        "lotes[]": solicitacao_recreio_cei.escola.lote.uuid,
+        "lotes": [solicitacao_recreio_cei.escola.lote.uuid],
+    }
