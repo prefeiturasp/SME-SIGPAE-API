@@ -3144,15 +3144,18 @@ def _validate_solicitacoes_programas_e_projetos_emei_cemei(
 ):
     inclusoes = get_inclusoes_programas_projetos(solicitacao)
 
-    if not inclusoes:
-        return lista_erros
-    lista_erros = validate_solicitacoes_continuas_emei_cemei(
-        solicitacao,
-        lista_erros,
-        inclusoes,
-        medicao,
-        "Programas e Projetos",
-        True,
+    if inclusoes:
+        lista_erros = validate_solicitacoes_continuas_emei_cemei(
+            solicitacao,
+            lista_erros,
+            inclusoes,
+            medicao,
+            "Programas e Projetos",
+            True,
+        )
+
+    lista_erros = validate_cemei_evento_especifico_programas(
+        solicitacao, medicao, lista_erros
     )
 
     lista_erros = valida_programas_e_projetos_periodos_zero(
@@ -3160,6 +3163,90 @@ def _validate_solicitacoes_programas_e_projetos_emei_cemei(
     )
 
     return erros_unicos(lista_erros)
+
+
+def validate_cemei_evento_especifico_programas(solicitacao, medicao, lista_erros):
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+    primeiro_dia_mes = datetime.date(ano, mes, 1)
+    ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+
+    cemei_evento_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
+        escola=solicitacao.escola,
+        status="CODAE_AUTORIZADO",
+        dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+        dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
+        dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
+        dias_motivos_da_inclusao_cemei__cancelado=False,
+        quantidade_alunos_emei_da_inclusao_cemei__isnull=False,
+    ).distinct()
+
+    if not cemei_evento_qs.exists():
+        return lista_erros
+
+    categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    periodo_com_erro = any(
+        _valida_uma_inclusao_cemei_evento_especifico(
+            inc, primeiro_dia_mes, ultimo_dia_mes, medicao, categoria
+        )
+        for inc in cemei_evento_qs
+    )
+
+    if periodo_com_erro:
+        lista_erros.append(
+            {
+                "periodo_escolar": "Programas e Projetos",
+                "erro": "Restam dias a serem lançados nas alimentações.",
+            }
+        )
+
+    return erros_unicos(lista_erros)
+
+
+def _valida_uma_inclusao_cemei_evento_especifico(
+    inc, primeiro_dia_mes, ultimo_dia_mes, medicao, categoria
+):
+    dias_evento = inc.dias_motivos_da_inclusao_cemei.filter(
+        motivo__nome="Evento Específico",
+        cancelado=False,
+        data__gte=primeiro_dia_mes,
+        data__lte=ultimo_dia_mes,
+    ).values_list("data", flat=True)
+
+    tipos_alimentacao = set()
+    for qe in inc.quantidade_alunos_emei_da_inclusao_cemei.all():
+        tipos_alimentacao.update(
+            qe.tipos_alimentacao.all().values_list("nome", flat=True)
+        )
+    tipos_alimentacao = list(tipos_alimentacao)
+    if not tipos_alimentacao:
+        return False
+
+    nomes_campos = _build_nomes_campos_cemei_evento(tipos_alimentacao)
+
+    for data_evento in dias_evento:
+        dia_str = f"{data_evento.day:02d}"
+        for nome_campo in nomes_campos:
+            if not medicao.valores_medicao.filter(
+                categoria_medicao=categoria,
+                nome_campo=nome_campo,
+                dia=dia_str,
+            ).exists():
+                return True
+
+    return False
+
+
+def _build_nomes_campos_cemei_evento(tipos_alimentacao):
+    nomes_campos = ["frequencia"]
+    nomes_campos = append_lanches_nomes_campos(nomes_campos, tipos_alimentacao)
+    if "Refeição" in tipos_alimentacao:
+        nomes_campos.append("refeicao")
+        nomes_campos.append("repeticao_refeicao")
+    if "Sobremesa" in tipos_alimentacao:
+        nomes_campos.append("sobremesa")
+        nomes_campos.append("repeticao_sobremesa")
+    return nomes_campos
 
 
 def validate_solicitacoes_etec(solicitacao, lista_erros):
@@ -3531,7 +3618,11 @@ def validate_medicao_cemei(solicitacao):
                 dias_letivos_uteis,
                 categoria_alimentacao,
                 dias_nao_letivos,
-                inclusoes.filter(quantidade_alunos_cei_da_inclusao_cemei__isnull=False),
+                inclusoes.filter(
+                    quantidade_alunos_cei_da_inclusao_cemei__isnull=False
+                ).exclude(
+                    dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico"
+                ),
             )
         elif tipo_medicao == "PROGRAMAS E PROJETOS":
             lista_erros = _validate_solicitacoes_programas_e_projetos_emei_cemei(
@@ -3548,6 +3639,8 @@ def validate_medicao_cemei(solicitacao):
                 dias_letivos_uteis,
                 inclusoes.filter(
                     quantidade_alunos_emei_da_inclusao_cemei__isnull=False
+                ).exclude(
+                    dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico"
                 ),
                 medicao,
                 mes,
