@@ -7361,7 +7361,9 @@ def solicitacao_recreio_cemei(
 
 
 @pytest.fixture
-def solicitacao_recreio_emei(solicitacao_recreio_emef, escola_emei, categoria_medicao_dieta_a):
+def solicitacao_recreio_emei(
+    solicitacao_recreio_emef, escola_emei, categoria_medicao_dieta_a
+):
     solicitacao_recreio_emef.escola = escola_emei
     solicitacao_recreio_emef.save()
     return solicitacao_recreio_emef
@@ -7451,3 +7453,31 @@ def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
         "lotes[]": solicitacao_recreio_emei.escola.lote.uuid,
         "lotes": [solicitacao_recreio_emei.escola.lote.uuid],
     }
+
+
+@pytest.fixture
+def mock_colunas_recreio_cei():
+    return [
+        ("Recreio nas Férias", 16281),
+        ("Recreio nas Férias", 16282),
+        ("Recreio nas Férias", 16283),
+        ("Recreio nas Férias", 16284),
+        ("Recreio nas Férias", 16285),
+        ("Recreio nas Férias", 16286),
+        ("Recreio nas Férias", 16287),
+        ("Recreio nas Férias", 16288),
+        ("DIETA ESPECIAL - TIPO A", 16281),
+        ("DIETA ESPECIAL - TIPO A", 16282),
+        ("DIETA ESPECIAL - TIPO A", 16283),
+        ("DIETA ESPECIAL - TIPO A", 16284),
+        ("DIETA ESPECIAL - TIPO A", 16285),
+        ("DIETA ESPECIAL - TIPO A", 16286),
+        ("DIETA ESPECIAL - TIPO A", 16287),
+        ("DIETA ESPECIAL - TIPO A", 16288),
+        ("Colaboradores", "refeicao"),
+        ("Colaboradores", "repeticao_refeicao"),
+        ("Colaboradores", "total_refeicoes_pagamento"),
+        ("Colaboradores", "sobremesa"),
+        ("Colaboradores", "repeticao_sobremesa"),
+        ("Colaboradores", "total_sobremesas_pagamento"),
+    ]

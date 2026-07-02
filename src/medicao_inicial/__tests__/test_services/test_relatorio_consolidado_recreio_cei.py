@@ -1,6 +1,7 @@
 import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
+    _get_lista_alimentacoes,
     get_alimentacoes_por_periodo,
 )
 
@@ -37,3 +38,32 @@ def test_get_alimentacoes_por_periodo(solicitacao_recreio_cei, faixas_etarias_at
     assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
+    print(colunas)
+
+
+def test_get_lista_alimentacoes(solicitacao_recreio_cei, faixas_etarias_ativas):
+    medicoes = solicitacao_recreio_cei.medicoes.all().order_by("grupo__nome")
+    assert medicoes.count() == 2
+    medicao_colaboradores = medicoes[0]
+    medicao_recreio = medicoes[1]
+
+    alimentacoes_colaboradores = _get_lista_alimentacoes(
+        medicao_colaboradores, medicao_colaboradores.grupo.nome
+    )
+    assert isinstance(alimentacoes_colaboradores, list)
+    assert len(alimentacoes_colaboradores) == 6
+    assert alimentacoes_colaboradores == [
+        "refeicao",
+        "repeticao_refeicao",
+        "repeticao_sobremesa",
+        "sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+
+    faixas_recreio = _get_lista_alimentacoes(
+        medicao_recreio, medicao_recreio.grupo.nome
+    )
+    assert isinstance(faixas_recreio, list)
+    assert len(faixas_recreio) == 8
+    assert faixas_recreio == [faixa.id for faixa in faixas_etarias_ativas]
