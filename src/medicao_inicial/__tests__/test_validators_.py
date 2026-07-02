@@ -9,16 +9,19 @@ from src.cardapio.base.models import (
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.escola.models import TipoTurma
+from src.escola.models import FaixaEtaria, TipoTurma
+from src.inclusao_alimentacao.models import InclusaoDeAlimentacaoCEMEI
 from src.medicao_inicial.validators import (
     _validate_solicitacoes_programas_e_projetos_emei_cemei,
     get_lista_dias_letivos,
+    get_quantidade_dietas_autorizadas,
     obter_periodos_corretos,
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_medicao_cei,
+    validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias,
     validate_lancamento_alimentacoes_medicao_emebs,
     validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_inclusoes_cei,
@@ -561,3 +564,331 @@ def test_get_lista_dias_letivos_log_de_outro_mes_excluido(
     dias = get_lista_dias_letivos(solicitacao, escola)
 
     assert "03" not in dias
+
+
+# --- get_quantidade_dietas_autorizadas ---
+
+
+def test_get_quantidade_dietas_autorizadas_sem_logs(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    result = get_quantidade_dietas_autorizadas(medicao, "2023", "04", 1, faixa_etaria)
+    assert result == 0
+
+
+def test_get_quantidade_dietas_autorizadas_tipo_a(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+    classificacao_dieta_tipo_a,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    baker.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+        data=datetime.date(2023, 4, 1),
+        periodo_escolar=periodo,
+        faixa_etaria=faixa_etaria,
+        classificacao=classificacao_dieta_tipo_a,
+        quantidade=5,
+    )
+    result = get_quantidade_dietas_autorizadas(medicao, "2023", "04", 1, faixa_etaria)
+    assert result == 5
+
+
+def test_get_quantidade_dietas_autorizadas_tipo_c_excluido(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    tipo_c = baker.make("ClassificacaoDieta", nome="Tipo C")
+    baker.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+        data=datetime.date(2023, 4, 1),
+        periodo_escolar=periodo,
+        faixa_etaria=faixa_etaria,
+        classificacao=tipo_c,
+        quantidade=3,
+    )
+    result = get_quantidade_dietas_autorizadas(medicao, "2023", "04", 1, faixa_etaria)
+    assert result == 0
+
+
+def test_get_quantidade_dietas_autorizadas_soma_multiplas_classificacoes_validas(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+    classificacao_dieta_tipo_a,
+    classificacao_dieta_tipo_a_enteral,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    for classificacao, qtd in [
+        (classificacao_dieta_tipo_a, 2),
+        (classificacao_dieta_tipo_a_enteral, 3),
+    ]:
+        baker.make(
+            "LogQuantidadeDietasAutorizadasCEI",
+            escola=solicitacao_medicao_inicial_cemei_simples.escola,
+            data=datetime.date(2023, 4, 1),
+            periodo_escolar=periodo,
+            faixa_etaria=faixa_etaria,
+            classificacao=classificacao,
+            quantidade=qtd,
+        )
+    tipo_c = baker.make("ClassificacaoDieta", nome="Tipo C")
+    baker.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+        data=datetime.date(2023, 4, 1),
+        periodo_escolar=periodo,
+        faixa_etaria=faixa_etaria,
+        classificacao=tipo_c,
+        quantidade=10,
+    )
+    result = get_quantidade_dietas_autorizadas(medicao, "2023", "04", 1, faixa_etaria)
+    assert result == 5
+
+
+# --- validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias ---
+
+
+def test_validate_cemei_faixas_todas_dietas_retorna_sem_erro(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+    classificacao_dieta_tipo_a,
+    categoria_medicao,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    data = datetime.date(2023, 4, 1)
+    logs_ = [(data, periodo.id, faixa_etaria.id, 2)]
+    baker.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+        data=data,
+        periodo_escolar=periodo,
+        faixa_etaria=faixa_etaria,
+        classificacao=classificacao_dieta_tipo_a,
+        quantidade=2,
+    )
+    faixas = FaixaEtaria.objects.filter(id=faixa_etaria.id)
+    result = validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias(
+        faixas,
+        [],
+        medicao,
+        logs_,
+        "2023",
+        "04",
+        1,
+        categoria_medicao,
+        False,
+        [],
+        InclusaoDeAlimentacaoCEMEI.objects.none(),
+    )
+    assert result is False
+
+
+def test_validate_cemei_faixas_dieta_parcial_com_inclusao_sem_valor_retorna_erro(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+    classificacao_dieta_tipo_a,
+    categoria_medicao,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    data = datetime.date(2023, 4, 1)
+    logs_ = [(data, periodo.id, faixa_etaria.id, 5)]
+    baker.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+        data=data,
+        periodo_escolar=periodo,
+        faixa_etaria=faixa_etaria,
+        classificacao=classificacao_dieta_tipo_a,
+        quantidade=2,
+    )
+    inclusao = baker.make(
+        "InclusaoDeAlimentacaoCEMEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+    )
+    baker.make(
+        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        faixa_etaria=faixa_etaria,
+        periodo_escolar=periodo,
+    )
+    faixas = FaixaEtaria.objects.filter(id=faixa_etaria.id)
+    inclusoes_ = InclusaoDeAlimentacaoCEMEI.objects.filter(id=inclusao.id)
+    result = validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias(
+        faixas,
+        [],
+        medicao,
+        logs_,
+        "2023",
+        "04",
+        1,
+        categoria_medicao,
+        False,
+        [],
+        inclusoes_,
+    )
+    assert result is True
+
+
+def test_validate_cemei_faixas_dieta_parcial_com_inclusao_com_valor_retorna_sem_erro(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+    classificacao_dieta_tipo_a,
+    categoria_medicao,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    data = datetime.date(2023, 4, 1)
+    logs_ = [(data, periodo.id, faixa_etaria.id, 5)]
+    baker.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+        data=data,
+        periodo_escolar=periodo,
+        faixa_etaria=faixa_etaria,
+        classificacao=classificacao_dieta_tipo_a,
+        quantidade=2,
+    )
+    inclusao = baker.make(
+        "InclusaoDeAlimentacaoCEMEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+    )
+    baker.make(
+        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        faixa_etaria=faixa_etaria,
+        periodo_escolar=periodo,
+    )
+    valor_medicao = baker.make(
+        "ValorMedicao",
+        nome_campo="frequencia",
+        categoria_medicao=categoria_medicao,
+        faixa_etaria=faixa_etaria,
+        dia="01",
+        medicao=medicao,
+    )
+    valores_medicao_ = [
+        (
+            valor_medicao.nome_campo,
+            valor_medicao.categoria_medicao_id,
+            valor_medicao.faixa_etaria_id,
+            valor_medicao.dia,
+        ),
+    ]
+    faixas = FaixaEtaria.objects.filter(id=faixa_etaria.id)
+    inclusoes_ = InclusaoDeAlimentacaoCEMEI.objects.filter(id=inclusao.id)
+    result = validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias(
+        faixas,
+        [],
+        medicao,
+        logs_,
+        "2023",
+        "04",
+        1,
+        categoria_medicao,
+        False,
+        valores_medicao_,
+        inclusoes_,
+    )
+    assert result is False
+
+
+def test_validate_cemei_faixas_tipo_c_nao_deduz_retorna_erro(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+    categoria_medicao,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    data = datetime.date(2023, 4, 1)
+    logs_ = [(data, periodo.id, faixa_etaria.id, 2)]
+    tipo_c = baker.make("ClassificacaoDieta", nome="Tipo C")
+    baker.make(
+        "LogQuantidadeDietasAutorizadasCEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+        data=data,
+        periodo_escolar=periodo,
+        faixa_etaria=faixa_etaria,
+        classificacao=tipo_c,
+        quantidade=2,
+    )
+    inclusao = baker.make(
+        "InclusaoDeAlimentacaoCEMEI",
+        escola=solicitacao_medicao_inicial_cemei_simples.escola,
+    )
+    baker.make(
+        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        faixa_etaria=faixa_etaria,
+        periodo_escolar=periodo,
+    )
+    faixas = FaixaEtaria.objects.filter(id=faixa_etaria.id)
+    inclusoes_ = InclusaoDeAlimentacaoCEMEI.objects.filter(id=inclusao.id)
+    result = validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias(
+        faixas,
+        [],
+        medicao,
+        logs_,
+        "2023",
+        "04",
+        1,
+        categoria_medicao,
+        False,
+        [],
+        inclusoes_,
+    )
+    assert result is True
+
+
+def test_validate_cemei_faixas_quantidade_zero_sem_erro(
+    solicitacao_medicao_inicial_cemei_simples,
+    make_periodo_escolar,
+    make_medicao,
+    faixa_etaria,
+    categoria_medicao,
+):
+    periodo = make_periodo_escolar("INTEGRAL")
+    medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
+    data = datetime.date(2023, 4, 1)
+    logs_ = [(data, periodo.id, faixa_etaria.id, 0)]
+    faixas = FaixaEtaria.objects.filter(id=faixa_etaria.id)
+    result = validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias(
+        faixas,
+        [],
+        medicao,
+        logs_,
+        "2023",
+        "04",
+        1,
+        categoria_medicao,
+        False,
+        [],
+        InclusaoDeAlimentacaoCEMEI.objects.none(),
+    )
+    assert result is False
