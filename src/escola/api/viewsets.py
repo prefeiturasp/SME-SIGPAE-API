@@ -64,7 +64,10 @@ from ...escola.api.serializers_create import (
     LoteCreateSerializer,
     MudancaFaixasEtariasCreateSerializer,
 )
-from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
+from ...inclusao_alimentacao.models import (
+    InclusaoAlimentacaoContinua,
+    InclusaoDeAlimentacaoCEMEI,
+)
 from ...paineis_consolidados.api.constants import FILTRO_DRE_UUID
 from ..forms import AlunosPorFaixaEtariaForm
 from ..models import (
@@ -399,6 +402,13 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
         ],
     )
     def inclusao_continua_por_mes(self, request):
+        """Retorna periodos escolares de inclusoes continuas e CEMEI Evento Especifico.
+
+        Consulta ``InclusaoAlimentacaoContinua`` autorizadas (exceto ETEC) e
+        ``InclusaoDeAlimentacaoCEMEI`` com motivo ``Evento Especifico``,
+        retornando os periodos escolares distintos (nome e uuid) com datas
+        contidas no mes informado via query params ``mes`` e ``ano``.
+        """
         try:
             for param in ["mes", "ano"]:
                 if param not in request.query_params:
@@ -438,6 +448,21 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
                 )
                 .distinct()
             )
+            cemei_base_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
+                status="CODAE_AUTORIZADO",
+                escola=instituicao,
+                dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+                dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
+                dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
+            )
+            cemei_periodos_emei = cemei_base_qs.values_list(
+                "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
+                "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__uuid",
+            )
+            cemei_tuples = {
+                (nome, uuid) for nome, uuid in cemei_periodos_emei if nome is not None
+            }
+            periodos.update(dict(cemei_tuples))
             return Response({"periodos": periodos if len(periodos) else None})
         except ValidationError as e:
             return Response({"detail": e}, status=status.HTTP_400_BAD_REQUEST)

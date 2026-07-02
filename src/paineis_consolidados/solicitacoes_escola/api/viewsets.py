@@ -2,7 +2,7 @@ import datetime
 import unicodedata
 
 from dateutil.relativedelta import relativedelta
-from django.db.models import Case, IntegerField, Q, Value, When
+from django.db.models import Case, IntegerField, Max, Min, Q, Value, When
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -16,8 +16,12 @@ from src.cardapio.base.models import (
 )
 from src.cardapio.utils import ordem_periodos
 from src.dados_comuns.permissions import PermissaoParaRecuperarDietaEspecial
+from src.dados_comuns.utils import get_ultimo_dia_mes
 from src.escola.models import Escola, PeriodoEscolar
-from src.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
+from src.inclusao_alimentacao.models import (
+    GrupoInclusaoAlimentacaoNormal,
+    InclusaoDeAlimentacaoCEMEI,
+)
 from src.kit_lanche.models import SolicitacaoKitLancheUnificada
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.medicao_inicial.recreio_nas_ferias.models import (
@@ -487,6 +491,8 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         ]
         for inclusao in inclusoes_cemei:
             inc = inclusao.get_raw_model.objects.get(uuid=inclusao.uuid)
+            if inc.eh_evento_especifico():
+                continue
             dias_motivos_cemei = inc.dias_motivos_da_inclusao_cemei.filter(
                 data__month=mes, data__year=ano
             )
@@ -555,6 +561,195 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     )
         return return_dict
 
+    def inclusoes_cemei_evento_especifico(
+        self,
+        mes,
+        ano,
+        escola_uuid,
+        periodos_escolares,
+        cemei_cei,
+        cemei_emei,
+        return_dict,
+    ):
+        primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
+        ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+
+        try:
+            escola = Escola.objects.get(uuid=escola_uuid)
+        except Escola.DoesNotExist:
+            return return_dict
+
+        cemei_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
+            status="CODAE_AUTORIZADO",
+            escola=escola,
+            dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+            dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
+            dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
+        ).distinct()
+
+        if not cemei_qs.exists():
+            return return_dict
+
+        sol_medicao_inicial = SolicitacaoMedicaoInicial.objects.filter(
+            escola__uuid=escola_uuid, mes=mes, ano=ano
+        ).first()
+
+        for inc in cemei_qs:
+            return_dict = self._calcular_e_processar_cemei_evento(
+                inc,
+                primeiro_dia_mes,
+                ultimo_dia_mes,
+                mes,
+                ano,
+                periodos_escolares,
+                cemei_cei,
+                cemei_emei,
+                sol_medicao_inicial,
+                return_dict,
+            )
+
+        return return_dict
+
+    def _calcular_e_processar_cemei_evento(
+        self,
+        inc,
+        primeiro_dia_mes,
+        ultimo_dia_mes,
+        mes,
+        ano,
+        periodos_escolares,
+        cemei_cei,
+        cemei_emei,
+        sol_medicao_inicial,
+        return_dict,
+    ):
+        dias_motivos = inc.dias_motivos_da_inclusao_cemei.filter(
+            motivo__nome="Evento Específico"
+        )
+        if not dias_motivos.exists():
+            return return_dict
+
+        datas = dias_motivos.aggregate(data_min=Min("data"), data_max=Max("data"))
+        data_inicial = datas["data_min"]
+        data_final = datas["data_max"]
+
+        data_inicio_no_mes = max(data_inicial, primeiro_dia_mes)
+        data_fim_no_mes = min(data_final, ultimo_dia_mes)
+
+        if data_fim_no_mes < data_inicio_no_mes:
+            return return_dict
+
+        for periodo in periodos_escolares:
+            if cemei_cei:
+                return_dict = self._processa_cemei_cei_evento_especifico(
+                    periodo,
+                    inc,
+                    sol_medicao_inicial,
+                    data_inicio_no_mes,
+                    data_fim_no_mes,
+                    return_dict,
+                )
+            if cemei_emei:
+                return_dict = self._processa_cemei_emei_evento_especifico(
+                    periodo,
+                    inc,
+                    mes,
+                    ano,
+                    data_inicio_no_mes,
+                    data_fim_no_mes,
+                    return_dict,
+                )
+
+        return return_dict
+
+    def _processa_cemei_cei_evento_especifico(
+        self,
+        periodo,
+        inc,
+        sol_medicao_inicial,
+        data_inicio_no_mes,
+        data_fim_no_mes,
+        return_dict,
+    ):
+        if (
+            "Infantil" in periodo
+            or not inc.quantidade_alunos_cei_da_inclusao_cemei.exists()
+        ):
+            return return_dict
+
+        (
+            qtd_alunos_cei_cemei_por_periodo,
+            eh_parcial_integral,
+        ) = self.get_qtd_alunos_cei_cemei_por_periodo(inc, periodo, sol_medicao_inicial)
+        if not qtd_alunos_cei_cemei_por_periodo.exists():
+            return return_dict
+
+        faixas_etarias_uuids = list(
+            qtd_alunos_cei_cemei_por_periodo.values_list(
+                "faixa_etaria__uuid", flat=True
+            ).distinct()
+        )
+
+        return_dict_map = {r["dia"]: r for r in return_dict}
+
+        current = data_inicio_no_mes
+        while current <= data_fim_no_mes:
+            dia = current.day
+            if dia in return_dict_map:
+                if (
+                    return_dict_map[dia].get("eh_parcial_integral")
+                    and not eh_parcial_integral
+                ):
+                    return_dict_map[dia] = {
+                        "dia": dia,
+                        "faixas_etarias": faixas_etarias_uuids,
+                        "eh_parcial_integral": eh_parcial_integral,
+                    }
+            else:
+                return_dict_map[dia] = {
+                    "dia": dia,
+                    "faixas_etarias": faixas_etarias_uuids,
+                    "eh_parcial_integral": eh_parcial_integral,
+                }
+            current += datetime.timedelta(days=1)
+
+        return list(return_dict_map.values())
+
+    def _processa_cemei_emei_evento_especifico(
+        self,
+        periodo,
+        inc,
+        mes,
+        ano,
+        data_inicio_no_mes,
+        data_fim_no_mes,
+        return_dict,
+    ):
+        periodo_ajustado = periodo
+        if " " in periodo_ajustado:
+            periodo_ajustado = periodo_ajustado.split(" ")[1]
+
+        quantidade_emei = inc.quantidade_alunos_emei_da_inclusao_cemei.filter(
+            periodo_escolar__nome=periodo_ajustado
+        ).first()
+        if not quantidade_emei:
+            return return_dict
+
+        current = data_inicio_no_mes
+        while current <= data_fim_no_mes:
+            tratar_append_return_dict(
+                current.day,
+                mes,
+                ano,
+                quantidade_emei,
+                inc,
+                return_dict,
+                inc.escola,
+            )
+            current += datetime.timedelta(days=1)
+
+        return return_dict
+
     @action(detail=False, methods=["GET"], url_path=f"{INCLUSOES_AUTORIZADAS}")
     def inclusoes_autorizadas(self, request):
         query_set, mes, ano, escola_uuid = self.filtra_inclusoes(request)
@@ -579,6 +774,19 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         return_dict = self.inclusoes_normal_continua(
             query_set, periodos_escolares, mes, ano, return_dict
         )
+        excluir_continuas = (
+            request.query_params.get("excluir_inclusoes_continuas") == "true"
+        )
+        if (cemei_cei or cemei_emei) and not excluir_continuas:
+            return_dict = self.inclusoes_cemei_evento_especifico(
+                mes,
+                ano,
+                escola_uuid,
+                periodos_escolares,
+                cemei_cei,
+                cemei_emei,
+                return_dict,
+            )
 
         data = {"results": return_dict}
 

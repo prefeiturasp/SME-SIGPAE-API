@@ -152,7 +152,7 @@ def _get_lista_alimentacoes(
             "total_sobremesas_pagamento"
         ]
     """
-    lista_alimentacoes = list(
+    lista_alimentacoes = sorted(
         filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
         .exclude(
             Q(
@@ -214,7 +214,7 @@ def _get_lista_alimentacoes_dietas(
         ... )
         ["lanche", "refeicao"]
     """
-    return list(
+    return sorted(
         filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
         .filter(categoria_medicao__nome=categoria)
         .exclude(

@@ -38,6 +38,8 @@ from src.escola.constants import PERIODOS_ESPECIAIS_CEMEI
 from src.escola.models import Escola, PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     InclusaoAlimentacaoNormal,
+    InclusaoDeAlimentacaoCEMEI,
+    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
     QuantidadePorPeriodo,
 )
 
@@ -151,6 +153,11 @@ class VinculoTipoAlimentacaoViewSet(
         os periodos obtidos com os vinculos da escola para montar o conjunto de
         vinculos elegiveis.
 
+        Para escolas CEMEI, tambem consulta inclusoes do tipo
+        ``InclusaoDeAlimentacaoCEMEI`` com motivo ``Evento Especifico``
+        autorizadas no mes, coletando os periodos escolares das quantidades
+        EMEI dessas inclusoes.
+
         Args:
             mes (str | int): Mes de referencia da consulta.
             ano (str | int): Ano de referencia da consulta.
@@ -161,12 +168,15 @@ class VinculoTipoAlimentacaoViewSet(
 
         Returns:
             QuerySet[VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar]:
-            Vinculos compatíveis com o cenario consultado.
+            Vinculos compativeis com o cenario consultado.
         """
+        mes_int = int(mes)
+        ano_int = int(ano)
+
         gupos_uuids = (
             InclusaoAlimentacaoNormal.objects.filter(
-                data__month=int(mes),
-                data__year=int(ano),
+                data__month=mes_int,
+                data__year=ano_int,
                 motivo__nome="Evento Específico",
                 grupo_inclusao__escola=escola,
                 grupo_inclusao__status="CODAE_AUTORIZADO",
@@ -183,14 +193,34 @@ class VinculoTipoAlimentacaoViewSet(
             grupo_inclusao_normal__uuid__in=gupos_uuids
         ).exclude(periodo_escolar__uuid__in=periodos_escolares_uuids)
 
-        periodos_escolares_uuids = quantidades_por_periodo.values_list(
-            "periodo_escolar__uuid"
+        periodos_escolares_uuids_set = set(
+            quantidades_por_periodo.values_list("periodo_escolar__uuid", flat=True)
+        )
+
+        cemei_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
+            escola=escola,
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cemei__data__month=mes_int,
+            dias_motivos_da_inclusao_cemei__data__year=ano_int,
+            dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
         ).distinct()
+
+        if cemei_qs.exists():
+            cemei_uuids = cemei_qs.values_list("uuid", flat=True)
+            cemei_periodos = (
+                QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI.objects.filter(
+                    inclusao_alimentacao_cemei__uuid__in=cemei_uuids
+                ).values_list("periodo_escolar__uuid", flat=True)
+            )
+            periodos_escolares_uuids_set.update(cemei_periodos)
+
+        tipo_unidade = "EMEI" if escola.eh_cemei else escola.tipo_unidade.iniciais
+
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
-                tipo_unidade_escolar__iniciais=escola.tipo_unidade.iniciais,
+                tipo_unidade_escolar__iniciais=tipo_unidade,
                 periodo_escolar__nome__in=constants.PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO,
-                periodo_escolar__uuid__in=periodos_escolares_uuids,
+                periodo_escolar__uuid__in=periodos_escolares_uuids_set,
             )
         )
         return vinculos

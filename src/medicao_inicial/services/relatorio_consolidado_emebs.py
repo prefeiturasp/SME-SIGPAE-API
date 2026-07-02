@@ -89,12 +89,12 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
         | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
     )
 
-    infantil = list(
+    infantil = sorted(
         lista_alimentacoes.filter(infantil_ou_fundamental="INFANTIL")
         .values_list("nome_campo", flat=True)
         .distinct()
     )
-    fundamental = list(
+    fundamental = sorted(
         lista_alimentacoes.filter(infantil_ou_fundamental="FUNDAMENTAL")
         .values_list("nome_campo", flat=True)
         .distinct()
@@ -168,7 +168,7 @@ def _obter_dietas_especiais(
 
 
 def _get_lista_alimentacoes_dietas(medicao, categoria, turma, query_params=None):
-    return list(
+    return sorted(
         filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
         .filter(categoria_medicao__nome=categoria, infantil_ou_fundamental=turma)
         .exclude(

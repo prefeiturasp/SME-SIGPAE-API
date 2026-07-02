@@ -65,7 +65,7 @@ def get_alimentacoes_por_periodo(solicitacoes, query_params=None):
 
 
 def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
-    lista_alimentacoes = list(
+    lista_alimentacoes = sorted(
         filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
         .exclude(
             Q(
@@ -93,7 +93,7 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
 
 
 def _get_lista_alimentacoes_dietas(medicao, categoria, query_params=None):
-    return list(
+    return sorted(
         filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
         .filter(categoria_medicao__nome=categoria)
         .exclude(

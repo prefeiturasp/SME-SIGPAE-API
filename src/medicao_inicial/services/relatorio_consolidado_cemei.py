@@ -92,7 +92,7 @@ def _get_lista_alimentacoes(
             .order_by("inicio")
         )
     else:
-        lista_alimentacoes = list(
+        lista_alimentacoes = sorted(
             filtra_queryset_pelo_intervalo_de_dias(
                 medicao.valores_medicao, query_params
             )
@@ -136,7 +136,7 @@ def _get_lista_alimentacoes_dietas(
             .order_by("inicio")
         )
     else:
-        return list(
+        return sorted(
             filtra_queryset_pelo_intervalo_de_dias(
                 medicao.valores_medicao, query_params
             )

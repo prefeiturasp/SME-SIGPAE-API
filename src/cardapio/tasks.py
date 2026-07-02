@@ -8,6 +8,7 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.escola.constants import (
+    PERIODOS_CEMEI_EVENTO_ESPECIFICO,
     PERIODOS_ESPECIAIS_CEI_CEU_CCI,
     PERIODOS_ESPECIAIS_CEI_DIRET,
 )
@@ -83,11 +84,13 @@ def ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escol
                 vinculo.ativo = tem_alunos_neste_periodo_e_eh_p_fom
                 vinculo.save()
 
-        if tipo_unidade.tem_somente_integral_e_parcial:
-            # deve ter periodo INTEGRAL E PARCIAL somente
-            periodos_escolares = PERIODOS_ESPECIAIS_CEI_CEU_CCI
-            bypass_ativa_vinculos(tipo_unidade, periodos_escolares)
-        if tipo_unidade.eh_cei:
-            # deve ativar INTEGRAL, MANHA E TARDE PARA CEIS DA PROPERTY CRIADA
-            periodos_escolares = PERIODOS_ESPECIAIS_CEI_DIRET
-            bypass_ativa_vinculos(tipo_unidade, periodos_escolares)
+        _bypass_vinculos_por_tipo_unidade(tipo_unidade)
+
+
+def _bypass_vinculos_por_tipo_unidade(tipo_unidade):
+    if tipo_unidade.tem_somente_integral_e_parcial:
+        bypass_ativa_vinculos(tipo_unidade, PERIODOS_ESPECIAIS_CEI_CEU_CCI)
+    if tipo_unidade.eh_cei:
+        bypass_ativa_vinculos(tipo_unidade, PERIODOS_ESPECIAIS_CEI_DIRET)
+    if tipo_unidade.iniciais == "EMEI":
+        bypass_ativa_vinculos(tipo_unidade, PERIODOS_CEMEI_EVENTO_ESPECIFICO)
