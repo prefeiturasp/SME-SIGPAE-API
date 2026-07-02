@@ -40,7 +40,6 @@ from src.inclusao_alimentacao.models import (
     InclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
     QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
-    QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI,
     QuantidadePorPeriodo,
 )
 
@@ -154,6 +153,11 @@ class VinculoTipoAlimentacaoViewSet(
         os periodos obtidos com os vinculos da escola para montar o conjunto de
         vinculos elegiveis.
 
+        Para escolas CEMEI, tambem consulta inclusoes do tipo
+        ``InclusaoDeAlimentacaoCEMEI`` com motivo ``Evento Especifico``
+        autorizadas no mes, coletando os periodos escolares das quantidades
+        EMEI dessas inclusoes.
+
         Args:
             mes (str | int): Mes de referencia da consulta.
             ano (str | int): Ano de referencia da consulta.
@@ -209,12 +213,6 @@ class VinculoTipoAlimentacaoViewSet(
                 ).values_list("periodo_escolar__uuid", flat=True)
             )
             periodos_escolares_uuids_set.update(cemei_periodos)
-            cemei_cei_periodos = QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI.objects.filter(
-                inclusao_alimentacao_cemei__uuid__in=cemei_uuids
-            ).values_list(
-                "periodo_escolar__uuid", flat=True
-            )
-            periodos_escolares_uuids_set.update(cemei_cei_periodos)
 
         tipo_unidade = "EMEI" if escola.eh_cemei else escola.tipo_unidade.iniciais
 
