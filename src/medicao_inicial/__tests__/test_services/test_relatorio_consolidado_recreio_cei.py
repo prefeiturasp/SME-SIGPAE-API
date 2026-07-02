@@ -9,7 +9,8 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _sort_and_merge,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
-    processa_dieta_especial
+    processa_dieta_especial,
+    processa_grupos_recreio,
 )
 
 pytestmark = pytest.mark.django_db
@@ -210,7 +211,7 @@ def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas)
         solicitacao_recreio_cei, filtros, faixa_etaria, periodo
     )
     assert math.isclose(total, 28.0, rel_tol=1e-9)
-    
+
     filtros = {"grupo__nome": "Colaboradores"}
     periodo = "DIETA ESPECIAL - TIPO A"
     faixa_etaria = faixas_etarias_ativas[2].id
@@ -218,4 +219,21 @@ def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas)
         solicitacao_recreio_cei, filtros, faixa_etaria, periodo
     )
     assert total == "-"
-    
+
+
+def test_processa_grupos_recreio(solicitacao_recreio_cei, faixas_etarias_ativas):
+    periodo = "Recreio nas Férias"
+    filtros = {"grupo__nome": "Recreio nas Férias"}
+    faixa_etaria = faixas_etarias_ativas[0].id
+    total = processa_grupos_recreio(
+        solicitacao_recreio_cei, filtros, faixa_etaria, periodo
+    )
+    assert math.isclose(total, 168.0, rel_tol=1e-9)
+
+    periodo = "Colaboradores"
+    filtros = {"grupo__nome": "Colaboradores"}
+    faixa_etaria = faixas_etarias_ativas[0].id
+    total = processa_grupos_recreio(
+        solicitacao_recreio_cei, filtros, "total_refeicoes_pagamento", periodo
+    )
+    assert math.isclose(total, 560.0, rel_tol=1e-9)
