@@ -2,6 +2,7 @@ import pytest
 
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _get_lista_alimentacoes,
+    _get_lista_alimentacoes_dietas,
     get_alimentacoes_por_periodo,
 )
 
@@ -67,3 +68,21 @@ def test_get_lista_alimentacoes(solicitacao_recreio_cei, faixas_etarias_ativas):
     assert isinstance(faixas_recreio, list)
     assert len(faixas_recreio) == 8
     assert faixas_recreio == [faixa.id for faixa in faixas_etarias_ativas]
+
+
+def test_get_lista_alimentacoes_dietas(solicitacao_recreio_cei, faixas_etarias_ativas):
+    medicoes = solicitacao_recreio_cei.medicoes.all().order_by("grupo__nome")
+    assert medicoes.count() == 2
+    medicao_colaboradores = medicoes[0]
+    medicao_recreio = medicoes[1]
+
+    dieta = "DIETA ESPECIAL - TIPO A"
+
+    dietas_colaboradores = _get_lista_alimentacoes_dietas(medicao_colaboradores, dieta)
+    assert isinstance(dietas_colaboradores, list)
+    assert len(dietas_colaboradores) == 0
+
+    dietas_recreio = _get_lista_alimentacoes_dietas(medicao_recreio, dieta)
+    assert isinstance(dietas_recreio, list)
+    assert len(dietas_recreio) == 8
+    assert dietas_recreio == [faixa.id for faixa in faixas_etarias_ativas]
