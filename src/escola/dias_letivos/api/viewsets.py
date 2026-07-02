@@ -2,7 +2,7 @@ from typing import Any
 
 from django_filters import rest_framework as filters
 from rest_framework import status
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -18,7 +18,7 @@ from .serializers_create import DiaLetivoCreateSerializer, DiaLetivoUpdateSerial
 
 
 class DiaLetivoViewSet(
-    ViewSetActionPermissionMixin, ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet
+    ViewSetActionPermissionMixin, ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet
 ):
     """ViewSet para criação e listagem de dias letivos no SIGPAE.
 
@@ -35,6 +35,7 @@ class DiaLetivoViewSet(
         "retrieve": [UsuarioCODAEGestaoAlimentacao],
         "update": [UsuarioCODAEGestaoAlimentacao],
         "partial_update": [UsuarioCODAEGestaoAlimentacao],
+        "destroy": [UsuarioCODAEGestaoAlimentacao],
     }
     queryset = DiaLetivoSIGPAE.objects.prefetch_related(
         "lotes__contratos_do_lote__edital",
