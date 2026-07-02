@@ -1,16 +1,24 @@
 import math
 
+import pandas as pd
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
+from openpyxl.workbook import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
-from src.dados_comuns.constants import ORDEM_CAMPOS_RECREIO, ORDEM_HEADERS_RECREIO_CEI
+from src.dados_comuns.constants import (
+    NOMES_CAMPOS,
+    ORDEM_CAMPOS_RECREIO,
+    ORDEM_HEADERS_RECREIO_CEI,
+)
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
     filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
+    gera_colunas_alimentacao,
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
@@ -455,3 +463,102 @@ def processa_grupos_recreio(
             medicao, nome_campo, faixa_etaria_id, "ALIMENTAÇÃO", query_params
         )
         return soma if soma is not None else "-"
+
+
+def insere_tabela_periodos_na_planilha(
+    aba: str,
+    colunas: list[tuple],
+    linhas: list[list[str | float]],
+    writer: pd.ExcelWriter,
+) -> pd.DataFrame:
+    """
+    Insere a tabela de períodos na planilha do relatório.
+
+    Atualiza o mapeamento de nomes das faixas etárias ativas e gera um
+    ``DataFrame`` contendo as colunas e linhas do relatório, que será utilizado
+    na criação da aba da planilha.
+
+    Args:
+        aba (str): Nome da aba da planilha onde a tabela será inserida.
+        colunas (list[tuple]): Estrutura das colunas do relatório, composta pelos períodos e seus respectivos campos.
+        linhas (list[list[str  |  float]]):  Linhas que compõem a tabela do relatório.
+        writer (pd.ExcelWriter): Instância do ``ExcelWriter`` utilizada para escrever a planilha.
+
+    Returns:
+        pd.DataFrame: DataFrame contendo os dados da tabela gerada.
+    """
+    NOMES_CAMPOS.update(
+        {faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)}
+    )
+    df = gera_colunas_alimentacao(aba, colunas, linhas, writer, NOMES_CAMPOS)
+    return df
+
+
+def ajusta_layout_tabela(
+    workbook: Workbook, worksheet: Worksheet, df: pd.DataFrame
+) -> None:
+    """
+    Aplica a formatação visual da tabela na planilha Excel.
+
+    Configura a aparência dos cabeçalhos, define cores para cada grupo de
+    alimentação, ajusta largura das colunas, altura das linhas e oculta a linha
+    utilizada como apoio na estrutura do cabeçalho.
+
+    Args:
+        workbook (Workbook): Instância do workbook utilizada para criação dos formatos da planilha.
+        worksheet (Worksheet): Planilha que receberá os ajustes de layout.
+        df (pd.DataFrame): DataFrame utilizado como referência para a quantidade de colunas da tabela.
+    """
+    formatacao_base = {
+        "align": "center",
+        "valign": "vcenter",
+        "font_color": "#FFFFFF",
+        "bold": True,
+        "border": 1,
+        "border_color": "#999999",
+    }
+    formatacao_alunos = workbook.add_format({**formatacao_base, "bg_color": "#E8BE25"})
+    formatacao_colaboradores = workbook.add_format(
+        {**formatacao_base, "bg_color": "#B40C02"}
+    )
+    formatacao_dieta_a = workbook.add_format({**formatacao_base, "bg_color": "#20AA73"})
+    formatacao_dieta_b = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
+
+    formatacao_level2 = workbook.add_format(
+        {
+            **formatacao_base,
+            "bg_color": "#F7FBF9",
+            "font_color": "#000000",
+            "text_wrap": True,
+        }
+    )
+    formatacao_level1 = {
+        "": formatacao_level2,
+        "ALIMENTAÇÕES ALUNOS PARTICIPANTES": formatacao_alunos,
+        "COLABORADORES": formatacao_colaboradores,
+        "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
+        "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
+    }
+
+    for col_num, value in enumerate(df.columns.values):
+        worksheet.write(
+            2,
+            col_num,
+            value[0],
+            formatacao_level1[value[0]],
+        )
+        worksheet.write(3, col_num, value[1], formatacao_level2)
+
+    formatacao = workbook.add_format(
+        {
+            "align": "center",
+            "valign": "vcenter",
+        }
+    )
+
+    worksheet.set_column(0, len(df.columns) - 1, 15, formatacao)
+    worksheet.set_column(2, 2, 30)
+
+    worksheet.set_row(4, None, None, {"hidden": True})
+    worksheet.set_row(2, 25)
+    worksheet.set_row(3, 40)
