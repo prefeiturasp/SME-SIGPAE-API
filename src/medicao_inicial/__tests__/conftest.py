@@ -43,6 +43,9 @@ from src.medicao_inicial.services.relatorio_consolidado_emebs import (
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     insere_tabela_periodos_na_planilha as emei_emef_insere_tabela,
 )
+from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
+    insere_tabela_periodos_na_planilha as recreio_cei_insere_tabela,
+)
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
     insere_tabela_periodos_na_planilha as recreio_emei_emef_insere_tabela,
 )
@@ -7505,3 +7508,23 @@ def mock_linhas_recreio_cei():
             560.0,
         ]
     ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_recreio_cei(
+    solicitacao_recreio_cei, mock_colunas_recreio_cei, mock_linhas_recreio_cei
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {solicitacao_recreio_cei.mes}-{ solicitacao_recreio_cei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = recreio_cei_insere_tabela(
+        aba, mock_colunas_recreio_cei, mock_linhas_recreio_cei, writer
+    )
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()

@@ -1,6 +1,7 @@
 import math
 from io import BytesIO
 
+import openpyxl
 import pandas as pd
 import pytest
 
@@ -10,6 +11,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _get_lista_alimentacoes_dietas,
     _processa_periodo_campo,
     _sort_and_merge,
+    ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
@@ -396,3 +398,29 @@ def test_insere_tabela_periodos_na_planilha(
         280.0,
         560.0,
     ]
+
+
+def test_ajusta_layout_tabela(informacoes_excel_writer_recreio_cei):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_recreio_cei
+    ajusta_layout_tabela(workbook, worksheet, df)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 4
+    assert "A3:C3" in str(merged_ranges)
+    assert "D3:K3" in str(merged_ranges)
+    assert "L3:S3" in str(merged_ranges)
+    assert "T3:Y3" in str(merged_ranges)
+
+    assert sheet["A3"].value is None
+
+    assert sheet["D3"].value == "ALIMENTAÇÕES ALUNOS PARTICIPANTES"
+    assert sheet["D3"].fill.fgColor.rgb == "FFE8BE25"
+
+    assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["L3"].fill.fgColor.rgb == "FF20AA73"
+
+    assert sheet["T3"].value == "COLABORADORES"
+    assert sheet["T3"].fill.fgColor.rgb == "FFB40C02"
+    workbook_openpyxl.close()
