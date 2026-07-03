@@ -31,6 +31,7 @@ from src.medicao_inicial.services.utils import (
     get_filtros_intervalo_dias,
     get_nome_periodo,
     get_valores_iniciais,
+    total_pagamento_colaboradores,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -537,7 +538,7 @@ def processa_grupos_recreio(
     )
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
         if grupo == "Colaboradores":
-            return total_pagamento_recreio_emef(medicao, campo, query_params)
+            return total_pagamento_colaboradores(medicao, campo, query_params)
         elif iniciais in ORDEM_UNIDADES_GRUPO_EMEF.keys():
             return total_pagamento_recreio_emef(medicao, campo, query_params)
         elif iniciais in ORDEM_UNIDADES_GRUPO_EMEI.keys():
