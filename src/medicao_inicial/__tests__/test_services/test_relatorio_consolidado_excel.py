@@ -2644,42 +2644,8 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emei(
         None,
         None,
     )
-    assert rows[5] == (
-        "EMEI",
-        "987654",
-        "EMEI TESTE",
-        1260,
-        1260,
-        1260,
-        1260,
-        1260,
-        1260,
-        14,
-        280,
-        280,
-        280,
-        280,
-        280,
-        280,
-    )
-    assert rows[6] == (
-        "TOTAL",
-        None,
-        None,
-        1260,
-        1260,
-        1260,
-        1260,
-        1260,
-        1260,
-        14,
-        280,
-        280,
-        280,
-        280,
-        280,
-        280,
-    )
+    assert rows[5] == ('EMEI', '987654', 'EMEI TESTE', 1260, 1260, 1260, 1260, 1260, 1260, 14, 280, 280, 560, 280, 280, 560)
+    assert rows[6] == ('TOTAL', None, None, 1260, 1260, 1260, 1260, 1260, 1260, 14, 280, 280, 560, 280, 280, 560)
 
 
 def test_formata_filtros_unidade_recreio_emei(mock_query_params_excel_recreio_emei):
