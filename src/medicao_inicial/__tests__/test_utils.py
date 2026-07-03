@@ -9,6 +9,7 @@ from model_bakery import baker
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
+from src.medicao_inicial.models import DescontoFinanceiro
 from src.medicao_inicial.utils import (
     atualiza_alunos_periodo_parcial,
     avalia_soma_total_com_dados_tabela_anterior,
@@ -38,13 +39,11 @@ from src.medicao_inicial.utils import (
     get_somatorio_solicitacoes_de_alimentacao,
     get_somatorio_tarde,
     get_somatorio_total_tabela,
-    substitui_criador_system_por_usuario_real,
-    tratar_valores,
     mapear_dados_existentes,
     obter_instancia_dados,
+    substitui_criador_system_por_usuario_real,
+    tratar_valores,
 )
-from src.medicao_inicial.models import DescontoFinanceiro
-
 
 from .data import (
     HEADERS_TABELAS_EMEBS,
@@ -700,6 +699,7 @@ def test_build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei
         {
             "periodos": ["INTEGRAL"],
             "categorias": ["ALIMENTAÇÃO"],
+            "periodo_por_categoria": ["INTEGRAL"],
             "nomes_campos": [],
             "faixas_etarias": ["01 mês", "total"],
             "len_periodos": [3],
@@ -1822,7 +1822,7 @@ def test_mapear_dados_existentes_desconto_financeiro_cei(
 
     por_uuid, por_chave = mapear_dados_existentes(
         DescontoFinanceiro.objects.all(),
-        chave_composta=["tipo_lancamento", "quantidade"]
+        chave_composta=["tipo_lancamento", "quantidade"],
     )
 
     assert por_uuid[str(obj.uuid)] == obj
@@ -1857,7 +1857,7 @@ def test_obter_instancia_dados_desconto_financeiro_cei(
             "clausula_desconto_id",
             "faixa_etaria_id",
             "periodo_escolar_id",
-        ]
+        ],
     )
 
     resultado = obter_instancia_dados(
@@ -1873,7 +1873,7 @@ def test_obter_instancia_dados_desconto_financeiro_cei(
             "clausula_desconto_id",
             "faixa_etaria_id",
             "periodo_escolar_id",
-        ]
+        ],
     )
 
     assert resultado == obj

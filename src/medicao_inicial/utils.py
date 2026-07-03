@@ -366,8 +366,8 @@ def append_tabela(
 ):
     tabelas[indice_atual]["periodos"] += [nome_periodo]
     tabelas[indice_atual]["categorias"] += [categoria]
-
     if tipo_unidade == "CEMEI":
+        tabelas[indice_atual]["periodo_por_categoria"] += [nome_periodo]
         if not segunda_tabela:
             faixas_etarias = tabelas[indice_atual]["faixas_etarias"]
             len_faixas = (len(faixas_etarias) * 2) - 1 if faixas_etarias else 0
@@ -650,23 +650,23 @@ def build_headers_tabelas_emebs(solicitacao):
                                 "categorias_dos_periodos": {},
                             }
                         ]
-                        tabelas[indice_atual]["periodos"] += [nome_periodo]
-                        tabelas[indice_atual]["categorias"] += [categoria]
-                        tabelas[indice_atual]["nomes_campos"] += [
-                            campo
-                            for campo in ORDEM_CAMPOS
-                            if campo in dict_categorias_campos[categoria]
-                        ]
-                        tabelas[indice_atual]["len_categorias"] += [
-                            len(dict_categorias_campos[categoria])
-                        ]
-                        get_categorias_dos_periodos(
-                            nome_periodo,
-                            tabelas,
-                            indice_atual,
-                            categoria,
-                            dict_categorias_campos,
-                        )
+                    tabelas[indice_atual]["periodos"] += [nome_periodo]
+                    tabelas[indice_atual]["categorias"] += [categoria]
+                    tabelas[indice_atual]["nomes_campos"] += [
+                        campo
+                        for campo in ORDEM_CAMPOS
+                        if campo in dict_categorias_campos[categoria]
+                    ]
+                    tabelas[indice_atual]["len_categorias"] += [
+                        len(dict_categorias_campos[categoria])
+                    ]
+                    get_categorias_dos_periodos(
+                        nome_periodo,
+                        tabelas,
+                        indice_atual,
+                        categoria,
+                        dict_categorias_campos,
+                    )
                 else:
                     adiciona_valores_header(
                         nome_periodo,
@@ -1434,6 +1434,8 @@ def adiciona_valores_header(
             len(dict_categorias_campos[categoria])
         ]
     tabelas[indice_atual]["categorias"] += [categoria]
+    if tipo_unidade == "CEMEI":
+        tabelas[indice_atual]["periodo_por_categoria"] += [nome_periodo]
     tabelas[indice_atual]["nomes_campos"] += [
         campo for campo in ORDEM_CAMPOS if campo in dict_categorias_campos[categoria]
     ]
@@ -1483,6 +1485,7 @@ def cria_tabela_vazia_cemei():
     return {
         "periodos": [],
         "categorias": [],
+        "periodo_por_categoria": [],
         "nomes_campos": [],
         "faixas_etarias": [],
         "len_periodos": [],
