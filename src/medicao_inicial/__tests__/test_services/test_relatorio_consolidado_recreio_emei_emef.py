@@ -19,6 +19,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import
     insere_tabela_periodos_na_planilha,
     processa_dieta_especial,
     processa_grupos_recreio,
+    total_pagamento_recreio_emef,
     total_pagamento_recreio_emei,
 )
 from src.medicao_inicial.services.utils import total_pagamento_colaboradores
@@ -686,3 +687,29 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 6
     assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 1260.0, "-", "-"]
+
+
+def test_total_pagamento_recreio_emef_para_estudantes(solicitacao_recreio_emef):
+    medicoes = solicitacao_recreio_emef.medicoes.all().order_by("grupo__nome")
+    medicao_recreio = medicoes[1]
+    total_refeicao = total_pagamento_recreio_emef(
+        medicao_recreio, "total_refeicoes_pagamento", {}
+    )
+    assert total_refeicao == 1400.0
+    total_sobremesa = total_pagamento_recreio_emef(
+        medicao_recreio, "total_sobremesas_pagamento", {}
+    )
+    assert total_sobremesa == 1400.0
+
+
+def test_total_pagamento_recreio_emef_para_colaboradores(solicitacao_recreio_emef):
+    medicoes = solicitacao_recreio_emef.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    total_refeicao_colaboradores = total_pagamento_colaboradores(
+        medicao_colaboradores, "total_refeicoes_pagamento", {}
+    )
+    assert total_refeicao_colaboradores == 560.0
+    total_sobremesa_colaboradores = total_pagamento_colaboradores(
+        medicao_colaboradores, "total_sobremesas_pagamento", {}
+    )
+    assert total_sobremesa_colaboradores == 560.0
