@@ -22,6 +22,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import
     total_pagamento_recreio_emef,
     total_pagamento_recreio_emei,
 )
+from src.medicao_inicial.services.utils import total_pagamento_colaboradores
 
 pytestmark = pytest.mark.django_db
 
@@ -69,10 +70,10 @@ def test_get_valores_tabela_unidade_emei(
         14.0,
         280.0,
         280.0,
+        560.0,
         280.0,
         280.0,
-        280.0,
-        280.0,
+        560.0,
     ]
 
 
@@ -135,10 +136,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         14.0,
         280.0,
         280.0,
+        560.0,
         280.0,
         280.0,
-        280.0,
-        280.0,
+        560.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
@@ -153,10 +154,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         14.0,
         280.0,
         280.0,
+        560.0,
         280.0,
         280.0,
-        280.0,
-        280.0,
+        560.0,
     ]
 
 
@@ -452,14 +453,14 @@ def test_total_pagamento_recreio_emei_para_estudantes(solicitacao_recreio_emei):
 def test_total_pagamento_recreio_emei_para_colaboradores(solicitacao_recreio_emei):
     medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
     medicao_colaboradores = medicoes[0]
-    total_refeicao_colaboradores = total_pagamento_recreio_emef(
+    total_refeicao_colaboradores = total_pagamento_colaboradores(
         medicao_colaboradores, "total_refeicoes_pagamento", {}
     )
-    assert total_refeicao_colaboradores == 280.0
-    total_sobremesa_colaboradores = total_pagamento_recreio_emef(
+    assert total_refeicao_colaboradores == 560.0
+    total_sobremesa_colaboradores = total_pagamento_colaboradores(
         medicao_colaboradores, "total_sobremesas_pagamento", {}
     )
-    assert total_sobremesa_colaboradores == 280.0
+    assert total_sobremesa_colaboradores == 560.0
 
 
 def test_unificar_dietas_tipo_a():
