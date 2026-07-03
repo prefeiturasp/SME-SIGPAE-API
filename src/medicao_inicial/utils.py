@@ -4937,6 +4937,22 @@ def _build_linhas_colab_somatorio(medicao_colaboradores):
     return linhas
 
 
+def _adicionar_solicitacoes_colab(linhas, medicao_solicitacoes):
+    for linha in linhas:
+        linha.append("0")
+
+    for campo in ("kit_lanche", "lanche_emergencial"):
+        values = medicao_solicitacoes.valores_medicao.filter(
+            categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+            nome_campo=campo,
+        )
+        total = sum(int(v.valor) for v in values)
+        if total > 0:
+            linhas.append([NOMES_CAMPOS.get(campo, campo), "0", str(total)])
+
+    return linhas
+
+
 def build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao):
     medicao_0a3 = solicitacao.medicoes.filter(
         grupo__nome="Recreio nas Férias - de 0 a 3 anos e 11 meses"
@@ -4960,20 +4976,27 @@ def build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao):
 
     # --- Tabela 2: 4 a 14 anos ---
     tabela_emei = (
-        _build_somatorio_tabela_emei(medicao_4a14, medicao_solicitacoes, mes_ano)
-        if medicao_4a14
-        else None
+        _build_somatorio_tabela_emei(medicao_4a14, mes_ano) if medicao_4a14 else None
     )
 
     # --- Tabela 3: Colaboradores ---
     tabela_colaboradores = None
     if medicao_colaboradores:
+        header_colab = [
+            "Tipos de Alimentação",
+            "Total de Alimentações para Colaboradores",
+        ]
+        linhas_colab = _build_linhas_colab_somatorio(medicao_colaboradores)
+
+        if medicao_solicitacoes:
+            header_colab += ["Solicitações de Alimentação"]
+            linhas_colab = _adicionar_solicitacoes_colab(
+                linhas_colab, medicao_solicitacoes
+            )
+
         tabela_colaboradores = {
-            "header": [
-                "Tipos de Alimentação",
-                "Total de Alimentações para Colaboradores",
-            ],
-            "valores_campos": _build_linhas_colab_somatorio(medicao_colaboradores),
+            "header": header_colab,
+            "valores_campos": linhas_colab,
             "legenda": f"*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - {mes_ano}",
         }
 
@@ -5053,7 +5076,7 @@ def _build_somatorio_tabela_cei(medicao, mes_ano):
     }
 
 
-def _build_somatorio_tabela_emei(medicao_4a14, medicao_solicitacoes, mes_ano):
+def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
     CAMPOS_EXCLUIDOS_SOMATORIO_RECREIO = [
         "observacoes",
         "participantes",
@@ -5085,7 +5108,6 @@ def _build_somatorio_tabela_emei(medicao_4a14, medicao_solicitacoes, mes_ano):
     linhas = []
     totais_dietas = {cat: 0 for cat in categorias_dieta}
     total_alim = 0
-    total_solicitacoes = 0
 
     for campo in campos:
         soma_alim = sum(
@@ -5111,30 +5133,17 @@ def _build_somatorio_tabela_emei(medicao_4a14, medicao_solicitacoes, mes_ano):
             soma_dietas[cat] = soma
             totais_dietas[cat] += soma
 
-        soma_sol = 0
-        if medicao_solicitacoes:
-            soma_sol = sum(
-                int(v)
-                for v in medicao_solicitacoes.valores_medicao.filter(
-                    nome_campo=campo,
-                ).values_list("valor", flat=True)
-                if v and v.isdigit()
-            )
         total_alim += soma_alim
-        total_solicitacoes += soma_sol
 
         nome_campo = NOMES_CAMPOS.get(campo, campo)
         linhas.append(
             [nome_campo, str(soma_alim)]
             + [str(soma_dietas[cat]) for cat in categorias_dieta]
-            + [str(soma_sol)]
         )
 
     return {
         "titulo": "Alimentações para alunos - de 4 a 14 anos",
-        "header": ["Tipos de Alimentação", "Total de Alimentações"]
-        + categorias_dieta
-        + ["Solicitações de Alimentação"],
+        "header": ["Tipos de Alimentação", "Total de Alimentações"] + categorias_dieta,
         "valores_campos": linhas,
         "legenda": f"*A tabela acima representa a soma das alimentações lançadas para os alunos em Recreio nas Férias - {mes_ano}",
     }
