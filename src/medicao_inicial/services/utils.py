@@ -1,9 +1,9 @@
 import datetime
 from calendar import monthrange
 
-from django.db.models import FloatField, Q, Sum
-from django.db.models.functions import Cast
 import pandas as pd
+from django.db.models import FloatField, Sum
+from django.db.models.functions import Cast
 
 from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
 
@@ -256,7 +256,9 @@ def gera_colunas_alimentacao(
     return df
 
 
-def total_pagamento_colaboradores(medicao: Medicao, nome_campo: str, query_params: dict = None) -> float | int:
+def total_pagamento_colaboradores(
+    medicao: Medicao, nome_campo: str, query_params: dict = None
+) -> float | int:
     """
     Calcula o total de refeições ou sobremesas utilizadas para pagamento dos
     colaboradores.
@@ -267,7 +269,7 @@ def total_pagamento_colaboradores(medicao: Medicao, nome_campo: str, query_param
 
     Args:
         medicao (Medicao): Medição utilizada no cálculo.
-        nome_campo (str): Campo que identifica qual total será calculado, podendo ser ``total_refeicoes_pagamento`` ou 
+        nome_campo (str): Campo que identifica qual total será calculado, podendo ser ``total_refeicoes_pagamento`` ou
             ``total_sobremesas_pagamento``.
         query_params (dict, optional):Parâmetros utilizados para filtrar os valores da medição.
             Defaults to None.
