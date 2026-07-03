@@ -78,9 +78,16 @@ class DiaLetivoViewSet(
         serializer.save()
         return Response(status=status.HTTP_201_CREATED)
 
-    def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
         instance = self.get_object()
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data, partial=partial)
+        serializer.instance = instance
         serializer.is_valid(raise_exception=True)
-        serializer.update(instance, serializer.validated_data)
-        return Response(status=status.HTTP_200_OK)
+        serializer.save()
+        response_serializer = DiaLetivoDetailSerializer(instance)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.update(request, *args, **kwargs)
