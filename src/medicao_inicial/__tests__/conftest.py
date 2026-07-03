@@ -7598,3 +7598,16 @@ def mock_linhas_recreio_emef():
             560.0,
         ]
     ]
+
+
+@pytest.fixture
+def mock_query_params_excel_recreio_emef(solicitacao_recreio_emef, grupo_escolar):
+    return {
+        "dre": solicitacao_recreio_emef.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_recreio_emef.mes,
+        "ano": solicitacao_recreio_emef.ano,
+        "lotes[]": solicitacao_recreio_emef.escola.lote.uuid,
+        "lotes": [solicitacao_recreio_emef.escola.lote.uuid],
+    }
