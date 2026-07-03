@@ -408,6 +408,77 @@ class DiaLetivoUpdateSerializer(serializers.Serializer):
             raise ValidationError("periodos_escolares é obrigatório")
         return value
 
+    def validate(self, data: dict) -> dict:
+        instance = self.instance
+        data_val = instance.data
+        periodos_uuids = data.get("periodos_escolares", [])
+        escolas_uuids = data.get("unidades_educacionais", [])
+
+        periodos = list(PeriodoEscolar.objects.filter(uuid__in=periodos_uuids))
+        escolas = list(Escola.objects.filter(uuid__in=escolas_uuids))
+
+        if escolas:
+            self._checa_duplicacao_banco_com_escolas(data_val, periodos, escolas)
+        else:
+            self._checa_duplicacao_banco_sem_escolas(data_val, periodos)
+
+        return data
+
+    def _checa_duplicacao_banco_com_escolas(
+        self,
+        data_val: date,
+        periodos: list[PeriodoEscolar],
+        escolas: list[Escola],
+    ) -> None:
+        escola_ids = [e.pk for e in escolas]
+        periodo_ids = [p.pk for p in periodos]
+
+        existing = set(
+            DiaLetivoSIGPAE.objects.filter(
+                data=data_val,
+                periodos_escolares__id__in=periodo_ids,
+                escolas__id__in=escola_ids,
+            )
+            .exclude(uuid=self.instance.uuid)
+            .values_list("data", "periodos_escolares__id", "escolas__id")
+        )
+
+        for periodo in periodos:
+            for escola in escolas:
+                if (data_val, periodo.pk, escola.pk) in existing:
+                    raise ValidationError(
+                        f"Já existe um DiaLetivo cadastrado para a data "
+                        f"{data_val.strftime('%d/%m/%Y')}, "
+                        f"escola {escola.nome} e "
+                        f"período escolar {periodo.nome}"
+                    )
+
+    def _checa_duplicacao_banco_sem_escolas(
+        self,
+        data_val: date,
+        periodos: list[PeriodoEscolar],
+    ) -> None:
+        periodo_ids = [p.pk for p in periodos]
+
+        existing = set(
+            DiaLetivoSIGPAE.objects.filter(
+                data=data_val,
+                periodos_escolares__id__in=periodo_ids,
+            )
+            .exclude(uuid=self.instance.uuid)
+            .annotate(escola_count=Count("escolas"))
+            .filter(escola_count=0)
+            .values_list("data", "periodos_escolares__id")
+        )
+
+        for periodo in periodos:
+            if (data_val, periodo.pk) in existing:
+                raise ValidationError(
+                    f"Já existe um DiaLetivo cadastrado para a data "
+                    f"{data_val.strftime('%d/%m/%Y')} e "
+                    f"período escolar {periodo.nome}"
+                )
+
     def update(self, instance: DiaLetivoSIGPAE, validated_data: dict) -> DiaLetivoSIGPAE:
         lotes = Lote.objects.filter(uuid__in=validated_data["lotes"])
         tipos_unidades = TipoUnidadeEscolar.objects.filter(uuid__in=validated_data["tipos_unidades"])
