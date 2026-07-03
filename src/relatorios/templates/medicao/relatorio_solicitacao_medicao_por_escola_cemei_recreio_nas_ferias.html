@@ -116,13 +116,15 @@
           {% endfor %}
         </tr>
         <tr>
-          {% for periodo, cats in tabela.categorias_dos_periodos.items %}
-            {% for cat_info in cats %}
-              {% classe_periodo_recreio_cemei cat_info.categoria periodo as classe_cor %}
-              <th scope="col" class="categoria {{ classe_cor }}" colspan="{{ tabela.len_categorias|get_element_by_index:forloop.counter0 }}">
-                {% label_categoria_recreio_cemei cat_info.categoria periodo %}
-              </th>
-            {% endfor %}
+          {% for categoria in tabela.categorias %}
+            {% with idx=forloop.counter0 %}
+              {% with periodo=tabela.periodo_por_categoria|get_element_by_index:idx %}
+                {% classe_periodo_recreio_cemei categoria periodo as classe_cor %}
+                <th scope="col" class="categoria {{ classe_cor }}" colspan="{{ tabela.len_categorias|get_element_by_index:idx }}">
+                  {% label_categoria_recreio_cemei categoria periodo %}
+                </th>
+              {% endwith %}
+            {% endwith %}
           {% endfor %}
         </tr>
 
