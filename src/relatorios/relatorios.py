@@ -9,6 +9,7 @@ from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
 from src.dados_comuns.constants import (
+    ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
     ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
@@ -59,13 +60,13 @@ from ..medicao_inicial.utils import (
     build_tabela_somatorio_body_cei_recreio_nas_ferias,
     build_tabela_somatorio_body_cemei_recreio_nas_ferias,
     build_tabela_somatorio_dietas_body,
+    build_tabela_somatorio_recreio_nas_ferias,
     build_tabelas_relatorio_medicao,
     build_tabelas_relatorio_medicao_cei,
     build_tabelas_relatorio_medicao_cei_recreio_nas_ferias,
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
     calcula_totais_consumo_por_grupo,
-    build_tabela_somatorio_recreio_nas_ferias,
 )
 from ..pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
@@ -1730,7 +1731,9 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
 
 
 def relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(solicitacao):
-    tabelas = build_tabelas_relatorio_medicao(solicitacao)
+    tabelas = build_tabelas_relatorio_medicao(
+        solicitacao, ordem_periodos=ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS
+    )
     dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
     dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
 
@@ -1838,7 +1841,9 @@ def relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias(solicitacao)
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(html_string, "relatorio_dieta_especial.pdf", is_async=True)
+        return html_to_pdf_file(
+            html_string, "relatorio_dieta_especial.pdf", is_async=True
+        )
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -1955,7 +1960,9 @@ def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitaca
         "nome", flat=True
     )
     tipos_contagem_alimentacao = ", ".join(list(set(tipos_contagem_alimentacao)))
-    tabelas_somatorios = build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao)
+    tabelas_somatorios = build_tabela_somatorio_body_cemei_recreio_nas_ferias(
+        solicitacao
+    )
 
     observacoes = build_lista_campos_observacoes(solicitacao)
 

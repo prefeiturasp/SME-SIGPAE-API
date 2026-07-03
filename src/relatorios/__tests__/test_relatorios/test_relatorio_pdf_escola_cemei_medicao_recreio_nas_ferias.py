@@ -44,12 +44,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
         self.categoria_alimentacao = categoria_medicao_factory.create(
             nome="ALIMENTAÇÃO"
         )
-        self.categoria_dieta_a = categoria_medicao_factory.create(
-            nome="DIETA TIPO A"
-        )
-        self.categoria_dieta_b = categoria_medicao_factory.create(
-            nome="DIETA TIPO B"
-        )
+        self.categoria_dieta_a = categoria_medicao_factory.create(nome="DIETA TIPO A")
+        self.categoria_dieta_b = categoria_medicao_factory.create(nome="DIETA TIPO B")
 
     def _setup_medicoes(self, medicao_factory):
         self.medicao_0a3 = medicao_factory.create(
@@ -124,7 +120,11 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
         # dieta A: lanche=5/dia
         # dieta B: lanche=3/dia
         for dia in range(7, 11):
-            for nome_campo, valor in [("lanche", "80"), ("refeicao", "50"), ("sobremesa", "40")]:
+            for nome_campo, valor in [
+                ("lanche", "80"),
+                ("refeicao", "50"),
+                ("sobremesa", "40"),
+            ]:
                 valor_medicao_factory.create(
                     dia=f"{dia:02d}",
                     valor=valor,
@@ -191,7 +191,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
         self._setup_logs_4a14(valor_medicao_factory)
         self._setup_logs_colaboradores(valor_medicao_factory)
 
-        somatorio = build_tabela_somatorio_body_cemei_recreio_nas_ferias(self.solicitacao)
+        somatorio = build_tabela_somatorio_body_cemei_recreio_nas_ferias(
+            self.solicitacao
+        )
 
         # --- tabela_cei: 0 a 3 anos ---
         assert somatorio["tabela_cei"] == {
@@ -219,12 +221,11 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
                 "Total de Alimentações",
                 "DIETA TIPO A",
                 "DIETA TIPO B",
-                "Solicitações de Alimentação",
             ],
             "valores_campos": [
-                ["Lanche", "320", "20", "12", "0"],
-                ["Refeição", "200", "0", "0", "0"],
-                ["Sobremesa", "160", "0", "0", "0"],
+                ["Lanche", "320", "20", "12"],
+                ["Refeição", "200", "0", "0"],
+                ["Sobremesa", "160", "0", "0"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os alunos em Recreio nas Férias - 01/2026",
         }
@@ -277,7 +278,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
                     faixa_etaria=None,
                 )
 
-        somatorio = build_tabela_somatorio_body_cemei_recreio_nas_ferias(self.solicitacao)
+        somatorio = build_tabela_somatorio_body_cemei_recreio_nas_ferias(
+            self.solicitacao
+        )
 
         assert somatorio["tabela_cei"]["header"] == [
             "Faixa Etária",
@@ -290,7 +293,6 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
         assert somatorio["tabela_emei"]["header"] == [
             "Tipos de Alimentação",
             "Total de Alimentações",
-            "Solicitações de Alimentação",
         ]
         assert "DIETA TIPO A" not in somatorio["tabela_emei"]["header"]
         assert "DIETA TIPO B" not in somatorio["tabela_emei"]["header"]
