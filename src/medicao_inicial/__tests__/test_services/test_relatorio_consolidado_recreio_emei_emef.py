@@ -525,3 +525,34 @@ def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
     )
     assert len(resultado["DIETA ESPECIAL - TIPO B"]) == 2
+
+
+def test_get_valores_tabela_unidade_emef(
+    solicitacao_recreio_emef, mock_colunas_recreio_emef
+):
+    tipos_unidade = ["EMEF"]
+    linhas = get_valores_tabela(
+        [solicitacao_recreio_emef], mock_colunas_recreio_emef, tipos_unidade, {}
+    )
+    assert isinstance(linhas, list)
+    assert len(linhas) == 1
+    assert isinstance(linhas[0], list)
+    assert len(linhas[0]) == 16
+    assert linhas[0] == [
+        "EMEF",
+        "123456",
+        "EMEF TESTE",
+        1260.0,
+        1260.0,
+        1400,
+        1260.0,
+        1260.0,
+        1400,
+        14.0,
+        280.0,
+        280.0,
+        560.0,
+        280.0,
+        280.0,
+        560.0,
+    ]

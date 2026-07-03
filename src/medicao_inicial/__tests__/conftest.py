@@ -6672,6 +6672,7 @@ def solicitacao_recreio_emef(
     categoria_medicao_dieta_a_enteral_aminoacidos,
     categoria_inscritos_recreio,
     categoria_colaboradores_recreio,
+    categoria_medicao_dieta_a,
 ):
 
     solicitacao_recreio_nas_ferias.status = (
@@ -7554,3 +7555,22 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
         "lotes[]": solicitacao_recreio_cei.escola.lote.uuid,
         "lotes": [solicitacao_recreio_cei.escola.lote.uuid],
     }
+
+
+@pytest.fixture
+def mock_colunas_recreio_emef():
+    return [
+        ("Recreio nas Férias", "refeicao"),
+        ("Recreio nas Férias", "repeticao_refeicao"),
+        ("Recreio nas Férias", "total_refeicoes_pagamento"),
+        ("Recreio nas Férias", "sobremesa"),
+        ("Recreio nas Férias", "repeticao_sobremesa"),
+        ("Recreio nas Férias", "total_sobremesas_pagamento"),
+        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        ("Colaboradores", "refeicao"),
+        ("Colaboradores", "repeticao_refeicao"),
+        ("Colaboradores", "total_refeicoes_pagamento"),
+        ("Colaboradores", "sobremesa"),
+        ("Colaboradores", "repeticao_sobremesa"),
+        ("Colaboradores", "total_sobremesas_pagamento"),
+    ]
