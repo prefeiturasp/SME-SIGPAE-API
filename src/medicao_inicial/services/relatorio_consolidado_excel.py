@@ -159,7 +159,7 @@ def _obter_modulo_da_unidade_recreio(tipos_de_unidade: list[str]) -> tuple:
     """
     estrategias = [
         {
-            "unidades": ORDEM_UNIDADES_GRUPO_EMEI,
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEI | ORDEM_UNIDADES_GRUPO_EMEF,
             "modulo": relatorio_consolidado_recreio_emei_emef,
             "parametros": [tipos_de_unidade],
         },

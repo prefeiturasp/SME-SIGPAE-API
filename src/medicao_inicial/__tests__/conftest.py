@@ -6672,6 +6672,7 @@ def solicitacao_recreio_emef(
     categoria_medicao_dieta_a_enteral_aminoacidos,
     categoria_inscritos_recreio,
     categoria_colaboradores_recreio,
+    categoria_medicao_dieta_a,
 ):
 
     solicitacao_recreio_nas_ferias.status = (
@@ -7407,10 +7408,10 @@ def mock_linhas_recreio_emei():
             14.0,
             280.0,
             280.0,
+            560.0,
             280.0,
             280.0,
-            280.0,
-            280.0,
+            560.0,
         ]
     ]
 
@@ -7553,4 +7554,60 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
         "ano": solicitacao_recreio_cei.ano,
         "lotes[]": solicitacao_recreio_cei.escola.lote.uuid,
         "lotes": [solicitacao_recreio_cei.escola.lote.uuid],
+    }
+
+
+@pytest.fixture
+def mock_colunas_recreio_emef():
+    return [
+        ("Recreio nas Férias", "refeicao"),
+        ("Recreio nas Férias", "repeticao_refeicao"),
+        ("Recreio nas Férias", "total_refeicoes_pagamento"),
+        ("Recreio nas Férias", "sobremesa"),
+        ("Recreio nas Férias", "repeticao_sobremesa"),
+        ("Recreio nas Férias", "total_sobremesas_pagamento"),
+        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        ("Colaboradores", "refeicao"),
+        ("Colaboradores", "repeticao_refeicao"),
+        ("Colaboradores", "total_refeicoes_pagamento"),
+        ("Colaboradores", "sobremesa"),
+        ("Colaboradores", "repeticao_sobremesa"),
+        ("Colaboradores", "total_sobremesas_pagamento"),
+    ]
+
+
+@pytest.fixture
+def mock_linhas_recreio_emef():
+    return [
+        [
+            "EMEF",
+            "123456",
+            "EMEF TESTE",
+            1260.0,
+            1260.0,
+            1400,
+            1260.0,
+            1260.0,
+            1400,
+            14.0,
+            280.0,
+            280.0,
+            560.0,
+            280.0,
+            280.0,
+            560.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def mock_query_params_excel_recreio_emef(solicitacao_recreio_emef, grupo_escolar):
+    return {
+        "dre": solicitacao_recreio_emef.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_recreio_emef.mes,
+        "ano": solicitacao_recreio_emef.ano,
+        "lotes[]": solicitacao_recreio_emef.escola.lote.uuid,
+        "lotes": [solicitacao_recreio_emef.escola.lote.uuid],
     }
