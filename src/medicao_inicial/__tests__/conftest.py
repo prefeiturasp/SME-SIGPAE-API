@@ -43,6 +43,9 @@ from src.medicao_inicial.services.relatorio_consolidado_emebs import (
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     insere_tabela_periodos_na_planilha as emei_emef_insere_tabela,
 )
+from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
+    insere_tabela_periodos_na_planilha as recreio_cei_insere_tabela,
+)
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
     insere_tabela_periodos_na_planilha as recreio_emei_emef_insere_tabela,
 )
@@ -7361,7 +7364,9 @@ def solicitacao_recreio_cemei(
 
 
 @pytest.fixture
-def solicitacao_recreio_emei(solicitacao_recreio_emef, escola_emei, categoria_medicao_dieta_a):
+def solicitacao_recreio_emei(
+    solicitacao_recreio_emef, escola_emei, categoria_medicao_dieta_a
+):
     solicitacao_recreio_emef.escola = escola_emei
     solicitacao_recreio_emef.save()
     return solicitacao_recreio_emef
@@ -7450,4 +7455,102 @@ def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
         "ano": solicitacao_recreio_emei.ano,
         "lotes[]": solicitacao_recreio_emei.escola.lote.uuid,
         "lotes": [solicitacao_recreio_emei.escola.lote.uuid],
+    }
+
+
+@pytest.fixture
+def mock_colunas_recreio_cei(faixas_etarias_ativas):
+
+    faixas = [faixa.id for faixa in faixas_etarias_ativas]
+    colunas = []
+    colunas.extend(("Recreio nas Férias", faixa) for faixa in faixas)
+    colunas.extend(("DIETA ESPECIAL - TIPO A", faixa) for faixa in faixas)
+    for campo in [
+        "refeicao",
+        "repeticao_refeicao",
+        "total_refeicoes_pagamento",
+        "sobremesa",
+        "repeticao_sobremesa",
+        "total_sobremesas_pagamento",
+    ]:
+        colunas.append(("Colaboradores", campo))
+    return colunas
+
+
+@pytest.fixture
+def mock_linhas_recreio_cei():
+    return [
+        [
+            "CEI DIRET",
+            "765432",
+            "CEI DIRET TESTE",
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            168.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            28.0,
+            280.0,
+            280.0,
+            560.0,
+            280.0,
+            280.0,
+            560.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_recreio_cei(
+    solicitacao_recreio_cei, mock_colunas_recreio_cei, mock_linhas_recreio_cei
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {solicitacao_recreio_cei.mes}-{ solicitacao_recreio_cei.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = recreio_cei_insere_tabela(
+        aba, mock_colunas_recreio_cei, mock_linhas_recreio_cei, writer
+    )
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
+
+
+@pytest.fixture
+def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
+    grupo_escolar = baker.make(
+        "GrupoUnidadeEscolar",
+        nome="Grupo 1",
+        uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
+        tipos_unidades=[
+            baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CCI"),
+            baker.make("TipoUnidadeEscolar", iniciais="CCI/CIPS"),
+            baker.make("TipoUnidadeEscolar", iniciais="CEI CEU"),
+        ],
+    )
+    return {
+        "dre": solicitacao_recreio_cei.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_escolar,
+        "mes": solicitacao_recreio_cei.mes,
+        "ano": solicitacao_recreio_cei.ano,
+        "lotes[]": solicitacao_recreio_cei.escola.lote.uuid,
+        "lotes": [solicitacao_recreio_cei.escola.lote.uuid],
     }
