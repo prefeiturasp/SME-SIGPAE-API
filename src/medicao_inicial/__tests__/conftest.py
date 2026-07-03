@@ -7574,3 +7574,27 @@ def mock_colunas_recreio_emef():
         ("Colaboradores", "repeticao_sobremesa"),
         ("Colaboradores", "total_sobremesas_pagamento"),
     ]
+
+
+@pytest.fixture
+def mock_linhas_recreio_emef():
+    return [
+        [
+            "EMEF",
+            "123456",
+            "EMEF TESTE",
+            1260.0,
+            1260.0,
+            1400,
+            1260.0,
+            1260.0,
+            1400,
+            14.0,
+            280.0,
+            280.0,
+            560.0,
+            280.0,
+            280.0,
+            560.0,
+        ]
+    ]
