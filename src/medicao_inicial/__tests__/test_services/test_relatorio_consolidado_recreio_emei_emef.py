@@ -19,7 +19,6 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import
     insere_tabela_periodos_na_planilha,
     processa_dieta_especial,
     processa_grupos_recreio,
-    total_pagamento_recreio_emef,
     total_pagamento_recreio_emei,
 )
 from src.medicao_inicial.services.utils import total_pagamento_colaboradores
@@ -640,3 +639,50 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
         280.0,
         560.0,
     ]
+
+
+def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
+    valores_iniciais = [
+        solicitacao_recreio_emef.escola.tipo_unidade.iniciais,
+        solicitacao_recreio_emef.escola.codigo_eol,
+        solicitacao_recreio_emef.escola.nome,
+    ]
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    recreio_refeicao = _processa_periodo_campo(
+        solicitacao_recreio_emef,
+        "Recreio nas Férias",
+        "refeicao",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(recreio_refeicao, list)
+    assert len(recreio_refeicao) == 4
+    assert recreio_refeicao == ["EMEF", "123456", "EMEF TESTE", 1260.0]
+
+    solicitacao_kit_lanche = _processa_periodo_campo(
+        solicitacao_recreio_emef,
+        "Solicitações de Alimentação",
+        "kit_lanche",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(solicitacao_kit_lanche, list)
+    assert len(solicitacao_kit_lanche) == 5
+    assert solicitacao_kit_lanche == ["EMEF", "123456", "EMEF TESTE", 1260.0, "-"]
+
+    dieta_a_lanche = _processa_periodo_campo(
+        solicitacao_recreio_emef,
+        "DIETA ESPECIAL - TIPO A",
+        "lanche_4h",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(dieta_a_lanche, list)
+    assert len(dieta_a_lanche) == 6
+    assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 1260.0, "-", "-"]
