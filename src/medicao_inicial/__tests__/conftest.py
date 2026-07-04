@@ -2412,9 +2412,8 @@ def medicao(solicitacao_medicao_inicial, periodo_escolar):
 
 
 @pytest.fixture
-def medicao_status_inicial(
-    solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
-):
+def medicao_status_inicial(solicitacao_medicao_inicial, categoria_medicao):
+    periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL_STATUS_INICIAL")
     medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
@@ -2441,9 +2440,8 @@ def medicao_status_inicial(
 
 
 @pytest.fixture
-def medicao_status_enviada_pela_ue(
-    solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
-):
+def medicao_status_enviada_pela_ue(solicitacao_medicao_inicial, categoria_medicao):
+    periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL_STATUS_ENVIADA")
     medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
@@ -2470,9 +2468,8 @@ def medicao_status_enviada_pela_ue(
 
 
 @pytest.fixture
-def medicao_aprovada_pela_dre(
-    solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
-):
+def medicao_aprovada_pela_dre(solicitacao_medicao_inicial, categoria_medicao):
+    periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL_APROVADA_DRE")
     medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
@@ -7361,7 +7358,9 @@ def solicitacao_recreio_cemei(
 
 
 @pytest.fixture
-def solicitacao_recreio_emei(solicitacao_recreio_emef, escola_emei, categoria_medicao_dieta_a):
+def solicitacao_recreio_emei(
+    solicitacao_recreio_emef, escola_emei, categoria_medicao_dieta_a
+):
     solicitacao_recreio_emef.escola = escola_emei
     solicitacao_recreio_emef.save()
     return solicitacao_recreio_emef
