@@ -242,7 +242,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         )
         assert dict_total_refeicoes == {
             "Recreio nas Férias": 40,
-            "Colaboradores": 20,
+            "Colaboradores": 40,
         }
 
         dict_total_sobremesas = get_total_por_periodo(
@@ -250,7 +250,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         )
         assert dict_total_sobremesas == {
             "Recreio nas Férias": 40,
-            "Colaboradores": 20,
+            "Colaboradores": 44,
         }
 
         # --- somatorio recreio ---
@@ -276,8 +276,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         }
 
         # lanche=5 × 4 dias = 20, lanche_4h=20,
-        # refeicao=min(3+7, 5) × 4 dias = 20 (soma refeicao + repeticao_refeicao),
-        # sobremesa=min(2+9, 5) × 4 dias = 20 (soma sobremesa + repeticao_sobremesa)
+        # refeicao=(3+7) × 4 dias = 40 (soma simples para colaboradores),
+        # sobremesa=(2+9) × 4 dias = 44 (soma simples para colaboradores)
         assert tabela_somatorio_colaboradores == {
             "header": [
                 "TIPOS ALIMENTAÇÃO",
@@ -286,8 +286,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             "body": [
                 ["Lanche", 20],
                 ["Lanche 4h", 20],
-                ["Refeição", 20],
-                ["Sobremesa", 20],
+                ["Refeição", 40],
+                ["Sobremesa", 44],
             ],
         }
 
@@ -615,9 +615,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         assert dict_total_refeicoes["Recreio nas Férias"] == 32
         # Sem IMR: sobremesa=8 × 4 dias = 32 (repeticao ignorada)
         assert dict_total_sobremesas["Recreio nas Férias"] == 32
-        # Colaboradores sempre usa o else (sem IMR check): min(5+5, 5) × 4 = 20
-        assert dict_total_refeicoes["Colaboradores"] == 20
-        assert dict_total_sobremesas["Colaboradores"] == 20
+        # Colaboradores: soma simples (5+5) × 4 = 40
+        assert dict_total_refeicoes["Colaboradores"] == 40
+        assert dict_total_sobremesas["Colaboradores"] == 40
 
     @freeze_time("2026-01-10")
     def test_emei_com_imr_aplica_min_na_refeicao(
@@ -674,6 +674,6 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         assert dict_total_refeicoes["Recreio nas Férias"] == 40
         # Com IMR: min(8 + 6, 10) = 10 × 4 dias = 40
         assert dict_total_sobremesas["Recreio nas Férias"] == 40
-        # Colaboradores usa else (sem IMR check): min(5+5, 5) × 4 = 20
-        assert dict_total_refeicoes["Colaboradores"] == 20
-        assert dict_total_sobremesas["Colaboradores"] == 20
+        # Colaboradores: soma simples (5+5) × 4 = 40
+        assert dict_total_refeicoes["Colaboradores"] == 40
+        assert dict_total_sobremesas["Colaboradores"] == 40
