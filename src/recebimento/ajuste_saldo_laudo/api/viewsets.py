@@ -19,8 +19,10 @@ from src.recebimento.ajuste_saldo_laudo.api.filters import (
 )
 from src.recebimento.ajuste_saldo_laudo.api.serializers.serializer_create import (
     AjusteSaldoCreateSerializer,
+    AjusteSaldoUpdateSerializer,
 )
 from src.recebimento.ajuste_saldo_laudo.api.serializers.serializers import (
+    AjusteSaldoDetalharSerializer,
     AjusteSaldoListagemSerializer,
 )
 from src.recebimento.ajuste_saldo_laudo.models import (
@@ -77,6 +79,36 @@ class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSe
 
         serializer = self.get_serializer(queryset, many=True)
         print(serializer.data)
+        return Response(serializer.data)
+
+    def retrieve(self, request, uuid):
+        """
+        Endpoint: GET /ajuste-saldo-laudo/{uuid}/
+
+        Retorna um ajuste de Saldo de Laudo específico
+        """
+        ajuste_saldo = AjusteSaldo.objects.get(uuid=uuid)
+        if not ajuste_saldo:
+            return Response(
+                {"detail": "Ajuste de saldo não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = AjusteSaldoDetalharSerializer(ajuste_saldo)
+        return Response(serializer.data)
+
+    def partial_update(self, request, uuid):
+        """
+        Endpoint: PATCH /ajuste-saldo-laudo/{uuid}/
+
+        Atualiza a quantidade descontada de um ajuste de Saldo de Laudo
+        """
+        ajuste_saldo = AjusteSaldo.objects.get(uuid=uuid)
+        serializer = AjusteSaldoUpdateSerializer(
+            ajuste_saldo, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)
 
     @action(
