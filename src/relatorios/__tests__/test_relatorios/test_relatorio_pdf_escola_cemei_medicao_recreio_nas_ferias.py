@@ -153,8 +153,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
     def _setup_logs_colaboradores(self, valor_medicao_factory):
         # 4 dias:
         # lanche = 5/dia => 20
-        # refeicao pgto = min(3 + 4, 5) = 5/dia => 20
-        # sobremesa pgto = min(2 + 5, 5) = 5/dia => 20
+        # refeicao pgto = 3 + 4 = 7/dia => 28
+        # sobremesa pgto = 2 + 5 = 7/dia => 28
         for dia in range(7, 11):
             for nome_campo, valor in {
                 "participantes": "5",
@@ -238,8 +238,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
             ],
             "valores_campos": [
                 ["Lanche", "20"],
-                ["Refeição", "20"],
-                ["Sobremesa", "20"],
+                ["Refeição", "28"],
+                ["Sobremesa", "28"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - 01/2026",
         }
