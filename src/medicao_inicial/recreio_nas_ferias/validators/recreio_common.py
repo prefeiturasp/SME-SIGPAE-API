@@ -91,7 +91,7 @@ def valida_campo_participantes(
         for grupo in grupos:
             medicao = grupos_medicao_existentes.get(grupo)
             if medicao is None:
-                medicao = Medicao.objects.create(
+                medicao, _ = Medicao.objects.get_or_create(
                     solicitacao_medicao_inicial=instance,
                     grupo=grupos_obj[grupo],
                 )

@@ -2415,9 +2415,8 @@ def medicao(solicitacao_medicao_inicial, periodo_escolar):
 
 
 @pytest.fixture
-def medicao_status_inicial(
-    solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
-):
+def medicao_status_inicial(solicitacao_medicao_inicial, categoria_medicao):
+    periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL_STATUS_INICIAL")
     medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
@@ -2444,9 +2443,8 @@ def medicao_status_inicial(
 
 
 @pytest.fixture
-def medicao_status_enviada_pela_ue(
-    solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
-):
+def medicao_status_enviada_pela_ue(solicitacao_medicao_inicial, categoria_medicao):
+    periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL_STATUS_ENVIADA")
     medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
@@ -2473,9 +2471,8 @@ def medicao_status_enviada_pela_ue(
 
 
 @pytest.fixture
-def medicao_aprovada_pela_dre(
-    solicitacao_medicao_inicial, periodo_escolar, categoria_medicao
-):
+def medicao_aprovada_pela_dre(solicitacao_medicao_inicial, categoria_medicao):
+    periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL_APROVADA_DRE")
     medicao = baker.make(
         "Medicao",
         periodo_escolar=periodo_escolar,
