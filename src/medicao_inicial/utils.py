@@ -1239,7 +1239,7 @@ def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
             soma_ref = valores_dia.get("refeicao", 0) + valores_dia.get(
                 "repeticao_refeicao", 0
             )
-            pgto_ref = min(soma_ref, participantes)
+            pgto_ref = soma_ref
             total_pgto_refeicao += pgto_ref
 
         pgto_sob = 0
@@ -1247,7 +1247,7 @@ def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
             soma_sob = valores_dia.get("sobremesa", 0) + valores_dia.get(
                 "repeticao_sobremesa", 0
             )
-            pgto_sob = min(soma_sob, participantes)
+            pgto_sob = soma_sob
             total_pgto_sobremesa += pgto_sob
 
         linha = _cei_colaboradores_linha_dia(
@@ -1899,6 +1899,97 @@ def get_numero_campos(tabela, periodo_corrente, categoria_corrente):
     return indice_inicial, indice_final
 
 
+def _resolver_contexto_tabela_anterior(
+    tabela,
+    periodo_corrente,
+    categoria_corrente,
+    dia,
+    valores_dia,
+    tabelas,
+    indice_tabela,
+):
+    indice_inicial, indice_final = get_numero_campos(
+        tabela, periodo_corrente, categoria_corrente
+    )
+    campos = tabela["nomes_campos"][indice_inicial:indice_final]
+    valores = valores_dia[indice_inicial + 1 : indice_final + 1]
+
+    tabela_anterior = tabelas[indice_tabela - 1]
+    campos_tabela_anterior = []
+    valores_tabela_anterior = []
+    if (
+        indice_tabela > 0
+        and periodo_corrente in tabela_anterior["periodos"]
+        and categoria_corrente in tabela_anterior["categorias"]
+    ):
+        ia, ib = get_numero_campos(
+            tabela_anterior, periodo_corrente, categoria_corrente
+        )
+        campos_tabela_anterior = tabela_anterior["nomes_campos"][ia:ib]
+        valores_tabela_anterior = tabela_anterior["valores_campos"][int(dia - 1)][
+            ia + 1 : ib + 1
+        ]
+    return (
+        campos,
+        campos_tabela_anterior,
+        valores,
+        valores_tabela_anterior,
+        tabela_anterior,
+    )
+
+
+def _obter_valor_campo_ctx(ctx, indice_periodo, tabela, nome_campo):
+    campos, campos_ta, valores, valores_ta, tabela_anterior = ctx
+    return get_valor_campo(
+        campos,
+        campos_ta,
+        indice_periodo,
+        tabela,
+        tabela_anterior,
+        valores,
+        valores_ta,
+        nome_campo,
+    )
+
+
+def _get_valor_comparativo(
+    valor_matriculados, valor_numero_de_alunos, valor_participantes
+):
+    if int(valor_matriculados) > 0:
+        return valor_matriculados
+    if int(valor_numero_de_alunos) > 0:
+        return valor_numero_de_alunos
+    return valor_participantes
+
+
+def _calcular_total_pagamento(
+    valor_principal,
+    valor_repeticao,
+    valor_segunda,
+    valor_repeticao_segunda,
+    valor_comparativo,
+    eh_colaboradores,
+):
+    total = int(valor_principal) + int(valor_repeticao)
+    total_2a = int(valor_segunda) + int(valor_repeticao_segunda)
+    if not eh_colaboradores:
+        total = min(total, int(valor_comparativo))
+        total_2a = min(total_2a, int(valor_comparativo))
+    return total + total_2a
+
+
+def _eh_emei_ou_cemei_ou_infantil(solicitacao, tabela, indice_periodo):
+    eh_emebs_infantil = (
+        solicitacao.escola.eh_emebs_data(solicitacao.data_referencia)
+        and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
+    )
+    return (
+        solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
+        or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
+        or eh_emebs_infantil
+    )
+
+
 def popula_campo_total_refeicoes_pagamento(
     solicitacao,
     tabela,
@@ -1909,149 +2000,71 @@ def popula_campo_total_refeicoes_pagamento(
     tabelas,
     indice_tabela,
 ):
-    if campo == "total_refeicoes_pagamento":
-        try:
-            periodo_corrente = tabela["periodos"][indice_periodo]
-            indice_inicial, indice_final = get_numero_campos(
-                tabela, periodo_corrente, categoria_corrente
-            )
-            dia = valores_dia[0]
-            campos = tabela["nomes_campos"][indice_inicial:indice_final]
-            valores = valores_dia[indice_inicial + 1 : indice_final + 1]
-            tabela_anterior = tabelas[indice_tabela - 1]
-            periodos_tabela_anterior = tabela_anterior["periodos"]
-            campos_tabela_anterior = []
-            valores_tabela_anterior = []
-            if (
-                indice_tabela > 0
-                and periodo_corrente in periodos_tabela_anterior
-                and categoria_corrente in tabela_anterior["categorias"]
-            ):
-                (
-                    indice_inicial_tabela_anterior,
-                    indice_final_tabela_anterior,
-                ) = get_numero_campos(
-                    tabela_anterior, periodo_corrente, categoria_corrente
-                )
-                campos_tabela_anterior = tabela_anterior["nomes_campos"][
-                    indice_inicial_tabela_anterior:indice_final_tabela_anterior
-                ]
-                valores_tabela_anterior = tabela_anterior["valores_campos"][
-                    int(dia - 1)
-                ][indice_inicial_tabela_anterior + 1 : indice_final_tabela_anterior + 1]
-            valor_refeicao = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "refeicao",
-            )
-            valor_repeticao_refeicao = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "repeticao_refeicao",
-            )
-            valor_segunda_refeicao = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "2_refeicao_1_oferta",
-            )
-            valor_repeticao_segunda_refeicao = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "repeticao_2_refeicao",
-            )
-            valor_matriculados = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "matriculados",
-            )
-            valor_numero_de_alunos = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "numero_de_alunos",
-            )
-            valor_participantes = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "participantes",
-            )
-            eh_emebs_infantil = (
-                solicitacao.escola.eh_emebs_data(solicitacao.data_referencia)
-                and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
-            )
-            eh_colaboradores = "Colaboradores" in periodo_corrente
-            if not eh_colaboradores and (
-                solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
-                or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                or eh_emebs_infantil
-            ):
-                valores_dia = get_valor_total_emei_cemei(
-                    solicitacao,
-                    valores_dia,
-                    valor_refeicao,
-                    valor_repeticao_refeicao,
-                    valor_segunda_refeicao,
-                    valor_repeticao_segunda_refeicao,
-                    valor_matriculados,
-                    valor_numero_de_alunos,
-                    valor_participantes,
-                )
-            else:
-                valor_comparativo = (
-                    valor_matriculados
-                    if int(valor_matriculados) > 0
-                    else (
-                        valor_numero_de_alunos
-                        if int(valor_numero_de_alunos) > 0
-                        else valor_participantes
-                    )
-                )
-                total_refeicao = int(valor_refeicao) + int(valor_repeticao_refeicao)
-                total_refeicao = min(int(total_refeicao), int(valor_comparativo))
+    if campo != "total_refeicoes_pagamento":
+        return
+    try:
+        periodo_corrente = tabela["periodos"][indice_periodo]
+        dia = valores_dia[0]
+        ctx = _resolver_contexto_tabela_anterior(
+            tabela,
+            periodo_corrente,
+            categoria_corrente,
+            dia,
+            valores_dia,
+            tabelas,
+            indice_tabela,
+        )
 
-                total_refeicao_2a_oferta = int(valor_segunda_refeicao) + int(
-                    valor_repeticao_segunda_refeicao
-                )
-                total_refeicao_2a_oferta = min(
-                    int(total_refeicao_2a_oferta), int(valor_comparativo)
-                )
-                valores_dia += [total_refeicao + total_refeicao_2a_oferta]
-        except Exception:
-            valores_dia += ["0"]
+        v_refeicao = _obter_valor_campo_ctx(ctx, indice_periodo, tabela, "refeicao")
+        v_repeticao_refeicao = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "repeticao_refeicao"
+        )
+        v_segunda_refeicao = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "2_refeicao_1_oferta"
+        )
+        v_repeticao_segunda = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "repeticao_2_refeicao"
+        )
+        v_matriculados = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "matriculados"
+        )
+        v_numero_alunos = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "numero_de_alunos"
+        )
+        v_participantes = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "participantes"
+        )
+
+        eh_colaboradores = "Colaboradores" in periodo_corrente
+        if not eh_colaboradores and _eh_emei_ou_cemei_ou_infantil(
+            solicitacao, tabela, indice_periodo
+        ):
+            valores_dia = get_valor_total_emei_cemei(
+                solicitacao,
+                valores_dia,
+                v_refeicao,
+                v_repeticao_refeicao,
+                v_segunda_refeicao,
+                v_repeticao_segunda,
+                v_matriculados,
+                v_numero_alunos,
+                v_participantes,
+            )
+        else:
+            valor_comparativo = _get_valor_comparativo(
+                v_matriculados, v_numero_alunos, v_participantes
+            )
+            total = _calcular_total_pagamento(
+                v_refeicao,
+                v_repeticao_refeicao,
+                v_segunda_refeicao,
+                v_repeticao_segunda,
+                valor_comparativo,
+                eh_colaboradores,
+            )
+            valores_dia += [total]
+    except Exception:
+        valores_dia += ["0"]
 
 
 def get_valor_total_emei_cemei(
@@ -2153,160 +2166,71 @@ def popula_campo_total_sobremesas_pagamento(
     tabelas,
     indice_tabela,
 ):
-    if campo == "total_sobremesas_pagamento":
-        try:
-            periodo_corrente = tabela["periodos"][indice_periodo]
-            indice_inicial, indice_final = get_numero_campos(
-                tabela, periodo_corrente, categoria_corrente
+    if campo != "total_sobremesas_pagamento":
+        return
+    try:
+        periodo_corrente = tabela["periodos"][indice_periodo]
+        dia = valores_dia[0]
+        ctx = _resolver_contexto_tabela_anterior(
+            tabela,
+            periodo_corrente,
+            categoria_corrente,
+            dia,
+            valores_dia,
+            tabelas,
+            indice_tabela,
+        )
+
+        v_sobremesa = _obter_valor_campo_ctx(ctx, indice_periodo, tabela, "sobremesa")
+        v_repeticao_sobremesa = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "repeticao_sobremesa"
+        )
+        v_segunda_sobremesa = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "2_sobremesa_1_oferta"
+        )
+        v_repeticao_segunda = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "repeticao_2_sobremesa"
+        )
+        v_matriculados = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "matriculados"
+        )
+        v_numero_alunos = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "numero_de_alunos"
+        )
+        v_participantes = _obter_valor_campo_ctx(
+            ctx, indice_periodo, tabela, "participantes"
+        )
+
+        eh_colaboradores = "Colaboradores" in periodo_corrente
+        if not eh_colaboradores and _eh_emei_ou_cemei_ou_infantil(
+            solicitacao, tabela, indice_periodo
+        ):
+            valores_dia = get_valor_total_emei_cemei(
+                solicitacao,
+                valores_dia,
+                v_sobremesa,
+                v_repeticao_sobremesa,
+                v_segunda_sobremesa,
+                v_repeticao_segunda,
+                v_matriculados,
+                v_numero_alunos,
+                v_participantes,
             )
-            dia = valores_dia[0]
-            campos = tabela["nomes_campos"][indice_inicial:indice_final]
-            valores = valores_dia[indice_inicial + 1 : indice_final + 1]
-            tabela_anterior = tabelas[indice_tabela - 1]
-            periodos_tabela_anterior = tabela_anterior["periodos"]
-            campos_tabela_anterior = []
-            valores_tabela_anterior = []
-            if (
-                indice_tabela > 0
-                and periodo_corrente in periodos_tabela_anterior
-                and categoria_corrente in tabela_anterior["categorias"]
-            ):
-                (
-                    indice_inicial_tabela_anterior,
-                    indice_final_tabela_anterior,
-                ) = get_numero_campos(
-                    tabela_anterior, periodo_corrente, categoria_corrente
-                )
-                campos_tabela_anterior = tabela_anterior["nomes_campos"][
-                    indice_inicial_tabela_anterior:indice_final_tabela_anterior
-                ]
-                valores_tabela_anterior = tabela_anterior["valores_campos"][
-                    int(dia - 1)
-                ][indice_inicial_tabela_anterior + 1 : indice_final_tabela_anterior + 1]
-
-            valor_sobremesa = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "sobremesa",
+        else:
+            valor_comparativo = _get_valor_comparativo(
+                v_matriculados, v_numero_alunos, v_participantes
             )
-
-            valor_repeticao_sobremesa = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "repeticao_sobremesa",
+            total = _calcular_total_pagamento(
+                v_sobremesa,
+                v_repeticao_sobremesa,
+                v_segunda_sobremesa,
+                v_repeticao_segunda,
+                valor_comparativo,
+                eh_colaboradores,
             )
-
-            valor_segunda_sobremesa = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "2_sobremesa_1_oferta",
-            )
-
-            valor_repeticao_segunda_sobremesa = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "repeticao_2_sobremesa",
-            )
-
-            valor_matriculados = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "matriculados",
-            )
-
-            valor_numero_de_alunos = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "numero_de_alunos",
-            )
-
-            valor_participantes = get_valor_campo(
-                campos,
-                campos_tabela_anterior,
-                indice_periodo,
-                tabela,
-                tabela_anterior,
-                valores,
-                valores_tabela_anterior,
-                "participantes",
-            )
-
-            eh_emebs_infantil = (
-                solicitacao.escola.eh_emebs_data(solicitacao.data_referencia)
-                and tabela["periodos"][indice_periodo].split(" - ")[1] == "INFANTIL"
-            )
-
-            eh_colaboradores = "Colaboradores" in periodo_corrente
-            if not eh_colaboradores and (
-                solicitacao.escola.eh_emei_data(solicitacao.data_referencia)
-                or solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-                or eh_emebs_infantil
-            ):
-                valores_dia = get_valor_total_emei_cemei(
-                    solicitacao,
-                    valores_dia,
-                    valor_sobremesa,
-                    valor_repeticao_sobremesa,
-                    valor_segunda_sobremesa,
-                    valor_repeticao_segunda_sobremesa,
-                    valor_matriculados,
-                    valor_numero_de_alunos,
-                    valor_participantes,
-                )
-            else:
-                valor_comparativo = (
-                    valor_matriculados
-                    if int(valor_matriculados) > 0
-                    else (
-                        valor_numero_de_alunos
-                        if int(valor_numero_de_alunos) > 0
-                        else valor_participantes
-                    )
-                )
-
-                total_sobremesa = int(valor_sobremesa) + int(valor_repeticao_sobremesa)
-                total_sobremesa = min(int(total_sobremesa), int(valor_comparativo))
-
-                total_sobremesa_2a_oferta = int(valor_segunda_sobremesa) + int(
-                    valor_repeticao_segunda_sobremesa
-                )
-                total_sobremesa_2a_oferta = min(
-                    int(total_sobremesa_2a_oferta), int(valor_comparativo)
-                )
-
-                valores_dia += [total_sobremesa + total_sobremesa_2a_oferta]
-        except Exception:
-            valores_dia += ["0"]
+            valores_dia += [total]
+    except Exception:
+        valores_dia += ["0"]
 
 
 def popula_solicitado_total_lanche_emergencial(
@@ -4866,7 +4790,7 @@ def build_valores_campos(solicitacao, tabela):  # noqa C901
 
 
 def _calcular_pgto_colaboradores(principal, repeticao, participantes):
-    return min(int(principal) + int(repeticao), int(participantes))
+    return int(principal) + int(repeticao)
 
 
 def _calcular_pgto_refeicao_sobremesa(medicao_colaboradores, dias):
