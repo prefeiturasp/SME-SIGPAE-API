@@ -636,6 +636,23 @@ class Medicao(
     class Meta:
         verbose_name = "Medição"
         verbose_name_plural = "Medições"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["solicitacao_medicao_inicial", "periodo_escolar"],
+                condition=models.Q(grupo__isnull=True),
+                name="unique_medicao_periodo",
+            ),
+            models.UniqueConstraint(
+                fields=["solicitacao_medicao_inicial", "grupo"],
+                condition=models.Q(periodo_escolar__isnull=True),
+                name="unique_medicao_grupo",
+            ),
+            models.UniqueConstraint(
+                fields=["solicitacao_medicao_inicial", "periodo_escolar", "grupo"],
+                condition=models.Q(periodo_escolar__isnull=False, grupo__isnull=False),
+                name="unique_medicao_periodo_grupo",
+            ),
+        ]
 
     def __str__(self):
         ano = f"{self.solicitacao_medicao_inicial.ano}"
