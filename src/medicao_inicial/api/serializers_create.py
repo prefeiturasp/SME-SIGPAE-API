@@ -33,8 +33,8 @@ from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
-    DescontoFinanceiro,
     DadosLiquidacao,
+    DescontoFinanceiro,
     DiaSobremesaDoce,
     Empenho,
     GrupoMedicao,
@@ -1528,6 +1528,7 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
             "id",
             "criado_por",
         )
+        validators = []
 
 
 class PermissaoLancamentoEspecialCreateUpdateSerializer(serializers.ModelSerializer):
@@ -1913,9 +1914,8 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
-        relatorio = (
-            attrs.get("relatorio_financeiro")
-            or getattr(self.instance, "relatorio_financeiro", None)
+        relatorio = attrs.get("relatorio_financeiro") or getattr(
+            self.instance, "relatorio_financeiro", None
         )
 
         if not relatorio:
@@ -1935,14 +1935,12 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
     def _validar_grupo_cei(self, attrs):
         errors = {}
 
-        faixa_etaria = (
-            attrs.get("faixa_etaria")
-            or getattr(self.instance, "faixa_etaria", None)
+        faixa_etaria = attrs.get("faixa_etaria") or getattr(
+            self.instance, "faixa_etaria", None
         )
 
-        periodo_escolar = (
-            attrs.get("periodo_escolar")
-            or getattr(self.instance, "periodo_escolar", None)
+        periodo_escolar = attrs.get("periodo_escolar") or getattr(
+            self.instance, "periodo_escolar", None
         )
 
         if not faixa_etaria:
@@ -1955,9 +1953,8 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(errors)
 
     def _validar_grupo_emei(self, attrs):
-        faixa_etaria = (
-            attrs.get("faixa_etaria")
-            or getattr(self.instance, "faixa_etaria", None)
+        faixa_etaria = attrs.get("faixa_etaria") or getattr(
+            self.instance, "faixa_etaria", None
         )
 
         errors = {}
