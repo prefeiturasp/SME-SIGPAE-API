@@ -1,4 +1,5 @@
 from typing import Any
+from datetime import date
 
 from django_filters import rest_framework as filters
 from rest_framework import status
@@ -91,3 +92,18 @@ class DiaLetivoViewSet(
     def partial_update(self, request, *args, **kwargs):
         kwargs["partial"] = True
         return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.data < date.today():
+            return Response(
+                {
+                    "detail": (
+                        f"Não é permitido excluir um dia letivo cuja data já passou "
+                        f"({instance.data.strftime('%d/%m/%Y')})."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
