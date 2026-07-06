@@ -21,26 +21,31 @@
       <div class="dados_cronograma">
         <h5 class="title titulo-secao">Dados do Produto e Datas de Entrega</h5>
 
-        <div class="dados font-weight-bold">
-          <div>Nº do Empenho:</div>
-          <div>Quantidade Total do Empenho:</div>
+      <div class="dados pb-3">
+        <div>
+          <span class="font-weight-bold">Nº do Empenho:</span>
+          <span class="valor-cronograma">
+            {{ cronograma_mensal.numero_empenho }}
+          </span>
         </div>
 
-        <div class="dados pb-3">
-          <div class="valor-cronograma">{{cronograma_mensal.numero_empenho}}</div>
-          <div class="valor-cronograma">
-            {{cronograma_mensal.qtd_total_empenho|agrupador_milhar_com_decimal}}
-            {{cronograma_mensal.unidade_medida.abreviacao}}
-          </div>
-        </div>
+        <span class="font-weight-bold">Quantidade Total do Empenho:</span>
+        <span class="valor-cronograma" style="margin-left: 2px;">
+            {{ cronograma_mensal.qtd_total_empenho|agrupador_milhar_com_decimal }}
+            {{ cronograma_mensal.unidade_medida.abreviacao }}
+        </span>
+        
+      </div>
 
-        <div class="dados font-weight-bold">
-          <div>Custo Unitário do Produto:</div>
+      <div class="dados pb-3">
+        <div>
+          <span class="font-weight-bold">Custo Unitário do Produto:</span>
+          <span class="valor-cronograma">
+            R$
+            {{ cronograma_mensal.custo_unitario_produto|floatformat:2 }}
+          </span>
         </div>
-
-        <div class="dados pb-3">
-          <div class="valor-cronograma">R$ {{cronograma_mensal.custo_unitario_produto|floatformat:2}}</div>
-        </div>
+      </div>
 
         <div class="table-responsive-sm">
           <table class="table table-lg table-bordered table-cronograma" style="table-layout: fixed; width: 100%;">
@@ -55,7 +60,7 @@
               <tr>
                 <td>
                   {{programacao.quantidade|agrupador_milhar_com_decimal}}
-                  {{cronograma.unidade_medida.abreviacao}}
+                  {{cronograma_mensal.unidade_medida.abreviacao}}
                 </td>
                 <td>{{programacao.data_inicio|date:"d/m/Y"}} a {{programacao.data_fim|date:"d/m/Y"}}</td>
               </tr>
