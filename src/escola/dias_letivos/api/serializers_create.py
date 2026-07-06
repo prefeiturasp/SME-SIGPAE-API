@@ -411,6 +411,13 @@ class DiaLetivoUpdateSerializer(serializers.Serializer):
     def validate(self, data: dict) -> dict:
         instance = self.instance
         data_val = instance.data
+
+        if data_val < date.today():
+            raise ValidationError(
+                f"Não é permitido editar um dia letivo cuja data já passou "
+                f"({data_val.strftime('%d/%m/%Y')})."
+            )
+
         periodos_uuids = data.get("periodos_escolares", [])
         escolas_uuids = data.get("unidades_educacionais", [])
 
