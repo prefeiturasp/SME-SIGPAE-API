@@ -150,19 +150,19 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
 
     def _setup_logs_medicao_colaboradores_alimentacao(self, valor_medicao_factory):
         for dia in range(7, 11):
-            for nome_campo in [
-                "participantes",
-                "frequencia",
-                "lanche",
-                "lanche_4h",
-                "refeicao",
-                "repeticao_refeicao",
-                "sobremesa",
-                "repeticao_sobremesa",
+            for nome_campo, valor in [
+                ("participantes", "5"),
+                ("frequencia", "5"),
+                ("lanche", "5"),
+                ("lanche_4h", "5"),
+                ("refeicao", "3"),
+                ("repeticao_refeicao", "7"),
+                ("sobremesa", "2"),
+                ("repeticao_sobremesa", "9"),
             ]:
                 valor_medicao_factory.create(
                     dia=f"{dia:02d}",
-                    valor="5",
+                    valor=valor,
                     nome_campo=nome_campo,
                     medicao=self.medicao_colaboradores,
                     categoria_medicao=self.categoria_alimentacao,
@@ -275,7 +275,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             ],
         }
 
-        # lanche=5 × 4 dias = 20, lanche_4h=20, refeicao=20, sobremesa=20
+        # lanche=5 × 4 dias = 20, lanche_4h=20,
+        # refeicao=min(3+7, 5) × 4 dias = 20 (soma refeicao + repeticao_refeicao),
+        # sobremesa=min(2+9, 5) × 4 dias = 20 (soma sobremesa + repeticao_sobremesa)
         assert tabela_somatorio_colaboradores == {
             "header": [
                 "TIPOS ALIMENTAÇÃO",
