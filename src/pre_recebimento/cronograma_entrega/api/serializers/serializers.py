@@ -875,6 +875,7 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
             return obj.cronograma.ponto_a_ponto
         except AttributeError:
             return False
+
     class Meta:
         model = SolicitacaoAlteracaoCronograma
         fields = (
@@ -886,7 +887,7 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
             "produto",
             "log_mais_recente",
             "programa_leve_leite",
-            "ponto_a_ponto"    
+            "ponto_a_ponto",
         )
 
 
