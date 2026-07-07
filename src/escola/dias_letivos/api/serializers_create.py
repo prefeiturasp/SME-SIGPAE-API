@@ -377,3 +377,124 @@ class DiaLetivoCreateSerializer(serializers.Serializer):
 
         if escola_batch:
             EscolaThrough.objects.bulk_create(escola_batch)
+
+
+class DiaLetivoUpdateSerializer(serializers.Serializer):
+    """Serializador para atualização de um dia letivo existente.
+
+    Atualiza apenas os relacionamentos M2M (lotes, tipos de unidade,
+    unidades educacionais e períodos escolares) de um registro já existente.
+    """
+
+    lotes = serializers.ListField(child=serializers.UUIDField())
+    tipos_unidades = serializers.ListField(child=serializers.UUIDField())
+    unidades_educacionais = serializers.ListField(
+        child=serializers.UUIDField(), required=False, default=list
+    )
+    periodos_escolares = serializers.ListField(child=serializers.UUIDField())
+
+    def validate_lotes(self, value: list) -> list:
+        if not value:
+            raise ValidationError("lotes é obrigatório")
+        return value
+
+    def validate_tipos_unidades(self, value: list) -> list:
+        if not value:
+            raise ValidationError("tipos_unidades é obrigatório")
+        return value
+
+    def validate_periodos_escolares(self, value: list) -> list:
+        if not value:
+            raise ValidationError("periodos_escolares é obrigatório")
+        return value
+
+    def validate(self, data: dict) -> dict:
+        instance = self.instance
+        data_val = instance.data
+
+        if data_val < date.today():
+            raise ValidationError(
+                f"Não é permitido editar um dia letivo cuja data já passou "
+                f"({data_val.strftime('%d/%m/%Y')})."
+            )
+
+        periodos_uuids = data.get("periodos_escolares", [])
+        escolas_uuids = data.get("unidades_educacionais", [])
+
+        periodos = list(PeriodoEscolar.objects.filter(uuid__in=periodos_uuids))
+        escolas = list(Escola.objects.filter(uuid__in=escolas_uuids))
+
+        if escolas:
+            self._checa_duplicacao_banco_com_escolas(data_val, periodos, escolas)
+        else:
+            self._checa_duplicacao_banco_sem_escolas(data_val, periodos)
+
+        return data
+
+    def _checa_duplicacao_banco_com_escolas(
+        self,
+        data_val: date,
+        periodos: list[PeriodoEscolar],
+        escolas: list[Escola],
+    ) -> None:
+        escola_ids = [e.pk for e in escolas]
+        periodo_ids = [p.pk for p in periodos]
+
+        existing = set(
+            DiaLetivoSIGPAE.objects.filter(
+                data=data_val,
+                periodos_escolares__id__in=periodo_ids,
+                escolas__id__in=escola_ids,
+            )
+            .exclude(uuid=self.instance.uuid)
+            .values_list("data", "periodos_escolares__id", "escolas__id")
+        )
+
+        for periodo in periodos:
+            for escola in escolas:
+                if (data_val, periodo.pk, escola.pk) in existing:
+                    raise ValidationError(
+                        f"Já existe um DiaLetivo cadastrado para a data "
+                        f"{data_val.strftime('%d/%m/%Y')}, "
+                        f"escola {escola.nome} e "
+                        f"período escolar {periodo.nome}"
+                    )
+
+    def _checa_duplicacao_banco_sem_escolas(
+        self,
+        data_val: date,
+        periodos: list[PeriodoEscolar],
+    ) -> None:
+        periodo_ids = [p.pk for p in periodos]
+
+        existing = set(
+            DiaLetivoSIGPAE.objects.filter(
+                data=data_val,
+                periodos_escolares__id__in=periodo_ids,
+            )
+            .exclude(uuid=self.instance.uuid)
+            .annotate(escola_count=Count("escolas"))
+            .filter(escola_count=0)
+            .values_list("data", "periodos_escolares__id")
+        )
+
+        for periodo in periodos:
+            if (data_val, periodo.pk) in existing:
+                raise ValidationError(
+                    f"Já existe um DiaLetivo cadastrado para a data "
+                    f"{data_val.strftime('%d/%m/%Y')} e "
+                    f"período escolar {periodo.nome}"
+                )
+
+    def update(self, instance: DiaLetivoSIGPAE, validated_data: dict) -> DiaLetivoSIGPAE:
+        lotes = Lote.objects.filter(uuid__in=validated_data["lotes"])
+        tipos_unidades = TipoUnidadeEscolar.objects.filter(uuid__in=validated_data["tipos_unidades"])
+        periodos_escolares = PeriodoEscolar.objects.filter(uuid__in=validated_data["periodos_escolares"])
+        escolas = Escola.objects.filter(uuid__in=validated_data.get("unidades_educacionais", []))
+
+        instance.lotes.set(lotes)
+        instance.tipos_unidade_escolar.set(tipos_unidades)
+        instance.periodos_escolares.set(periodos_escolares)
+        instance.escolas.set(escolas)
+
+        return instance
