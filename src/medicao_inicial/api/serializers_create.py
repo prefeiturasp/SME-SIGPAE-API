@@ -107,6 +107,7 @@ from ..validators import (
     validate_solicitacoes_programas_e_projetos,
     validate_solicitacoes_programas_e_projetos_emebs,
     validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
+    validate_ultimo_dia_mes_letivo,
 )
 
 
@@ -425,6 +426,21 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance, lista_erros
         )
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
+
+        if lista_erros:
+            raise serializers.ValidationError(lista_erros)
+
+    def valida_finalizar_medicao_ultimo_dia_mes(
+        self, instance: SolicitacaoMedicaoInicial
+    ) -> None:
+        if (
+            instance.status
+            != SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+        ):
+            return
+
+        lista_erros = []
+        lista_erros = validate_ultimo_dia_mes_letivo(instance, lista_erros)
 
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
@@ -1109,6 +1125,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         ):
             self.cria_valores_medicao_logs_emef_emei(instance)
             self.cria_valores_medicao_logs_cei(instance)
+            self.valida_finalizar_medicao_ultimo_dia_mes(instance)
             self.valida_finalizar_medicao_emef_emei(instance)
             self.valida_finalizar_medicao_cemei(instance)
             self.valida_finalizar_medicao_cei(instance)
