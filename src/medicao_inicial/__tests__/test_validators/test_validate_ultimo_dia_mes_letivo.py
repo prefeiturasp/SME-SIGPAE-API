@@ -47,8 +47,10 @@ def _setup_solicitacao(
     return solicitacao
 
 
-def _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia):
+def _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia, escola=None):
     periodo = periodo_escolar_factory.create(nome="MANHA")
+    if escola:
+        _tornar_escola_com_alunos_regulares(escola, periodo)
     medicao = Medicao.objects.create(
         solicitacao_medicao_inicial=solicitacao,
         periodo_escolar=periodo,
@@ -63,6 +65,20 @@ def _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia):
             valor="10",
         )
     return medicao
+
+
+def _tornar_escola_com_alunos_regulares(escola, periodo):
+    from src.escola.models import AlunosMatriculadosPeriodoEscola
+
+    if not AlunosMatriculadosPeriodoEscola.objects.filter(
+        escola=escola, periodo_escolar=periodo
+    ).exists():
+        AlunosMatriculadosPeriodoEscola.objects.create(
+            escola=escola,
+            periodo_escolar=periodo,
+            quantidade_alunos=10,
+            tipo_turma="REGULAR",
+        )
 
 
 class TestValidateUltimoDiaMesLetivo:
@@ -84,7 +100,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -112,7 +130,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -135,7 +155,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=False,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -157,7 +179,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=None,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -180,7 +204,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_emei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -204,7 +230,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_emei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -227,7 +255,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_cemei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -251,7 +281,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_cemei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -274,7 +306,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_cei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -298,7 +332,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_cei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -326,7 +362,7 @@ class TestValidateUltimoDiaMesLetivo:
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
 
-        assert len(result) == 1
+        assert len(result) == 0
 
     def test_ceu_gestao_ultimo_dia_letivo_com_preenchimento(
         self,
@@ -368,7 +404,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_emebs
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -392,7 +430,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_emebs
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -418,6 +458,8 @@ class TestValidateUltimoDiaMesLetivo:
         )
         periodo_manha = periodo_escolar_factory.create(nome="MANHA")
         periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
+        _tornar_escola_com_alunos_regulares(escola, periodo_manha)
+        _tornar_escola_com_alunos_regulares(escola, periodo_tarde)
         categoria = CategoriaMedicao.objects.create(nome="ALIMENTAÇÃO")
         for periodo in [periodo_manha, periodo_tarde]:
             medicao = Medicao.objects.create(
@@ -460,7 +502,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -566,7 +610,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_cieja
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -590,7 +636,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_cieja
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -613,7 +661,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_cmct
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -637,7 +687,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_cmct
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -660,7 +712,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_ceu_cemei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -684,7 +738,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_ceu_cemei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -707,7 +763,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_ceu_emei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -731,7 +789,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_ceu_emei
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -754,7 +814,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=None)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=None, escola=escola_cci
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
@@ -778,7 +840,9 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia=ultimo)
+        _cria_medicao_e_valores(
+            solicitacao, periodo_escolar_factory, dia=ultimo, escola=escola_cci
+        )
         lista_erros = []
 
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
