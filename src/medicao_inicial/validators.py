@@ -95,6 +95,9 @@ EXCLUIR_MEDICOES = ["ETEC", "Programas e Projetos", "Solicitações de Alimenta�
 def validate_ultimo_dia_mes_letivo(
     instance: SolicitacaoMedicaoInicial, lista_erros: list
 ) -> list:
+    if not instance.escola.possui_alunos_regulares:
+        return lista_erros
+
     mes = int(instance.mes)
     ano = int(instance.ano)
     ultimo_dia = calendar.monthrange(ano, mes)[1]
