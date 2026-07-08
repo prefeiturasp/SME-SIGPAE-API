@@ -47,6 +47,10 @@ from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
 )
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
+from src.pre_recebimento.layout_embalagem.fixtures.factories.layout_embalagem_factory import (
+    LayoutDeEmbalagemFactory,
+)
+
 pytestmark = pytest.mark.django_db
 
 
@@ -674,3 +678,15 @@ def test_ficha_tecnica_simples_serializer_expoe_ponto_a_ponto():
 
     assert dados["ponto_a_ponto"] is True
     assert "flv_ponto_a_ponto" not in dados
+
+
+def test_painel_layout_embalagem_serializer_retorna_true_para_ficha_tecnica_flv():
+    layout = LayoutDeEmbalagemFactory(ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_FLV)
+    data = PainelLayoutEmbalagemSerializer(layout).data
+    assert data["eh_ficha_tecnica_flv"] is True
+
+
+def test_painel_layout_embalagem_serializer_retorna_false_para_ficha_tecnica_nao_flv():
+    layout = LayoutDeEmbalagemFactory(ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS)
+    data = PainelLayoutEmbalagemSerializer(layout).data
+    assert data["eh_ficha_tecnica_flv"] is False
