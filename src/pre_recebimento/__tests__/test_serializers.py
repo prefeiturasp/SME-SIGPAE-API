@@ -26,6 +26,7 @@ from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     InterrupcaoProgramadaEntregaSerializer,
     PainelCronogramaSerializer,
     SolicitacaoAlteracaoCronogramaSerializer,
+    PainelSolicitacaoAlteracaoCronogramaSerializerItem,
 )
 from src.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
@@ -678,6 +679,28 @@ def test_ficha_tecnica_simples_serializer_expoe_ponto_a_ponto():
 
     assert dados["ponto_a_ponto"] is True
     assert "flv_ponto_a_ponto" not in dados
+
+
+def test_painel_solicitacao_alteracao_cronograma_serializer_retorna_ponto_a_ponto(cronograma_assinado_perfil_dilog):
+    cronograma = cronograma_assinado_perfil_dilog
+    cronograma.ficha_tecnica.tipo_entrega = FichaTecnicaDoProduto.PONTO_A_PONTO
+    cronograma.ficha_tecnica.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoAlteracaoCronograma",
+        cronograma=cronograma,
+        status="EM_ANALISE",
+    )
+
+    solicitacao.log_criado_em = timezone.now()
+
+    serializer = PainelSolicitacaoAlteracaoCronogramaSerializerItem(solicitacao)
+    data = serializer.data
+
+    assert "ponto_a_ponto" in data
+    assert data["ponto_a_ponto"] is True
+    assert data["cronograma"] == cronograma.numero
+    assert data["produto"] == cronograma.ficha_tecnica.produto.nome
 
 
 def test_painel_layout_embalagem_serializer_retorna_true_para_ficha_tecnica_flv():

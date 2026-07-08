@@ -33,8 +33,8 @@ from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
-    DescontoFinanceiro,
     DadosLiquidacao,
+    DescontoFinanceiro,
     DiaSobremesaDoce,
     Empenho,
     GrupoMedicao,
@@ -107,6 +107,7 @@ from ..validators import (
     validate_solicitacoes_programas_e_projetos,
     validate_solicitacoes_programas_e_projetos_emebs,
     validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
+    validate_ultimo_dia_mes_letivo,
 )
 
 
@@ -425,6 +426,21 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance, lista_erros
         )
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
+
+        if lista_erros:
+            raise serializers.ValidationError(lista_erros)
+
+    def valida_finalizar_medicao_ultimo_dia_mes(
+        self, instance: SolicitacaoMedicaoInicial
+    ) -> None:
+        if (
+            instance.status
+            != SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+        ):
+            return
+
+        lista_erros = []
+        lista_erros = validate_ultimo_dia_mes_letivo(instance, lista_erros)
 
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
@@ -1109,6 +1125,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         ):
             self.cria_valores_medicao_logs_emef_emei(instance)
             self.cria_valores_medicao_logs_cei(instance)
+            self.valida_finalizar_medicao_ultimo_dia_mes(instance)
             self.valida_finalizar_medicao_emef_emei(instance)
             self.valida_finalizar_medicao_cemei(instance)
             self.valida_finalizar_medicao_cei(instance)
@@ -1528,6 +1545,7 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
             "id",
             "criado_por",
         )
+        validators = []
 
 
 class PermissaoLancamentoEspecialCreateUpdateSerializer(serializers.ModelSerializer):
@@ -1913,9 +1931,8 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
-        relatorio = (
-            attrs.get("relatorio_financeiro")
-            or getattr(self.instance, "relatorio_financeiro", None)
+        relatorio = attrs.get("relatorio_financeiro") or getattr(
+            self.instance, "relatorio_financeiro", None
         )
 
         if not relatorio:
@@ -1935,14 +1952,12 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
     def _validar_grupo_cei(self, attrs):
         errors = {}
 
-        faixa_etaria = (
-            attrs.get("faixa_etaria")
-            or getattr(self.instance, "faixa_etaria", None)
+        faixa_etaria = attrs.get("faixa_etaria") or getattr(
+            self.instance, "faixa_etaria", None
         )
 
-        periodo_escolar = (
-            attrs.get("periodo_escolar")
-            or getattr(self.instance, "periodo_escolar", None)
+        periodo_escolar = attrs.get("periodo_escolar") or getattr(
+            self.instance, "periodo_escolar", None
         )
 
         if not faixa_etaria:
@@ -1955,9 +1970,8 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(errors)
 
     def _validar_grupo_emei(self, attrs):
-        faixa_etaria = (
-            attrs.get("faixa_etaria")
-            or getattr(self.instance, "faixa_etaria", None)
+        faixa_etaria = attrs.get("faixa_etaria") or getattr(
+            self.instance, "faixa_etaria", None
         )
 
         errors = {}

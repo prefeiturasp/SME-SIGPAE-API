@@ -121,8 +121,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
     def _setup_logs_colaboradores(self, valor_medicao_factory):
         # 4 dias:
         # lanche = 5/dia => 20
-        # refeicao pgto = min(3 + 4, 5) = 5/dia => 20
-        # sobremesa pgto = min(2 + 5, 5) = 5/dia => 20
+        # refeicao pgto = 3 + 4 = 7/dia => 28
+        # sobremesa pgto = 2 + 5 = 7/dia => 28
         for dia in range(7, 11):
             campos_valores = {
                 "participantes": "5",
@@ -164,9 +164,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
         assert any(
             item.get("periodos") == ["Recreio nas Férias"] for item in build_tabelas
         )
-        assert any(
-            item.get("periodos") == ["Colaboradores"] for item in build_tabelas
-        )
+        assert any(item.get("periodos") == ["Colaboradores"] for item in build_tabelas)
 
         dict_total_refeicoes = get_total_por_periodo(
             build_tabelas, "total_refeicoes_pagamento"
@@ -175,12 +173,10 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
             build_tabelas, "total_sobremesas_pagamento"
         )
 
-        assert dict_total_refeicoes["Colaboradores"] == 20
-        assert dict_total_sobremesas["Colaboradores"] == 20
+        assert dict_total_refeicoes["Colaboradores"] == 28
+        assert dict_total_sobremesas["Colaboradores"] == 28
 
-        somatorio = build_tabela_somatorio_body_cei_recreio_nas_ferias(
-            self.solicitacao
-        )
+        somatorio = build_tabela_somatorio_body_cei_recreio_nas_ferias(self.solicitacao)
 
         assert somatorio["tabela_alimentacao"] == {
             "header": [
@@ -205,8 +201,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
             ],
             "valores_campos": [
                 ["Lanche", "20"],
-                ["Refeição", "20"],
-                ["Sobremesa", "20"],
+                ["Refeição", "28"],
+                ["Sobremesa", "28"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - 01/2026",
         }
@@ -244,9 +240,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
                 faixa_etaria=self.faixa_2,
             )
 
-        somatorio = build_tabela_somatorio_body_cei_recreio_nas_ferias(
-            self.solicitacao
-        )
+        somatorio = build_tabela_somatorio_body_cei_recreio_nas_ferias(self.solicitacao)
 
         tabela_alimentacao = somatorio["tabela_alimentacao"]
 
