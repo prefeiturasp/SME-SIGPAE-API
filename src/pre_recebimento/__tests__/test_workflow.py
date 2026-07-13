@@ -317,13 +317,10 @@ def test_ficha_tecnica_deve_enviar_email_ao_aprovar(
 
     _, kwargs = mock_enviar_email.call_args
 
+    # Valida conteúdo do email
     assert kwargs["titulo"] == f"Ficha Técnica Aprovada - ({ficha.numero})"
-    assert (
-        kwargs["assunto"] == f"[SIGPAE] Ficha Técnica Aprovada - ({ficha.numero})"
-    )
-    assert (
-        kwargs["template"] == "pre_recebimento_email_codae_aprova_ficha_tecnica.html"
-    )
+    assert kwargs["assunto"] == f"[SIGPAE] Ficha Técnica Aprovada - ({ficha.numero})"
+    assert kwargs["template"] == "pre_recebimento_email_codae_aprova_ficha_tecnica.html"
     assert email_fornecedor in kwargs["destinatarios"]
 
     contexto = kwargs["contexto_template"]

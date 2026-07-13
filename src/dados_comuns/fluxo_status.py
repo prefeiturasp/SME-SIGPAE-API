@@ -5971,11 +5971,12 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
     def _gpcodae_aprova_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
-            log_transicao =self.salvar_log_transicao(
+            log_transicao = self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_APROVADA,
                 usuario=user,
             )
 
+            # Envio de email
             empresa = self.empresa
             nome_fornecedor = (
                 f"{empresa.nome_fantasia} - {empresa.razao_social}" if empresa else "-"
