@@ -2,6 +2,7 @@ from typing import Any
 from datetime import date
 
 from django_filters import rest_framework as filters
+from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.request import Request
@@ -14,7 +15,7 @@ from ....dados_comuns.permissions import (
 )
 from ..models import DiaLetivoSIGPAE
 from .filters import DiaLetivoFilter
-from .serializers import DiaLetivoSerializer, DiaLetivoDetailSerializer
+from .serializers import DiaLetivoSerializer, DiaLetivoDetailSerializer, DiaLetivoCalendarioSerializer
 from .serializers_create import DiaLetivoCreateSerializer, DiaLetivoUpdateSerializer
 
 
@@ -43,7 +44,7 @@ class DiaLetivoViewSet(
         "tipos_unidade_escolar",
         "periodos_escolares",
         "escolas",
-    ).all()
+    ).all().distinct()
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = DiaLetivoFilter
     pagination_class = None
@@ -64,7 +65,7 @@ class DiaLetivoViewSet(
         return DiaLetivoCreateSerializer
 
     def filter_queryset(self, queryset):
-        if self.action == "list":
+        if self.action in ("list", "calendario"):
             return super().filter_queryset(queryset)
         return queryset
 
@@ -107,3 +108,10 @@ class DiaLetivoViewSet(
             )
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=["get"])
+    def calendario(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = DiaLetivoCalendarioSerializer(queryset, many=True)
+        return Response(serializer.data)
