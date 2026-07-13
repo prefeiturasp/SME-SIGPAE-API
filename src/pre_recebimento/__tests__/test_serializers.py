@@ -48,6 +48,10 @@ from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
 )
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
+from src.pre_recebimento.layout_embalagem.fixtures.factories.layout_embalagem_factory import (
+    LayoutDeEmbalagemFactory,
+)
+
 pytestmark = pytest.mark.django_db
 
 
@@ -697,3 +701,15 @@ def test_painel_solicitacao_alteracao_cronograma_serializer_retorna_ponto_a_pont
     assert data["ponto_a_ponto"] is True
     assert data["cronograma"] == cronograma.numero
     assert data["produto"] == cronograma.ficha_tecnica.produto.nome
+
+
+def test_painel_layout_embalagem_serializer_retorna_true_para_ficha_tecnica_flv():
+    layout = LayoutDeEmbalagemFactory(ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_FLV)
+    data = PainelLayoutEmbalagemSerializer(layout).data
+    assert data["eh_ficha_tecnica_flv"] is True
+
+
+def test_painel_layout_embalagem_serializer_retorna_false_para_ficha_tecnica_nao_flv():
+    layout = LayoutDeEmbalagemFactory(ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS)
+    data = PainelLayoutEmbalagemSerializer(layout).data
+    assert data["eh_ficha_tecnica_flv"] is False
