@@ -567,3 +567,37 @@ def test_calendario_dias_letivos_filtra_por_escola_e_periodo_escolar(
             "periodos_escolares": ["MANHA"],
         }
     ]
+
+
+def test_calendario_dias_letivos_filtro_mes_obrigatorio(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    response = client.get(
+        "/dias-letivos/calendario/",
+        {
+            "ano": 2026,
+            "periodo_escolar": "MANHA",
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "mes" in response.json()
+
+
+def test_calendario_dias_letivos_filtro_ano_obrigatorio(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    response = client.get(
+        "/dias-letivos/calendario/",
+        {
+            "mes": 6,
+            "periodo_escolar": "MANHA",
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "ano" in response.json()
