@@ -507,3 +507,63 @@ def test_delete_dia_letivo_unauthorized(client: Client) -> None:
     response = client.delete(f"/dias-letivos/{dia.uuid}/")
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_calendario_dias_letivos_filtra_por_escola_e_periodo_escolar(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    lote = baker.make(Lote)
+    tipo_unidade = baker.make(TipoUnidadeEscolar)
+
+    escola_consultada = baker.make(Escola, lote=lote)
+    outra_escola = baker.make(Escola, lote=lote)
+
+    periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
+    periodo_integral = baker.make(PeriodoEscolar, nome="INTEGRAL")
+
+    # Deve ser retornado: mesma escola e mesmo período.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 4),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[escola_consultada],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: pertence a outra escola.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 5),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[outra_escola],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: pertence a outro período escolar.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 6),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[escola_consultada],
+        periodos_escolares=[periodo_integral],
+    )
+
+    response = client.get(
+        "/dias-letivos/calendario/",
+        {
+            "mes": 6,
+            "ano": 2026,
+            "escola": str(escola_consultada.uuid),
+            "periodo_escolar": "MANHA",
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            "data": "04/06/2026",
+            "periodos_escolares": ["MANHA"],
+        }
+    ]
