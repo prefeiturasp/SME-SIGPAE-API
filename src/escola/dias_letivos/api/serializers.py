@@ -111,4 +111,4 @@ class DiaLetivoCalendarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DiaLetivoSIGPAE
-        fields = ("data","periodos_escolares")
+        fields = ("data", "periodos_escolares")
