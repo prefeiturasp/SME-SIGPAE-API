@@ -43,6 +43,21 @@ def get_alimentacoes_por_periodo(
     solicitacoes: list[SolicitacaoMedicaoInicial],
     query_params: dict | None = None,
 ) -> list[tuple]:
+    """Obtém as colunas de alimentações agrupadas por período e categoria de dieta.
+
+    Percorre todas as medições das solicitações informadas, identifica os tipos
+    de alimentação existentes em cada período e nas categorias de dieta especial,
+    unifica as dietas equivalentes e retorna a estrutura de colunas utilizada na
+    geração do relatório consolidado.
+
+    Args:
+        solicitacoes: Lista de solicitações de medição inicial.
+        query_params: Parâmetros utilizados para filtrar os valores da medição,
+            como intervalo de dias.
+
+    Returns:
+        Lista de tuplas representando as colunas do relatório consolidado.
+    """
     periodos_alimentacoes = {}
     dietas_alimentacoes = {}
     for solicitacao in solicitacoes:
@@ -81,6 +96,21 @@ def get_alimentacoes_por_periodo(
 def _get_lista_alimentacoes(
     medicao: Medicao, nome_periodo: str, query_params: dict | None = None
 ) -> list[int | str]:
+    """Obtém as alimentações disponíveis para uma medição.
+
+    Para grupos de Recreio nas Férias destinados ao CEI são retornadas as
+    faixas etárias ou os campos específicos de colaboradores. Para os demais
+    grupos, retorna os nomes dos campos de alimentação existentes na medição.
+
+    Args:
+        medicao: Medição utilizada na consulta.
+        nome_periodo: Nome do período correspondente à medição.
+        query_params: Parâmetros utilizados para filtrar os valores da medição.
+
+    Returns:
+        Lista contendo os identificadores das faixas etárias ou os nomes dos
+        campos de alimentação.
+    """
     if medicao.grupo.nome == RECREIO_NAS_FERIAS_CEI:
         return list(
             faixa.id
@@ -124,6 +154,17 @@ def _get_lista_alimentacoes(
 def _get_lista_alimentacoes_dietas(
     medicao: Medicao, categoria: str, query_params: dict | None = None
 ) -> list[int | str]:
+    """Obtém as alimentações disponíveis para uma categoria de dieta especial.
+
+    Args:
+        medicao: Medição utilizada na consulta.
+        categoria: Categoria da dieta especial.
+        query_params: Parâmetros utilizados para filtrar os valores da medição.
+
+    Returns:
+        Lista contendo os identificadores das faixas etárias ou os nomes dos
+        campos associados à categoria informada.
+    """
     if medicao.grupo.nome == RECREIO_NAS_FERIAS_CEI:
         if medicao.grupo.nome == "Colaboradores":
             return list(
@@ -173,6 +214,18 @@ def _get_lista_alimentacoes_dietas(
 
 
 def _unificar_dietas(dietas_alimentacoes: dict) -> dict:
+    """Unifica categorias equivalentes de dieta especial.
+
+    As dietas do tipo "Tipo A - Enteral / Restrição de Aminoácidos" são
+    agrupadas juntamente com as dietas do tipo "Tipo A".
+
+    Args:
+        dietas_alimentacoes: Dicionário contendo as categorias de dieta e suas
+            respectivas alimentações.
+
+    Returns:
+        Dicionário com as categorias de dieta unificadas.
+    """
     dietas_unificadas = {}
 
     for categoria, alimentacoes in dietas_alimentacoes.items():
@@ -188,6 +241,19 @@ def _unificar_dietas(dietas_alimentacoes: dict) -> dict:
 
 
 def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> dict:
+    """Ordena e combina os períodos e categorias de dieta.
+
+    Remove valores duplicados, ordena as alimentações conforme a configuração
+    definida para o relatório CEMEI e une os períodos regulares às categorias de
+    dieta especial.
+
+    Args:
+        periodos_alimentacoes: Alimentações agrupadas por período.
+        dietas_alimentacoes: Alimentações agrupadas por categoria de dieta.
+
+    Returns:
+        Dicionário ordenado contendo períodos e dietas.
+    """
     ORDEM_CAMPOS_CEMEI = [
         faixa.id for faixa in FaixaEtaria.objects.filter(ativo=True).order_by("inicio")
     ] + ORDEM_CAMPOS_RECREIO
@@ -219,6 +285,19 @@ def get_valores_tabela(
     colunas: list[tuple],
     query_params: dict | None = None,
 ) -> list[list[str | float]]:
+    """Monta as linhas da tabela do relatório consolidado.
+
+    Para cada solicitação são obtidos os dados iniciais e os valores
+    correspondentes a todas as colunas do relatório.
+
+    Args:
+        solicitacoes: Lista de solicitações de medição inicial.
+        colunas: Colunas que compõem o relatório.
+        query_params: Parâmetros utilizados para filtrar os valores da medição.
+
+    Returns:
+        Lista de linhas da tabela consolidada.
+    """
     valores = []
     for solicitacao in ordenar_unidades(solicitacoes):
         valores_solicitacao_atual = []
@@ -238,6 +317,14 @@ def get_valores_tabela(
 def get_solicitacoes_ordenadas(
     solicitacoes: list[SolicitacaoMedicaoInicial],
 ) -> list[SolicitacaoMedicaoInicial]:
+    """Ordena as solicitações conforme o tipo de unidade escolar.
+
+    Args:
+        solicitacoes: Lista de solicitações de medição inicial.
+
+    Returns:
+        Lista de solicitações ordenadas.
+    """
     return sorted(
         solicitacoes,
         key=lambda k: ORDEM_UNIDADES_GRUPO_CEMEI[k.escola.tipo_unidade.iniciais],
@@ -245,6 +332,17 @@ def get_solicitacoes_ordenadas(
 
 
 def _define_filtro(periodo: str) -> dict:
+    """Define os filtros utilizados para localizar uma medição.
+
+    Para períodos de dieta especial é utilizado um filtro por trecho do nome
+    do grupo. Nos demais casos é realizada uma comparação exata.
+
+    Args:
+        periodo: Nome do período ou categoria do relatório.
+
+    Returns:
+        Dicionário contendo os filtros para consulta das medições.
+    """
     filtros = {}
     if "DIETA ESPECIAL" in periodo:
         filtros["grupo__nome__icontains"] = periodo.split(" - ")[-1]
@@ -260,6 +358,22 @@ def _processa_periodo_campo(
     valores: list[str],
     query_params: dict | None = None,
 ) -> list[str | float]:
+    """Processa um campo do relatório para um determinado período.
+
+    Direciona o processamento para o fluxo de dieta especial ou período
+    regular e adiciona o resultado à lista de valores. Em caso de erro,
+    adiciona "-" como valor padrão.
+
+    Args:
+        solicitacao: Solicitação de medição inicial.
+        periodo: Período ou categoria do relatório.
+        campo: Campo de alimentação a ser processado.
+        valores: Lista de valores da linha em construção.
+        query_params: Parâmetros utilizados para filtrar os valores da medição.
+
+    Returns:
+        Lista de valores atualizada.
+    """
     filtros = _define_filtro(periodo)
     try:
         if "DIETA ESPECIAL" in periodo:
@@ -283,6 +397,21 @@ def _processa_dieta_especial(
     periodo: str,
     query_params: dict | None = None,
 ) -> str | float:
+    """Processa um campo referente às dietas especiais.
+
+    Encaminha o processamento para o serviço correspondente ao tipo de
+    Recreio nas Férias (CEI ou EMEI).
+
+    Args:
+        solicitacao: Solicitação de medição inicial.
+        filtros: Filtros utilizados para localizar a medição.
+        campo: Campo de alimentação.
+        periodo: Categoria de dieta especial.
+        query_params: Parâmetros utilizados para filtrar os valores da medição.
+
+    Returns:
+        Valor calculado para o campo ou "-" quando não aplicável.
+    """
     soma = "-"
     periodo_nome = periodo.split(" - ")[-1]
     categoria = " - ".join(periodo.split(" - ")[:2])
@@ -304,6 +433,21 @@ def _processa_periodo_regular(
     periodo: str,
     query_params: dict | None = None,
 ) -> str | float:
+    """Processa um campo de um período regular do relatório.
+
+    Encaminha o processamento para o serviço responsável pelo tipo de grupo
+    correspondente ao período informado.
+
+    Args:
+        solicitacao: Solicitação de medição inicial.
+        filtros: Filtros utilizados para localizar a medição.
+        campo: Campo de alimentação.
+        periodo: Nome do período.
+        query_params: Parâmetros utilizados para filtrar os valores da medição.
+
+    Returns:
+        Valor calculado para o campo ou "-" quando não aplicável.
+    """
     soma = "-"
     if periodo == RECREIO_NAS_FERIAS_CEI:
         soma = relatorio_consolidado_recreio_cei.processa_grupos_recreio(
@@ -327,6 +471,20 @@ def insere_tabela_periodos_na_planilha(
     linhas: list[list[str | float]],
     writer: pd.ExcelWriter,
 ) -> pd.DataFrame:
+    """Insere a tabela consolidada na planilha Excel.
+
+    Atualiza o mapeamento de nomes das faixas etárias e delega a criação do
+    DataFrame formatado para a geração do relatório.
+
+    Args:
+        aba: Nome da aba da planilha.
+        colunas: Colunas da tabela.
+        linhas: Linhas da tabela.
+        writer: Escritor utilizado para gerar o arquivo Excel.
+
+    Returns:
+        DataFrame correspondente à tabela gerada.
+    """
     NOMES_CAMPOS.update(
         {faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)}
     )
@@ -337,6 +495,16 @@ def insere_tabela_periodos_na_planilha(
 def ajusta_layout_tabela(
     workbook: Workbook, worksheet: Worksheet, df: pd.DataFrame
 ) -> None:
+    """Aplica a formatação visual da tabela na planilha Excel.
+
+    Configura as cores dos cabeçalhos, largura das colunas, altura das linhas
+    e demais estilos utilizados no relatório consolidado.
+
+    Args:
+        workbook: Workbook do arquivo Excel.
+        worksheet: Planilha que receberá a formatação.
+        df: DataFrame utilizado como base para os cabeçalhos.
+    """
     formatacao_base = {
         "align": "center",
         "valign": "vcenter",
