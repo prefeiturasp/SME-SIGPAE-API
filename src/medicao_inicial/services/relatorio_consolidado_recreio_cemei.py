@@ -166,36 +166,18 @@ def _get_lista_alimentacoes_dietas(
         campos associados à categoria informada.
     """
     if medicao.grupo.nome == RECREIO_NAS_FERIAS_CEI:
-        if medicao.grupo.nome == "Colaboradores":
-            return list(
-                filtra_queryset_pelo_intervalo_de_dias(
+        return list(
+            faixa.id
+            for faixa in FaixaEtaria.objects.filter(
+                id__in=filtra_queryset_pelo_intervalo_de_dias(
                     medicao.valores_medicao, query_params
                 )
-                .filter(categoria_medicao__nome=categoria)
-                .exclude(
-                    nome_campo__in=[
-                        "dietas_autorizadas",
-                        "observacoes",
-                        "frequencia",
-                        "participantes",
-                    ]
-                )
-                .values_list("nome_campo", flat=True)
-                .distinct()
+                .filter(categoria_medicao__nome=categoria, nome_campo="frequencia")
+                .values_list("faixa_etaria", flat=True)
             )
-        else:
-            return list(
-                faixa.id
-                for faixa in FaixaEtaria.objects.filter(
-                    id__in=filtra_queryset_pelo_intervalo_de_dias(
-                        medicao.valores_medicao, query_params
-                    )
-                    .filter(categoria_medicao__nome=categoria, nome_campo="frequencia")
-                    .values_list("faixa_etaria", flat=True)
-                )
-                .distinct()
-                .order_by("inicio")
-            )
+            .distinct()
+            .order_by("inicio")
+        )
     else:
         return sorted(
             filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
