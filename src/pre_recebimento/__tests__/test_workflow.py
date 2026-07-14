@@ -338,6 +338,51 @@ def test_ficha_tecnica_deve_enviar_email_ao_aprovar(
     )
 
 
+@patch(
+    "src.dados_comuns.fluxo_status.PartesInteressadasService."
+    "usuarios_vinculados_a_empresa_do_objeto"
+)
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
+def test_ficha_tecnica_deve_enviar_email_ao_solicitar_correcao(
+    mock_enviar_email,
+    mock_usuarios_vinculados,
+    ficha_tecnica_factory,
+    django_user_model,
+):
+    email_fornecedor = "fornecedor@test.com"
+    mock_usuarios_vinculados.return_value = [email_fornecedor]
+
+    usuario = django_user_model.objects.create_user(
+        username="codae@test.com",
+        password="123",
+        email="codae@test.com",
+        registro_funcional="7654321",
+    )
+
+    ficha = ficha_tecnica_factory(
+        status=FichaTecnicaDoProduto.workflow_class.ENVIADA_PARA_ANALISE
+    )
+
+    ficha.gpcodae_envia_para_correcao(user=usuario)
+
+    mock_enviar_email.assert_called_once()
+
+    _, kwargs = mock_enviar_email.call_args
+
+    assert (
+        kwargs["titulo"] == f"Correção solicitada na Ficha Técnica - ({ficha.numero})"
+    )
+    assert (
+        kwargs["assunto"]
+        == f"[SIGPAE] Correção solicitada na Ficha Técnica - ({ficha.numero})"
+    )
+    assert (
+        kwargs["template"]
+        == "pre_recebimento_email_codae_solicita_correcao_ficha_tecnica.html"
+    )
+    assert email_fornecedor in kwargs["destinatarios"]
+
+
 @patch("src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis")
 @patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
 def test_ficha_tecnica_deve_salvar_log_ao_iniciar_fluxo(
