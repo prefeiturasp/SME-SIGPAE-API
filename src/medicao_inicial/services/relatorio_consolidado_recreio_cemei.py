@@ -82,42 +82,18 @@ def _get_lista_alimentacoes(
     medicao: Medicao, nome_periodo: str, query_params: dict | None = None
 ) -> list[int | str]:
     if medicao.grupo.nome == RECREIO_NAS_FERIAS_CEI:
-        if nome_periodo == "Colaboradores":
-            lista_alimentacoes = list(
-                filtra_queryset_pelo_intervalo_de_dias(
+        return list(
+            faixa.id
+            for faixa in FaixaEtaria.objects.filter(
+                id__in=filtra_queryset_pelo_intervalo_de_dias(
                     medicao.valores_medicao, query_params
                 )
-                .exclude(
-                    Q(
-                        nome_campo__in=[
-                            "observacoes",
-                            "participantes",
-                            "frequencia",
-                        ]
-                    )
-                    | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
-                )
-                .values_list("nome_campo", flat=True)
-                .distinct()
+                .filter(nome_campo="frequencia")
+                .values_list("faixa_etaria", flat=True)
             )
-            lista_alimentacoes += [
-                "total_refeicoes_pagamento",
-                "total_sobremesas_pagamento",
-            ]
-            return lista_alimentacoes
-        else:
-            return list(
-                faixa.id
-                for faixa in FaixaEtaria.objects.filter(
-                    id__in=filtra_queryset_pelo_intervalo_de_dias(
-                        medicao.valores_medicao, query_params
-                    )
-                    .filter(nome_campo="frequencia")
-                    .values_list("faixa_etaria", flat=True)
-                )
-                .distinct()
-                .order_by("inicio")
-            )
+            .distinct()
+            .order_by("inicio")
+        )
     else:
         lista_alimentacoes = sorted(
             filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
