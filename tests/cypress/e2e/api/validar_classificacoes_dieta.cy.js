@@ -8,6 +8,7 @@ describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () 
 		cy.autenticar_login(usuario, senha)
 	})
 
+	
 	context('Casos de teste para a rota api/classificacoes-dieta/', () => {
 		it('Validar GET de classificações dieta com sucesso', () => {
 			var id = ''
