@@ -1,0 +1,270 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.cronograma_entrega.api.services &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.cronograma_entrega.api.services</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.cronograma_entrega.api.services</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Value</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ADMINISTRADOR_CODAE_GABINETE</span><span class="p">,</span>
+    <span class="n">ADMINISTRADOR_EMPRESA</span><span class="p">,</span>
+    <span class="n">COORDENADOR_CODAE_DILOG_LOGISTICA</span><span class="p">,</span>
+    <span class="n">DILOG_ABASTECIMENTO</span><span class="p">,</span>
+    <span class="n">DILOG_CRONOGRAMA</span><span class="p">,</span>
+    <span class="n">DILOG_DIRETORIA</span><span class="p">,</span>
+    <span class="n">DILOG_QUALIDADE</span><span class="p">,</span>
+    <span class="n">DILOG_VISUALIZACAO</span><span class="p">,</span>
+    <span class="n">USUARIO_EMPRESA</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaAlteracaoWorkflow</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.base.api.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseServiceDashboard</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SolicitacaoAlteracaoCronograma</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles</span><span class="p">(</span><span class="n">BaseServiceDashboard</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mapeamento de status do dashboard por perfil de usuário.</span>
+
+<span class="sd">    Define quais status de ``CronogramaAlteracaoWorkflow`` são exibidos</span>
+<span class="sd">    no dashboard de solicitações de alteração para cada perfil</span>
+<span class="sd">    (DILOG Abastecimento, DILOG Diretoria, DILOG Cronograma, etc.).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">STATUS_POR_PERFIL</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">DILOG_ABASTECIMENTO</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">CRONOGRAMA_CIENTE</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG_ABASTECIMENTO</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG_ABASTECIMENTO</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">DILOG_DIRETORIA</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG_ABASTECIMENTO</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG_ABASTECIMENTO</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">DILOG_CRONOGRAMA</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">EM_ANALISE</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">COORDENADOR_CODAE_DILOG_LOGISTICA</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">EM_ANALISE</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">ADMINISTRADOR_CODAE_GABINETE</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">EM_ANALISE</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">DILOG_VISUALIZACAO</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">EM_ANALISE</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">DILOG_QUALIDADE</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">EM_ANALISE</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="ServiceQuerysetAlteracaoCronograma">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceQuerysetAlteracaoCronograma">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ServiceQuerysetAlteracaoCronograma</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gerencia a ordenação de solicitações de alteração por prioridade.</span>
+
+<span class="sd">    Define quais status são prioritários para cada perfil de usuário</span>
+<span class="sd">    e monta uma QuerySet ordenada: primeiro os registros com status</span>
+<span class="sd">    prioritário, depois os demais, ambos ordenados por criado_em.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">STATUS_PRIORITARIO</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">ADMINISTRADOR_EMPRESA</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">USUARIO_EMPRESA</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">COORDENADOR_CODAE_DILOG_LOGISTICA</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">EM_ANALISE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">DILOG_CRONOGRAMA</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">EM_ANALISE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">DILOG_DIRETORIA</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">APROVADO_DILOG_ABASTECIMENTO</span><span class="p">,</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">REPROVADO_DILOG_ABASTECIMENTO</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">DILOG_ABASTECIMENTO</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">CRONOGRAMA_CIENTE</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">DILOG_VISUALIZACAO</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="n">DILOG_QUALIDADE</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+
+<div class="viewcode-block" id="ServiceQuerysetAlteracaoCronograma.get_status">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceQuerysetAlteracaoCronograma.get_status">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a lista de status prioritários para o perfil do usuário.</span>
+
+<span class="sd">        Levanta ValueError se o perfil do usuário não estiver mapeado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">perfil</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span>
+
+        <span class="k">if</span> <span class="n">perfil</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">STATUS_PRIORITARIO</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Perfil não existe&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">STATUS_PRIORITARIO</span><span class="p">[</span><span class="n">perfil</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ServiceQuerysetAlteracaoCronograma.get_queryset">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceQuerysetAlteracaoCronograma.get_queryset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Monta a QuerySet ordenada por prioridade de status.</span>
+
+<span class="sd">        Aceita uma função de filtro adicional aplicada às sub-queries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">lista_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">q1</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">status__in</span><span class="o">=</span><span class="n">lista_status</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">ordem</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">q2</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span>
+            <span class="n">status__in</span><span class="o">=</span><span class="n">lista_status</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">ordem</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">eh_fornecedor</span><span class="p">:</span>
+            <span class="n">q1</span> <span class="o">=</span> <span class="n">q1</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cronograma__empresa</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="p">)</span>
+            <span class="n">q2</span> <span class="o">=</span> <span class="n">q2</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cronograma__empresa</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">filter</span><span class="p">:</span>
+            <span class="n">q1</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="n">q1</span><span class="p">)</span>
+            <span class="n">q2</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="n">q2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">q1</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">q2</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;ordem&quot;</span><span class="p">,</span> <span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

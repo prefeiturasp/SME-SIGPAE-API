@@ -6,10 +6,10 @@ import datetime
 
 from faker import Faker
 
-from sme_sigpae_api.cardapio.base.models import Cardapio, TipoAlimentacao
-from sme_sigpae_api.dados_comuns.utils import eh_dia_util
-from sme_sigpae_api.escola.models import TipoUnidadeEscolar
-from sme_sigpae_api.terceirizada.models import Edital
+from src.cardapio.base.models import Cardapio, TipoAlimentacao
+from src.dados_comuns.utils import eh_dia_util
+from src.escola.models import TipoUnidadeEscolar
+from src.terceirizada.models import Edital
 
 f = Faker("pt-br")
 f.seed(420)

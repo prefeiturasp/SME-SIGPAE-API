@@ -1,8 +1,8 @@
 import environ
 import pandas as pd
 
-from sme_sigpae_api.dieta_especial.protocolo_padrao.models import Alimento
-from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+from src.dieta_especial.protocolo_padrao.models import Alimento
+from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
     MotivoNegacao,

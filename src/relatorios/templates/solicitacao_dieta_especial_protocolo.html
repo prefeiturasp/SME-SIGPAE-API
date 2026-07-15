@@ -1,0 +1,165 @@
+{% extends 'cabecalho_rodape_solicitacao.html' %}
+{% load index %}
+{% load sass_tags %}
+{% load static %}
+{% load safe_html_tags %}
+
+
+{% block conteudo %}
+<link rel="stylesheet" href="{% sass_src 'css/dieta_especial_protocolo.scss' %}" type="text/css">
+<div class="conteudo dieta-especial-protocolo">
+  {% if justificativa is not None %}
+    <div class="justificativa-cancelamento">
+      {{ justificativa }}
+    </div>
+  {% endif %}
+
+  <div class="tabela-dados-solicitacao">
+    <div class="row">
+        <div class="col-2 ml-4 mt-4">
+          {% if foto_aluno %}
+          <img src={{ foto_aluno }} alt="foto aluno" />
+        {% else %}
+          <img src="{% static 'images/avatar.png' %}" alt="avatar aluno sem foto" />
+        {% endif %}
+        </div>
+        <div class="col-9">
+         <table>
+          {% with periodo=solicitacao.aluno.periodo %}
+            <tr style="height: 2em">
+              {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO' %}
+                <th scope="col" class="w-25">CPF do Aluno</th>
+                {% if solicitacao.dieta_para_recreio_ferias %}
+                  <th scope="col">
+                    <div class="tag-recreio-nas-ferias">
+                      Dieta para Recreio nas Férias
+                    </div>
+                  </th>
+                {% endif %}
+              {% else %}
+                <th scope="col" class="w-25">Cód. EOL do Aluno</th>
+                {% if solicitacao.status == 'CODAE_AUTORIZADO' and solicitacao.ativo and not solicitacao.dieta_alterada and periodo %}
+                  <th scope="col" class="w-25">Período</th>
+                {% endif %}
+              {% endif %}
+            </tr>
+            <tr style="height: 2em">
+              {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO' %}
+                <td>{{ solicitacao.aluno.cpf|default:'' }}</td>
+              {% else %}
+                <td>{{ solicitacao.aluno.codigo_eol }}</td>
+
+                {% if solicitacao.status == 'CODAE_AUTORIZADO' and solicitacao.ativo and not solicitacao.dieta_alterada and periodo %}
+                  <td>{{ periodo|title }}</td>
+                {% endif %}
+              {% endif %}
+            </tr>
+          {% endwith %}
+          <tr style="height: 3em">
+            <th scope="col" style="height: 2em" class="w-25">
+              Nome completo do Aluno
+            </th>
+            <th scope="col" class="w-25">Data de nascimento</th>
+          </tr>
+          <tr style="height: 2em">
+            <td>{{ solicitacao.aluno.nome }}</td>
+            <td>
+              {{ solicitacao.aluno.data_nascimento|date:"SHORT_DATE_FORMAT" }}
+            </td>
+          </tr>
+        </table>
+        </div>
+      </div>
+    {% if solicitacao.tipo_solicitacao == 'ALUNO_NAO_MATRICULADO' %}
+    <table>
+      <tr style="height: 2em">
+        <th class="w-25">CPF do Responsável</th>
+        <th class="w-40">Nome completo do Responsável</th>
+        <th class="w-25" />
+      </tr>
+      {%with responsavel=solicitacao.aluno.responsaveis.first %}
+      <tr style="height: 2em">
+        <td>{{ responsavel.cpf|default:'' }}</td>
+        <td>{{ responsavel.nome }}</td>
+      </tr>
+      <tr />
+      {% endwith %}
+    </table>
+    {% endif %}
+    <table style="margin-top: 0">
+      <tr style="height: 2em">
+        <th class="w-30">Data da autorização da Dieta</th>
+        <th class="w-30">Data de término da dieta</th>
+        <th class="w-30">Classificação da Dieta Especial</th>
+      </tr>
+      <tr style="height: 2em">
+        <td>{{ solicitacao.data_inicio|date:"SHORT_DATE_FORMAT"|default:'Sem data de início' }}</td>
+        <td>{{ solicitacao.data_termino|date:"SHORT_DATE_FORMAT"|default:'Sem data de término' }}</td>
+        <td>{{ solicitacao.classificacao }}</td>
+      </tr>
+    </table>
+  </div>
+  <h5>
+    {% if solicitacao.nome_protocolo %}{{ solicitacao.nome_protocolo | upper }}{% elif solicitacao.protocolo_padrao %}{{ solicitacao.protocolo_padrao.nome_protocolo | upper }}{% endif %}
+  </h5>
+  <p><strong>{% next_section %}. Orientações Gerais</strong></p>
+  <div class="tabelas-protocolo-dieta">
+    {{ solicitacao.orientacoes_gerais|safe_content }}
+  </div>
+  {% if data_termino %}
+  <p>- Esta dieta especial terá seu fornecimento encerrado em {{ data_termino }}</p>
+  {% endif %}
+  <p><strong>{% next_section %}. Relação de Alimentos para Substituição</strong></p>
+  <p>A {{ referencia }} deverá compor o cardápio de acordo com a relação de alimentos substitutos.</p>
+  <table class="table-dieta-especial">
+    <thead>
+      <tr>
+        <th>Alimento</th>
+        <th>Isenção/Substituição</th>
+        <th>Alimento/Ingrediente</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for substituicao in substituicoes %}
+      <tr>
+        <td>{{ substituicao.alimento }}</td>
+        <td className="tipo">
+          {% if substituicao.tipo == 'I' %}
+          Isento
+          {% elif substituicao.tipo == 'S' %}
+          Substituir
+          {% endif %}
+        </td>
+        <td>
+          {{ substituicao.alimentos_substitutos.all|join:", " }}
+          {{ substituicao.substitutos.all|join:", " }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if solicitacao.informacoes_adicionais %}
+  <p><strong>{% next_section %}. Informações Adicionais</strong></p>
+  <div class="tabelas-protocolo-dieta">
+    {{ solicitacao.informacoes_adicionais|safe_content }}
+  </div>
+  {% endif %}
+
+    <p><strong>{% next_section %}. Termo de Ciência do Responsável{% if direito_imagem%} e Autorização de Uso de Imagem {% endif %}</strong></p>
+    <p>
+      Solicitamos os préstimos para que este Protocolo seja apresentado aos responsáveis pelo aluno, para ciência.
+      Este Protocolo assinado pelo responsável deverá permanecer no arquivo da UE, anexado ao laudo médico.
+      <strong class="sublinhado">Não</strong> há necessidade de encaminhar cópia desse Protocolo assinado a CODAE.
+    </p>
+    {% if direito_imagem%}
+      <p>
+        Autorizo a utilização da imagem do aluno, exclusivamente para fins de identificação, visando ao atendimento adequado
+        das necessidades alimentares especiais, à prevenção de homônimos, à rápida identificação e possíveis equívocos que
+        possam comprometer a saúde, em conformidade com os princípios da Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018).
+      </p>
+    {% endif %}
+  <p class="campo-usuario">Nome do Responsável: ________________________________________________________________________</p>
+  <p class="campo-usuario">Assinatura do Responsável: ___________________________________________________________________</p>
+  <p class="campo-usuario">Data: ________/________/________</p>
+</div>
+{% endblock %}

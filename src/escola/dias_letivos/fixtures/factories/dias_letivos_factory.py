@@ -1,0 +1,50 @@
+import datetime
+from typing import Any
+
+import factory
+from factory.django import DjangoModelFactory
+
+from ...models import DiaLetivoSIGPAE
+
+
+class DiaLetivoSIGPAEFactory(DjangoModelFactory):
+    """Factory para criar instâncias do modelo DiaLetivoSIGPAE em testes.
+
+    Utiliza post_generation hooks para configurar relacionamentos
+    ManyToMany (lotes, tipos_unidade_escolar, escolas e periodos_escolares).
+    """
+
+    data = factory.LazyFunction(datetime.date.today)
+
+    @factory.post_generation
+    def lotes(self, create: bool, extracted: Any, **kwargs: Any) -> None:
+        if not create:
+            return
+        if extracted:
+            self.lotes.set(extracted)
+
+    @factory.post_generation
+    def tipos_unidade_escolar(
+        self, create: bool, extracted: Any, **kwargs: Any
+    ) -> None:
+        if not create:
+            return
+        if extracted:
+            self.tipos_unidade_escolar.set(extracted)
+
+    @factory.post_generation
+    def escolas(self, create: bool, extracted: Any, **kwargs: Any) -> None:
+        if not create:
+            return
+        if extracted:
+            self.escolas.set(extracted)
+
+    @factory.post_generation
+    def periodos_escolares(self, create: bool, extracted: Any, **kwargs: Any) -> None:
+        if not create:
+            return
+        if extracted:
+            self.periodos_escolares.set(extracted)
+
+    class Meta:
+        model = DiaLetivoSIGPAE

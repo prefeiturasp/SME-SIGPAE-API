@@ -6,7 +6,7 @@ from celery import Celery
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 
-app = Celery("sme_sigpae_api")
+app = Celery("src")
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

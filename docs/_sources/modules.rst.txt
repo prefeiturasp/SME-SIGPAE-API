@@ -7,4 +7,5 @@ Módulos principais do sistema.
    :maxdepth: 4
 
    cardapio
+   pre_recebimento
 

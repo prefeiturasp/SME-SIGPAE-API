@@ -5,5 +5,5 @@ flake8
 read -p "Organizar imports (y/n)? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-   isort -rc --atomic sme_sigpae_api
+   isort -rc --atomic src
 fi

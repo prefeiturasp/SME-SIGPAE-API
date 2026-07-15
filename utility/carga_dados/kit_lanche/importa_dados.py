@@ -1,5 +1,5 @@
-from sme_sigpae_api.kit_lanche.data.kit_lanche_item import data_kit_lanche_item
-from sme_sigpae_api.kit_lanche.models import ItemKitLanche, KitLanche
+from src.kit_lanche.data.kit_lanche_item import data_kit_lanche_item
+from src.kit_lanche.models import ItemKitLanche, KitLanche
 from utility.carga_dados.helper import ja_existe, progressbar
 
 

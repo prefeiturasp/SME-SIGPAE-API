@@ -1,0 +1,185 @@
+@import "variaveis";
+
+@page {
+  size: A4 landscape;
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+}
+
+/* NOSONAR */
+@page :nth(1) {
+  //WTF bug...
+  padding-top: 0 !important;
+  @top-center {
+    width: 100%;
+    background: #1f1;
+    color: #000000;
+    content: '' !important;
+    margin-bottom: 0px !important;
+  }
+}
+
+/* NOSONAR */
+@page :nth(n+2) {
+  padding-top: 150px;
+  @top-center {
+    width: 100%;
+    background: #1f1;
+    color: #000000;
+    margin-bottom: -150px;
+  }
+}
+
+main {
+  padding: 15px 30px;
+  font-family: "Roboto", sans-serif;
+
+  .periodo-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    background-color: $cinza-claro;
+    border: 1px solid $cinza-quase-claro;
+  }
+
+  .total-frequentes-por-faixa {
+    font-size: 10px;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .coluna-nome-aluno {
+    img {
+      width: 14px;
+      height: 14px;
+      margin-left: 10px;
+    }
+  }
+
+  .aluno-com-dieta-especial {
+    font-size: 10px;
+
+    img {
+      width: 9px;
+      height: 9px;
+      margin-left: 8px;
+      margin-right: 5px;
+    }
+  }
+}
+
+.tabela-principal {
+  width: 100%;
+
+  thead {
+    display: table-header-group;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .grupo-faixa-cabecalho {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+.tabela-principal,
+th,
+td {
+  font-size: 12px;
+  padding: 10px;
+  border: 1px solid $cinza-quase-claro;
+  border-collapse: collapse;
+}
+
+tbody {
+  .linha-faixa-matriculados {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-after: avoid;
+    page-break-after: avoid;
+
+    td {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    td:first-child {
+      font-weight: 700;
+    }
+  }
+  tr {
+    td:last-child {
+      position: relative;
+    }
+  }
+
+  .coluna-frequencia-head {
+    width: 20px !important;
+  }
+
+  .coluna-frequencia-head, .coluna-frequencia {
+    font-size: 10px;
+    padding: 0px !important;
+  }
+
+  .coluna-frequencia {
+    position: relative;
+  }
+
+  .nao-exibe-checkbox {
+    background-color: $cinza-quase-claro !important;
+  }
+
+  .dia-nao-letivo {
+    background-color: #e6e6e6;
+  }
+
+  .dia-nao-letivo-ckbox-freq, .dia-nao-letivo-frequencia-head {
+    background-color: #e6e6e6 !important;
+  }
+
+  .checkbox-frequencia {
+    background-color: $branco;
+    width: 10px;
+    height: 10px;
+    border: 1px solid $cinza-meio-claro;
+    border-radius: 2px;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0px !important;
+  }
+
+  .checkbox-periodo-parcial {
+    background-color: $branco;
+    width: 10px;
+    height: 10px;
+    border: 1px solid $cinza-meio-claro;
+    border-radius: 2px;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+th {
+  background-color: $cinza-claro;
+}
+
+.tabela-principal {
+  tr:first-child, .linha-faixa-matriculados {
+    background-color: $cinza-claro;
+
+    th:nth-child(2) {
+      text-align: center;
+    }
+    th:nth-child(3) {
+      width: 12%;
+      text-align: center;
+    }
+  }
+}

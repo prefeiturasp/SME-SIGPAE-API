@@ -1,0 +1,177 @@
+from factory import LazyAttribute, Sequence, SubFactory
+from factory.django import DjangoModelFactory
+from faker import Faker
+
+from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
+    ContatoFactory,
+)
+from src.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
+from src.escola.models import (
+    Aluno,
+    AlunosMatriculadosPeriodoEscola,
+    DiaCalendario,
+    DiretoriaRegional,
+    Escola,
+    FaixaEtaria,
+    GrupoUnidadeEscolar,
+    HistoricoEscola,
+    HistoricoMatriculaAluno,
+    LogAlunosMatriculadosFaixaEtariaDia,
+    LogAlunosMatriculadosPeriodoEscola,
+    Lote,
+    PeriodoEscolar,
+    TipoGestao,
+    TipoTurma,
+    TipoUnidadeEscolar,
+)
+from src.terceirizada.fixtures.factories.terceirizada_factory import (
+    EmpresaFactory,
+)
+
+fake = Faker("pt_BR")
+
+
+class TipoGestaoFactory(DjangoModelFactory):
+    class Meta:
+        model = TipoGestao
+
+
+class TipoUnidadeEscolarFactory(DjangoModelFactory):
+    class Meta:
+        model = TipoUnidadeEscolar
+
+
+class DiretoriaRegionalFactory(DjangoModelFactory):
+    class Meta:
+        model = DiretoriaRegional
+
+    nome = Sequence(lambda n: f"Diretoria regional {n} - {fake.unique.company()}")
+    codigo_eol = Sequence(lambda n: fake.unique.random_int(min=1, max=999999))
+
+
+class LoteFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Lote {n} - {fake.unique.company()}")
+    diretoria_regional = SubFactory(DiretoriaRegionalFactory)
+    terceirizada = SubFactory(EmpresaFactory)
+
+    class Meta:
+        model = Lote
+
+
+class EscolaFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Escola {n} - {fake.unique.company()}")
+    codigo_eol = Sequence(lambda n: fake.unique.random_int(min=1, max=999999))
+    lote = SubFactory(LoteFactory)
+    diretoria_regional = SubFactory(DiretoriaRegionalFactory)
+    tipo_unidade = SubFactory(TipoUnidadeEscolarFactory)
+    tipo_gestao = SubFactory(TipoGestaoFactory)
+    contato = SubFactory(ContatoFactory)
+
+    class Meta:
+        model = Escola
+
+
+class PeriodoEscolarFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Periodo {n} - {fake.unique.word()}")
+    tipo_turno = Sequence(lambda n: fake.random_int(min=1, max=7))
+
+    class Meta:
+        model = PeriodoEscolar
+
+
+class AlunosMatriculadosPeriodoEscolaFactory(DjangoModelFactory):
+    escola = SubFactory(EscolaFactory)
+    periodo_escolar = SubFactory(PeriodoEscolarFactory)
+
+    class Meta:
+        model = AlunosMatriculadosPeriodoEscola
+
+
+class LogAlunosMatriculadosPeriodoEscolaFactory(DjangoModelFactory):
+    class Meta:
+        model = LogAlunosMatriculadosPeriodoEscola
+
+    escola = SubFactory(EscolaFactory)
+    periodo_escolar = SubFactory(PeriodoEscolarFactory)
+    quantidade_alunos = Sequence(lambda n: fake.unique.random_int(min=0, max=100))
+    tipo_turma = Sequence(
+        lambda n: [fake.random_element([choice[0] for choice in TipoTurma.choices()])]
+    )
+    cei_ou_emei = LazyAttribute(
+        lambda o: fake.random_element(elements=[choice[0] for choice in CEI_OU_EMEI])
+    )
+    infantil_ou_fundamental = LazyAttribute(
+        lambda o: fake.random_element(
+            elements=[choice[0] for choice in INFANTIL_OU_FUNDAMENTAL]
+        )
+    )
+
+
+class FaixaEtariaFactory(DjangoModelFactory):
+    inicio = Sequence(lambda n: fake.unique.random_int(min=0, max=10))
+    fim = Sequence(lambda n: fake.unique.random_int(min=11, max=36))
+
+    class Meta:
+        model = FaixaEtaria
+
+
+class AlunoFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"{fake.word()}")
+    escola = SubFactory(EscolaFactory)
+    periodo_escolar = SubFactory(PeriodoEscolarFactory)
+    codigo_eol = Sequence(lambda n: 1000000 + (n % 9000000))
+    data_nascimento = LazyAttribute(
+        lambda _: fake.date_of_birth(minimum_age=1, maximum_age=6)
+    )
+
+    class Meta:
+        model = Aluno
+
+
+class HistoricoMatriculaAlunoFactory(DjangoModelFactory):
+    aluno = SubFactory(AlunoFactory)
+    escola = SubFactory(EscolaFactory)
+    data_inicio = LazyAttribute(lambda _: fake.date())
+    codigo_situacao = Sequence(lambda n: 1 + (n % 13))
+
+    class Meta:
+        model = HistoricoMatriculaAluno
+
+
+class HistoricoEscolaFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Histórico Escola {n} - {fake.unique.company()}")
+    escola = SubFactory(EscolaFactory)
+    tipo_unidade = SubFactory(TipoUnidadeEscolarFactory)
+    data_inicial = LazyAttribute(
+        lambda _: fake.date_between(start_date="-2y", end_date="-1y")
+    )
+    data_final = LazyAttribute(
+        lambda _: fake.date_between(start_date="-1y", end_date="today")
+    )
+
+    class Meta:
+        model = HistoricoEscola
+
+
+class LogAlunosMatriculadosFaixaEtariaDiaFactory(DjangoModelFactory):
+    escola = SubFactory(EscolaFactory)
+    periodo_escolar = SubFactory(PeriodoEscolarFactory)
+    quantidade = Sequence(lambda n: fake.unique.random_int(min=0, max=100))
+    faixa_etaria = SubFactory(FaixaEtariaFactory)
+
+    class Meta:
+        model = LogAlunosMatriculadosFaixaEtariaDia
+
+
+class DiaCalendarioFactory(DjangoModelFactory):
+    escola = SubFactory(EscolaFactory)
+
+    class Meta:
+        model = DiaCalendario
+
+
+class GrupoUnidadeEscolarFactory(DjangoModelFactory):
+    nome = Sequence(lambda n: f"Grupo {n}")
+
+    class Meta:
+        model = GrupoUnidadeEscolar

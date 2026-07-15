@@ -10,13 +10,13 @@ echo "Verificando testes unitários e de integração..."
 pytest
 
 echo "Verificando se está usando imports relativos..."
-grep -rnw "from sme_sigpae_api" "sme_sigpae_api"
+grep -rnw "from src" "src"
 
 echo "Verificando estilo e qualidade de código..."
 flake8
 
 echo "Verificando falhas de segurança média ou superior..."
-bandit -r sme_sigpae_api -ll
+bandit -r src -ll
 
 echo "Gerando coverage html..."
 coverage html

@@ -8,20 +8,20 @@ import numpy as np
 from faker import Faker
 from xworkflows import InvalidTransitionError
 
-from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
+from src.cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
     MotivoAlteracaoCardapio,
 )
-from sme_sigpae_api.cardapio.base.models import Cardapio, TipoAlimentacao
-from sme_sigpae_api.cardapio.inversao_dia_cardapio.models import InversaoCardapio
-from sme_sigpae_api.cardapio.suspensao_alimentacao.models import (
+from src.cardapio.base.models import Cardapio, TipoAlimentacao
+from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     MotivoSuspensao,
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
-from sme_sigpae_api.escola.models import DiretoriaRegional, Escola, PeriodoEscolar
-from sme_sigpae_api.inclusao_alimentacao.models import (
+from src.escola.models import DiretoriaRegional, Escola, PeriodoEscolar
+from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,
     InclusaoAlimentacaoNormal,
@@ -29,14 +29,14 @@ from sme_sigpae_api.inclusao_alimentacao.models import (
     MotivoInclusaoNormal,
     QuantidadePorPeriodo,
 )
-from sme_sigpae_api.kit_lanche.models import (
+from src.kit_lanche.models import (
     EscolaQuantidade,
     KitLanche,
     SolicitacaoKitLanche,
     SolicitacaoKitLancheAvulsa,
     SolicitacaoKitLancheUnificada,
 )
-from sme_sigpae_api.perfil.models import Usuario
+from src.perfil.models import Usuario
 
 # Valores fixos para substituir random
 # Caso queira variar os dados de carga, altere esses valores

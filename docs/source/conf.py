@@ -60,11 +60,27 @@ django.setup()
 import sphinx.util.inspect as _sphinx_inspect  # noqa: E402
 from django.db import OperationalError as _DBOperationalError  # noqa: E402
 from django.db import ProgrammingError as _DBProgrammingError  # noqa: E402
+from django.db.models import QuerySet as _QuerySet  # noqa: E402
+from factory.declarations import SubFactory as _SubFactory  # noqa: E402
+
+
+def _subfactory_repr(self):
+    try:
+        factory_cls = self.get_factory()
+        factory_name = getattr(factory_cls, "__name__", repr(factory_cls))
+    except Exception:
+        factory_name = repr(self.factory_wrapper)
+    return f"SubFactory({factory_name})"
+
+
+_SubFactory.__repr__ = _subfactory_repr
 
 _original_object_description = _sphinx_inspect.object_description
 
 
 def _safe_object_description(obj, *args, **kwargs):
+    if isinstance(obj, _QuerySet):
+        return f"<QuerySet de {obj.model.__name__}>"
     try:
         return _original_object_description(obj, *args, **kwargs)
     except (ValueError, _DBOperationalError, _DBProgrammingError):
@@ -182,7 +198,9 @@ html_theme = "sphinx_rtd_theme"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-# html_theme_options = {}
+html_theme_options = {
+    "navigation_depth": 5,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -269,7 +287,7 @@ latex_elements = {
 latex_documents = [
     (
         "index",
-        "sme_sigpae_api.tex",
+        "src.tex",
         "SME-SIGPAE-API Documentation",
         """Equipe SME""",
         "manual",
@@ -304,7 +322,7 @@ latex_documents = [
 man_pages = [
     (
         "index",
-        "sme_sigpae_api",
+        "src",
         "SME-SIGPAE-API Documentation",
         ["""Equipe SME"""],
         1,
@@ -323,7 +341,7 @@ man_pages = [
 texinfo_documents = [
     (
         "index",
-        "sme_sigpae_api",
+        "src",
         "SME-SIGPAE-API Documentation",
         """Equipe SME""",
         "SME-SIGPAE-API",

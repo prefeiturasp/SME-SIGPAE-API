@@ -1,0 +1,893 @@
+from io import BytesIO
+
+import pytest
+from django.test import Client
+from model_bakery import baker
+from pypdf import PdfReader
+from rest_framework import status
+
+from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
+
+pytestmark = pytest.mark.django_db
+
+
+class TestCronogramaSemanalViewSet:
+    def test_post_rascunho_sucesso(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        payload_cronograma_semanal_rascunho,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            payload_cronograma_semanal_rascunho,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+        assert "uuid" in response.json()
+
+    def test_post_rascunho_sem_cronograma_mensal(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            {"observacoes": "Teste"},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "cronograma_mensal" in response.json()
+
+    def test_post_rascunho_cronograma_nao_ponto_a_ponto(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_nao_ponto_a_ponto_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            {"cronograma_mensal": str(cronograma_nao_ponto_a_ponto_assinado.uuid)},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "Ponto a Ponto" in str(response.json())
+
+    def test_post_rascunho_cronograma_nao_assinado_codae(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_nao_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            {"cronograma_mensal": str(cronograma_ponto_a_ponto_nao_assinado.uuid)},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "ASSINADO_CODAE" in str(response.json())
+
+    def test_post_rascunho_com_programacoes(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        payload_cronograma_semanal_com_programacoes,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            payload_cronograma_semanal_com_programacoes,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+        data = response.json()
+        assert "programacoes" in data
+        assert len(data["programacoes"]) == 2
+
+    def test_patch_atualiza_rascunho(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/",
+            {"observacoes": "Observação atualizada"},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_rascunho.refresh_from_db()
+        assert cronograma_semanal_rascunho.observacoes == "Observação atualizada"
+
+    def test_patch_atualiza_observacoes(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/",
+            {"observacoes": "Nova observação"},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_patch_atualiza_programacoes(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/",
+            {
+                "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+                "programacoes": [
+                    {
+                        "mes_programado": "05/2026",
+                        "data_inicio": "2026-05-01",
+                        "data_fim": "2026-05-15",
+                        "quantidade": 75.0,
+                    }
+                ],
+            },
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_rascunho.refresh_from_db()
+        assert cronograma_semanal_rascunho.programacoes.count() == 1
+
+    def test_get_cronogramas_mensal_assinados_lista(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/cronogramas-mensal-assinados/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+
+    def test_get_cronogramas_mensal_assinados_filtra_nao_ponto_a_ponto(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_assinado,
+        cronograma_nao_ponto_a_ponto_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/cronogramas-mensal-assinados/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        uuids = [item["uuid"] for item in data]
+        assert str(cronograma_nao_ponto_a_ponto_assinado.uuid) not in uuids
+
+    def test_get_cronogramas_mensal_assinados_filtra_status(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_assinado,
+        cronograma_ponto_a_ponto_nao_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/cronogramas-mensal-assinados/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        uuids = [item["uuid"] for item in data]
+        assert str(cronograma_ponto_a_ponto_nao_assinado.uuid) not in uuids
+
+    def test_permissao_dilog_cronograma_permitido(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        payload_cronograma_semanal_rascunho,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            payload_cronograma_semanal_rascunho,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_permissao_coordenador_codae_dilog_permitido(
+        self,
+        client_autenticado_coordenador_codae_dilog,
+        payload_cronograma_semanal_rascunho,
+    ):
+        client, _ = client_autenticado_coordenador_codae_dilog
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            payload_cronograma_semanal_rascunho,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+
+    def test_permissao_negada_outro_perfil(
+        self,
+        client_autenticado_dilog_abastecimento,
+        payload_cronograma_semanal_rascunho,
+    ):
+        response = client_autenticado_dilog_abastecimento.post(
+            "/cronogramas-semanais/rascunho/",
+            payload_cronograma_semanal_rascunho,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_permissao_negada_nao_autenticado(
+        self, payload_cronograma_semanal_rascunho
+    ):
+        client = Client()
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            payload_cronograma_semanal_rascunho,
+            content_type="application/json",
+        )
+        assert response.status_code in [
+            status.HTTP_401_UNAUTHORIZED,
+            status.HTTP_403_FORBIDDEN,
+        ]
+
+    def test_get_cronogramas_mensal_assinados_campos_retornados(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/cronogramas-mensal-assinados/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        if len(data) > 0:
+            item = data[0]
+            assert "uuid" in item
+            assert "numero" in item
+            assert "produto_nome" in item
+            assert "fornecedor_nome" in item
+            assert "numero_contrato" in item
+
+    def test_post_rascunho_uuid_invalido(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.post(
+            "/cronogramas-semanais/rascunho/",
+            {"cronograma_mensal": "uuid-invalido"},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_uuid_inexistente(self, client_autenticado_vinculo_dilog_cronograma):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.patch(
+            "/cronogramas-semanais/00000000-0000-0000-0000-000000000000/",
+            {"observacoes": "Teste"},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_patch_assinar_e_enviar_sucesso(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        if response.status_code != status.HTTP_200_OK:
+            print(
+                f"test_patch_assinar_e_enviar_sucesso - Error response: {response.json()}"
+            )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_rascunho.refresh_from_db()
+        assert (
+            cronograma_semanal_rascunho.status
+            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+
+    def test_patch_assinar_e_enviar_senha_invalida(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "password": "senha_invalida",
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "Assinatura do cronograma não foi validada" in str(response.json())
+
+    def test_patch_assinar_e_enviar_sem_programacoes(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_assinar_e_enviar_atualiza_rascunho_existente(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        original_uuid = cronograma_semanal_rascunho.uuid
+        payload = {
+            "observacoes": "Observação atualizada ao assinar",
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_rascunho.refresh_from_db()
+        assert cronograma_semanal_rascunho.uuid == original_uuid
+        assert (
+            cronograma_semanal_rascunho.status
+            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+        assert (
+            cronograma_semanal_rascunho.observacoes
+            == "Observação atualizada ao assinar"
+        )
+
+    def test_patch_assinar_e_enviar_status_nao_rascunho(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from model_bakery import baker
+
+        from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        cronograma_semanal_enviado = baker.make(
+            CronogramaSemanal,
+            cronograma_mensal=cronograma_ponto_a_ponto_assinado,
+            status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+        )
+        payload = {
+            "password": DJANGO_ADMIN_PASSWORD,
+            "programacoes": [
+                {
+                    "mes_programado": "03/2026",
+                    "data_inicio": "2026-03-01",
+                    "data_fim": "2026-03-15",
+                    "quantidade": 50.0,
+                }
+            ],
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado.uuid}/assinar-e-enviar/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_get_listagem_cronogramas_semanais(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get("/cronogramas-semanais/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+
+        assert "results" in data
+        assert "count" in data
+        assert "next" in data
+        assert "previous" in data
+        assert isinstance(data["results"], list)
+        assert data["count"] >= 1
+
+        item = data["results"][0]
+        assert "uuid" in item
+        assert "numero" in item
+        assert "produto" in item
+        assert "quantidade_total" in item
+        assert "empresa" in item
+        assert "status" in item
+        assert "alterado_em" in item
+
+        numero = cronograma_semanal_rascunho.cronograma_mensal.numero
+        response_filtro = client.get(
+            f"/cronogramas-semanais/?numero={numero}&status=RASCUNHO"
+        )
+        assert response_filtro.status_code == status.HTTP_200_OK
+        data_filtro = response_filtro.json()
+        assert data_filtro["count"] >= 1
+
+        response_retrieve = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
+        assert response_retrieve.status_code == status.HTTP_200_OK
+        data_retrieve = response_retrieve.json()
+        assert data_retrieve["uuid"] == str(cronograma_semanal_rascunho.uuid)
+
+    def test_get_listagem_fornecedor_ve_apenas_propria_empresa(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_rascunho,
+        cronograma_semanal_enviado_ao_fornecedor,
+        cronograma_semanal_outra_empresa,
+    ):
+        """Fornecedor deve ver apenas cronogramas semanais da sua própria empresa, excluindo rascunhos."""
+        client, _ = client_autenticado_vinculo_fornecedor
+        response = client.get("/cronogramas-semanais/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+
+        uuids_retornados = [item["uuid"] for item in data["results"]]
+
+        assert str(cronograma_semanal_rascunho.uuid) not in uuids_retornados
+        assert str(cronograma_semanal_enviado_ao_fornecedor.uuid) in uuids_retornados
+        assert str(cronograma_semanal_outra_empresa.uuid) not in uuids_retornados
+
+    def test_get_retrieve_sucesso(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert "uuid" in data
+        assert "numero" in data
+        assert "status" in data
+        assert "cronograma_mensal" in data
+        assert "programacoes" in data
+        assert "logs" in data
+
+    def test_get_retrieve_campos_cronograma_mensal(
+        self, client_autenticado_vinculo_dilog_cronograma, cronograma_semanal_rascunho
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["cronograma_mensal"]["uuid"] is not None
+        assert data["cronograma_mensal"]["numero"] is not None
+        assert data["cronograma_mensal"]["empresa"] is not None
+        assert data["cronograma_mensal"]["contrato"] is not None
+
+    def test_get_retrieve_programacoes(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        programacao_entrega_semanal,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert isinstance(data["programacoes"], list)
+        assert len(data["programacoes"]) >= 1
+        prog = data["programacoes"][0]
+        assert "mes_programado" in prog
+        assert "data_inicio" in prog
+        assert "data_fim" in prog
+        assert "quantidade" in prog
+
+    def test_get_retrieve_uuid_inexistente(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get(
+            "/cronogramas-semanais/00000000-0000-0000-0000-000000000000/"
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_get_retrieve_sem_autenticacao(self):
+        from django.test import Client
+
+        client = Client()
+        response = client.get(
+            "/cronogramas-semanais/00000000-0000-0000-0000-000000000000/"
+        )
+        assert response.status_code in [
+            status.HTTP_401_UNAUTHORIZED,
+            status.HTTP_403_FORBIDDEN,
+        ]
+
+    def test_get_rascunhos_lista_vazia(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/rascunhos/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert "results" in data
+        assert isinstance(data["results"], list)
+
+    def test_get_rascunhos_lista_com_rascunho(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/rascunhos/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert "results" in data
+        assert len(data["results"]) >= 1
+        item = data["results"][0]
+        assert "uuid" in item
+        assert "numero" in item
+        assert "alterado_em" in item
+
+    def test_get_rascunhos_nao_inclui_nao_rascunho(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        cronograma_semanal_enviado = baker.make(
+            CronogramaSemanal,
+            cronograma_mensal=cronograma_ponto_a_ponto_assinado,
+            status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+        )
+        response = client.get("/cronogramas-semanais/rascunhos/")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        uuids = [item["uuid"] for item in data["results"]]
+        assert str(cronograma_semanal_enviado.uuid) not in uuids
+
+    def test_get_rascunhos_permissao_negada_nao_autenticado(self):
+        from django.test import Client
+
+        client = Client()
+        response = client.get("/cronogramas-semanais/rascunhos/")
+        assert response.status_code in [
+            status.HTTP_401_UNAUTHORIZED,
+            status.HTTP_403_FORBIDDEN,
+        ]
+
+    def test_patch_fornecedor_ciente_sucesso(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_enviado_ao_fornecedor,
+    ):
+        from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_fornecedor
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/fornecedor-ciente/",
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_enviado_ao_fornecedor.refresh_from_db()
+        assert (
+            cronograma_semanal_enviado_ao_fornecedor.status
+            == CronogramaSemanalWorkflow.FORNECEDOR_CIENTE
+        )
+
+    def test_patch_fornecedor_ciente_status_invalido(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_rascunho,
+    ):
+        """Não deve ser possível dar ciência em cronograma que não está ENVIADO_AO_FORNECEDOR."""
+        client, _ = client_autenticado_vinculo_fornecedor
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/fornecedor-ciente/",
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_fornecedor_ciente_salva_log(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_enviado_ao_fornecedor,
+    ):
+        client, _ = client_autenticado_vinculo_fornecedor
+        client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/fornecedor-ciente/",
+            content_type="application/json",
+        )
+        assert LogSolicitacoesUsuario.objects.filter(
+            uuid_original=cronograma_semanal_enviado_ao_fornecedor.uuid,
+            status_evento=LogSolicitacoesUsuario.CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
+        ).exists()
+
+    def test_patch_alterar_cronograma_sucesso(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 100.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_fornecedor_ciente.refresh_from_db()
+        assert (
+            cronograma_semanal_fornecedor_ciente.status
+            == CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR
+        )
+
+    def test_patch_alterar_cronograma_senha_invalida(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            {"password": "senha_invalida"},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "Assinatura do cronograma não foi validada" in str(response.json())
+
+    def test_patch_alterar_cronograma_sem_programacoes(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            {"password": DJANGO_ADMIN_PASSWORD},
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_alterar_cronograma_status_invalido_rascunho(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        """Não deve ser possível alterar um cronograma que está como RASCUNHO."""
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 100.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_alterar_cronograma_status_invalido_enviado(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_enviado_ao_fornecedor,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        """Não deve ser possível alterar um cronograma que está como ENVIADO_AO_FORNECEDOR."""
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 100.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_patch_alterar_cronograma_atualiza_programacoes(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-07",
+                    "quantidade": 30.0,
+                },
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-08",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 70.0,
+                },
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        cronograma_semanal_fornecedor_ciente.refresh_from_db()
+        assert cronograma_semanal_fornecedor_ciente.programacoes.count() == 2
+
+    def test_patch_alterar_cronograma_permissao_negada_fornecedor(
+        self,
+        client_autenticado_vinculo_fornecedor,
+        cronograma_semanal_fornecedor_ciente,
+        cronograma_ponto_a_ponto_assinado,
+    ):
+        """Fornecedor não deve ter permissão para alterar cronograma."""
+        client, _ = client_autenticado_vinculo_fornecedor
+        payload = {
+            "cronograma_mensal": str(cronograma_ponto_a_ponto_assinado.uuid),
+            "programacoes": [
+                {
+                    "mes_programado": "04/2026",
+                    "data_inicio": "2026-04-01",
+                    "data_fim": "2026-04-15",
+                    "quantidade": 100.0,
+                }
+            ],
+            "password": DJANGO_ADMIN_PASSWORD,
+        }
+        response = client.patch(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
+            payload,
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_get_calendario_sucesso(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_com_programacao_marco,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/calendario/?mes=3&ano=2026")
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+
+    def test_get_calendario_campos_retornados(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_com_programacao_marco,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/calendario/?mes=3&ano=2026")
+        assert response.status_code == status.HTTP_200_OK
+        item = response.json()[0]
+        assert "uuid" in item
+        assert "numero" in item
+        assert "produto" in item
+        assert "fornecedor" in item
+        assert "empenho" in item
+        assert "unidade_medida" in item
+        assert "programacoes" in item
+
+    def test_get_calendario_sem_mes_e_ano(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/calendario/")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_get_calendario_params_invalidos(
+        self, client_autenticado_vinculo_dilog_cronograma
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        response = client.get("/cronogramas-semanais/calendario/?mes=abc&ano=xyz")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_gerar_pdf_apenas_para_fornecedor_ciente(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_rascunho,
+        cronograma_semanal_enviado_ao_fornecedor,
+        cronograma_semanal_fornecedor_ciente,
+    ):
+        """PDF deve ser gerado somente para cronogramas no status FORNECEDOR_CIENTE."""
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        # RASCUNHO — deve retornar 400
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/gerar-pdf-cronograma/"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        # ENVIADO_AO_FORNECEDOR — deve retornar 400
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/gerar-pdf-cronograma/"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+        # FORNECEDOR_CIENTE — deve retornar 200 com PDF
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/gerar-pdf-cronograma/"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.headers["Content-Type"] == "application/pdf"
+
+        pdf_reader = PdfReader(BytesIO(response.content))
+        pdf_text = "\n".join(page.extract_text() for page in pdf_reader.pages)
+
+        assert "PONTO A PONTO" in pdf_text
+        assert "Nº do Empenho" in pdf_text
+        assert "Quantidade Total do Empenho" in pdf_text
+        assert "Custo Unitário do Produto" in pdf_text
+
+        # Colunas exclusivas do template Mensal não devem aparecer no template semanal
+        assert "Etapa" not in pdf_text or "Data Programada" in pdf_text

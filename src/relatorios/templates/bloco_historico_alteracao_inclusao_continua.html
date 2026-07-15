@@ -1,0 +1,31 @@
+{% load index %}
+{% load safe_html_tags %}
+
+{% block historico_alteracao_inclusao_continua %}
+  {% if historico_alteracao %}
+    <div class="observacoes">
+      <div>
+        <p class="cabecalho">Histórico de alteração:</p>
+        {% for item in historico_alteracao %}
+          <div>{{ item.log.criado_em|date:"d/m/Y H:i:s" }} - {{ item.log.status_evento_explicacao }} a data fim</div>
+          {% for quantidade in item.quantidades %}
+            <div style="margin-top: 8px;">
+              {{ quantidade.periodo_escolar.nome }} - {{ quantidade.tipos_alimentacao.all|concatena_str }} -
+              {{ quantidade.numero_alunos }} - Encerramento previsto para:
+              {{ quantidade.encerrado_a_partir_de|formatar_data_solicitacoes_alimentacao }}
+            </div>
+            {% if item.log.justificativa %}
+              <div style="margin-top: 8px;">
+                <span style="color: #c0392b; font-weight: bold;">Justificativa:</span>
+                {{ item.log.justificativa|safe_content }}
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+    <div>
+      <hr style="color: #EEEEEE; opacity: 0.3">
+    </div>
+  {% endif %}
+{% endblock %}

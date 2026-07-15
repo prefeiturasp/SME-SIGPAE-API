@@ -1,10 +1,10 @@
-from sme_sigpae_api.dados_comuns.models import Contato
-from sme_sigpae_api.dados_comuns.utils import secure_sample
-from sme_sigpae_api.escola.models import DiretoriaRegional
-from sme_sigpae_api.terceirizada.data.contratos import data_contratos
-from sme_sigpae_api.terceirizada.data.editais import data_editais
-from sme_sigpae_api.terceirizada.data.terceirizadas import data_terceirizadas
-from sme_sigpae_api.terceirizada.models import Contrato, Edital, Lote, Terceirizada
+from src.dados_comuns.models import Contato
+from src.dados_comuns.utils import secure_sample
+from src.escola.models import DiretoriaRegional
+from src.terceirizada.data.contratos import data_contratos
+from src.terceirizada.data.editais import data_editais
+from src.terceirizada.data.terceirizadas import data_terceirizadas
+from src.terceirizada.models import Contrato, Edital, Lote, Terceirizada
 from utility.carga_dados.helper import ja_existe, progressbar
 
 

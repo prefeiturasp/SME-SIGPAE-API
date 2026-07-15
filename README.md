@@ -254,7 +254,7 @@ docker-compose -f docker-celery.yml up -d
 Na pasta `SME-SIGPAE-API`, com a virtualenv ativa rode
 
 ```
-celery -A config worker --beat -S sme_sigpae_api.dados_comuns.utils.NaiveDatabaseScheduler --loglevel=info
+celery -A config worker --beat -S src.dados_comuns.utils.NaiveDatabaseScheduler --loglevel=info
 ```
 
 

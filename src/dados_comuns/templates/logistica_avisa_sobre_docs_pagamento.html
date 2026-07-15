@@ -1,0 +1,38 @@
+{% extends 'email_base.html' %}
+
+{% block conteudo %}
+<div>
+  Olá!
+</div>
+
+<br/><br/>
+
+<div>
+  Este é um lembrete de que, para a <strong>Etapa {{ etapa }}</strong> do
+  <strong>Cronograma nº {{ numero_cronograma }}</strong>, referente a
+  <strong>{{ nome_produto }}</strong>, é necessário o envio dos Documentos para 
+  Pagamento (Nota Fiscal, Nota Fiscal Eletrônica e Solicitação de Pagamento),
+  a fim de possibilitar o início do Processo de Pagamento.
+</div>
+
+<br/><br/>
+
+<div>
+  Destacamos que o envio correto e completo da documentação é indispensável
+  para a regularidade do processo.
+</div>
+
+<br/><br/>
+
+<div>
+  Ratificamos que o pagamento será realizado em até 30 dias, contados a
+  partir da data de entrega de toda a documentação necessária.
+</div>
+
+<br/><br/>
+
+<div>
+  Caso a documentação já tenha sido previamente encaminhada, ou seu produto não
+  necessite de laudo (FLV), pedimos a gentileza de desconsiderar esta mensagem.
+</div>
+{% endblock %}

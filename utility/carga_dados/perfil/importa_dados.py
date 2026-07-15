@@ -10,12 +10,12 @@ from django.db.models import F, Func, Q, Value
 from openpyxl import Workbook, load_workbook, styles
 from rest_framework import status
 
-from sme_sigpae_api.dados_comuns.constants import DJANGO_ADMIN_TREINAMENTO_PASSWORD
-from sme_sigpae_api.dados_comuns.models import Contato
-from sme_sigpae_api.eol_servico.utils import EOLException, EOLServicoSGP
-from sme_sigpae_api.escola.models import Codae, DiretoriaRegional, Escola
-from sme_sigpae_api.perfil.data.perfis import data_perfis
-from sme_sigpae_api.perfil.models import (
+from src.dados_comuns.constants import DJANGO_ADMIN_TREINAMENTO_PASSWORD
+from src.dados_comuns.models import Contato
+from src.eol_servico.utils import EOLException, EOLServicoSGP
+from src.escola.models import Codae, DiretoriaRegional, Escola
+from src.perfil.data.perfis import data_perfis
+from src.perfil.models import (
     ImportacaoPlanilhaUsuarioPerfilCodae,
     ImportacaoPlanilhaUsuarioPerfilDre,
     ImportacaoPlanilhaUsuarioPerfilEscola,
@@ -23,13 +23,13 @@ from sme_sigpae_api.perfil.models import (
     Usuario,
     Vinculo,
 )
-from sme_sigpae_api.perfil.models.usuario import (
+from src.perfil.models.usuario import (
     ImportacaoPlanilhaUsuarioExternoCoreSSO,
     ImportacaoPlanilhaUsuarioServidorCoreSSO,
     ImportacaoPlanilhaUsuarioUEParceiraCoreSSO,
 )
-from sme_sigpae_api.perfil.services.usuario_coresso_service import EOLUsuarioCoreSSO
-from sme_sigpae_api.terceirizada.models import Terceirizada
+from src.perfil.services.usuario_coresso_service import EOLUsuarioCoreSSO
+from src.terceirizada.models import Terceirizada
 from utility.carga_dados.escola.helper import bcolors
 from utility.carga_dados.helper import ja_existe, progressbar
 

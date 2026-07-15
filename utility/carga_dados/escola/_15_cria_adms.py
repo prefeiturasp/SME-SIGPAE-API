@@ -1,4 +1,4 @@
-from sme_sigpae_api.perfil.models import Perfil
+from src.perfil.models import Perfil
 
 perfil_diretor_escola, created = Perfil.objects.get_or_create(
     nome="DIRETOR", ativo=True, super_usuario=True

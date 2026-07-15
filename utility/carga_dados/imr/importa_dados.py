@@ -1,7 +1,7 @@
 import logging
 
-from sme_sigpae_api.dados_comuns.behaviors import StatusAtivoInativo
-from sme_sigpae_api.imr.models import (
+from src.dados_comuns.behaviors import StatusAtivoInativo
+from src.imr.models import (
     CategoriaOcorrencia,
     ImportacaoPlanilhaTipoOcorrencia,
     ImportacaoPlanilhaTipoPenalidade,
@@ -10,8 +10,8 @@ from sme_sigpae_api.imr.models import (
     TipoOcorrencia,
     TipoPenalidade,
 )
-from sme_sigpae_api.perfil.models import Usuario
-from sme_sigpae_api.terceirizada.models import Edital
+from src.perfil.models import Usuario
+from src.terceirizada.models import Edital
 from utility.carga_dados.imr.schemas import (
     ImportacaoPlanilhaTipoOcorrenciaSchema,
     ImportacaoPlanilhaTipoPenalidadeSchema,

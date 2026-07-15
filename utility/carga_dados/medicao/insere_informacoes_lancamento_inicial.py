@@ -4,47 +4,47 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
+from src.cardapio.alteracao_tipo_alimentacao.api.serializers_create import (
     AlteracaoCardapioSerializerCreate,
 )
-from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao.models import (
+from src.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
 )
-from sme_sigpae_api.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import (
+from src.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import (
     AlteracaoCardapioCEMEISerializerCreate,
 )
-from sme_sigpae_api.cardapio.base.models import TipoAlimentacao
-from sme_sigpae_api.dados_comuns.utils import eh_dia_util, obter_dias_uteis_apos
-from sme_sigpae_api.dieta_especial.logs_models.models import (
+from src.cardapio.base.models import TipoAlimentacao
+from src.dados_comuns.utils import eh_dia_util, obter_dias_uteis_apos
+from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
-from sme_sigpae_api.dieta_especial.solicitacao_dieta_especial.models import (
+from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
 )
-from sme_sigpae_api.escola.models import (
+from src.escola.models import (
     FaixaEtaria,
     LogAlunosMatriculadosFaixaEtariaDia,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
     TipoTurma,
 )
-from sme_sigpae_api.escola.utils import calendario_sgp
-from sme_sigpae_api.inclusao_alimentacao.api.serializers.serializers_create import (
+from src.escola.utils import calendario_sgp
+from src.inclusao_alimentacao.api.serializers.serializers_create import (
     GrupoInclusaoAlimentacaoNormalCreationSerializer,
     InclusaoAlimentacaoContinuaCreationSerializer,
 )
-from sme_sigpae_api.inclusao_alimentacao.models import (
+from src.inclusao_alimentacao.models import (
     MotivoInclusaoContinua,
     MotivoInclusaoNormal,
 )
-from sme_sigpae_api.kit_lanche.api.serializers.serializers_create import (
+from src.kit_lanche.api.serializers.serializers_create import (
     SolicitacaoKitLancheAvulsaCreationSerializer,
     SolicitacaoKitLancheCEMEICreateSerializer,
 )
-from sme_sigpae_api.kit_lanche.models import KitLanche
-from sme_sigpae_api.perfil.models.perfil import Perfil, Vinculo
-from sme_sigpae_api.perfil.models.usuario import Usuario
+from src.kit_lanche.models import KitLanche
+from src.perfil.models.perfil import Perfil, Vinculo
+from src.perfil.models.usuario import Usuario
 
 QUANTIDADE_ALUNOS = 100
 MOTIVO_INCLUSAO_PROGRAMAS_PROJETOS = "Programas/Projetos Específicos"

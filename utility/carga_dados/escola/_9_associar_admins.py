@@ -1,7 +1,7 @@
 import datetime
 
-from sme_sigpae_api.escola.models import Codae, DiretoriaRegional, Escola
-from sme_sigpae_api.perfil.models import Perfil, Usuario, Vinculo
+from src.escola.models import Codae, DiretoriaRegional, Escola
+from src.perfil.models import Perfil, Usuario, Vinculo
 
 data_atual = datetime.date.today()
 

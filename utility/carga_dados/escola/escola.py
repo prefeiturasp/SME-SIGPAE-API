@@ -2,7 +2,7 @@ from unicodedata import normalize
 
 import pandas as pd
 
-from sme_sigpae_api.escola.models import (
+from src.escola.models import (
     DiretoriaRegional,
     Escola,
     TipoGestao,

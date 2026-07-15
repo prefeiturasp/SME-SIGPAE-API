@@ -1,0 +1,945 @@
+import datetime
+import json
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+from model_bakery import baker
+from rest_framework import status
+
+from ..models import DiaSuspensaoAtividades, FaixaEtaria, MudancaFaixasEtarias
+from ..services import NovoSGPServicoLogado
+from .conftest import mocked_foto_aluno_novosgp, mocked_response, mocked_token_novosgp
+
+ENDPOINT_ALUNOS_POR_PERIODO = "quantidade-alunos-por-periodo"
+ENDPOINT_LOTES = "lotes"
+
+
+def test_url_endpoint_quantidade_alunos_por_periodo(client_autenticado, escola):
+    response = client_autenticado.get(
+        f"/{ENDPOINT_ALUNOS_POR_PERIODO}/escola/{escola.uuid}/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_endpoint_lotes(client_autenticado):
+    response = client_autenticado.get(f"/{ENDPOINT_LOTES}/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_endpoint_lotes_delete(client_autenticado, lote):
+    response = client_autenticado.delete(f"/{ENDPOINT_LOTES}/{lote.uuid}/")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_url_endpoint_alunos_por_faixa_etaria_data_invalida(
+    client_autenticado, escola_periodo_escolar
+):
+    url = f"/quantidade-alunos-por-periodo/{escola_periodo_escolar.uuid}/alunos-por-faixa-etaria/2020-15-40/"
+    response = client_autenticado.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+    json = response.json()
+    assert "data_referencia" in json
+    assert json["data_referencia"][0] == "Informe uma data válida."
+
+
+def test_url_endpoint_alunos_por_faixa_etaria_faixas_nao_cadastradas(
+    client_autenticado, escola_periodo_escolar
+):
+    url = f"/quantidade-alunos-por-periodo/{escola_periodo_escolar.uuid}/alunos-por-faixa-etaria/2020-10-20/"
+    response = client_autenticado.get(url)
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert (
+        response.json()["detail"]
+        == "Não há faixas etárias cadastradas. Contate a coordenadoria CODAE."
+    )
+
+
+def test_url_endpoint_alunos_por_faixa_etaria_periodo_invalido(
+    client_autenticado, escola_periodo_escolar, faixas_etarias
+):
+    url = "/quantidade-alunos-por-periodo/sou-um-uuid-invalido/alunos-por-faixa-etaria/2020-10-20/"
+    response = client_autenticado.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_url_endpoint_alunos_por_faixa_etaria(
+    client_autenticado,
+    escola_periodo_escolar,
+    eolservicosgp_get_lista_alunos,
+    faixas_etarias,
+):
+    url = f"/quantidade-alunos-por-periodo/{escola_periodo_escolar.uuid}/alunos-por-faixa-etaria/2020-10-20/"
+    response = client_autenticado.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+    json = response.json()
+
+    assert json["count"] == 2
+    result0 = json["results"][0]
+    assert result0["faixa_etaria"]["inicio"] == 12
+    assert result0["faixa_etaria"]["fim"] == 24
+    assert result0["count"] == 1
+    result1 = json["results"][1]
+    assert result1["faixa_etaria"]["inicio"] == 24
+    assert result1["faixa_etaria"]["fim"] == 48
+    assert result1["count"] == 2
+
+
+def test_url_endpoint_cria_mudanca_faixa_etaria(client_autenticado_coordenador_codae):
+    data = {
+        "faixas_etarias_ativadas": [
+            {"inicio": 1, "fim": 4},
+            {"inicio": 4, "fim": 8},
+            {"inicio": 8, "fim": 12},
+            {"inicio": 12, "fim": 17},
+        ],
+        "justificativa": "Primeiro cadastro",
+    }
+    response = client_autenticado_coordenador_codae.post(
+        "/faixas-etarias/", content_type="application/json", data=data
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    assert MudancaFaixasEtarias.objects.count() == 1
+    assert FaixaEtaria.objects.count() == 4
+
+    mfe = MudancaFaixasEtarias.objects.first()
+
+    assert mfe.justificativa == data["justificativa"]
+
+    faixas_etarias = FaixaEtaria.objects.filter(ativo=True).order_by("inicio")
+    for expected, actual in zip(data["faixas_etarias_ativadas"], faixas_etarias):
+        assert expected["inicio"] == actual.inicio
+        assert expected["fim"] == actual.fim
+
+
+def test_url_endpoint_cria_mudanca_faixa_etaria_erro_fim_menor_igual_inicio(
+    client_autenticado_coordenador_codae,
+):
+    faixas_etarias = [{"inicio": 10, "fim": 5}]
+    response = client_autenticado_coordenador_codae.post(
+        "/faixas-etarias/",
+        content_type="application/json",
+        data={
+            "faixas_etarias_ativadas": faixas_etarias,
+            "justificativa": "Primeiro cadastro",
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert (
+        str(response.data["faixas_etarias_ativadas"][0]["non_field_errors"][0])
+        == "A faixa etária tem que terminar depois do início: inicio=10;fim=5"
+    )
+
+
+def test_url_endpoint_cria_mudanca_faixa_etaria_erro_inicio_menor_zero(
+    client_autenticado_coordenador_codae,
+):
+    faixas_etarias = [{"inicio": -10, "fim": 5}]
+    response = client_autenticado_coordenador_codae.post(
+        "/faixas-etarias/",
+        content_type="application/json",
+        data={
+            "faixas_etarias_ativadas": faixas_etarias,
+            "justificativa": "Primeiro cadastro",
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    assert (
+        str(response.data["faixas_etarias_ativadas"][0]["inicio"][0])
+        == "Certifque-se de que este valor seja maior ou igual a 0."
+    )
+
+
+def test_url_endpoint_lista_faixas_etarias(
+    client_autenticado_coordenador_codae, faixas_etarias
+):
+    response = client_autenticado_coordenador_codae.get("/faixas-etarias/")
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()
+
+    ativas = FaixaEtaria.objects.filter(ativo=True)
+
+    assert json["count"] == len(ativas)
+
+    for expected, actual in zip(ativas, json["results"]):
+        assert actual["inicio"] == expected.inicio
+        assert actual["fim"] == expected.fim
+
+
+def test_url_endpoint_get_foto_aluno(client_autenticado_da_escola, aluno, monkeypatch):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_foto_aluno",
+        lambda p1, p2: mocked_response(mocked_foto_aluno_novosgp(), 200),
+    )
+    response = client_autenticado_da_escola.get(f"/alunos/{aluno.codigo_eol}/ver-foto/")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["data"] == mocked_foto_aluno_novosgp()
+
+
+def test_url_endpoint_get_foto_aluno_204(
+    client_autenticado_da_escola, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_foto_aluno",
+        lambda p1, p2: mocked_response(mocked_foto_aluno_novosgp(), 204),
+    )
+    response = client_autenticado_da_escola.get(f"/alunos/{aluno.codigo_eol}/ver-foto/")
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+def test_url_endpoint_get_foto_aluno_token_invalido(
+    client_autenticado_da_escola, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(None, 204),
+    )
+    response = client_autenticado_da_escola.get(f"/alunos/{aluno.codigo_eol}/ver-foto/")
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"] == "Não foi possível logar no sistema"
+
+
+def test_url_endpoint_update_foto_aluno(
+    client_autenticado_da_escola, aluno, monkeypatch
+):
+    foto = SimpleUploadedFile(
+        "file.jpg", str.encode("file_content"), content_type="image/jpg"
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "atualizar_foto_aluno",
+        lambda p1, p2, p3: mocked_response("c8c564b6-ea7f-4549-9474-6234e2406881", 200),
+    )
+    response = client_autenticado_da_escola.post(
+        f"/alunos/{aluno.codigo_eol}/atualizar-foto/", {"file": foto}
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["data"] == "c8c564b6-ea7f-4549-9474-6234e2406881"
+
+
+def test_url_endpoint_update_foto_aluno_error(
+    client_autenticado_da_escola, aluno, monkeypatch
+):
+    foto = SimpleUploadedFile(
+        "file.jpg", str.encode("file_content"), content_type="image/jpg"
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "atualizar_foto_aluno",
+        lambda p1, p2, p3: mocked_response(None, 400),
+    )
+    response = client_autenticado_da_escola.post(
+        f"/alunos/{aluno.codigo_eol}/atualizar-foto/", {"file": foto}
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_update_foto_aluno_token_invalido(
+    client_autenticado_da_escola, aluno, monkeypatch
+):
+    foto = SimpleUploadedFile(
+        "file.jpg", str.encode("file_content"), content_type="image/jpg"
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 204),
+    )
+    response = client_autenticado_da_escola.post(
+        f"/alunos/{aluno.codigo_eol}/atualizar-foto/", {"file": foto}
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"] == "Não foi possível logar no sistema"
+
+
+def test_url_endpoint_deletar_foto_aluno(
+    client_autenticado_da_escola, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "deletar_foto_aluno",
+        lambda p1, p2: mocked_response(None, 200),
+    )
+    response = client_autenticado_da_escola.delete(
+        f"/alunos/{aluno.codigo_eol}/deletar-foto/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_endpoint_deletar_foto_aluno_204(
+    client_autenticado_da_escola, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "deletar_foto_aluno",
+        lambda p1, p2: mocked_response(None, 204),
+    )
+    response = client_autenticado_da_escola.delete(
+        f"/alunos/{aluno.codigo_eol}/deletar-foto/"
+    )
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+def test_url_endpoint_deletar_foto_aluno_token_invalido(
+    client_autenticado_da_escola, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(None, 204),
+    )
+    response = client_autenticado_da_escola.delete(
+        f"/alunos/{aluno.codigo_eol}/deletar-foto/"
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"] == "Não foi possível logar no sistema"
+
+
+def test_escola_simplissima_dre_unpaginated(
+    client_autenticado_da_dre, diretoria_regional
+):
+    assert diretoria_regional.escolas.count() == 3
+    response = client_autenticado_da_dre.get(
+        "/escolas-simplissima-com-dre-unpaginated/terc-total/?dre=d305add2-f070-4ad3-8c17-ba9664a7c655"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 3
+
+
+def test_url_endpoint_escola_simplessima_actions(
+    client_autenticado_da_escola, diretoria_regional
+):
+    client = client_autenticado_da_escola
+
+    response = client.get(f"/escolas-simplissima/{diretoria_regional.uuid}/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_endpoint_periodos_escolares_actions(client_autenticado_da_escola):
+    client = client_autenticado_da_escola
+
+    agora = datetime.datetime.now()
+    mes = agora.month
+    ano = agora.year
+
+    response = client.get(
+        f"/periodos-escolares/inclusao-continua-por-mes/?mes={mes}&ano={ano}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_considera_encerrado_por_quantidade_periodo(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    periodo_noite = baker.make("PeriodoEscolar", nome="NOITE")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 4, 20),
+        data_final=datetime.date(2026, 5, 31),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        encerrado_a_partir_de=datetime.date(2026, 4, 30),
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_tarde,
+        encerrado_a_partir_de=datetime.date(2026, 5, 10),
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_noite,
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=05&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] == {
+        "TARDE": str(periodo_tarde.uuid),
+        "NOITE": str(periodo_noite.uuid),
+    }
+
+
+def test_url_endpoint_diretoria_regional_simplessima_actions(
+    client_autenticado_da_dre, diretoria_regional
+):
+    client = client_autenticado_da_dre
+
+    response = client.get("/diretorias-regionais-simplissima/lista-completa/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_endpoint_subprefeitura_actions(client_autenticado_da_dre):
+    client = client_autenticado_da_dre
+
+    response = client.get("/subprefeituras/lista-completa/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_lotes_actions(client_autenticado_da_dre):
+    client = client_autenticado_da_dre
+
+    response = client.get("/lotes/meus-lotes-vinculados/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_aluno_actions(client_autenticado_da_dre, escola):
+    aluno = baker.make(
+        "Aluno",
+        nome="Fulano da Silva",
+        codigo_eol="000001",
+        data_nascimento=datetime.date(2000, 1, 1),
+        escola=escola,
+    )
+
+    client = client_autenticado_da_dre
+    response = client.get(f"/alunos/{aluno.codigo_eol}/aluno-pertence-a-escola/000546/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_relatorios_alunos_matriculados_actions(client_autenticado_da_dre):
+    client = client_autenticado_da_dre
+
+    response = client.get("/relatorio-alunos-matriculados/filtros/")
+    assert response.status_code == status.HTTP_200_OK
+
+    response = client.get("/relatorio-alunos-matriculados/filtrar/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_url_relatorios_alunos_matriculados_actions(client_autenticado_da_escola):
+    client = client_autenticado_da_escola
+
+    response = client.get("/relatorio-alunos-matriculados/filtros/")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert (
+        len(response_data["lotes"]) == 1
+    ), f"Esperado 1 lote, mas encontrou {len(response_data['lotes'])}"
+
+    assert (
+        len(response_data["diretorias_regionais"]) == 1
+    ), f"Esperado 1 DRE, mas encontrou {len(response_data['diretorias_regionais'])}"
+
+    assert (
+        len(response_data["tipos_unidade_escolar"]) == 1
+    ), f"Esperado 1 tipo unidade escolar, mas encontrou {len(response_data['tipos_unidade_escolar'])}"
+
+    assert (
+        len(response_data["escolas"]) == 1
+    ), f"Esperado 1 escola, mas encontrou {len(response_data['escolas'])}"
+
+    response = client.get("/relatorio-alunos-matriculados/filtrar/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_escolas_simplissimas_com_paginacao(client_autenticado_da_escola):
+    response = client_autenticado_da_escola.get("/escolas-simplissima/?page=1")
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()["results"]) == 4
+    assert "count" in response.json()
+
+
+def test_escolas_simplissimas_sem_paginacao(client_autenticado_da_escola):
+    response = client_autenticado_da_escola.get("/escolas-simplissima/")
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()["results"]) == 4
+    assert "count" not in response.json()
+
+
+def test_url_log_alunos_matriculados_faixa_etaria_dia(
+    client_autenticado_da_escola, escola, log_alunos_matriculados_faixa_etaria_dia
+):
+    response = client_autenticado_da_escola.get(
+        f"/log-alunos-matriculados-faixa-etaria-dia/?escola_uuid={escola.uuid}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 1
+    assert response.json()[0]["escola"] == escola.nome
+    assert response.json()[0]["quantidade"] == 100
+
+
+def test_url_endpoint_cria_dias_suspensao_atividades(
+    client_autenticado_coordenador_codae, edital_factory
+):
+    edital_factory.create(
+        numero="Edital de Pregão nº 75/SME/2022",
+        uuid="85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2",
+    )
+    edital_factory.create(
+        numero="Edital de Pregão nº 36/SME/2022",
+        uuid="10b56d45-b82d-4cce-9a14-36bbb082ac4d",
+    )
+    edital_factory.create(
+        numero="Edital de Pregão nº 18/SME/2023",
+        uuid="00f008ea-3410-4547-99e6-4e91e0168af8",
+    )
+    data = {
+        "data": "2022-08-08",
+        "cadastros_calendario": [
+            {
+                "editais": [
+                    "85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2",
+                    "10b56d45-b82d-4cce-9a14-36bbb082ac4d",
+                ],
+                "tipo_unidades": [
+                    "1cc3253b-e297-42b3-8e57-ebfd115a1aba",
+                    "40ee89a7-dc70-4abb-ae21-369c67f2b9e3",
+                ],
+            },
+            {
+                "editais": [
+                    "85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2",
+                    "00f008ea-3410-4547-99e6-4e91e0168af8",
+                ],
+                "tipo_unidades": [
+                    "ac4858ff-1c11-41f3-b539-7a02696d6d1b",
+                ],
+            },
+        ],
+    }
+    response = client_autenticado_coordenador_codae.post(
+        "/dias-suspensao-atividades/", content_type="application/json", data=data
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    assert DiaSuspensaoAtividades.objects.count() == 6
+    response = client_autenticado_coordenador_codae.get(
+        "/dias-suspensao-atividades/?mes=8&ano=2022", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 6
+    response = client_autenticado_coordenador_codae.get(
+        "/dias-suspensao-atividades/?mes=9&ano=2022", content_type="application/json"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 0
+    data = {"data": "2022-08-08", "cadastros_calendario": []}
+    response = client_autenticado_coordenador_codae.post(
+        "/dias-suspensao-atividades/", content_type="application/json", data=data
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    assert DiaSuspensaoAtividades.objects.count() == 0
+
+
+def test_url_endpoint_matriculados_no_mes__quantidade_por_data(
+    client_autenticado_coordenador_codae,
+    escola_factory,
+    log_alunos_matriculados_periodo_escola_factory,
+):
+    escola = escola_factory.create()
+
+    data = datetime.date.today() - datetime.timedelta(days=5)
+
+    log_1 = log_alunos_matriculados_periodo_escola_factory.create(
+        escola=escola,
+        quantidade_alunos=10,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+    )
+    log_2 = log_alunos_matriculados_periodo_escola_factory.create(
+        escola=escola,
+        quantidade_alunos=15,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+    )
+
+    log_1.criado_em = data
+    log_1.save(update_fields=["criado_em"])
+
+    log_2.criado_em = data
+    log_2.save(update_fields=["criado_em"])
+
+    data_formatted = data.strftime("%Y-%m-%d")
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/matriculados-no-mes/quantidade-por-data/?data={data_formatted}&escola_uuid={escola.uuid}",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == 25
+
+
+def test_url_endpoint_matriculados_no_mes__quantidade_por_data_dia_atual(
+    client_autenticado_coordenador_codae,
+    escola_factory,
+    log_alunos_matriculados_periodo_escola_factory,
+):
+    escola = escola_factory.create()
+
+    data = datetime.date.today()
+    dia_anterior = data - datetime.timedelta(days=1)
+
+    log_1 = log_alunos_matriculados_periodo_escola_factory.create(
+        escola=escola,
+        quantidade_alunos=5,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+    )
+    log_2 = log_alunos_matriculados_periodo_escola_factory.create(
+        escola=escola,
+        quantidade_alunos=15,
+        cei_ou_emei="N/A",
+        infantil_ou_fundamental="N/A",
+    )
+
+    log_1.criado_em = dia_anterior
+    log_1.save(update_fields=["criado_em"])
+
+    log_2.criado_em = dia_anterior
+    log_2.save(update_fields=["criado_em"])
+
+    data_formatted = data.strftime("%Y-%m-%d")
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/matriculados-no-mes/quantidade-por-data/?data={data_formatted}&escola_uuid={escola.uuid}",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == 20
+
+
+def test_url_endpoint_meses_anos(client_autenticado_da_escola):
+    response = client_autenticado_da_escola.get(
+        "/relatorio-controle-frequencia/meses-anos/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 3
+
+
+def test_url_endpoint_filtros(client_autenticado_da_escola):
+    response = client_autenticado_da_escola.get(
+        f"/relatorio-controle-frequencia/filtros/?mes=6&ano=2024"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["periodos"] == []
+    assert response.data["data_inicial"] == datetime.date(2024, 6, 1)
+    assert response.data["data_final"] == datetime.date(2024, 6, 30)
+
+
+def test_url_endpoint_filtrar(
+    client_autenticado_da_escola, periodo_escolar, periodo_escolar_parcial
+):
+    response = client_autenticado_da_escola.get(
+        f"/relatorio-controle-frequencia/filtrar/?periodos={json.dumps([str(periodo_escolar.uuid)])}&data_inicial=2024-06-03&data_final=2024-06-25"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["periodos"].get("INTEGRAL") == 0
+    assert response.data["total_matriculados"] == 0
+
+
+def test_escola_simplissima_dre_unpaginated_nome_edital(
+    client_autenticado_da_dre, escola_edital_41
+):
+    nome_edital = "Edital de Pregão nº 41/sme/2017"
+    response = client_autenticado_da_dre.get(
+        f"/escolas-simplissima-com-dre-unpaginated/terc-total/?nome_edital={nome_edital}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.json()) == 1
+    escola = response.json()[0]
+    assert escola_edital_41.nome == escola["nome"]
+    assert nome_edital == escola["lote_obj"]["contratos_do_lote"][0]["edital_numero"]
+
+
+def test_grupos_por_dre_quando_parametro_dre_nao_enviado(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(f"/grupos-unidade-escolar/por-dre/")
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Parâmetro 'dre' é obrigatório."}
+
+
+def test_grupos_por_dre_quando_parametro_dre_nao_existe(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(
+        f"/grupos-unidade-escolar/por-dre/?dre={grupos_da_dre.escolas.first().uuid}"
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "DRE não encontrada."}
+
+
+def test_grupos_por_dre_quando_parametro_dre_existe(
+    client_autenticado_da_dre, grupos_da_dre
+):
+    response = client_autenticado_da_dre.get(
+        f"/grupos-unidade-escolar/por-dre/?dre={grupos_da_dre.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "grupos": [
+            {"habilitado": True, "nome": "Grupo 1"},
+            {"habilitado": False, "nome": "Grupo 2"},
+            {"habilitado": False, "nome": "Grupo 3"},
+        ]
+    }
+
+
+def test_dia_calendario_sem_perido_escolar(
+    client_autenticado_da_dre, dia_calendario_diurno, dia_calendario_noturno, escola
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=5&ano=2024"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 1
+    esperado = {
+        "escola": escola.nome,
+        "dia": "15",
+        "periodo_escolar": None,
+        "data": "15/05/2024",
+        "dia_letivo": True,
+        "criado_em": dia_calendario_diurno.criado_em.strftime("%d/%m/%Y %H:%M:%S"),
+        "alterado_em": dia_calendario_diurno.alterado_em.strftime("%d/%m/%Y %H:%M:%S"),
+    }
+    for campo, valor in esperado.items():
+        assert resposta[0][campo] == valor
+
+
+def test_dia_calendario_com_perido_escolar(
+    client_autenticado_da_dre,
+    dia_calendario_diurno,
+    dia_calendario_noturno,
+    escola,
+    periodo_escolar_noite,
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=5&ano=2024&periodo_escolar_uuid={periodo_escolar_noite.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 1
+    esperado = {
+        "escola": escola.nome,
+        "dia": "15",
+        "data": "15/05/2024",
+        "dia_letivo": False,
+        "criado_em": dia_calendario_noturno.criado_em.strftime("%d/%m/%Y %H:%M:%S"),
+        "alterado_em": dia_calendario_noturno.alterado_em.strftime("%d/%m/%Y %H:%M:%S"),
+    }
+    for campo, valor in esperado.items():
+        assert resposta[0][campo] == valor
+
+    assert resposta[0]["periodo_escolar"]["uuid"] == str(periodo_escolar_noite.uuid)
+    assert resposta[0]["periodo_escolar"]["nome"] == "NOITE"
+
+
+def test_dia_calendario_mes_nao_cadastrado(
+    client_autenticado_da_dre, escola, periodo_escolar_noite
+):
+    response = client_autenticado_da_dre.get(
+        f"/dias-calendario/?escola_uuid={escola.uuid}&mes=6&ano=2024&periodo_escolar_uuid={periodo_escolar_noite.uuid}"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    resposta = response.json()
+    assert isinstance(resposta, list)
+    assert len(resposta) == 0
+
+
+def test_url_endpoint_filtrar_sem_duplicacao_faixa_etaria(
+    client_autenticado_da_escola,
+    escola,
+    periodo_escolar,
+    periodo_escolar_parcial,
+    faixas_etarias_ativas,
+):
+    # Forçar a escola a ser CEI para testar a lógica específica
+    tipo_unidade_cei = baker.make("TipoUnidadeEscolar", iniciais="CEI")
+    escola.tipo_unidade = tipo_unidade_cei
+    escola.save()
+
+    aluno = baker.make(
+        "Aluno",
+        nome="Criança Teste",
+        codigo_eol="999999",
+        escola=escola,
+        periodo_escolar=periodo_escolar,
+    )
+
+    data_teste = datetime.date(2024, 6, 15)
+
+    # Log 1: Faixa Etária 1
+    log1 = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola,
+        periodo_escolar=periodo_escolar,
+        faixa_etaria=faixas_etarias_ativas[0],
+        quantidade=1,
+        data=data_teste,
+    )
+    baker.make("LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log1, aluno=aluno)
+
+    # Log 2: Faixa Etária 2 (mesmo aluno, mesmo dia, mesmo período)
+    log2 = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola,
+        periodo_escolar=periodo_escolar,
+        faixa_etaria=faixas_etarias_ativas[1],
+        quantidade=1,
+        data=data_teste,
+    )
+    baker.make("LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log2, aluno=aluno)
+
+    url = (
+        f"/relatorio-controle-frequencia/filtrar/?"
+        f"periodos={json.dumps([str(periodo_escolar.uuid)])}&"
+        f"data_inicial=2024-06-15&data_final=2024-06-15&"
+        f"mes_ano=06_2024"
+    )
+
+    response = client_autenticado_da_escola.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    # Deve ser 1, não 2, pois o aluno é o mesmo e usamos Count(distinct=True)
+    assert response.data["total_matriculados"] == 1
+    assert response.data["periodos"]["INTEGRAL"] == 1
+
+
+def test_url_endpoint_filtrar_total_unico_por_mes_usa_historico_matricula(
+    client_autenticado_da_escola_cei,
+    escola_cei,
+    periodo_escolar,
+    periodo_escolar_parcial,
+    faixas_etarias_ativas,
+):
+    aluno = baker.make(
+        "Aluno",
+        nome="Criança Histórico",
+        codigo_eol="1234567",
+        escola=escola_cei,
+    )
+    baker.make(
+        "HistoricoMatriculaAluno",
+        aluno=aluno,
+        escola=escola_cei,
+        data_inicio=datetime.date(2024, 6, 1),
+        data_fim=datetime.date(2024, 6, 30),
+    )
+
+    data_teste = datetime.date(2024, 6, 15)
+    log_integral = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar,
+        faixa_etaria=faixas_etarias_ativas[0],
+        quantidade=1,
+        data=data_teste,
+    )
+    log_parcial = baker.make(
+        "LogAlunosMatriculadosFaixaEtariaDia",
+        escola=escola_cei,
+        periodo_escolar=periodo_escolar_parcial,
+        faixa_etaria=faixas_etarias_ativas[1],
+        quantidade=1,
+        data=data_teste,
+    )
+    baker.make(
+        "LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log_integral, aluno=aluno
+    )
+    baker.make(
+        "LogAlunoPorDia", log_alunos_matriculados_faixa_dia=log_parcial, aluno=aluno
+    )
+
+    url = (
+        f"/relatorio-controle-frequencia/filtrar/?"
+        f"periodos={json.dumps([str(periodo_escolar.uuid), str(periodo_escolar_parcial.uuid)])}&"
+        f"data_inicial=2024-06-01&data_final=2024-06-30&"
+        f"mes_ano=06_2024"
+    )
+
+    response = client_autenticado_da_escola_cei.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["total_matriculados"] == 1
+
+
+ENDPOINT_LOTES_SIMPLES = "lotes-simples"
+
+
+def test_url_endpoint_lotes_simples_filtro_edital(
+    client_autenticado, lote, diretoria_regional
+):
+    from src.terceirizada.models import Edital, Contrato
+
+    edital = baker.make(Edital, numero="Edital Teste")
+    outro_lote = baker.make("Lote", nome="Outro Lote")
+    contrato = baker.make(
+        Contrato,
+        edital=edital,
+        numero="CT-001",
+        lotes=[lote],
+        make_m2m=True,
+    )
+
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LOTES_SIMPLES}/",
+        {"contratos_do_lote__edital__uuid": edital.uuid},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    results = response.data["results"]
+    uuids_retornados = [r["uuid"] for r in results]
+    assert str(lote.uuid) in uuids_retornados
+    assert str(outro_lote.uuid) not in uuids_retornados

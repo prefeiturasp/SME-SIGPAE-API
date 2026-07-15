@@ -1,0 +1,170 @@
+import datetime
+
+from django.db.models import Q
+from django_filters import rest_framework as filters
+
+from src.dados_comuns.utils import get_ultimo_dia_mes
+
+from ..models import SolicitacaoMedicaoInicial
+
+
+class DiaParaCorrecaoFilter(filters.FilterSet):
+    uuid_solicitacao_medicao = filters.CharFilter(
+        field_name="medicao__solicitacao_medicao_inicial__uuid", lookup_expr="iexact"
+    )
+    nome_grupo = filters.CharFilter(
+        field_name="medicao__grupo__nome", lookup_expr="iexact"
+    )
+    nome_periodo_escolar = filters.CharFilter(
+        field_name="medicao__periodo_escolar__nome", lookup_expr="iexact"
+    )
+
+
+class ValorMedicaoFilter(filters.FilterSet):
+    uuid_solicitacao_medicao = filters.CharFilter(
+        field_name="medicao__solicitacao_medicao_inicial__uuid",
+        lookup_expr="iexact",
+    )
+    nome_grupo = filters.CharFilter(method="filtra_nome_grupo")
+    nome_periodo_escolar = filters.CharFilter(
+        field_name="medicao__periodo_escolar__nome", lookup_expr="iexact"
+    )
+    uuid_medicao_periodo_grupo = filters.CharFilter(
+        field_name="medicao__uuid", lookup_expr="iexact"
+    )
+
+    def filtra_nome_grupo(self, queryset, _, value):
+        uuid_solicitacao_medicao = self.data.get("uuid_solicitacao_medicao")
+
+        if uuid_solicitacao_medicao:
+            solicitacao = SolicitacaoMedicaoInicial.objects.get(
+                uuid=uuid_solicitacao_medicao
+            )
+            medicao = solicitacao.get_medicao_por_periodo_e_ou_grupo(value)
+            return queryset.filter(medicao=medicao) if medicao else queryset.none()
+
+        return queryset.filter(medicao__grupo__nome=value)
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        if not self.data:
+            return queryset
+
+        nome_grupo = self.data.get("nome_grupo")
+        uuid_medicao_periodo_grupo = self.data.get("uuid_medicao_periodo_grupo")
+
+        if not nome_grupo and not uuid_medicao_periodo_grupo:
+            queryset = queryset.filter(medicao__grupo__isnull=True)
+
+        return queryset
+
+
+class EmpenhoFilter(filters.FilterSet):
+    numero = filters.CharFilter(field_name="numero", lookup_expr="icontains")
+    contrato = filters.UUIDFilter(method="filtra_contrato")
+    edital = filters.UUIDFilter(method="filtra_edital")
+
+    def filtra_contrato(self, queryset, _, value):
+        return queryset.filter(contrato__uuid=value)
+
+    def filtra_edital(self, queryset, _, value):
+        return queryset.filter(contrato__edital__uuid=value)
+
+
+class ClausulaDeDescontoFilter(filters.FilterSet):
+    numero_clausula = filters.CharFilter(
+        field_name="numero_clausula", lookup_expr="icontains"
+    )
+    porcentagem_desconto = filters.NumberFilter(
+        field_name="porcentagem_desconto", lookup_expr="exact"
+    )
+    edital = filters.UUIDFilter(method="filtra_edital")
+
+    def filtra_edital(self, queryset, _, value):
+        return queryset.filter(edital__uuid=value)
+
+
+class ParametrizacaoFinanceiraFilter(filters.FilterSet):
+    lote = filters.UUIDFilter(field_name="lote__uuid")
+    tipos_unidades = filters.CharFilter(method="filtra_tipos_unidades")
+    edital = filters.UUIDFilter(field_name="edital__uuid")
+
+    def filtra_tipos_unidades(self, queryset, _, value):
+        tipos_unidades_uuids = value.split(",")
+        return queryset.filter(
+            grupo_unidade_escolar__tipos_unidades__uuid__in=tipos_unidades_uuids
+        ).distinct()
+
+
+class RelatorioFinanceiroFilter(filters.FilterSet):
+    lote = filters.CharFilter(method="filtra_lotes")
+    grupo_unidade_escolar = filters.CharFilter(method="filtra_grupos")
+    mes_ano = filters.CharFilter(method="filtra_mes_ano")
+    status = filters.CharFilter(method="filtra_status")
+
+    def filtra_mes_ano(self, queryset, _, value):
+        mes, ano = value.split("_")
+        return queryset.filter(mes=mes, ano=ano)
+
+    def filtra_lotes(self, queryset, _, value):
+        uuids = value.split(",")
+        return queryset.filter(lote__uuid__in=uuids)
+
+    def filtra_grupos(self, queryset, _, value):
+        uuids = value.split(",")
+        return queryset.filter(grupo_unidade_escolar__uuid__in=uuids)
+
+    def filtra_status(self, queryset, _, value):
+        values = value.split(",")
+        return queryset.filter(status__in=values)
+
+
+class SolicitacaoMedicaoInicialFilter(filters.FilterSet):
+    escola_uuid = filters.CharFilter(field_name="escola__uuid", lookup_expr="iexact")
+    mes = filters.CharFilter(field_name="mes", lookup_expr="iexact")
+    ano = filters.CharFilter(field_name="ano", lookup_expr="iexact")
+    recreio_nas_ferias = filters.CharFilter(
+        field_name="recreio_nas_ferias__uuid", lookup_expr="iexact"
+    )
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        if not self.data:
+            return queryset
+
+        if (
+            "recreio_nas_ferias" not in self.data
+            and "voltar_unico_registro" in self.data
+        ):
+            queryset = queryset.filter(recreio_nas_ferias__isnull=True)
+
+        return queryset
+
+
+class LancheEmergencialDiarioFilter(filters.FilterSet):
+    escola_uuid = filters.CharFilter(field_name="escola__uuid", lookup_expr="iexact")
+    mes = filters.CharFilter(method="noop")
+    ano = filters.CharFilter(method="noop")
+
+    def noop(self, queryset, _, value):
+        return queryset
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        if not self.data:
+            return queryset
+
+        mes = self.data.get("mes")
+        ano = self.data.get("ano")
+        if not mes or not ano:
+            return queryset
+
+        primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
+        ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+
+        return queryset.filter(data_inicial__lte=ultimo_dia_mes).filter(
+            Q(data_final__gte=primeiro_dia_mes) | Q(data_final__isnull=True)
+        )

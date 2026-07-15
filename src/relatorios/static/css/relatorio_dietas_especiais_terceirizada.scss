@@ -1,0 +1,64 @@
+@import "./variaveis";
+
+.wrapper {
+  padding: 3%;
+
+  .titulo-relatorio {
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 23px;
+    color: #000000;
+  }
+
+  .status {
+    font-family: 'Roboto', sans-serif;
+    font-style: normal;
+    font-size: 15px;
+    color: #000000;
+    margin-top: 3%;
+    text-align: left;
+    font-weight: 700;
+    width: 100%;
+  }
+
+  .filtros {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Roboto', sans-serif;
+    font-style: normal;
+    font-size: 15px;
+    color: #000000;
+    margin-top: 1%;
+
+    .todos-filtros {
+      text-align: left;
+      width: 75%;
+    }
+
+    .contador {
+      text-align: right;
+      width: 25%;
+    }
+  }
+
+  .resultado {
+    margin-top: 3%;
+    font-family: 'Roboto', sans-serif;
+    font-style: normal;
+    font-size: 10px;
+    font-weight: normal;
+
+    .table {
+      border: 1px solid $cinza-quase-claro;
+
+      thead {
+        background-color: #EFEFEF;
+;
+      }
+    }
+  }
+}

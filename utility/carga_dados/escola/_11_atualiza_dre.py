@@ -3,7 +3,7 @@ import os
 
 import environ
 
-from sme_sigpae_api.escola.models import DiretoriaRegional
+from src.escola.models import DiretoriaRegional
 from utility.carga_dados.escola.helper import bcolors, printa_pontinhos
 
 ROOT_DIR = environ.Path(__file__) - 1
