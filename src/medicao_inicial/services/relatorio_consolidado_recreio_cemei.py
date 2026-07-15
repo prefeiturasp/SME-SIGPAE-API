@@ -435,7 +435,7 @@ def _processa_periodo_regular(
         soma = relatorio_consolidado_recreio_cei.processa_grupos_recreio(
             solicitacao, filtros, campo, periodo, query_params
         )
-    elif periodo in [RECREIO_NAS_FERIAS_EMEI, "Solicitações de Alimentação"]:
+    elif periodo in [RECREIO_NAS_FERIAS_EMEI, "Solicitações de Alimentação", "Colaboradores"]:
         soma = relatorio_consolidado_recreio_emei_emef.processa_grupos_recreio(
             solicitacao,
             filtros,
