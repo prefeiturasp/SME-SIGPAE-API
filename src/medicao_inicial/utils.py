@@ -2329,6 +2329,18 @@ def popula_campo_total(
         valores_dia += ["0"]
 
 
+def _tem_dia_letivo_sigpae(dia, solicitacao, periodo_escolar):
+    if not periodo_escolar:
+        return False
+    return DiaLetivoSIGPAE.objects.filter(
+        escolas=solicitacao.escola,
+        data__day=dia,
+        data__month=solicitacao.mes,
+        data__year=solicitacao.ano,
+        periodos_escolares__nome__iexact=periodo_escolar,
+    ).exists()
+
+
 def get_eh_dia_letivo(dia, solicitacao, periodo_escolar=None):
     if dia == "Total":
         return False
@@ -2344,15 +2356,8 @@ def get_eh_dia_letivo(dia, solicitacao, periodo_escolar=None):
         data = datetime.date(ano, mes, dia)
         return data.weekday() < 5
 
-    if periodo_escolar:
-        if DiaLetivoSIGPAE.objects.filter(
-            escolas=solicitacao.escola,
-            data__day=dia,
-            data__month=solicitacao.mes,
-            data__year=solicitacao.ano,
-            periodos_escolares__nome__iexact=periodo_escolar,
-        ).exists():
-            return True
+    if _tem_dia_letivo_sigpae(dia, solicitacao, periodo_escolar):
+        return True
 
     try:
         return DiaCalendario.objects.get(
