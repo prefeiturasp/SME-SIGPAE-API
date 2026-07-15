@@ -57,6 +57,7 @@ from src.escola.models import (
     Lote,
     PeriodoEscolar,
 )
+from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 from src.escola.utils import string_to_faixa
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
@@ -2328,7 +2329,7 @@ def popula_campo_total(
         valores_dia += ["0"]
 
 
-def get_eh_dia_letivo(dia, solicitacao):
+def get_eh_dia_letivo(dia, solicitacao, periodo_escolar=None):
     if dia == "Total":
         return False
 
@@ -2342,6 +2343,16 @@ def get_eh_dia_letivo(dia, solicitacao):
         ano = recreio.data_inicio.year
         data = datetime.date(ano, mes, dia)
         return data.weekday() < 5
+
+    if periodo_escolar:
+        if DiaLetivoSIGPAE.objects.filter(
+            escolas=solicitacao.escola,
+            data__day=dia,
+            data__month=solicitacao.mes,
+            data__year=solicitacao.ano,
+            periodos_escolares__nome__iexact=periodo_escolar,
+        ).exists():
+            return True
 
     try:
         return DiaCalendario.objects.get(
@@ -2367,7 +2378,9 @@ def popula_campos(
     indice_tabela,
 ):
     valores_dia = [dia]
-    eh_dia_letivo = get_eh_dia_letivo(dia, solicitacao)
+    periodos = tabela.get("periodos", [])
+    periodo_escolar = periodos[0] if len(periodos) == 1 else None
+    eh_dia_letivo = get_eh_dia_letivo(dia, solicitacao, periodo_escolar)
     indice_campo = 0
     indice_categoria = 0
     popula_campos_nomes(
@@ -2659,7 +2672,9 @@ def popula_tabelas_emebs(solicitacao, tabelas):
         tabela = tabelas[indice_tabela]
         for dia in list(dias_no_mes) + ["Total"]:
             valores_dia = [dia]
-            eh_dia_letivo = get_eh_dia_letivo(dia, solicitacao)
+            periodos = tabela.get("periodos", [])
+            periodo_escolar = periodos[0] if len(periodos) == 1 else None
+            eh_dia_letivo = get_eh_dia_letivo(dia, solicitacao, periodo_escolar)
             indice_campo = 0
             indice_categoria = 0
 
@@ -2830,7 +2845,7 @@ def get_logs_emebs(solicitacao, tipo_log, periodo_corrente):
     return logs
 
 
-def get_lista_dias_letivos(solicitacao):
+def get_lista_dias_letivos(solicitacao, periodo_escolar=None):
     eh_recreio = (
         hasattr(solicitacao, "recreio_nas_ferias") and solicitacao.recreio_nas_ferias
     )
@@ -2843,7 +2858,7 @@ def get_lista_dias_letivos(solicitacao):
         ]
 
     _, num_dias = monthrange(int(solicitacao.ano), int(solicitacao.mes))
-    return [get_eh_dia_letivo(dia, solicitacao) for dia in range(1, num_dias + 1)]
+    return [get_eh_dia_letivo(dia, solicitacao, periodo_escolar) for dia in range(1, num_dias + 1)]
 
 
 def popula_tabelas_cei(solicitacao, tabelas):
@@ -2863,6 +2878,11 @@ def popula_tabelas_cei(solicitacao, tabelas):
     for indice_tabela in quantidade_tabelas:
         tabela = tabelas[indice_tabela]
         tabela_anterior = tabelas[indice_tabela - 1] if indice_tabela > 0 else None
+
+        periodos = tabela.get("periodos", [])
+        periodo_escolar = periodos[0] if len(periodos) == 1 else None
+        tabela["dias_letivos"] = get_lista_dias_letivos(solicitacao, periodo_escolar)
+
         for dia in list(dias_no_mes) + ["Total"]:
             total_mensal_categoria = popula_campos_cei(
                 solicitacao,
@@ -2874,9 +2894,7 @@ def popula_tabelas_cei(solicitacao, tabelas):
                 tabela_anterior,
             )
 
-    dias_letivos = get_lista_dias_letivos(solicitacao)
-
-    return tabelas, dias_letivos
+    return tabelas
 
 
 def popula_tabelas_cemei(solicitacao, tabelas, recreio: bool = False):
@@ -2932,7 +2950,9 @@ def popula_campos_cemei(
     recreio: bool = False,
 ):
     valores_dia = [dia]
-    eh_dia_letivo = get_eh_dia_letivo(dia, solicitacao)
+    periodos = tabela.get("periodos", [])
+    periodo_escolar = periodos[0] if len(periodos) == 1 else None
+    eh_dia_letivo = get_eh_dia_letivo(dia, solicitacao, periodo_escolar)
     indice_campo = 0
     indice_categoria = 0
     indice_periodo = 0
@@ -3470,11 +3490,11 @@ def build_tabelas_relatorio_medicao(solicitacao, ordem_periodos=None):
 
 def build_tabelas_relatorio_medicao_cei(solicitacao):
     tabelas_com_headers = build_headers_tabelas_cei(solicitacao)
-    tabelas_populadas, dias_letivos = popula_tabelas_cei(
+    tabelas_populadas = popula_tabelas_cei(
         solicitacao, tabelas_com_headers
     )
 
-    return tabelas_populadas, dias_letivos
+    return tabelas_populadas
 
 
 def build_tabelas_relatorio_medicao_cei_recreio_nas_ferias(solicitacao):
