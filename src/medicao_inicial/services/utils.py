@@ -248,7 +248,15 @@ def gera_colunas_alimentacao(
     )
     df.loc["TOTAL"] = df.apply(pd.to_numeric, errors="coerce").sum()
     df.rename(
-        columns={"RECREIO NAS FÉRIAS": "ALIMENTAÇÕES ALUNOS PARTICIPANTES"},
+        columns={
+            "RECREIO NAS FÉRIAS": "ALIMENTAÇÕES ALUNOS PARTICIPANTES",
+            "RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": "ALIMENTAÇÕES ALUNOS PARTICIPANTES",
+            "RECREIO NAS FÉRIAS - 4 A 14 ANOS": "ALIMENTAÇÕES TURMA INFANTIL",
+            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": "DIETA TIPO A",
+            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS": "DIETA TIPO A - INFANTIL",
+            "DIETA ESPECIAL - TIPO B - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": "DIETA TIPO B",
+            "DIETA ESPECIAL - TIPO B - RECREIO NAS FÉRIAS - 4 A 14 ANOS": "DIETA TIPO B",
+        },
         level=0,
         inplace=True,
     )

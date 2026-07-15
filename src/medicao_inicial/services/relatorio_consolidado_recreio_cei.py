@@ -406,7 +406,7 @@ def _calcula_soma_medicao(
         .filter(
             nome_campo=nome_campo,
             faixa_etaria_id=faixa_etaria,
-            categoria_medicao__nome=categoria,
+            categoria_medicao__nome__contains=categoria,
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))["total"]
