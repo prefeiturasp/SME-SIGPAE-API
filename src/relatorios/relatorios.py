@@ -1854,7 +1854,7 @@ def relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias(solicitacao)
 
 
 def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
-    tabelas, dias_letivos = build_tabelas_relatorio_medicao_cei(solicitacao)
+    tabelas = build_tabelas_relatorio_medicao_cei(solicitacao)
     tabelas_somatorios = build_tabela_somatorio_body_cei(solicitacao)
     tipos_contagem_alimentacao = solicitacao.tipos_contagem_alimentacao.values_list(
         "nome", flat=True
@@ -1873,7 +1873,6 @@ def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
                 1, monthrange(int(solicitacao.ano), int(solicitacao.mes))[1] + 1
             ),
             "tabelas": tabelas,
-            "dias_letivos": dias_letivos,
             "tabela_observacoes": tabela_observacoes,
             "tabelas_somatorios": tabelas_somatorios,
         },
