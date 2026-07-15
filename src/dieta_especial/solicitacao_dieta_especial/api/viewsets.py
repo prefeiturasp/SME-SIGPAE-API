@@ -1449,14 +1449,19 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-recreio-nas-ferias",
         permission_classes=(PermissaoRelatorioRecreioNasFerias,),
     )
     def relatorio_recreio_nas_ferias(self, request):
         self.pagination_class = RelatorioPagination
         try:
-            queryset = filtra_relatorio_recreio_nas_ferias(request.query_params)
+            query_params = convert_dict_to_querydict(request.data)
+            for pag_param in ["page", "page_size"]:
+                if pag_param in request.data and pag_param not in request.query_params:
+                    request._request.GET = request._request.GET.copy()
+                    request._request.GET[pag_param] = request.data[pag_param]
+            queryset = filtra_relatorio_recreio_nas_ferias(query_params)
             page = self.paginate_queryset(queryset)
             if page is not None:
                 serializer = self.get_serializer(page, many=True)
@@ -1469,7 +1474,7 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-recreio-nas-ferias/exportar-pdf",
         permission_classes=(PermissaoRelatorioRecreioNasFerias,),
     )
@@ -1479,7 +1484,7 @@ class SolicitacaoDietaEspecialViewSet(
             gera_pdf_relatorio_recreio_nas_ferias_async.delay(
                 user=user,
                 nome_arquivo="relatorio_recreio_nas_ferias.pdf",
-                params=request.query_params,
+                params=request.data,
             )
             return Response(
                 dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
@@ -1490,7 +1495,7 @@ class SolicitacaoDietaEspecialViewSet(
 
     @action(
         detail=False,
-        methods=["GET"],
+        methods=["POST"],
         url_path="relatorio-recreio-nas-ferias/exportar-excel",
         permission_classes=(PermissaoRelatorioRecreioNasFerias,),
     )
@@ -1500,7 +1505,7 @@ class SolicitacaoDietaEspecialViewSet(
             gera_xlsx_relatorio_recreio_nas_ferias_async.delay(
                 user=user,
                 nome_arquivo="relatorio_recreio_nas_ferias.xlsx",
-                params=request.query_params,
+                params=request.data,
             )
             return Response(
                 dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
