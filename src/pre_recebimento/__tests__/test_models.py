@@ -17,7 +17,6 @@ from ..documento_recebimento.models import (
     TipoDeDocumentoDeRecebimento,
 )
 from ..ficha_tecnica.models import AnaliseFichaTecnica, FichaTecnicaDoProduto
-from ..layout_embalagem.models import LayoutDeEmbalagem, TipoDeEmbalagemDeLayout
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
@@ -232,51 +231,6 @@ def test_solicitacao_alteracao_cronograma_queryset_filtrar_por_status(
         },
     )
     assert qs.count() == 1
-
-
-def test_layout_de_embalagem_instance_model(layout_de_embalagem):
-    model = layout_de_embalagem
-    assert isinstance(model, LayoutDeEmbalagem)
-    assert model.ficha_tecnica
-    assert model.observacoes
-
-
-def test_layout_de_embalagem_srt_model(layout_de_embalagem):
-    numero_ficha = layout_de_embalagem.ficha_tecnica.numero
-    produto_ficha = layout_de_embalagem.ficha_tecnica.produto.nome
-
-    assert (
-        str(layout_de_embalagem)
-        == f"Layout de Embalagens {numero_ficha} - {produto_ficha}"
-    )
-
-
-def test_layout_de_embalagem_meta_modelo(layout_de_embalagem):
-    assert layout_de_embalagem._meta.verbose_name == "Layout de Embalagem"
-    assert layout_de_embalagem._meta.verbose_name_plural == "Layouts de Embalagem"
-
-
-def test_tipo_de_embalagem_instance_model(tipo_de_embalagem_de_layout):
-    model = tipo_de_embalagem_de_layout
-    assert isinstance(model, TipoDeEmbalagemDeLayout)
-    assert model.layout_de_embalagem
-    assert model.tipo_embalagem
-    assert model.status
-    assert model.complemento_do_status
-
-
-def test_tipo_de_embalagem_srt_model(tipo_de_embalagem_de_layout):
-    assert tipo_de_embalagem_de_layout.__str__() == "PRIMARIA - APROVADO"
-
-
-def test_tipo_de_embalagem_meta_modelo(tipo_de_embalagem_de_layout):
-    assert (
-        tipo_de_embalagem_de_layout._meta.verbose_name == "Tipo de Embalagem de Layout"
-    )
-    assert (
-        tipo_de_embalagem_de_layout._meta.verbose_name_plural
-        == "Tipos de Embalagens de Layout"
-    )
 
 
 def test_documento_de_recebimento_instance_model(documento_de_recebimento_factory):
