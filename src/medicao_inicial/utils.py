@@ -2332,12 +2332,14 @@ def popula_campo_total(
 def _tem_dia_letivo_sigpae(dia, solicitacao, periodo_escolar):
     if not periodo_escolar:
         return False
+
+    periodo_tratado = periodo_escolar.split()[-1]
     return DiaLetivoSIGPAE.objects.filter(
         escolas=solicitacao.escola,
         data__day=dia,
         data__month=solicitacao.mes,
         data__year=solicitacao.ano,
-        periodos_escolares__nome__iexact=periodo_escolar,
+        periodos_escolares__nome__iexact=periodo_tratado,
     ).exists()
 
 
