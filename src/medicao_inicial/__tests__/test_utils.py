@@ -1970,3 +1970,31 @@ def test_get_eh_dia_letivo_sigpae_tem_precedencia_sobre_dia_calendario(
         )
         is True
     )
+
+
+def test_get_eh_dia_letivo_nao_considera_dia_letivo_sigpae_de_outra_data(
+    solicitacao_medicao_inicial,
+    periodo_escolar_manha,
+):
+    dia_consultado = 10
+    data_do_registro = datetime.date(
+        solicitacao_medicao_inicial.ano,
+        solicitacao_medicao_inicial.mes,
+        11,
+    )
+
+    dia_letivo_sigpae = baker.make(
+        "DiaLetivoSIGPAE",
+        data=data_do_registro,
+    )
+    dia_letivo_sigpae.escolas.add(solicitacao_medicao_inicial.escola)
+    dia_letivo_sigpae.periodos_escolares.add(periodo_escolar_manha)
+
+    assert (
+        get_eh_dia_letivo(
+            dia_consultado,
+            solicitacao_medicao_inicial,
+            periodo_escolar_manha.nome,
+        )
+        is False
+    )
