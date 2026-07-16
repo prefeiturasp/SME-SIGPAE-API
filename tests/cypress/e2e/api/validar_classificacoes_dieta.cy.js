@@ -1,13 +1,14 @@
 /// <reference types='cypress' />
 
 describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () => {
-	var usuario = Cypress.config('usuario_diretor_ue')
-	var senha = Cypress.config('senha')
+	const usuario = Cypress.env('usuario_classificacoes_dieta') || '13318331325'
+	const senha = Cypress.env('senha') || 'adminadmin'
 
 	before(() => {
 		cy.autenticar_login(usuario, senha)
 	})
 
+	
 	context('Casos de teste para a rota api/classificacoes-dieta/', () => {
 		it('Validar GET de classificações dieta com sucesso', () => {
 			var id = ''
@@ -15,9 +16,13 @@ describe('Validar rotas de classificações de dieta da aplicação SIGPAE', () 
 				expect(response.status).to.eq(200)
 				expect(response).to.have.property('body').that.is.an('array').and.not.to
 					.be.empty
-				expect(response.body[0]).to.have.property('id').that.exist
-				expect(response.body[0]).to.have.property('descricao').that.exist
-				expect(response.body[0]).to.have.property('nome').that.exist
+				response.body.forEach((classificacao) => {
+					expect(classificacao).to.have.property('id').that.exist
+					expect(classificacao).to.have.property('descricao').that.exist
+					expect(classificacao).to.have.property('nome').that.exist
+				})
+				expect(response.body.map((classificacao) => classificacao.nome)).to.include
+					.members(['Tipo A', 'Tipo A ENTERAL', 'Tipo B', 'Tipo C'])
 			})
 		})
 
