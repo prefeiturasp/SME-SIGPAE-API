@@ -43,6 +43,7 @@ from src.medicao_inicial.utils import (
     obter_instancia_dados,
     substitui_criador_system_por_usuario_real,
     tratar_valores,
+    get_eh_dia_letivo,
 )
 
 from .data import (
@@ -1877,3 +1878,123 @@ def test_obter_instancia_dados_desconto_financeiro_cei(
     )
 
     assert resultado == obj
+
+
+def test_get_eh_dia_letivo_retorna_true_quando_existe_dia_letivo_sigpae(
+    solicitacao_medicao_inicial,
+    periodo_escolar_manha,
+):
+    dia = 10
+    data = datetime.date(
+        solicitacao_medicao_inicial.ano,
+        solicitacao_medicao_inicial.mes,
+        dia,
+    )
+
+    dia_letivo_sigpae = baker.make(
+        "DiaLetivoSIGPAE",
+        data=data,
+    )
+    dia_letivo_sigpae.escolas.add(solicitacao_medicao_inicial.escola)
+    dia_letivo_sigpae.periodos_escolares.add(periodo_escolar_manha)
+
+    assert (
+        get_eh_dia_letivo(
+            dia,
+            solicitacao_medicao_inicial,
+            periodo_escolar_manha.nome,
+        )
+        is True
+    )
+
+
+def test_get_eh_dia_letivo_nao_considera_dia_letivo_sigpae_de_outro_periodo(
+    solicitacao_medicao_inicial,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+):
+    dia = 10
+    data = datetime.date(
+        solicitacao_medicao_inicial.ano,
+        solicitacao_medicao_inicial.mes,
+        dia,
+    )
+
+    dia_letivo_sigpae = baker.make(
+        "DiaLetivoSIGPAE",
+        data=data,
+    )
+    dia_letivo_sigpae.escolas.add(solicitacao_medicao_inicial.escola)
+    dia_letivo_sigpae.periodos_escolares.add(periodo_escolar_tarde)
+
+    assert (
+        get_eh_dia_letivo(
+            dia,
+            solicitacao_medicao_inicial,
+            periodo_escolar_manha.nome,
+        )
+        is False
+    )
+
+
+def test_get_eh_dia_letivo_sigpae_tem_precedencia_sobre_dia_calendario(
+    solicitacao_medicao_inicial,
+    periodo_escolar_manha,
+):
+    dia = 10
+    data = datetime.date(
+        solicitacao_medicao_inicial.ano,
+        solicitacao_medicao_inicial.mes,
+        dia,
+    )
+
+    baker.make(
+        "DiaCalendario",
+        escola=solicitacao_medicao_inicial.escola,
+        data=data,
+        dia_letivo=False,
+    )
+
+    dia_letivo_sigpae = baker.make(
+        "DiaLetivoSIGPAE",
+        data=data,
+    )
+    dia_letivo_sigpae.escolas.add(solicitacao_medicao_inicial.escola)
+    dia_letivo_sigpae.periodos_escolares.add(periodo_escolar_manha)
+
+    assert (
+        get_eh_dia_letivo(
+            dia,
+            solicitacao_medicao_inicial,
+            periodo_escolar_manha.nome,
+        )
+        is True
+    )
+
+
+def test_get_eh_dia_letivo_nao_considera_dia_letivo_sigpae_de_outra_data(
+    solicitacao_medicao_inicial,
+    periodo_escolar_manha,
+):
+    dia_consultado = 10
+    data_do_registro = datetime.date(
+        solicitacao_medicao_inicial.ano,
+        solicitacao_medicao_inicial.mes,
+        11,
+    )
+
+    dia_letivo_sigpae = baker.make(
+        "DiaLetivoSIGPAE",
+        data=data_do_registro,
+    )
+    dia_letivo_sigpae.escolas.add(solicitacao_medicao_inicial.escola)
+    dia_letivo_sigpae.periodos_escolares.add(periodo_escolar_manha)
+
+    assert (
+        get_eh_dia_letivo(
+            dia_consultado,
+            solicitacao_medicao_inicial,
+            periodo_escolar_manha.nome,
+        )
+        is False
+    )
