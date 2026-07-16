@@ -49,6 +49,9 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
     insere_tabela_periodos_na_planilha as recreio_emei_emef_insere_tabela,
 )
+from src.medicao_inicial.services.relatorio_consolidado_recreio_cemei import (
+    insere_tabela_periodos_na_planilha as recreio_cemei_insere_tabela,
+)
 
 MODEL_MEDICAO_RESPONSAVEL = "medicao_inicial.Responsavel"
 PROGRAMAS_E_PROOJETOS = "PROGRAMAS E PROJETOS"
@@ -7607,4 +7610,148 @@ def mock_query_params_excel_recreio_emef(solicitacao_recreio_emef, grupo_escolar
         "ano": solicitacao_recreio_emef.ano,
         "lotes[]": solicitacao_recreio_emef.escola.lote.uuid,
         "lotes": [solicitacao_recreio_emef.escola.lote.uuid],
+    }
+
+
+@pytest.fixture
+def mock_colunas_recreio_cemei(faixas_etarias_ativas):
+    return [
+        (
+            "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            faixa.id,
+        )
+        for faixa in faixas_etarias_ativas
+    ] + [
+        (
+            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES",
+            faixa.id,
+        )
+        for faixa in faixas_etarias_ativas
+    ] + [
+        (
+            "Recreio nas Férias - 4 a 14 anos",
+            "refeicao",
+        ),
+        (
+            "Recreio nas Férias - 4 a 14 anos",
+            "sobremesa",
+        ),
+        (
+            "Recreio nas Férias - 4 a 14 anos",
+            "total_refeicoes_pagamento",
+        ),
+        (
+            "Recreio nas Férias - 4 a 14 anos",
+            "total_sobremesas_pagamento",
+        ),
+        (
+            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS",
+            "refeicao",
+        ),
+        (
+            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS",
+            "frequencia",
+        ),
+        (
+            "Colaboradores",
+            "refeicao",
+        ),
+        (
+            "Colaboradores",
+            "sobremesa",
+        ),
+        (
+            "Colaboradores",
+            "total_refeicoes_pagamento",
+        ),
+        (
+            "Colaboradores",
+            "total_sobremesas_pagamento",
+        ),
+    ]
+
+
+@pytest.fixture
+def mock_linhas_recreio_cemei():
+    return [
+        [
+            "CEMEI",
+            "765432",
+            "CEMEI TESTE",
+            220.0,
+            220.0,
+            220.0,
+            220.0,
+            220.0,
+            220.0,
+            220.0,
+            220.0,
+            40.0,
+            40.0,
+            40.0,
+            40.0,
+            40.0,
+            40.0,
+            40.0,
+            40.0,
+            1800.0,
+            1800.0,
+            180.0,
+            180.0,
+            20.0,
+            20.0,
+            300.0,
+            300.0,
+            600.0,
+            300.0,
+        ]
+    ]
+
+
+@pytest.fixture
+def informacoes_excel_writer_recreio_cemei(
+    solicitacao_recreio_cemei,
+    mock_colunas_recreio_cemei,
+    mock_linhas_recreio_cemei,
+):
+    arquivo = BytesIO()
+    aba = (
+        f"Relatório Consolidado "
+        f"{solicitacao_recreio_cemei.mes}-{solicitacao_recreio_cemei.ano}"
+    )
+
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+
+    df = recreio_cemei_insere_tabela(
+        aba,
+        mock_colunas_recreio_cemei,
+        mock_linhas_recreio_cemei,
+        writer,
+    )
+
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()
+
+
+@pytest.fixture
+def mock_query_params_excel_recreio_cemei(
+    solicitacao_recreio_cemei,
+    grupo_unidade_escolar_cemei,
+):
+    return {
+        "dre": solicitacao_recreio_cemei.escola.diretoria_regional.uuid,
+        "status": "MEDICAO_APROVADA_PELA_CODAE",
+        "grupo_escolar": grupo_unidade_escolar_cemei,
+        "mes": solicitacao_recreio_cemei.mes,
+        "ano": solicitacao_recreio_cemei.ano,
+        "lotes[]": solicitacao_recreio_cemei.escola.lote.uuid,
+        "lotes": [
+            solicitacao_recreio_cemei.escola.lote.uuid,
+        ],
     }

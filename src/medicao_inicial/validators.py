@@ -89,6 +89,46 @@ def erros_unicos(lista_erros):
     return list(map(dict, set(tuple(sorted(erro.items())) for erro in lista_erros)))
 
 
+EXCLUIR_MEDICOES = ["ETEC", "Programas e Projetos", "Solicitações de Alimentação"]
+
+
+def validate_ultimo_dia_mes_letivo(
+    instance: SolicitacaoMedicaoInicial, lista_erros: list
+) -> list:
+    if not instance.escola.possui_alunos_regulares:
+        return lista_erros
+
+    mes = int(instance.mes)
+    ano = int(instance.ano)
+    ultimo_dia = calendar.monthrange(ano, mes)[1]
+
+    dias_letivos_calendario = DiaCalendario.objects.filter(
+        data__month=mes, data__year=ano, escola=instance.escola, dia_letivo=True
+    )
+    dias_letivos_list = list(
+        set(dias_letivos_calendario.values_list("data__day", flat=True))
+    )
+    dias_letivos_uteis = filtrar_dias_letivos(dias_letivos_list, mes, ano)
+
+    if ultimo_dia not in dias_letivos_uteis:
+        return lista_erros
+
+    dia_str = f"{ultimo_dia:02d}"
+    for medicao in instance.medicoes.exclude(grupo__nome__in=EXCLUIR_MEDICOES):
+        tem_valor = (
+            medicao.valores_medicao.filter(dia=dia_str).exclude(valor=None).exists()
+        )
+        if not tem_valor:
+            lista_erros.append(
+                {
+                    "periodo_escolar": medicao.nome_periodo_grupo,
+                    "erro": f"O último dia do mês ({dia_str}/{mes:02d}) é letivo e não foi preenchido.",
+                }
+            )
+
+    return erros_unicos(lista_erros)
+
+
 def buscar_valores_lancamento_alimentacoes(
     linhas_da_tabela,
     solicitacao,

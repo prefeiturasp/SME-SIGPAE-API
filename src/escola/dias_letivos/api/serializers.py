@@ -100,3 +100,15 @@ class DiaLetivoDetailSerializer(serializers.ModelSerializer):
             "unidades_educacionais",
             "periodos_escolares",
         )
+
+
+class DiaLetivoCalendarioSerializer(serializers.ModelSerializer):
+    periodos_escolares = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='nome'
+    )
+
+    class Meta:
+        model = DiaLetivoSIGPAE
+        fields = ("data", "periodos_escolares")

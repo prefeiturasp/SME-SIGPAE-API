@@ -798,6 +798,7 @@ class PainelCronogramaSerializer(serializers.ModelSerializer):
     log_mais_recente = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     programa_leve_leite = serializers.SerializerMethodField()
+    ponto_a_ponto = serializers.BooleanField(read_only=True)
 
     def get_produto(self, obj):
         try:
@@ -836,6 +837,7 @@ class PainelCronogramaSerializer(serializers.ModelSerializer):
             "produto",
             "log_mais_recente",
             "programa_leve_leite",
+            "ponto_a_ponto",
         )
 
 
@@ -846,6 +848,7 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
     programa_leve_leite = serializers.SerializerMethodField()
+    ponto_a_ponto = serializers.SerializerMethodField()
 
     def get_produto(self, obj):
         try:
@@ -867,6 +870,12 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
         except AttributeError:
             return None
 
+    def get_ponto_a_ponto(self, obj):
+        try:
+            return obj.cronograma.ponto_a_ponto
+        except AttributeError:
+            return False
+
     class Meta:
         model = SolicitacaoAlteracaoCronograma
         fields = (
@@ -878,6 +887,7 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
             "produto",
             "log_mais_recente",
             "programa_leve_leite",
+            "ponto_a_ponto",
         )
 
 
