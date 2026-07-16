@@ -1906,3 +1906,32 @@ def test_get_eh_dia_letivo_retorna_true_quando_existe_dia_letivo_sigpae(
         )
         is True
     )
+
+
+def test_get_eh_dia_letivo_nao_considera_dia_letivo_sigpae_de_outro_periodo(
+    solicitacao_medicao_inicial,
+    periodo_escolar_manha,
+    periodo_escolar_tarde,
+):
+    dia = 10
+    data = datetime.date(
+        solicitacao_medicao_inicial.ano,
+        solicitacao_medicao_inicial.mes,
+        dia,
+    )
+
+    dia_letivo_sigpae = baker.make(
+        "DiaLetivoSIGPAE",
+        data=data,
+    )
+    dia_letivo_sigpae.escolas.add(solicitacao_medicao_inicial.escola)
+    dia_letivo_sigpae.periodos_escolares.add(periodo_escolar_tarde)
+
+    assert (
+        get_eh_dia_letivo(
+            dia,
+            solicitacao_medicao_inicial,
+            periodo_escolar_manha.nome,
+        )
+        is False
+    )
