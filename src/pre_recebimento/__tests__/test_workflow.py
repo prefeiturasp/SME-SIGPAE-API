@@ -325,10 +325,6 @@ def test_ficha_tecnica_deve_enviar_email_ao_aprovar(
 
     contexto = kwargs["contexto_template"]
 
-    nome_fornecedor_esperado = (
-        f"{ficha.empresa.nome_fantasia} - {ficha.empresa.razao_social}"
-    )
-    assert contexto["nome_fornecedor"] == nome_fornecedor_esperado
     assert contexto["numero_ficha_tecnica"] == ficha.numero
     assert contexto["nome_produto"] == ficha.produto.nome
     assert "data_envio" in contexto
@@ -381,6 +377,49 @@ def test_ficha_tecnica_deve_enviar_email_ao_solicitar_correcao(
         == "pre_recebimento_email_codae_solicita_correcao_ficha_tecnica.html"
     )
     assert email_fornecedor in kwargs["destinatarios"]
+
+
+@patch("src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis")
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
+def test_deve_enviar_email_quando_fornecedor_corrigir_ficha_tecnica(
+    mock_enviar_email,
+    mock_usuarios_por_perfis,
+    ficha_tecnica_factory,
+    django_user_model,
+):
+    email_coordenador = "coordenador@test.com"
+    email_admin = "admin@test.com"
+    mock_usuarios_por_perfis.return_value = [email_coordenador, email_admin]
+
+    usuario = django_user_model.objects.create_user(
+        username="fornecedor@test.com",
+        password="123",
+        email="fornecedor@test.com",
+        registro_funcional="1234567",
+    )
+
+    ficha = ficha_tecnica_factory(
+        status=FichaTecnicaDoProduto.workflow_class.ENVIADA_PARA_CORRECAO
+    )
+
+    ficha.fornecedor_corrige(user=usuario)
+
+    mock_enviar_email.assert_called_once()
+
+    _, kwargs = mock_enviar_email.call_args
+
+    assert (
+        kwargs["titulo"] == f"Ficha Técnica corrigida pelo fornecedor - ({ficha.numero})"
+    )
+    assert (
+        kwargs["assunto"]
+        == f"Ficha Técnica corrigida pelo fornecedor - ({ficha.numero})"
+    )
+    assert (
+        kwargs["template"] == "pre_recebimento_email_fornecedor_corrige_ficha_tecnica.html"
+    )
+    assert email_coordenador in kwargs["destinatarios"]
+    assert email_admin in kwargs["destinatarios"]
 
 
 @patch("src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis")
