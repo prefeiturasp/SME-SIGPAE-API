@@ -1178,7 +1178,7 @@ def test_relatorio_recreio_nas_ferias(
     client_autenticado_vinculo_terceirizada_dieta,
     relatorio_recreio_nas_ferias_somente_autorizadas,
 ):
-    response = client_autenticado_vinculo_terceirizada_dieta.get(
+    response = client_autenticado_vinculo_terceirizada_dieta.post(
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
     )
     assert response.status_code == status.HTTP_200_OK
@@ -1222,7 +1222,7 @@ def test_relatorio_recreio_nas_ferias(
 
 
 def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_dilog):
-    response = client_autenticado_dilog.get(
+    response = client_autenticado_dilog.post(
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -1344,7 +1344,7 @@ def test_relatorio_recreio_exportar_xlsx(
     client_autenticado_vinculo_codae_gestao_alimentacao_dieta,
 ):
     client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
-    response = client.get(
+    response = client.post(
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/exportar-excel/"
     )
 
@@ -1359,7 +1359,7 @@ def test_relatorio_recreio_exportar_xlsx(
     client_autenticado_vinculo_codae_gestao_alimentacao_dieta,
 ):
     client, user = client_autenticado_vinculo_codae_gestao_alimentacao_dieta
-    response = client.get(
+    response = client.post(
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/exportar-excel/"
     )
 
