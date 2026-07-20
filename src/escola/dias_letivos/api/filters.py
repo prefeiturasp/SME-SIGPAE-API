@@ -21,7 +21,15 @@ class DiaLetivoFilter(filters.FilterSet):
         lookup_expr="exact",
         required=True,
     )
+    escola = filters.UUIDFilter(
+        field_name="escolas__uuid",
+        lookup_expr="exact",
+    )
+    periodo_escolar = filters.CharFilter(
+        field_name="periodos_escolares__nome",
+        lookup_expr="iexact",
+    )
 
     class Meta:
         model = DiaLetivoSIGPAE
-        fields = ("mes", "ano")
+        fields = ("mes", "ano", "escola", "periodo_escolar")

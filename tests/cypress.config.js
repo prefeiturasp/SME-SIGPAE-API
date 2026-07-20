@@ -34,6 +34,7 @@ module.exports = defineConfig({
 			usuario_codae: process.env.CODAE,
 			usuario_gpcodae: process.env.GPCODAE,
 			usuario_dre: process.env.DRE,
+			usuario_classificacoes_dieta: process.env.CLASSIFICACOES_DIETA,
 			usuario_homologacao_produto: process.env.HOMOLOCACAO_PRODUTO,
 			senha: process.env.SENHA,
 		},

@@ -5971,27 +5971,114 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
     def _gpcodae_aprova_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
-            self.salvar_log_transicao(
+            log_transicao = self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_APROVADA,
                 usuario=user,
+            )
+
+            numero_ficha_tecnica = self.numero
+            nome_produto = self.produto.nome if self.produto else "-"
+            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+
+            url_detalhes_ficha_tecnica = (
+                f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
+            )
+
+            contexto = {
+                "numero_ficha_tecnica": numero_ficha_tecnica,
+                "nome_produto": nome_produto,
+                "pregao_chamada_publica": self.pregao_chamada_publica,
+                "data_envio": data_envio,
+                "url_detalhes_ficha_tecnica": url_detalhes_ficha_tecnica,
+            }
+
+            EmailENotificacaoService.enviar_email(
+                titulo=f"Ficha Técnica Aprovada - ({numero_ficha_tecnica})",
+                assunto=f"[SIGPAE] Ficha Técnica Aprovada - ({numero_ficha_tecnica})",
+                template="pre_recebimento_email_codae_aprova_ficha_tecnica.html",
+                contexto_template=contexto,
+                destinatarios=PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
+                    self, somente_email=True
+                ),
             )
 
     @xworkflows.after_transition("gpcodae_envia_para_correcao")
     def _gpcodae_envia_para_correcao_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
-            self.salvar_log_transicao(
+            log_transicao = self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_CORRECAO,
                 usuario=user,
+            )
+
+            numero_ficha_tecnica = self.numero
+            nome_produto = self.produto.nome if self.produto else "-"
+            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+
+            url_detalhes_ficha_tecnica = (
+                f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
+            )
+
+            contexto = {
+                "numero_ficha_tecnica": numero_ficha_tecnica,
+                "nome_produto": nome_produto,
+                "pregao_chamada_publica": self.pregao_chamada_publica,
+                "data_envio": data_envio,
+                "url_detalhes_ficha_tecnica": url_detalhes_ficha_tecnica,
+            }
+
+            EmailENotificacaoService.enviar_email(
+                titulo=f"Correção solicitada na Ficha Técnica - ({numero_ficha_tecnica})",
+                assunto=f"[SIGPAE] Correção solicitada na Ficha Técnica - ({numero_ficha_tecnica})",
+                template="pre_recebimento_email_codae_solicita_correcao_ficha_tecnica.html",
+                contexto_template=contexto,
+                destinatarios=PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
+                    self, somente_email=True
+                ),
             )
 
     @xworkflows.after_transition("fornecedor_corrige")
     def _fornecedor_corrige_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
-            self.salvar_log_transicao(
+            log_transicao = self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE,
                 usuario=user,
+            )
+
+            empresa = self.empresa
+            nome_fornecedor = (
+                f"{empresa.nome_fantasia} - {empresa.razao_social}" if empresa else "-"
+            )
+            numero_ficha_tecnica = self.numero
+            nome_produto = self.produto.nome if self.produto else "-"
+            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+
+            url_detalhes_ficha_tecnica = (
+                f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
+            )
+
+            contexto = {
+                "nome_fornecedor": nome_fornecedor,
+                "numero_ficha_tecnica": numero_ficha_tecnica,
+                "nome_produto": nome_produto,
+                "pregao_chamada_publica": self.pregao_chamada_publica,
+                "data_envio": data_envio,
+                "url_detalhes_ficha_tecnica": url_detalhes_ficha_tecnica,
+            }
+
+            EmailENotificacaoService.enviar_email(
+                titulo=f"Ficha Técnica corrigida pelo fornecedor - ({numero_ficha_tecnica})",
+                assunto=f"Ficha Técnica corrigida pelo fornecedor - ({numero_ficha_tecnica})",
+                template="pre_recebimento_email_fornecedor_corrige_ficha_tecnica.html",
+                contexto_template=contexto,
+                destinatarios=PartesInteressadasService.usuarios_por_perfis(
+                    nomes_perfis=[
+                        constants.COORDENADOR_GESTAO_PRODUTO,
+                        constants.ADMINISTRADOR_GESTAO_PRODUTO,
+                    ],
+                    somente_email=True,
+                ),
             )
 
     @xworkflows.after_transition("fornecedor_atualiza")

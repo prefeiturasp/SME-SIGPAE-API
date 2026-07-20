@@ -22,6 +22,8 @@ from src.medicao_inicial.services import (
     relatorio_consolidado_cieja_cmct,
     relatorio_consolidado_emebs,
     relatorio_consolidado_emei_emef,
+    relatorio_consolidado_recreio_cei,
+    relatorio_consolidado_recreio_cemei,
     relatorio_consolidado_recreio_emei_emef,
 )
 
@@ -158,9 +160,19 @@ def _obter_modulo_da_unidade_recreio(tipos_de_unidade: list[str]) -> tuple:
     """
     estrategias = [
         {
-            "unidades": ORDEM_UNIDADES_GRUPO_EMEI,
+            "unidades": ORDEM_UNIDADES_GRUPO_EMEI | ORDEM_UNIDADES_GRUPO_EMEF,
             "modulo": relatorio_consolidado_recreio_emei_emef,
             "parametros": [tipos_de_unidade],
+        },
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_CEI,
+            "modulo": relatorio_consolidado_recreio_cei,
+            "parametros": [tipos_de_unidade],
+        },
+        {
+            "unidades": ORDEM_UNIDADES_GRUPO_CEMEI,
+            "modulo": relatorio_consolidado_recreio_cemei,
+            "parametros": [],
         },
     ]
     for estrategia in estrategias:

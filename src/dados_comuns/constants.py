@@ -496,14 +496,7 @@ ORDEM_HEADERS_CIEJA_CMCT = {
     "DIETA ESPECIAL - TIPO B": 11,
 }
 
-ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
-    "Solicitações de Alimentação": 1,
-    "Recreio nas Férias": 2,
-    "DIETA ESPECIAL - TIPO A": 3,
-    "DIETA ESPECIAL - TIPO B": 4,
-    "Colaboradores": 5,
-}
-
+# Para o recreio nas Férias
 ORDEM_CAMPOS_RECREIO = [
     "numero_de_alunos",
     "participantes",
@@ -532,6 +525,33 @@ ORDEM_CAMPOS_RECREIO = [
     "lanche_emergencial",
     "kit_lanche",
 ]
+
+ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
+    "Solicitações de Alimentação": 1,
+    "Recreio nas Férias": 2,
+    "DIETA ESPECIAL - TIPO A": 3,
+    "DIETA ESPECIAL - TIPO B": 4,
+    "Colaboradores": 5,
+}
+
+ORDEM_HEADERS_RECREIO_CEI = {
+    "Solicitações de Alimentação": 1,
+    "Recreio nas Férias": 2,
+    "DIETA ESPECIAL - TIPO A": 3,
+    "DIETA ESPECIAL - TIPO B": 4,
+    "Colaboradores": 5,
+}
+
+ORDEM_HEADERS_RECREIO_CEMEI = {
+    "Solicitações de Alimentação": 1,
+    "Recreio nas Férias - de 0 a 3 anos e 11 meses": 2,
+    "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": 3,
+    "DIETA ESPECIAL - TIPO B - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": 4,
+    "Recreio nas Férias - 4 a 14 anos": 5,
+    "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS": 6,
+    "DIETA ESPECIAL - TIPO B - RECREIO NAS FÉRIAS - 4 A 14 ANOS": 7,
+    "Colaboradores": 8,
+}
 
 
 class StatusProcessamentoArquivo(Enum):

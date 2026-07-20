@@ -23,27 +23,19 @@ function preencherCampoControlado(seletor, valor) {
 		.scrollIntoView()
 		.should('be.visible')
 		.then(($input) => {
-			if ($input.is(':disabled')) {
-				const input = $input[0]
-				const nativeSetter = Object.getOwnPropertyDescriptor(
-					window.HTMLInputElement.prototype,
-					'value',
-				).set
+			const input = $input[0]
+			const nativeSetter = Object.getOwnPropertyDescriptor(
+				window.HTMLInputElement.prototype,
+				'value',
+			).set
 
-				input.removeAttribute('disabled')
-				input.focus()
-				nativeSetter.call(input, valor)
-				input.dispatchEvent(new Event('input', { bubbles: true }))
-				input.dispatchEvent(new Event('change', { bubbles: true }))
-				input.dispatchEvent(new Event('blur', { bubbles: true }))
-				return
-			}
-
-			cy.wrap($input)
-				.click({ force: true })
-				.type('{selectall}{backspace}', { force: true })
-				.type(valor, { force: true, delay: 0 })
-				.trigger('blur')
+			input.removeAttribute('disabled')
+			input.removeAttribute('readonly')
+			input.focus()
+			nativeSetter.call(input, valor)
+			input.dispatchEvent(new Event('input', { bubbles: true }))
+			input.dispatchEvent(new Event('change', { bubbles: true }))
+			input.dispatchEvent(new Event('blur', { bubbles: true }))
 		})
 
 	cy.get('body').click(0, 0, { force: true })

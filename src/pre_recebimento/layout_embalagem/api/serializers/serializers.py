@@ -1,7 +1,7 @@
 import datetime
 
 from rest_framework import serializers
-
+from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from src.pre_recebimento.layout_embalagem.models import (
     ImagemDoTipoDeEmbalagem,
     LayoutDeEmbalagem,
@@ -148,6 +148,7 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source="get_status_display")
     log_mais_recente = serializers.SerializerMethodField()
     programa_leve_leite = serializers.SerializerMethodField()
+    eh_ficha_tecnica_flv = serializers.SerializerMethodField()
 
     def get_numero_ficha_tecnica(self, obj):
         try:
@@ -173,17 +174,25 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
                 return datetime.datetime.strftime(
                     obj.log_mais_recente.criado_em, "%d/%m/%Y %H:%M"
                 )
+
             return datetime.datetime.strftime(
                 obj.log_mais_recente.criado_em, "%d/%m/%Y"
             )
-        else:
-            return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+
+        return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
 
     def get_programa_leve_leite(self, obj):
         try:
             return obj.ficha_tecnica.programa == "LEVE_LEITE"
         except AttributeError:
             return None
+
+    def get_eh_ficha_tecnica_flv(self, obj):
+        try:
+            print(FichaTecnicaDoProduto)
+            return obj.ficha_tecnica.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV
+        except AttributeError:
+            return False
 
     class Meta:
         model = LayoutDeEmbalagem
@@ -195,4 +204,5 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
             "status",
             "log_mais_recente",
             "programa_leve_leite",
+            "eh_ficha_tecnica_flv",
         )

@@ -1921,15 +1921,7 @@ class OcorrenciaViewSet(
         detail=False,
         methods=["POST"],
         url_path="gera-ocorrencia-para-correcao",
-        permission_classes=[
-            UsuarioDiretoriaRegional
-            | UsuarioCODAEGestaoAlimentacao
-            | UsuarioCODAENutriManifestacao
-            | UsuarioCODAEGabinete
-            | UsuarioDinutreDiretoria
-            | UsuarioEmpresaTerceirizada
-            | UsuarioSupervisaoNutricao
-        ],
+        permission_classes=[UsuarioCODAENutriManifestacao],
     )
     @transaction.atomic
     def gera_ocorrencia_para_correcao(self, request):

@@ -22,6 +22,7 @@ from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import
     total_pagamento_recreio_emef,
     total_pagamento_recreio_emei,
 )
+from src.medicao_inicial.services.utils import total_pagamento_colaboradores
 
 pytestmark = pytest.mark.django_db
 
@@ -69,10 +70,10 @@ def test_get_valores_tabela_unidade_emei(
         14.0,
         280.0,
         280.0,
+        560.0,
         280.0,
         280.0,
-        280.0,
-        280.0,
+        560.0,
     ]
 
 
@@ -135,10 +136,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         14.0,
         280.0,
         280.0,
+        560.0,
         280.0,
         280.0,
-        280.0,
-        280.0,
+        560.0,
     ]
     assert df.iloc[1].tolist() == [
         0.0,
@@ -153,10 +154,10 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
         14.0,
         280.0,
         280.0,
+        560.0,
         280.0,
         280.0,
-        280.0,
-        280.0,
+        560.0,
     ]
 
 
@@ -452,14 +453,14 @@ def test_total_pagamento_recreio_emei_para_estudantes(solicitacao_recreio_emei):
 def test_total_pagamento_recreio_emei_para_colaboradores(solicitacao_recreio_emei):
     medicoes = solicitacao_recreio_emei.medicoes.all().order_by("grupo__nome")
     medicao_colaboradores = medicoes[0]
-    total_refeicao_colaboradores = total_pagamento_recreio_emef(
+    total_refeicao_colaboradores = total_pagamento_colaboradores(
         medicao_colaboradores, "total_refeicoes_pagamento", {}
     )
-    assert total_refeicao_colaboradores == 280.0
-    total_sobremesa_colaboradores = total_pagamento_recreio_emef(
+    assert total_refeicao_colaboradores == 560.0
+    total_sobremesa_colaboradores = total_pagamento_colaboradores(
         medicao_colaboradores, "total_sobremesas_pagamento", {}
     )
-    assert total_sobremesa_colaboradores == 280.0
+    assert total_sobremesa_colaboradores == 560.0
 
 
 def test_unificar_dietas_tipo_a():
@@ -524,3 +525,191 @@ def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
     )
     assert len(resultado["DIETA ESPECIAL - TIPO B"]) == 2
+
+
+def test_get_valores_tabela_unidade_emef(
+    solicitacao_recreio_emef, mock_colunas_recreio_emef
+):
+    tipos_unidade = ["EMEF"]
+    linhas = get_valores_tabela(
+        [solicitacao_recreio_emef], mock_colunas_recreio_emef, tipos_unidade, {}
+    )
+    assert isinstance(linhas, list)
+    assert len(linhas) == 1
+    assert isinstance(linhas[0], list)
+    assert len(linhas[0]) == 16
+    assert linhas[0] == [
+        "EMEF",
+        "123456",
+        "EMEF TESTE",
+        1260.0,
+        1260.0,
+        1400,
+        1260.0,
+        1260.0,
+        1400,
+        14.0,
+        280.0,
+        280.0,
+        560.0,
+        280.0,
+        280.0,
+        560.0,
+    ]
+
+
+def test_insere_tabela_periodos_na_planilha_unidade_emef(
+    solicitacao_recreio_emef, mock_colunas_recreio_emef, mock_linhas_recreio_emef
+):
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {solicitacao_recreio_emef.mes}-{ solicitacao_recreio_emef.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+
+    df = insere_tabela_periodos_na_planilha(
+        aba, mock_colunas_recreio_emef, mock_linhas_recreio_emef, writer
+    )
+    assert isinstance(df, pd.DataFrame)
+    colunas_df = df.columns.tolist()
+    assert len(colunas_df) == 16
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[0] == "ALIMENTAÇÕES ALUNOS PARTICIPANTES"
+        )
+        == 6
+    )
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 1
+    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 0
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
+        )
+        == 2
+    )
+    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 2
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == "Total de Sobremesas para Pagamento"
+        )
+        == 2
+    )
+    assert sum(1 for tupla in colunas_df if tupla[0] == "COLABORADORES") == 6
+
+    assert df.iloc[0].tolist() == [
+        "EMEF",
+        "123456",
+        "EMEF TESTE",
+        1260.0,
+        1260.0,
+        1400.0,
+        1260.0,
+        1260.0,
+        1400.0,
+        14.0,
+        280.0,
+        280.0,
+        560.0,
+        280.0,
+        280.0,
+        560.0,
+    ]
+    assert df.iloc[1].tolist() == [
+        0.0,
+        123456.0,
+        0.0,
+        1260.0,
+        1260.0,
+        1400.0,
+        1260.0,
+        1260.0,
+        1400.0,
+        14.0,
+        280.0,
+        280.0,
+        560.0,
+        280.0,
+        280.0,
+        560.0,
+    ]
+
+
+def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
+    valores_iniciais = [
+        solicitacao_recreio_emef.escola.tipo_unidade.iniciais,
+        solicitacao_recreio_emef.escola.codigo_eol,
+        solicitacao_recreio_emef.escola.nome,
+    ]
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    recreio_refeicao = _processa_periodo_campo(
+        solicitacao_recreio_emef,
+        "Recreio nas Férias",
+        "refeicao",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(recreio_refeicao, list)
+    assert len(recreio_refeicao) == 4
+    assert recreio_refeicao == ["EMEF", "123456", "EMEF TESTE", 1260.0]
+
+    solicitacao_kit_lanche = _processa_periodo_campo(
+        solicitacao_recreio_emef,
+        "Solicitações de Alimentação",
+        "kit_lanche",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(solicitacao_kit_lanche, list)
+    assert len(solicitacao_kit_lanche) == 5
+    assert solicitacao_kit_lanche == ["EMEF", "123456", "EMEF TESTE", 1260.0, "-"]
+
+    dieta_a_lanche = _processa_periodo_campo(
+        solicitacao_recreio_emef,
+        "DIETA ESPECIAL - TIPO A",
+        "lanche_4h",
+        valores_iniciais,
+        dietas_especiais,
+        {},
+    )
+    assert isinstance(dieta_a_lanche, list)
+    assert len(dieta_a_lanche) == 6
+    assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 1260.0, "-", "-"]
+
+
+def test_total_pagamento_recreio_emef_para_estudantes(solicitacao_recreio_emef):
+    medicoes = solicitacao_recreio_emef.medicoes.all().order_by("grupo__nome")
+    medicao_recreio = medicoes[1]
+    total_refeicao = total_pagamento_recreio_emef(
+        medicao_recreio, "total_refeicoes_pagamento", {}
+    )
+    assert total_refeicao == 1400.0
+    total_sobremesa = total_pagamento_recreio_emef(
+        medicao_recreio, "total_sobremesas_pagamento", {}
+    )
+    assert total_sobremesa == 1400.0
+
+
+def test_total_pagamento_recreio_emef_para_colaboradores(solicitacao_recreio_emef):
+    medicoes = solicitacao_recreio_emef.medicoes.all().order_by("grupo__nome")
+    medicao_colaboradores = medicoes[0]
+    total_refeicao_colaboradores = total_pagamento_colaboradores(
+        medicao_colaboradores, "total_refeicoes_pagamento", {}
+    )
+    assert total_refeicao_colaboradores == 560.0
+    total_sobremesa_colaboradores = total_pagamento_colaboradores(
+        medicao_colaboradores, "total_sobremesas_pagamento", {}
+    )
+    assert total_sobremesa_colaboradores == 560.0
