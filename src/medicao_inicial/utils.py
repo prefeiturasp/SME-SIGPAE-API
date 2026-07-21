@@ -2852,22 +2852,6 @@ def get_logs_emebs(solicitacao, tipo_log, periodo_corrente):
     return logs
 
 
-def get_lista_dias_letivos(solicitacao, periodo_escolar=None):
-    eh_recreio = (
-        hasattr(solicitacao, "recreio_nas_ferias") and solicitacao.recreio_nas_ferias
-    )
-
-    if eh_recreio:
-        recreio = solicitacao.recreio_nas_ferias
-        return [
-            get_eh_dia_letivo(dia, solicitacao)
-            for dia in range(recreio.data_inicio.day, recreio.data_fim.day + 1)
-        ]
-
-    _, num_dias = monthrange(int(solicitacao.ano), int(solicitacao.mes))
-    return [get_eh_dia_letivo(dia, solicitacao, periodo_escolar) for dia in range(1, num_dias + 1)]
-
-
 def popula_tabelas_cei(solicitacao, tabelas):
     dias_no_mes = range(
         1, monthrange(int(solicitacao.ano), int(solicitacao.mes))[1] + 1
