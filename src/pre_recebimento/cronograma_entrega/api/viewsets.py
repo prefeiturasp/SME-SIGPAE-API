@@ -892,13 +892,10 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
                 uuid=uuid
             )
             if aprovado is True:
-                solicitacao_cronograma.dilog_abastecimento_aprova(user=usuario, 
-                    justificativa=justificativa)
+                solicitacao_cronograma.dilog_abastecimento_aprova(user=usuario, justificativa=justificativa)
             elif aprovado is False:
                 justificativa = request.data.get("justificativa_abastecimento")
-                solicitacao_cronograma.dilog_abastecimento_reprova(
-                    user=usuario, justificativa=justificativa
-                )
+                solicitacao_cronograma.dilog_abastecimento_reprova(user=usuario, justificativa=justificativa)
             else:
                 raise ValidationError("Parametro aprovado deve ser true ou false.")
             solicitacao_cronograma.save()
