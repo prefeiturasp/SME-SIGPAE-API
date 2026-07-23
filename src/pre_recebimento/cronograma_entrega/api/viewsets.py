@@ -885,12 +885,15 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         """
         usuario = request.user
         aprovado = request.data.get(("aprovado"), "aprovado")
+        justificativa = request.data.get("justificativa_abastecimento", "")
+
         try:
             solicitacao_cronograma = SolicitacaoAlteracaoCronograma.objects.get(
                 uuid=uuid
             )
             if aprovado is True:
-                solicitacao_cronograma.dilog_abastecimento_aprova(user=usuario)
+                solicitacao_cronograma.dilog_abastecimento_aprova(user=usuario, 
+                    justificativa=justificativa)
             elif aprovado is False:
                 justificativa = request.data.get("justificativa_abastecimento")
                 solicitacao_cronograma.dilog_abastecimento_reprova(
