@@ -194,20 +194,16 @@ def _escreve_dados(workbook, worksheet, queryset, max_lengths):
     return linha_atual
 
 
-def _escreve_linha(
-    worksheet, linha, cronograma, doc, data_item, fmt, fmt_numero, max_lengths=None,
-):
-    """Escreve uma única linha de dados na planilha."""
+def _prepara_valores_linha(cronograma, doc, data_item):
+    """Prepara todos os valores de uma linha para escrita na planilha."""
     contrato = cronograma.contrato if hasattr(cronograma, "contrato") else None
 
-    # Determina o número do pregão/chamada pública
     num_pregao_chamada = ""
     if contrato:
         num_pregao_chamada = contrato.pregao_chamada_publica or ""
 
     numero_processo_sei = contrato.processo if contrato else ""
 
-    # Campos do documento
     numero_laudo = _sanitiza_texto(doc.numero_laudo)
     status_doc = doc.get_status_display() if hasattr(doc, "get_status_display") else ""
     nome_laboratorio = _sanitiza_texto(doc.laboratorio.nome if doc.laboratorio else "")
@@ -224,7 +220,6 @@ def _escreve_linha(
 
     correcao = _sanitiza_texto(doc.correcao_solicitada)
 
-    # Campos do data_item (se existir)
     data_fabricacao = ""
     data_validade = ""
     data_maxima_recebimento = ""
@@ -234,7 +229,6 @@ def _escreve_linha(
         data_validade = _formata_data(data_item.data_validade)
         data_maxima_recebimento = _formata_data(data_item.data_maxima_recebimento)
 
-    # Monta a linha
     valores = [
         cronograma.numero or "",
         cronograma.ficha_tecnica.produto.nome
@@ -255,17 +249,28 @@ def _escreve_linha(
         unidade_medida,
     ]
 
-    # Colunas numéricas (índices 15, 16, 17)
     valores_numericos = [
         (15, quantidade_laudo),
         (16, saldo_inicial),
         (17, saldo_atual),
     ]
 
+    return {
+        "valores": valores,
+        "valores_numericos": valores_numericos,
+        "correcao": correcao,
+    }
+
+
+def _escreve_linha(worksheet, linha, cronograma, doc, data_item, fmt, fmt_numero, max_lengths=None):
+    """Escreve uma única linha de dados na planilha."""
+    dados = _prepara_valores_linha(cronograma, doc, data_item)
+    valores = dados["valores"]
+    valores_numericos = dados["valores_numericos"]
+    correcao = dados["correcao"]
+
     # Escreve colunas de texto (índices 0 a 14)
     for col_idx, valor in enumerate(valores):
-        if col_idx in [15, 16, 17]:
-            continue  # Serão escritas como número
         worksheet.write(linha, col_idx, valor, fmt)
 
     # Escreve colunas numéricas (índices 15, 16, 17)
@@ -276,23 +281,30 @@ def _escreve_linha(
             worksheet.write(linha, col_idx, "", fmt)
 
     # Escreve colunas de texto no final (índices 18, 19)
-    worksheet.write(linha, 18, _sanitiza_texto(cronograma.observacoes), fmt)  # Obs
-    worksheet.write(linha, 19, correcao, fmt)  # Solicitação de Correção
+    worksheet.write(linha, 18, _sanitiza_texto(cronograma.observacoes), fmt)
+    worksheet.write(linha, 19, correcao, fmt)
 
-    # Atualiza max_lengths para auto-ajuste de largura
-    if max_lengths is not None:
-        for col_idx, valor in enumerate(valores):
-            tamanho = len(str(valor))
+    _atualiza_max_lengths(max_lengths, valores, valores_numericos, cronograma, correcao)
+
+
+def _atualiza_max_lengths(max_lengths, valores, valores_numericos, cronograma, correcao):
+    """Atualiza as larguras máximas das colunas baseado no conteúdo escrito."""
+    if max_lengths is None:
+        return
+    for col_idx, valor in enumerate(valores):
+        tamanho = len(str(valor))
+        if tamanho > max_lengths[col_idx]:
+            max_lengths[col_idx] = tamanho
+    for col_idx in [15, 16, 17]:
+        idx = col_idx - 15
+        if idx < len(valores_numericos):
+            tamanho = len(str(valores_numericos[idx][1]))
             if tamanho > max_lengths[col_idx]:
                 max_lengths[col_idx] = tamanho
-        for col_idx in [15, 16, 17]:
-            tamanho = len(str(valores_numericos[col_idx - 15][1])) if col_idx - 15 < len(valores_numericos) else 0
-            if tamanho > max_lengths[col_idx]:
-                max_lengths[col_idx] = tamanho
-        for col_idx, valor_escrito in [(18, _sanitiza_texto(cronograma.observacoes)), (19, correcao)]:
-            tamanho = len(str(valor_escrito))
-            if tamanho > max_lengths[col_idx]:
-                max_lengths[col_idx] = tamanho
+    for col_idx, valor_escrito in [(18, _sanitiza_texto(cronograma.observacoes)), (19, correcao)]:
+        tamanho = len(str(valor_escrito))
+        if tamanho > max_lengths[col_idx]:
+            max_lengths[col_idx] = tamanho
 
 
 TAMANHO_MAXIMO_COLUNA = 40
