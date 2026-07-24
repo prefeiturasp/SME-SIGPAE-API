@@ -7,6 +7,51 @@ function normalizarEnum(valor) {
 		.toUpperCase()
 }
 
+function formatarDataParaApi(data) {
+	const correspondencia = String(data).match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+
+	if (!correspondencia) {
+		return data
+	}
+
+	const [, dia, mes, ano] = correspondencia
+	return `${ano}-${mes}-${dia}`
+}
+
+function montarDadosPatch(conferencia) {
+	return {
+		nome_motorista: conferencia.nome_motorista,
+	}
+}
+
+function montarDadosPost(conferencia) {
+	const alimento = conferencia.conferencia_dos_alimentos.find(
+		(itemAlimento) => itemAlimento.tem_ocorrencia,
+	)
+	const agora = new Date()
+
+	return {
+		conferencia_dos_alimentos: [
+			{
+				conferencia: conferencia.uuid,
+				tipo_embalagem: normalizarEnum(alimento.tipo_embalagem),
+				nome_alimento: alimento.nome_alimento,
+				qtd_recebido: alimento.qtd_recebido,
+				status_alimento: normalizarEnum(alimento.status_alimento),
+				ocorrencia: alimento.ocorrencia,
+				observacao: 'Cadastro criado pelo teste automatizado',
+				tem_ocorrencia: alimento.tem_ocorrencia,
+			},
+		],
+		guia: conferencia.guia.uuid,
+		nome_motorista: `Motorista teste ${agora.getTime()}`,
+		placa_veiculo: 'TES1A23',
+		data_recebimento: agora.toISOString().slice(0, 10),
+		hora_recebimento: agora.toTimeString().slice(0, 8),
+		eh_reposicao: false,
+	}
+}
+
 describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', () => {
 	const usuario = Cypress.env('usuario_abastecimento')
 	const senha = Cypress.env('senha')
@@ -74,6 +119,151 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 				},
 			)
 		})
+
+		it('Exibe erro ao consultar UUID inexistente', () => {
+			const uuidInexistente = '00000000-0000-0000-0000-000000000000'
+
+			cy.consultar_conferencia_da_guia_com_ocorrencia_por_uuid(
+				uuidInexistente,
+			).then((response) => {
+				expect(response.status).to.eq(404)
+			})
+		})
+	})
+
+	context('Rota PUT api/conferencia-da-guia-com-ocorrencia/{uuid}/', () => {
+		it('Atualiza conferência da guia com ocorrência por UUID com sucesso', () => {
+			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=10&offset=0').then(
+				(responseLista) => {
+					expect(responseLista.status).to.eq(200)
+					expect(responseLista.body.results).to.be.an('array').and.not.to.be.empty
+
+					const conferencia = responseLista.body.results.find(
+						(item) => item.guia.situacao === 'ATIVA',
+					)
+					expect(conferencia).to.exist
+
+					const dados_teste = {
+						conferencia_dos_alimentos:
+							conferencia.conferencia_dos_alimentos.map((alimento) => ({
+								conferencia: conferencia.uuid,
+								tipo_embalagem: normalizarEnum(alimento.tipo_embalagem),
+								nome_alimento: alimento.nome_alimento,
+								qtd_recebido: alimento.qtd_recebido,
+								status_alimento: normalizarEnum(alimento.status_alimento),
+								ocorrencia: alimento.ocorrencia,
+								observacao: alimento.observacao,
+								tem_ocorrencia: alimento.tem_ocorrencia,
+							})),
+						guia: conferencia.guia.uuid,
+						nome_motorista: conferencia.nome_motorista,
+						placa_veiculo: conferencia.placa_veiculo,
+						data_recebimento: formatarDataParaApi(
+							conferencia.data_recebimento,
+						),
+						hora_recebimento: conferencia.hora_recebimento,
+						eh_reposicao: conferencia.eh_reposicao,
+					}
+
+					cy.atualizar_conferencia_da_guia_com_ocorrencia(
+						conferencia.uuid,
+						dados_teste,
+					).then((response) => {
+						expect(response.status, JSON.stringify(response.body)).to.eq(200)
+						expect(response.body).to.include({ uuid: conferencia.uuid })
+					})
+				},
+			)
+		})
+
+		it('Exibe erro ao atualizar conferência vinculada a guia arquivada', () => {
+			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=10&offset=0').then(
+				(responseLista) => {
+					expect(responseLista.status).to.eq(200)
+
+					const conferencia = responseLista.body.results.find(
+						(item) => item.guia.situacao === 'ARQUIVADA',
+					)
+					expect(conferencia).to.exist
+
+					const dados_teste = {
+						conferencia_dos_alimentos:
+							conferencia.conferencia_dos_alimentos.map((alimento) => ({
+								conferencia: conferencia.uuid,
+								tipo_embalagem: normalizarEnum(alimento.tipo_embalagem),
+								nome_alimento: alimento.nome_alimento,
+								qtd_recebido: alimento.qtd_recebido,
+								status_alimento: normalizarEnum(alimento.status_alimento),
+								ocorrencia: alimento.ocorrencia,
+								observacao: alimento.observacao,
+								tem_ocorrencia: alimento.tem_ocorrencia,
+							})),
+						guia: conferencia.guia.uuid,
+						nome_motorista: conferencia.nome_motorista,
+						placa_veiculo: conferencia.placa_veiculo,
+						data_recebimento: formatarDataParaApi(
+							conferencia.data_recebimento,
+						),
+						hora_recebimento: conferencia.hora_recebimento,
+						eh_reposicao: conferencia.eh_reposicao,
+					}
+
+					cy.atualizar_conferencia_da_guia_com_ocorrencia(
+						conferencia.uuid,
+						dados_teste,
+					).then((response) => {
+						expect(response.status).to.eq(400)
+						expect(JSON.stringify(response.body)).to.contain('guia arquivada')
+					})
+				},
+			)
+		})
+	})
+
+	context('Rota PATCH api/conferencia-da-guia-com-ocorrencia/{uuid}/', () => {
+		it('Atualiza parcialmente conferência por UUID com sucesso', () => {
+			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=10&offset=0').then(
+				(responseLista) => {
+					expect(responseLista.status).to.eq(200)
+
+					const conferencia = responseLista.body.results.find(
+						(item) => item.guia.situacao === 'ATIVA',
+					)
+					expect(conferencia).to.exist
+
+					cy.atualizar_conferencia_da_guia_com_ocorrencia_patch(
+						conferencia.uuid,
+						montarDadosPatch(conferencia),
+					).then((response) => {
+						expect(response.status, JSON.stringify(response.body)).to.eq(200)
+						expect(response.body).to.include({ uuid: conferencia.uuid })
+					})
+				},
+			)
+		})
+
+		it('Exibe erro ao atualizar parcialmente UUID inexistente', () => {
+			const uuidInexistente = '00000000-0000-0000-0000-000000000000'
+
+			cy.atualizar_conferencia_da_guia_com_ocorrencia_patch(
+				uuidInexistente,
+				{ nome_motorista: 'Motorista inexistente' },
+			).then((response) => {
+				expect(response.status).to.eq(404)
+			})
+		})
+	})
+
+	context('Rota DELETE api/conferencia-da-guia-com-ocorrencia/{uuid}/', () => {
+		it('Exibe erro ao excluir UUID inexistente', () => {
+			const uuidInexistente = '00000000-0000-0000-0000-000000000000'
+
+			cy.excluir_conferencia_da_guia_com_ocorrencia(uuidInexistente).then(
+				(response) => {
+					expect(response.status).to.eq(404)
+				},
+			)
+		})
 	})
 
 	context('Rota POST api/conferencia-da-guia-com-ocorrencia/', () => {
@@ -89,31 +279,7 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 						),
 					)
 					expect(conferencia).to.exist
-
-					const alimento = conferencia.conferencia_dos_alimentos.find(
-						(itemAlimento) => itemAlimento.tem_ocorrencia,
-					)
-					const agora = new Date()
-					const dados_teste = {
-						conferencia_dos_alimentos: [
-							{
-								conferencia: conferencia.uuid,
-								tipo_embalagem: normalizarEnum(alimento.tipo_embalagem),
-								nome_alimento: alimento.nome_alimento,
-								qtd_recebido: alimento.qtd_recebido,
-								status_alimento: normalizarEnum(alimento.status_alimento),
-								ocorrencia: alimento.ocorrencia,
-								observacao: 'Cadastro criado pelo teste automatizado',
-								tem_ocorrencia: alimento.tem_ocorrencia,
-							},
-						],
-						guia: conferencia.guia.uuid,
-						nome_motorista: `Motorista teste ${agora.getTime()}`,
-						placa_veiculo: 'TES1A23',
-						data_recebimento: agora.toISOString().slice(0, 10),
-						hora_recebimento: agora.toTimeString().slice(0, 8),
-						eh_reposicao: false,
-					}
+					const dados_teste = montarDadosPost(conferencia)
 
 					cy.cadastrar_conferencia_da_guia_com_ocorrencia(dados_teste).then(
 						(response) => {
@@ -128,6 +294,21 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 					)
 				},
 			)
+		})
+
+		it('Exibe erro ao cadastrar com dados inválidos', () => {
+			cy.cadastrar_conferencia_da_guia_com_ocorrencia({
+				conferencia_dos_alimentos: [],
+				guia: 'uuid-invalido',
+				nome_motorista: '',
+				placa_veiculo: '',
+				data_recebimento: '',
+				hora_recebimento: '',
+				eh_reposicao: false,
+			}).then((response) => {
+				expect(response.status).to.eq(400)
+				expect(response.body).to.be.an('object').and.not.to.be.empty
+			})
 		})
 	})
 })
