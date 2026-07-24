@@ -287,24 +287,25 @@ def _escreve_linha(worksheet, linha, cronograma, doc, data_item, fmt, fmt_numero
     _atualiza_max_lengths(max_lengths, valores, valores_numericos, cronograma, correcao)
 
 
+def _ajusta_max_length(max_lengths, col_idx, valor):
+    """Compara e atualiza o tamanho máximo de uma coluna."""
+    tamanho = len(str(valor))
+    if tamanho > max_lengths[col_idx]:
+        max_lengths[col_idx] = tamanho
+
+
 def _atualiza_max_lengths(max_lengths, valores, valores_numericos, cronograma, correcao):
     """Atualiza as larguras máximas das colunas baseado no conteúdo escrito."""
     if max_lengths is None:
         return
     for col_idx, valor in enumerate(valores):
-        tamanho = len(str(valor))
-        if tamanho > max_lengths[col_idx]:
-            max_lengths[col_idx] = tamanho
+        _ajusta_max_length(max_lengths, col_idx, valor)
     for col_idx in [15, 16, 17]:
         idx = col_idx - 15
         if idx < len(valores_numericos):
-            tamanho = len(str(valores_numericos[idx][1]))
-            if tamanho > max_lengths[col_idx]:
-                max_lengths[col_idx] = tamanho
-    for col_idx, valor_escrito in [(18, _sanitiza_texto(cronograma.observacoes)), (19, correcao)]:
-        tamanho = len(str(valor_escrito))
-        if tamanho > max_lengths[col_idx]:
-            max_lengths[col_idx] = tamanho
+            _ajusta_max_length(max_lengths, col_idx, valores_numericos[idx][1])
+    _ajusta_max_length(max_lengths, 18, _sanitiza_texto(cronograma.observacoes))
+    _ajusta_max_length(max_lengths, 19, correcao)
 
 
 TAMANHO_MAXIMO_COLUNA = 40
