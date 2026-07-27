@@ -22,6 +22,7 @@ from src.medicao_inicial.services.utils import (
     get_valores_iniciais,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
+    todas_medicoes_sem_lancamentos
 )
 
 from ..models import CategoriaMedicao
@@ -151,6 +152,7 @@ def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade, query_params=Non
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []
     for solicitacao in ordenar_unidades(solicitacoes):
+        solictacao_sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao)
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for periodo, campo in colunas:
@@ -161,6 +163,7 @@ def get_valores_tabela(solicitacoes, colunas, tipos_de_unidade, query_params=Non
                 valores_solicitacao_atual,
                 dietas_especiais,
                 periodos_escolares,
+                solictacao_sem_lancamento,
                 query_params,
             )
         valores.append(valores_solicitacao_atual)
@@ -186,8 +189,14 @@ def _processa_periodo_campo(
     valores,
     dietas_especiais,
     periodos_escolares,
+    solictacao_sem_lancamento,
     query_params=None,
 ):
+
+    if solictacao_sem_lancamento:
+        valores.append("SL")
+        return valores
+       
     filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
     try:
