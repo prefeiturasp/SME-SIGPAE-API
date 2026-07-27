@@ -14,6 +14,7 @@ from src.pre_recebimento.documento_recebimento.api.serializers.serializers impor
 from src.pre_recebimento.documento_recebimento.models import DocumentoDeRecebimento
 from src.recebimento.ajuste_saldo_laudo.api.serializers.serializer_create import (
     AjusteSaldoCreateSerializer,
+    AjusteSaldoUpdateSerializer,
 )
 from src.recebimento.ajuste_saldo_laudo.models import AjusteSaldo
 
@@ -65,6 +66,55 @@ def test_ajuste_saldo_create_serializer_insufficient_saldo():
     }
 
     serializer = AjusteSaldoCreateSerializer(data=data, context={"request": request})
+    assert serializer.is_valid(), serializer.errors
+
+    with pytest.raises(serializers.ValidationError):
+        serializer.save()
+
+
+def test_ajuste_saldo_update_serializer():
+    user = baker.make(get_user_model())
+    documento = baker.make(DocumentoDeRecebimento, quantidade_laudo=Decimal("100.00"))
+    ajuste = baker.make(
+        AjusteSaldo,
+        documento_recebimento=documento,
+        quantidade_descontada=Decimal("10.00"),
+    )
+
+    factory = APIRequestFactory()
+    request = factory.patch("/fake")
+    request.user = user
+
+    data = {"quantidade_descontada": "30.00"}
+
+    serializer = AjusteSaldoUpdateSerializer(
+        ajuste, data=data, partial=True, context={"request": request}
+    )
+    assert serializer.is_valid(), serializer.errors
+    serializer.save()
+
+    ajuste.refresh_from_db()
+    assert ajuste.quantidade_descontada == Decimal("30.00")
+
+
+def test_ajuste_saldo_update_serializer_insufficient_saldo():
+    user = baker.make(get_user_model())
+    documento = baker.make(DocumentoDeRecebimento, quantidade_laudo=Decimal("100.00"))
+    ajuste = baker.make(
+        AjusteSaldo,
+        documento_recebimento=documento,
+        quantidade_descontada=Decimal("10.00"),
+    )
+
+    factory = APIRequestFactory()
+    request = factory.patch("/fake")
+    request.user = user
+
+    data = {"quantidade_descontada": "200.00"}
+
+    serializer = AjusteSaldoUpdateSerializer(
+        ajuste, data=data, partial=True, context={"request": request}
+    )
     assert serializer.is_valid(), serializer.errors
 
     with pytest.raises(serializers.ValidationError):

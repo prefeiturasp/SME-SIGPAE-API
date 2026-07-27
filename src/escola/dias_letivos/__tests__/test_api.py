@@ -1,5 +1,6 @@
 import json
-from datetime import date
+from datetime import date, timedelta
+from django.utils import timezone
 from typing import Any
 
 import pytest
@@ -403,6 +404,200 @@ def test_list_dias_letivos_filtro_ano_obrigatorio(
     client = client_autenticado_codae_gestao_alimentacao
 
     response = client.get("/dias-letivos/", {"mes": 6})
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "ano" in response.json()
+
+
+def test_retrieve_dia_letivo_success(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+    dia = DiaLetivoSIGPAEFactory()
+
+    response = client.get(f"/dias-letivos/{dia.uuid}/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["uuid"] == str(dia.uuid)
+    # Verifica se retornou as listas de UUIDs conforme o DetailSerializer
+    assert isinstance(response.json()["lotes"], list)
+
+
+def test_update_dia_letivo_success(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+    dia = DiaLetivoSIGPAEFactory()
+    novo_lote = baker.make(Lote)
+    periodo = baker.make(PeriodoEscolar)
+    tipo = baker.make(TipoUnidadeEscolar)
+
+    payload = {
+        "lotes": [str(novo_lote.uuid)],
+        "tipos_unidades": [str(tipo.uuid)],
+        "unidades_educacionais": [],
+        "periodos_escolares": [str(periodo.uuid)]
+    }
+
+    response = client.put(
+        f"/dias-letivos/{dia.uuid}/",
+        data=json.dumps(payload),
+        content_type="application/json"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    dia.refresh_from_db()
+    assert dia.lotes.filter(uuid=novo_lote.uuid).exists()
+
+
+def test_update_dia_letivo_duplicate_error(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    lote = baker.make("escola.Lote")
+    tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
+    periodo = baker.make("escola.PeriodoEscolar")
+
+    future_date = date.today() + timedelta(days=30)
+
+    dia_1 = DiaLetivoSIGPAEFactory(data=future_date)
+    dia_1.lotes.add(lote)
+    dia_1.tipos_unidade_escolar.add(tipo_unidade)
+    dia_1.periodos_escolares.add(periodo)
+
+    dia_2 = DiaLetivoSIGPAEFactory(data=future_date)
+    dia_2.lotes.add(lote)
+    dia_2.tipos_unidade_escolar.add(tipo_unidade)
+    periodo_2 = baker.make("escola.PeriodoEscolar")
+    dia_2.periodos_escolares.add(periodo_2)
+
+    payload = {
+        "lotes": [str(lote.uuid)],
+        "tipos_unidades": [str(tipo_unidade.uuid)],
+        "unidades_educacionais": [],
+        "periodos_escolares": [str(periodo.uuid)],
+    }
+
+    response = client.put(
+        f"/dias-letivos/{dia_2.uuid}/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "Já existe um DiaLetivo" in str(response.json())
+
+
+def test_delete_dia_letivo_success(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+    dia = DiaLetivoSIGPAEFactory()
+
+    response = client.delete(f"/dias-letivos/{dia.uuid}/")
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert not DiaLetivoSIGPAE.objects.filter(uuid=dia.uuid).exists()
+
+
+def test_delete_dia_letivo_unauthorized(client: Client) -> None:
+    dia = DiaLetivoSIGPAEFactory()
+
+    response = client.delete(f"/dias-letivos/{dia.uuid}/")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_calendario_dias_letivos_filtra_por_escola_e_periodo_escolar(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    lote = baker.make(Lote)
+    tipo_unidade = baker.make(TipoUnidadeEscolar)
+
+    escola_consultada = baker.make(Escola, lote=lote)
+    outra_escola = baker.make(Escola, lote=lote)
+
+    periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
+    periodo_integral = baker.make(PeriodoEscolar, nome="INTEGRAL")
+
+    # Deve ser retornado: mesma escola e mesmo período.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 4),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[escola_consultada],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: pertence a outra escola.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 5),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[outra_escola],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: pertence a outro período escolar.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 6),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[escola_consultada],
+        periodos_escolares=[periodo_integral],
+    )
+
+    response = client.get(
+        "/dias-letivos/calendario/",
+        {
+            "mes": 6,
+            "ano": 2026,
+            "escola": str(escola_consultada.uuid),
+            "periodo_escolar": "MANHA",
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            "data": "04/06/2026",
+            "periodos_escolares": ["MANHA"],
+        }
+    ]
+
+
+def test_calendario_dias_letivos_filtro_mes_obrigatorio(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    response = client.get(
+        "/dias-letivos/calendario/",
+        {
+            "ano": 2026,
+            "periodo_escolar": "MANHA",
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "mes" in response.json()
+
+
+def test_calendario_dias_letivos_filtro_ano_obrigatorio(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    response = client.get(
+        "/dias-letivos/calendario/",
+        {
+            "mes": 6,
+            "periodo_escolar": "MANHA",
+        },
+    )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "ano" in response.json()

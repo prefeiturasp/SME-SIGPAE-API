@@ -40,7 +40,7 @@ class ImagemDoTipoDeEmbalagem(TemChaveExterna):
             validate_file_size_10mb,
         ],
     )
-    nome = models.CharField(max_length=100, blank=True)
+    nome = models.CharField(max_length=500, blank=True)
 
     def __str__(self):
         return (

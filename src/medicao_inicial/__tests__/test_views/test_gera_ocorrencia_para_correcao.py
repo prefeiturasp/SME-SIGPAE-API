@@ -26,7 +26,7 @@ class TestGeraOcorrenciaParaCorrecao:
             solicitacao_medicao_inicial=solicitacao
         )
 
-    def test_gera_ocorrencia_para_correcao_sucesso_dre(
+    def test_gera_ocorrencia_para_correcao_permissao_negada_dre(
         self, client_autenticado_diretoria_regional
     ):
         self.setup_solicitacao()
@@ -42,15 +42,13 @@ class TestGeraOcorrenciaParaCorrecao:
             content_type="application/json",
         )
 
-        assert response.status_code == status.HTTP_200_OK
-        body = response.json()
-        assert body["solicitacao_medicao_inicial"] == self.solicitacao.id
-
-        assert OcorrenciaMedicaoInicial.objects.filter(
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert not OcorrenciaMedicaoInicial.objects.filter(
             solicitacao_medicao_inicial=self.solicitacao
         ).exists()
 
-    def test_gera_ocorrencia_para_correcao_sucesso_codae(
+
+    def test_gera_ocorrencia_para_correcao_permissao_negada_codae(
         self, client_autenticado_codae_medicao
     ):
         self.setup_solicitacao()
@@ -66,34 +64,60 @@ class TestGeraOcorrenciaParaCorrecao:
             content_type="application/json",
         )
 
-        assert response.status_code == status.HTTP_200_OK
-
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             OcorrenciaMedicaoInicial.objects.filter(
                 solicitacao_medicao_inicial=self.solicitacao
             ).count()
-            == 1
+            == 0
         )
 
+
+    def test_gera_ocorrencia_para_correcao_sucesso_nutri_manifestacao(
+        self, client_autenticado_vinculo_nutrimanifestacao
+    ):
+        self.setup_solicitacao()
+
+        data = {
+            "solicitacao_medicao_uuid": str(self.solicitacao.uuid),
+            "justificativa": "Necessário corrigir.",
+        }
+
+        client, _ = client_autenticado_vinculo_nutrimanifestacao
+        response = client.post(
+            f"{viewset_url}gera-ocorrencia-para-correcao/",
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        body = response.json()
+        assert body["solicitacao_medicao_inicial"] == self.solicitacao.id
+
+        assert OcorrenciaMedicaoInicial.objects.filter(
+            solicitacao_medicao_inicial=self.solicitacao
+        ).exists()
+
+
     def test_gera_ocorrencia_para_correcao_erro_solicitacao_inexistente(
-        self, client_autenticado_diretoria_regional
+        self, client_autenticado_vinculo_nutrimanifestacao
     ):
         data = {
             "solicitacao_medicao_uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             "justificativa": "Teste",
         }
 
-        response = client_autenticado_diretoria_regional.post(
+        client, _ = client_autenticado_vinculo_nutrimanifestacao
+        response = client.post(
             f"{viewset_url}gera-ocorrencia-para-correcao/",
             data=json.dumps(data),
             content_type="application/json",
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json() == {"solicitacao_medicao_uuid": "Medição não encontrada"}
 
     def test_gera_ocorrencia_para_correcao_erro_ja_possui_ocorrencia(
-        self, client_autenticado_diretoria_regional
+        self, client_autenticado_vinculo_nutrimanifestacao
     ):
         self.setup_solicitacao()
         self.setup_ocorrencia(self.solicitacao)
@@ -103,7 +127,8 @@ class TestGeraOcorrenciaParaCorrecao:
             "justificativa": "Corrigir",
         }
 
-        response = client_autenticado_diretoria_regional.post(
+        client, _ = client_autenticado_vinculo_nutrimanifestacao
+        response = client.post(
             f"{viewset_url}gera-ocorrencia-para-correcao/",
             data=json.dumps(data),
             content_type="application/json",

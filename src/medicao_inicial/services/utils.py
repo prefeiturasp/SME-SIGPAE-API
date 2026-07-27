@@ -2,6 +2,8 @@ import datetime
 from calendar import monthrange
 
 import pandas as pd
+from django.db.models import FloatField, Sum
+from django.db.models.functions import Cast
 
 from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
 
@@ -246,9 +248,65 @@ def gera_colunas_alimentacao(
     )
     df.loc["TOTAL"] = df.apply(pd.to_numeric, errors="coerce").sum()
     df.rename(
-        columns={"RECREIO NAS FÉRIAS": "ALIMENTAÇÕES ALUNOS PARTICIPANTES"},
+        columns={
+            "RECREIO NAS FÉRIAS": "ALIMENTAÇÕES ALUNOS PARTICIPANTES",
+            "RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": "ALIMENTAÇÕES ALUNOS PARTICIPANTES",
+            "RECREIO NAS FÉRIAS - 4 A 14 ANOS": "ALIMENTAÇÕES TURMA INFANTIL",
+            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": "DIETA TIPO A",
+            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS": "DIETA TIPO A - INFANTIL",
+            "DIETA ESPECIAL - TIPO B - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": "DIETA TIPO B",
+            "DIETA ESPECIAL - TIPO B - RECREIO NAS FÉRIAS - 4 A 14 ANOS": "DIETA TIPO B",
+        },
         level=0,
         inplace=True,
     )
     df.to_excel(writer, sheet_name=aba, startrow=2, startcol=-1)
     return df
+
+
+def total_pagamento_colaboradores(
+    medicao: Medicao, nome_campo: str, query_params: dict = None
+) -> float | int:
+    """
+    Calcula o total de refeições ou sobremesas utilizadas para pagamento dos
+    colaboradores.
+
+    Realiza a soma dos valores registrados para os campos de refeições ou
+    sobremesas, considerando apenas os registros da categoria "ALIMENTAÇÃO" e os
+    filtros do intervalo de dias quando informados
+
+    Args:
+        medicao (Medicao): Medição utilizada no cálculo.
+        nome_campo (str): Campo que identifica qual total será calculado, podendo ser ``total_refeicoes_pagamento`` ou
+            ``total_sobremesas_pagamento``.
+        query_params (dict, optional):Parâmetros utilizados para filtrar os valores da medição.
+            Defaults to None.
+
+    Returns:
+        float | int: Soma total dos valores encontrados. Retorna ``0`` quando não existirem registros correspondentes.
+    """
+    campos_refeicoes = [
+        "refeicao",
+        "repeticao_refeicao",
+    ]
+    campos_sobremesas = [
+        "sobremesa",
+        "repeticao_sobremesa",
+    ]
+    lista_campos = (
+        campos_refeicoes
+        if nome_campo == "total_refeicoes_pagamento"
+        else campos_sobremesas
+    )
+
+    resposta = (
+        filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+        .filter(
+            nome_campo__in=lista_campos,
+            categoria_medicao__nome="ALIMENTAÇÃO",
+        )
+        .annotate(valor_float=Cast("valor", output_field=FloatField()))
+        .aggregate(total=Sum("valor_float"))
+    )
+    total_pagamento = resposta["total"]
+    return 0 if total_pagamento is None else total_pagamento
