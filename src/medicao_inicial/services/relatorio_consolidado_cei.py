@@ -23,6 +23,7 @@ from src.medicao_inicial.services.utils import (
     get_valores_iniciais,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
+    todas_medicoes_sem_lancamentos
 )
 
 
@@ -135,6 +136,7 @@ def get_valores_tabela(
 ) -> list[list[str | float]]:
     valores = []
     for solicitacao in ordenar_unidades(solicitacoes):
+        solictacao_sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao)
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for periodo, faixa_etaria in colunas:
@@ -143,6 +145,7 @@ def get_valores_tabela(
                 periodo,
                 faixa_etaria,
                 valores_solicitacao_atual,
+                solictacao_sem_lancamento,
                 query_params,
             )
         valores.append(valores_solicitacao_atual)
@@ -166,8 +169,13 @@ def _processa_periodo_campo(
     periodo: str,
     faixa_etaria: int,
     valores: list[str],
+    solictacao_sem_lancamento,
     query_params: dict | None = None,
 ) -> list[str | float]:
+    if solictacao_sem_lancamento:
+        valores.append("SL")
+        return valores
+    
     filtros = _define_filtro(periodo)
 
     try:
@@ -267,6 +275,7 @@ def insere_tabela_periodos_na_planilha(
     NOMES_CAMPOS = {
         faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)
     }
+    NOMES_CAMPOS.update({"Sem registro": ""})
     df = gera_colunas_alimentacao(aba, colunas, linhas, writer, NOMES_CAMPOS)
     return df
 
@@ -274,13 +283,16 @@ def insere_tabela_periodos_na_planilha(
 def ajusta_layout_tabela(
     workbook: Workbook, worksheet: Worksheet, df: pd.DataFrame
 ) -> None:
-    formatacao_base = {
+    estilo_base = {
         "align": "center",
         "valign": "vcenter",
-        "font_color": "#FFFFFF",
-        "bold": True,
         "border": 1,
         "border_color": "#999999",
+    }
+    formatacao_base = {
+        **estilo_base,
+        "font_color": "#FFFFFF",
+        "bold": True,
     }
     formatacao_integral = workbook.add_format(
         {**formatacao_base, "bg_color": "#198459"}
@@ -353,15 +365,10 @@ def ajusta_layout_tabela(
         )
         worksheet.write(3, col_num, value[1], formatacao_level2)
 
-    formatacao = workbook.add_format(
-        {
-            "align": "center",
-            "valign": "vcenter",
-        }
-    )
+    formato_dados = workbook.add_format(estilo_base)
 
-    worksheet.set_column(0, len(df.columns) - 1, 15, formatacao)
-    worksheet.set_column(2, 2, 30)
+    worksheet.set_column(0, len(df.columns) - 1, 15, formato_dados)
+    worksheet.set_column(2, 2, 30, formato_dados)
 
     worksheet.set_row(4, None, None, {"hidden": True})
     worksheet.set_row(2, 25)

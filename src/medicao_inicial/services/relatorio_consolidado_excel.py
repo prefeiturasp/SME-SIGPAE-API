@@ -443,11 +443,19 @@ def _formata_unidades_sem_lancamento(workbook, worksheet, df):
             worksheet.write(linha_excel, coluna, linha[coluna], formato_primeiras_colunas)
 
         # mescla todas as colunas de medição
-        worksheet.merge_range(
-            linha_excel,
-            primeira_coluna_dinamica,
-            linha_excel,
-            ultima_coluna,
-            "UNIDADE SEM LANÇAMENTOS",
-            formato_unidade_sem_lancamento,
-        )
+        if primeira_coluna_dinamica == ultima_coluna:
+            worksheet.write(
+                linha_excel,
+                primeira_coluna_dinamica,
+                "UNIDADE SEM LANÇAMENTOS",
+                formato_unidade_sem_lancamento,
+            )
+        else:
+            worksheet.merge_range(
+                linha_excel,
+                primeira_coluna_dinamica,
+                linha_excel,
+                ultima_coluna,
+                "UNIDADE SEM LANÇAMENTOS",
+                formato_unidade_sem_lancamento,
+            )

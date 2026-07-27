@@ -120,7 +120,7 @@ def generate_columns(dict_periodos_dietas: dict) -> list:
     columns = [
         (chave, valor)
         for chave, valores in dict_periodos_dietas.items()
-        for valor in valores
+        for valor in (valores if len(valores) > 0 else ["Sem registro"])
     ]
     return columns
 
