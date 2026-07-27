@@ -230,6 +230,7 @@ def _gera_excel(
             contem_recreio,
         )
         modulo_da_unidade.ajusta_layout_tabela(workbook, worksheet, df)
+        _formata_unidades_sem_lancamento(workbook, worksheet, df)
         _formata_total_geral(workbook, worksheet, df, tipos_de_unidade)
 
     return file.getvalue()
@@ -402,3 +403,51 @@ def _formata_filtros(
         data_final_formatada = date.fromisoformat(data_final).strftime("%d/%m/%Y")
         filtros += f" - {data_inicial_formatada} a {data_final_formatada}"
     return filtros
+
+
+def _formata_unidades_sem_lancamento(workbook, worksheet, df):
+    cor_rosa = "#FCE4EC"
+    estilo_base = {
+        "align": "center",
+        "valign": "vcenter",
+        "border": 1,
+        "border_color": "#999999",
+    }
+
+    formato_primeiras_colunas = workbook.add_format({
+        **estilo_base,
+        "bg_color": cor_rosa,
+    })
+
+    formato_unidade_sem_lancamento = workbook.add_format({
+        **estilo_base,
+        "bg_color": cor_rosa,
+        "bold": True,
+    })
+
+    primeira_coluna_dinamica = 3
+    ultima_coluna = len(df.columns) - 1
+
+    for indice, linha in enumerate(df.values):
+        # ignora a linha TOTAL
+        if indice == len(df.values) - 1:
+            continue
+
+        if "SL" not in linha:
+            continue
+
+        linha_excel = indice + 5
+
+        # pinta somente as três primeiras colunas mantendo os dados
+        for coluna in range(3):
+            worksheet.write(linha_excel, coluna, linha[coluna], formato_primeiras_colunas)
+
+        # mescla todas as colunas de medição
+        worksheet.merge_range(
+            linha_excel,
+            primeira_coluna_dinamica,
+            linha_excel,
+            ultima_coluna,
+            "UNIDADE SEM LANÇAMENTOS",
+            formato_unidade_sem_lancamento,
+        )
