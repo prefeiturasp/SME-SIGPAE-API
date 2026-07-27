@@ -103,10 +103,7 @@ class LoginView(TokenObtainPairView):
     def usuario_com_cargo_de_acesso_automatico(self, dados_usuario):
         return (
             dados_usuario["cargos"][0]["codigoCargo"]
-            in [
-                cargo["codigo"]
-                for cargo in Perfil.cargos_diretor() + Perfil.cargos_adm_escola()
-            ]
+            in [cargo["codigo"] for cargo in Perfil.cargos_diretor()]
             or self.eh_cargo_diretor_cieja(dados_usuario)
             or self.eh_cargo_coordenador_polo(dados_usuario)
         )
@@ -130,11 +127,6 @@ class LoginView(TokenObtainPairView):
             or self.eh_cargo_coordenador_polo(dados_usuario)
         )
 
-    def usuario_com_cargo_automatico_adm_escola(self, dados_usuario):
-        return dados_usuario["cargos"][0]["codigoCargo"] in [
-            cargo["codigo"] for cargo in Perfil.cargos_adm_escola()
-        ]
-
     def checa_se_cria_usuario(self, dados_usuario):
         if not self.usuario_com_cargo_de_acesso_automatico(dados_usuario):
             raise NovoSGPServicoLogadoException(
@@ -142,8 +134,6 @@ class LoginView(TokenObtainPairView):
             )
         if self.usuario_com_cargo_diretor(dados_usuario):
             self.cria_usuario_no_django_e_no_coresso(dados_usuario, DIRETOR_UE)
-        elif self.usuario_com_cargo_automatico_adm_escola(dados_usuario):
-            self.cria_usuario_no_django_e_no_coresso(dados_usuario, ADMINISTRADOR_UE)
 
     def eh_perfil_escola(self, vinculo_atual):
         return vinculo_atual.perfil.nome in [ADMINISTRADOR_UE, DIRETOR_UE]
@@ -176,17 +166,11 @@ class LoginView(TokenObtainPairView):
             self.checa_se_trocou_de_unidade(user, hoje, vinculo_atual, dados_usuario)
             return
         vinculo_atual.finalizar_vinculo()
-        if self.usuario_com_cargo_automatico_adm_escola(dados_usuario):
-            perfil = Perfil.objects.get(nome=ADMINISTRADOR_UE)
-            self.cria_vinculo(user, hoje, dados_usuario, perfil)
 
     def se_administrador(self, vinculo_atual, dados_usuario, user, hoje):
         if vinculo_atual.perfil.nome != ADMINISTRADOR_UE:
             return
-        if self.usuario_com_cargo_automatico_adm_escola(dados_usuario):
-            self.checa_se_trocou_de_unidade(user, hoje, vinculo_atual, dados_usuario)
-            return
-        elif self.usuario_com_cargo_diretor(dados_usuario):
+        if self.usuario_com_cargo_diretor(dados_usuario):
             vinculo_atual.finalizar_vinculo()
             perfil = Perfil.objects.get(nome=DIRETOR_UE)
             self.cria_vinculo(user, hoje, dados_usuario, perfil)
@@ -223,9 +207,6 @@ class LoginView(TokenObtainPairView):
     def get_perfil_automatico(self, dados_usuario):
         if self.usuario_com_cargo_diretor(dados_usuario):
             return Perfil.objects.get(nome=DIRETOR_UE)
-
-        if self.usuario_com_cargo_automatico_adm_escola(dados_usuario):
-            return Perfil.objects.get(nome=ADMINISTRADOR_UE)
 
         return None
 

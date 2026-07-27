@@ -396,6 +396,45 @@ def test_url_perfil_dilog_abastecimento_cronograma(
     assert obj.status == "APROVADO_DILOG_ABASTECIMENTO"
 
 
+def test_url_perfil_dilog_abastecimento_aprova_com_justificativa(
+    client_autenticado_dilog_abastecimento,
+    solicitacao_cronograma_ciente,
+):
+    justificativa = "Cronograma aprovado após análise do Abastecimento"
+
+    data = json.dumps(
+        {
+            "aprovado": True,
+            "justificativa_abastecimento": justificativa,
+        }
+    )
+
+    response = client_autenticado_dilog_abastecimento.patch(
+        f"/solicitacao-de-alteracao-de-cronograma/"
+        f"{solicitacao_cronograma_ciente.uuid}/analise-abastecimento/",
+        data,
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
+        uuid=solicitacao_cronograma_ciente.uuid
+    )
+
+    assert solicitacao.status == "APROVADO_DILOG_ABASTECIMENTO"
+
+    log_aprovacao = LogSolicitacoesUsuario.objects.filter(
+        uuid_original=solicitacao.uuid,
+        status_evento=(
+            LogSolicitacoesUsuario
+            .APROVADO_DILOG_ABASTECIMENTO_SOLICITACAO_ALTERACAO
+        ),
+    ).first()
+
+    assert log_aprovacao is not None
+    assert log_aprovacao.justificativa == justificativa
+    
 def test_url_perfil_dilog_abastecimento_reprova_alteracao_cronograma(
     client_autenticado_dilog_abastecimento, solicitacao_cronograma_ciente
 ):
