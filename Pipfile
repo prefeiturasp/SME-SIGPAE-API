@@ -33,7 +33,7 @@ flake8 = "==6.1.0"
 pip-audit = "==2.9.0"
 pdfplumber = "==0.11.9"
 coverage-badge = "==1.1.2"
-setuptools = "==80.9.0"
+setuptools = "==83.0.0"
 
 [packages]
 Sphinx="==9.1.0"  # https://github.com/sphinx-doc/sphinx
