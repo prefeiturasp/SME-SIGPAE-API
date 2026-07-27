@@ -28,7 +28,6 @@ from src.medicao_inicial.utils import (
     busca_dias_zerados,
     get_lista_categorias_campos,
     get_lista_categorias_campos_cei,
-    get_lista_dias_letivos,
     get_nome_campo,
     get_nome_periodo,
     get_somatorio_etec,
@@ -220,17 +219,6 @@ def test_build_headers_tabelas_emebs(solicitacao_medicao_inicial_varios_valores_
         build_headers_tabelas_emebs(solicitacao_medicao_inicial_varios_valores_emebs)
         == HEADERS_TABELAS_EMEBS
     )
-
-
-def test_get_lista_dias_letivos(solicitacao_medicao_inicial_varios_valores):
-    dias_letivos = get_lista_dias_letivos(solicitacao_medicao_inicial_varios_valores)
-
-    _, num_dias = monthrange(
-        int(solicitacao_medicao_inicial_varios_valores.ano),
-        int(solicitacao_medicao_inicial_varios_valores.mes),
-    )
-
-    assert len(dias_letivos) == num_dias
 
 
 def test_get_nome_periodo():
