@@ -11,7 +11,7 @@ from .conftest import mocked_foto_aluno_novosgp, mocked_response, mocked_token_n
 
 ENDPOINT_ALUNOS_POR_PERIODO = "quantidade-alunos-por-periodo"
 ENDPOINT_LOTES = "lotes"
-
+ENDPOINT_LISTA_DIAS = "dias-suspensao-atividades/lista-dias"
 
 def test_url_endpoint_quantidade_alunos_por_periodo(client_autenticado, escola):
     response = client_autenticado.get(
@@ -943,3 +943,20 @@ def test_url_endpoint_lotes_simples_filtro_edital(
     uuids_retornados = [r["uuid"] for r in results]
     assert str(lote.uuid) in uuids_retornados
     assert str(outro_lote.uuid) not in uuids_retornados
+
+
+def test_url_endpoint_lista_dias_sem_parametros(client_autenticado):
+    response = client_autenticado.get(f"/{ENDPOINT_LISTA_DIAS}/")
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"] == "Informe escola, mes e ano."
+
+
+def test_url_endpoint_lista_dias_escola_nao_encontrada(client_autenticado):
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LISTA_DIAS}/",
+        {"escola": "00000000-0000-0000-0000-000000000000", "mes": 5, "ano": 2026},
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json()["detail"] == "Escola não encontrada."
