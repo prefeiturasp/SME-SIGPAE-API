@@ -415,6 +415,7 @@ def test_processa_periodo_campo(
         faixas_etarias_ativas[0].id,
         valores_iniciais,
         grupos_medicao,
+        False,
     )
     assert isinstance(integral_cei, list)
     assert len(integral_cei) == 4
@@ -426,6 +427,7 @@ def test_processa_periodo_campo(
         faixas_etarias_ativas[0].id,
         valores_iniciais,
         grupos_medicao,
+        False,
     )
     assert isinstance(dieta_a_integral, list)
     assert len(dieta_a_integral) == 5
@@ -437,6 +439,7 @@ def test_processa_periodo_campo(
         "refeicao",
         valores_iniciais,
         grupos_medicao,
+        False,
     )
     assert isinstance(integral_emei, list)
     assert len(integral_emei) == 6
@@ -448,6 +451,7 @@ def test_processa_periodo_campo(
         "lanche_4h",
         valores_iniciais,
         grupos_medicao,
+        False,
     )
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 7
@@ -665,9 +669,21 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 4
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento") == 3
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
+        )
+        == 3
+    )
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Sobremesas para Pagamento") == 3
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == "Total de Sobremesas para Pagamento"
+        )
+        == 3
+    )
 
     assert df.iloc[0].tolist() == [
         "CEMEI",
