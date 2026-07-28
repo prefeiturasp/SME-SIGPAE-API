@@ -26,9 +26,9 @@ from src.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
-    todas_medicoes_sem_lancamentos
 )
 
 NOME_PERIODO_SOLICITACAO_ALIMENTACAO = "Solicitações de Alimentação"
@@ -531,7 +531,7 @@ def ajusta_layout_tabela(
         "border": 1,
         "border_color": "#999999",
     }
-     
+
     formatacao_base = {
         **estilo_base,
         "font_color": "#FFFFFF",

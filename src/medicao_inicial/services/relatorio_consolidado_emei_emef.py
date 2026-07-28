@@ -20,9 +20,9 @@ from src.medicao_inicial.services.utils import (
     get_lista_dias_periodo,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
-    todas_medicoes_sem_lancamentos
 )
 
 from ..models import CategoriaMedicao
@@ -196,7 +196,7 @@ def _processa_periodo_campo(
     if solictacao_sem_lancamento:
         valores.append("SL")
         return valores
-       
+
     filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
     try:
@@ -421,7 +421,7 @@ def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
 
 
 def ajusta_layout_tabela(workbook, worksheet, df):
-    
+
     estilo_base = {
         "align": "center",
         "valign": "vcenter",
@@ -433,7 +433,7 @@ def ajusta_layout_tabela(workbook, worksheet, df):
         "font_color": "#FFFFFF",
         "bold": True,
     }
-     
+
     formatacao_manha = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
     formatacao_tarde = workbook.add_format({**formatacao_base, "bg_color": "#D06D12"})
     formatacao_integral = workbook.add_format(

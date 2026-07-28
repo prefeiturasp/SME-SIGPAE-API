@@ -419,33 +419,36 @@ def _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_de_unidade):
         "border_color": "#999999",
     }
 
-    formato_primeiras_colunas = workbook.add_format({
-        **estilo_base,
-        "bg_color": cor_rosa,
-    })
+    formato_primeiras_colunas = workbook.add_format(
+        {
+            **estilo_base,
+            "bg_color": cor_rosa,
+        }
+    )
 
-    formato_unidade_sem_lancamento = workbook.add_format({
-        **estilo_base,
-        "bg_color": cor_rosa,
-        "bold": True,
-    })
+    formato_unidade_sem_lancamento = workbook.add_format(
+        {
+            **estilo_base,
+            "bg_color": cor_rosa,
+            "bold": True,
+        }
+    )
 
     primeira_coluna_dinamica = 3
     ultima_coluna = len(df.columns) - 1
 
     for indice, linha in enumerate(df.values):
         # ignora a linha TOTAL
-        if indice == len(df.values) - 1:
-            continue
-
-        if "SL" not in linha:
+        if (indice == len(df.values) - 1) or ("SL" not in linha):
             continue
 
         linha_excel = indice + 5 + linha_adicional
 
         # pinta somente as três primeiras colunas mantendo os dados
         for coluna in range(3):
-            worksheet.write(linha_excel, coluna, linha[coluna], formato_primeiras_colunas)
+            worksheet.write(
+                linha_excel, coluna, linha[coluna], formato_primeiras_colunas
+            )
 
         # mescla todas as colunas de medição
         if primeira_coluna_dinamica == ultima_coluna:

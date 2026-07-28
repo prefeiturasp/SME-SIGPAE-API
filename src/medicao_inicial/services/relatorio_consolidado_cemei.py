@@ -27,9 +27,9 @@ from src.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
-    todas_medicoes_sem_lancamentos
 )
 
 PROGRAMAS_E_PROJETOS = "PROGRAMAS E PROJETOS"
@@ -451,7 +451,7 @@ def ajusta_layout_tabela(
         worksheet.write(3, col_num, value[1], formatacao_level2)
 
     formato_dados = workbook.add_format(estilo_base)
-    
+
     worksheet.set_column(0, len(df.columns) - 1, 15, formato_dados)
     worksheet.set_column(2, 2, 30, formato_dados)
 

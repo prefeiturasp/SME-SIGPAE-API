@@ -18,7 +18,7 @@ from src.medicao_inicial.services.utils import (
     get_lista_dias_periodo,
     get_nome_periodo,
     get_valores_iniciais,
-    todas_medicoes_sem_lancamentos
+    todas_medicoes_sem_lancamentos,
 )
 
 logger = logging.getLogger(__name__)
@@ -108,7 +108,7 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
             ]
-        
+
         fundamental += [
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -322,7 +322,7 @@ def _processa_periodo_campo(
     if solictacao_sem_lancamento:
         valores.append("SL")
         return valores
-        
+
     filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
     try:

@@ -21,9 +21,9 @@ from src.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
-    todas_medicoes_sem_lancamentos
 )
 
 
@@ -175,7 +175,7 @@ def _processa_periodo_campo(
     if solictacao_sem_lancamento:
         valores.append("SL")
         return valores
-    
+
     filtros = _define_filtro(periodo)
 
     try:
