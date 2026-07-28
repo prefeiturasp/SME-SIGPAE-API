@@ -230,7 +230,7 @@ def _gera_excel(
             contem_recreio,
         )
         modulo_da_unidade.ajusta_layout_tabela(workbook, worksheet, df)
-        _formata_unidades_sem_lancamento(workbook, worksheet, df)
+        _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_de_unidade)
         _formata_total_geral(workbook, worksheet, df, tipos_de_unidade)
 
     return file.getvalue()
@@ -405,7 +405,12 @@ def _formata_filtros(
     return filtros
 
 
-def _formata_unidades_sem_lancamento(workbook, worksheet, df):
+def _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_de_unidade):
+    linha_adicional = 0
+    if tipos_de_unidade is not None and set(tipos_de_unidade).issubset(
+        ORDEM_UNIDADES_GRUPO_EMEBS
+    ):
+        linha_adicional = 1
     cor_rosa = "#FCE4EC"
     estilo_base = {
         "align": "center",
@@ -436,7 +441,7 @@ def _formata_unidades_sem_lancamento(workbook, worksheet, df):
         if "SL" not in linha:
             continue
 
-        linha_excel = indice + 5
+        linha_excel = indice + 5 + linha_adicional
 
         # pinta somente as três primeiras colunas mantendo os dados
         for coluna in range(3):
