@@ -411,7 +411,7 @@ def _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_de_unidade):
         ORDEM_UNIDADES_GRUPO_EMEBS
     ):
         linha_adicional = 1
-    cor_rosa = "#FCE4EC"
+    cor_laranja = "#FFDBBB"
     estilo_base = {
         "align": "center",
         "valign": "vcenter",
@@ -422,14 +422,14 @@ def _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_de_unidade):
     formato_primeiras_colunas = workbook.add_format(
         {
             **estilo_base,
-            "bg_color": cor_rosa,
+            "bg_color": cor_laranja,
         }
     )
 
     formato_unidade_sem_lancamento = workbook.add_format(
         {
             **estilo_base,
-            "bg_color": cor_rosa,
+            "bg_color": cor_laranja,
             "bold": True,
         }
     )
