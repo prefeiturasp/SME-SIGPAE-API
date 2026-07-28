@@ -28,6 +28,7 @@ from src.medicao_inicial.services.utils import (
     get_valores_iniciais,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
+    todas_medicoes_sem_lancamentos
 )
 
 NOME_PERIODO_SOLICITACAO_ALIMENTACAO = "Solicitações de Alimentação"
@@ -275,6 +276,7 @@ def get_valores_tabela(
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []
     for solicitacao in ordenar_unidades(solicitacoes):
+        solictacao_sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao)
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
 
@@ -286,6 +288,7 @@ def get_valores_tabela(
                 valores_solicitacao_atual,
                 dietas_especiais,
                 periodos_escolares,
+                solictacao_sem_lancamento,
                 query_params,
             )
         valores.append(valores_solicitacao_atual)
@@ -299,6 +302,7 @@ def _processa_periodo_campo(
     valores: list[str],
     dietas_especiais: list[str],
     periodos_escolares: list[str],
+    solictacao_sem_lancamento,
     query_params: dict | None = None,
 ):
     """
@@ -318,6 +322,9 @@ def _processa_periodo_campo(
     Returns:
         _type_: Lista de valores atualizada com o resultado do processamento.
     """
+    if solictacao_sem_lancamento:
+        valores.append("SL")
+        return valores
     filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
     try:
@@ -518,13 +525,17 @@ def ajusta_layout_tabela(
     Returns:
         None: A função modifica o worksheet in-place e não retorna valores.
     """
-    formatacao_base = {
+    estilo_base = {
         "align": "center",
         "valign": "vcenter",
-        "font_color": "#FFFFFF",
-        "bold": True,
         "border": 1,
         "border_color": "#999999",
+    }
+     
+    formatacao_base = {
+        **estilo_base,
+        "font_color": "#FFFFFF",
+        "bold": True,
     }
     formatacao_manha = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
     formatacao_tarde = workbook.add_format({**formatacao_base, "bg_color": "#D06D12"})
@@ -572,15 +583,10 @@ def ajusta_layout_tabela(
         worksheet.write(2, col_num, value[0], formatacao_level1[value[0]])
         worksheet.write(3, col_num, value[1], formatacao_level2)
 
-    formatacao = workbook.add_format(
-        {
-            "align": "center",
-            "valign": "vcenter",
-        }
-    )
+    formato_dados = workbook.add_format(estilo_base)
 
-    worksheet.set_column(0, len(df.columns) - 1, 15, formatacao)
-    worksheet.set_column(2, 2, 30)
+    worksheet.set_column(0, len(df.columns) - 1, 15, formato_dados)
+    worksheet.set_column(2, 2, 30, formato_dados)
 
     worksheet.set_row(4, None, None, {"hidden": True})
     worksheet.set_row(2, 25)
