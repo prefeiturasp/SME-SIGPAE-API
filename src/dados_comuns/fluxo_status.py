@@ -5923,6 +5923,12 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
     workflow_class = FichaTecnicaDoProdutoWorkflow
     status = xwf_models.StateField(workflow_class)
 
+    def salvar_log_ficha_tecnica_cadastrada(self, usuario):
+        return self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA,
+            usuario=usuario,
+        )
+
     @xworkflows.after_transition("inicia_fluxo")
     def _inicia_fluxo_hook(self, *args, **kwargs):
         user = kwargs.get("user")

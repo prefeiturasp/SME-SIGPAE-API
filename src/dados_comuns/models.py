@@ -141,7 +141,8 @@ class LogSolicitacoesUsuario(
         CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
         CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
         ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
-    ) = range(114)
+        FICHA_TECNICA_CADASTRADA
+    ) = range(115)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -301,6 +302,7 @@ class LogSolicitacoesUsuario(
         (DOCUMENTO_ENVIADO_PARA_CORRECAO, "Documento enviado para correção"),
         (DOCUMENTO_APROVADO, "Documento aprovado"),
         (DOCUMENTO_CORRECAO_REALIZADA, "Documento correção realizada"),
+        (FICHA_TECNICA_CADASTRADA,"Ficha Técnica cadastrada"),
         (FICHA_TECNICA_ENVIADA_PARA_ANALISE, "Ficha Técnica enviada para análise"),
         (FICHA_TECNICA_APROVADA, "Ficha Técnica aprovada"),
         (FICHA_TECNICA_ENVIADA_PARA_CORRECAO, "Ficha Técnica enviada para correção"),

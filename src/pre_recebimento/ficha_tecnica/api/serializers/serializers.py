@@ -21,6 +21,9 @@ from src.terceirizada.api.serializers.serializers import (
     TerceirizadaLookUpSerializer,
 )
 
+from src.dados_comuns.api.serializers import (
+    LogSolicitacoesUsuarioSerializer,
+)
 
 class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
     produto = NomeDeProdutoEditalSerializer()
@@ -142,6 +145,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
     unidade_medida_primaria_vazia = UnidadeMedidaSimplesSerializer()
     unidade_medida_secundaria_vazia = UnidadeMedidaSimplesSerializer()
     unidade_medida_volume_primaria = UnidadeMedidaSimplesSerializer()
+    logs = LogSolicitacoesUsuarioSerializer(many=True, read_only=True)
 
     def get_criado_em(self, obj):
         return obj.criado_em.strftime("%d/%m/%Y")
@@ -208,6 +212,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "arquivo",
             "modo_de_preparo",
             "informacoes_adicionais",
+            "logs"
         )
 
 
