@@ -1010,3 +1010,29 @@ def test_url_endpoint_lista_dias_suspensos(client_autenticado, escola):
 
     assert resultado[1]["data"] == "20/05/2026"
     assert resultado[1]["editais"] == ["Edital 01/2026"]
+
+
+def test_url_endpoint_lista_dias_nao_retorna_contrato_encerrado(
+    client_autenticado, escola
+):
+    edital = baker.make("terceirizada.Edital", numero="Edital 01/2026")
+    lote = baker.make("Lote")
+    contrato = baker.make("terceirizada.Contrato", edital=edital, encerrado=True)
+    contrato.lotes.add(lote)
+    escola.lote = lote
+    escola.save()
+
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 10),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital,
+    )
+
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LISTA_DIAS}/",
+        {"escola": str(escola.uuid), "mes": 5, "ano": 2026},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == []
