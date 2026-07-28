@@ -144,7 +144,7 @@ class SolicitacaoMedicaoInicial(
                         solicitacao_medicao_inicial=self,
                         periodo_escolar=periodo_escolar,
                     )
-                    
+
                 nome_grupo = grupos_cemei.get(periodo_escolar.nome)
                 if nome_grupo:
                     grupo = GrupoMedicao.objects.get(nome=nome_grupo)
