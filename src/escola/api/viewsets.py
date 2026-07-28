@@ -2,6 +2,7 @@ import datetime
 import json
 from calendar import monthrange
 
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Count, F, Max, Q, Sum
 from django.http import HttpResponse
@@ -1240,6 +1241,46 @@ class DiaSuspensaoAtividadesViewSet(ViewSetActionPermissionMixin, ModelViewSet):
             data=instance.data, tipo_unidade=instance.tipo_unidade
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=["GET"], url_path="lista-dias")
+    def lista_dias(self, request):
+        escola_uuid = request.query_params.get("escola")
+        mes = request.query_params.get("mes")
+        ano = request.query_params.get("ano")
+
+        if not escola_uuid or not mes or not ano:
+            return Response(
+                {"detail": "Informe escola, mes e ano."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        escola = Escola.objects.filter(uuid=escola_uuid).first()
+        if not escola:
+            return Response(
+                {"detail": "Escola não encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        dias = (
+            DiaSuspensaoAtividades.objects.filter(
+                data__month=mes,
+                data__year=ano,
+                tipo_unidade=escola.tipo_unidade,
+                edital__uuid__in=escola.editais,
+            )
+            .values("data")
+            .annotate(editais=ArrayAgg("edital__numero"))
+            .order_by("data")
+        )
+
+        resultado = [
+            {
+                "data": d["data"].strftime("%d/%m/%Y"),
+                "editais": d["editais"],
+            }
+            for d in dias
+        ]
+        return Response(resultado)
 
 
 class GrupoUnidadeEscolarViewSet(ModelViewSet):
