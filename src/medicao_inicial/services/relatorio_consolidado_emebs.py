@@ -68,6 +68,7 @@ def get_alimentacoes_por_periodo(solicitacoes, query_params=None):
         dietas_alimentacoes, turma="FUNDAMENTAL"
     )
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
+    dict_periodos_dietas.get("INFANTIL").pop("NOITE", None)
     columns = _generate_columns(dict_periodos_dietas)
 
     return columns
@@ -101,16 +102,16 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
     )
 
     if nome_periodo != "Solicitações de Alimentação":
-        if nome_periodo.upper() != "NOITE" and len(infantil) > 0:
+        if nome_periodo.upper() != "NOITE":
             infantil += [
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
             ]
-        if len(fundamental) > 0:
-            fundamental += [
-                "total_refeicoes_pagamento",
-                "total_sobremesas_pagamento",
-            ]
+        
+        fundamental += [
+            "total_refeicoes_pagamento",
+            "total_sobremesas_pagamento",
+        ]
 
     return infantil, fundamental
 
