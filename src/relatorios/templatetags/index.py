@@ -1090,7 +1090,7 @@ def cnpj_mask(value):
     if not value:
         return value
 
-    cnpj = "".join(filter(str.isdigit, str(value)))
+    cnpj = str(value).replace(".", "").replace("/", "").replace("-", "")
 
     if len(cnpj) != 14:
         return value

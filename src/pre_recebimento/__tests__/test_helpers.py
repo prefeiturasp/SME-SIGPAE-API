@@ -102,7 +102,7 @@ def test_passa_filtro_data_etapa():
         (None, ""),
         ("00000000000000", "00.000.000/0000-00"),
         ("12.345.678/0001-9", "1234567800019"),
-        ("12a345b678c0001d95", "12.345.678/0001-95"),
+        ("12a345b678c0001d95", "12a345b678c0001d95"),
     ],
 )
 def test_formata_cnpj_ficha_tecnica(cnpj, cnpj_formatado):
