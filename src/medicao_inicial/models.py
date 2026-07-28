@@ -132,10 +132,31 @@ class SolicitacaoMedicaoInicial(
         periodos_escolares = self.escola.periodos_escolares(self.ano, int(self.mes))
         if not periodos_escolares:
             return
+        grupos_cemei = {
+            "MANHA": "Infantil MANHA",
+            "TARDE": "Infantil TARDE",
+            "INTEGRAL": "Infantil INTEGRAL",
+        }
         for periodo_escolar in periodos_escolares:
-            Medicao.objects.get_or_create(
-                solicitacao_medicao_inicial=self, periodo_escolar=periodo_escolar
-            )
+            if self.escola.eh_cemei:
+                if periodo_escolar.nome == "INTEGRAL":
+                    Medicao.objects.get_or_create(
+                        solicitacao_medicao_inicial=self,
+                        periodo_escolar=periodo_escolar,
+                    )
+
+                nome_grupo = grupos_cemei.get(periodo_escolar.nome)
+                if nome_grupo:
+                    grupo = GrupoMedicao.objects.get(nome=nome_grupo)
+                    Medicao.objects.get_or_create(
+                        solicitacao_medicao_inicial=self,
+                        grupo=grupo,
+                    )
+            else:
+                Medicao.objects.get_or_create(
+                    solicitacao_medicao_inicial=self,
+                    periodo_escolar=periodo_escolar,
+                )
 
     @property
     def tem_lanche_emergencial_diario(self) -> bool:

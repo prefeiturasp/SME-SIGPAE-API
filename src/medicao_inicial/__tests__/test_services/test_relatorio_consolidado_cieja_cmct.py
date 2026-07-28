@@ -112,9 +112,21 @@ def test_insere_tabela_periodos_na_planilha_unidade_cieja(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 4
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento") == 3
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
+        )
+        == 3
+    )
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Sobremesas para Pagamento") == 3
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == "Total de Sobremesas para Pagamento"
+        )
+        == 3
+    )
 
     assert df.iloc[0].tolist() == [
         "CIEJA",
@@ -330,6 +342,7 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
         valores_iniciais,
         dietas_especiais,
         periodos_escolares,
+        False,
     )
     assert isinstance(manha_refeicao, list)
     assert len(manha_refeicao) == 4
@@ -342,6 +355,7 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
         valores_iniciais,
         dietas_especiais,
         periodos_escolares,
+        False,
     )
     assert isinstance(solicitacao_kit_lanche, list)
     assert len(solicitacao_kit_lanche) == 5
@@ -354,6 +368,7 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
         valores_iniciais,
         dietas_especiais,
         periodos_escolares,
+        False,
     )
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 6
@@ -366,6 +381,7 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
         valores_iniciais,
         dietas_especiais,
         periodos_escolares,
+        False,
     )
     assert isinstance(pp_lanche, list)
     assert len(pp_lanche) == 7

@@ -126,7 +126,9 @@ def _get_lista_alimentacoes(
         )
     else:
         lista_alimentacoes = sorted(
-            filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+            filtra_queryset_pelo_intervalo_de_dias(
+                medicao.valores_medicao, query_params
+            )
             .exclude(
                 Q(
                     nome_campo__in=[
@@ -180,7 +182,9 @@ def _get_lista_alimentacoes_dietas(
         )
     else:
         return sorted(
-            filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
+            filtra_queryset_pelo_intervalo_de_dias(
+                medicao.valores_medicao, query_params
+            )
             .filter(categoria_medicao__nome=categoria)
             .exclude(
                 nome_campo__in=[
@@ -256,7 +260,8 @@ def _sort_and_merge(periodos_alimentacoes: dict, dietas_alimentacoes: dict) -> d
     dict_periodos_dietas = {**periodos_alimentacoes, **dietas_alimentacoes}
     dict_periodos_dietas = dict(
         sorted(
-            dict_periodos_dietas.items(), key=lambda item: ORDEM_HEADERS_RECREIO_CEMEI[item[0]]
+            dict_periodos_dietas.items(),
+            key=lambda item: ORDEM_HEADERS_RECREIO_CEMEI[item[0]],
         )
     )
     return dict_periodos_dietas
@@ -435,7 +440,11 @@ def _processa_periodo_regular(
         soma = relatorio_consolidado_recreio_cei.processa_grupos_recreio(
             solicitacao, filtros, campo, periodo, query_params
         )
-    elif periodo in [RECREIO_NAS_FERIAS_EMEI, "Solicitações de Alimentação", "Colaboradores"]:
+    elif periodo in [
+        RECREIO_NAS_FERIAS_EMEI,
+        "Solicitações de Alimentação",
+        "Colaboradores",
+    ]:
         soma = relatorio_consolidado_recreio_emei_emef.processa_grupos_recreio(
             solicitacao,
             filtros,
@@ -500,7 +509,9 @@ def ajusta_layout_tabela(
     formatacao_colaboradores = workbook.add_format(
         {**formatacao_base, "bg_color": "#B40C02"}
     )
-    formatacao_infantil = workbook.add_format({**formatacao_base, "bg_color": "#2F80ED"})
+    formatacao_infantil = workbook.add_format(
+        {**formatacao_base, "bg_color": "#2F80ED"}
+    )
     formatacao_dieta_a = workbook.add_format({**formatacao_base, "bg_color": "#20AA73"})
     formatacao_dieta_b = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
 
