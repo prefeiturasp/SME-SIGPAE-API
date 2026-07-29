@@ -375,14 +375,6 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Arquivo deve ser um PDF.")
         return value
 
-    def create(self, validated_data):
-        instance = cria_ficha_tecnica(validated_data)
-
-        user = self.context["request"].user
-        instance.inicia_fluxo(user=user)
-
-        return instance
-
     def update(self, instance, validated_data):
         instance = atualiza_ficha_tecnica(instance, validated_data)
 

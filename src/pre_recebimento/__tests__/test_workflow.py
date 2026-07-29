@@ -333,6 +333,39 @@ def test_ficha_tecnica_deve_enviar_email_ao_aprovar(
         in contexto["url_detalhes_ficha_tecnica"]
     )
 
+@patch(
+    "src.dados_comuns.fluxo_status.PartesInteressadasService."
+    "usuarios_vinculados_a_empresa_do_objeto"
+)
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
+def test_ficha_tecnica_deve_salvar_log_ao_aprovar(
+    mock_enviar_email,
+    mock_usuarios_vinculados,
+    ficha_tecnica_factory,
+    django_user_model,
+):
+    mock_usuarios_vinculados.return_value = ["fornecedor@test.com"]
+
+    usuario = django_user_model.objects.create_user(
+        username="codae-aprovacao@test.com",
+        password="123",
+        email="codae-aprovacao@test.com",
+        registro_funcional="7654321",
+    )
+
+    ficha = ficha_tecnica_factory(
+        status=FichaTecnicaDoProduto.workflow_class.ENVIADA_PARA_ANALISE
+    )
+
+    ficha.gpcodae_aprova(user=usuario)
+
+    log = LogSolicitacoesUsuario.objects.get(
+        uuid_original=ficha.uuid,
+        usuario=usuario,
+        status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_APROVADA,
+    )
+
+    assert log.status_evento_explicacao == "Ficha Técnica aprovada"
 
 @patch(
     "src.dados_comuns.fluxo_status.PartesInteressadasService."

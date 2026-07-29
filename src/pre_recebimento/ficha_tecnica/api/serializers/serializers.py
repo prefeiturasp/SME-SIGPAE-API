@@ -25,6 +25,7 @@ from src.dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSerializer,
 )
 
+
 class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
     produto = NomeDeProdutoEditalSerializer()
     uuid_empresa = serializers.SerializerMethodField()

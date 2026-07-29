@@ -37,20 +37,21 @@ from src.pre_recebimento.documento_recebimento.api.serializers.serializers impor
     DocumentoDeRecebimentoSerializer,
     PainelDocumentoDeRecebimentoSerializer,
 )
-from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
-    PainelFichaTecnicaSerializer,
-)
 from src.pre_recebimento.layout_embalagem.api.serializers.serializers import (
     PainelLayoutEmbalagemSerializer,
 )
+
 from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
+    FichaTecnicaDetalharSerializer,
     FichaTecnicaSimplesSerializer,
+    PainelFichaTecnicaSerializer,
 )
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 from src.pre_recebimento.layout_embalagem.fixtures.factories.layout_embalagem_factory import (
     LayoutDeEmbalagemFactory,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 
 pytestmark = pytest.mark.django_db
 
@@ -713,3 +714,51 @@ def test_painel_layout_embalagem_serializer_retorna_false_para_ficha_tecnica_nao
     layout = LayoutDeEmbalagemFactory(ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS)
     data = PainelLayoutEmbalagemSerializer(layout).data
     assert data["eh_ficha_tecnica_flv"] is False
+
+def test_ficha_tecnica_detalhar_serializer_retorna_logs_da_linha_do_tempo(
+    ficha_tecnica_factory,
+    usuario,
+):
+    ficha = ficha_tecnica_factory()
+    outra_ficha = ficha_tecnica_factory()
+
+    with freeze_time("2026-07-27 10:00:00"):
+        baker.make(
+            LogSolicitacoesUsuario,
+            uuid_original=ficha.uuid,
+            usuario=usuario,
+            status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA,
+        )
+
+    with freeze_time("2026-07-27 11:00:00"):
+        baker.make(
+            LogSolicitacoesUsuario,
+            uuid_original=ficha.uuid,
+            usuario=usuario,
+            status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_APROVADA,
+        )
+
+    baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=outra_ficha.uuid,
+        usuario=usuario,
+        status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE,
+    )
+
+    serializer = FichaTecnicaDetalharSerializer(ficha)
+    logs = serializer.data["logs"]
+
+    assert len(logs) == 2
+
+    assert logs[0]["status_evento_explicacao"] == (
+        "Ficha Técnica cadastrada"
+    )
+    assert logs[1]["status_evento_explicacao"] == (
+        "Ficha Técnica aprovada"
+    )
+
+    assert logs[0]["criado_em"]
+    assert logs[1]["criado_em"]
+
+    assert logs[0]["usuario"]["nome"] == usuario.nome
+    assert logs[1]["usuario"]["nome"] == usuario.nome

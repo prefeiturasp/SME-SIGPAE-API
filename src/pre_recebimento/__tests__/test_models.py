@@ -20,6 +20,10 @@ from ..ficha_tecnica.models import AnaliseFichaTecnica, FichaTecnicaDoProduto
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+from datetime import timedelta
+from django.utils import timezone
+from src.dados_comuns.models import LogSolicitacoesUsuario
+from model_bakery import baker
 
 pytestmark = pytest.mark.django_db
 
@@ -414,3 +418,52 @@ def test_cronograma_identifica_ponto_a_ponto_pela_ficha_tecnica():
     assert cronograma_ponto_a_ponto.ponto_a_ponto is True
     assert cronograma_armazenavel.ponto_a_ponto is False
     assert cronograma_sem_ficha.ponto_a_ponto is False
+
+
+def test_ficha_tecnica_deve_retornar_logs_da_linha_do_tempo(
+    ficha_tecnica_factory,
+    usuario,
+):
+    ficha = ficha_tecnica_factory()
+    outra_ficha = ficha_tecnica_factory()
+
+    log_cadastro = baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=ficha.uuid,
+        usuario=usuario,
+        status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA,
+    )
+
+    log_envio = baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=ficha.uuid,
+        usuario=usuario,
+        status_evento=(
+            LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE
+        ),
+    )
+
+    baker.make(
+        LogSolicitacoesUsuario,
+        uuid_original=outra_ficha.uuid,
+        usuario=usuario,
+        status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_APROVADA,
+    )
+
+    LogSolicitacoesUsuario.objects.filter(pk=log_cadastro.pk).update(
+        criado_em=timezone.now() - timedelta(hours=1)
+    )
+
+    LogSolicitacoesUsuario.objects.filter(pk=log_envio.pk).update(
+        criado_em=timezone.now()
+    )
+
+    logs = list(ficha.logs)
+
+    assert len(logs) == 2
+    assert logs[0].status_evento == (
+        LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA
+    )
+    assert logs[1].status_evento == (
+        LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE
+    )
