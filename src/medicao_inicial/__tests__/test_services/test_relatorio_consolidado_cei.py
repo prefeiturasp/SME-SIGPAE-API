@@ -289,6 +289,7 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_a
         "INTEGRAL",
         faixas_etarias_ativas[0].id,
         valores_iniciais,
+        False,
     )
     assert isinstance(integral, list)
     assert len(integral) == 4
@@ -299,6 +300,7 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_a
         "TARDE",
         faixas_etarias_ativas[0].id,
         valores_iniciais,
+        False,
     )
     assert isinstance(manha, list)
     assert len(manha) == 5

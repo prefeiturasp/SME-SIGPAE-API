@@ -10,6 +10,7 @@ from src.medicao_inicial.utils import (
     build_tabelas_relatorio_medicao,
 )
 from src.relatorios.relatorios import get_total_por_periodo
+from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 
 pytestmark = pytest.mark.django_db
 
@@ -332,10 +333,26 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         self._setup_logs_medicao_inclusao_continua(
             valor_medicao_factory, dia_calendario_factory
         )
+        data_sabado = datetime.date(2025, 9, 6)
+
+        dia_letivo_sigpae = DiaLetivoSIGPAE.objects.create(data=data_sabado)
+        dia_letivo_sigpae.escolas.add(self.escola_cmct)
+        dia_letivo_sigpae.periodos_escolares.add(self.periodo_tarde)
 
         build_tabelas = build_tabelas_relatorio_medicao(
             self.solicitacao_medicao_inicial
         )
+
+        tabela_tarde = next(
+            tabela
+            for tabela in build_tabelas
+            if tabela.get("periodos") == ["TARDE"]
+        )
+
+        indice_dia_06 = 6 - 1
+
+        assert tabela_tarde["valores_campos"][indice_dia_06][0] == 6
+        assert tabela_tarde["dias_letivos"][indice_dia_06] is True
         assert any(
             item.get("periodos") == ["TARDE"] for item in build_tabelas
         ), "Nenhum item com periodos=['TARDE'] encontrado"

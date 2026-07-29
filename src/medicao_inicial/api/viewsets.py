@@ -809,6 +809,8 @@ class SolicitacaoMedicaoInicialViewSet(
                 f"Recreio nas Férias {mes}/{ano}.xlsx"
             )
             contem_recreio = True
+        else:
+            filtros["recreio_nas_ferias_id__isnull"] = True
 
         historico_valido = HistoricoEscola.objects.filter(
             escola=OuterRef("escola"),

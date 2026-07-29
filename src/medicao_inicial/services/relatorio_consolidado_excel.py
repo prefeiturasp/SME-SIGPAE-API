@@ -230,6 +230,7 @@ def _gera_excel(
             contem_recreio,
         )
         modulo_da_unidade.ajusta_layout_tabela(workbook, worksheet, df)
+        _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_de_unidade)
         _formata_total_geral(workbook, worksheet, df, tipos_de_unidade)
 
     return file.getvalue()
@@ -402,3 +403,67 @@ def _formata_filtros(
         data_final_formatada = date.fromisoformat(data_final).strftime("%d/%m/%Y")
         filtros += f" - {data_inicial_formatada} a {data_final_formatada}"
     return filtros
+
+
+def _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_de_unidade):
+    linha_adicional = 0
+    if tipos_de_unidade is not None and set(tipos_de_unidade).issubset(
+        ORDEM_UNIDADES_GRUPO_EMEBS
+    ):
+        linha_adicional = 1
+    cor_laranja = "#FFDBBB"
+    estilo_base = {
+        "align": "center",
+        "valign": "vcenter",
+        "border": 1,
+        "border_color": "#999999",
+    }
+
+    formato_primeiras_colunas = workbook.add_format(
+        {
+            **estilo_base,
+            "bg_color": cor_laranja,
+        }
+    )
+
+    formato_unidade_sem_lancamento = workbook.add_format(
+        {
+            **estilo_base,
+            "bg_color": cor_laranja,
+            "bold": True,
+        }
+    )
+
+    primeira_coluna_dinamica = 3
+    ultima_coluna = len(df.columns) - 1
+
+    for indice, linha in enumerate(df.values):
+        # ignora a linha TOTAL
+        if (indice == len(df.values) - 1) or ("SL" not in linha):
+            continue
+
+        linha_excel = indice + 5 + linha_adicional
+
+        # pinta somente as três primeiras colunas mantendo os dados
+        for coluna in range(3):
+            worksheet.write(
+                linha_excel, coluna, linha[coluna], formato_primeiras_colunas
+            )
+
+        # mescla todas as colunas de medição
+        if primeira_coluna_dinamica == ultima_coluna:
+            worksheet.write(
+                linha_excel,
+                primeira_coluna_dinamica,
+                "UNIDADE SEM LANÇAMENTOS",
+                formato_unidade_sem_lancamento,
+            )
+        else:
+            worksheet.merge_range(
+                linha_excel,
+                primeira_coluna_dinamica,
+                linha_excel,
+                ultima_coluna,
+                "UNIDADE SEM LANÇAMENTOS",
+                formato_unidade_sem_lancamento,
+            )

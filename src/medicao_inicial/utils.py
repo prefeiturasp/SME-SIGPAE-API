@@ -2895,9 +2895,17 @@ def popula_tabelas_cei(solicitacao, tabelas):
 
         periodos = tabela.get("periodos", [])
         periodo_escolar = periodos[0] if len(periodos) == 1 else None
-        tabela["dias_letivos"] = get_lista_dias_letivos(solicitacao, periodo_escolar)
 
+        tabela["dias_letivos"] = []
         for dia in list(dias_no_mes) + ["Total"]:
+            tabela["dias_letivos"] += [
+                (
+                    get_eh_dia_letivo(dia, solicitacao, periodo_escolar)
+                    if dia != "Total"
+                    else False
+                )
+            ]
+
             total_mensal_categoria = popula_campos_cei(
                 solicitacao,
                 tabela,
@@ -3521,7 +3529,12 @@ def build_tabelas_relatorio_medicao_cei_recreio_nas_ferias(solicitacao):
         if medicao_colaboradores
         else None
     )
-    dias_letivos = get_lista_dias_letivos(solicitacao)
+
+    recreio = solicitacao.recreio_nas_ferias
+    dias_letivos = [
+        get_eh_dia_letivo(dia, solicitacao)
+        for dia in range(recreio.data_inicio.day, recreio.data_fim.day + 1)
+    ]
 
     return tabela_recreio, tabela_colaboradores, dias_letivos
 
