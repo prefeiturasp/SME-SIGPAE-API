@@ -707,7 +707,7 @@ class SolicitacaoMedicaoInicialViewSet(
             )
             solicitacoes = list(query_set_filtrado.values_list("uuid", flat=True))
             if solicitacoes:
-                nome_arquivo = f"Relatório Unificado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.pdf"
+                nome_arquivo = f"Relatório Unificado das Medições Iniciais - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.pdf"
                 gera_pdf_relatorio_unificado_async.delay(
                     user=user,
                     nome_arquivo=nome_arquivo,
@@ -796,7 +796,7 @@ class SolicitacaoMedicaoInicialViewSet(
         grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
         tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
         nome_arquivo = (
-            f"Relatório Consolidado das Medições Inicias - "
+            f"Relatório Consolidado das Medições Iniciais - "
             f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
             f"{mes}/{ano}.xlsx"
         )
@@ -804,7 +804,7 @@ class SolicitacaoMedicaoInicialViewSet(
             recreio = RecreioNasFerias.objects.get(uuid=uuid_recreio)
             filtros["recreio_nas_ferias_id"] = recreio.id
             nome_arquivo = (
-                f"Relatório Consolidado das Medições Inicias - "
+                f"Relatório Consolidado das Medições Iniciais - "
                 f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
                 f"Recreio nas Férias {mes}/{ano}.xlsx"
             )

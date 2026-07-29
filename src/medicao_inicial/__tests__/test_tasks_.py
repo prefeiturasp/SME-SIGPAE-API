@@ -435,7 +435,7 @@ def test_exporta_relatorio_consolidado_xlsx(
     grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=grupo_escolar)
     tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
     tipos_de_unidade_do_grupo = list(tipos_unidades.values_list("iniciais", flat=True))
-    nome_arquivo = f"Relatório Consolidado das Medições Inicias - {escola.diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
+    nome_arquivo = f"Relatório Consolidado das Medições Iniciais - {escola.diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
 
     exporta_relatorio_consolidado_xlsx(
         user=usuario,
@@ -448,7 +448,7 @@ def test_exporta_relatorio_consolidado_xlsx(
             "status": status,
             "dre": escola.diretoria_regional.uuid,
         },
-        contem_recreio=False
+        contem_recreio=False,
     )
 
     assert CentralDeDownload.objects.count() == 1
