@@ -9,6 +9,7 @@ from .models import (
     CategoriaMedicao,
     ClausulaDeDesconto,
     DadosLiquidacao,
+    DescontoFinanceiro,
     DiaSobremesaDoce,
     Empenho,
     GrupoMedicao,
@@ -22,7 +23,6 @@ from .models import (
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
     ValorMedicao,
-    DescontoFinanceiro,
 )
 
 admin.site.register(AlimentacaoLancamentoEspecial)
@@ -45,7 +45,13 @@ class SolicitacaoMedicaoInicialAdmin(admin.ModelAdmin):
     list_display = ("id_externo", "escola", "mes", "ano", "criado_em", "status")
     search_fields = ("escola__nome", "escola__codigo_eol")
     search_help_text = "Pesquise por: nome da escola ou código eol da escola"
-    list_filter = ("mes", "ano", "status", "escola__lote__iniciais")
+    list_filter = (
+        "mes",
+        "ano",
+        "status",
+        "escola__lote__iniciais",
+        "recreio_nas_ferias",
+    )
 
 
 @admin.register(Medicao)
