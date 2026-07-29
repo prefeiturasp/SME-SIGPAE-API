@@ -11,7 +11,7 @@ from .conftest import mocked_foto_aluno_novosgp, mocked_response, mocked_token_n
 
 ENDPOINT_ALUNOS_POR_PERIODO = "quantidade-alunos-por-periodo"
 ENDPOINT_LOTES = "lotes"
-
+ENDPOINT_LISTA_DIAS = "dias-suspensao-atividades/lista-dias"
 
 def test_url_endpoint_quantidade_alunos_por_periodo(client_autenticado, escola):
     response = client_autenticado.get(
@@ -943,3 +943,96 @@ def test_url_endpoint_lotes_simples_filtro_edital(
     uuids_retornados = [r["uuid"] for r in results]
     assert str(lote.uuid) in uuids_retornados
     assert str(outro_lote.uuid) not in uuids_retornados
+
+
+def test_url_endpoint_lista_dias_sem_parametros(client_autenticado):
+    response = client_autenticado.get(f"/{ENDPOINT_LISTA_DIAS}/")
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"] == "Informe escola, mes e ano."
+
+
+def test_url_endpoint_lista_dias_escola_nao_encontrada(client_autenticado):
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LISTA_DIAS}/",
+        {"escola": "00000000-0000-0000-0000-000000000000", "mes": 5, "ano": 2026},
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json()["detail"] == "Escola não encontrada."
+
+
+def test_url_endpoint_lista_dias_suspensos(client_autenticado, escola):
+    edital_1 = baker.make("terceirizada.Edital", numero="Edital 01/2026")
+    edital_2 = baker.make("terceirizada.Edital", numero="Edital 02/2026")
+    lote = baker.make("Lote")
+
+    contrato_1 = baker.make("terceirizada.Contrato", edital=edital_1, encerrado=False)
+    contrato_1.lotes.add(lote)
+
+    contrato_2 = baker.make("terceirizada.Contrato", edital=edital_2, encerrado=False)
+    contrato_2.lotes.add(lote)
+
+    escola.lote = lote
+    escola.save()
+
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 10),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital_1,
+    )
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 10),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital_2,
+    )
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 20),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital_1,
+    )
+
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LISTA_DIAS}/",
+        {"escola": str(escola.uuid), "mes": 5, "ano": 2026},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    resultado = response.json()
+    assert len(resultado) == 2
+
+    assert resultado[0]["data"] == "10/05/2026"
+    assert set(resultado[0]["editais"]) == {"Edital 01/2026", "Edital 02/2026"}
+
+    assert resultado[1]["data"] == "20/05/2026"
+    assert resultado[1]["editais"] == ["Edital 01/2026"]
+
+
+def test_url_endpoint_lista_dias_nao_retorna_contrato_encerrado(
+    client_autenticado, escola
+):
+    edital = baker.make("terceirizada.Edital", numero="Edital 01/2026")
+    lote = baker.make("Lote")
+    contrato = baker.make("terceirizada.Contrato", edital=edital, encerrado=True)
+    contrato.lotes.add(lote)
+    escola.lote = lote
+    escola.save()
+
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 10),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital,
+    )
+
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LISTA_DIAS}/",
+        {"escola": str(escola.uuid), "mes": 5, "ano": 2026},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == []

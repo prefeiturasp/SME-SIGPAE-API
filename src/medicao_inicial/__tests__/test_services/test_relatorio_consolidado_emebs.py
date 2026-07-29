@@ -496,6 +496,7 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_emebs):
         valores_iniciais,
         dietas_especiais,
         periodos_escolares,
+        False,
     )
 
     assert isinstance(integral, list)
@@ -706,8 +707,20 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche 4h") == 13
     assert sum(1 for tupla in colunas_df if tupla[2] == "Refeição") == 11
     assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesa") == 7
-    assert sum(1 for tupla in colunas_df if tupla[2] == "Total de Refeições para Pagamento") == 9
-    assert sum(1 for tupla in colunas_df if tupla[2] == "Total de Sobremesas para Pagamento") == 9
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[2] == "Total de Refeições para Pagamento"
+        )
+        == 9
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[2] == "Total de Sobremesas para Pagamento"
+        )
+        == 9
+    )
 
     assert df.iloc[0].tolist() == [
         "EMEBS",
