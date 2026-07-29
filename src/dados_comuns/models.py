@@ -302,7 +302,7 @@ class LogSolicitacoesUsuario(
         (DOCUMENTO_ENVIADO_PARA_CORRECAO, "Documento enviado para correção"),
         (DOCUMENTO_APROVADO, "Documento aprovado"),
         (DOCUMENTO_CORRECAO_REALIZADA, "Documento correção realizada"),
-        (FICHA_TECNICA_CADASTRADA,"Ficha Técnica cadastrada"),
+        (FICHA_TECNICA_CADASTRADA, "Ficha Técnica cadastrada"),
         (FICHA_TECNICA_ENVIADA_PARA_ANALISE, "Ficha Técnica enviada para análise"),
         (FICHA_TECNICA_APROVADA, "Ficha Técnica aprovada"),
         (FICHA_TECNICA_ENVIADA_PARA_CORRECAO, "Ficha Técnica enviada para correção"),
