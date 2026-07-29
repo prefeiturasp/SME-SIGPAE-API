@@ -673,6 +673,7 @@ class SolicitacaoMedicaoInicialViewSet(
         status_solicitacao = request.query_params.get("status")
         uuid_dre = request.query_params.get("dre")
         uuid_recreio = request.query_params.get("recreio_uuid", False)
+        contem_recreio = False
 
         diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
         grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
@@ -698,6 +699,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
                 f"Recreio nas Férias {mes}/{ano}.pdf"
             )
+            contem_recreio = True
 
         query_set = SolicitacaoMedicaoInicial.objects.filter(**filtros).exclude(
             medicoes__status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_SEM_LANCAMENTOS
@@ -731,6 +733,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     nome_arquivo=nome_arquivo,
                     ids_solicitacoes=solicitacoes,
                     tipos_de_unidade=tipos_de_unidade_do_grupo,
+                    contem_recreio=contem_recreio,
                 )
                 return Response(
                     dict(
