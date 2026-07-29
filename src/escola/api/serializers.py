@@ -630,6 +630,11 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
         instituicao_dict["eh_cemei"] = self.get_eh_cemei(obj)
         instituicao_dict["eh_emebs"] = self.get_eh_emebs(obj)
         instituicao_dict["modulo_gestao"] = self.get_modulo_gestao(obj)
+        instituicao_dict["acesso_desde"] = (
+            obj.instituicao.acesso_desde.strftime("%d/%m/%Y")
+            if obj.instituicao.acesso_desde
+            else None
+        )
         if obj.instituicao.eh_cemei:
             instituicao_dict["quantidade_alunos_cei_da_cemei"] = (
                 obj.instituicao.quantidade_alunos_cei_da_cemei
