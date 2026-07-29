@@ -46,6 +46,7 @@ from src.dieta_especial.logs_models.models import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
+from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 from src.escola.models import (
     Aluno,
     DiaCalendario,
@@ -57,12 +58,12 @@ from src.escola.models import (
     Lote,
     PeriodoEscolar,
 )
-from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 from src.escola.utils import string_to_faixa
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoNormal,
 )
+from src.kit_lanche.models import SolicitacaoKitLancheUnificada
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
@@ -2595,11 +2596,14 @@ def get_kit_lanche(solicitacao):
         )
         if kit_lanche:
             numero_alunos = kit_lanche.quantidade_alimentacoes
-            if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
-                if kit_lanche.tem_solicitacao_emei:
-                    numero_alunos = kit_lanche.solicitacao_emei.quantidade_alimentacoes
-                else:
-                    numero_alunos = 0
+            if not isinstance(kit_lanche, SolicitacaoKitLancheUnificada):
+                if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
+                    if kit_lanche.tem_solicitacao_emei:
+                        numero_alunos = (
+                            kit_lanche.solicitacao_emei.quantidade_alimentacoes
+                        )
+                    else:
+                        numero_alunos = 0
 
             kits_lanches.append(
                 {
@@ -2865,7 +2869,10 @@ def get_lista_dias_letivos(solicitacao, periodo_escolar=None):
         ]
 
     _, num_dias = monthrange(int(solicitacao.ano), int(solicitacao.mes))
-    return [get_eh_dia_letivo(dia, solicitacao, periodo_escolar) for dia in range(1, num_dias + 1)]
+    return [
+        get_eh_dia_letivo(dia, solicitacao, periodo_escolar)
+        for dia in range(1, num_dias + 1)
+    ]
 
 
 def popula_tabelas_cei(solicitacao, tabelas):
@@ -3497,9 +3504,7 @@ def build_tabelas_relatorio_medicao(solicitacao, ordem_periodos=None):
 
 def build_tabelas_relatorio_medicao_cei(solicitacao):
     tabelas_com_headers = build_headers_tabelas_cei(solicitacao)
-    tabelas_populadas = popula_tabelas_cei(
-        solicitacao, tabelas_com_headers
-    )
+    tabelas_populadas = popula_tabelas_cei(solicitacao, tabelas_com_headers)
 
     return tabelas_populadas
 
