@@ -237,7 +237,7 @@ class TestGeraRelatorioUnificado:
         ), "Deve gerar 2 PDFs (um para cada escola)"
 
         registro = CentralDeDownload.objects.get(
-            identificador__contains="Relatório Unificado das Medições Inicias"
+            identificador__contains="Relatório Unificado das Medições Iniciais"
         )
         assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
         assert registro.arquivo is not None
