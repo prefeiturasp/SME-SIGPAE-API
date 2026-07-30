@@ -8,6 +8,7 @@ from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     get_alimentacoes_por_periodo,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
+    _get_lista_alimentacoes
 )
 
 pytestmark = pytest.mark.django_db
@@ -108,3 +109,16 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_sem_lancamentos):
     assert sheet["E3"].value == None
     assert sheet["E3"].fill.fgColor.rgb == "00000000"
     workbook_openpyxl.close()
+    
+def test_get_lista_alimentacoes(solicitacao_sem_lancamento):
+    medicoes = solicitacao_sem_lancamento.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+
+    lista_alimentacoes_manha = _get_lista_alimentacoes(medicao_manha, "MANHA")
+    assert isinstance(lista_alimentacoes_manha, list)
+    assert lista_alimentacoes_manha == [
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
