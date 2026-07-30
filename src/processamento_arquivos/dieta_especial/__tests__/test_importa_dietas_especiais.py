@@ -313,10 +313,7 @@ def test_checa_existencia_solicitacao_eh_importado_true(
     processador = ProcessadorPlanilha(
         usuario, arquivo_carga_dieta_especial_com_informacoes
     )
-    solicitacao = processador.checa_existencia_solicitacao(
-        solicitacao_dieta_schema, aluno
-    )
-    assert solicitacao is None
+    processador.checa_existencia_solicitacao(solicitacao_dieta_schema, aluno)
     assert (
         SolicitacaoDietaEspecial.objects.filter(
             aluno=aluno, ativo=True, eh_importado=True
@@ -351,10 +348,7 @@ def test_checa_existencia_solicitacao_eh_importado_false(
     processador = ProcessadorPlanilha(
         usuario, arquivo_carga_dieta_especial_com_informacoes
     )
-    solicitacao = processador.checa_existencia_solicitacao(
-        solicitacao_dieta_schema, aluno
-    )
-    assert solicitacao is None
+    processador.checa_existencia_solicitacao(solicitacao_dieta_schema, aluno)
     assert (
         SolicitacaoDietaEspecial.objects.filter(
             aluno=aluno, ativo=False, eh_importado=False

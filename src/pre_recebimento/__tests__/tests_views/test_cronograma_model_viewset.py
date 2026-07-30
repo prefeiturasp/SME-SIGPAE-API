@@ -131,7 +131,7 @@ def test_fornecedor_ciente_nao_migra_etapas_sem_codae_aprovar(
 
     usuario_codae = django_user_model.objects.create_user(
         username="codae@test.com",
-        password="adminadmin",
+        password=DJANGO_ADMIN_PASSWORD,
         email="codae@test.com",
     )
     cronograma.salvar_log_transicao(

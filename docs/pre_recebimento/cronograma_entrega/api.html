@@ -1453,7 +1453,7 @@ onde a chave é o título do status e o valor é a contagem.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelCronogramaSerializer.Meta.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'numero',</span> <span class="pre">'status',</span> <span class="pre">'empresa',</span> <span class="pre">'produto',</span> <span class="pre">'log_mais_recente',</span> <span class="pre">'programa_leve_leite')</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelCronogramaSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'numero',</span> <span class="pre">'status',</span> <span class="pre">'empresa',</span> <span class="pre">'produto',</span> <span class="pre">'log_mais_recente',</span> <span class="pre">'programa_leve_leite',</span> <span class="pre">'ponto_a_ponto')</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelCronogramaSerializer.Meta.fields" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1530,7 +1530,7 @@ onde a chave é o título do status e o valor é a contagem.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializerItem.Meta.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'numero_solicitacao',</span> <span class="pre">'empresa',</span> <span class="pre">'status',</span> <span class="pre">'cronograma',</span> <span class="pre">'produto',</span> <span class="pre">'log_mais_recente',</span> <span class="pre">'programa_leve_leite')</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializerItem.Meta.fields" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'numero_solicitacao',</span> <span class="pre">'empresa',</span> <span class="pre">'status',</span> <span class="pre">'cronograma',</span> <span class="pre">'produto',</span> <span class="pre">'log_mais_recente',</span> <span class="pre">'programa_leve_leite',</span> <span class="pre">'ponto_a_ponto')</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializerItem.Meta.fields" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1544,6 +1544,11 @@ onde a chave é o título do status e o valor é a contagem.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_log_mais_recente">
 <span class="sig-name descname"><span class="pre">get_log_mais_recente</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_log_mais_recente"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_log_mais_recente" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_ponto_a_ponto">
+<span class="sig-name descname"><span class="pre">get_ponto_a_ponto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_ponto_a_ponto"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_ponto_a_ponto" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

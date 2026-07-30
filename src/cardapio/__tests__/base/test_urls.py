@@ -234,7 +234,7 @@ def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_com_mes_ano(
     assert response.status_code == status.HTTP_200_OK
     json = response.json()["results"]
     # Deve retornar períodos filtrados por mês e ano
-    assert len(json) >= 0
+    assert len(json) > 0
 
 
 def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_apenas_ano_retrocompatibilidade(
@@ -264,7 +264,7 @@ def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_mes_diferente(
     assert response.status_code == status.HTTP_200_OK
     json = response.json()["results"]
     # Deve retornar períodos filtrados para dezembro de 2025
-    assert len(json) >= 0
+    assert len(json) > 0
 
 
 def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(

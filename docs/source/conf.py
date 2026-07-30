@@ -1,4 +1,5 @@
 import os
+import secrets
 import sys
 
 import django
@@ -17,14 +18,14 @@ _SPHINX_DUMMY_VARS = {
     "REDIS_PREFIX": "docs",
     "POSTGRES_DB": "docs",
     "POSTGRES_USER": "docs",
-    "POSTGRES_PASSWORD": "docs",
+    "POSTGRES_PASSWORD": secrets.token_hex(16),
     "POSTGRES_HOST": "localhost",
     "POSTGRES_PORT": "5432",
-    "DJANGO_SECRET_KEY": "sphinx-docs-dummy-secret-key",
+    "DJANGO_SECRET_KEY": secrets.token_urlsafe(32),
     "DJANGO_READ_DOT_ENV_FILE": "false",
     "DJANGO_ADMIN_URL": "admin/",
-    "DJANGO_ADMIN_PASSWORD": "dummy",
-    "DJANGO_ADMIN_TREINAMENTO_PASSWORD": "dummy",
+    "DJANGO_ADMIN_PASSWORD": secrets.token_urlsafe(16),
+    "DJANGO_ADMIN_TREINAMENTO_PASSWORD": secrets.token_urlsafe(16),
     "DJANGO_ENV": "docs",
     "DJANGO_EOL_API_TOKEN": "dummy",
     "DJANGO_EOL_API_URL": "http://localhost/",
@@ -35,14 +36,14 @@ _SPHINX_DUMMY_VARS = {
     "DJANGO_EOL_SGP_API_TOKEN": "dummy",
     "DJANGO_EOL_SGP_API_URL": "http://localhost/",
     "DJANGO_NOVO_SGP_API_LOGIN": "dummy",
-    "DJANGO_NOVO_SGP_API_PASSWORD": "dummy",
+    "DJANGO_NOVO_SGP_API_PASSWORD": secrets.token_urlsafe(16),
     "DJANGO_NOVO_SGP_API_TOKEN": "dummy",
     "DJANGO_NOVO_SGP_API_URL": "http://localhost/",
     "DJANGO_XMLNS": "http://localhost/",
     "EMAIL_NOTIFICACAO_FALHA_TASK": "docs@example.com",
     "HOST": "localhost",
     "NAME": "docs",
-    "PASSWORD": "dummy",
+    "PASSWORD": secrets.token_urlsafe(16),
     "PORT": "5432",
     "USER": "docs",
     "REACT_APP_URL": "http://localhost/",

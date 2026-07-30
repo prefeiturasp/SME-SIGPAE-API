@@ -5,6 +5,7 @@ import pytest
 from src.dados_comuns.constants import (
     ADMINISTRADOR_GESTAO_PRODUTO,
     COORDENADOR_GESTAO_PRODUTO,
+    DJANGO_ADMIN_PASSWORD,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario, Notificacao
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
@@ -244,7 +245,7 @@ def test_ficha_tecnica_deve_enviar_email_ao_iniciar_fluxo(
 
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -302,7 +303,7 @@ def test_ficha_tecnica_deve_enviar_email_ao_aprovar(
 
     usuario = django_user_model.objects.create_user(
         username="codae@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="codae@test.com",
         registro_funcional="7654321",
     )
@@ -333,6 +334,7 @@ def test_ficha_tecnica_deve_enviar_email_ao_aprovar(
         in contexto["url_detalhes_ficha_tecnica"]
     )
 
+
 @patch(
     "src.dados_comuns.fluxo_status.PartesInteressadasService."
     "usuarios_vinculados_a_empresa_do_objeto"
@@ -348,7 +350,7 @@ def test_ficha_tecnica_deve_salvar_log_ao_aprovar(
 
     usuario = django_user_model.objects.create_user(
         username="codae-aprovacao@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="codae-aprovacao@test.com",
         registro_funcional="7654321",
     )
@@ -367,6 +369,7 @@ def test_ficha_tecnica_deve_salvar_log_ao_aprovar(
 
     assert log.status_evento_explicacao == "Ficha Técnica aprovada"
 
+
 @patch(
     "src.dados_comuns.fluxo_status.PartesInteressadasService."
     "usuarios_vinculados_a_empresa_do_objeto"
@@ -383,7 +386,7 @@ def test_ficha_tecnica_deve_enviar_email_ao_solicitar_correcao(
 
     usuario = django_user_model.objects.create_user(
         username="codae@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="codae@test.com",
         registro_funcional="7654321",
     )
@@ -426,7 +429,7 @@ def test_deve_enviar_email_quando_fornecedor_corrigir_ficha_tecnica(
 
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -442,14 +445,16 @@ def test_deve_enviar_email_quando_fornecedor_corrigir_ficha_tecnica(
     _, kwargs = mock_enviar_email.call_args
 
     assert (
-        kwargs["titulo"] == f"Ficha Técnica corrigida pelo fornecedor - ({ficha.numero})"
+        kwargs["titulo"]
+        == f"Ficha Técnica corrigida pelo fornecedor - ({ficha.numero})"
     )
     assert (
         kwargs["assunto"]
         == f"Ficha Técnica corrigida pelo fornecedor - ({ficha.numero})"
     )
     assert (
-        kwargs["template"] == "pre_recebimento_email_fornecedor_corrige_ficha_tecnica.html"
+        kwargs["template"]
+        == "pre_recebimento_email_fornecedor_corrige_ficha_tecnica.html"
     )
     assert email_coordenador in kwargs["destinatarios"]
     assert email_admin in kwargs["destinatarios"]
@@ -469,7 +474,7 @@ def test_ficha_tecnica_deve_salvar_log_ao_iniciar_fluxo(
 
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -499,7 +504,7 @@ def test_ficha_tecnica_deve_consultar_perfis_corretos(
 
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -535,7 +540,7 @@ def test_ficha_tecnica_deve_alterar_status_ao_iniciar_fluxo(
 ):
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )

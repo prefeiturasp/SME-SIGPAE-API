@@ -1047,17 +1047,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
         <span class="n">aprovado</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="s2">&quot;aprovado&quot;</span><span class="p">),</span> <span class="s2">&quot;aprovado&quot;</span><span class="p">)</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa_abastecimento&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="n">solicitacao_cronograma</span> <span class="o">=</span> <span class="n">SolicitacaoAlteracaoCronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                 <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">aprovado</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_abastecimento_aprova</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span>
+                <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_abastecimento_aprova</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">aprovado</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
                 <span class="n">justificativa</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa_abastecimento&quot;</span><span class="p">)</span>
-                <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_abastecimento_reprova</span><span class="p">(</span>
-                    <span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span>
-                <span class="p">)</span>
+                <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">dilog_abastecimento_reprova</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span> <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Parametro aprovado deve ser true ou false.&quot;</span><span class="p">)</span>
             <span class="n">solicitacao_cronograma</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
