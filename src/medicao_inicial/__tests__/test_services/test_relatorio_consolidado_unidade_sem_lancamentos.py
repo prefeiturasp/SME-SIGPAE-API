@@ -16,7 +16,8 @@ from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
     _get_lista_alimentacoes,
-    processa_dieta_especial
+    processa_dieta_especial,
+    processa_periodo_regular
 )
 
 pytestmark = pytest.mark.django_db
@@ -298,6 +299,15 @@ def test_processa_dieta_especial(solicitacao_sem_lancamento):
     periodo = "DIETA ESPECIAL - TIPO A"
     campo = "lanche_4h"
     total = processa_dieta_especial(
+        solicitacao_sem_lancamento, filtros, campo, periodo
+    )
+    assert total == "-"
+    
+def test_processa_periodo_regular(solicitacao_sem_lancamento):
+    periodo = "MANHA"
+    filtros = {"periodo_escolar__nome": periodo}
+    campo = "refeicao"
+    total = processa_periodo_regular(
         solicitacao_sem_lancamento, filtros, campo, periodo
     )
     assert total == "-"
