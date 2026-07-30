@@ -95,7 +95,7 @@ def test_relatorio_filtro_combinado(
     # Filter by programa = LEVE_LEITE
     response = client_autenticado_qualidade.get(
         "/ficha-tecnica/listagem-relatorio/",
-        {"programa": "Leve Leite"},
+        {"programa": "LEVE_LEITE"},
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -135,10 +135,10 @@ def test_relatorio_zero_resultados(
         status=FichaTecnicaDoProdutoWorkflow.APROVADA,
     )
 
-    # Filter by a programa that doesn't exist
+    # Filter by LEVE_LEITE — none of the created fichas have this programa
     response = client_autenticado_qualidade.get(
         "/ficha-tecnica/listagem-relatorio/",
-        {"programa": "Leve Leite"},
+        {"programa": "LEVE_LEITE"},
     )
 
     assert response.status_code == status.HTTP_200_OK
