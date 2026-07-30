@@ -1183,6 +1183,7 @@
     <span class="n">log_mais_recente</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
     <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">ponto_a_ponto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PainelCronogramaSerializer.get_produto">
 <a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelCronogramaSerializer.get_produto">[docs]</a>
@@ -1235,6 +1236,7 @@
             <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
             <span class="s2">&quot;log_mais_recente&quot;</span><span class="p">,</span>
             <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -1249,6 +1251,7 @@
     <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
     <span class="n">log_mais_recente</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
     <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">ponto_a_ponto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_produto">
 <a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_produto">[docs]</a>
@@ -1279,6 +1282,15 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 
+<div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_ponto_a_ponto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializerItem.get_ponto_a_ponto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ponto_a_ponto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ponto_a_ponto</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
 <div class="viewcode-block" id="PainelSolicitacaoAlteracaoCronogramaSerializerItem.Meta">
 <a class="viewcode-back" href="../../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.viewsets.PainelSolicitacaoAlteracaoCronogramaSerializerItem.Meta">[docs]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -1292,6 +1304,7 @@
             <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
             <span class="s2">&quot;log_mais_recente&quot;</span><span class="p">,</span>
             <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

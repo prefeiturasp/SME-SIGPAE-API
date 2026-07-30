@@ -138,13 +138,13 @@ def test_totalizador_com_queryset(cronogramas_multiplos_status_com_log):
 
     assert isinstance(result, dict)
     assert sum(result.values()) == 6
-    result["Assinado Fornecedor"] == 3
-    result["Assinado Abastecimento"] == 2
-    result["Assinado CODAE"] == 1
-    result["Rascunho"] == 0
-    result["Assinado e Enviado ao Fornecedor"] == 0
-    result["Alteração CODAE"] == 0
-    result["Solicitado Alteração"] == 0
+    assert result["Assinado Fornecedor"] == 3
+    assert result["Assinado Abastecimento"] == 2
+    assert result["Assinado CODAE"] == 1
+    assert result["Rascunho"] == 0
+    assert result["Assinado e Enviado ao Fornecedor"] == 0
+    assert result["Alteração CODAE"] == 0
+    assert result["Solicitado Alteração"] == 0
 
 
 @pytest.mark.django_db
@@ -155,13 +155,13 @@ def test_totalizador_com_lista_dict(cronogramas_multiplos_status_com_log):
 
     assert isinstance(result, dict)
     assert sum(result.values()) == 6
-    result["Assinado Fornecedor"] == 3
-    result["Assinado Abastecimento"] == 2
-    result["Assinado CODAE"] == 1
-    result["Rascunho"] == 0
-    result["Assinado e Enviado ao Fornecedor"] == 0
-    result["Alteração CODAE"] == 0
-    result["Solicitado Alteração"] == 0
+    assert result["Assinado Fornecedor"] == 3
+    assert result["Assinado Abastecimento"] == 2
+    assert result["Assinado CODAE"] == 1
+    assert result["Rascunho"] == 0
+    assert result["Assinado e Enviado ao Fornecedor"] == 0
+    assert result["Alteração CODAE"] == 0
+    assert result["Solicitado Alteração"] == 0
 
 
 @pytest.mark.django_db

@@ -380,7 +380,7 @@ def test_build_xlsx_inclusao_continua_exibe_coluna_encerrado_e_traceja_data_fina
         shared_strings = arquivo_xlsx.read("xl/sharedStrings.xml").decode("utf-8")
 
     assert re.search(
-        r"12/05/2026\s*-\s*</t>.*?<strike/>.*?<t>31/12/2026</t>",
+        r"12/05/2026\s*-\s*</t>[^<]*(?:<(?!strike/>)[^<]*)*<strike/>[^<]*(?:<(?!t>)[^<]*)*<t>31/12/2026</t>",
         shared_strings,
         re.S,
     )

@@ -1536,7 +1536,7 @@ def client_user_autenticado_fornecedor_usuario(
 ):
 
     email = "funcionario_fornecedor@test.com"
-    password = "adminadmin"
+    password = DJANGO_ADMIN_PASSWORD
 
     user = django_user_model.objects.create_user(
         username=email,
@@ -1571,7 +1571,7 @@ def client_user_autenticado_fornecedor(
 ):
 
     email = "fornecedor@test.com"
-    password = "adminadmin"
+    password = DJANGO_ADMIN_PASSWORD
 
     user = django_user_model.objects.create_user(
         username=email,
