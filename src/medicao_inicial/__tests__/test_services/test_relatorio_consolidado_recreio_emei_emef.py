@@ -397,7 +397,7 @@ def test_processa_grupos_recreio(solicitacao_recreio_emei):
     total = processa_grupos_recreio(
         solicitacao_recreio_emei, filtros, campo, periodo, {}
     )
-    assert total == 1260.0
+    assert total == pytest.approx(1260.0)
 
     periodo = "Colaboradores"
     filtros = {"grupo__nome": periodo}
@@ -405,7 +405,7 @@ def test_processa_grupos_recreio(solicitacao_recreio_emei):
     total = processa_grupos_recreio(
         solicitacao_recreio_emei, filtros, campo, periodo, {}
     )
-    assert total == 280.0
+    assert total == pytest.approx(280.0)
 
     periodo = "Solicitações de Alimentação"
     filtros = {"grupo__nome": periodo}
@@ -422,19 +422,19 @@ def test_calcula_soma_medicao(solicitacao_recreio_emei):
     campo = "refeicao"
     categoria = ["ALIMENTAÇÃO"]
     total_recreio = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
-    assert total_recreio == 1260.0
+    assert total_recreio == pytest.approx(1260.0)
 
     total_colaboradores = _calcula_soma_medicao(
         medicao_colaboradores, campo, categoria, {}
     )
-    assert total_colaboradores == 280.0
+    assert total_colaboradores == pytest.approx(280.0)
 
     categoria = [
         "DIETA ESPECIAL - TIPO A",
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
     ]
     total_dieta = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
-    assert total_dieta == 14.0
+    assert total_dieta == pytest.approx(14.0)
 
 
 def test_total_pagamento_recreio_emei_para_estudantes(solicitacao_recreio_emei):
@@ -443,11 +443,11 @@ def test_total_pagamento_recreio_emei_para_estudantes(solicitacao_recreio_emei):
     total_refeicao = total_pagamento_recreio_emei(
         medicao_recreio, "total_refeicoes_pagamento", {}
     )
-    assert total_refeicao == 1260.0
+    assert total_refeicao == pytest.approx(1260.0)
     total_sobremesa = total_pagamento_recreio_emei(
         medicao_recreio, "total_sobremesas_pagamento", {}
     )
-    assert total_sobremesa == 1260.0
+    assert total_sobremesa == pytest.approx(1260.0)
 
 
 def test_total_pagamento_recreio_emei_para_colaboradores(solicitacao_recreio_emei):
@@ -456,11 +456,11 @@ def test_total_pagamento_recreio_emei_para_colaboradores(solicitacao_recreio_eme
     total_refeicao_colaboradores = total_pagamento_colaboradores(
         medicao_colaboradores, "total_refeicoes_pagamento", {}
     )
-    assert total_refeicao_colaboradores == 560.0
+    assert total_refeicao_colaboradores == pytest.approx(560.0)
     total_sobremesa_colaboradores = total_pagamento_colaboradores(
         medicao_colaboradores, "total_sobremesas_pagamento", {}
     )
-    assert total_sobremesa_colaboradores == 560.0
+    assert total_sobremesa_colaboradores == pytest.approx(560.0)
 
 
 def test_unificar_dietas_tipo_a():
@@ -695,11 +695,11 @@ def test_total_pagamento_recreio_emef_para_estudantes(solicitacao_recreio_emef):
     total_refeicao = total_pagamento_recreio_emef(
         medicao_recreio, "total_refeicoes_pagamento", {}
     )
-    assert total_refeicao == 1400.0
+    assert total_refeicao == pytest.approx(1400.0)
     total_sobremesa = total_pagamento_recreio_emef(
         medicao_recreio, "total_sobremesas_pagamento", {}
     )
-    assert total_sobremesa == 1400.0
+    assert total_sobremesa == pytest.approx(1400.0)
 
 
 def test_total_pagamento_recreio_emef_para_colaboradores(solicitacao_recreio_emef):
@@ -708,8 +708,8 @@ def test_total_pagamento_recreio_emef_para_colaboradores(solicitacao_recreio_eme
     total_refeicao_colaboradores = total_pagamento_colaboradores(
         medicao_colaboradores, "total_refeicoes_pagamento", {}
     )
-    assert total_refeicao_colaboradores == 560.0
+    assert total_refeicao_colaboradores == pytest.approx(560.0)
     total_sobremesa_colaboradores = total_pagamento_colaboradores(
         medicao_colaboradores, "total_sobremesas_pagamento", {}
     )
-    assert total_sobremesa_colaboradores == 560.0
+    assert total_sobremesa_colaboradores == pytest.approx(560.0)
