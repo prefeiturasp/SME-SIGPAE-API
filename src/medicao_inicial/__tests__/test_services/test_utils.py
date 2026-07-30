@@ -10,6 +10,7 @@ from src.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -840,3 +841,12 @@ def test_gera_colunas_alimentacao_emebs(
         25.0,
         25.0,
     ]
+
+def test_todas_medicoes_sem_lancamentos_retorna_true(solicitacao_sem_lancamento):
+    sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao_sem_lancamento)
+    assert sem_lancamento is True
+    
+
+def test_todas_medicoes_sem_lancamentos_retorna_false(solicitacao_recreio_emef):
+    sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao_recreio_emef)
+    assert sem_lancamento is False
