@@ -18,6 +18,10 @@ class FichaTecnicaFilter(filters.FilterSet):
         field_name="empresa__nome_fantasia",
         lookup_expr="icontains",
     )
+    empresa = filters.UUIDFilter(
+        field_name="empresa__uuid",
+        lookup_expr="exact",
+    )
     pregao_chamada_publica = filters.CharFilter(
         field_name="pregao_chamada_publica",
         lookup_expr="icontains",
@@ -28,5 +32,13 @@ class FichaTecnicaFilter(filters.FilterSet):
     )
     data_cadastro = filters.DateFilter(
         field_name="criado_em__date",
+        lookup_expr="exact",
+    )
+    categoria = filters.CharFilter(
+        field_name="categoria",
+        lookup_expr="exact",
+    )
+    programa = filters.CharFilter(
+        field_name="programa",
         lookup_expr="exact",
     )
