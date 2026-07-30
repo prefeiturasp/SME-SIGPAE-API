@@ -260,7 +260,7 @@ class TestEtapasDoCronogramaQuantidadeEstimada:
             quantidade=200.0,
         )
 
-        assert etapa.quantidade_estimada_disponivel == pytest.approx(500.0) - 300.0
+        assert etapa.quantidade_estimada_disponivel == pytest.approx(500.0 - 300.0)
 
     def test_sem_data_programada_retorna_none(
         self, cronograma_ponto_a_ponto_com_etapas
