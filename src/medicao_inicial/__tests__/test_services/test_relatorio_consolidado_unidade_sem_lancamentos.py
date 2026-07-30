@@ -6,6 +6,7 @@ import openpyxl
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
+    _define_filtro,
     _get_lista_alimentacoes_dietas,
     _processa_periodo_campo,
     _sort_and_merge,
@@ -226,3 +227,31 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
     assert len(dieta_a_lanche) == 6
     assert dieta_a_lanche == ['EMEF', '123456', 'EMEF TESTE', 'SL', 'SL', 'SL']
 
+def test_define_filtro(solicitacao_sem_lancamento):
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    manha = _define_filtro("MANHA", dietas_especiais, periodos_escolares)
+    assert isinstance(manha, dict)
+    assert "grupo__nome" not in manha
+    assert "periodo_escolar__nome" in manha
+    assert manha["periodo_escolar__nome"] == "MANHA"
+
+    dieta_especial = _define_filtro(
+        "DIETA ESPECIAL - TIPO A", dietas_especiais, periodos_escolares
+    )
+    assert isinstance(dieta_especial, dict)
+    assert "grupo__nome" not in dieta_especial
+    assert "periodo_escolar__nome" in dieta_especial
+    assert "grupo__nome__in" not in dieta_especial
+    assert dieta_especial["periodo_escolar__nome"] == "DIETA ESPECIAL - TIPO A"
+
+    solicitacao = _define_filtro(
+        "Solicitações de Alimentação", dietas_especiais, periodos_escolares
+    )
+    assert isinstance(solicitacao, dict)
+    assert "periodo_escolar__nome" not in solicitacao
+    assert "grupo__nome" in solicitacao
+    assert solicitacao["grupo__nome"] == "Solicitações de Alimentação"
