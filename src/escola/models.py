@@ -496,7 +496,10 @@ class Escola(
     AcessoModuloMedicaoInicial,
 ):
     acesso_desde = models.DateField(
-        "Acesso módulo medição desde", null=True, blank=True
+        "Acesso módulo medição desde",
+        null=True,
+        blank=True,
+        help_text="Define o mês a partir do qual a escola poderá realizar o lançamento da medição inicial.",
     )
     nome = models.CharField("Nome", max_length=160, blank=True)
     codigo_eol = models.CharField(

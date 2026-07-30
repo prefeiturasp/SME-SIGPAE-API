@@ -435,7 +435,7 @@ def test_exporta_relatorio_consolidado_xlsx(
     grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=grupo_escolar)
     tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
     tipos_de_unidade_do_grupo = list(tipos_unidades.values_list("iniciais", flat=True))
-    nome_arquivo = f"Relatório Consolidado das Medições Inicias - {escola.diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
+    nome_arquivo = f"Relatório Consolidado das Medições Iniciais - {escola.diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
 
     exporta_relatorio_consolidado_xlsx(
         user=usuario,
@@ -448,7 +448,7 @@ def test_exporta_relatorio_consolidado_xlsx(
             "status": status,
             "dre": escola.diretoria_regional.uuid,
         },
-        contem_recreio=False
+        contem_recreio=False,
     )
 
     assert CentralDeDownload.objects.count() == 1
@@ -921,5 +921,119 @@ def test_gerar_pdf_relatorio_financeiro_async(
 
     registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
 
+    assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert registro.arquivo is not None
+
+
+@pytest.mark.django_db
+def test_processa_relatorio_lancamentos_com_recreio(
+    solicitacao_recreio_nas_ferias, monkeypatch
+):
+    from io import BytesIO
+
+    from model_bakery import baker
+
+    def gerar_pdf_fake(_):
+        buffer = BytesIO()
+        writer = PdfWriter()
+        writer.add_blank_page(width=100, height=100)
+        writer.write(buffer)
+        return buffer.getvalue()
+
+    merger = PdfWriter()
+    central = baker.make(CentralDeDownload)
+    ids = [solicitacao_recreio_nas_ferias.uuid]
+    tipos = ["EMEF"]
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.tasks.relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias",
+        gerar_pdf_fake,
+    )
+
+    processa_relatorio_lançamentos(ids, tipos, merger, central, contem_recreio=True)
+
+    assert len(merger.pages) == 1
+
+
+@pytest.mark.django_db
+def test_processa_relatorio_lancamentos_com_recreio_cemei(
+    solicitacao_recreio_cemei, monkeypatch
+):
+    from io import BytesIO
+
+    from model_bakery import baker
+
+    def gerar_pdf_fake(_):
+        buffer = BytesIO()
+        writer = PdfWriter()
+        writer.add_blank_page(width=100, height=100)
+        writer.write(buffer)
+        return buffer.getvalue()
+
+    merger = PdfWriter()
+    central = baker.make(CentralDeDownload)
+    ids = [solicitacao_recreio_cemei.uuid]
+    tipos = ["CEMEI"]
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.tasks.relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias",
+        gerar_pdf_fake,
+    )
+
+    processa_relatorio_lançamentos(ids, tipos, merger, central, contem_recreio=True)
+
+    assert len(merger.pages) == 1
+
+
+@pytest.mark.django_db
+def test_processa_relatorio_lancamentos_sem_recreio(
+    solicitacao_recreio_nas_ferias, pdf_real_monkeypatch
+):
+    from model_bakery import baker
+
+    merger = PdfWriter()
+    central = baker.make(CentralDeDownload)
+    ids = [solicitacao_recreio_nas_ferias.uuid]
+    tipos = ["EMEF"]
+
+    processa_relatorio_lançamentos(ids, tipos, merger, central)
+
+    assert len(merger.pages) == 1
+
+
+@pytest.mark.django_db
+def test_gera_pdf_relatorio_unificado_async_com_recreio(
+    solicitacao_recreio_nas_ferias, usuario, monkeypatch
+):
+    ids = [solicitacao_recreio_nas_ferias.uuid]
+    tipos = ["EMEF"]
+    nome_arquivo = "relatorio_unificado_recreio.pdf"
+    user = usuario.get_username()
+
+    def gerar_pdf_fake(_):
+        from io import BytesIO
+
+        from pypdf import PdfWriter
+
+        buffer = BytesIO()
+        writer = PdfWriter()
+        writer.add_blank_page(width=100, height=100)
+        writer.write(buffer)
+        return buffer.getvalue()
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.tasks.relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias",
+        gerar_pdf_fake,
+    )
+
+    gera_pdf_relatorio_unificado_async(
+        user=user,
+        nome_arquivo=nome_arquivo,
+        ids_solicitacoes=ids,
+        tipos_de_unidade=tipos,
+        contem_recreio=True,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
     assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
     assert registro.arquivo is not None

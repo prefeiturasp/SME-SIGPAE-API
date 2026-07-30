@@ -672,15 +672,36 @@ class SolicitacaoMedicaoInicialViewSet(
         uuid_grupo_escolar = request.query_params.get("grupo_escolar")
         status_solicitacao = request.query_params.get("status")
         uuid_dre = request.query_params.get("dre")
+        uuid_recreio = request.query_params.get("recreio_uuid", False)
+        contem_recreio = False
 
         diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
         grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
-        query_set = SolicitacaoMedicaoInicial.objects.filter(
-            mes=mes,
-            ano=ano,
-            status=status_solicitacao,
-            escola__diretoria_regional__uuid=uuid_dre,
-        ).exclude(
+
+        filtros = {
+            "mes": mes,
+            "ano": ano,
+            "status": status_solicitacao,
+            "escola__diretoria_regional__uuid": uuid_dre,
+        }
+
+        nome_arquivo = (
+            f"Relatório Unificado das Medições Iniciais - "
+            f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+            f"{mes}/{ano}.pdf"
+        )
+
+        if uuid_recreio:
+            recreio = RecreioNasFerias.objects.get(uuid=uuid_recreio)
+            filtros["recreio_nas_ferias_id"] = recreio.id
+            nome_arquivo = (
+                f"Relatório Unificado das Medições Iniciais - "
+                f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
+                f"Recreio nas Férias {mes}/{ano}.pdf"
+            )
+            contem_recreio = True
+
+        query_set = SolicitacaoMedicaoInicial.objects.filter(**filtros).exclude(
             medicoes__status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_SEM_LANCAMENTOS
         )
         tipos_de_unidade_do_grupo = [
@@ -707,12 +728,12 @@ class SolicitacaoMedicaoInicialViewSet(
             )
             solicitacoes = list(query_set_filtrado.values_list("uuid", flat=True))
             if solicitacoes:
-                nome_arquivo = f"Relatório Unificado das Medições Inicias - {diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.pdf"
                 gera_pdf_relatorio_unificado_async.delay(
                     user=user,
                     nome_arquivo=nome_arquivo,
                     ids_solicitacoes=solicitacoes,
                     tipos_de_unidade=tipos_de_unidade_do_grupo,
+                    contem_recreio=contem_recreio,
                 )
                 return Response(
                     dict(
@@ -796,7 +817,7 @@ class SolicitacaoMedicaoInicialViewSet(
         grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=uuid_grupo_escolar)
         tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
         nome_arquivo = (
-            f"Relatório Consolidado das Medições Inicias - "
+            f"Relatório Consolidado das Medições Iniciais - "
             f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
             f"{mes}/{ano}.xlsx"
         )
@@ -804,11 +825,13 @@ class SolicitacaoMedicaoInicialViewSet(
             recreio = RecreioNasFerias.objects.get(uuid=uuid_recreio)
             filtros["recreio_nas_ferias_id"] = recreio.id
             nome_arquivo = (
-                f"Relatório Consolidado das Medições Inicias - "
+                f"Relatório Consolidado das Medições Iniciais - "
                 f"{diretoria_regional.nome} - {grupo_unidade_escolar.nome} - "
                 f"Recreio nas Férias {mes}/{ano}.xlsx"
             )
             contem_recreio = True
+        else:
+            filtros["recreio_nas_ferias_id__isnull"] = True
 
         historico_valido = HistoricoEscola.objects.filter(
             escola=OuterRef("escola"),

@@ -754,7 +754,7 @@ def test_relatorio_cronograma_entrega(cronograma):
     assert "Quantidade Total Programada:" in texto_pdf
 
     # CNPJ formatado
-    cnpj_regex = r"\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}"
+    cnpj_regex = r"[A-Z0-9]{2}\.[A-Z0-9]{3}\.[A-Z0-9]{3}/[A-Z0-9]{4}-\d{2}"
     assert re.search(cnpj_regex, texto_pdf), "CNPJ deve estar formatado corretamente"
 
     etapas = cronograma.etapas.all()
