@@ -3324,3 +3324,34 @@ def test_formata_unidades_sem_lancamento(informacoes_excel_writer_sem_lancamento
     assert sheet["D6"].value == "UNIDADE SEM LANÇAMENTOS"
     assert sheet["E4"].value == "Total de Sobremesas para Pagamento"
     workbook_openpyxl.close()
+    
+    
+def test_gera_relatorio_consolidado_xlsx_unidades_sem_lançamento(
+    solicitacao_sem_lancamento, mock_query_params_excel_recreio_emei
+):
+    mock_query_params_excel_recreio_emei["mes"] = solicitacao_sem_lancamento.mes
+    mock_query_params_excel_recreio_emei["ano"] = solicitacao_sem_lancamento.ano
+    
+    solicitacoes = [solicitacao_sem_lancamento.uuid]
+    tipos_unidade = ["EMEF"]
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes,
+        tipos_unidade,
+        mock_query_params_excel_recreio_emei,
+        contem_recreio=False,
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+    assert rows[0] ==('Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar', None, None, None, None)
+    assert rows[1] == ('ABRIL/2025 - DIRETORIA REGIONAL TESTE - LOTE 1 - EMEF', None, None, None, None)
+    assert rows[2] == (None, None, None, 'MANHA', None)
+    assert rows[3] == ('Tipo', 'Cód. EOL', 'Unidade Escolar', 'Total de Refeições para Pagamento', 'Total de Sobremesas para Pagamento')
+    assert rows[4] == (None, None, None, None, None)
+    assert rows[5] == ('EMEF', '123456', 'EMEF TESTE', 'UNIDADE SEM LANÇAMENTOS', None)
+    assert rows[6] == ('TOTAL', None, None, 0, 0)
