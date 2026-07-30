@@ -4,6 +4,7 @@ import pytest
 import openpyxl
 
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
+    _get_lista_alimentacoes_dietas,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
@@ -122,3 +123,28 @@ def test_get_lista_alimentacoes(solicitacao_sem_lancamento):
         "total_refeicoes_pagamento",
         "total_sobremesas_pagamento",
     ]
+
+def test_get_lista_alimentacoes_dietas(solicitacao_sem_lancamento):
+    medicoes = solicitacao_sem_lancamento.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    dieta_a = "DIETA ESPECIAL - TIPO A"
+    dieta_a_enteral_restricao = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
+    dieta_b = "DIETA ESPECIAL - TIPO B"
+
+    lista_dietas_a = _get_lista_alimentacoes_dietas(medicao_manha, dieta_a)
+    assert isinstance(lista_dietas_a, list)
+    assert len(lista_dietas_a) == 0
+
+    lista_dietas_a_er = _get_lista_alimentacoes_dietas(
+        medicao_manha, dieta_a_enteral_restricao
+    )
+    assert isinstance(lista_dietas_a_er, list)
+    assert len(lista_dietas_a_er) == 0
+
+    lista_dietas_b = _get_lista_alimentacoes_dietas(medicao_manha, dieta_b)
+    assert isinstance(lista_dietas_b, list)
+    assert len(lista_dietas_b) == 0
