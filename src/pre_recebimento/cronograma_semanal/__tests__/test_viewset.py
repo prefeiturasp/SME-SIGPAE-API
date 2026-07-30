@@ -303,7 +303,7 @@ class TestCronogramaSemanalViewSet:
     ):
         client, _ = client_autenticado_vinculo_dilog_cronograma
         payload = {
-            "password": "senha_invalida",
+            "password": f"{DJANGO_ADMIN_PASSWORD}_invalido",
         }
         response = client.patch(
             f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/assinar-e-enviar/",
@@ -675,7 +675,7 @@ class TestCronogramaSemanalViewSet:
         client, _ = client_autenticado_vinculo_dilog_cronograma
         response = client.patch(
             f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/alterar-cronograma/",
-            {"password": "senha_invalida"},
+            {"password": f"{DJANGO_ADMIN_PASSWORD}_invalido"},
             content_type="application/json",
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
