@@ -15,7 +15,8 @@ from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     get_alimentacoes_por_periodo,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
-    _get_lista_alimentacoes
+    _get_lista_alimentacoes,
+    processa_dieta_especial
 )
 
 pytestmark = pytest.mark.django_db
@@ -273,3 +274,30 @@ def test_get_total_pagamento_unidade_emef(solicitacao_sem_lancamento):
         medicao_manha, "total_sobremesas_pagamento", tipos_unidades
     )
     assert total_sobremesa == 0
+    
+
+def test_processa_dieta_especial(solicitacao_sem_lancamento):
+    periodo = "MANHA"
+    filtros = {"periodo_escolar__nome": periodo}
+    campo = "refeicao"
+    total = processa_dieta_especial(
+        solicitacao_sem_lancamento, filtros, campo, periodo
+    )
+    assert total == "-"
+
+    periodo = "Solicitações de Alimentação"
+    filtros = {"grupo__nome": periodo}
+    campo = "kit_lanche"
+    total = processa_dieta_especial(
+        solicitacao_sem_lancamento, filtros, campo, periodo
+    )
+    assert total == "-"
+
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    filtros = {"periodo_escolar__nome__in": periodos_escolares}
+    periodo = "DIETA ESPECIAL - TIPO A"
+    campo = "lanche_4h"
+    total = processa_dieta_especial(
+        solicitacao_sem_lancamento, filtros, campo, periodo
+    )
+    assert total == "-"
