@@ -8,6 +8,7 @@ from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _define_filtro,
     _get_lista_alimentacoes_dietas,
+    _get_total_pagamento,
     _processa_periodo_campo,
     _sort_and_merge,
     ajusta_layout_tabela,
@@ -255,3 +256,20 @@ def test_define_filtro(solicitacao_sem_lancamento):
     assert "periodo_escolar__nome" not in solicitacao
     assert "grupo__nome" in solicitacao
     assert solicitacao["grupo__nome"] == "Solicitações de Alimentação"
+    
+
+
+def test_get_total_pagamento_unidade_emef(solicitacao_sem_lancamento):
+    medicoes = solicitacao_sem_lancamento.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    tipos_unidades = "EMEF"
+    total_refeicao = _get_total_pagamento(
+        medicao_manha, "total_refeicoes_pagamento", tipos_unidades
+    )
+    assert total_refeicao == 0
+    total_sobremesa = _get_total_pagamento(
+        medicao_manha, "total_sobremesas_pagamento", tipos_unidades
+    )
+    assert total_sobremesa == 0
