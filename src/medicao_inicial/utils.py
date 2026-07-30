@@ -7405,8 +7405,6 @@ def to_decimal_safe(valor):
             if "," in valor:
                 valor = valor.replace(".", "")
                 valor = valor.replace(",", ".")
-            else:
-                valor = valor
 
         return Decimal(str(valor))
 
