@@ -1,30 +1,8 @@
-import math
-from io import BytesIO
-
-import openpyxl
-import pandas as pd
 import pytest
 
-from src.escola.models import PeriodoEscolar
-from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
-    _calcula_soma_medicao,
-    _define_filtro,
-    _get_lista_alimentacoes,
-    _get_lista_alimentacoes_dietas,
-    _get_total_pagamento,
-    _processa_periodo_campo,
-    _sort_and_merge,
-    _total_pagamento_emef,
-    _total_pagamento_emei,
-    _unificar_dietas_tipo_a,
-    ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
-    get_solicitacoes_ordenadas,
     get_valores_tabela,
-    insere_tabela_periodos_na_planilha,
-    processa_dieta_especial,
-    processa_periodo_regular,
 )
 
 pytestmark = pytest.mark.django_db
@@ -48,3 +26,17 @@ def test_get_alimentacoes_por_periodo(solicitacao_sem_lancamento):
     assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 1
 
+
+def test_get_valores_tabela_unidade_emei(
+    solicitacao_sem_lancamento
+):
+    colunas    = [('MANHA', 'total_refeicoes_pagamento'), ('MANHA', 'total_sobremesas_pagamento')]
+    tipos_unidade = ["EMEI"]
+    linhas = get_valores_tabela(
+        [solicitacao_sem_lancamento], colunas, tipos_unidade, {}
+    )
+    assert isinstance(linhas, list)
+    assert len(linhas) == 1
+    assert isinstance(linhas[0], list)
+    assert len(linhas[0]) == 5
+    assert linhas[0] == ['EMEF', '123456', 'EMEF TESTE', 'SL', 'SL']
