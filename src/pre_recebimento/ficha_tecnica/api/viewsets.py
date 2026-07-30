@@ -31,6 +31,7 @@ from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
     FichaTecnicaListagemSerializer,
     FichaTecnicaSimplesSerializer,
     PainelFichaTecnicaSerializer,
+    RelatorioFichaTecnicaSerializer,
 )
 from src.pre_recebimento.ficha_tecnica.api.services import (
     ServiceDashboardFichaTecnica,
@@ -80,6 +81,7 @@ class FichaTecnicaModelViewSet(
             "retrieve": FichaTecnicaDetalharSerializer,
             "create": self._get_create_update_serializer(),
             "update": self._get_create_update_serializer(),
+            "listagem_relatorio": RelatorioFichaTecnicaSerializer,
         }
 
         return serializer_classes_map.get(self.action, FichaTecnicaRascunhoSerializer)
@@ -337,6 +339,20 @@ class FichaTecnicaModelViewSet(
 
         return Response(HTTP_200_OK)
 
+    def _calcular_totalizadores(self, qs):
+        workflow = FichaTecnicaDoProduto.workflow_class
+        return {
+            "Total de Fichas Aprovadas": qs.filter(
+                status=workflow.APROVADA
+            ).count(),
+            "Total de Fichas Enviadas para Correção": qs.filter(
+                status=workflow.ENVIADA_PARA_CORRECAO
+            ).count(),
+            "Total de Fichas Pendentes de Aprovação": qs.filter(
+                status=workflow.ENVIADA_PARA_ANALISE
+            ).count(),
+        }
+
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-ficha")
     def gerar_pdf_ficha(self, request, uuid=None):
         ficha = self.get_object()
@@ -349,3 +365,31 @@ class FichaTecnicaModelViewSet(
                 ),
                 status=HTTP_400_BAD_REQUEST,
             )
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="listagem-relatorio",
+        permission_classes=(PermissaoParaVisualizarFichaTecnica,),
+    )
+    def listagem_relatorio(self, request):
+        queryset = self.filter_queryset(
+            self.get_queryset().exclude(
+                categoria=FichaTecnicaDoProduto.CATEGORIA_FLV
+            )
+        )
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+            response.data["totalizadores"] = self._calcular_totalizadores(queryset)
+            return response
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(
+            {
+                "results": serializer.data,
+                "totalizadores": self._calcular_totalizadores(queryset),
+            }
+        )
