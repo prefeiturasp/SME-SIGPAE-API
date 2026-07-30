@@ -3,8 +3,11 @@ import pandas as pd
 import pytest
 import openpyxl
 
+from src.escola.models import PeriodoEscolar
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _get_lista_alimentacoes_dietas,
+    _processa_periodo_campo,
     _sort_and_merge,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
@@ -173,4 +176,53 @@ def test_sort_and_merge():
 
     assert "Solicitações de Alimentação" not in dict_periodos_dietas
     
-    
+def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
+    valores_iniciais = [
+        solicitacao_sem_lancamento.escola.tipo_unidade.iniciais,
+        solicitacao_sem_lancamento.escola.codigo_eol,
+        solicitacao_sem_lancamento.escola.nome,
+    ]
+    periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
+    dietas_especiais = CategoriaMedicao.objects.filter(
+        nome__icontains="DIETA ESPECIAL"
+    ).values_list("nome", flat=True)
+
+    manha_refeicao = _processa_periodo_campo(
+        solicitacao_sem_lancamento,
+        "MANHA",
+        "refeicao",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
+        True,
+    )
+    assert isinstance(manha_refeicao, list)
+    assert len(manha_refeicao) == 4
+    assert manha_refeicao == ['EMEF', '123456', 'EMEF TESTE', 'SL']
+
+    solicitacao_kit_lanche = _processa_periodo_campo(
+        solicitacao_sem_lancamento,
+        "Solicitações de Alimentação",
+        "kit_lanche",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
+        True,
+    )
+    assert isinstance(solicitacao_kit_lanche, list)
+    assert len(solicitacao_kit_lanche) == 5
+    assert solicitacao_kit_lanche == ['EMEF', '123456', 'EMEF TESTE', 'SL', 'SL']
+
+    dieta_a_lanche = _processa_periodo_campo(
+        solicitacao_sem_lancamento,
+        "DIETA ESPECIAL - TIPO A",
+        "lanche_4h",
+        valores_iniciais,
+        dietas_especiais,
+        periodos_escolares,
+        True,
+    )
+    assert isinstance(dieta_a_lanche, list)
+    assert len(dieta_a_lanche) == 6
+    assert dieta_a_lanche == ['EMEF', '123456', 'EMEF TESTE', 'SL', 'SL', 'SL']
+
