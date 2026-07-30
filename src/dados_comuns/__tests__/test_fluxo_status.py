@@ -243,6 +243,9 @@ def test_finaliza_solicitacao_alteracao_hook(
     solicitacao = solicitacao_alteracao_cronograma
     cronograma = solicitacao.cronograma
 
+    solicitacao.status = solicitacao.workflow_class.APROVADO_DILOG
+    solicitacao.save()
+
     kwargs = {
         "user": user_codae_produto,
         "justificativa": str(solicitacao.uuid),
@@ -469,6 +472,9 @@ def test_finaliza_solicitacao_alteracao_hook_com_fichas_mantem_referencia(
         etapa=etapa_antiga.etapa,
         parte=etapa_antiga.parte,
     ).first()
+
+    solicitacao.status = solicitacao.workflow_class.APROVADO_DILOG
+    solicitacao.save()
 
     cronograma.finaliza_solicitacao_alteracao(
         user=user_codae_produto,
