@@ -297,3 +297,24 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
             "categoria",
             "tipo_entrega",
         )
+
+
+class RelatorioFichaTecnicaSerializer(serializers.ModelSerializer):
+    produto = NomeDeProdutoEditalSerializer()
+    empresa = TerceirizadaLookUpSerializer()
+    status = serializers.CharField(source="get_status_display", read_only=True)
+    categoria = serializers.CharField(source="get_categoria_display", read_only=True)
+    programa = serializers.CharField(source="get_programa_display", read_only=True)
+
+    class Meta:
+        model = FichaTecnicaDoProduto
+        fields = (
+            "uuid",
+            "numero",
+            "produto",
+            "empresa",
+            "categoria",
+            "programa",
+            "pregao_chamada_publica",
+            "status",
+        )
