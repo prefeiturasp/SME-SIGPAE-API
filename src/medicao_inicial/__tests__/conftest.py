@@ -46,11 +46,11 @@ from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     insere_tabela_periodos_na_planilha as recreio_cei_insere_tabela,
 )
-from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
-    insere_tabela_periodos_na_planilha as recreio_emei_emef_insere_tabela,
-)
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cemei import (
     insere_tabela_periodos_na_planilha as recreio_cemei_insere_tabela,
+)
+from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
+    insere_tabela_periodos_na_planilha as recreio_emei_emef_insere_tabela,
 )
 
 MODEL_MEDICAO_RESPONSAVEL = "medicao_inicial.Responsavel"
@@ -7615,60 +7615,64 @@ def mock_query_params_excel_recreio_emef(solicitacao_recreio_emef, grupo_escolar
 
 @pytest.fixture
 def mock_colunas_recreio_cemei(faixas_etarias_ativas):
-    return [
-        (
-            "Recreio nas Férias - de 0 a 3 anos e 11 meses",
-            faixa.id,
-        )
-        for faixa in faixas_etarias_ativas
-    ] + [
-        (
-            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES",
-            faixa.id,
-        )
-        for faixa in faixas_etarias_ativas
-    ] + [
-        (
-            "Recreio nas Férias - 4 a 14 anos",
-            "refeicao",
-        ),
-        (
-            "Recreio nas Férias - 4 a 14 anos",
-            "sobremesa",
-        ),
-        (
-            "Recreio nas Férias - 4 a 14 anos",
-            "total_refeicoes_pagamento",
-        ),
-        (
-            "Recreio nas Férias - 4 a 14 anos",
-            "total_sobremesas_pagamento",
-        ),
-        (
-            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS",
-            "refeicao",
-        ),
-        (
-            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS",
-            "frequencia",
-        ),
-        (
-            "Colaboradores",
-            "refeicao",
-        ),
-        (
-            "Colaboradores",
-            "sobremesa",
-        ),
-        (
-            "Colaboradores",
-            "total_refeicoes_pagamento",
-        ),
-        (
-            "Colaboradores",
-            "total_sobremesas_pagamento",
-        ),
-    ]
+    return (
+        [
+            (
+                "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+                faixa.id,
+            )
+            for faixa in faixas_etarias_ativas
+        ]
+        + [
+            (
+                "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES",
+                faixa.id,
+            )
+            for faixa in faixas_etarias_ativas
+        ]
+        + [
+            (
+                "Recreio nas Férias - 4 a 14 anos",
+                "refeicao",
+            ),
+            (
+                "Recreio nas Férias - 4 a 14 anos",
+                "sobremesa",
+            ),
+            (
+                "Recreio nas Férias - 4 a 14 anos",
+                "total_refeicoes_pagamento",
+            ),
+            (
+                "Recreio nas Férias - 4 a 14 anos",
+                "total_sobremesas_pagamento",
+            ),
+            (
+                "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS",
+                "refeicao",
+            ),
+            (
+                "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS",
+                "frequencia",
+            ),
+            (
+                "Colaboradores",
+                "refeicao",
+            ),
+            (
+                "Colaboradores",
+                "sobremesa",
+            ),
+            (
+                "Colaboradores",
+                "total_refeicoes_pagamento",
+            ),
+            (
+                "Colaboradores",
+                "total_sobremesas_pagamento",
+            ),
+        ]
+    )
 
 
 @pytest.fixture
@@ -7758,11 +7762,12 @@ def mock_query_params_excel_recreio_cemei(
 
 
 @pytest.fixture
-def informacoes_excel_writer_sem_lancamentos(
-    solicitacao_sem_lancamento
-):
-    colunas  = [('MANHA', 'total_refeicoes_pagamento'), ('MANHA', 'total_sobremesas_pagamento')]
-    linhas = [['EMEF', '123456', 'EMEF TESTE', 'SL', 'SL']]
+def informacoes_excel_writer_sem_lancamentos(solicitacao_sem_lancamento):
+    colunas = [
+        ("MANHA", "total_refeicoes_pagamento"),
+        ("MANHA", "total_sobremesas_pagamento"),
+    ]
+    linhas = [["EMEF", "123456", "EMEF TESTE", "SL", "SL"]]
     arquivo = BytesIO()
     aba = f"Relatório Consolidado {solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
