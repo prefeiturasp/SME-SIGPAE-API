@@ -5,6 +5,7 @@ import openpyxl
 
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _get_lista_alimentacoes_dietas,
+    _sort_and_merge,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
@@ -148,3 +149,28 @@ def test_get_lista_alimentacoes_dietas(solicitacao_sem_lancamento):
     lista_dietas_b = _get_lista_alimentacoes_dietas(medicao_manha, dieta_b)
     assert isinstance(lista_dietas_b, list)
     assert len(lista_dietas_b) == 0
+    
+def test_sort_and_merge():
+    periodos_alimentacoes = {
+        "MANHA": [
+            "total_refeicoes_pagamento",
+            "total_sobremesas_pagamento",
+        ],
+    }
+    dietas_alimentacoes = {}
+    dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
+    assert isinstance(dict_periodos_dietas, dict)
+
+    assert "DIETA ESPECIAL - TIPO A" not in dict_periodos_dietas
+    assert "DIETA ESPECIAL - TIPO B" not in dict_periodos_dietas
+
+    assert "MANHA" in dict_periodos_dietas
+    assert len(dict_periodos_dietas["MANHA"]) == 2
+    assert dict_periodos_dietas["MANHA"] == [
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    ]
+
+    assert "Solicitações de Alimentação" not in dict_periodos_dietas
+    
+    
