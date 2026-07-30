@@ -6,6 +6,7 @@ import openpyxl
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
+    _calcula_soma_medicao,
     _define_filtro,
     _get_lista_alimentacoes_dietas,
     _get_total_pagamento,
@@ -311,3 +312,25 @@ def test_processa_periodo_regular(solicitacao_sem_lancamento):
         solicitacao_sem_lancamento, filtros, campo, periodo
     )
     assert total == "-"
+
+def test_calcula_soma_medicao(solicitacao_sem_lancamento):
+    medicoes = solicitacao_sem_lancamento.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+   
+
+    campo = "refeicao"
+    categoria = ["ALIMENTAÇÃO"]
+    total = _calcula_soma_medicao(medicao_manha, campo, categoria)
+    assert total is None
+
+    
+
+    campo = "lanche_4h"
+    categoria = [
+        "DIETA ESPECIAL - TIPO A",
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+    ]
+    total = _calcula_soma_medicao(medicao_manha, campo, categoria)
+    assert total is None
