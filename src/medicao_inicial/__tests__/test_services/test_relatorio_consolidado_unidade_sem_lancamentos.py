@@ -12,6 +12,8 @@ from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _get_total_pagamento,
     _processa_periodo_campo,
     _sort_and_merge,
+    _total_pagamento_emef,
+    _total_pagamento_emei,
     ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
@@ -334,3 +336,24 @@ def test_calcula_soma_medicao(solicitacao_sem_lancamento):
     ]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
     assert total is None
+    
+def test_total_pagamento_emef(solicitacao_sem_lancamento):
+    medicoes = solicitacao_sem_lancamento.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    total_refeicao = _total_pagamento_emef(medicao_manha, "total_refeicoes_pagamento")
+    assert total_refeicao == 0
+    total_sobremesa = _total_pagamento_emef(medicao_manha, "total_sobremesas_pagamento")
+    assert total_sobremesa == 0
+
+
+def test_total_pagamento_emei(solicitacao_sem_lancamento):
+    medicoes = solicitacao_sem_lancamento.medicoes.all().order_by(
+        "periodo_escolar__nome"
+    )
+    medicao_manha = medicoes[0]
+    total_refeicao = _total_pagamento_emei(medicao_manha, "total_refeicoes_pagamento")
+    assert total_refeicao is None
+    total_sobremesa = _total_pagamento_emei(medicao_manha, "total_sobremesas_pagamento")
+    assert total_sobremesa is None
