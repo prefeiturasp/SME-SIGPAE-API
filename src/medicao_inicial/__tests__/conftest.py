@@ -7755,3 +7755,23 @@ def mock_query_params_excel_recreio_cemei(
             solicitacao_recreio_cemei.escola.lote.uuid,
         ],
     }
+
+
+@pytest.fixture
+def informacoes_excel_writer_sem_lancamentos(
+    solicitacao_sem_lancamento
+):
+    colunas  = [('MANHA', 'total_refeicoes_pagamento'), ('MANHA', 'total_sobremesas_pagamento')]
+    linhas = [['EMEF', '123456', 'EMEF TESTE', 'SL', 'SL']]
+    arquivo = BytesIO()
+    aba = f"Relatório Consolidado {solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    workbook = writer.book
+    worksheet = workbook.add_worksheet(aba)
+    worksheet.set_default_row(20)
+    df = emei_emef_insere_tabela(aba, colunas, linhas, writer)
+    try:
+        yield aba, writer, workbook, worksheet, df, arquivo
+    finally:
+        workbook.close()
+        writer.close()

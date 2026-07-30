@@ -1,8 +1,10 @@
 from io import BytesIO
 import pandas as pd
 import pytest
+import openpyxl
 
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
+    ajusta_layout_tabela,
     get_alimentacoes_por_periodo,
     get_valores_tabela,
     insere_tabela_periodos_na_planilha,
@@ -86,3 +88,23 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
 
     assert df.iloc[0].tolist() == ['EMEF', '123456', 'EMEF TESTE', 'SL', 'SL']
     assert df.iloc[1].tolist() == [0.0, 123456.0, 0.0, 0.0, 0.0]
+
+def test_ajusta_layout_tabela(informacoes_excel_writer_sem_lancamentos):
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_sem_lancamentos
+    ajusta_layout_tabela(workbook, worksheet, df)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 2
+    esperados = {"A3:C3", "D3:E3"}
+    assert {str(r) for r in merged_ranges} == esperados
+
+    assert sheet["A3"].value is None
+    assert sheet["C3"].value == None
+    assert sheet["C3"].fill.fgColor.rgb == "00000000"
+    assert sheet["D3"].value == "MANHA"
+    assert sheet["D3"].fill.fgColor.rgb == "FF198459"
+    assert sheet["E3"].value == None
+    assert sheet["E3"].fill.fgColor.rgb == "00000000"
+    workbook_openpyxl.close()
