@@ -9,6 +9,7 @@ from openpyxl import load_workbook
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
     _formata_filtros,
     _formata_total_geral,
+    _formata_unidades_sem_lancamento,
     _preenche_linha_dos_filtros_selecionados,
     _preenche_titulo,
     gera_relatorio_consolidado_xlsx,
@@ -3075,7 +3076,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emef(
     )
 
 
-def test_formata_filtros_unidade_recreio_emei(mock_query_params_excel_recreio_emef):
+def test_formata_filtros_unidade_recreio_emef(mock_query_params_excel_recreio_emef):
     tipos_unidades = ["EMEF"]
     filtros = _formata_filtros(
         mock_query_params_excel_recreio_emef, tipos_unidades, contem_recreio=True
@@ -3302,3 +3303,24 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cemei(
         210,
         420,
     )
+
+
+def test_formata_unidades_sem_lancamento(informacoes_excel_writer_sem_lancamentos):
+    tipos_unidades = ["EMEF"]
+    aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_sem_lancamentos
+    _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_unidades)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 3
+
+    esperados = {"A3:C3", "D3:E3", "D6:E6"}
+    assert {str(r) for r in merged_ranges} == esperados
+
+    assert sheet["D3"].value == "MANHA"
+    assert sheet["D4"].value == "Total de Refeições para Pagamento"
+    assert sheet["D6"].value == "UNIDADE SEM LANÇAMENTOS"
+    assert sheet["E4"].value == "Total de Sobremesas para Pagamento"
+    workbook_openpyxl.close()
