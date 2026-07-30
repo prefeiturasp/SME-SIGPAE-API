@@ -4,11 +4,11 @@ import pytest
 from django.utils import timezone
 from model_bakery import baker
 
+from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
 from src.pre_recebimento.cronograma_semanal.models import (
     CronogramaSemanal,
     ProgramacaoEntregaSemanal,
 )
-from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
 
 pytestmark = pytest.mark.django_db
 
@@ -78,7 +78,7 @@ class TestProgramacaoEntregaSemanalModel:
         )
         assert programacao.uuid is not None
         assert programacao.mes_programado == "03/2026"
-        assert programacao.quantidade == 150.5
+        assert programacao.quantidade == pytest.approx(150.5)
 
     def test_programacao_entrega_semanal_str(self, programacao_entrega_semanal):
         esperado = f"Programação {programacao_entrega_semanal.mes_programado} - {programacao_entrega_semanal.data_inicio} a {programacao_entrega_semanal.data_fim}"
@@ -146,7 +146,7 @@ class TestProgramacaoEntregaSemanalModel:
         assert programacao.mes_programado == "05/2026"
         assert programacao.data_inicio is not None
         assert programacao.data_fim is not None
-        assert programacao.quantidade == 100.0
+        assert programacao.quantidade == pytest.approx(100.0)
 
 
 class TestEtapasDoCronogramaQuantidadeEstimada:
@@ -165,9 +165,7 @@ class TestEtapasDoCronogramaQuantidadeEstimada:
         ).first()
         assert etapa.quantidade_estimada_disponivel == etapa.quantidade
 
-    def test_com_uma_programacao_parcial(
-        self, cronograma_ponto_a_ponto_com_etapas
-    ):
+    def test_com_uma_programacao_parcial(self, cronograma_ponto_a_ponto_com_etapas):
         """Cenário: uma programação semanal com valor menor que o original."""
         etapa = EtapasDoCronograma.objects.filter(
             cronograma=cronograma_ponto_a_ponto_com_etapas,
@@ -186,7 +184,7 @@ class TestEtapasDoCronogramaQuantidadeEstimada:
             quantidade=5000.0,
         )
 
-        assert etapa.quantidade_estimada_disponivel == 500.0 - 5000.0
+        assert etapa.quantidade_estimada_disponivel == pytest.approx(500.0 - 5000.0)
 
     def test_soma_excede_o_original_retorna_negativo(
         self, cronograma_ponto_a_ponto_com_etapas
@@ -209,7 +207,7 @@ class TestEtapasDoCronogramaQuantidadeEstimada:
             quantidade=600.0,
         )
 
-        assert etapa.quantidade_estimada_disponivel == 500.0 - 600.0
+        assert etapa.quantidade_estimada_disponivel == pytest.approx(500.0 - 600.0)
         assert etapa.quantidade_estimada_disponivel < 0
 
     def test_soma_exatamente_igual_retorna_zero(
@@ -262,7 +260,7 @@ class TestEtapasDoCronogramaQuantidadeEstimada:
             quantidade=200.0,
         )
 
-        assert etapa.quantidade_estimada_disponivel == 500.0 - 300.0
+        assert etapa.quantidade_estimada_disponivel == pytest.approx(500.0) - 300.0
 
     def test_sem_data_programada_retorna_none(
         self, cronograma_ponto_a_ponto_com_etapas
@@ -301,7 +299,7 @@ class TestEtapasDoCronogramaQuantidadeEstimada:
         )
 
         # O saldo do etapa original não deve ser afetado
-        assert etapa.quantidade_estimada_disponivel == 500.0
+        assert etapa.quantidade_estimada_disponivel == pytest.approx(500.0)
 
     def test_apenas_programacoes_do_mesmo_mes(
         self, cronograma_ponto_a_ponto_com_etapas
@@ -324,7 +322,7 @@ class TestEtapasDoCronogramaQuantidadeEstimada:
         )
 
         # O saldo do mês 03/2026 não deve ser afetado
-        assert etapa.quantidade_estimada_disponivel == 500.0
+        assert etapa.quantidade_estimada_disponivel == pytest.approx(500.0)
 
     def test_multiplas_etapas_mesmo_mes_retorna_saldo_agregado(
         self,
@@ -362,5 +360,5 @@ class TestEtapasDoCronogramaQuantidadeEstimada:
 
         # Ambas as etapas devem retornar o mesmo saldo agregado
         # (inclui a etapa de 500 do fixture para o mesmo mês)
-        assert etapa_100k.quantidade_estimada_disponivel == 150500.0
-        assert etapa_75k.quantidade_estimada_disponivel == 150500.0
+        assert etapa_100k.quantidade_estimada_disponivel == pytest.approx(150500.0)
+        assert etapa_75k.quantidade_estimada_disponivel == pytest.approx(150500.0)
