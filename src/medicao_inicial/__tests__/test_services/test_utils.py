@@ -10,6 +10,7 @@ from src.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -484,9 +485,21 @@ def test_gera_colunas_alimentacao_cemei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
     assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 4
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento") == 3
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
+        )
+        == 3
+    )
     assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Total de Sobremesas para Pagamento") == 3
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == "Total de Sobremesas para Pagamento"
+        )
+        == 3
+    )
 
     assert df.iloc[0].tolist() == [
         "CEMEI",
@@ -699,8 +712,20 @@ def test_gera_colunas_alimentacao_emebs(
     assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche 4h") == 13
     assert sum(1 for tupla in colunas_df if tupla[2] == "Refeição") == 11
     assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesa") == 7
-    assert sum(1 for tupla in colunas_df if tupla[2] == "Total de Refeições para Pagamento") == 9
-    assert sum(1 for tupla in colunas_df if tupla[2] == "Total de Sobremesas para Pagamento") == 9
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[2] == "Total de Refeições para Pagamento"
+        )
+        == 9
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[2] == "Total de Sobremesas para Pagamento"
+        )
+        == 9
+    )
 
     assert df.iloc[0].tolist() == [
         "EMEBS",
@@ -840,3 +865,13 @@ def test_gera_colunas_alimentacao_emebs(
         25.0,
         25.0,
     ]
+
+
+def test_todas_medicoes_sem_lancamentos_retorna_true(solicitacao_sem_lancamento):
+    sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao_sem_lancamento)
+    assert sem_lancamento is True
+
+
+def test_todas_medicoes_sem_lancamentos_retorna_false(solicitacao_recreio_emef):
+    sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao_recreio_emef)
+    assert sem_lancamento is False

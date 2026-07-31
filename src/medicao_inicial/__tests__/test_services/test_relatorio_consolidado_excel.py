@@ -9,6 +9,7 @@ from openpyxl import load_workbook
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
     _formata_filtros,
     _formata_total_geral,
+    _formata_unidades_sem_lancamento,
     _preenche_linha_dos_filtros_selecionados,
     _preenche_titulo,
     gera_relatorio_consolidado_xlsx,
@@ -3075,7 +3076,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emef(
     )
 
 
-def test_formata_filtros_unidade_recreio_emei(mock_query_params_excel_recreio_emef):
+def test_formata_filtros_unidade_recreio_emef(mock_query_params_excel_recreio_emef):
     tipos_unidades = ["EMEF"]
     filtros = _formata_filtros(
         mock_query_params_excel_recreio_emef, tipos_unidades, contem_recreio=True
@@ -3302,3 +3303,75 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cemei(
         210,
         420,
     )
+
+
+def test_formata_unidades_sem_lancamento(informacoes_excel_writer_sem_lancamentos):
+    tipos_unidades = ["EMEF"]
+    aba, writer, workbook, worksheet, df, arquivo = (
+        informacoes_excel_writer_sem_lancamentos
+    )
+    _formata_unidades_sem_lancamento(workbook, worksheet, df, tipos_unidades)
+    writer.close()
+    workbook_openpyxl = openpyxl.load_workbook(arquivo)
+    sheet = workbook_openpyxl[aba]
+
+    merged_ranges = sheet.merged_cells.ranges
+    assert len(merged_ranges) == 3
+
+    esperados = {"A3:C3", "D3:E3", "D6:E6"}
+    assert {str(r) for r in merged_ranges} == esperados
+
+    assert sheet["D3"].value == "MANHA"
+    assert sheet["D4"].value == "Total de Refeições para Pagamento"
+    assert sheet["D6"].value == "UNIDADE SEM LANÇAMENTOS"
+    assert sheet["E4"].value == "Total de Sobremesas para Pagamento"
+    workbook_openpyxl.close()
+
+
+def test_gera_relatorio_consolidado_xlsx_unidades_sem_lançamento(
+    solicitacao_sem_lancamento, mock_query_params_excel_recreio_emei
+):
+    mock_query_params_excel_recreio_emei["mes"] = solicitacao_sem_lancamento.mes
+    mock_query_params_excel_recreio_emei["ano"] = solicitacao_sem_lancamento.ano
+
+    solicitacoes = [solicitacao_sem_lancamento.uuid]
+    tipos_unidade = ["EMEF"]
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes,
+        tipos_unidade,
+        mock_query_params_excel_recreio_emei,
+        contem_recreio=False,
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+    assert rows[0] == (
+        "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar",
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE - LOTE 1 - EMEF",
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[2] == (None, None, None, "MANHA", None)
+    assert rows[3] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        "Total de Refeições para Pagamento",
+        "Total de Sobremesas para Pagamento",
+    )
+    assert rows[4] == (None, None, None, None, None)
+    assert rows[5] == ("EMEF", "123456", "EMEF TESTE", "UNIDADE SEM LANÇAMENTOS", None)
+    assert rows[6] == ("TOTAL", None, None, 0, 0)
