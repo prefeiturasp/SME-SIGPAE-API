@@ -22,7 +22,7 @@ class FichaTecnicaFilter(filters.FilterSet):
         field_name="empresa__uuid",
         lookup_expr="exact",
     )
-    pregao_chamada_publica = filters.CharFilter(
+    pregao = filters.CharFilter(
         field_name="pregao_chamada_publica",
         lookup_expr="icontains",
     )
