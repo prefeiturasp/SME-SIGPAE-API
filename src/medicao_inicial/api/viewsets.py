@@ -700,6 +700,8 @@ class SolicitacaoMedicaoInicialViewSet(
                 f"Recreio nas Férias {mes}/{ano}.pdf"
             )
             contem_recreio = True
+        else:
+            filtros["recreio_nas_ferias__isnull"] = True
 
         query_set = SolicitacaoMedicaoInicial.objects.filter(**filtros).exclude(
             medicoes__status=SolicitacaoMedicaoInicial.workflow_class.MEDICAO_SEM_LANCAMENTOS
