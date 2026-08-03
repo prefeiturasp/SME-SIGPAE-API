@@ -481,6 +481,21 @@ Relação reversa 1:N com <code class="xref py py-class docutils literal notrans
 <p>Lista os valores lançados na Medição Inicial que referenciam este tipo de alimentação.</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.cardapio.base.models.TipoAlimentacao.descontos_financeiros">
+<span class="sig-name descname"><span class="pre">descontos_financeiros</span></span><a class="headerlink" href="#src.cardapio.base.models.TipoAlimentacao.descontos_financeiros" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1451,6 +1466,10 @@ caso contrario, <code class="docutils literal notranslate"><span class="pre">Vin
 <p>Considera inclusoes normais autorizadas por Evento Especifico e cruza
 os periodos obtidos com os vinculos da escola para montar o conjunto de
 vinculos elegiveis.</p>
+<p>Para escolas CEMEI, tambem consulta inclusoes do tipo
+<code class="docutils literal notranslate"><span class="pre">InclusaoDeAlimentacaoCEMEI</span></code> com motivo <code class="docutils literal notranslate"><span class="pre">Evento</span> <span class="pre">Especifico</span></code>
+autorizadas no mes, coletando os periodos escolares das quantidades
+EMEI dessas inclusoes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1463,7 +1482,7 @@ vinculos.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Vinculos compatíveis com o cenario consultado.</p>
+<dd class="field-even"><p>Vinculos compativeis com o cenario consultado.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>QuerySet[<a class="reference internal" href="#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar" title="src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</a>]</p>

@@ -360,3 +360,272 @@ class TestGeraRelatorioUnificado:
         assert (
             escola_sem_historico.tipo_unidade == tipo_cemei
         ), "Tipo da escola deve ser CEMEI"
+
+    @patch("src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei")
+    @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
+    def test_gera_relatorio_unificado_com_recreio(
+        self, mock_delay, mock_relatorio_cemei, client_autenticado_codae_medicao
+    ):
+        tipo_emei, tipo_cemei, grupo = self.setup_tipos_unidade_e_grupo()
+        dre, lote, tipo_gestao = self.setup_infraestrutura_comum()
+
+        escola_com_historico = self.setup_escola_com_historico(
+            tipo_emei, tipo_cemei, lote, dre, tipo_gestao
+        )
+        escola_sem_historico = self.setup_escola_sem_historico(
+            tipo_cemei, lote, dre, tipo_gestao
+        )
+
+        periodo_escolar = PeriodoEscolarFactory.create(nome="INTEGRAL")
+
+        solicitacao_com_historico, solicitacao_sem_historico = self.setup_solicitacoes(
+            escola_com_historico, escola_sem_historico, periodo_escolar
+        )
+        self.setup_medicoes_basicas(
+            solicitacao_com_historico, solicitacao_sem_historico, periodo_escolar
+        )
+
+        recreio = baker.make(
+            "RecreioNasFerias",
+            titulo="Recreio nas Férias - JAN/2026",
+            data_inicio=datetime.date(2026, 1, 2),
+            data_fim=datetime.date(2026, 1, 31),
+        )
+        solicitacao_com_historico.recreio_nas_ferias = recreio
+        solicitacao_com_historico.save()
+        solicitacao_sem_historico.recreio_nas_ferias = recreio
+        solicitacao_sem_historico.save()
+
+        mock_relatorio_cemei.return_value = b"fake_pdf"
+
+        def execute_task_sync(*args, **kwargs):
+            return gera_pdf_relatorio_unificado_async(*args, **kwargs)
+
+        mock_delay.side_effect = execute_task_sync
+
+        url = "/medicao-inicial/solicitacao-medicao-inicial/relatorio-unificado/"
+        response = client_autenticado_codae_medicao.get(
+            url,
+            {
+                "mes": "01",
+                "ano": "2026",
+                "grupo_escolar": str(grupo.uuid),
+                "status": SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+                "dre": str(dre.uuid),
+                "recreio_uuid": str(recreio.uuid),
+            },
+        )
+
+        assert response.status_code == 200
+        assert (
+            response.json()["detail"]
+            == "Solicitação de geração de arquivo recebida com sucesso."
+        )
+
+        assert mock_delay.called
+        assert mock_delay.call_count == 1
+        call_kwargs = mock_delay.call_args.kwargs
+        assert call_kwargs["contem_recreio"] is True
+        assert "Recreio nas Férias" in call_kwargs["nome_arquivo"]
+
+    @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
+    def test_gera_relatorio_unificado_sem_recreio_nao_passa_flag(
+        self, mock_delay, client_autenticado_codae_medicao
+    ):
+        tipo_emei, tipo_cemei, grupo = self.setup_tipos_unidade_e_grupo()
+        dre, lote, tipo_gestao = self.setup_infraestrutura_comum()
+
+        escola = self.setup_escola_com_historico(
+            tipo_emei, tipo_cemei, lote, dre, tipo_gestao
+        )
+
+        periodo_escolar = PeriodoEscolarFactory.create(nome="INTEGRAL")
+
+        solicitacao = SolicitacaoMedicaoInicialFactory.create(
+            escola=escola,
+            mes="01",
+            ano=2026,
+            status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        )
+        baker.make(
+            "Medicao",
+            solicitacao_medicao_inicial=solicitacao,
+            periodo_escolar=periodo_escolar,
+        )
+
+        url = "/medicao-inicial/solicitacao-medicao-inicial/relatorio-unificado/"
+        response = client_autenticado_codae_medicao.get(
+            url,
+            {
+                "mes": "01",
+                "ano": "2026",
+                "grupo_escolar": str(grupo.uuid),
+                "status": SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+                "dre": str(dre.uuid),
+            },
+        )
+
+        assert response.status_code == 200
+        assert mock_delay.called
+        call_kwargs = mock_delay.call_args.kwargs
+        assert call_kwargs["contem_recreio"] is False
+        assert "Recreio nas Férias" not in call_kwargs["nome_arquivo"]
+
+    @patch("src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei")
+    @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
+    def test_relatorio_unificado_exclui_solicitacoes_recreio_sem_parametro(
+        self, mock_delay, mock_relatorio_cemei, client_autenticado_codae_medicao
+    ):
+        """
+        Quando uuid_recreio NÃO é passado, solicitações com recreio_nas_ferias
+        preenchido devem ser excluídas da consulta.
+        """
+        tipo_emei, tipo_cemei, grupo = self.setup_tipos_unidade_e_grupo()
+        dre, lote, tipo_gestao = self.setup_infraestrutura_comum()
+
+        escola = self.setup_escola_com_historico(
+            tipo_emei, tipo_cemei, lote, dre, tipo_gestao
+        )
+
+        periodo_escolar = PeriodoEscolarFactory.create(nome="INTEGRAL")
+
+        recreio = baker.make(
+            "RecreioNasFerias",
+            titulo="Recreio nas Férias - JAN/2026",
+            data_inicio=datetime.date(2026, 1, 2),
+            data_fim=datetime.date(2026, 1, 31),
+        )
+
+        solicitacao_recreio = SolicitacaoMedicaoInicialFactory.create(
+            escola=escola,
+            mes="01",
+            ano=2026,
+            status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+            recreio_nas_ferias=recreio,
+        )
+        baker.make(
+            "Medicao",
+            solicitacao_medicao_inicial=solicitacao_recreio,
+            periodo_escolar=periodo_escolar,
+        )
+
+        mock_relatorio_cemei.return_value = b"fake_pdf"
+
+        def execute_task_sync(*args, **kwargs):
+            return gera_pdf_relatorio_unificado_async(*args, **kwargs)
+
+        mock_delay.side_effect = execute_task_sync
+
+        url = "/medicao-inicial/solicitacao-medicao-inicial/relatorio-unificado/"
+        response = client_autenticado_codae_medicao.get(
+            url,
+            {
+                "mes": "01",
+                "ano": "2026",
+                "grupo_escolar": str(grupo.uuid),
+                "status": SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+                "dre": str(dre.uuid),
+            },
+        )
+
+        assert response.status_code == 400
+        assert "Não foram encontradas Medições Iniciais" in response.json()["erro"]
+
+    @patch("src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei")
+    @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
+    def test_relatorio_unificado_sem_recreio_inclui_apenas_sem_recreio(
+        self, mock_delay, mock_relatorio_cemei, client_autenticado_codae_medicao
+    ):
+        """
+        Quando uuid_recreio NÃO é passado, apenas solicitações com
+        recreio_nas_ferias = null devem ser incluídas. Solicitações com
+        recreio_nas_ferias preenchido devem ser excluídas.
+        """
+        tipo_emei, tipo_cemei, grupo = self.setup_tipos_unidade_e_grupo()
+        dre, lote, tipo_gestao = self.setup_infraestrutura_comum()
+
+        escola = self.setup_escola_com_historico(
+            tipo_emei, tipo_cemei, lote, dre, tipo_gestao
+        )
+
+        periodo_escolar = PeriodoEscolarFactory.create(nome="INTEGRAL")
+
+        recreio = baker.make(
+            "RecreioNasFerias",
+            titulo="Recreio nas Férias - JAN/2026",
+            data_inicio=datetime.date(2026, 1, 2),
+            data_fim=datetime.date(2026, 1, 31),
+        )
+
+        solicitacao_sem_recreio = SolicitacaoMedicaoInicialFactory.create(
+            escola=escola,
+            mes="01",
+            ano=2026,
+            status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+        )
+        solicitacao_com_recreio = SolicitacaoMedicaoInicialFactory.create(
+            escola=escola,
+            mes="01",
+            ano=2026,
+            status=SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+            recreio_nas_ferias=recreio,
+        )
+
+        baker.make(
+            "Medicao",
+            solicitacao_medicao_inicial=solicitacao_sem_recreio,
+            periodo_escolar=periodo_escolar,
+        )
+        baker.make(
+            "Medicao",
+            solicitacao_medicao_inicial=solicitacao_com_recreio,
+            periodo_escolar=periodo_escolar,
+        )
+
+        html_strings_captured = []
+
+        def capture_html(solicitacao):
+            html_string = f"""
+            <html>
+                <body>
+                    <h1>{solicitacao.escola.nome}</h1>
+                </body>
+            </html>
+            """
+            html_strings_captured.append(html_string)
+
+            from pypdf import PdfWriter
+
+            buffer = BytesIO()
+            writer = PdfWriter()
+            writer.add_blank_page(width=100, height=100)
+            writer.write(buffer)
+            return buffer.getvalue()
+
+        mock_relatorio_cemei.side_effect = capture_html
+
+        def execute_task_sync(*args, **kwargs):
+            return gera_pdf_relatorio_unificado_async(*args, **kwargs)
+
+        mock_delay.side_effect = execute_task_sync
+
+        url = "/medicao-inicial/solicitacao-medicao-inicial/relatorio-unificado/"
+        response = client_autenticado_codae_medicao.get(
+            url,
+            {
+                "mes": "01",
+                "ano": "2026",
+                "grupo_escolar": str(grupo.uuid),
+                "status": SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE,
+                "dre": str(dre.uuid),
+            },
+        )
+
+        assert response.status_code == 200
+        assert mock_delay.called
+        call_kwargs = mock_delay.call_args.kwargs
+        assert call_kwargs["contem_recreio"] is False
+        assert "Recreio nas Férias" not in call_kwargs["nome_arquivo"]
+        assert len(html_strings_captured) == 1
+        assert solicitacao_sem_recreio.uuid in call_kwargs["ids_solicitacoes"]
+        assert solicitacao_com_recreio.uuid not in call_kwargs["ids_solicitacoes"]

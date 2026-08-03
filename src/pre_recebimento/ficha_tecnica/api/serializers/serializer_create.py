@@ -217,7 +217,10 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        return cria_ficha_tecnica(validated_data)
+        instance = cria_ficha_tecnica(validated_data)
+        user = self.context["request"].user
+        instance.salvar_log_ficha_tecnica_cadastrada(usuario=user)
+        return instance
 
     def update(self, instance, validated_data):
         return atualiza_ficha_tecnica(instance, validated_data)
@@ -334,6 +337,15 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
     modo_de_preparo = serializers.CharField(required=False, allow_blank=True)
     informacoes_adicionais = serializers.CharField(required=False, allow_blank=True)
 
+    def create(self, validated_data):
+        instance = cria_ficha_tecnica(validated_data)
+
+        user = self.context["request"].user
+        instance.salvar_log_ficha_tecnica_cadastrada(usuario=user)
+        instance.inicia_fluxo(user=user)
+
+        return instance
+
     def validate(self, attrs):
         if attrs.get("categoria") == FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS:
             valida_campos_pereciveis_ficha_tecnica(attrs)
@@ -362,14 +374,6 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
         if value and "pdf" not in value:
             raise serializers.ValidationError("Arquivo deve ser um PDF.")
         return value
-
-    def create(self, validated_data):
-        instance = cria_ficha_tecnica(validated_data)
-
-        user = self.context["request"].user
-        instance.inicia_fluxo(user=user)
-
-        return instance
 
     def update(self, instance, validated_data):
         instance = atualiza_ficha_tecnica(instance, validated_data)
@@ -444,6 +448,7 @@ class FichaTecnicaFLVCreateSerializer(serializers.ModelSerializer):
         instance = cria_ficha_tecnica(validated_data)
 
         user = self.context["request"].user
+        instance.salvar_log_ficha_tecnica_cadastrada(usuario=user)
         instance.inicia_fluxo(user=user)
 
         return instance

@@ -4898,19 +4898,21 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                     solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
                         uuid=solicitacao_uuid
                     )
-                    self.qtd_total_programada = solicitacao.qtd_total_programada
 
-                    etapas_antigas = list(solicitacao.etapas_antigas.all())
-                    etapas_novas = list(solicitacao.etapas_novas.all())
+                    if solicitacao.status == solicitacao.workflow_class.APROVADO_DILOG:
+                        self.qtd_total_programada = solicitacao.qtd_total_programada
 
-                    migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas)
+                        etapas_antigas = list(solicitacao.etapas_antigas.all())
+                        etapas_novas = list(solicitacao.etapas_novas.all())
 
-                    self.etapas.set(etapas_novas)
-                    self.programacoes_de_recebimento.all().delete()
-                    self.programacoes_de_recebimento.set(
-                        solicitacao.programacoes_novas.all()
-                    )
-                    self.save()
+                        migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas)
+
+                        self.etapas.set(etapas_novas)
+                        self.programacoes_de_recebimento.all().delete()
+                        self.programacoes_de_recebimento.set(
+                            solicitacao.programacoes_novas.all()
+                        )
+                        self.save()
 
             except Exception as exc:
                 raise ValidationError(
@@ -5922,6 +5924,12 @@ class FichaTecnicaDoProdutoWorkflow(xwf_models.Workflow):
 class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
     workflow_class = FichaTecnicaDoProdutoWorkflow
     status = xwf_models.StateField(workflow_class)
+
+    def salvar_log_ficha_tecnica_cadastrada(self, usuario):
+        return self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA,
+            usuario=usuario,
+        )
 
     @xworkflows.after_transition("inicia_fluxo")
     def _inicia_fluxo_hook(self, *args, **kwargs):

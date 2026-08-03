@@ -159,10 +159,10 @@
     <table class="tabela-valores-medicao mt-1">
       <thead class="head-tabela-observacoes">
         <tr class="texto-branco">
-          <th class="tabela-observacoes-dia">DIA</th>
-          <th class="tabela-observacoes-periodo">PERÍODO</th>
-          <th class="tabela-observacoes-tipo">TIPO</th>
-          <th class="tabela-observacoes-observacoes">OBSERVAÇÕES</th>
+          <th scope="col" class="tabela-observacoes-dia">DIA</th>
+          <th scope="col" class="tabela-observacoes-periodo">PERÍODO</th>
+          <th scope="col" class="tabela-observacoes-tipo">TIPO</th>
+          <th scope="col" class="tabela-observacoes-observacoes">OBSERVAÇÕES</th>
         </tr>
       </thead>
       <tbody class="body-tabela-observacoes">
@@ -184,10 +184,10 @@
     <table class="tabela-valores-medicao mt-1">
       <thead class="head-tabela-observacoes">
         <tr class="texto-branco">
-          <th class="tabela-observacoes-dia">DIA</th>
-          <th class="tabela-observacoes-periodo">PERÍODO</th>
-          <th class="tabela-observacoes-tipo">TIPO</th>
-          <th class="tabela-observacoes-observacoes">OBSERVAÇÕES</th>
+          <th scope="col" class="tabela-observacoes-dia">DIA</th>
+          <th scope="col" class="tabela-observacoes-periodo">PERÍODO</th>
+          <th scope="col" class="tabela-observacoes-tipo">TIPO</th>
+          <th scope="col" class="tabela-observacoes-observacoes">OBSERVAÇÕES</th>
         </tr>
       </thead>
       <tbody class="body-tabela-observacoes">
@@ -222,12 +222,12 @@
             <thead class="head-tabelas-somatorio">
               {% if s.tabela_cei.titulo %}
               <tr class="texto-branco somatorio-titulo-tabela-cei">
-                <th class="uppercase text-center somatorio-titulo-tabela-cei" colspan="{{ s.tabela_cei.header|length }}">{{ s.tabela_cei.titulo }}</th>
+                <th scope="colgroup" class="uppercase text-center somatorio-titulo-tabela-cei" colspan="{{ s.tabela_cei.header|length }}">{{ s.tabela_cei.titulo }}</th>
               </tr>
               {% endif %}
               <tr class="texto-branco">
                 {% for col in s.tabela_cei.header %}
-                  <th class="col-1 uppercase">{{ col }}</th>
+                  <th scope="col" class="col-1 uppercase">{{ col }}</th>
                 {% endfor %}
               </tr>
             </thead>
@@ -258,12 +258,12 @@
           <thead class="head-tabelas-somatorio">
             {% if s.tabela_emei.titulo %}
             <tr class="texto-branco somatorio-titulo-tabela-emei">
-              <th class="col-1 uppercase text-center somatorio-titulo-tabela-emei" colspan="{{ s.tabela_emei.header|length }}">{{ s.tabela_emei.titulo }}</th>
+              <th scope="colgroup" class="col-1 uppercase text-center somatorio-titulo-tabela-emei" colspan="{{ s.tabela_emei.header|length }}">{{ s.tabela_emei.titulo }}</th>
             </tr>
             {% endif %}
             <tr class="texto-branco">
               {% for col in s.tabela_emei.header %}
-                <th class="col-1 uppercase">{{ col }}</th>
+                <th scope="col" class="col-1 uppercase">{{ col }}</th>
               {% endfor %}
             </tr>
           </thead>
@@ -294,7 +294,7 @@
             <thead class="head-tabelas-somatorio">
               <tr class="texto-branco">
                 {% for col in s.tabela_colaboradores.header %}
-                  <th class="uppercase">{{ col }}</th>
+                  <th scope="col" class="uppercase">{{ col }}</th>
                 {% endfor %}
               </tr>
             </thead>

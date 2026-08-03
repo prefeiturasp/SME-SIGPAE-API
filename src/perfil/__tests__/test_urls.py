@@ -224,6 +224,7 @@ def test_confirmar_email(client, usuarios_pendentes_confirmacao, tipo_gestao):
                 "eh_cemei": False,
                 "eh_emebs": False,
                 "possui_alunos_regulares": False,
+                "acesso_desde": None,
                 "acesso_modulo_medicao_inicial": False,
                 "modulo_gestao": "TERCEIRIZADA",
                 "tipo_unidade_escolar": "56725de5-89d3-4edf-8633-3e0b5c99e9d4",

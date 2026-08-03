@@ -436,7 +436,11 @@ def _build_tabela_alimentacao_emei(
     linhas = []
 
     tabela = next(
-        (t for t in tabelas if "Preço das Alimentações" in t.nome and not t.periodo_escolar),
+        (
+            t
+            for t in tabelas
+            if "Preço das Alimentações" in t.nome and not t.periodo_escolar
+        ),
         None,
     )
 
@@ -484,7 +488,11 @@ def _build_tabela_alimentacao_emei(
         alimentacao_nome = tipo["nome"].upper()
         linhas.append(
             {
-                "tipo": f"{alimentacao_nome} CIEJA E CMCT" if grupo_nome == "GRUPO 6" and alimentacao_nome == "REFEIÇÃO" else alimentacao_nome,
+                "tipo": (
+                    f"{alimentacao_nome} CIEJA E CMCT"
+                    if grupo_nome == "GRUPO 6" and alimentacao_nome == "REFEIÇÃO"
+                    else alimentacao_nome
+                ),
                 "valor_unitario": valor_unitario,
                 "valor_reajuste": valor_reajuste,
                 "total_unitario": total_unitario,
@@ -572,7 +580,11 @@ def _build_tabela_dieta_emei(
         dieta_nome = tipo["nome"].upper()
         linhas.append(
             {
-                "tipo": f"{dieta_nome} CIEJA E CMCT" if grupo_nome == "GRUPO 6" and dieta_nome == "REFEIÇÃO" else dieta_nome,
+                "tipo": (
+                    f"{dieta_nome} CIEJA E CMCT"
+                    if grupo_nome == "GRUPO 6" and dieta_nome == "REFEIÇÃO"
+                    else dieta_nome
+                ),
                 "valor_unitario": valor_unitario,
                 "valor_acrescimo": valor_acrescimo,
                 "total_unitario": total_unitario,
@@ -653,13 +665,16 @@ def build_relatorio_financeiro_grupo_emei(
         grupo_nome,
     )
 
-    lista_dietas_a = ["LANCHE", "LANCHE 4H", "REFEIÇÃO"] if not eh_cieja else ["LANCHE 4H", "REFEIÇÃO"]
+    lista_dietas_a = (
+        ["LANCHE", "LANCHE 4H", "REFEIÇÃO"]
+        if not eh_cieja
+        else ["LANCHE 4H", "REFEIÇÃO"]
+    )
 
     tipos_dieta_a = [
         tipo
         for tipo in tipos_alimentacao
-        if "REFEIÇÃO" in tipo["nome"].upper()
-        or tipo["nome"].upper() in lista_dietas_a
+        if "REFEIÇÃO" in tipo["nome"].upper() or tipo["nome"].upper() in lista_dietas_a
     ]
 
     dieta_a = _build_tabela_dieta_emei(
@@ -673,9 +688,7 @@ def build_relatorio_financeiro_grupo_emei(
     lista_dietas_b = ["LANCHE", "LANCHE 4H"] if not eh_cieja else ["LANCHE 4H"]
 
     tipos_dieta_b = [
-        tipo
-        for tipo in tipos_alimentacao
-        if tipo["nome"].upper() in lista_dietas_b
+        tipo for tipo in tipos_alimentacao if tipo["nome"].upper() in lista_dietas_b
     ]
 
     dieta_b = _build_tabela_dieta_emei(
@@ -735,12 +748,15 @@ def build_relatorio_financeiro_grupo_cemei(
     )
 
     consolidado_total = {
-        "quantidade": relatorio_cei["consolidado"]["quantidade"] + relatorio_emei["consolidado"]["quantidade"],
-        "valor": relatorio_cei["consolidado"]["valor"] + relatorio_emei["consolidado"]["valor"],
+        "quantidade": relatorio_cei["consolidado"]["quantidade"]
+        + relatorio_emei["consolidado"]["quantidade"],
+        "valor": relatorio_cei["consolidado"]["valor"]
+        + relatorio_emei["consolidado"]["valor"],
         "valor_extenso": num2words(
-            relatorio_cei["consolidado"]["valor"] + relatorio_emei["consolidado"]["valor"],
+            relatorio_cei["consolidado"]["valor"]
+            + relatorio_emei["consolidado"]["valor"],
             lang="pt_BR",
-            to="currency"
+            to="currency",
         ),
     }
 
@@ -784,9 +800,7 @@ def build_relatorio_financeiro_grupo_emebs(
         dict: Estrutura completa do relatório.
     """
     tabelas_infantil = [
-        tabela
-        for tabela in tabelas
-        if "infantil" in tabela.nome.lower()
+        tabela for tabela in tabelas if "infantil" in tabela.nome.lower()
     ]
 
     relatorio_infantil = build_relatorio_financeiro_grupo_emei(
@@ -796,9 +810,7 @@ def build_relatorio_financeiro_grupo_emebs(
     )
 
     tabelas_fundamental = [
-        tabela
-        for tabela in tabelas
-        if "fundamental" in tabela.nome.lower()
+        tabela for tabela in tabelas if "fundamental" in tabela.nome.lower()
     ]
 
     relatorio_fundamental = build_relatorio_financeiro_grupo_emei(
@@ -808,12 +820,15 @@ def build_relatorio_financeiro_grupo_emebs(
     )
 
     consolidado_total = {
-        "quantidade": relatorio_infantil["consolidado"]["quantidade"] + relatorio_fundamental["consolidado"]["quantidade"],
-        "valor": relatorio_infantil["consolidado"]["valor"] + relatorio_fundamental["consolidado"]["valor"],
+        "quantidade": relatorio_infantil["consolidado"]["quantidade"]
+        + relatorio_fundamental["consolidado"]["quantidade"],
+        "valor": relatorio_infantil["consolidado"]["valor"]
+        + relatorio_fundamental["consolidado"]["valor"],
         "valor_extenso": num2words(
-            relatorio_infantil["consolidado"]["valor"] + relatorio_fundamental["consolidado"]["valor"],
+            relatorio_infantil["consolidado"]["valor"]
+            + relatorio_fundamental["consolidado"]["valor"],
             lang="pt_BR",
-            to="currency"
+            to="currency",
         ),
     }
 

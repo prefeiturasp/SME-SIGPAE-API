@@ -102,7 +102,7 @@ def test_fornecedor_ciente_nao_aplica_alteracoes_se_ja_assinado_codae(
     )
 
 
-def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
+def test_fornecedor_ciente_nao_migra_etapas_sem_codae_aprovar(
     client_user_autenticado_fornecedor,
     solicitacao_alteracao_cronograma,
     django_user_model,
@@ -131,12 +131,18 @@ def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
 
     usuario_codae = django_user_model.objects.create_user(
         username="codae@test.com",
-        password="adminadmin",
+        password=DJANGO_ADMIN_PASSWORD,
         email="codae@test.com",
     )
     cronograma.salvar_log_transicao(
         status_evento=LogSolicitacoesUsuario.CRONOGRAMA_ASSINADO_PELA_CODAE,
         usuario=usuario_codae,
+    )
+
+    qtd_antes = cronograma.qtd_total_programada
+    etapas_antes = list(cronograma.etapas.values_list("id", flat=True))
+    programacoes_antes = list(
+        cronograma.programacoes_de_recebimento.values_list("id", flat=True)
     )
 
     url = reverse(
@@ -154,12 +160,47 @@ def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
     cronograma.refresh_from_db()
 
     assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
+    assert cronograma.qtd_total_programada == qtd_antes
+    assert list(cronograma.etapas.values_list("id", flat=True)) == etapas_antes
+    assert (
+        list(cronograma.programacoes_de_recebimento.values_list("id", flat=True))
+        == programacoes_antes
+    )
+
+
+def test_analise_dilog_aprova_migra_etapas_e_programacoes(
+    client_autenticado_dilog_diretoria,
+    solicitacao_alteracao_cronograma,
+):
+    import json
+
+    solicitacao = solicitacao_alteracao_cronograma
+    cronograma = solicitacao.cronograma
+
+    solicitacao.status = (
+        SolicitacaoAlteracaoCronograma.workflow_class.APROVADO_DILOG_ABASTECIMENTO
+    )
+    solicitacao.save(update_fields=["status"])
+
+    data = json.dumps({"aprovado": True})
+    response = client_autenticado_dilog_diretoria.patch(
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao.uuid}/analise-dilog/",
+        data,
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK, response.data
+
+    solicitacao.refresh_from_db()
+    cronograma.refresh_from_db()
+
+    assert solicitacao.status == "APROVADO_DILOG"
+    assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
     assert cronograma.qtd_total_programada == solicitacao.qtd_total_programada
 
     assert list(cronograma.etapas.values_list("id", flat=True)) == list(
         solicitacao.etapas_novas.values_list("id", flat=True)
     )
-
     assert list(
         cronograma.programacoes_de_recebimento.values_list("id", flat=True)
     ) == list(solicitacao.programacoes_novas.values_list("id", flat=True))

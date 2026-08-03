@@ -21,6 +21,10 @@ from src.terceirizada.api.serializers.serializers import (
     TerceirizadaLookUpSerializer,
 )
 
+from src.dados_comuns.api.serializers import (
+    LogSolicitacoesUsuarioSerializer,
+)
+
 
 class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
     produto = NomeDeProdutoEditalSerializer()
@@ -142,6 +146,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
     unidade_medida_primaria_vazia = UnidadeMedidaSimplesSerializer()
     unidade_medida_secundaria_vazia = UnidadeMedidaSimplesSerializer()
     unidade_medida_volume_primaria = UnidadeMedidaSimplesSerializer()
+    logs = LogSolicitacoesUsuarioSerializer(many=True, read_only=True)
 
     def get_criado_em(self, obj):
         return obj.criado_em.strftime("%d/%m/%Y")
@@ -208,6 +213,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "arquivo",
             "modo_de_preparo",
             "informacoes_adicionais",
+            "logs"
         )
 
 
@@ -290,4 +296,25 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
             "programa_leve_leite",
             "categoria",
             "tipo_entrega",
+        )
+
+
+class RelatorioFichaTecnicaSerializer(serializers.ModelSerializer):
+    produto = NomeDeProdutoEditalSerializer()
+    empresa = TerceirizadaLookUpSerializer()
+    status = serializers.CharField(source="get_status_display", read_only=True)
+    categoria = serializers.CharField(source="get_categoria_display", read_only=True)
+    programa = serializers.CharField(source="get_programa_display", read_only=True)
+
+    class Meta:
+        model = FichaTecnicaDoProduto
+        fields = (
+            "uuid",
+            "numero",
+            "produto",
+            "empresa",
+            "categoria",
+            "programa",
+            "pregao_chamada_publica",
+            "status",
         )
