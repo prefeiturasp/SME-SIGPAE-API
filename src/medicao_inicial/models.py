@@ -40,7 +40,20 @@ GRUPO_RECREIO_NAS_FERIAS = "Recreio nas Férias"
 GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
 
 
+class TipoSobremesaDoce(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel, Ativavel):
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Tipo de Sobremesa Doce"
+        verbose_name_plural = "Tipos de Sobremesa Doce"
+
+
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
+    tipo = models.ForeignKey(
+        TipoSobremesaDoce, on_delete=models.PROTECT, blank=True, null=True
+    )
     tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
     edital = models.ForeignKey(Edital, on_delete=models.CASCADE, blank=True, null=True)
 
