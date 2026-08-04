@@ -8,6 +8,7 @@ from rest_framework import status
 
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
+    DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -16,7 +17,6 @@ from src.medicao_inicial.models import (
     ParametrizacaoFinanceira,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
-    DescontoFinanceiro,
 )
 
 TIPOS_UNIDADE_PFOM = ["EMEF P FOM", "EMEI P FOM"]
@@ -1132,14 +1132,15 @@ def test_url_codae_solicita_correcao_medicao_erro_403(
 
 
 def test_url_codae_solicita_correcao_ocorrencia(
-    client_autenticado_codae_medicao,
+    client_autenticado_vinculo_nutrimanifestacao,
     anexo_ocorrencia_medicao_inicial_status_aprovado_dre,
     anexo_ocorrencia_medicao_inicial_status_inicial,
 ):
+    client, _ = client_autenticado_vinculo_nutrimanifestacao
     data = {"justificativa": "TESTE JUSTIFICATIVA"}
     viewset_url = "/medicao-inicial/ocorrencia/"
     uuid = anexo_ocorrencia_medicao_inicial_status_aprovado_dre.uuid
-    response = client_autenticado_codae_medicao.patch(
+    response = client.patch(
         f"{viewset_url}{uuid}/codae-pede-correcao-ocorrencia/",
         content_type="application/json",
         data=data,
@@ -1151,7 +1152,7 @@ def test_url_codae_solicita_correcao_ocorrencia(
     )
     assert response.data["logs"][-1]["justificativa"] == data["justificativa"]
 
-    response = client_autenticado_codae_medicao.patch(
+    response = client.patch(
         f"/medicao-inicial/ocorrencia/{anexo_ocorrencia_medicao_inicial_status_inicial.uuid}"
         f"/dre-pede-correcao-ocorrencia/",
         content_type="application/json",
@@ -1274,12 +1275,13 @@ def test_url_escola_corrige_medicao_para_codae_erro_403(
 
 
 def test_url_codae_aprova_ocorrencia(
-    client_autenticado_codae_medicao,
+    client_autenticado_vinculo_nutrimanifestacao,
     anexo_ocorrencia_medicao_inicial_status_aprovado_dre,
     anexo_ocorrencia_medicao_inicial_status_inicial,
 ):
+    client, _ = client_autenticado_vinculo_nutrimanifestacao
     uuid = anexo_ocorrencia_medicao_inicial_status_aprovado_dre.uuid
-    response = client_autenticado_codae_medicao.patch(
+    response = client.patch(
         f"/medicao-inicial/ocorrencia/{uuid}/codae-aprova-ocorrencia/",
         content_type="application/json",
     )
@@ -1289,7 +1291,7 @@ def test_url_codae_aprova_ocorrencia(
     )
 
     uuid = anexo_ocorrencia_medicao_inicial_status_inicial.uuid
-    response = client_autenticado_codae_medicao.patch(
+    response = client.patch(
         f"/medicao-inicial/ocorrencia/{uuid}" f"/codae-pede-correcao-ocorrencia/",
         content_type="application/json",
     )
