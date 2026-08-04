@@ -18,6 +18,7 @@ from ..cardapio.base.models import (
 from ..dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from ..escola.models import (
     DiaCalendario,
+    DiaSuspensaoAtividades,
     Escola,
     FaixaEtaria,
     LogAlunosMatriculadosFaixaEtariaDia,
@@ -79,10 +80,35 @@ def get_lista_dias_letivos(solicitacao, escola, periodo_escolar=None):
         ).values_list("criado_em__day", flat=True)
     )
     dias_letivos_uteis = [dia for dia in dias_letivos_uteis if dia in dias_com_log]
+    dias_suspensos = get_dias_com_suspensao(solicitacao)
+    dias_letivos_uteis = [
+        dia for dia in dias_letivos_uteis if f"{dia:02d}" not in dias_suspensos
+    ]
     return [
         str(dia) if not len(str(dia)) == 1 else ("0" + str(dia))
         for dia in dias_letivos_uteis
     ]
+
+
+def get_dias_com_suspensao(solicitacao: SolicitacaoMedicaoInicial) -> list[str]:
+    """Retorna os dias (formato ``DD``) do mês/ano da solicitação com suspensão
+    de atividades para a escola (mesmo ``tipo_unidade`` e ``edital``).
+
+    Esses dias devem ser desconsiderados dos dias letivos na finalização da
+    medição inicial, pois o frontend os bloqueia para lançamento.
+    """
+    escola = solicitacao.escola
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+    dias = list(
+        DiaSuspensaoAtividades.objects.filter(
+            data__month=mes,
+            data__year=ano,
+            tipo_unidade=escola.tipo_unidade,
+            edital__uuid__in=escola.editais,
+        ).values_list("data__day", flat=True)
+    )
+    return [f"{dia:02d}" for dia in dias]
 
 
 def erros_unicos(lista_erros):
@@ -1188,6 +1214,7 @@ def get_alimentacoes_permitidas_emei_cemei(permissoes_especiais):
 def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
     escola = solicitacao.escola
     categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    dias_suspensos = get_dias_com_suspensao(solicitacao)
     list_inclusoes = []
     inclusoes_uuids = list(
         set(
@@ -1224,6 +1251,8 @@ def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
             dia_da_inclusao = str(inclusao.data.day)
             if len(dia_da_inclusao) == 1:
                 dia_da_inclusao = "0" + str(inclusao.data.day)
+            if dia_da_inclusao in dias_suspensos:
+                continue
             list_inclusoes.append(
                 {
                     "periodo_escolar": periodo.periodo_escolar.nome,
@@ -2137,6 +2166,10 @@ def validate_lancamento_dietas_cei(solicitacao, lista_erros):
     dias_letivos_uteis = filtrar_dias_letivos(
         dias_letivos, int(solicitacao.mes), int(solicitacao.ano)
     )
+    dias_suspensos = get_dias_com_suspensao(solicitacao)
+    dias_letivos_uteis = [
+        dia for dia in dias_letivos_uteis if f"{dia:02d}" not in dias_suspensos
+    ]
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas_cei(categoria)
         for dia in dias_letivos_uteis:
@@ -2659,11 +2692,16 @@ def valida_alimentacoes_solicitacoes_continuas(
 ):
     periodo_com_erro = False
     categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    dias_suspensos = get_dias_com_suspensao(
+        medicao_programas_projetos.solicitacao_medicao_inicial
+    )
     for dia in range(1, quantidade_dias_mes + 1):
         feriados = calendario.holidays(int(ano))
         if dia in [
             feriado[0].day for feriado in feriados if feriado[0].month == int(mes)
         ]:
+            continue
+        if f"{dia:02d}" in dias_suspensos:
             continue
         data = datetime.date(year=int(ano), month=int(mes), day=dia)
         dia_semana = data.weekday()
@@ -2901,6 +2939,9 @@ def valida_dietas_solicitacoes_continuas(
     classificacoes = ClassificacaoDieta.objects.filter(
         id__in=ids_categorias_existentes_no_mes
     )
+    dias_suspensos = get_dias_com_suspensao(
+        medicao_programas_projetos.solicitacao_medicao_inicial
+    )
     for classificacao in classificacoes:
         nomes_campos, categoria = get_nomes_campos_categoria(
             nomes_campos, classificacao, categorias
@@ -2921,6 +2962,7 @@ def valida_dietas_solicitacoes_continuas(
                     if feriado[0].month == int(mes)
                 ]
                 or numero_alunos_log_dieta_do_dia == 0
+                or f"{dia:02d}" in dias_suspensos
             ):
                 continue
             data = datetime.date(year=int(ano), month=int(mes), day=dia)
@@ -3632,6 +3674,10 @@ def validate_medicao_cemei(solicitacao):
         ).values_list("data__day", flat=True)
     )
     dias_letivos_uteis = filtrar_dias_letivos(dias_letivos, int(mes), int(ano))
+    dias_suspensos = get_dias_com_suspensao(solicitacao)
+    dias_letivos_uteis = [
+        dia for dia in dias_letivos_uteis if f"{dia:02d}" not in dias_suspensos
+    ]
     dias_nao_letivos = list(
         DiaCalendario.objects.filter(
             escola=escola,
