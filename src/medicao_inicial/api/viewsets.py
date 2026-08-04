@@ -1859,6 +1859,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="dre-pede-correcao-ocorrencia",
+        permission_classes=(UsuarioDiretoriaRegional,),
     )
     def dre_pede_correcao_ocorrencia(self, request, uuid=None):
         object = self.get_object()
@@ -1880,6 +1881,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="codae-pede-correcao-ocorrencia",
+        permission_classes=(UsuarioCODAENutriManifestacao,),
     )
     def codae_pede_correcao_ocorrencia(self, request, uuid=None):
         object = self.get_object()
@@ -1903,6 +1905,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="dre-aprova-ocorrencia",
+        permission_classes=(UsuarioDiretoriaRegional,),
     )
     def dre_aprova_ocorrencia(self, request, uuid=None):
         object = self.get_object()
@@ -1923,9 +1926,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="codae-aprova-ocorrencia",
-        permission_classes=[
-            UsuarioCODAEGestaoAlimentacao | UsuarioCODAENutriManifestacao
-        ],
+        permission_classes=(UsuarioCODAENutriManifestacao,),
     )
     def codae_aprova_ocorrencia(self, request, uuid=None):
         object = self.get_object()
@@ -1946,7 +1947,7 @@ class OcorrenciaViewSet(
         detail=False,
         methods=["POST"],
         url_path="gera-ocorrencia-para-correcao",
-        permission_classes=[UsuarioCODAENutriManifestacao],
+        permission_classes=[UsuarioDiretoriaRegional | UsuarioCODAENutriManifestacao],
     )
     @transaction.atomic
     def gera_ocorrencia_para_correcao(self, request):
