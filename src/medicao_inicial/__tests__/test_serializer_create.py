@@ -120,3 +120,48 @@ def test_desconto_financeiro_serializer_create_emei_nao_permite_faixa_etaria(
         serializer.errors["faixa_etaria"][0]
         == "Não é permitido informar faixa etária para este grupo."
     )
+
+
+@pytest.mark.django_db
+def test_desconto_financeiro_serializer_create_cemei_campos_obrigatorios(
+    relatorio_financeiro_cemei,
+    escola_cemei,
+    clausula_desconto,
+    faixas_etarias_ativas,
+):
+    payload = {
+        "relatorio_financeiro_id": str(relatorio_financeiro_cemei.uuid),
+        "unidades_educacionais": [str(escola_cemei.uuid)],
+        "tipo_lancamento": "DIETAS_TIPO_B",
+        "clausula_desconto": str(clausula_desconto.uuid),
+        "quantidade": 1,
+    }
+
+    serializer = DescontoFinanceiroUpdateSerializer(data=payload)
+
+    assert not serializer.is_valid()
+
+    assert "cei_ou_emei" in serializer.errors
+    assert serializer.errors["cei_ou_emei"][0] == "Campo obrigatório para o grupo."
+
+    payload["cei_ou_emei"] = "CEI"
+
+    serializer = DescontoFinanceiroUpdateSerializer(data=payload)
+
+    assert not serializer.is_valid()
+
+    assert "faixa_etaria" in serializer.errors
+    assert "periodo_escolar" in serializer.errors
+
+    assert serializer.errors["faixa_etaria"][0] == "Campo obrigatório para o grupo."
+    assert serializer.errors["periodo_escolar"][0] == "Campo obrigatório para o grupo."
+
+    payload["cei_ou_emei"] = "EMEI"
+    payload["faixa_etaria"] = str(faixas_etarias_ativas[0].uuid)
+
+    serializer = DescontoFinanceiroUpdateSerializer(data=payload)
+
+    assert not serializer.is_valid()
+
+    assert "faixa_etaria" in serializer.errors
+    assert serializer.errors["faixa_etaria"][0] == "Não é permitido informar faixa etária para este grupo."
