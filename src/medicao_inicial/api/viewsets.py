@@ -81,6 +81,7 @@ from ..models import (
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     ValorMedicao,
 )
 from ..tasks import (
@@ -146,6 +147,7 @@ from .serializers import (
     SolicitacaoMedicaoInicialLancadaSerializer,
     SolicitacaoMedicaoInicialSerializer,
     TipoContagemAlimentacaoSerializer,
+    TipoSobremesaDoceSerializer,
     ValorMedicaoSerializer,
 )
 from .serializers_create import (
@@ -1538,6 +1540,12 @@ class SolicitacaoMedicaoInicialViewSet(
 class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = TipoContagemAlimentacao.objects.filter(ativo=True)
     serializer_class = TipoContagemAlimentacaoSerializer
+    pagination_class = None
+
+
+class TipoSobremesaDoceViewSet(mixins.ListModelMixin, GenericViewSet):
+    queryset = TipoSobremesaDoce.objects.filter(ativo=True)
+    serializer_class = TipoSobremesaDoceSerializer
     pagination_class = None
 
 
