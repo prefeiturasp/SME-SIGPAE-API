@@ -75,6 +75,7 @@ class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
             "tipo_unidade",
             "data",
             "edital",
+            "tipo",
         )
         ordering = ("data",)
 
