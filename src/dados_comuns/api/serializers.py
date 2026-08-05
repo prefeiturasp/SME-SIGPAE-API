@@ -17,8 +17,7 @@ from ..models import (
     SolicitacaoAberta,
 )
 from ..services import ServiceMapeamentoLogsLinhaDoTempo
-
-
+from ..normalizers import normalizar_nome_categoria
 class CamposObrigatoriosMixin:
     def __init__(self, *args, **kwargs):
         """Define campos obrigatórios, para ser usado quando extender um serializer com campos não obrigatórios."""
@@ -186,12 +185,41 @@ class ContatoSimplesSerializer(serializers.ModelSerializer):
         model = Contato
         fields = ("nome", "telefone", "email")
 
-
 class CategoriaPerguntaFrequenteSerializer(serializers.ModelSerializer):
+    nome = serializers.CharField(
+        allow_blank=False,
+        max_length=100,
+        required=True,
+        trim_whitespace=True,
+    )
+
+    def validate_nome(self, value):
+        nome = value.strip()
+        nome_normalizado = normalizar_nome_categoria(nome)
+
+        categorias = CategoriaPerguntaFrequente.objects.all()
+
+        if self.instance:
+            categorias = categorias.exclude(pk=self.instance.pk)
+
+        nomes_cadastrados = categorias.values_list("nome", flat=True)
+
+        categoria_duplicada = any(
+            normalizar_nome_categoria(nome_cadastrado) == nome_normalizado
+            for nome_cadastrado in nomes_cadastrados
+        )
+
+        if categoria_duplicada:
+            raise serializers.ValidationError(
+                "Não é possível cadastrar a categoria, pois já existe uma categoria "
+                    "com esse nome. Altere o nome informado e tente novamente."
+            )
+
+        return nome
+
     class Meta:
         model = CategoriaPerguntaFrequente
         exclude = ("id",)
-
 
 class PerguntaFrequenteCreateSerializer(serializers.ModelSerializer):
     categoria = serializers.SlugRelatedField(
