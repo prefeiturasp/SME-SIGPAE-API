@@ -1710,9 +1710,10 @@ class PermissaoParaDarCienciaCronogramaSemanal(BasePermission):
             not usuario.is_anonymous and usuario.vinculo_atual and usuario.eh_fornecedor
         )
 
+
 class PermissaoParaGerenciarCategoriasPerguntaFrequente(BasePermission):
     """Permissão para cadastrar uma categoria no página de ajuda"""
-    
+
     PERFIS_PERMITIDOS = [
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
