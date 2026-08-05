@@ -48,6 +48,7 @@ from src.medicao_inicial.models import (
     Responsavel,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
@@ -140,10 +141,15 @@ class CadastroSobremesaDoceCreateSerializer(serializers.ModelSerializer):
         required=True,
         many=True,
     )
+    tipo = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=TipoSobremesaDoce.objects.all(),
+        required=True,
+    )
 
     class Meta:
         model = DiaSobremesaDoce
-        fields = ("tipo_unidades", "editais")
+        fields = ("tipo_unidades", "editais", "tipo")
 
 
 class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
@@ -162,12 +168,14 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
                         data=validated_data["data"],
                         tipo_unidade=tipo_unidade,
                         edital=edital,
+                        tipo=cadastro["tipo"],
                     ):
                         dia_sobremesa_doce = DiaSobremesaDoce(
                             criado_por=self.context["request"].user,
                             data=validated_data["data"],
                             tipo_unidade=tipo_unidade,
                             edital=edital,
+                            tipo=cadastro["tipo"],
                         )
                         dia_sobremesa_doce.save()
         return dia_sobremesa_doce
