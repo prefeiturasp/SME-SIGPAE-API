@@ -6,7 +6,7 @@ from src.medicao_inicial.models import DescontoFinanceiro
 
 
 @pytest.mark.django_db
-def test_desconto_financeiro_serializer_create(
+def test_desconto_financeiro_serializer_grupo_cei_create(
     relatorio_financeiro_cei,
     escola_ceu_gestao,
     faixas_etarias_ativas,
@@ -35,7 +35,7 @@ def test_desconto_financeiro_serializer_create(
 
 
 @pytest.mark.django_db
-def test_desconto_financeiro_serializer_update(
+def test_desconto_financeiro_serializer_grupo_cei_update(
     relatorio_financeiro_cei,
     escola_ceu_gestao,
     faixas_etarias_ativas,
@@ -74,7 +74,7 @@ def test_desconto_financeiro_serializer_update(
 
 
 @pytest.mark.django_db
-def test_desconto_financeiro_serializer_create_cei_campos_obrigatorios(
+def test_desconto_financeiro_grupo_cei_campos_obrigatorios(
     relatorio_financeiro_cei,
     escola_ceu_gestao,
     clausula_desconto,
@@ -97,7 +97,7 @@ def test_desconto_financeiro_serializer_create_cei_campos_obrigatorios(
 
 
 @pytest.mark.django_db
-def test_desconto_financeiro_serializer_create_emei_nao_permite_faixa_etaria(
+def test_desconto_financeiro_grupo_emei_nao_permite_faixa_etaria(
     relatorio_financeiro_emei,
     escola_ceu_gestao,
     faixas_etarias_ativas,
@@ -123,7 +123,7 @@ def test_desconto_financeiro_serializer_create_emei_nao_permite_faixa_etaria(
 
 
 @pytest.mark.django_db
-def test_desconto_financeiro_serializer_create_cemei_campos_obrigatorios(
+def test_desconto_financeiro_grupo_cemei_campos_obrigatorios(
     relatorio_financeiro_cemei,
     escola_cemei,
     clausula_desconto,
@@ -165,3 +165,55 @@ def test_desconto_financeiro_serializer_create_cemei_campos_obrigatorios(
 
     assert "faixa_etaria" in serializer.errors
     assert serializer.errors["faixa_etaria"][0] == "Não é permitido informar faixa etária para este grupo."
+
+
+@pytest.mark.django_db
+def test_desconto_financeiro_serializer_grupo_cemei(
+    relatorio_financeiro_cemei,
+    escola_cemei,
+    faixas_etarias_ativas,
+    periodo_escolar_parcial,
+    clausula_desconto,
+    tipo_alimentacao_refeicao,
+):
+    payload_create = {
+        "relatorio_financeiro_id": str(relatorio_financeiro_cemei.uuid),
+        "unidades_educacionais": [str(escola_cemei.uuid)],
+        "tipo_lancamento": "DIETAS_TIPO_A",
+        "faixa_etaria": str(faixas_etarias_ativas[0].uuid),
+        "periodo_escolar": periodo_escolar_parcial.nome,
+        "clausula_desconto": str(clausula_desconto.uuid),
+        "quantidade": 11,
+        "cei_ou_emei": "CEI"
+    }
+
+    serializer = DescontoFinanceiroUpdateSerializer(data=payload_create)
+    assert serializer.is_valid(), serializer.errors
+
+    instance_created = serializer.save()
+
+    assert instance_created.tipo_lancamento == "DIETAS_TIPO_A"
+    assert instance_created.cei_ou_emei == "CEI"
+    assert instance_created.faixa_etaria == faixas_etarias_ativas[0]
+    assert instance_created.periodo_escolar == periodo_escolar_parcial
+
+    payload_update = {
+        "cei_ou_emei": "EMEI",
+        "tipo_alimentacao": str(tipo_alimentacao_refeicao.uuid),
+        "faixa_etaria": None,
+        "periodo_escolar": None,
+    }
+
+    serializer = DescontoFinanceiroUpdateSerializer(
+        instance=instance_created,
+        data=payload_update,
+        partial=True,
+    )
+    assert serializer.is_valid(), serializer.errors
+
+    instance_updated = serializer.save()
+
+    assert instance_updated.cei_ou_emei == "EMEI"
+    assert instance_updated.tipo_alimentacao == tipo_alimentacao_refeicao
+    assert instance_updated.faixa_etaria is None
+    assert instance_updated.periodo_escolar is None
