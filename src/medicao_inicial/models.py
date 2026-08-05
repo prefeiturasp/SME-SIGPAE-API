@@ -29,7 +29,7 @@ from ..dados_comuns.fluxo_status import (
     FluxoSolicitacaoMedicaoInicial,
     LogSolicitacoesUsuario,
 )
-from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
+from ..escola.constants import INFANTIL_OU_FUNDAMENTAL, CEI_OU_EMEI
 from ..escola.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
@@ -1154,6 +1154,11 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="descontos_financeiros",
         null=True,
         blank=True,
+    )
+    cei_ou_emei = models.CharField(
+        max_length=4,
+        choices=CEI_OU_EMEI,
+        default="N/A"
     )
     clausula_desconto = models.ForeignKey(
         ClausulaDeDesconto,
