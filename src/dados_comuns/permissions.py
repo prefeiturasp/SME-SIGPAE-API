@@ -1,7 +1,11 @@
 from rest_framework.permissions import BasePermission
 
 from ..escola.models import Codae, DiretoriaRegional, Escola
-from ..medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from ..medicao_inicial.models import (
+    Medicao,
+    OcorrenciaMedicaoInicial,
+    SolicitacaoMedicaoInicial,
+)
 from ..terceirizada.models import Terceirizada
 from .constants import (
     ADMINISTRADOR_CODAE_DILOG_CONTABIL,
@@ -79,7 +83,7 @@ class UsuarioEscolaTercTotal(BasePermission):
         if instituicao in escolas:
             return True
 
-        if isinstance(obj, Medicao):
+        if isinstance(obj, (Medicao, OcorrenciaMedicaoInicial)):
             return instituicao == obj.solicitacao_medicao_inicial.escola
 
         if getattr(obj, "tipo", None) == "Kit Lanche Unificado":
@@ -189,7 +193,7 @@ class UsuarioDiretoriaRegional(BasePermission):
                 retorno = (
                     usuario.vinculo_atual.instituicao == obj.escola.diretoria_regional
                 )
-            elif isinstance(obj, Medicao):
+            elif isinstance(obj, (Medicao, OcorrenciaMedicaoInicial)):
                 retorno = (
                     usuario.vinculo_atual.instituicao
                     == obj.solicitacao_medicao_inicial.escola.diretoria_regional
@@ -1561,6 +1565,29 @@ class PermissaoParaVisualizarFichaTecnica(BasePermission):
                     and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
                 )
                 or usuario.eh_fornecedor
+            )
+        )
+
+
+class PermissaoParaRelatorioFichasTecnicas(BasePermission):
+    PERFIS_PERMITIDOS = [
+        DILOG_QUALIDADE,
+        DILOG_CRONOGRAMA,
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
+        COORDENADOR_GESTAO_PRODUTO,
+        ADMINISTRADOR_GESTAO_PRODUTO,
+    ]
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and (
+                (
+                    isinstance(usuario.vinculo_atual.instituicao, Codae)
+                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
+                )
             )
         )
 

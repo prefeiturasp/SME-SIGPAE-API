@@ -48,6 +48,7 @@ from src.medicao_inicial.models import (
     Responsavel,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
@@ -76,7 +77,10 @@ from src.terceirizada.models import Contrato, Edital
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.constants import DIRETOR_UE
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
-from ..recreio_nas_ferias.models import RecreioNasFerias
+from ..recreio_nas_ferias.models import (
+    RecreioNasFerias,
+    RecreioNasFeriasUnidadeParticipante,
+)
 from ..utils import (
     atualiza_alunos_periodo_parcial,
     log_alteracoes_escola_corrige_periodo,
@@ -140,10 +144,15 @@ class CadastroSobremesaDoceCreateSerializer(serializers.ModelSerializer):
         required=True,
         many=True,
     )
+    tipo = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=TipoSobremesaDoce.objects.all(),
+        required=True,
+    )
 
     class Meta:
         model = DiaSobremesaDoce
-        fields = ("tipo_unidades", "editais")
+        fields = ("tipo_unidades", "editais", "tipo")
 
 
 class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
@@ -162,12 +171,14 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
                         data=validated_data["data"],
                         tipo_unidade=tipo_unidade,
                         edital=edital,
+                        tipo=cadastro["tipo"],
                     ):
                         dia_sobremesa_doce = DiaSobremesaDoce(
                             criado_por=self.context["request"].user,
                             data=validated_data["data"],
                             tipo_unidade=tipo_unidade,
                             edital=edital,
+                            tipo=cadastro["tipo"],
                         )
                         dia_sobremesa_doce.save()
         return dia_sobremesa_doce
@@ -957,6 +968,40 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             datas_intervalo__data__year=instance.ano,
             datas_intervalo__cancelado=False,
         )
+
+        mes = int(instance.mes)
+        ano = int(instance.ano)
+        inicio_mes = date(ano, mes, 1)
+        fim_mes = date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+        periodos_recreio = RecreioNasFeriasUnidadeParticipante.objects.filter(
+            unidade_educacional=instance.escola,
+            liberar_medicao=True,
+            recreio_nas_ferias__data_inicio__lte=fim_mes,
+            recreio_nas_ferias__data_fim__gte=inicio_mes,
+        ).values_list(
+            "recreio_nas_ferias__data_inicio",
+            "recreio_nas_ferias__data_fim",
+        )
+
+        if periodos_recreio:
+            filtro_kit = Q()
+            filtro_unificado = Q()
+            filtro_lanche = Q()
+            for data_inicio, data_fim in periodos_recreio:
+                filtro_kit &= Q(solicitacao_kit_lanche__data__lt=data_inicio) | Q(
+                    solicitacao_kit_lanche__data__gt=data_fim
+                )
+                filtro_unificado &= Q(
+                    solicitacao_unificada__solicitacao_kit_lanche__data__lt=data_inicio
+                ) | Q(solicitacao_unificada__solicitacao_kit_lanche__data__gt=data_fim)
+                filtro_lanche &= Q(datas_intervalo__data__lt=data_inicio) | Q(
+                    datas_intervalo__data__gt=data_fim
+                )
+
+            kits_lanche = kits_lanche.filter(filtro_kit)
+            kits_lanche_unificado = kits_lanche_unificado.filter(filtro_unificado)
+            lanches_emergenciais = lanches_emergenciais.filter(filtro_lanche)
 
         if (
             not kits_lanche.exists()

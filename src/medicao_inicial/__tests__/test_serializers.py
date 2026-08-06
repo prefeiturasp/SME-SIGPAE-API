@@ -24,17 +24,21 @@ from src.medicao_inicial.api.serializers_create import (
     DadosLiquidacaoUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
 )
+from src.medicao_inicial.fixtures.factories.base_factory import (
+    CategoriaMedicaoFactory,
+)
 from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
     MedicaoFactory,
     SolicitacaoMedicaoInicialFactory,
 )
 from src.medicao_inicial.models import (
+    CategoriaMedicao,
     Medicao,
     ValorMedicao,
-    CategoriaMedicao,
 )
 from src.medicao_inicial.recreio_nas_ferias.fixtures.factories.base_factory import (
     RecreioNasFeriasFactory,
+    RecreioNasFeriasUnidadeParticipanteFactory,
 )
 from src.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,
@@ -523,3 +527,169 @@ def test_cria_valores_medicao_logs_matriculados_cei_periodo_vigente(
     total = solicitacao.medicoes.count()
     assert total == 1
     assert solicitacao.medicoes.count() == total
+
+
+class TestCriaValoresKitLancheLancheEmergencialRecreio:
+    """
+    Testes para verificar que kits lanche e lanches emergenciais contidos
+    em períodos de Recreio nas Férias são ignorados pela função
+    cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei.
+    """
+
+    def _setup_escola_emef(self):
+        tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+        terceirizada = baker.make("Terceirizada")
+        diretoria_regional = baker.make("DiretoriaRegional")
+        lote = baker.make(
+            "Lote",
+            nome="1",
+            terceirizada=terceirizada,
+            diretoria_regional=diretoria_regional,
+        )
+        tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+        return baker.make(
+            "Escola",
+            nome="EMEF TESTE KIT",
+            tipo_unidade=tipo_unidade,
+            lote=lote,
+            diretoria_regional=diretoria_regional,
+            tipo_gestao=tipo_gestao,
+            codigo_eol="999999",
+        )
+
+    def _setup_solicitacao(self, escola, mes="05", ano="2025"):
+        return SolicitacaoMedicaoInicialFactory.create(
+            escola=escola,
+            mes=mes,
+            ano=ano,
+        )
+
+    def _setup_categoria(self):
+        return CategoriaMedicaoFactory.create(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+
+    def _setup_kit_lanche(self, escola, data):
+        from src.kit_lanche.fixtures.factories.base_factory import (
+            KitLancheFactory,
+            SolicitacaoKitLancheAvulsaFactory,
+        )
+
+        kit = KitLancheFactory.create()
+
+        kit_lanche = SolicitacaoKitLancheAvulsaFactory.create(
+            solicitacao_kit_lanche__data=data,
+            solicitacao_kit_lanche__kits=[kit],
+            escola=escola,
+            rastro_escola=escola,
+            rastro_lote=escola.lote,
+            rastro_dre=escola.lote.diretoria_regional,
+            rastro_terceirizada=escola.lote.terceirizada,
+            quantidade_alunos=100,
+            status="CODAE_AUTORIZADO",
+        )
+        return kit_lanche
+
+    def _setup_recreio_com_participante(self, escola, data_inicio, data_fim):
+        recreio = RecreioNasFeriasFactory.create(
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+        )
+        RecreioNasFeriasUnidadeParticipanteFactory.create(
+            recreio_nas_ferias=recreio,
+            unidade_educacional=escola,
+            lote=escola.lote,
+            liberar_medicao=True,
+        )
+        return recreio
+
+    def test_kit_lanche_fora_do_recreio_cria_valor_medicao(self):
+        """
+        Kit lanche com data fora do período de recreio deve gerar ValorMedicao
+        normalmente.
+        """
+        escola = self._setup_escola_emef()
+        self._setup_categoria()
+        solicitacao = self._setup_solicitacao(escola)
+
+        self._setup_kit_lanche(escola, date(2025, 5, 5))
+
+        self._setup_recreio_com_participante(
+            escola,
+            date(2025, 5, 10),
+            date(2025, 5, 20),
+        )
+
+        serializer = SolicitacaoMedicaoInicialCreateSerializer()
+        serializer.cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei(
+            solicitacao
+        )
+
+        medicao = solicitacao.medicoes.get(grupo__nome="Solicitações de Alimentação")
+        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        valor = ValorMedicao.objects.filter(
+            medicao=medicao,
+            categoria_medicao=categoria,
+            dia="05",
+            nome_campo="kit_lanche",
+        ).first()
+
+        assert valor is not None
+        assert int(valor.valor) > 0
+
+    def test_kit_lanche_dentro_do_recreio_nao_cria_valor_medicao(self):
+        """
+        Kit lanche com data dentro do período de recreio NÃO deve gerar
+        ValorMedicao, pois deve ser ignorado.
+        """
+        escola = self._setup_escola_emef()
+        self._setup_categoria()
+        solicitacao = self._setup_solicitacao(escola)
+
+        self._setup_kit_lanche(escola, date(2025, 5, 15))
+
+        self._setup_recreio_com_participante(
+            escola,
+            date(2025, 5, 10),
+            date(2025, 5, 20),
+        )
+
+        serializer = SolicitacaoMedicaoInicialCreateSerializer()
+        serializer.cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei(
+            solicitacao
+        )
+
+        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        valor = ValorMedicao.objects.filter(
+            categoria_medicao=categoria,
+            dia="15",
+            nome_campo="kit_lanche",
+        ).first()
+
+        assert valor is None
+
+    def test_sem_recreio_cria_valor_medicao_normalmente(self):
+        """
+        Sem RecreioNasFerias cadastrado, kit lanche deve gerar ValorMedicao
+        normalmente.
+        """
+        escola = self._setup_escola_emef()
+        self._setup_categoria()
+        solicitacao = self._setup_solicitacao(escola)
+
+        self._setup_kit_lanche(escola, date(2025, 5, 15))
+
+        serializer = SolicitacaoMedicaoInicialCreateSerializer()
+        serializer.cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei(
+            solicitacao
+        )
+
+        medicao = solicitacao.medicoes.get(grupo__nome="Solicitações de Alimentação")
+        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        valor = ValorMedicao.objects.filter(
+            medicao=medicao,
+            categoria_medicao=categoria,
+            dia="15",
+            nome_campo="kit_lanche",
+        ).first()
+
+        assert valor is not None
+        assert int(valor.valor) > 0
