@@ -1310,3 +1310,45 @@ def solicitacao_alteracao_cronograma_com_ficha(
     solicitacao.programacoes_novas.set([prog])
 
     return solicitacao, ficha
+
+
+@pytest.fixture(
+    params=[
+        constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
+        constants.COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        constants.ADMINISTRADOR_CODAE_GABINETE,
+    ],
+    ids=[
+        "coordenador-dilog-logistica",
+        "coordenador-gestao-alimentacao",
+        "administrador-codae-gabinete",
+    ],
+)
+def usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda(request, django_user_model):
+    """Cria um usuário vinculado com um dos perfis autorizados a cadastrar categorias na página de Ajuda."""
+    perfil = baker.make(
+        "Perfil",
+        nome=request.param,
+        ativo=True,
+    )
+    codae = baker.make(
+        "Codae",
+        nome=f"CODAE - {request.param}",
+    )
+    usuario = django_user_model.objects.create_user(
+        username=f"{request.param.lower()}@sme.prefeitura.sp.gov.br",
+        email=f"{request.param.lower()}@sme.prefeitura.sp.gov.br",
+        password=constants.DJANGO_ADMIN_PASSWORD,
+        registro_funcional=fake.numerify("#######"),
+    )
+
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=codae,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+
+    return usuario
