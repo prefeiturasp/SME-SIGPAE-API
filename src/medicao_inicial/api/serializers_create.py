@@ -1963,7 +1963,7 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    def _validar_grupo_cei(self, attrs, verifica_instancia=False):
+    def _validar_grupo_cei(self, attrs, verifica_instancia=True):
         errors = {}
 
         faixa_etaria = attrs.get("faixa_etaria")
