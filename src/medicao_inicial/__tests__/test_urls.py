@@ -129,6 +129,100 @@ def test_url_endpoint_cria_dias_sobremesa_doce_tipos_diferentes(
     assert DiaSobremesaDoce.objects.filter(tipo=tipo_af).count() == 1
 
 
+def test_url_endpoint_update_dia_sobremesa_doce(
+    client_autenticado_coordenador_codae,
+):
+    tipo_doce = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
+    tipo_af = baker.make("TipoSobremesaDoce", nome="Sobremesa AF")
+    create_data = {
+        "data": "2022-08-08",
+        "cadastros_calendario": [
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_doce.uuid),
+            },
+        ],
+    }
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/dias-sobremesa-doce/",
+        content_type="application/json",
+        data=create_data,
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    assert DiaSobremesaDoce.objects.count() == 1
+
+    registro = DiaSobremesaDoce.objects.first()
+    update_data = {
+        "data": "2022-08-08",
+        "cadastros_calendario": [
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_af.uuid),
+            },
+        ],
+    }
+    response = client_autenticado_coordenador_codae.put(
+        f"/medicao-inicial/dias-sobremesa-doce/{registro.uuid}/",
+        content_type="application/json",
+        data=update_data,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert DiaSobremesaDoce.objects.count() == 1
+    registro = DiaSobremesaDoce.objects.first()
+    assert registro.tipo == tipo_af
+
+
+def test_url_endpoint_update_dia_sobremesa_doce_adiciona_tipos(
+    client_autenticado_coordenador_codae,
+):
+    tipo_doce = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
+    tipo_af = baker.make("TipoSobremesaDoce", nome="Sobremesa AF")
+    create_data = {
+        "data": "2022-08-08",
+        "cadastros_calendario": [
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_doce.uuid),
+            },
+        ],
+    }
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/dias-sobremesa-doce/",
+        content_type="application/json",
+        data=create_data,
+    )
+    assert DiaSobremesaDoce.objects.count() == 1
+
+    registro = DiaSobremesaDoce.objects.first()
+    update_data = {
+        "data": "2022-08-08",
+        "cadastros_calendario": [
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_doce.uuid),
+            },
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_af.uuid),
+            },
+        ],
+    }
+    response = client_autenticado_coordenador_codae.patch(
+        f"/medicao-inicial/dias-sobremesa-doce/{registro.uuid}/",
+        content_type="application/json",
+        data=update_data,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert DiaSobremesaDoce.objects.count() == 2
+    assert DiaSobremesaDoce.objects.filter(tipo=tipo_doce).count() == 1
+    assert DiaSobremesaDoce.objects.filter(tipo=tipo_af).count() == 1
+
+
 def test_url_endpoint_list_dias_erro(client_autenticado_coordenador_codae):
     response = client_autenticado_coordenador_codae.get(
         "/medicao-inicial/dias-sobremesa-doce/lista-dias/?mes=8&ano=2022"

@@ -162,6 +162,12 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Cria ou atualiza dias de sobremesa doce."""
+        return self._save_dias_sobremesa(validated_data)
+
+    def update(self, instance, validated_data):
+        return self._save_dias_sobremesa(validated_data)
+
+    def _save_dias_sobremesa(self, validated_data):
         DiaSobremesaDoce.objects.filter(data=validated_data["data"]).delete()
         dia_sobremesa_doce = None
         for cadastro in validated_data["cadastros_calendario"]:
