@@ -597,6 +597,7 @@ class DescontoFinanceiroSerializer(serializers.ModelSerializer):
             "tipo_alimentacao",
             "faixa_etaria",
             "periodo_escolar",
+            "cei_ou_emei",
             "clausula_desconto",
             "quantidade",
             "criado_em",
