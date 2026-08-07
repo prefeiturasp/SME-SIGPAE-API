@@ -8,11 +8,13 @@ from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveMode
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from ....dados_comuns.permissions import (
     UsuarioCODAEGestaoAlimentacao,
     ViewSetActionPermissionMixin,
 )
+from src.escola.models import Escola
 from ..models import DiaLetivoSIGPAE
 from .filters import DiaLetivoFilter
 from .serializers import DiaLetivoSerializer, DiaLetivoDetailSerializer, DiaLetivoCalendarioSerializer
@@ -65,7 +67,21 @@ class DiaLetivoViewSet(
         return DiaLetivoCreateSerializer
 
     def filter_queryset(self, queryset):
-        if self.action in ("list", "calendario"):
+        if self.action == "calendario":
+            query_params = self.request.query_params.copy()
+            query_params.pop("escola", None)
+            filterset = self.filterset_class(
+                data=query_params,
+                queryset=queryset,
+                request=self.request,
+            )
+
+            if not filterset.is_valid():
+                raise DRFValidationError(filterset.errors)
+
+            return filterset.qs
+
+        if self.action == "list":
             return super().filter_queryset(queryset)
         return queryset
 
@@ -111,7 +127,35 @@ class DiaLetivoViewSet(
 
     @action(detail=False, methods=["get"])
     def calendario(self, request):
+        escola_uuid = request.query_params.get("escola")  # ✅ "escola"
+        periodo_escolar_param = request.query_params.get("periodo_escolar")
         queryset = self.filter_queryset(self.get_queryset())
+
+        if escola_uuid:
+            try:
+                escola = Escola.objects.get(uuid=escola_uuid)
+            except Escola.DoesNotExist:
+                return Response(
+                    {"detail": "Escola não encontrada."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            dias_com_escola = queryset.filter(escolas=escola)
+
+            if escola.lote and escola.tipo_unidade:
+                dias_sem_escola_qs = queryset.filter(
+                    escolas__isnull=True,
+                    lotes=escola.lote,
+                    tipos_unidade_escolar=escola.tipo_unidade,
+                )
+                if periodo_escolar_param:
+                    dias_sem_escola_qs = dias_sem_escola_qs.filter(
+                        periodos_escolares__nome__iexact=periodo_escolar_param
+                    )
+            else:
+                dias_sem_escola_qs = queryset.none()
+
+            queryset = (dias_com_escola | dias_sem_escola_qs).distinct()
 
         serializer = DiaLetivoCalendarioSerializer(queryset, many=True)
         return Response(serializer.data)
