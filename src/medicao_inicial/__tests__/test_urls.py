@@ -232,6 +232,75 @@ def test_url_endpoint_list_dias_erro(client_autenticado_coordenador_codae):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+def test_url_endpoint_lista_dias_filtro_tipo_padrao(
+    client_autenticado_coordenador_codae,
+):
+    tipo_doce = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
+    tipo_af = baker.make("TipoSobremesaDoce", nome="Sobremesa AF")
+    create_data = {
+        "data": "2022-08-08",
+        "cadastros_calendario": [
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_doce.uuid),
+            },
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_af.uuid),
+            },
+        ],
+    }
+    client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/dias-sobremesa-doce/",
+        content_type="application/json",
+        data=create_data,
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/dias-sobremesa-doce/lista-dias/?mes=8&ano=2022",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == ["2022-08-08"]
+
+
+def test_url_endpoint_lista_dias_filtro_tipo_af(
+    client_autenticado_coordenador_codae,
+):
+    tipo_doce = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
+    tipo_af = baker.make("TipoSobremesaDoce", nome="Sobremesa AF")
+    create_data = {
+        "data": "2022-08-10",
+        "cadastros_calendario": [
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_doce.uuid),
+            },
+            {
+                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
+                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
+                "tipo": str(tipo_af.uuid),
+            },
+        ],
+    }
+    client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/dias-sobremesa-doce/",
+        content_type="application/json",
+        data=create_data,
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/dias-sobremesa-doce/lista-dias/"
+        "?mes=8&ano=2022&tipo=Sobremesa+AF",
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == ["2022-08-10"]
+
+
 def test_url_endpoint_lanches_emergenciais_diarios(
     client_autenticado_coordenador_codae, escola, escola_emei
 ):
