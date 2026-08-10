@@ -69,7 +69,7 @@ logger = logging.getLogger(__name__)
     retry_kwargs={"max_retries": 8},
 )
 def cria_solicitacao_medicao_inicial_mes_atual():
-    data_hoje = datetime.date(2026, 7, 1)
+    data_hoje = datetime.date.today()
     data_mes_anterior = data_hoje + relativedelta(months=-1)
 
     for escola in Escola.objects.all():
