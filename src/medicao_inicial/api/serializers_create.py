@@ -162,6 +162,12 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Cria ou atualiza dias de sobremesa doce."""
+        return self._save_dias_sobremesa(validated_data)
+
+    def update(self, instance, validated_data):
+        return self._save_dias_sobremesa(validated_data)
+
+    def _save_dias_sobremesa(self, validated_data):
         DiaSobremesaDoce.objects.filter(data=validated_data["data"]).delete()
         dia_sobremesa_doce = None
         for cadastro in validated_data["cadastros_calendario"]:
@@ -1969,6 +1975,7 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             "tipo_alimentacao",
             "faixa_etaria",
             "periodo_escolar",
+            "cei_ou_emei",
             "clausula_desconto",
             "quantidade",
             "criado_em",
@@ -1989,21 +1996,34 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
 
         if "GRUPO 1" in grupo_nome:
             self._validar_grupo_cei(attrs)
-        elif "GRUPO 2" not in grupo_nome:
+
+        elif "GRUPO 2" in grupo_nome:
+            cei_ou_emei = attrs.get("cei_ou_emei")
+            if not cei_ou_emei or cei_ou_emei == "N/A":
+                raise serializers.ValidationError({
+                    "cei_ou_emei": "Campo obrigatório para o grupo."
+                })
+
+            if cei_ou_emei == "CEI":
+                self._validar_grupo_cei(attrs, False)
+            else:
+                self._validar_grupo_emei(attrs, False)
+
+        else:
             self._validar_grupo_emei(attrs)
 
         return attrs
 
-    def _validar_grupo_cei(self, attrs):
+    def _validar_grupo_cei(self, attrs, verifica_instancia=True):
         errors = {}
 
-        faixa_etaria = attrs.get("faixa_etaria") or getattr(
-            self.instance, "faixa_etaria", None
-        )
+        faixa_etaria = attrs.get("faixa_etaria")
+        if faixa_etaria is None and verifica_instancia:
+            faixa_etaria = getattr(self.instance, "faixa_etaria", None)
 
-        periodo_escolar = attrs.get("periodo_escolar") or getattr(
-            self.instance, "periodo_escolar", None
-        )
+        periodo_escolar = attrs.get("periodo_escolar")
+        if periodo_escolar is None and verifica_instancia:
+            periodo_escolar = getattr(self.instance, "periodo_escolar", None)
 
         if not faixa_etaria:
             errors["faixa_etaria"] = "Campo obrigatório para o grupo."
@@ -2014,10 +2034,10 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         if errors:
             raise serializers.ValidationError(errors)
 
-    def _validar_grupo_emei(self, attrs):
-        faixa_etaria = attrs.get("faixa_etaria") or getattr(
-            self.instance, "faixa_etaria", None
-        )
+    def _validar_grupo_emei(self, attrs, verifica_instancia=True):
+        faixa_etaria = attrs.get("faixa_etaria")
+        if faixa_etaria is None and verifica_instancia:
+            faixa_etaria = getattr(self.instance, "faixa_etaria", None)
 
         errors = {}
         if faixa_etaria:

@@ -601,3 +601,106 @@ def test_calendario_dias_letivos_filtro_ano_obrigatorio(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "ano" in response.json()
+
+
+def test_calendario_dias_letivos_retorna_dias_da_escola_e_dias_gerais_do_lote_e_tipo_unidade(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    lote = baker.make(Lote)
+    outro_lote = baker.make(Lote)
+
+    tipo_unidade = baker.make(TipoUnidadeEscolar)
+    outro_tipo_unidade = baker.make(TipoUnidadeEscolar)
+
+    escola_consultada = baker.make(
+        Escola,
+        lote=lote,
+        tipo_unidade=tipo_unidade,
+    )
+    outra_escola = baker.make(
+        Escola,
+        lote=lote,
+        tipo_unidade=tipo_unidade,
+    )
+
+    periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
+    periodo_integral = baker.make(PeriodoEscolar, nome="INTEGRAL")
+
+    # Deve ser retornado: dia letivo vinculado diretamente à escola consultada.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 4),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[escola_consultada],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Deve ser retornado: não possui escola vinculada, mas pertence ao mesmo
+    # lote e tipo de unidade da escola consultada.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 5),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: dia vinculado a outra escola.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 6),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[outra_escola],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: sem escola, mas pertence a outro lote.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 7),
+        lotes=[outro_lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: sem escola, mas pertence a outro tipo de unidade.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 8),
+        lotes=[lote],
+        tipos_unidade_escolar=[outro_tipo_unidade],
+        escolas=[],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: mesmo lote e tipo, mas outro período escolar.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 9),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[],
+        periodos_escolares=[periodo_integral],
+    )
+
+    response = client.get(
+        "/dias-letivos/calendario/",
+        {
+            "mes": 6,
+            "ano": 2026,
+            "escola": str(escola_consultada.uuid),
+            "periodo_escolar": "MANHA",
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            "data": "04/06/2026",
+            "periodos_escolares": ["MANHA"],
+        },
+        {
+            "data": "05/06/2026",
+            "periodos_escolares": ["MANHA"],
+        },
+    ]

@@ -1,5 +1,24 @@
 /// <reference types='cypress' />
 
+Cypress.Commands.add(
+	'consultar_dashboard_produtos',
+	({ page = 1, pageSize = 10, usuario, senha } = {}) => {
+		const request = {
+			method: 'GET',
+			url: Cypress.config('baseUrl') + 'api/dashboard-produtos/',
+			qs: { page, page_size: pageSize },
+			timeout: 120000,
+			failOnStatusCode: false,
+		}
+
+		if (usuario && senha) {
+			request.auth = { username: usuario, password: senha }
+		}
+
+		cy.request(request)
+	},
+)
+
 Cypress.Commands.add('consultar_aguardando_analise_reclamacao', () => {
 	cy.request({
 		method: 'GET',
