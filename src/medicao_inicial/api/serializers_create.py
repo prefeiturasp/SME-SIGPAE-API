@@ -1977,6 +1977,7 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             "periodo_escolar",
             "cei_ou_emei",
             "clausula_desconto",
+            "infantil_ou_fundamental",
             "quantidade",
             "criado_em",
             "alterado_em",
@@ -1994,20 +1995,14 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             getattr(relatorio.grupo_unidade_escolar, "nome", "") or ""
         ).upper()
 
-        if "GRUPO 1" in grupo_nome:
+        if "GRUPO 1" == grupo_nome:
             self._validar_grupo_cei(attrs)
 
-        elif "GRUPO 2" in grupo_nome:
-            cei_ou_emei = attrs.get("cei_ou_emei")
-            if not cei_ou_emei or cei_ou_emei == "N/A":
-                raise serializers.ValidationError({
-                    "cei_ou_emei": "Campo obrigatório para o grupo."
-                })
+        elif "GRUPO 2" == grupo_nome:
+            self._validar_grupo_cemei(attrs)
 
-            if cei_ou_emei == "CEI":
-                self._validar_grupo_cei(attrs, False)
-            else:
-                self._validar_grupo_emei(attrs, False)
+        elif "GRUPO 5" == grupo_nome:
+            self._validar_grupo_emebs(attrs)
 
         else:
             self._validar_grupo_emei(attrs)
@@ -2047,3 +2042,23 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
 
         if errors:
             raise serializers.ValidationError(errors)
+
+    def _validar_grupo_cemei(self, attrs):
+        cei_ou_emei = attrs.get("cei_ou_emei")
+        if not cei_ou_emei or cei_ou_emei == "N/A":
+            raise serializers.ValidationError({
+                "cei_ou_emei": "Campo obrigatório para o grupo."
+            })
+
+        if cei_ou_emei == "CEI":
+            self._validar_grupo_cei(attrs, False)
+        else:
+            self._validar_grupo_emei(attrs, False)
+
+    def _validar_grupo_emebs(self, attrs):
+        infantil_ou_fundamental = attrs.get("infantil_ou_fundamental")
+        if not infantil_ou_fundamental or infantil_ou_fundamental == "N/A":
+            raise serializers.ValidationError({
+                "infantil_ou_fundamental": "Campo obrigatório para o grupo."
+            })
+        self._validar_grupo_emei(attrs)
