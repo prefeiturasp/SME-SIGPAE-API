@@ -7,6 +7,7 @@ from uuid import UUID
 from celery import shared_task
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
+from django.db import transaction
 from pypdf import PdfWriter
 
 from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
@@ -68,37 +69,51 @@ logger = logging.getLogger(__name__)
     retry_kwargs={"max_retries": 8},
 )
 def cria_solicitacao_medicao_inicial_mes_atual():
-    data_hoje = datetime.date.today()
+    data_hoje = datetime.date(2026, 7, 1)
     data_mes_anterior = data_hoje + relativedelta(months=-1)
 
     for escola in Escola.objects.all():
         if not escola.lote or not escola.lote.terceirizada:
             continue
 
-        if not solicitacao_medicao_atual_existe(escola, data_hoje):
-            try:
-                solicitacao_mes_anterior = buscar_solicitacao_mes_anterior(
-                    escola, data_mes_anterior
-                )
-                solicitacao_atual = criar_nova_solicitacao(
-                    solicitacao_mes_anterior, escola, data_hoje
-                )
-                copiar_responsaveis(solicitacao_mes_anterior, solicitacao_atual)
+        try:
+            _processa_escola(escola, data_hoje, data_mes_anterior)
+        except SolicitacaoMedicaoInicial.DoesNotExist:
+            logger.info(
+                "x-x-x-x Não existe Solicitação de Medição Inicial para a escola "
+                f"{escola.nome} no mês anterior ({data_mes_anterior.month:02d}/"
+                f"{data_mes_anterior.year}) x-x-x-x"
+            )
 
-                if solicitacao_atual.ue_possui_alunos_periodo_parcial:
-                    copiar_alunos_periodo_parcial(
-                        solicitacao_mes_anterior, solicitacao_atual
-                    )
-                usuario_admin = Usuario.objects.get(email="system@admin.com")
-                solicitacao_atual.inicia_fluxo(user=usuario_admin)
 
-            except SolicitacaoMedicaoInicial.DoesNotExist:
-                message = (
-                    "x-x-x-x Não existe Solicitação de Medição Inicial para a escola "
-                    f"{escola.nome} no mês anterior ({data_mes_anterior.month:02d}/"
-                    f"{data_mes_anterior.year}) x-x-x-x"
-                )
-                logger.info(message)
+def _processa_escola(escola, data_hoje, data_mes_anterior):
+    """Processa uma escola dentro de uma transação atômica."""
+    with transaction.atomic():
+        escola_locked = (
+            Escola.objects.select_for_update(skip_locked=True)
+            .filter(pk=escola.pk)
+            .first()
+        )
+        if not escola_locked:
+            logger.info(f"Escola {escola.nome} sendo processada por outro worker. Pulando.")
+            return
+
+        if solicitacao_medicao_atual_existe(escola_locked, data_hoje):
+            return
+
+        solicitacao_mes_anterior = buscar_solicitacao_mes_anterior(
+            escola_locked, data_mes_anterior
+        )
+        solicitacao_atual = criar_nova_solicitacao(
+            solicitacao_mes_anterior, escola_locked, data_hoje
+        )
+        copiar_responsaveis(solicitacao_mes_anterior, solicitacao_atual)
+
+        if solicitacao_atual.ue_possui_alunos_periodo_parcial:
+            copiar_alunos_periodo_parcial(solicitacao_mes_anterior, solicitacao_atual)
+
+        usuario_admin = Usuario.objects.get(email="system@admin.com")
+        solicitacao_atual.inicia_fluxo(user=usuario_admin)
 
 
 def solicitacao_medicao_atual_existe(escola, data):
