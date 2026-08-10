@@ -291,8 +291,25 @@ class DiaSobremesaDoceViewSet(ViewSetActionPermissionMixin, ModelViewSet):
 
     @action(detail=False, methods=["GET"], url_path="lista-dias")
     def lista_dias(self, request):
+        """Retorna os dias de sobremesa doce.
+
+        Query Parameters:
+            mes (int): Mês de referência.
+            ano (int): Ano de referência.
+            tipo (str, optional): Nome do tipo de sobremesa doce para filtrar.
+                Caso não informado, o filtro padrão é ``"Sobremesa Doce"``.
+
+        Returns:
+            Response: Lista de datas distintas no formato ISO 8601.
+
+        Raises:
+            Escola.DoesNotExist: Se o ``escola_uuid`` informado não existir.
+        """
         try:
-            lista_dias = self.get_queryset().values_list("data", flat=True).distinct()
+            queryset = self.get_queryset()
+            tipo_nome = request.query_params.get("tipo", "Sobremesa Doce")
+            queryset = queryset.filter(tipo__nome=tipo_nome)
+            lista_dias = queryset.values_list("data", flat=True).distinct()
             return Response(lista_dias, status=status.HTTP_200_OK)
         except Escola.DoesNotExist as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
