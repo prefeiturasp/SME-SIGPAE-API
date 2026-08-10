@@ -72,6 +72,9 @@ def cria_solicitacao_medicao_inicial_mes_atual():
     data_mes_anterior = data_hoje + relativedelta(months=-1)
 
     for escola in Escola.objects.all():
+        if not escola.lote or not escola.lote.terceirizada:
+            continue
+
         if not solicitacao_medicao_atual_existe(escola, data_hoje):
             try:
                 solicitacao_mes_anterior = buscar_solicitacao_mes_anterior(
