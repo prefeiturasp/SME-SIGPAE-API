@@ -4084,10 +4084,17 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         self._salva_rastro_solicitacao()
         user = kwargs["user"]
         if user:
-            self.salvar_log_transicao(
+            ja_existe_log = LogSolicitacoesUsuario.objects.filter(
+                uuid_original=self.uuid,
                 status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
-                usuario=user,
-            )
+                solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+            ).exists()
+
+            if not ja_existe_log:
+                self.salvar_log_transicao(
+                    status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+                    usuario=user,
+                )
 
     @xworkflows.after_transition("ue_envia")
     def _ue_envia_hook(self, *args, **kwargs):
