@@ -55,3 +55,21 @@ def test_inicio_fluxo_comum_usa_status_normal(
     logs = LogSolicitacoesUsuario.objects.filter(uuid_original=solicitacao.uuid)
     print(logs)
     assert logs[0].status_evento == LogSolicitacoesUsuario.CODAE_AUTORIZOU
+
+
+def test_inicia_fluxo_hook_nao_duplica_log(
+    solicitacao_medicao_inicial,
+    usuario_admin,
+):
+    usuario = usuario_admin
+
+    solicitacao_medicao_inicial._inicia_fluxo_hook(user=usuario)
+    solicitacao_medicao_inicial._inicia_fluxo_hook(user=usuario)
+
+    logs = LogSolicitacoesUsuario.objects.filter(
+        uuid_original=solicitacao_medicao_inicial.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+    )
+
+    assert logs.count() == 1
