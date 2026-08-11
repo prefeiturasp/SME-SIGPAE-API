@@ -217,3 +217,70 @@ def test_desconto_financeiro_serializer_grupo_cemei(
     assert instance_updated.tipo_alimentacao == tipo_alimentacao_refeicao
     assert instance_updated.faixa_etaria is None
     assert instance_updated.periodo_escolar is None
+
+
+@pytest.mark.django_db
+def test_desconto_financeiro_grupo_emebs_campos_obrigatorios(
+    relatorio_financeiro_emebs,
+    escola_emebs,
+    clausula_desconto,
+):
+    payload = {
+        "relatorio_financeiro_id": str(relatorio_financeiro_emebs.uuid),
+        "unidades_educacionais": [str(escola_emebs.uuid)],
+        "tipo_lancamento": "DIETAS_TIPO_A",
+        "clausula_desconto": str(clausula_desconto.uuid),
+        "quantidade": 1,
+    }
+
+    serializer = DescontoFinanceiroUpdateSerializer(data=payload)
+
+    assert not serializer.is_valid()
+
+    assert "infantil_ou_fundamental" in serializer.errors
+    assert serializer.errors["infantil_ou_fundamental"][0] == "Campo obrigatório para o grupo."
+
+
+@pytest.mark.django_db
+def test_desconto_financeiro_serializer_grupo_emebs(
+    relatorio_financeiro_emebs,
+    escola_emebs,
+    tipo_alimentacao_refeicao,
+    clausula_desconto,
+):
+    payload_create = {
+        "relatorio_financeiro_id": str(relatorio_financeiro_emebs.uuid),
+        "unidades_educacionais": [str(escola_emebs.uuid)],
+        "tipo_lancamento": "DIETAS_TIPO_A",
+        "tipo_alimentacao": str(tipo_alimentacao_refeicao.uuid),
+        "clausula_desconto": str(clausula_desconto.uuid),
+        "quantidade": 11,
+        "infantil_ou_fundamental": "INFANTIL"
+    }
+
+    serializer = DescontoFinanceiroUpdateSerializer(data=payload_create)
+    assert serializer.is_valid(), serializer.errors
+
+    instance_created = serializer.save()
+
+    assert instance_created.tipo_lancamento == "DIETAS_TIPO_A"
+    assert instance_created.infantil_ou_fundamental == "INFANTIL"
+    assert instance_created.tipo_alimentacao == tipo_alimentacao_refeicao
+
+    payload_update = {
+        "infantil_ou_fundamental": "FUNDAMENTAL",
+        "faixa_etaria": None,
+        "periodo_escolar": None,
+    }
+
+    serializer = DescontoFinanceiroUpdateSerializer(
+        instance=instance_created,
+        data=payload_update,
+        partial=True,
+    )
+    assert serializer.is_valid(), serializer.errors
+
+    instance_updated = serializer.save()
+
+    assert instance_updated.infantil_ou_fundamental == "FUNDAMENTAL"
+    assert instance_updated.tipo_alimentacao == tipo_alimentacao_refeicao
