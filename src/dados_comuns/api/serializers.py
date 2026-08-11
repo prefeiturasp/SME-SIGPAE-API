@@ -215,7 +215,7 @@ class CategoriaPerguntaFrequenteSerializer(serializers.ModelSerializer):
         if categoria_duplicada:
             if self.instance:
                 mensagem = (
-                    "Não é possível atualizar a categoria, pois já existe uma "
+                    "Não é possível cadastrar a categoria, pois já existe uma "
                     "categoria com esse nome. Altere o nome informado e tente novamente."
                 )
             else:
