@@ -29,6 +29,9 @@ from src.pre_recebimento.cronograma_entrega.models import (
     EtapasDoCronograma,
     InterrupcaoProgramadaEntrega,
 )
+from src.pre_recebimento.ficha_tecnica.api.relatorio_fichas_tecnicas_excel import (
+    gera_relatorio_fichas_tecnicas_xlsx,
+)
 from src.relatorios.utils import html_to_pdf_file
 
 logger = logging.getLogger(__name__)
@@ -227,8 +230,32 @@ def gerar_relatorio_cronogramas_pdf_async(user, ids_cronogramas, filtros=None):
 
     finally:
         logger.info(
-            "x-x-x-x Finaliza a geração do arquivo relatorio_cronogramas.xlsx x-x-x-x"
+            "x-x-x-x Finaliza a geração do arquivo relatorio_cronogramas.pdf x-x-x-x"
         )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def exporta_relatorio_fichas_tecnicas_xlsx(user, nome_arquivo, fichas_ids):
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
+
+    obj_central_download = gera_objeto_na_central_download(
+        user=user,
+        identificador=nome_arquivo,
+    )
+
+    try:
+        arquivo = gera_relatorio_fichas_tecnicas_xlsx(fichas_ids)
+        atualiza_central_download(obj_central_download, nome_arquivo, arquivo)
+    except Exception as e:
+        atualiza_central_download_com_erro(obj_central_download, str(e))
+        logger.error(f"Erro ao gerar relatório de fichas técnicas: {e}")
+
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
 
 
 def _criar_linha_base_excel(cronograma, etapa):

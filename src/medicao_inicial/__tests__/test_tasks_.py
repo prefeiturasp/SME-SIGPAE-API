@@ -41,27 +41,48 @@ from src.terceirizada.models import Terceirizada
 
 
 class CriaSolicitacaoMedicaoInicialMesAtualTest(TestCase):
+    @patch("src.medicao_inicial.tasks.Escola.objects.select_for_update")
     @patch("src.medicao_inicial.tasks.Escola.objects.all")
     @patch("src.medicao_inicial.tasks.SolicitacaoMedicaoInicial.objects.filter")
     @patch("src.medicao_inicial.tasks.SolicitacaoMedicaoInicial.objects.get")
     @patch("src.medicao_inicial.tasks.SolicitacaoMedicaoInicial.objects.create")
     @patch("src.medicao_inicial.tasks.logger.info")
     def test_cria_solicitacao_medicao_inicial_mes_atual(
-        self, mock_logger_info, mock_create, mock_get, mock_filter, mock_all
+        self,
+        mock_logger_info,
+        mock_create,
+        mock_get,
+        mock_filter,
+        mock_all,
+        mock_select_for_update,
     ):
         data_hoje = datetime.date.today()
         data_mes_anterior = data_hoje + relativedelta(months=-1)
+
         escola_nome_mock = "escola1"
-        mock_all.return_value = [Mock(nome=escola_nome_mock)]
+
+        lote_mock = Mock(terceirizada=True)
+        escola_mock = Mock(
+            nome=escola_nome_mock,
+            pk=1,
+            lote=lote_mock,
+        )
+
+        mock_all.return_value = [escola_mock]
+
+        mock_select_for_update.return_value.filter.return_value.first.return_value = escola_mock
+
         mock_filter.return_value.exists.return_value = False
         mock_get.side_effect = SolicitacaoMedicaoInicial.DoesNotExist
 
         cria_solicitacao_medicao_inicial_mes_atual()
 
         message = (
-            f"x-x-x-x Não existe Solicitação de Medição Inicial para a escola {escola_nome_mock} no "
-            f"mês anterior ({data_mes_anterior.month:02d}/{data_mes_anterior.year}) x-x-x-x"
+            f"x-x-x-x Não existe Solicitação de Medição Inicial para a escola "
+            f"{escola_nome_mock} no mês anterior "
+            f"({data_mes_anterior.month:02d}/{data_mes_anterior.year}) x-x-x-x"
         )
+
         mock_logger_info.assert_called_with(message)
 
 

@@ -2,9 +2,8 @@ import datetime
 import json
 from calendar import monthrange
 
-from django.db.models import Q
-
 import environ
+from django.db.models import Q
 from rest_framework import serializers
 
 from src.dados_comuns.api.serializers import (
@@ -31,8 +30,8 @@ from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
-    DescontoFinanceiro,
     DadosLiquidacao,
+    DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -47,6 +46,7 @@ from src.medicao_inicial.models import (
     Responsavel,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     ValorMedicao,
 )
 from src.medicao_inicial.recreio_nas_ferias.api.serializers import (
@@ -66,6 +66,12 @@ from ..utils import (
 FORMATO_DATA_BR = "%d/%m/%Y"
 
 
+class TipoSobremesaDoceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoSobremesaDoce
+        fields = ("uuid", "nome")
+
+
 class DiaSobremesaDoceSerializer(serializers.ModelSerializer):
     tipo_unidade = TipoUnidadeEscolarSimplesSerializer()
     criado_por = serializers.SerializerMethodField()
@@ -73,6 +79,7 @@ class DiaSobremesaDoceSerializer(serializers.ModelSerializer):
         slug_field="uuid", queryset=Edital.objects.all()
     )
     edital_numero = serializers.CharField(source="edital.numero")
+    tipo = TipoSobremesaDoceSerializer()
 
     def get_criado_por(self, obj):
         return {"nome": obj.criado_por.nome}
@@ -590,6 +597,8 @@ class DescontoFinanceiroSerializer(serializers.ModelSerializer):
             "tipo_alimentacao",
             "faixa_etaria",
             "periodo_escolar",
+            "cei_ou_emei",
+            "infantil_ou_fundamental",
             "clausula_desconto",
             "quantidade",
             "criado_em",

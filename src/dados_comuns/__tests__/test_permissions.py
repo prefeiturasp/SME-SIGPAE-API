@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock
-
+import datetime
+from django.contrib.auth.models import AnonymousUser
+from model_bakery import baker
 import pytest
-
 from src.dados_comuns.permissions import (
     PermissaoHistoricoDietasEspeciais,
     PermissaoParaAnalisarDilogAbastecimentoSolicitacaoAlteracaoCronograma,
@@ -15,6 +16,7 @@ from src.dados_comuns.permissions import (
     PermissaoRelatorioRecreioNasFerias,
     UsuarioAdministradorContratos,
     UsuarioDilogAbastecimento,
+    PermissaoParaGerenciarCategoriasPerguntaFrequente,
 )
 
 pytestmark = pytest.mark.django_db
@@ -153,4 +155,32 @@ def test_usuario_permissao_historico_dietas_especiais_sem_permissao(
 
     request.user = user_admin_contratos
     permissao = PermissaoRelatorioRecreioNasFerias()
+    assert not permissao.has_permission(request, None)
+
+
+def test_usuario_com_perfil_autorizado_pode_gerenciar_categorias(
+    usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda,
+):
+    request = MagicMock()
+    request.user = usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda
+    permissao = PermissaoParaGerenciarCategoriasPerguntaFrequente()
+
+    assert permissao.has_permission(request, None)
+
+
+def test_usuario_codae_com_perfil_nao_autorizado_nao_pode_gerenciar_categorias(
+    usuario_teste_notificacao_autenticado,
+):
+    usuario, _ = usuario_teste_notificacao_autenticado
+    request = MagicMock()
+    request.user = usuario
+    permissao = PermissaoParaGerenciarCategoriasPerguntaFrequente()
+
+    assert not permissao.has_permission(request, None)
+
+def test_usuario_nao_autenticado_nao_pode_gerenciar_categorias():
+    request = MagicMock()
+    request.user = AnonymousUser()
+    permissao = PermissaoParaGerenciarCategoriasPerguntaFrequente()
+
     assert not permissao.has_permission(request, None)
