@@ -139,7 +139,8 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 					expect(responseLista.body.results).to.be.an('array').and.not.to.be.empty
 
 					const conferencia = responseLista.body.results.find(
-						(item) => item.guia.situacao === 'ATIVA',
+						(item) =>
+							item.guia.situacao === 'ATIVA' && item.guia.status === 'Recebida',
 					)
 					expect(conferencia).to.exist
 
@@ -227,7 +228,8 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 					expect(responseLista.status).to.eq(200)
 
 					const conferencia = responseLista.body.results.find(
-						(item) => item.guia.situacao === 'ATIVA',
+						(item) =>
+							item.guia.situacao === 'ATIVA' && item.guia.status === 'Recebida',
 					)
 					expect(conferencia).to.exist
 
