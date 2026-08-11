@@ -202,7 +202,7 @@ class ConfiguracaoEmailViewSet(ModelViewSet):
 
 class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
     lookup_field = "uuid"
-    queryset = CategoriaPerguntaFrequente.objects.all()
+    queryset = CategoriaPerguntaFrequente.objects.all().order_by("id")
     pagination_class = CustomPagination
     
     def get_serializer_class(self):
