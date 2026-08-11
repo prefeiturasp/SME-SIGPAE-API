@@ -204,7 +204,7 @@ class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
     lookup_field = "uuid"
     queryset = CategoriaPerguntaFrequente.objects.all().order_by("id")
     pagination_class = CustomPagination
-    
+
     def get_serializer_class(self):
         if self.action == "perguntas_por_categoria":
             return ConsultaPerguntasFrequentesSerializer
