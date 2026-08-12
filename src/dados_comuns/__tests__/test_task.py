@@ -1,7 +1,10 @@
+from unittest.mock import patch
+
 from freezegun import freeze_time
 
-from src.dados_comuns.models import SolicitacaoAberta
+from src.dados_comuns.models import SolicitacaoAberta, VersaoSistema
 from src.dados_comuns.tasks import (
+    atualiza_versao_sistema,
     deleta_logs_duplicados_e_cria_logs_caso_nao_existam,
     deleta_solicitacoes_abertas,
     envia_email_em_massa_task,
@@ -108,3 +111,21 @@ def test_deleta_logs_duplicados_e_cria_logs_caso_nao_existam(
         if log.escola.tipo_unidade.iniciais == "CEMEI"
     ]
     assert len(logs_dietas_cemei) == 5
+
+
+@patch("src.dados_comuns.tasks.obter_versao_api")
+def test_atualiza_versao_sistema_sucesso(mock_obter_versao):
+    mock_obter_versao.return_value = "3.2.1"
+    resultado = atualiza_versao_sistema()
+    assert resultado == "3.2.1"
+    assert VersaoSistema.objects.get().versao == "3.2.1"
+
+
+@patch("src.dados_comuns.tasks.obter_versao_api")
+def test_atualiza_versao_sistema_falha_github(mock_obter_versao):
+    VersaoSistema.objects.get().versao = "2.71.5"
+    VersaoSistema.objects.get().save()
+    mock_obter_versao.return_value = None
+    resultado = atualiza_versao_sistema()
+    assert resultado is None
+    assert VersaoSistema.objects.get().versao == "2.71.5"

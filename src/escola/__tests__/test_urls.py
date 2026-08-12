@@ -13,6 +13,7 @@ ENDPOINT_ALUNOS_POR_PERIODO = "quantidade-alunos-por-periodo"
 ENDPOINT_LOTES = "lotes"
 ENDPOINT_LISTA_DIAS = "dias-suspensao-atividades/lista-dias"
 
+
 def test_url_endpoint_quantidade_alunos_por_periodo(client_autenticado, escola):
     response = client_autenticado.get(
         f"/{ENDPOINT_ALUNOS_POR_PERIODO}/escola/{escola.uuid}/"
@@ -214,6 +215,26 @@ def test_url_endpoint_get_foto_aluno_token_invalido(
     response = client_autenticado_da_escola.get(f"/alunos/{aluno.codigo_eol}/ver-foto/")
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json()["detail"] == "Não foi possível logar no sistema"
+
+
+def test_url_endpoint_get_foto_aluno_codae(
+    client_autenticado_coordenador_codae, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_foto_aluno",
+        lambda p1, p2: mocked_response(mocked_foto_aluno_novosgp(), 200),
+    )
+    response = client_autenticado_coordenador_codae.get(
+        f"/alunos/{aluno.codigo_eol}/ver-foto/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["data"] == mocked_foto_aluno_novosgp()
 
 
 def test_url_endpoint_update_foto_aluno(
@@ -921,7 +942,7 @@ ENDPOINT_LOTES_SIMPLES = "lotes-simples"
 def test_url_endpoint_lotes_simples_filtro_edital(
     client_autenticado, lote, diretoria_regional
 ):
-    from src.terceirizada.models import Edital, Contrato
+    from src.terceirizada.models import Contrato, Edital
 
     edital = baker.make(Edital, numero="Edital Teste")
     outro_lote = baker.make("Lote", nome="Outro Lote")

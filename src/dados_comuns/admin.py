@@ -8,6 +8,7 @@ from .models import (
     LogSolicitacoesUsuario,
     Notificacao,
     PerguntaFrequente,
+    VersaoSistema,
 )
 
 
@@ -32,3 +33,9 @@ admin.site.register(Endereco)
 admin.site.register(LogSolicitacoesUsuario)
 admin.site.register(Notificacao)
 admin.site.register(PerguntaFrequente)
+
+
+@admin.register(VersaoSistema)
+class VersaoSistemaAdmin(admin.ModelAdmin):
+    list_display = ("versao", "atualizada_em")
+    readonly_fields = ("atualizada_em",)

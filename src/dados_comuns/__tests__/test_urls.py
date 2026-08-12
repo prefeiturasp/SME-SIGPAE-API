@@ -1,6 +1,8 @@
 import datetime
 import json
+
 import pytest
+from django.core.cache import cache
 from faker import Faker
 from freezegun import freeze_time
 from model_bakery import baker
@@ -13,6 +15,7 @@ from ..models import (
     CentralDeDownload,
     Notificacao,
     PerguntaFrequente,
+    VersaoSistema,
 )
 
 fake = Faker("pt_BR")
@@ -539,6 +542,7 @@ def test_validacao_duplicidade_lanche_emergencial_caso_valido(
     )
     assert response.status_code == status.HTTP_201_CREATED
 
+
 def test_url_cria_categoria_pergunta_frequente(
     client_autenticado_coordenador_codae,
 ):
@@ -574,7 +578,10 @@ def test_url_nao_cria_categoria_pergunta_frequente_duplicada(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["nome"][0] == "Não é possível cadastrar a categoria, pois já existe uma categoria com esse nome. Altere o nome informado e tente novamente."
+    assert (
+        response.json()["nome"][0]
+        == "Não é possível cadastrar a categoria, pois já existe uma categoria com esse nome. Altere o nome informado e tente novamente."
+    )
     assert CategoriaPerguntaFrequente.objects.count() == 1
 
 
@@ -680,3 +687,25 @@ def test_url_usuario_sem_permissao_nao_exclui_categoria(
     assert CategoriaPerguntaFrequente.objects.filter(
         uuid=categoria.uuid,
     ).exists()
+
+
+def test_url_api_version_sucesso(client):
+    cache.clear()
+    versao = VersaoSistema.objects.get()
+    versao.versao = "2.5.1"
+    versao.save()
+    response = client.get("/api-version/")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"API_Version": "2.5.1"}
+
+
+def test_url_api_version_versao_vazia(client):
+    cache.clear()
+    versao = VersaoSistema.objects.get()
+    versao.versao = ""
+    versao.save()
+    response = client.get("/api-version/")
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "Não foi possível obter a última versão da API"
+    }
