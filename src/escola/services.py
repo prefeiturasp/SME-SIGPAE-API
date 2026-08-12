@@ -1,5 +1,7 @@
 import requests
 import sentry_sdk
+from django.core.cache import cache
+from django_redis import get_redis_connection
 from rest_framework import status
 
 from ..dados_comuns.constants import (
@@ -54,49 +56,131 @@ class NovoSGPServicoLogadoException(Exception):
 
 
 class NovoSGPServicoLogado:
-    headers = {"Content-Type": "application/json"}
+    TOKEN_CACHE_KEY = "novo_sgp:access_token"  # nosec B105
+    TOKEN_LOCK_KEY = "novo_sgp:access_token:lock"  # nosec B105
+
+    # Token do novo SGP tem validade de ~3h; renova a cada 2h20 para não expirar.
+    TOKEN_CACHE_TIMEOUT = 2 * 60 * 60 + 20 * 60
+
+    def __init__(self, login=None, senha=None):
+        self.login = login or DJANGO_NOVO_SGP_API_LOGIN
+        self.senha = senha or DJANGO_NOVO_SGP_API_PASSWORD
+
+        self.access_token = self._obter_token()
 
     def pegar_token_acesso(self, login=None, senha=None):
         data = {
-            "login": login or DJANGO_NOVO_SGP_API_LOGIN,
-            "senha": senha or DJANGO_NOVO_SGP_API_PASSWORD,
+            "login": login or self.login,
+            "senha": senha or self.senha,
         }
+
         try:
-            response = requests.post(
+            return requests.post(
                 f"{DJANGO_NOVO_SGP_API_URL}/v1/autenticacao",
                 json=data,
-                headers=self.headers,
+                headers={"Content-Type": "application/json"},
                 timeout=120,
             )
-            return response
         except Exception:
             raise NovoSGPServicoLogadoException(
-                "Não foi possível logar no sistema. Verifique seu RF e sua senha e tente novamente."
+                "Não foi possível logar no sistema. "
+                "Verifique seu RF e sua senha e tente novamente."
             )
 
-    def __init__(self, login=None, senha=None):
-        """Retorna um objeto para requisições no novosgp com token de acesso."""
-        response = self.pegar_token_acesso(login, senha)
+    def _obter_token(self):
+        token = cache.get(self.TOKEN_CACHE_KEY)
 
-        if response.status_code != status.HTTP_200_OK:
-            with sentry_sdk.push_scope() as scope:
-                scope.set_extra("status_code", response.status_code)
-                scope.set_extra("response_body", response.text)
+        if token:
+            return token
+
+        return self._renovar_token()
+
+    def _renovar_token(self):
+        redis = get_redis_connection("default")
+
+        lock = redis.lock(
+            self.TOKEN_LOCK_KEY,
+            timeout=30,
+            blocking_timeout=10,
+        )
+
+        with lock:
+            # IMPORTANTE:
+            # pode ser que outro worker tenha renovado o token
+            # enquanto este worker estava esperando o lock.
+            token = cache.get(self.TOKEN_CACHE_KEY)
+
+            if token:
+                return token
+
+            response = self.pegar_token_acesso()
+
+            if response.status_code != status.HTTP_200_OK:
+                self._registrar_erro_login(response)
+
+                raise NovoSGPServicoLogadoException("Não foi possível logar no sistema")
+
+            token = f'Bearer {response.json()["token"]}'
+
+            cache.set(
+                self.TOKEN_CACHE_KEY,
+                token,
+                timeout=self.TOKEN_CACHE_TIMEOUT,
+            )
+
+            return token
+
+    def _invalidar_token(self):
+        cache.delete(self.TOKEN_CACHE_KEY)
+
+    def _registrar_erro_login(self, response):
+        with sentry_sdk.push_scope() as scope:
+            scope.set_extra("status_code", response.status_code)
+            scope.set_extra("response_body", response.text)
+
+            if response.request:
                 scope.set_extra("url", response.request.url)
-                scope.set_extra(
-                    "request_body",
-                    {
-                        "login": login or DJANGO_NOVO_SGP_API_LOGIN,
-                    },
-                )
 
-                sentry_sdk.capture_exception(
-                    NovoSGPServicoLogadoException("Não foi possível logar no sistema")
-                )
+            scope.set_extra(
+                "request_body",
+                {
+                    "login": self.login,
+                },
+            )
 
-            raise NovoSGPServicoLogadoException("Não foi possível logar no sistema")
+            sentry_sdk.capture_exception(
+                NovoSGPServicoLogadoException("Não foi possível logar no sistema")
+            )
 
-        self.access_token = f'Bearer {response.json()["token"]}'
+    def _request(self, method, url, **kwargs):
+        headers = kwargs.pop("headers", {}).copy()
+        headers["Authorization"] = self.access_token
+
+        response = requests.request(
+            method,
+            url,
+            headers=headers,
+            timeout=120,
+            **kwargs,
+        )
+
+        if response.status_code != status.HTTP_401_UNAUTHORIZED:
+            return response
+
+        # Token expirou ou foi invalidado.
+        self._invalidar_token()
+
+        self.access_token = self._renovar_token()
+
+        headers["Authorization"] = self.access_token
+
+        return requests.request(
+            method,
+            url,
+            headers=headers,
+            timeout=120,
+            **kwargs,
+        )
 
     def pegar_foto_aluno(self, codigo_eol_aluno):
         """
@@ -115,30 +199,28 @@ class NovoSGPServicoLogado:
             }
         }
         """
-        self.headers["Authorization"] = self.access_token
-        response = requests.get(
-            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
-            headers=self.headers,
-            timeout=120,
+        return self._request(
+            "GET",
+            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/" f"{codigo_eol_aluno}/foto",
         )
-        return response
 
     def atualizar_foto_aluno(self, codigo_eol_aluno, foto):
-        headers = {"Authorization": self.access_token}
-        files = {"File": (foto.name, foto.file, foto.content_type)}
-        response = requests.post(
-            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
+        files = {
+            "File": (
+                foto.name,
+                foto.file,
+                foto.content_type,
+            )
+        }
+
+        return self._request(
+            "POST",
+            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/" f"{codigo_eol_aluno}/foto",
             files=files,
-            headers=headers,
-            timeout=120,
         )
-        return response
 
     def deletar_foto_aluno(self, codigo_eol_aluno):
-        self.headers["Authorization"] = self.access_token
-        response = requests.delete(
-            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
-            headers=self.headers,
-            timeout=120,
+        return self._request(
+            "DELETE",
+            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/" f"{codigo_eol_aluno}/foto",
         )
-        return response
