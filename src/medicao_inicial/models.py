@@ -29,7 +29,7 @@ from ..dados_comuns.fluxo_status import (
     FluxoSolicitacaoMedicaoInicial,
     LogSolicitacoesUsuario,
 )
-from ..escola.constants import INFANTIL_OU_FUNDAMENTAL
+from ..escola.constants import INFANTIL_OU_FUNDAMENTAL, CEI_OU_EMEI
 from ..escola.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
@@ -40,7 +40,20 @@ GRUPO_RECREIO_NAS_FERIAS = "Recreio nas Férias"
 GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
 
 
+class TipoSobremesaDoce(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel, Ativavel):
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Tipo de Sobremesa Doce"
+        verbose_name_plural = "Tipos de Sobremesa Doce"
+
+
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
+    tipo = models.ForeignKey(
+        TipoSobremesaDoce, on_delete=models.PROTECT, blank=True, null=True
+    )
     tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
     edital = models.ForeignKey(Edital, on_delete=models.CASCADE, blank=True, null=True)
 
@@ -62,6 +75,7 @@ class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
             "tipo_unidade",
             "data",
             "edital",
+            "tipo",
         )
         ordering = ("data",)
 
@@ -1154,6 +1168,14 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="descontos_financeiros",
         null=True,
         blank=True,
+    )
+    cei_ou_emei = models.CharField(
+        max_length=4,
+        choices=CEI_OU_EMEI,
+        default="N/A"
+    )
+    infantil_ou_fundamental = models.CharField(
+        max_length=11, choices=INFANTIL_OU_FUNDAMENTAL, default="N/A"
     )
     clausula_desconto = models.ForeignKey(
         ClausulaDeDesconto,

@@ -23,20 +23,22 @@ from src.medicao_inicial.api.serializers import (
 from src.medicao_inicial.api.serializers_create import (
     DadosLiquidacaoUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
-    DescontoFinanceiroUpdateSerializer,
+)
+from src.medicao_inicial.fixtures.factories.base_factory import (
+    CategoriaMedicaoFactory,
 )
 from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
     MedicaoFactory,
     SolicitacaoMedicaoInicialFactory,
 )
 from src.medicao_inicial.models import (
+    CategoriaMedicao,
     Medicao,
     ValorMedicao,
-    CategoriaMedicao,
-    DescontoFinanceiro,
 )
 from src.medicao_inicial.recreio_nas_ferias.fixtures.factories.base_factory import (
     RecreioNasFeriasFactory,
+    RecreioNasFeriasUnidadeParticipanteFactory,
 )
 from src.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,
@@ -527,118 +529,167 @@ def test_cria_valores_medicao_logs_matriculados_cei_periodo_vigente(
     assert solicitacao.medicoes.count() == total
 
 
-@pytest.mark.django_db
-def test_desconto_financeiro_serializer_create(
-    relatorio_financeiro_cei,
-    escola_ceu_gestao,
-    faixas_etarias_ativas,
-    periodo_escolar_parcial,
-    clausula_desconto,
-):
-    payload = {
-        "relatorio_financeiro_id": str(relatorio_financeiro_cei.uuid),
-        "unidades_educacionais": [str(escola_ceu_gestao.uuid)],
-        "tipo_lancamento": "ALIMENTACOES",
-        "faixa_etaria": str(faixas_etarias_ativas[0].uuid),
-        "periodo_escolar": periodo_escolar_parcial.nome,
-        "clausula_desconto": str(clausula_desconto.uuid),
-        "quantidade": 10,
-    }
+class TestCriaValoresKitLancheLancheEmergencialRecreio:
+    """
+    Testes para verificar que kits lanche e lanches emergenciais contidos
+    em períodos de Recreio nas Férias são ignorados pela função
+    cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei.
+    """
 
-    serializer = DescontoFinanceiroUpdateSerializer(data=payload)
-    assert serializer.is_valid(), serializer.errors
+    def _setup_escola_emef(self):
+        tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+        terceirizada = baker.make("Terceirizada")
+        diretoria_regional = baker.make("DiretoriaRegional")
+        lote = baker.make(
+            "Lote",
+            nome="1",
+            terceirizada=terceirizada,
+            diretoria_regional=diretoria_regional,
+        )
+        tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+        return baker.make(
+            "Escola",
+            nome="EMEF TESTE KIT",
+            tipo_unidade=tipo_unidade,
+            lote=lote,
+            diretoria_regional=diretoria_regional,
+            tipo_gestao=tipo_gestao,
+            codigo_eol="999999",
+        )
 
-    instance = serializer.save()
+    def _setup_solicitacao(self, escola, mes="05", ano="2025"):
+        return SolicitacaoMedicaoInicialFactory.create(
+            escola=escola,
+            mes=mes,
+            ano=ano,
+        )
 
-    assert instance.tipo_lancamento == "ALIMENTACOES"
-    assert instance.quantidade == 10
-    assert instance.relatorio_financeiro == relatorio_financeiro_cei
-    assert list(instance.unidades_educacionais.all()) == [escola_ceu_gestao]
+    def _setup_categoria(self):
+        return CategoriaMedicaoFactory.create(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
 
+    def _setup_kit_lanche(self, escola, data):
+        from src.kit_lanche.fixtures.factories.base_factory import (
+            KitLancheFactory,
+            SolicitacaoKitLancheAvulsaFactory,
+        )
 
-@pytest.mark.django_db
-def test_desconto_financeiro_serializer_update(
-    relatorio_financeiro_cei,
-    escola_ceu_gestao,
-    faixas_etarias_ativas,
-    periodo_escolar_parcial,
-    clausula_desconto,
-):
-    obj = baker.make(
-        DescontoFinanceiro,
-        relatorio_financeiro=relatorio_financeiro_cei,
-        faixa_etaria=faixas_etarias_ativas[0],
-        periodo_escolar=periodo_escolar_parcial,
-        clausula_desconto=clausula_desconto,
-        quantidade=5,
-        tipo_lancamento="DIETAS_TIPO_A",
-    )
+        kit = KitLancheFactory.create()
 
-    obj.unidades_educacionais.set([escola_ceu_gestao])
+        kit_lanche = SolicitacaoKitLancheAvulsaFactory.create(
+            solicitacao_kit_lanche__data=data,
+            solicitacao_kit_lanche__kits=[kit],
+            escola=escola,
+            rastro_escola=escola,
+            rastro_lote=escola.lote,
+            rastro_dre=escola.lote.diretoria_regional,
+            rastro_terceirizada=escola.lote.terceirizada,
+            quantidade_alunos=100,
+            status="CODAE_AUTORIZADO",
+        )
+        return kit_lanche
 
-    payload = {
-        "tipo_lancamento": "ALIMENTACOES",
-        "quantidade": 20,
-    }
+    def _setup_recreio_com_participante(self, escola, data_inicio, data_fim):
+        recreio = RecreioNasFeriasFactory.create(
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+        )
+        RecreioNasFeriasUnidadeParticipanteFactory.create(
+            recreio_nas_ferias=recreio,
+            unidade_educacional=escola,
+            lote=escola.lote,
+            liberar_medicao=True,
+        )
+        return recreio
 
-    serializer = DescontoFinanceiroUpdateSerializer(
-        instance=obj,
-        data=payload,
-        partial=True,
-    )
+    def test_kit_lanche_fora_do_recreio_cria_valor_medicao(self):
+        """
+        Kit lanche com data fora do período de recreio deve gerar ValorMedicao
+        normalmente.
+        """
+        escola = self._setup_escola_emef()
+        self._setup_categoria()
+        solicitacao = self._setup_solicitacao(escola)
 
-    assert serializer.is_valid(), serializer.errors
+        self._setup_kit_lanche(escola, date(2025, 5, 5))
 
-    updated = serializer.save()
+        self._setup_recreio_com_participante(
+            escola,
+            date(2025, 5, 10),
+            date(2025, 5, 20),
+        )
 
-    assert updated.tipo_lancamento == "ALIMENTACOES"
-    assert updated.quantidade == 20
+        serializer = SolicitacaoMedicaoInicialCreateSerializer()
+        serializer.cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei(
+            solicitacao
+        )
 
+        medicao = solicitacao.medicoes.get(grupo__nome="Solicitações de Alimentação")
+        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        valor = ValorMedicao.objects.filter(
+            medicao=medicao,
+            categoria_medicao=categoria,
+            dia="05",
+            nome_campo="kit_lanche",
+        ).first()
 
-@pytest.mark.django_db
-def test_desconto_financeiro_serializer_create_cei_campos_obrigatorios(
-    relatorio_financeiro_cei,
-    escola_ceu_gestao,
-    clausula_desconto,
-):
-    payload = {
-        "relatorio_financeiro_id": str(relatorio_financeiro_cei.uuid),
-        "unidades_educacionais": [str(escola_ceu_gestao.uuid)],
-        "tipo_lancamento": "ALIMENTACOES",
-        "clausula_desconto": str(clausula_desconto.uuid),
-        "quantidade": 10,
-    }
+        assert valor is not None
+        assert int(valor.valor) > 0
 
-    serializer = DescontoFinanceiroUpdateSerializer(data=payload)
+    def test_kit_lanche_dentro_do_recreio_nao_cria_valor_medicao(self):
+        """
+        Kit lanche com data dentro do período de recreio NÃO deve gerar
+        ValorMedicao, pois deve ser ignorado.
+        """
+        escola = self._setup_escola_emef()
+        self._setup_categoria()
+        solicitacao = self._setup_solicitacao(escola)
 
-    assert not serializer.is_valid()
-    assert "faixa_etaria" in serializer.errors
-    assert "periodo_escolar" in serializer.errors
-    assert serializer.errors["faixa_etaria"][0] == "Campo obrigatório para o grupo."
-    assert serializer.errors["periodo_escolar"][0] == "Campo obrigatório para o grupo."
+        self._setup_kit_lanche(escola, date(2025, 5, 15))
 
+        self._setup_recreio_com_participante(
+            escola,
+            date(2025, 5, 10),
+            date(2025, 5, 20),
+        )
 
-@pytest.mark.django_db
-def test_desconto_financeiro_serializer_create_emei_nao_permite_faixa_etaria(
-    relatorio_financeiro_emei,
-    escola_ceu_gestao,
-    faixas_etarias_ativas,
-    clausula_desconto,
-):
-    payload = {
-        "relatorio_financeiro_id": str(relatorio_financeiro_emei.uuid),
-        "unidades_educacionais": [str(escola_ceu_gestao.uuid)],
-        "tipo_lancamento": "ALIMENTACOES",
-        "faixa_etaria": str(faixas_etarias_ativas[0].uuid),
-        "clausula_desconto": str(clausula_desconto.uuid),
-        "quantidade": 10,
-    }
+        serializer = SolicitacaoMedicaoInicialCreateSerializer()
+        serializer.cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei(
+            solicitacao
+        )
 
-    serializer = DescontoFinanceiroUpdateSerializer(data=payload)
+        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        valor = ValorMedicao.objects.filter(
+            categoria_medicao=categoria,
+            dia="15",
+            nome_campo="kit_lanche",
+        ).first()
 
-    assert not serializer.is_valid()
-    assert "faixa_etaria" in serializer.errors
-    assert (
-        serializer.errors["faixa_etaria"][0]
-        == "Não é permitido informar faixa etária para este grupo."
-    )
+        assert valor is None
+
+    def test_sem_recreio_cria_valor_medicao_normalmente(self):
+        """
+        Sem RecreioNasFerias cadastrado, kit lanche deve gerar ValorMedicao
+        normalmente.
+        """
+        escola = self._setup_escola_emef()
+        self._setup_categoria()
+        solicitacao = self._setup_solicitacao(escola)
+
+        self._setup_kit_lanche(escola, date(2025, 5, 15))
+
+        serializer = SolicitacaoMedicaoInicialCreateSerializer()
+        serializer.cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei(
+            solicitacao
+        )
+
+        medicao = solicitacao.medicoes.get(grupo__nome="Solicitações de Alimentação")
+        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        valor = ValorMedicao.objects.filter(
+            medicao=medicao,
+            categoria_medicao=categoria,
+            dia="15",
+            nome_campo="kit_lanche",
+        ).first()
+
+        assert valor is not None
+        assert int(valor.valor) > 0

@@ -1,4 +1,5 @@
 import requests
+import sentry_sdk
 from rest_framework import status
 
 from ..dados_comuns.constants import (
@@ -76,8 +77,25 @@ class NovoSGPServicoLogado:
     def __init__(self, login=None, senha=None):
         """Retorna um objeto para requisições no novosgp com token de acesso."""
         response = self.pegar_token_acesso(login, senha)
+
         if response.status_code != status.HTTP_200_OK:
+            with sentry_sdk.push_scope() as scope:
+                scope.set_extra("status_code", response.status_code)
+                scope.set_extra("response_body", response.text)
+                scope.set_extra("url", response.request.url)
+                scope.set_extra(
+                    "request_body",
+                    {
+                        "login": login or DJANGO_NOVO_SGP_API_LOGIN,
+                    },
+                )
+
+                sentry_sdk.capture_exception(
+                    NovoSGPServicoLogadoException("Não foi possível logar no sistema")
+                )
+
             raise NovoSGPServicoLogadoException("Não foi possível logar no sistema")
+
         self.access_token = f'Bearer {response.json()["token"]}'
 
     def pegar_foto_aluno(self, codigo_eol_aluno):

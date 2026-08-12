@@ -81,6 +81,7 @@ from ..models import (
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     ValorMedicao,
 )
 from ..tasks import (
@@ -146,6 +147,7 @@ from .serializers import (
     SolicitacaoMedicaoInicialLancadaSerializer,
     SolicitacaoMedicaoInicialSerializer,
     TipoContagemAlimentacaoSerializer,
+    TipoSobremesaDoceSerializer,
     ValorMedicaoSerializer,
 )
 from .serializers_create import (
@@ -289,8 +291,25 @@ class DiaSobremesaDoceViewSet(ViewSetActionPermissionMixin, ModelViewSet):
 
     @action(detail=False, methods=["GET"], url_path="lista-dias")
     def lista_dias(self, request):
+        """Retorna os dias de sobremesa doce.
+
+        Query Parameters:
+            mes (int): Mês de referência.
+            ano (int): Ano de referência.
+            tipo (str, optional): Nome do tipo de sobremesa doce para filtrar.
+                Caso não informado, o filtro padrão é ``"Sobremesa Doce"``.
+
+        Returns:
+            Response: Lista de datas distintas no formato ISO 8601.
+
+        Raises:
+            Escola.DoesNotExist: Se o ``escola_uuid`` informado não existir.
+        """
         try:
-            lista_dias = self.get_queryset().values_list("data", flat=True).distinct()
+            queryset = self.get_queryset()
+            tipo_nome = request.query_params.get("tipo", "Sobremesa Doce")
+            queryset = queryset.filter(tipo__nome=tipo_nome)
+            lista_dias = queryset.values_list("data", flat=True).distinct()
             return Response(lista_dias, status=status.HTTP_200_OK)
         except Escola.DoesNotExist as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -1541,6 +1560,12 @@ class TipoContagemAlimentacaoViewSet(mixins.ListModelMixin, GenericViewSet):
     pagination_class = None
 
 
+class TipoSobremesaDoceViewSet(mixins.ListModelMixin, GenericViewSet):
+    queryset = TipoSobremesaDoce.objects.filter(ativo=True)
+    serializer_class = TipoSobremesaDoceSerializer
+    pagination_class = None
+
+
 class CategoriaMedicaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = CategoriaMedicao.objects.filter(ativo=True)
     serializer_class = CategoriaMedicaoSerializer
@@ -1859,6 +1884,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="dre-pede-correcao-ocorrencia",
+        permission_classes=(UsuarioDiretoriaRegional,),
     )
     def dre_pede_correcao_ocorrencia(self, request, uuid=None):
         object = self.get_object()
@@ -1880,6 +1906,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="codae-pede-correcao-ocorrencia",
+        permission_classes=(UsuarioCODAENutriManifestacao,),
     )
     def codae_pede_correcao_ocorrencia(self, request, uuid=None):
         object = self.get_object()
@@ -1903,6 +1930,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="dre-aprova-ocorrencia",
+        permission_classes=(UsuarioDiretoriaRegional,),
     )
     def dre_aprova_ocorrencia(self, request, uuid=None):
         object = self.get_object()
@@ -1923,9 +1951,7 @@ class OcorrenciaViewSet(
         detail=True,
         methods=["PATCH"],
         url_path="codae-aprova-ocorrencia",
-        permission_classes=[
-            UsuarioCODAEGestaoAlimentacao | UsuarioCODAENutriManifestacao
-        ],
+        permission_classes=(UsuarioCODAENutriManifestacao,),
     )
     def codae_aprova_ocorrencia(self, request, uuid=None):
         object = self.get_object()
@@ -1946,7 +1972,7 @@ class OcorrenciaViewSet(
         detail=False,
         methods=["POST"],
         url_path="gera-ocorrencia-para-correcao",
-        permission_classes=[UsuarioCODAENutriManifestacao],
+        permission_classes=[UsuarioDiretoriaRegional | UsuarioCODAENutriManifestacao],
     )
     @transaction.atomic
     def gera_ocorrencia_para_correcao(self, request):

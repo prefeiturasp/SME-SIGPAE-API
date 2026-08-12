@@ -561,6 +561,11 @@ def dia_calendario_nao_letivo(escola):
     )
 
 
+class MockRequest:
+    def __init__(self, url=""):
+        self.url = url
+
+
 def mocked_response(*args, **kwargs):
     class MockResponse:
         def __init__(self, json_data, status_code):
@@ -568,6 +573,7 @@ def mocked_response(*args, **kwargs):
             self.text = json_data
             self.status_code = status_code
             self.content = b"erro"
+            self.request = MockRequest()
 
         def json(self):
             return self.json_data
