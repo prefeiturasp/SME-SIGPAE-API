@@ -101,10 +101,13 @@ class PodeCriarAdministradoresDaCODAESupervisaoNutricao(permissions.BasePermissi
         return False
 
 
-class PodeVerEditarFotoAlunoNoSGP(permissions.BasePermission):
+class PodeEditarFotoAlunoNoSGP(permissions.BasePermission):
     message = (
-        "O seu perfil não tem permissão de ver/atualizar/excluir a foto do aluno no SGP"
+        "O seu perfil não tem permissão de atualizar/excluir a foto do aluno no SGP"
     )
+
+    def has_permission(self, request, view):
+        return not request.user.is_anonymous
 
     def has_object_permission(self, request, view, obj):
         if not (
@@ -112,5 +115,23 @@ class PodeVerEditarFotoAlunoNoSGP(permissions.BasePermission):
             or obj.escola
             or request.user.vinculo_atual.content_type.model == "escola"
         ):
-            return 5
-        return request.user.vinculo_atual.object_id == obj.escola.id
+            return True
+        return (
+            request.user.vinculo_atual.object_id == obj.escola.id
+            if obj.escola
+            else True
+        )
+
+
+class PodeVerFotoAlunoNoSGP(permissions.BasePermission):
+    message = "O seu perfil não tem permissão de ver a foto do aluno no SGP"
+
+    def has_permission(self, request, view):
+        return not request.user.is_anonymous
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.vinculo_atual.content_type.model == "escola":
+            if not obj.escola:
+                return True
+            return request.user.vinculo_atual.object_id == obj.escola.id
+        return True

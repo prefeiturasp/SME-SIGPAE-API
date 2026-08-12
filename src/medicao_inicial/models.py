@@ -1174,6 +1174,9 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         choices=CEI_OU_EMEI,
         default="N/A"
     )
+    infantil_ou_fundamental = models.CharField(
+        max_length=11, choices=INFANTIL_OU_FUNDAMENTAL, default="N/A"
+    )
     clausula_desconto = models.ForeignKey(
         ClausulaDeDesconto,
         on_delete=models.PROTECT,
