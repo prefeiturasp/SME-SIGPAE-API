@@ -225,8 +225,8 @@ def test_url_endpoint_get_foto_aluno_codae(
 ):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
