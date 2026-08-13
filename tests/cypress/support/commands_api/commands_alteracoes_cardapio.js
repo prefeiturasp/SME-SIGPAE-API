@@ -29,7 +29,7 @@ Cypress.Commands.add('validar_alteracoes_cardapio_minhas_solicitacoes', () => {
 		method: 'GET',
 		url:
 			Cypress.config('baseUrl') +
-			'api/alteracoes-cardapio/minhas-solicitacoes/',
+			'api/alteracoes-cardapio/minhas-solicitacoes/?limit=1&offset=0',
 		timeout: 120000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,

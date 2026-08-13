@@ -22,14 +22,15 @@ from .models import (
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     ValorMedicao,
 )
 
 admin.site.register(AlimentacaoLancamentoEspecial)
 admin.site.register(CategoriaMedicao)
-admin.site.register(DiaSobremesaDoce)
 admin.site.register(GrupoMedicao)
 admin.site.register(TipoContagemAlimentacao)
+admin.site.register(TipoSobremesaDoce)
 
 
 @admin.register(LancheEmergencialDiario)
@@ -38,6 +39,34 @@ class LancheEmergencialDiarioAdmin(admin.ModelAdmin):
     search_fields = ("escola__nome", "escola__codigo_eol")
     list_filter = (("data_inicial", DateRangeFilter), ("data_final", DateRangeFilter))
     search_help_text = "Pesquisa por: nome da escola, código eol da escola"
+
+
+@admin.register(DiaSobremesaDoce)
+class DiaSobremesaDoceAdmin(admin.ModelAdmin):
+    list_display = (
+        "data",
+        "tipo_unidade",
+        "edital",
+        "tipo",
+        "criado_em",
+        "criado_por",
+    )
+    search_fields = (
+        "tipo_unidade__iniciais",
+        "tipo_unidade__nome",
+        "edital__numero",
+        "tipo__nome",
+    )
+    list_filter = (
+        ("data", DateRangeFilter),
+        "tipo_unidade",
+        "edital__numero",
+        "tipo",
+    )
+    search_help_text = (
+        "Pesquise por: iniciais ou nome do tipo de unidade, "
+        "número do edital, tipo de sobremesa"
+    )
 
 
 @admin.register(SolicitacaoMedicaoInicial)

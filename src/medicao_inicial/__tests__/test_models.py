@@ -4,9 +4,10 @@ from unittest.mock import patch
 import pytest
 from django.db.utils import IntegrityError
 from model_bakery import baker
+
 from src.medicao_inicial.models import (
-    SolicitacaoMedicaoInicial,
     DescontoFinanceiro,
+    SolicitacaoMedicaoInicial,
 )
 
 pytestmark = pytest.mark.django_db
@@ -17,6 +18,11 @@ def test_dia_sobremesa_doce_model(dia_sobremesa_doce):
         dia_sobremesa_doce.__str__()
         == "08/08/2022 - EMEF - Edital Edital de Pregão nº 13/SME/2020"
     )
+
+
+def test_tipo_sobremesa_doce_model():
+    tipo = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
+    assert tipo.__str__() == "Sobremesa Doce"
 
 
 def test_solicitacao_medicao_inicial_model(solicitacao_medicao_inicial):
@@ -289,11 +295,15 @@ def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
 def test_unique_constraint_sem_recreio(escola):
     """Não deve permitir duas solicitações sem recreio para a mesma escola/mes/ano."""
     SolicitacaoMedicaoInicial.objects.create(
-        escola=escola, mes="06", ano="2024",
+        escola=escola,
+        mes="06",
+        ano="2024",
     )
     with pytest.raises(IntegrityError):
         SolicitacaoMedicaoInicial.objects.create(
-            escola=escola, mes="06", ano="2024",
+            escola=escola,
+            mes="06",
+            ano="2024",
         )
 
 

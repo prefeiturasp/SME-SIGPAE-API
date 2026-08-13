@@ -1569,6 +1569,29 @@ class PermissaoParaVisualizarFichaTecnica(BasePermission):
         )
 
 
+class PermissaoParaRelatorioFichasTecnicas(BasePermission):
+    PERFIS_PERMITIDOS = [
+        DILOG_QUALIDADE,
+        DILOG_CRONOGRAMA,
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
+        COORDENADOR_GESTAO_PRODUTO,
+        ADMINISTRADOR_GESTAO_PRODUTO,
+    ]
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and (
+                (
+                    isinstance(usuario.vinculo_atual.instituicao, Codae)
+                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
+                )
+            )
+        )
+
+
 class PermissaoParaAnalisarFichaTecnica(BasePermission):
     PERFIS_PERMITIDOS = [
         COORDENADOR_GESTAO_PRODUTO,
@@ -1708,4 +1731,24 @@ class PermissaoParaDarCienciaCronogramaSemanal(BasePermission):
         usuario = request.user
         return (
             not usuario.is_anonymous and usuario.vinculo_atual and usuario.eh_fornecedor
+        )
+
+
+class PermissaoParaGerenciarCategoriasPerguntaFrequente(BasePermission):
+    """Permissão para cadastrar uma categoria no página de ajuda"""
+
+    PERFIS_PERMITIDOS = [
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
+        COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        ADMINISTRADOR_CODAE_GABINETE,
+    ]
+
+    def has_permission(self, request, view):
+        usuario = request.user
+
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Codae)
+            and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
         )

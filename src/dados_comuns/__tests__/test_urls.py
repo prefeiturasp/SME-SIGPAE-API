@@ -1,6 +1,8 @@
 import datetime
 import json
 
+import pytest
+from django.core.cache import cache
 from faker import Faker
 from freezegun import freeze_time
 from model_bakery import baker
@@ -13,6 +15,7 @@ from ..models import (
     CentralDeDownload,
     Notificacao,
     PerguntaFrequente,
+    VersaoSistema,
 )
 
 fake = Faker("pt_BR")
@@ -538,3 +541,171 @@ def test_validacao_duplicidade_lanche_emergencial_caso_valido(
         "/alteracoes-cardapio-cemei/", content_type="application/json", data=payload
     )
     assert response.status_code == status.HTTP_201_CREATED
+
+
+def test_url_cria_categoria_pergunta_frequente(
+    client_autenticado_coordenador_codae,
+):
+    payload = {"nome": "Alimentação Escolar"}
+
+    response = client_autenticado_coordenador_codae.post(
+        "/categorias-pergunta-frequente/",
+        content_type="application/json",
+        data=payload,
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()["nome"] == payload["nome"]
+    assert CategoriaPerguntaFrequente.objects.filter(
+        nome=payload["nome"],
+    ).exists()
+
+
+def test_url_nao_cria_categoria_pergunta_frequente_duplicada(
+    client_autenticado_coordenador_codae,
+):
+    baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Alimentação e Nutrição",
+    )
+
+    payload = {"nome": "  ALIMENTACAO E NUTRICAO  "}
+
+    response = client_autenticado_coordenador_codae.post(
+        "/categorias-pergunta-frequente/",
+        content_type="application/json",
+        data=payload,
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert (
+        response.json()["nome"][0]
+        == "Não é possível cadastrar a categoria, pois já existe uma categoria com esse nome. Altere o nome informado e tente novamente."
+    )
+    assert CategoriaPerguntaFrequente.objects.count() == 1
+
+
+def test_url_nao_cria_categoria_com_usuario_sem_permissao(
+    usuario_teste_notificacao_autenticado,
+):
+    _, client = usuario_teste_notificacao_autenticado
+    payload = {"nome": "Gestão de Produtos"}
+
+    response = client.post(
+        "/categorias-pergunta-frequente/",
+        content_type="application/json",
+        data=payload,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert not CategoriaPerguntaFrequente.objects.filter(
+        nome=payload["nome"],
+    ).exists()
+
+
+def test_url_atualiza_categoria_pergunta_frequente(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Nome anterior",
+    )
+    payload = {"nome": "Alimentação Escolar"}
+
+    response = client_autenticado_coordenador_codae.put(
+        f"/categorias-pergunta-frequente/{categoria.uuid}/",
+        content_type="application/json",
+        data=payload,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    categoria.refresh_from_db()
+
+    assert categoria.nome == payload["nome"]
+    assert response.json()["nome"] == payload["nome"]
+
+
+def test_url_atualiza_parcialmente_categoria_pergunta_frequente(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Nome anterior",
+    )
+    payload = {"nome": "Gestão de Produtos"}
+
+    response = client_autenticado_coordenador_codae.patch(
+        f"/categorias-pergunta-frequente/{categoria.uuid}/",
+        content_type="application/json",
+        data=payload,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    categoria.refresh_from_db()
+
+    assert categoria.nome == payload["nome"]
+    assert response.json()["nome"] == payload["nome"]
+
+
+def test_url_exclui_categoria_pergunta_frequente(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Categoria para exclusão",
+    )
+
+    response = client_autenticado_coordenador_codae.delete(
+        f"/categorias-pergunta-frequente/{categoria.uuid}/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert not CategoriaPerguntaFrequente.objects.filter(
+        uuid=categoria.uuid,
+    ).exists()
+
+
+def test_url_usuario_sem_permissao_nao_exclui_categoria(
+    usuario_teste_notificacao_autenticado,
+):
+    _, client = usuario_teste_notificacao_autenticado
+
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Categoria protegida",
+    )
+
+    response = client.delete(
+        f"/categorias-pergunta-frequente/{categoria.uuid}/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert CategoriaPerguntaFrequente.objects.filter(
+        uuid=categoria.uuid,
+    ).exists()
+
+
+def test_url_api_version_sucesso(client):
+    cache.clear()
+    versao = VersaoSistema.objects.get()
+    versao.versao = "2.5.1"
+    versao.save()
+    response = client.get("/api-version/")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"API_Version": "2.5.1"}
+
+
+def test_url_api_version_versao_vazia(client):
+    cache.clear()
+    versao = VersaoSistema.objects.get()
+    versao.versao = ""
+    versao.save()
+    response = client.get("/api-version/")
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "Não foi possível obter a última versão da API"
+    }

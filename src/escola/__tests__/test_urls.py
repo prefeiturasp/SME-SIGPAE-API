@@ -220,6 +220,26 @@ def test_url_endpoint_get_foto_aluno_token_invalido(
     assert response.json()["detail"] == "Não foi possível logar no sistema"
 
 
+def test_url_endpoint_get_foto_aluno_codae(
+    client_autenticado_coordenador_codae, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_foto_aluno",
+        lambda p1, p2: mocked_response(mocked_foto_aluno_novosgp(), 200),
+    )
+    response = client_autenticado_coordenador_codae.get(
+        f"/alunos/{aluno.codigo_eol}/ver-foto/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["data"] == mocked_foto_aluno_novosgp()
+
+
 def test_url_endpoint_update_foto_aluno(
     client_autenticado_da_escola, aluno, monkeypatch
 ):

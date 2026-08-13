@@ -14,16 +14,20 @@ from workalendar.america import BrazilSaoPauloCity
 
 from ...escola.models import DiaSuspensaoAtividades, Escola
 from ..behaviors import DiasSemana, TempoPasseio
-from ..constants import TEMPO_CACHE_6H, obter_dias_uteis_apos_hoje
+from ..constants import TEMPO_CACHE_1H, TEMPO_CACHE_6H, obter_dias_uteis_apos_hoje
 from ..models import (
     CategoriaPerguntaFrequente,
     CentralDeDownload,
     Notificacao,
     PerguntaFrequente,
     SolicitacaoAberta,
+    VersaoSistema,
 )
-from ..permissions import UsuarioCODAEGestaoAlimentacao
-from ..utils import obter_dias_uteis_apos, obter_versao_api
+from ..permissions import (
+    PermissaoParaGerenciarCategoriasPerguntaFrequente,
+    UsuarioCODAEGestaoAlimentacao,
+)
+from ..utils import obter_dias_uteis_apos
 from .filters import CentralDeDownloadFilter, NotificacaoFilter
 from .paginations import CustomPagination, DownloadPagination
 from .serializers import (
@@ -43,11 +47,11 @@ calendario = BrazilSaoPauloCity()
 class ApiVersion(viewsets.ViewSet):
     permission_classes = (AllowAny,)
 
-    @method_decorator(cache_page(TEMPO_CACHE_6H))
+    @method_decorator(cache_page(TEMPO_CACHE_1H))
     def list(self, request):
-        versao = obter_versao_api()
-        if versao:
-            return Response({"API_Version": versao})
+        versao = VersaoSistema.objects.get()
+        if versao.versao:
+            return Response({"API_Version": versao.versao})
         else:
             return Response(
                 {"detail": "Não foi possível obter a última versão da API"},
@@ -205,6 +209,19 @@ class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
         if self.action == "perguntas_por_categoria":
             return ConsultaPerguntasFrequentesSerializer
         return CategoriaPerguntaFrequenteSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated]
+
+        if self.action in {
+            "create",
+            "update",
+            "partial_update",
+            "destroy",
+        }:
+            permission_classes.append(PermissaoParaGerenciarCategoriasPerguntaFrequente)
+
+        return [permission() for permission in permission_classes]
 
     @action(detail=False, url_path="perguntas-por-categoria")
     def perguntas_por_categoria(self, request):
