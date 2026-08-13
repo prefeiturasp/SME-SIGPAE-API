@@ -26,6 +26,7 @@ from src.logistica.urls import urlpatterns as logistica_urls
 from src.medicao_inicial.urls import urlpatterns as medicao_inicial_urls
 from src.paineis_consolidados.urls import urlpatterns as paineis_consolidados_urls
 from src.perfil.urls import urlpatterns as perfil_urls
+from src.pos_recebimento.urls import urlpatterns as pos_recebimento_urls
 from src.pre_recebimento.urls import urlpatterns as pre_recebimento_urls
 from src.produto.urls import urlpatterns as produto_urls
 from src.recebimento.urls import urlpatterns as recebimento_urls
@@ -75,6 +76,7 @@ urlpatterns += logistica_urls
 urlpatterns += medicao_inicial_urls
 urlpatterns += pre_recebimento_urls
 urlpatterns += recebimento_urls
+urlpatterns += pos_recebimento_urls
 urlpatterns += imr_urls
 urlpatterns += dias_letivos_urls
 

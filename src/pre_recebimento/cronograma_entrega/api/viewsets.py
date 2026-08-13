@@ -1,4 +1,5 @@
 import datetime
+import uuid as uuid_lib
 from math import ceil
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -39,6 +40,9 @@ from src.dados_comuns.permissions import (
     UsuarioDilogAbastecimento,
     ViewSetActionPermissionMixin,
 )
+from src.pos_recebimento.api.permissions import (
+    PermissaoParaCadastrarTermoRecebimentoDefinitivo,
+)
 from src.pre_recebimento.base.api.paginations import (
     PreRecebimentoPagination,
 )
@@ -57,6 +61,7 @@ from src.pre_recebimento.cronograma_entrega.api.serializers.serializer_create im
 )
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaComLogSerializer,
+    CronogramaDetalhePosRecebimentoSerializer,
     CronogramaFichaDeRecebimentoSerializer,
     CronogramaRascunhosSerializer,
     CronogramaRelatorioSerializer,
@@ -91,6 +96,17 @@ from src.relatorios.relatorios import (
 
 from ....dados_comuns.models import LogSolicitacoesUsuario
 from .validators import valida_parametros_calendario
+
+
+def _uuid_valido(valor):
+    """Verifica se o parâmetro recebido é um UUID válido."""
+    if not valor:
+        return False
+    try:
+        uuid_lib.UUID(str(valor))
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
 
 
 class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet):
@@ -587,6 +603,41 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
     @action(
         detail=False,
+        methods=["GET"],
+        url_path="lista-cronogramas-pos-recebimento",
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+    )
+    def lista_cronogramas_pos_recebimento(self, request):
+        """Cronogramas vinculados ao contrato selecionado (query param
+        ``contrato_id``) para o cadastro do Termo de Recebimento Definitivo
+        (Pós-Recebimento)."""
+        contrato_uuid = request.query_params.get("contrato_id")
+        if not _uuid_valido(contrato_uuid):
+            queryset = Cronograma.objects.none()
+        else:
+            queryset = Cronograma.objects.filter(contrato__uuid=contrato_uuid).order_by(
+                "numero"
+            )
+        return Response(
+            {"results": CronogramaSimplesSerializer(queryset, many=True).data}
+        )
+
+    @action(
+        detail=True,
+        methods=["GET"],
+        url_path="dados-cronograma-pos-recebimento",
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+    )
+    def dados_cronograma_pos_recebimento(self, request, uuid):
+        """Dados do cronograma (produto, processo SEI, unidade de medida)
+        para preenchimento automático no cadastro do Termo de Recebimento
+        Definitivo (Pós-Recebimento)."""
+        return Response(
+            CronogramaDetalhePosRecebimentoSerializer(self.get_object()).data
+        )
+
+    @action(
+        detail=False,
         permission_classes=(PermissaoParaVisualizarRelatorioCronograma,),
         methods=["GET"],
         url_path="gerar-relatorio-xlsx-async",
@@ -892,10 +943,14 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
                 uuid=uuid
             )
             if aprovado is True:
-                solicitacao_cronograma.dilog_abastecimento_aprova(user=usuario, justificativa=justificativa)
+                solicitacao_cronograma.dilog_abastecimento_aprova(
+                    user=usuario, justificativa=justificativa
+                )
             elif aprovado is False:
                 justificativa = request.data.get("justificativa_abastecimento")
-                solicitacao_cronograma.dilog_abastecimento_reprova(user=usuario, justificativa=justificativa)
+                solicitacao_cronograma.dilog_abastecimento_reprova(
+                    user=usuario, justificativa=justificativa
+                )
             else:
                 raise ValidationError("Parametro aprovado deve ser true ou false.")
             solicitacao_cronograma.save()

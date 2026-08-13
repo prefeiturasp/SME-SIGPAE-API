@@ -1,3 +1,4 @@
+import uuid as uuid_lib
 from datetime import date
 
 from django.db.models import Count, Q
@@ -10,7 +11,11 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from ...dados_comuns.api.paginations import DefaultPagination
+from ...dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 from ...escola.api.serializers import TerceirizadaSerializer
+from ...pos_recebimento.api.permissions import (
+    PermissaoParaCadastrarTermoRecebimentoDefinitivo,
+)
 from ...relatorios.relatorios import relatorio_quantitativo_por_terceirizada
 from ..forms import RelatorioQuantitativoForm
 from ..models import (
@@ -29,6 +34,7 @@ from .filters import (
 )
 from .serializers.serializers import (
     ContratoSerializer,
+    ContratoSimplesSerializer,
     DistribuidorSimplesSerializer,
     EditalContratosSerializer,
     EditalSerializer,
@@ -46,6 +52,17 @@ from .serializers.serializers_create import (
     EmpresaNaoTerceirizadaCreateSerializer,
     TerceirizadaCreateSerializer,
 )
+
+
+def _uuid_valido(valor):
+    """Verifica se o parâmetro recebido é um UUID válido."""
+    if not valor:
+        return False
+    try:
+        uuid_lib.UUID(str(valor))
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
 
 
 class EditalViewSet(viewsets.ReadOnlyModelViewSet):
@@ -125,6 +142,27 @@ class TerceirizadaViewSet(viewsets.ModelViewSet):
                 Terceirizada.FORNECEDOR,
                 Terceirizada.FORNECEDOR_E_DISTRIBUIDOR,
             ]
+        )
+        response = {"results": TerceirizadaSimplesSerializer(queryset, many=True).data}
+        return Response(response)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="lista-empresas-pos-recebimento",
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+    )
+    def lista_empresas_pos_recebimento(self, request):
+        """Empresas com ao menos uma ficha de recebimento 'Assinado CODAE'
+        para o cadastro do Termo de Recebimento Definitivo (Pós-Recebimento)."""
+        queryset = (
+            Terceirizada.objects.filter(
+                cronograma__etapas__ficha_recebimento__status=(
+                    FichaDeRecebimentoWorkflow.ASSINADA
+                )
+            )
+            .distinct()
+            .order_by("nome_fantasia")
         )
         response = {"results": TerceirizadaSimplesSerializer(queryset, many=True).data}
         return Response(response)
@@ -250,6 +288,26 @@ class ContratoViewSet(ReadOnlyModelViewSet):
                 )
             }
         )
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="lista-contratos-pos-recebimento",
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+    )
+    def lista_contratos_pos_recebimento(self, request):
+        """Contratos vinculados à empresa selecionada (query param ``empresa_id``)
+        para o cadastro do Termo de Recebimento Definitivo (Pós-Recebimento)."""
+        empresa_uuid = request.query_params.get("empresa_id")
+        queryset = self.get_queryset()
+        if not _uuid_valido(empresa_uuid):
+            queryset = Contrato.objects.none()
+        else:
+            queryset = queryset.filter(terceirizada__uuid=empresa_uuid).order_by(
+                "numero"
+            )
+        response = {"results": ContratoSimplesSerializer(queryset, many=True).data}
+        return Response(response)
 
 
 class VigenciaContratoViewSet(ReadOnlyModelViewSet):
