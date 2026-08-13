@@ -14,5 +14,3 @@ dos alimentos cadastrados e das substituições associadas a cada protocolo.
 
    protocolo_padrao/models
    protocolo_padrao/api
-   protocolo_padrao/admin
-   protocolo_padrao/constants

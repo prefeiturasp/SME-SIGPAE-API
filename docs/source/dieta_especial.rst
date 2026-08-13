@@ -10,41 +10,6 @@ tarefas assíncronas de processamento e geração de relatórios.
    :members:
    :show-inheritance:
 
-admin
------
-
-.. automodule:: src.dieta_especial.admin
-   :members:
-   :show-inheritance:
-
-apps
-----
-
-.. automodule:: src.dieta_especial.apps
-   :members:
-   :show-inheritance:
-
-constants
----------
-
-.. automodule:: src.dieta_especial.constants
-   :members:
-   :show-inheritance:
-
-forms
------
-
-.. automodule:: src.dieta_especial.forms
-   :members:
-   :show-inheritance:
-
-urls
-----
-
-.. automodule:: src.dieta_especial.urls
-   :members:
-   :show-inheritance:
-
 .. toctree::
    :maxdepth: 4
 
@@ -57,3 +22,17 @@ urls
    dieta_especial/utils
    dieta_especial/data
    dieta_especial/fixtures
+
+apps
+----
+
+.. automodule:: src.dieta_especial.apps
+   :members:
+   :show-inheritance:
+
+forms
+-----
+
+.. automodule:: src.dieta_especial.forms
+   :members:
+   :show-inheritance:

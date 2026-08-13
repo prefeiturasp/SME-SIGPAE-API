@@ -9,13 +9,6 @@ logs.
    :members:
    :show-inheritance:
 
-admin
------
-
-.. automodule:: src.dieta_especial.utils.admin
-   :members:
-   :show-inheritance:
-
 filtra_relatorio_recreio_nas_ferias
 -----------------------------------
 

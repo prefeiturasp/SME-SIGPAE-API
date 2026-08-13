@@ -16,6 +16,4 @@ inativação e geração de relatórios.
 
    solicitacao_dieta_especial/models
    solicitacao_dieta_especial/api
-   solicitacao_dieta_especial/admin
-   solicitacao_dieta_especial/constants
    solicitacao_dieta_especial/services

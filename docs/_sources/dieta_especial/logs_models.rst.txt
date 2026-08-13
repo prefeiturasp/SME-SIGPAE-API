@@ -14,5 +14,4 @@ incluindo os cenários de CEI e de Recreio nas Férias.
 
    logs_models/models
    logs_models/api
-   logs_models/admin
    logs_models/fixtures

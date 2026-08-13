@@ -13,4 +13,3 @@ de arquivos enviados, registrando o resultado do processamento.
    :maxdepth: 4
 
    carga_dados/models
-   carga_dados/admin
