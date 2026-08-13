@@ -479,7 +479,7 @@ class CategoriaPerguntaFrequente(ExportModelOperationsMixin("cat_faq"), models.M
 
 class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
     categoria = models.ForeignKey(
-        "CategoriaPerguntaFrequente", on_delete=models.PROTECT
+        "CategoriaPerguntaFrequente", on_delete=models.CASCADE
     )
     pergunta = models.TextField("Pergunta")
     resposta = models.TextField("Resposta")

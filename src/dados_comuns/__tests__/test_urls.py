@@ -709,3 +709,178 @@ def test_url_api_version_versao_vazia(client):
     assert response.json() == {
         "detail": "Não foi possível obter a última versão da API"
     }
+
+
+
+def test_url_atualiza_categoria_pergunta_frequente(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Categoria Antiga",
+    )
+
+    payload = {
+        "nome": "Categoria Atualizada",
+    }
+
+    response = client_autenticado_coordenador_codae.patch(
+        f"/categorias-pergunta-frequente/{categoria.uuid}/",
+        content_type="application/json",
+        data=payload,
+    )
+
+    categoria.refresh_from_db()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert categoria.nome == "Categoria Atualizada"
+
+
+def test_url_atualiza_categoria_mantem_perguntas_vinculadas(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Categoria Antiga",
+    )
+    pergunta_1 = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        pergunta="Primeira pergunta",
+    )
+    pergunta_2 = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        pergunta="Segunda pergunta",
+    )
+
+    response = client_autenticado_coordenador_codae.patch(
+        f"/categorias-pergunta-frequente/{categoria.uuid}/",
+        content_type="application/json",
+        data={"nome": "Categoria Atualizada"},
+    )
+
+    pergunta_1.refresh_from_db()
+    pergunta_2.refresh_from_db()
+    categoria.refresh_from_db()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert categoria.nome == "Categoria Atualizada"
+    assert pergunta_1.categoria == categoria
+    assert pergunta_2.categoria == categoria
+    assert PerguntaFrequente.objects.filter(categoria=categoria).count() == 2
+
+
+def test_url_exclui_categoria_e_perguntas_vinculadas(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Categoria para Excluir",
+    )
+    pergunta_1 = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        pergunta="Primeira pergunta",
+    )
+    pergunta_2 = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        pergunta="Segunda pergunta",
+    )
+
+    categoria_uuid = categoria.uuid
+    pergunta_1_uuid = pergunta_1.uuid
+    pergunta_2_uuid = pergunta_2.uuid
+
+    response = client_autenticado_coordenador_codae.delete(
+        f"/categorias-pergunta-frequente/{categoria_uuid}/",
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    assert not CategoriaPerguntaFrequente.objects.filter(
+        uuid=categoria_uuid
+    ).exists()
+    assert not PerguntaFrequente.objects.filter(
+        uuid=pergunta_1_uuid
+    ).exists()
+    assert not PerguntaFrequente.objects.filter(
+        uuid=pergunta_2_uuid
+    ).exists()
+
+def test_url_exclui_apenas_perguntas_da_categoria_excluida(
+    client_autenticado_coordenador_codae,
+):
+    categoria_excluida = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Categoria para Excluir",
+    )
+    categoria_mantida = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Categoria Mantida",
+    )
+
+    pergunta_excluida = baker.make(
+        PerguntaFrequente,
+        categoria=categoria_excluida,
+        pergunta="Pergunta que deve ser excluída",
+    )
+    pergunta_mantida = baker.make(
+        PerguntaFrequente,
+        categoria=categoria_mantida,
+        pergunta="Pergunta que deve permanecer",
+    )
+
+    response = client_autenticado_coordenador_codae.delete(
+        f"/categorias-pergunta-frequente/{categoria_excluida.uuid}/",
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    assert not CategoriaPerguntaFrequente.objects.filter(
+        uuid=categoria_excluida.uuid
+    ).exists()
+    assert not PerguntaFrequente.objects.filter(
+        uuid=pergunta_excluida.uuid
+    ).exists()
+
+    assert CategoriaPerguntaFrequente.objects.filter(
+        uuid=categoria_mantida.uuid
+    ).exists()
+    assert PerguntaFrequente.objects.filter(
+        uuid=pergunta_mantida.uuid
+    ).exists()
+
+def test_url_lista_categorias_ordenadas_da_mais_antiga_para_mais_recente(
+    client_autenticado_coordenador_codae,
+):
+    categoria_1 = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Primeira Categoria",
+    )
+    categoria_2 = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Segunda Categoria",
+    )
+    categoria_3 = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Terceira Categoria",
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        "/categorias-pergunta-frequente/",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    categorias = response.json()["results"]
+
+    uuids = [categoria["uuid"] for categoria in categorias]
+
+    assert uuids.index(str(categoria_1.uuid)) < uuids.index(
+        str(categoria_2.uuid)
+    )
+    assert uuids.index(str(categoria_2.uuid)) < uuids.index(
+        str(categoria_3.uuid)
+    )
