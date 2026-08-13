@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>management &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="commands" href="management/commands.html" />
+    <link rel="prev" title="utils" href="tasks/utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../dieta_especial.html">dieta_especial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.apps">apps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.forms">forms</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.urls">urls</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao.html">protocolo_padrao</a></li>
+<li class="toctree-l4"><a class="reference internal" href="logs_models.html">logs_models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tasks.html">tasks</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">management</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="management/commands.html">commands</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="utils.html">utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../dieta_especial.html">dieta_especial</a></li>
+      <li class="breadcrumb-item active">management</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dieta_especial/management.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="management">
+<h1>management<a class="headerlink" href="#management" title="Link to this heading"></a></h1>
+<p>Submódulo de comandos de gerenciamento (management commands) do módulo de
+dieta especial. Reúne comandos de criação, autorização, cancelamento e
+exclusão de dietas, correção de dados e exportação de planilhas.</p>
+<div class="toctree-wrapper compound" id="module-src.dieta_especial.management">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="management/commands.html">commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas">corrige_alergias_intolerancias_duplicadas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.corrige_alergias_intolerancias"><code class="docutils literal notranslate"><span class="pre">Command.corrige_alergias_intolerancias()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.normalizar_alergias_intolerancias"><code class="docutils literal notranslate"><span class="pre">Command.normalizar_alergias_intolerancias()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.remove_acentos"><code class="docutils literal notranslate"><span class="pre">Command.remove_acentos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.remove_duplicados_alergias_intolerancias"><code class="docutils literal notranslate"><span class="pre">Command.remove_duplicados_alergias_intolerancias()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.corrige_protocolos_padrao">corrige_protocolos_padrao</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.exclui_protocolos_nao_liberados"><code class="docutils literal notranslate"><span class="pre">Command.exclui_protocolos_nao_liberados()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.inativa_solicitacoes_de_alunos"><code class="docutils literal notranslate"><span class="pre">Command.inativa_solicitacoes_de_alunos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.remove_novo"><code class="docutils literal notranslate"><span class="pre">Command.remove_novo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.trata_excecoes"><code class="docutils literal notranslate"><span class="pre">Command.trata_excecoes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_autorizar">dieta_especial_autorizar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_autorizar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_autorizar.Command.add_arguments"><code class="docutils literal notranslate"><span class="pre">Command.add_arguments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_autorizar.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_autorizar.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_autorizar.autorizar_dieta"><code class="docutils literal notranslate"><span class="pre">autorizar_dieta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_cancelar">dieta_especial_cancelar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_cancelar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_cancelar.Command.add_arguments"><code class="docutils literal notranslate"><span class="pre">Command.add_arguments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_cancelar.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_cancelar.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_cancelar.cancelar_dieta"><code class="docutils literal notranslate"><span class="pre">cancelar_dieta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_criar">dieta_especial_criar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.Command.add_arguments"><code class="docutils literal notranslate"><span class="pre">Command.add_arguments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.criar_dieta"><code class="docutils literal notranslate"><span class="pre">criar_dieta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_deletar">dieta_especial_deletar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_deletar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_deletar.Command.add_arguments"><code class="docutils literal notranslate"><span class="pre">Command.add_arguments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_deletar.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_deletar.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.dieta_especial_deletar.deletar_dieta"><code class="docutils literal notranslate"><span class="pre">deletar_dieta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo">exportar_planilha_relacao_protocolo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.compara_nome_protocolo"><code class="docutils literal notranslate"><span class="pre">Command.compara_nome_protocolo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.exportar_planilha"><code class="docutils literal notranslate"><span class="pre">Command.exportar_planilha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.fix_nome_protocolo"><code class="docutils literal notranslate"><span class="pre">Command.fix_nome_protocolo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.formatar_tamanho_celulas"><code class="docutils literal notranslate"><span class="pre">Command.formatar_tamanho_celulas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.similar"><code class="docutils literal notranslate"><span class="pre">Command.similar()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.fix_nomes_protocolos">fix_nomes_protocolos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.fix_nomes_protocolos.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.fix_nomes_protocolos.Command.fix_nome_protocolo"><code class="docutils literal notranslate"><span class="pre">Command.fix_nome_protocolo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.fix_nomes_protocolos.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.fix_nomes_protocolos.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar">gerar_logs_dietas_periodo_escolar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.gera_zip_protocolos">gera_zip_protocolos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.gera_zip_protocolos.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.gera_zip_protocolos.Command.add_arguments"><code class="docutils literal notranslate"><span class="pre">Command.add_arguments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.gera_zip_protocolos.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.gera_zip_protocolos.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos">processar_planilha_protocolos_invalidos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.check_deletar_solicitacoes"><code class="docutils literal notranslate"><span class="pre">Command.check_deletar_solicitacoes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.exportar_planilha"><code class="docutils literal notranslate"><span class="pre">Command.exportar_planilha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.extrair_dados_planilha"><code class="docutils literal notranslate"><span class="pre">Command.extrair_dados_planilha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.formatar_tamanho_celulas"><code class="docutils literal notranslate"><span class="pre">Command.formatar_tamanho_celulas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_validos">processar_planilha_protocolos_validos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.exportar_planilha"><code class="docutils literal notranslate"><span class="pre">Command.exportar_planilha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.extrair_dados_planilha"><code class="docutils literal notranslate"><span class="pre">Command.extrair_dados_planilha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.formatar_tamanho_celulas"><code class="docutils literal notranslate"><span class="pre">Command.formatar_tamanho_celulas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_retorno_nucleo">processar_planilha_retorno_nucleo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.exportar_planilha"><code class="docutils literal notranslate"><span class="pre">Command.exportar_planilha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.extrair_dados_planilha"><code class="docutils literal notranslate"><span class="pre">Command.extrair_dados_planilha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.formatar_tamanho_celulas"><code class="docutils literal notranslate"><span class="pre">Command.formatar_tamanho_celulas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.unifica_dietas_tipo_b">unifica_dietas_tipo_b</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log"><code class="docutils literal notranslate"><span class="pre">Command.atualizar_quantidades_log()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log_escolas_cei"><code class="docutils literal notranslate"><span class="pre">Command.atualizar_quantidades_log_escolas_cei()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log_escolas_gerais"><code class="docutils literal notranslate"><span class="pre">Command.atualizar_quantidades_log_escolas_gerais()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.checa_se_classificacoes_exitem"><code class="docutils literal notranslate"><span class="pre">Command.checa_se_classificacoes_exitem()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.renomeia_categoria_medicao"><code class="docutils literal notranslate"><span class="pre">Command.renomeia_categoria_medicao()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.renomeia_classificacao_e_remove_extra"><code class="docutils literal notranslate"><span class="pre">Command.renomeia_classificacao_e_remove_extra()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.unifica_fks_classificacao_tipo_b"><code class="docutils literal notranslate"><span class="pre">Command.unifica_fks_classificacao_tipo_b()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas">verificar_duplicidade_solicitacoes_dietas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="management/commands.html#module-src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo">verificar_solicitacoes_sem_protocolo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command.handle"><code class="docutils literal notranslate"><span class="pre">Command.handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="management/commands.html#src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command.help"><code class="docutils literal notranslate"><span class="pre">Command.help</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tasks/utils.html" class="btn btn-neutral float-left" title="utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="management/commands.html" class="btn btn-neutral float-right" title="commands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

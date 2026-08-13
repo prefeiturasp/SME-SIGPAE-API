@@ -46,6 +46,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dieta_especial.html">dieta_especial</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../cronograma_entrega.html">cronograma_entrega</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="models.html">models</a></li>
@@ -172,6 +173,14 @@ do cronograma para ASSINADO_CODAE (última etapa do fluxo).</p>
 <dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dados_cronograma_ficha_recebimento">
 <span class="sig-name descname"><span class="pre">dados_cronograma_ficha_recebimento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/viewsets.html#CronogramaModelViewSet.dados_cronograma_ficha_recebimento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dados_cronograma_ficha_recebimento" title="Link to this definition"></a></dt>
 <dd><p>Retorna os dados completos do cronograma para a ficha de recebimento.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dados_cronograma_pos_recebimento">
+<span class="sig-name descname"><span class="pre">dados_cronograma_pos_recebimento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/viewsets.html#CronogramaModelViewSet.dados_cronograma_pos_recebimento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.dados_cronograma_pos_recebimento" title="Link to this definition"></a></dt>
+<dd><p>Dados do cronograma (produto, processo SEI, unidade de medida)
+para preenchimento automático no cadastro do Termo de Recebimento
+Definitivo (Pós-Recebimento).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -311,6 +320,14 @@ fornecedores, filtra apenas os cronogramas da sua empresa.</p>
 <span class="sig-name descname"><span class="pre">lista_cronogramas_para_cadastro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/viewsets.html#CronogramaModelViewSet.lista_cronogramas_para_cadastro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_cronogramas_para_cadastro" title="Link to this definition"></a></dt>
 <dd><p>Lista cronogramas para usar em campos de seleção em cadastros.</p>
 <p>Para fornecedores, retorna apenas os cronogramas da sua empresa.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_cronogramas_pos_recebimento">
+<span class="sig-name descname"><span class="pre">lista_cronogramas_pos_recebimento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/viewsets.html#CronogramaModelViewSet.lista_cronogramas_pos_recebimento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.viewsets.CronogramaModelViewSet.lista_cronogramas_pos_recebimento" title="Link to this definition"></a></dt>
+<dd><p>Cronogramas vinculados ao contrato selecionado (query param
+<code class="docutils literal notranslate"><span class="pre">contrato_id</span></code>) para o cadastro do Termo de Recebimento Definitivo
+(Pós-Recebimento).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -788,6 +805,59 @@ onde a chave é o título do status e o valor é a contagem.</p>
 </dd></dl>
 
 </dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CronogramaDetalhePosRecebimentoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#CronogramaDetalhePosRecebimentoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Dados do cronograma para preenchimento automático do cadastro do
+Termo de Recebimento Definitivo (Pós-Recebimento).</p>
+<p>Produto e unidade de medida vêm da ficha técnica; o número do processo
+SEI vem do contrato vinculado ao cronograma. As relações são opcionais
+(blank/null) e os campos são protegidos contra ausência.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#CronogramaDetalhePosRecebimentoSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'numero',</span> <span class="pre">'produto',</span> <span class="pre">'processo_sei',</span> <span class="pre">'unidade_medida',</span> <span class="pre">'unidade_medida_abreviacao')</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cronograma</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.Meta.read_only_fields">
+<span class="sig-name descname"><span class="pre">read_only_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'numero',</span> <span class="pre">'produto',</span> <span class="pre">'processo_sei',</span> <span class="pre">'unidade_medida',</span> <span class="pre">'unidade_medida_abreviacao')</span></span><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.Meta.read_only_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.get_processo_sei">
+<span class="sig-name descname"><span class="pre">get_processo_sei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#CronogramaDetalhePosRecebimentoSerializer.get_processo_sei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.get_processo_sei" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.get_produto">
+<span class="sig-name descname"><span class="pre">get_produto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#CronogramaDetalhePosRecebimentoSerializer.get_produto"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.get_produto" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.get_unidade_medida">
+<span class="sig-name descname"><span class="pre">get_unidade_medida</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#CronogramaDetalhePosRecebimentoSerializer.get_unidade_medida"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.get_unidade_medida" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.get_unidade_medida_abreviacao">
+<span class="sig-name descname"><span class="pre">get_unidade_medida_abreviacao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/cronograma_entrega/api/serializers/serializers.html#CronogramaDetalhePosRecebimentoSerializer.get_unidade_medida_abreviacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.cronograma_entrega.api.serializers.serializers.CronogramaDetalhePosRecebimentoSerializer.get_unidade_medida_abreviacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

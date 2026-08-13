@@ -1,0 +1,830 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="api" href="api.html" />
+    <link rel="prev" title="logs_models" href="../logs_models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../dieta_especial.html">dieta_especial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.apps">apps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.forms">forms</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.urls">urls</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../protocolo_padrao.html">protocolo_padrao</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../logs_models.html">logs_models</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">models</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api.html">api</a></li>
+<li class="toctree-l5"><a class="reference internal" href="admin.html">admin</a></li>
+<li class="toctree-l5"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tasks.html">tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../management.html">management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils.html">utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../dieta_especial.html">dieta_especial</a></li>
+          <li class="breadcrumb-item"><a href="../logs_models.html">logs_models</a></li>
+      <li class="breadcrumb-item active">models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/dieta_especial/logs_models/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.dieta_especial.logs_models.models">
+<span id="models"></span><h1>models<a class="headerlink" href="#module-src.dieta_especial.logs_models.models" title="Link to this heading"></a></h1>
+<section id="logdietasativascanceladasautomaticamente">
+<h2>LogDietasAtivasCanceladasAutomaticamente<a class="headerlink" href="#logdietasativascanceladasautomaticamente" title="Link to this heading"></a></h2>
+<p>Log de dietas ativas canceladas automaticamente pelo sistema, registrando
+origem e destino da escola e o código EOL do aluno.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogDietasAtivasCanceladasAutomaticamente</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dieta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codigo_eol_aluno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_aluno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codigo_eol_escola_origem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_escola_origem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codigo_eol_escola_destino</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_escola_destino</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/models.html#LogDietasAtivasCanceladasAutomaticamente"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.codigo_eol_aluno">
+<span class="sig-name descname"><span class="pre">codigo_eol_aluno</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.codigo_eol_aluno" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.codigo_eol_escola_destino">
+<span class="sig-name descname"><span class="pre">codigo_eol_escola_destino</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.codigo_eol_escola_destino" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.codigo_eol_escola_origem">
+<span class="sig-name descname"><span class="pre">codigo_eol_escola_origem</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.codigo_eol_escola_origem" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.criado_em" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.dieta">
+<span class="sig-name descname"><span class="pre">dieta</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.dieta" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.dieta_id">
+<span class="sig-name descname"><span class="pre">dieta_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.dieta_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.escola_existe">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">escola_existe</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.escola_existe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.get_next_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.get_next_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.get_previous_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.get_previous_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.nome_aluno">
+<span class="sig-name descname"><span class="pre">nome_aluno</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.nome_aluno" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.nome_escola_destino">
+<span class="sig-name descname"><span class="pre">nome_escola_destino</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.nome_escola_destino" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.nome_escola_origem">
+<span class="sig-name descname"><span class="pre">nome_escola_origem</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.nome_escola_origem" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="logquantidadedietasautorizadas">
+<h2>LogQuantidadeDietasAutorizadas<a class="headerlink" href="#logquantidadedietasautorizadas" title="Link to this heading"></a></h2>
+<p>Log da quantidade de dietas autorizadas por escola, classificação e período
+escolar.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantidade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cei_ou_emei</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infantil_ou_fundamental</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/models.html#LogQuantidadeDietasAutorizadas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemData</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.cei_ou_emei">
+<span class="sig-name descname"><span class="pre">cei_ou_emei</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.cei_ou_emei" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.classificacao">
+<span class="sig-name descname"><span class="pre">classificacao</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.classificacao" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.classificacao_id">
+<span class="sig-name descname"><span class="pre">classificacao_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.classificacao_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.criado_em" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.data" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.escola" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_cei_ou_emei_display">
+<span class="sig-name descname"><span class="pre">get_cei_ou_emei_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.CharField:</span> <span class="pre">cei_ou_emei&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_cei_ou_emei_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_infantil_ou_fundamental_display">
+<span class="sig-name descname"><span class="pre">get_infantil_ou_fundamental_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.CharField:</span> <span class="pre">infantil_ou_fundamental&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_infantil_ou_fundamental_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_next_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_next_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_next_by_data">
+<span class="sig-name descname"><span class="pre">get_next_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_next_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_previous_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_previous_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_previous_by_data">
+<span class="sig-name descname"><span class="pre">get_previous_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.get_previous_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.infantil_ou_fundamental">
+<span class="sig-name descname"><span class="pre">infantil_ou_fundamental</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.infantil_ou_fundamental" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.periodo_escolar">
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.periodo_escolar" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.periodo_escolar_id">
+<span class="sig-name descname"><span class="pre">periodo_escolar_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.periodo_escolar_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.quantidade">
+<span class="sig-name descname"><span class="pre">quantidade</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.quantidade" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas.uuid" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="logquantidadedietasautorizadascei">
+<h2>LogQuantidadeDietasAutorizadasCEI<a class="headerlink" href="#logquantidadedietasautorizadascei" title="Link to this heading"></a></h2>
+<p>Log da quantidade de dietas autorizadas por escola CEI, incluindo faixa
+etária.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasCEI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantidade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixa_etaria</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/models.html#LogQuantidadeDietasAutorizadasCEI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemData</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.classificacao">
+<span class="sig-name descname"><span class="pre">classificacao</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.classificacao" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.classificacao_id">
+<span class="sig-name descname"><span class="pre">classificacao_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.classificacao_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.criado_em" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.data" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.escola" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.faixa_etaria">
+<span class="sig-name descname"><span class="pre">faixa_etaria</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.faixa_etaria" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.faixa_etaria_id">
+<span class="sig-name descname"><span class="pre">faixa_etaria_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.faixa_etaria_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.get_next_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.get_next_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.get_next_by_data">
+<span class="sig-name descname"><span class="pre">get_next_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.get_next_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.get_previous_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.get_previous_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.get_previous_by_data">
+<span class="sig-name descname"><span class="pre">get_previous_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.get_previous_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.periodo_escolar">
+<span class="sig-name descname"><span class="pre">periodo_escolar</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.periodo_escolar" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.periodo_escolar_id">
+<span class="sig-name descname"><span class="pre">periodo_escolar_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.periodo_escolar_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.quantidade">
+<span class="sig-name descname"><span class="pre">quantidade</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.quantidade" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI.uuid" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="logquantidadedietasautorizadasrecreionasferias">
+<h2>LogQuantidadeDietasAutorizadasRecreioNasFerias<a class="headerlink" href="#logquantidadedietasautorizadasrecreionasferias" title="Link to this heading"></a></h2>
+<p>Log da quantidade de dietas autorizadas por escola no contexto do Recreio nas
+Férias.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFerias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantidade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/models.html#LogQuantidadeDietasAutorizadasRecreioNasFerias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemData</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.classificacao">
+<span class="sig-name descname"><span class="pre">classificacao</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.classificacao" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.classificacao_id">
+<span class="sig-name descname"><span class="pre">classificacao_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.classificacao_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.criado_em" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.data" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.escola" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.get_next_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.get_next_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.get_next_by_data">
+<span class="sig-name descname"><span class="pre">get_next_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.get_next_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.get_previous_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.get_previous_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.get_previous_by_data">
+<span class="sig-name descname"><span class="pre">get_previous_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.get_previous_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.quantidade">
+<span class="sig-name descname"><span class="pre">quantidade</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.quantidade" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias.uuid" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="logquantidadedietasautorizadasrecreionasferiascei">
+<h2>LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI<a class="headerlink" href="#logquantidadedietasautorizadasrecreionasferiascei" title="Link to this heading"></a></h2>
+<p>Log da quantidade de dietas autorizadas por escola CEI no contexto do Recreio
+nas Férias, incluindo faixa etária.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantidade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixa_etaria</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/models.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemData</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code></p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.classificacao">
+<span class="sig-name descname"><span class="pre">classificacao</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.classificacao" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.classificacao_id">
+<span class="sig-name descname"><span class="pre">classificacao_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.classificacao_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.criado_em" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.data" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.escola">
+<span class="sig-name descname"><span class="pre">escola</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.escola" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.escola_id">
+<span class="sig-name descname"><span class="pre">escola_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.escola_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.faixa_etaria">
+<span class="sig-name descname"><span class="pre">faixa_etaria</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.faixa_etaria" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.faixa_etaria_id">
+<span class="sig-name descname"><span class="pre">faixa_etaria_id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.faixa_etaria_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.get_next_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_next_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.get_next_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.get_next_by_data">
+<span class="sig-name descname"><span class="pre">get_next_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.get_next_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.get_previous_by_criado_em">
+<span class="sig-name descname"><span class="pre">get_previous_by_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">criado_em&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.get_previous_by_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.get_previous_by_data">
+<span class="sig-name descname"><span class="pre">get_previous_by_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateField:</span> <span class="pre">data&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.get_previous_by_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.quantidade">
+<span class="sig-name descname"><span class="pre">quantidade</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.quantidade" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI.uuid" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../logs_models.html" class="btn btn-neutral float-left" title="logs_models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="api" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,611 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.solicitacao_dieta_especial.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.solicitacao_dieta_especial.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.solicitacao_dieta_especial.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.validators</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxLengthValidator</span><span class="p">,</span> <span class="n">MinLengthValidator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span><span class="p">,</span> <span class="n">QuerySet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Ativavel</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">Descritivel</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">Nomeavel</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoDietaEspecialPartindoDaEscola</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_base64_to_contentfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlunoSerializer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Aluno</span>
+
+<span class="n">PENDENTES_EVENTO_DIETA_ESPECIAL</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INICIO_FLUXO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INICIO_FLUXO_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">AUTORIZADO_EVENTO_DIETA_ESPECIAL</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INICIO_FLUXO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">NEGADOS_EVENTO_DIETA_ESPECIAL</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_NEGOU</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_NEGOU_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_NEGOU_CANCELAMENTO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">CANCELADOS_EVENTO_DIETA_ESPECIAL</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ESCOLA_CANCELOU</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CANCELADO_ALUNO_MUDOU_ESCOLA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CANCELADO_ALUNO_NAO_PERTENCE_REDE</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERMINADA_AUTOMATICAMENTE_SISTEMA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CANCELADO_ENCERRAMENTO_MATRICULA</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">CANCELADOS_EVENTO_DIETA_ESPECIAL_TEMP</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ESCOLA_CANCELOU</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERMINADA_AUTOMATICAMENTE_SISTEMA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CANCELADO_ENCERRAMENTO_MATRICULA</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="MotivoNegacao">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.MotivoNegacao">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoNegacao</span><span class="p">(</span><span class="n">Descritivel</span><span class="p">):</span>
+    <span class="n">CANCELAMENTO</span> <span class="o">=</span> <span class="s2">&quot;CANCELAMENTO&quot;</span>
+    <span class="n">INCLUSAO</span> <span class="o">=</span> <span class="s2">&quot;INCLUSAO&quot;</span>
+
+    <span class="n">PROCESSO_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">CANCELAMENTO</span><span class="p">,</span> <span class="s2">&quot;Solicitação de Cancelamento&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">INCLUSAO</span><span class="p">,</span> <span class="s2">&quot;Solicitação de Inclusão&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">processo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">PROCESSO_CHOICES</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">INCLUSAO</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">descricao</span></div>
+
+
+
+<div class="viewcode-block" id="MotivoAlteracaoUE">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.MotivoAlteracaoUE">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoAlteracaoUE</span><span class="p">(</span><span class="n">Descritivel</span><span class="p">,</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">Ativavel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Motivo Alteração U.E&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Motivo Alteração U.E&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="AlergiaIntolerancia">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.AlergiaIntolerancia">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlergiaIntolerancia</span><span class="p">(</span><span class="n">Descritivel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">descricao</span></div>
+
+
+
+<div class="viewcode-block" id="ClassificacaoDieta">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClassificacaoDieta</span><span class="p">(</span><span class="n">Descritivel</span><span class="p">,</span> <span class="n">Nomeavel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecial</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;dieta_especial&quot;</span><span class="p">),</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">FluxoDietaEspecialPartindoDaEscola</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">Ativavel</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">COMUM</span> <span class="o">=</span> <span class="s2">&quot;COMUM&quot;</span>
+    <span class="n">ALUNO_NAO_MATRICULADO</span> <span class="o">=</span> <span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span>
+    <span class="n">ALTERACAO_UE</span> <span class="o">=</span> <span class="s2">&quot;ALTERACAO_UE&quot;</span>
+    <span class="n">CANCELAMENTO_DIETA</span> <span class="o">=</span> <span class="s2">&quot;CANCELAMENTO_DIETA&quot;</span>
+
+    <span class="n">DESCRICAO_SOLICITACAO</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;CODAE_A_AUTORIZAR&quot;</span><span class="p">:</span> <span class="s2">&quot;Solicitação de Inclusão&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CODAE_NEGOU_PEDIDO&quot;</span><span class="p">:</span> <span class="s2">&quot;Negada a Inclusão&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CODAE_AUTORIZADO&quot;</span><span class="p">:</span> <span class="s2">&quot;Autorizada&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ESCOLA_SOLICITOU_INATIVACAO&quot;</span><span class="p">:</span> <span class="s2">&quot;Solicitação de Cancelamento&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CODAE_NEGOU_INATIVACAO&quot;</span><span class="p">:</span> <span class="s2">&quot;Negada o Cancelamento&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CODAE_AUTORIZOU_INATIVACAO&quot;</span><span class="p">:</span> <span class="s2">&quot;Cancelamento Autorizado&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ESCOLA_CANCELOU&quot;</span><span class="p">:</span> <span class="s2">&quot;Cancelada pela Unidade Escolar&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">TIPO_SOLICITACAO_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">COMUM</span><span class="p">,</span> <span class="s2">&quot;Comum&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">ALUNO_NAO_MATRICULADO</span><span class="p">,</span> <span class="s2">&quot;Aluno não matriculado&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">ALTERACAO_UE</span><span class="p">,</span> <span class="s2">&quot;Alteração U.E&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">CANCELAMENTO_DIETA</span><span class="p">,</span> <span class="s2">&quot;Cancelamento de dieta especial&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Aluno&quot;</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;dietas_especiais&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nome_completo_pescritor</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Nome completo do pescritor da receita&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">registro_funcional_pescritor</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Registro funcional do pescritor da receita&quot;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;CRN/CRM/CRFa...&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">MaxLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">registro_funcional_nutricionista</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Registro funcional do nutricionista&quot;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;CRN/CRM/CRFa...&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Preenchido pela Escola</span>
+    <span class="n">observacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Observações&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Preenchido pela_ CODAE ao autorizar a dieta</span>
+    <span class="n">informacoes_adicionais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Informações Adicionais&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;ProtocoloPadraoDietaEspecial&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;solicitacoes_dietas_especiais&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Nome do Protocolo&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Preenchido pela NutriCODAE ao autorizar a dieta</span>
+    <span class="n">orientacoes_gerais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Orientações Gerais&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Confirmar se PROTECT é a melhor escolha para o campos abaixo</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;ClassificacaoDieta&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span>
+    <span class="p">)</span>
+    <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="s2">&quot;AlergiaIntolerancia&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Confirmar se PROTECT é a melhor escolha para o campos abaixo</span>
+    <span class="n">motivo_negacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;MotivoNegacao&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="c1"># TODO: Mover essa justificativa para o log de transição de status</span>
+    <span class="n">justificativa_negacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">data_termino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">motivo_alteracao_ue</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;MotivoAlteracaoUE&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+
+    <span class="n">escola_destino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Escola&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+
+    <span class="n">dieta_alterada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+
+    <span class="n">data_inicio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">tipo_solicitacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_SOLICITACAO_CHOICES</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;COMUM&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">observacoes_alteracao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Observações Alteração&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">caracteristicas_do_alimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="s2">&quot;Características dos alimentos&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">conferido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s2">&quot;Marcar como conferido?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">eh_importado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s2">&quot;Proveniente de importacao?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">dieta_para_recreio_ferias</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="s2">&quot;Dieta para Recreio nas Férias&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">list</span>
+    <span class="p">):</span>
+        <span class="n">uuids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">solicitacoes</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">uuid_original__in</span><span class="o">=</span><span class="n">uuids</span><span class="p">,</span> <span class="n">status_evento__in</span><span class="o">=</span><span class="n">status</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid_original&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_pendentes">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_pendentes">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_solicitacoes_que_ja_estiveram_pendentes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+            <span class="n">solicitacoes</span><span class="p">,</span> <span class="n">PENDENTES_EVENTO_DIETA_ESPECIAL</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_autorizadas">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_autorizadas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_solicitacoes_que_ja_estiveram_autorizadas</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+            <span class="n">solicitacoes</span><span class="p">,</span> <span class="n">AUTORIZADO_EVENTO_DIETA_ESPECIAL</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_negadas">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_negadas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_solicitacoes_que_ja_estiveram_negadas</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+            <span class="n">solicitacoes</span><span class="p">,</span> <span class="n">NEGADOS_EVENTO_DIETA_ESPECIAL</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_canceladas">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_canceladas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_solicitacoes_que_ja_estiveram_canceladas</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">):</span>
+        <span class="n">solicitacoes</span> <span class="o">=</span> <span class="n">solicitacoes</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">tipo_solicitacao__in</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">,</span> <span class="s2">&quot;COMUM&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">CANCELADOS_EVENTO_DIETA_ESPECIAL_TEMP</span> <span class="o">+</span> <span class="n">CANCELADOS_EVENTO_DIETA_ESPECIAL</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+            <span class="n">solicitacoes</span><span class="p">,</span> <span class="n">status</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.get_totais_gerencial_dietas">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.get_totais_gerencial_dietas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_totais_gerencial_dietas</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="k">if</span> <span class="n">queryset</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">queryset</span>
+        <span class="p">)</span>
+
+        <span class="n">total_solicitacoes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">quantidade_solicitacoes_que_ja_estiveram_pendentes</span><span class="p">(</span>
+                <span class="n">queryset</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">total_autorizadas</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">quantidade_solicitacoes_que_ja_estiveram_autorizadas</span><span class="p">(</span>
+            <span class="n">queryset</span>
+        <span class="p">)</span>
+        <span class="n">total_negadas</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">quantidade_solicitacoes_que_ja_estiveram_negadas</span><span class="p">(</span>
+                <span class="n">queryset</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">total_canceladas</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">quantidade_solicitacoes_que_ja_estiveram_canceladas</span><span class="p">(</span>
+            <span class="n">queryset</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;total_solicitacoes&quot;</span><span class="p">:</span> <span class="n">total_solicitacoes</span><span class="p">,</span>
+            <span class="s2">&quot;total_autorizadas&quot;</span><span class="p">:</span> <span class="n">total_autorizadas</span><span class="p">,</span>
+            <span class="s2">&quot;total_negadas&quot;</span><span class="p">:</span> <span class="n">total_negadas</span><span class="p">,</span>
+            <span class="s2">&quot;total_canceladas&quot;</span><span class="p">:</span> <span class="n">total_canceladas</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">aluno</span><span class="p">,</span> <span class="n">dieta_alterada</span><span class="p">,</span> <span class="n">motivo_recreio_ferias</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">aluno</span><span class="o">=</span><span class="n">aluno</span><span class="p">,</span>
+            <span class="n">dieta_alterada</span><span class="o">=</span><span class="n">dieta_alterada</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">CODAE_AUTORIZADO</span><span class="p">,</span>
+            <span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">,</span>
+            <span class="n">motivo_alteracao_ue</span><span class="o">=</span><span class="n">motivo_recreio_ferias</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.aluno_possui_dieta_especial_pendente">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.aluno_possui_dieta_especial_pendente">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aluno_possui_dieta_especial_pendente</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">aluno</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">aluno</span><span class="o">=</span><span class="n">aluno</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">CODAE_A_AUTORIZAR</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">DESCRICAO</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">descricao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DESCRICAO_SOLICITACAO</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Dieta Especial - </span><span class="si">{</span><span class="n">descricao</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">descricao</span> <span class="k">else</span> <span class="s2">&quot;Dieta Especial&quot;</span>
+
+    <span class="c1"># Property necessária para retornar dados no serializer de criação de</span>
+    <span class="c1"># Dieta Especial</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aluno_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AlunoSerializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">anexos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">anexo_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">escola</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_escola</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.cria_anexos_inativacao">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.cria_anexos_inativacao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cria_anexos_inativacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anexos</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">anexos</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;anexos precisa ser uma lista&quot;</span>  <span class="c1"># nosec</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">anexos</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;anexos não pode ser vazio&quot;</span>  <span class="c1"># nosec</span>
+        <span class="k">for</span> <span class="n">anexo</span> <span class="ow">in</span> <span class="n">anexos</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">convert_base64_to_contentfile</span><span class="p">(</span><span class="n">anexo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;base64&quot;</span><span class="p">))</span>
+            <span class="n">Anexo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">solicitacao_dieta_especial</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">arquivo</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                <span class="n">nome</span><span class="o">=</span><span class="n">anexo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">eh_laudo_alta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicaoalimento_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">str_dre_lote_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dre</span> <span class="o">=</span> <span class="s2">&quot;SEM DRE&quot;</span>
+        <span class="n">lote</span> <span class="o">=</span> <span class="s2">&quot;SEM LOTE&quot;</span>
+        <span class="n">escola</span> <span class="o">=</span> <span class="s2">&quot;SEM ESCOLA&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="p">:</span>
+            <span class="n">escola</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="p">:</span>
+                <span class="n">dre</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;DRE </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">nome</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">lote</span><span class="p">:</span>
+                <span class="n">lote</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">lote</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dre</span><span class="si">}</span><span class="s2">  - </span><span class="si">{</span><span class="n">lote</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">escola</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.salvar_log_transicao">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.salvar_log_transicao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">,</span> <span class="n">usuario</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">DIETA_ESPECIAL</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_nutricionista_with_registro_funcional</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">DIETA_ESPECIAL</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">usuario</span>
+        <span class="k">if</span> <span class="n">usuario</span><span class="o">.</span><span class="n">registro_funcional</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Elaborado por </span><span class="si">{</span><span class="n">usuario</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2"> - RF </span><span class="si">{</span><span class="n">usuario</span><span class="o">.</span><span class="n">registro_funcional</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">registro_funcional_nutricionista</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_ultimo_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">last</span><span class="p">()</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_log_autorizado</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU</span><span class="p">)</span>
+                <span class="o">|</span> <span class="n">Q</span><span class="p">(</span>
+                    <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.clean">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.clean">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dieta_para_recreio_ferias</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicio</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_termino</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="s2">&quot;Os campos de período são obrigatórios quando dieta para recreio nas férias está selecionada.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_termino</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicio</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="s2">&quot;A data final não pode ser anterior à data inicial.&quot;</span>
+                <span class="p">)</span></div>
+
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-ativo&quot;</span><span class="p">,</span> <span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Solicitação de dieta especial&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Solicitações de dieta especial&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">codigo_eol</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Solicitação #</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Anexo">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.Anexo">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Anexo</span><span class="p">(</span><span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;anexo&quot;</span><span class="p">),</span> <span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">solicitacao_dieta_especial</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+    <span class="n">nome</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">arquivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FileField</span><span class="p">()</span>
+    <span class="n">eh_laudo_alta</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacoesDietaEspecialAtivasInativasPorAluno">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacoesDietaEspecialAtivasInativasPorAluno">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacoesDietaEspecialAtivasInativasPorAluno</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">OneToOneField</span><span class="p">(</span><span class="n">Aluno</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ativas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    <span class="n">inativas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">managed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">db_table</span> <span class="o">=</span> <span class="s2">&quot;dietas_ativas_inativas_por_aluno&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

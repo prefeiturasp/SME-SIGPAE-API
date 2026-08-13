@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>protocolo_padrao &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="models" href="protocolo_padrao/models.html" />
+    <link rel="prev" title="services" href="solicitacao_dieta_especial/services.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../dieta_especial.html">dieta_especial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.apps">apps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.forms">forms</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.urls">urls</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">protocolo_padrao</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="protocolo_padrao/models.html">models</a></li>
+<li class="toctree-l5"><a class="reference internal" href="protocolo_padrao/api.html">api</a></li>
+<li class="toctree-l5"><a class="reference internal" href="protocolo_padrao/admin.html">admin</a></li>
+<li class="toctree-l5"><a class="reference internal" href="protocolo_padrao/constants.html">constants</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="logs_models.html">logs_models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tasks.html">tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="management.html">management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.html">utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../dieta_especial.html">dieta_especial</a></li>
+      <li class="breadcrumb-item active">protocolo_padrao</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dieta_especial/protocolo_padrao.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="protocolo-padrao">
+<h1>protocolo_padrao<a class="headerlink" href="#protocolo-padrao" title="Link to this heading"></a></h1>
+<p>Submódulo de protocolos padrão de dieta especial. Gerencia os protocolos que
+padronizam as orientações e substituições de alimentos por diagnóstico, além
+dos alimentos cadastrados e das substituições associadas a cada protocolo.</p>
+<div class="toctree-wrapper compound" id="module-src.dieta_especial.protocolo_padrao">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="protocolo_padrao/models.html">models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/models.html#alimento">Alimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento"><code class="docutils literal notranslate"><span class="pre">Alimento</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.AMBOS"><code class="docutils literal notranslate"><span class="pre">Alimento.AMBOS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">Alimento.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">Alimento.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.SO_ALIMENTOS"><code class="docutils literal notranslate"><span class="pre">Alimento.SO_ALIMENTOS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.SO_SUBSTITUTOS"><code class="docutils literal notranslate"><span class="pre">Alimento.SO_SUBSTITUTOS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.TIPO_CHOICES"><code class="docutils literal notranslate"><span class="pre">Alimento.TIPO_CHOICES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.TIPO_LISTAGEM_PROTOCOLO"><code class="docutils literal notranslate"><span class="pre">Alimento.TIPO_LISTAGEM_PROTOCOLO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.alimentos_substitutos"><code class="docutils literal notranslate"><span class="pre">Alimento.alimentos_substitutos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.alimentos_substitutos_protocolo_padrao"><code class="docutils literal notranslate"><span class="pre">Alimento.alimentos_substitutos_protocolo_padrao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.alimentosubstituto_set"><code class="docutils literal notranslate"><span class="pre">Alimento.alimentosubstituto_set</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.ativo"><code class="docutils literal notranslate"><span class="pre">Alimento.ativo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.get_tipo_display"><code class="docutils literal notranslate"><span class="pre">Alimento.get_tipo_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.get_tipo_listagem_protocolo_display"><code class="docutils literal notranslate"><span class="pre">Alimento.get_tipo_listagem_protocolo_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.id"><code class="docutils literal notranslate"><span class="pre">Alimento.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.marca"><code class="docutils literal notranslate"><span class="pre">Alimento.marca</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.marca_id"><code class="docutils literal notranslate"><span class="pre">Alimento.marca_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.nome"><code class="docutils literal notranslate"><span class="pre">Alimento.nome</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.objects"><code class="docutils literal notranslate"><span class="pre">Alimento.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.outras_informacoes"><code class="docutils literal notranslate"><span class="pre">Alimento.outras_informacoes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.substituicaoalimento_set"><code class="docutils literal notranslate"><span class="pre">Alimento.substituicaoalimento_set</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.substituicaoalimentoprotocolopadrao_set"><code class="docutils literal notranslate"><span class="pre">Alimento.substituicaoalimentoprotocolopadrao_set</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.tipo"><code class="docutils literal notranslate"><span class="pre">Alimento.tipo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.tipo_listagem_protocolo"><code class="docutils literal notranslate"><span class="pre">Alimento.tipo_listagem_protocolo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento.uuid"><code class="docutils literal notranslate"><span class="pre">Alimento.uuid</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/models.html#substituicaoalimento">SubstituicaoAlimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.TIPO_CHOICES"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.TIPO_CHOICES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.alimento"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.alimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.alimento_id"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.alimento_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.alimentos_substitutos"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.alimentos_substitutos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.get_tipo_display"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.get_tipo_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.id"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.objects"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.solicitacao_dieta_especial"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.solicitacao_dieta_especial</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.solicitacao_dieta_especial_id"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.solicitacao_dieta_especial_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.substitutos"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.substitutos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento.tipo"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento.tipo</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/models.html#alimentosubstituto">AlimentoSubstituto</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto.alimento"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto.alimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto.alimento_id"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto.alimento_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto.id"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto.objects"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto.substituicao_alimento_protocolo_padrao"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto.substituicao_alimento_protocolo_padrao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto.substituicao_alimento_protocolo_padrao_id"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto.substituicao_alimento_protocolo_padrao_id</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/models.html#protocolopadraodietaespecial">ProtocoloPadraoDietaEspecial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.STATUS_CHOICES"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.STATUS_CHOICES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.STATUS_LIBERADO"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.STATUS_LIBERADO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.STATUS_NAO_LIBERADO"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.STATUS_NAO_LIBERADO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.STATUS_NOMES"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.STATUS_NOMES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.ativo"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.ativo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.criado_em"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.criado_por"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.criado_por</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.criado_por_id"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.criado_por_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.editais"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.editais</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.get_next_by_criado_em"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.get_next_by_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.get_previous_by_criado_em"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.get_previous_by_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.get_status_display"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.get_status_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.historico"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.historico</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.history"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.history</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.id"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.nome_protocolo"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.nome_protocolo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.objects"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.orientacoes_gerais"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.orientacoes_gerais</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.outras_informacoes"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.outras_informacoes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.solicitacoes_dietas_especiais"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.solicitacoes_dietas_especiais</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.status"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.substituicoes"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.substituicoes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial.uuid"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial.uuid</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/models.html#substituicaoalimentoprotocolopadrao">SubstituicaoAlimentoProtocoloPadrao</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.TIPO_CHOICES"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.TIPO_CHOICES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.alimento"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.alimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.alimento_id"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.alimento_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.alimentos_substitutos"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.alimentos_substitutos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.alimentosubstituto_set"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.alimentosubstituto_set</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.get_tipo_display"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.get_tipo_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.history"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.history</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.id"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.objects"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.protocolo_padrao"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.protocolo_padrao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.protocolo_padrao_id"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.protocolo_padrao_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.substitutos"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.substitutos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao.tipo"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao.tipo</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="protocolo_padrao/api.html">api</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.viewsets">viewsets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.atualizar_editais"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.atualizar_editais()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.basename"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.basename</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.criar_historico_editais"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.criar_historico_editais()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.description"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.detail"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.detail</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.filter_backends"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.filter_backends</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.filterset_fields"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.filterset_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.get_queryset"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.get_serializer_class"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.get_serializer_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados_por_edital"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados_por_edital()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_status"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.lista_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lookup_field"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.lookup_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.name"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.nomes"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.nomes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.pagination_class"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.pagination_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.permission_classes"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.permission_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.queryset"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.queryset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.serializer_class"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.serializer_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.suffix"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet.suffix</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.serializers">serializers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer"><code class="docutils literal notranslate"><span class="pre">AlimentoSerializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta"><code class="docutils literal notranslate"><span class="pre">AlimentoSerializer.Meta</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer"><code class="docutils literal notranslate"><span class="pre">AlimentosSubstitutosSerializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.Meta"><code class="docutils literal notranslate"><span class="pre">AlimentosSubstitutosSerializer.Meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.get_tipo"><code class="docutils literal notranslate"><span class="pre">AlimentosSubstitutosSerializer.get_tipo()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSerializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.Meta"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSerializer.Meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.get_historico"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSerializer.get_historico()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.get_substituicoes"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSerializer.get_substituicoes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSimplesSerializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer.Meta"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSimplesSerializer.Meta</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoSerializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer.Meta"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoSerializer.Meta</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoSerializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer.Meta"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoSerializer.Meta</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.serializers_create">serializers_create</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSerializerCreate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAutorizarSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer"><code class="docutils literal notranslate"><span class="pre">SubstituicaoCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer"><code class="docutils literal notranslate"><span class="pre">SubstituicaoProtocoloPadraoCreateSerializer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.pagination">pagination</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoPagination</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.max_page_size"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoPagination.max_page_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.page_size"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoPagination.page_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.page_size_query_param"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoPagination.page_size_query_param</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.utils">utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.diff_protocolo_padrao"><code class="docutils literal notranslate"><span class="pre">diff_protocolo_padrao()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.diff_substituicoes"><code class="docutils literal notranslate"><span class="pre">diff_substituicoes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.log_create"><code class="docutils literal notranslate"><span class="pre">log_create()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.log_update"><code class="docutils literal notranslate"><span class="pre">log_update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.validators">validators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.validators.edital_ja_existe_protocolo"><code class="docutils literal notranslate"><span class="pre">edital_ja_existe_protocolo()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="protocolo_padrao/admin.html">admin</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.list_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.list_filter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.media"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.ordering"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.ordering</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin.inlines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin.list_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin.media"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoInline"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoInline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoInline.extra"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoInline.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoInline.media"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoInline.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoInline.model"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline.extra"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline.filter_horizontal"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline.filter_horizontal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline.media"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline.model"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline.model</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="protocolo_padrao/constants.html">constants</a></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="solicitacao_dieta_especial/services.html" class="btn btn-neutral float-left" title="services" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="protocolo_padrao/models.html" class="btn btn-neutral float-right" title="models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

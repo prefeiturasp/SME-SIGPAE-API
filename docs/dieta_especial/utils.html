@@ -1,0 +1,223 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="data" href="data.html" />
+    <link rel="prev" title="commands" href="management/commands.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../dieta_especial.html">dieta_especial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.apps">apps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.forms">forms</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../dieta_especial.html#module-src.dieta_especial.urls">urls</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="protocolo_padrao.html">protocolo_padrao</a></li>
+<li class="toctree-l4"><a class="reference internal" href="logs_models.html">logs_models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tasks.html">tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="management.html">management</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">utils</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#module-src.dieta_especial.utils.admin">admin</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias">filtra_relatorio_recreio_nas_ferias</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-src.dieta_especial.utils.gera_dicionario_historico_dietas">gera_dicionario_historico_dietas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-src.dieta_especial.utils.gerar_filtros_relatorio_historico">gerar_filtros_relatorio_historico</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-src.dieta_especial.utils.get_logs_historico_dietas">get_logs_historico_dietas</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../dieta_especial.html">dieta_especial</a></li>
+      <li class="breadcrumb-item active">utils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dieta_especial/utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils">
+<h1>utils<a class="headerlink" href="#utils" title="Link to this heading"></a></h1>
+<p>Submódulo de utilitários do módulo de dieta especial. Reúne funções auxiliares
+para filtros de relatórios, geração de dicionários de histórico e consulta de
+logs.</p>
+<section id="module-src.dieta_especial.utils.admin">
+<span id="admin"></span><span id="module-src.dieta_especial.utils"></span><h2>admin<a class="headerlink" href="#module-src.dieta_especial.utils.admin" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.utils.admin.is_alpha_numeric_and_has_single_space">
+<span class="sig-name descname"><span class="pre">is_alpha_numeric_and_has_single_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descricao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dieta_especial/utils/admin.html#is_alpha_numeric_and_has_single_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.utils.admin.is_alpha_numeric_and_has_single_space" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias">
+<span id="filtra-relatorio-recreio-nas-ferias"></span><h2>filtra_relatorio_recreio_nas_ferias<a class="headerlink" href="#module-src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.filtra_relatorio_recreio_nas_ferias">
+<span class="sig-name descname"><span class="pre">filtra_relatorio_recreio_nas_ferias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dieta_especial/utils/filtra_relatorio_recreio_nas_ferias.html#filtra_relatorio_recreio_nas_ferias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.filtra_relatorio_recreio_nas_ferias" title="Link to this definition"></a></dt>
+<dd><p>Retorna um queryset unificado com alunos matriculados e não matriculados que atendem aos critérios do Recreio nas Férias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>query_params</strong> (<em>QueryDict</em>) – Parâmetros de filtro da requisição.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Conjunto de solicitações filtradas e ordenadas por escola de destino.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>QuerySet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.gera_filtros_relatorio_recreio_nas_ferias">
+<span class="sig-name descname"><span class="pre">gera_filtros_relatorio_recreio_nas_ferias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dieta_especial/utils/filtra_relatorio_recreio_nas_ferias.html#gera_filtros_relatorio_recreio_nas_ferias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.gera_filtros_relatorio_recreio_nas_ferias" title="Link to this definition"></a></dt>
+<dd><p>Gera os dicionários de filtros com base nos parâmetros da requisição.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>query_params</strong> (<em>QueryDict</em>) – Parâmetros enviados na requisição HTTP.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dicionário com filtros para padrao, matriculado e nao_matriculado.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.utils.gera_dicionario_historico_dietas">
+<span id="gera-dicionario-historico-dietas"></span><h2>gera_dicionario_historico_dietas<a class="headerlink" href="#module-src.dieta_especial.utils.gera_dicionario_historico_dietas" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.utils.gera_dicionario_historico_dietas.gera_dicionario_historico_dietas">
+<span class="sig-name descname"><span class="pre">gera_dicionario_historico_dietas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtros</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dieta_especial/utils/gera_dicionario_historico_dietas.html#gera_dicionario_historico_dietas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.utils.gera_dicionario_historico_dietas.gera_dicionario_historico_dietas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.utils.gerar_filtros_relatorio_historico">
+<span id="gerar-filtros-relatorio-historico"></span><h2>gerar_filtros_relatorio_historico<a class="headerlink" href="#module-src.dieta_especial.utils.gerar_filtros_relatorio_historico" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.utils.gerar_filtros_relatorio_historico.gerar_filtros_relatorio_historico">
+<span class="sig-name descname"><span class="pre">gerar_filtros_relatorio_historico</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dieta_especial/utils/gerar_filtros_relatorio_historico.html#gerar_filtros_relatorio_historico"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.utils.gerar_filtros_relatorio_historico.gerar_filtros_relatorio_historico" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.utils.get_logs_historico_dietas">
+<span id="get-logs-historico-dietas"></span><h2>get_logs_historico_dietas<a class="headerlink" href="#module-src.dieta_especial.utils.get_logs_historico_dietas" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.utils.get_logs_historico_dietas.get_logs_historico_dietas">
+<span class="sig-name descname"><span class="pre">get_logs_historico_dietas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtros</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eh_exportacao</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dieta_especial/utils/get_logs_historico_dietas.html#get_logs_historico_dietas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.utils.get_logs_historico_dietas.get_logs_historico_dietas" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="management/commands.html" class="btn btn-neutral float-left" title="commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data.html" class="btn btn-neutral float-right" title="data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.protocolo_padrao.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.protocolo_padrao.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.protocolo_padrao.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">auditlog.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuditlogHistoryField</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">auditlog.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">auditlog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Ativavel</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">Nomeavel</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Alimento">
+<a class="viewcode-back" href="../../../../dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Alimento</span><span class="p">(</span><span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">Ativavel</span><span class="p">):</span>
+    <span class="n">TIPO_CHOICES</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;Edital&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;Proprio&quot;</span><span class="p">))</span>
+    <span class="n">SO_ALIMENTOS</span> <span class="o">=</span> <span class="s2">&quot;SO_ALIMENTOS&quot;</span>
+    <span class="n">SO_SUBSTITUTOS</span> <span class="o">=</span> <span class="s2">&quot;SO_SUBSTITUTOS&quot;</span>
+    <span class="n">AMBOS</span> <span class="o">=</span> <span class="s2">&quot;AMBOS&quot;</span>
+    <span class="n">TIPO_LISTAGEM_PROTOCOLO</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">SO_ALIMENTOS</span><span class="p">,</span> <span class="s2">&quot;Aparece somente na listagem de alimentos&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">SO_SUBSTITUTOS</span><span class="p">,</span> <span class="s2">&quot;Aparece somente na listagem de alimentos substitutos&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">AMBOS</span><span class="p">,</span> <span class="s2">&quot;Aparece nas listagem de alimentos e substitutos&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_CHOICES</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;E&quot;</span><span class="p">)</span>
+    <span class="n">marca</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;produto.Marca&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">outras_informacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">tipo_listagem_protocolo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_LISTAGEM_PROTOCOLO</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">SO_ALIMENTOS</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,)</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;marca&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+
+<div class="viewcode-block" id="SubstituicaoAlimento">
+<a class="viewcode-back" href="../../../../dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimento</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">TIPO_CHOICES</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;Isento&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;Substituir&quot;</span><span class="p">)]</span>
+    <span class="n">solicitacao_dieta_especial</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+    <span class="n">alimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Alimento</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_CHOICES</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">substitutos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;produto.Produto&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substitutos&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;produtos substitutos&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">alimentos_substitutos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">Alimento</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;alimentos_substitutos&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="AlimentoSubstituto">
+<a class="viewcode-back" href="../../../../dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlimentoSubstituto</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">substituicao_alimento_protocolo_padrao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;SubstituicaoAlimentoProtocoloPadrao&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">alimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Alimento</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ProtocoloPadraoDietaEspecial">
+<a class="viewcode-back" href="../../../../dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProtocoloPadraoDietaEspecial</span><span class="p">(</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">CriadoEm</span><span class="p">,</span> <span class="n">CriadoPor</span><span class="p">,</span> <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span> <span class="n">Ativavel</span>
+<span class="p">):</span>
+    <span class="c1"># Mantive para termos um histórico acessível pelo admin</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">AuditlogHistoryField</span><span class="p">()</span>
+
+    <span class="c1"># Status Choice</span>
+    <span class="n">STATUS_LIBERADO</span> <span class="o">=</span> <span class="s2">&quot;LIBERADO&quot;</span>
+    <span class="n">STATUS_NAO_LIBERADO</span> <span class="o">=</span> <span class="s2">&quot;NAO_LIBERADO&quot;</span>
+
+    <span class="n">STATUS_NOMES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">STATUS_LIBERADO</span><span class="p">:</span> <span class="s2">&quot;Liberado&quot;</span><span class="p">,</span>
+        <span class="n">STATUS_NAO_LIBERADO</span><span class="p">:</span> <span class="s2">&quot;Não Liberado&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">STATUS_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">STATUS_LIBERADO</span><span class="p">,</span> <span class="n">STATUS_NOMES</span><span class="p">[</span><span class="n">STATUS_LIBERADO</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">STATUS_NAO_LIBERADO</span><span class="p">,</span> <span class="n">STATUS_NOMES</span><span class="p">[</span><span class="n">STATUS_NAO_LIBERADO</span><span class="p">]),</span>
+    <span class="p">)</span>
+
+    <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Nome do Protocolo&quot;</span><span class="p">)</span>
+
+    <span class="n">orientacoes_gerais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Orientações Gerais&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Status da guia&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">STATUS_CHOICES</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">STATUS_NAO_LIBERADO</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">outras_informacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Outras Informações&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">editais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;terceirizada.Edital&quot;</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;protocolos_padroes_dieta_especial&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">historico</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">JSONField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;nome_protocolo&quot;</span><span class="p">,)</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Protocolo padrão de dieta especial&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Protocolos padrões de dieta especial&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nome_protocolo</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SubstituicaoAlimentoProtocoloPadrao">
+<a class="viewcode-back" href="../../../../dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstituicaoAlimentoProtocoloPadrao</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">AuditlogHistoryField</span><span class="p">()</span>
+
+    <span class="n">TIPO_CHOICES</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;Isento&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;Substituir&quot;</span><span class="p">)]</span>
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">ProtocoloPadraoDietaEspecial</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">alimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Alimento</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_CHOICES</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">substitutos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s2">&quot;produto.Produto&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;substitutos_protocolo_padrao&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;produtos substitutos&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">alimentos_substitutos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">Alimento</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;alimentos_substitutos_protocolo_padrao&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">through</span><span class="o">=</span><span class="s2">&quot;AlimentoSubstituto&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Substituição de alimento para protocolo padrão de dieta&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Substituições de alimentos para protocolos padrões de dietas&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;substituição protocolo padrão: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">protocolo_padrao</span><span class="si">}</span><span class="s2">, tipo: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tipo</span><span class="si">}</span><span class="s2">.&quot;</span></div>
+
+
+
+<span class="n">auditlog</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">ProtocoloPadraoDietaEspecial</span><span class="p">)</span>
+<span class="n">auditlog</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">SubstituicaoAlimentoProtocoloPadrao</span><span class="p">)</span>
+<span class="n">auditlog</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">SubstituicaoAlimentoProtocoloPadrao</span><span class="o">.</span><span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">through</span><span class="p">)</span>
+<span class="n">auditlog</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">AlimentoSubstituto</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

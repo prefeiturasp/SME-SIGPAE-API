@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>api &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="admin" href="admin.html" />
+    <link rel="prev" title="models" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../dieta_especial.html">dieta_especial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.apps">apps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.forms">forms</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.urls">urls</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../protocolo_padrao.html">protocolo_padrao</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../logs_models.html">logs_models</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="models.html">models</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">api</a></li>
+<li class="toctree-l5"><a class="reference internal" href="admin.html">admin</a></li>
+<li class="toctree-l5"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tasks.html">tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../management.html">management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils.html">utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../dieta_especial.html">dieta_especial</a></li>
+          <li class="breadcrumb-item"><a href="../logs_models.html">logs_models</a></li>
+      <li class="breadcrumb-item active">api</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/dieta_especial/logs_models/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.dieta_especial.logs_models.api">
+<span id="api"></span><h1>api<a class="headerlink" href="#module-src.dieta_especial.logs_models.api" title="Link to this heading"></a></h1>
+<section id="module-src.dieta_especial.logs_models.api.viewsets">
+<span id="viewsets"></span><h2>viewsets<a class="headerlink" href="#module-src.dieta_especial.logs_models.api.viewsets" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasCEIViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/viewsets.html#LogQuantidadeDietasAutorizadasCEIViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ListModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.basename">
+<span class="sig-name descname"><span class="pre">basename</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.basename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.detail">
+<span class="sig-name descname"><span class="pre">detail</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.filter_backends">
+<span class="sig-name descname"><span class="pre">filter_backends</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'django_filters.rest_framework.backends.DjangoFilterBackend'&gt;,)</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.filter_backends" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.filterset_class">
+<span class="sig-name descname"><span class="pre">filterset_class</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.filterset_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter" title="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasEspeciaisFilter</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.pagination_class">
+<span class="sig-name descname"><span class="pre">pagination_class</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.pagination_class" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.queryset">
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">LogQuantidadeDietasAutorizadasCEI&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.queryset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.serializer_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer" title="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEISerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.suffix">
+<span class="sig-name descname"><span class="pre">suffix</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet.suffix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/viewsets.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ListModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.basename">
+<span class="sig-name descname"><span class="pre">basename</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.basename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.detail">
+<span class="sig-name descname"><span class="pre">detail</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.filter_backends">
+<span class="sig-name descname"><span class="pre">filter_backends</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'django_filters.rest_framework.backends.DjangoFilterBackend'&gt;,)</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.filter_backends" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.filterset_class">
+<span class="sig-name descname"><span class="pre">filterset_class</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.filterset_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter" title="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasRecreioNasFeriasFilter</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.pagination_class">
+<span class="sig-name descname"><span class="pre">pagination_class</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.pagination_class" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.queryset">
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.queryset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.serializer_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer" title="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.suffix">
+<span class="sig-name descname"><span class="pre">suffix</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet.suffix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/viewsets.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ListModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.basename">
+<span class="sig-name descname"><span class="pre">basename</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.basename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.detail">
+<span class="sig-name descname"><span class="pre">detail</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.filter_backends">
+<span class="sig-name descname"><span class="pre">filter_backends</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'django_filters.rest_framework.backends.DjangoFilterBackend'&gt;,)</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.filter_backends" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.filterset_class">
+<span class="sig-name descname"><span class="pre">filterset_class</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.filterset_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter" title="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasRecreioNasFeriasFilter</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.pagination_class">
+<span class="sig-name descname"><span class="pre">pagination_class</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.pagination_class" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.queryset">
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFerias&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.queryset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.serializer_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer" title="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.suffix">
+<span class="sig-name descname"><span class="pre">suffix</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet.suffix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/viewsets.html#LogQuantidadeDietasAutorizadasViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ListModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.basename">
+<span class="sig-name descname"><span class="pre">basename</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.basename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.detail">
+<span class="sig-name descname"><span class="pre">detail</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.filter_backends">
+<span class="sig-name descname"><span class="pre">filter_backends</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'django_filters.rest_framework.backends.DjangoFilterBackend'&gt;,)</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.filter_backends" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.filterset_class">
+<span class="sig-name descname"><span class="pre">filterset_class</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.filterset_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter" title="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasEspeciaisFilter</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.pagination_class">
+<span class="sig-name descname"><span class="pre">pagination_class</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.pagination_class" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.queryset">
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">LogQuantidadeDietasAutorizadas&gt;</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.queryset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.serializer_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer" title="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.suffix">
+<span class="sig-name descname"><span class="pre">suffix</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet.suffix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.logs_models.api.filters">
+<span id="filters"></span><h2>filters<a class="headerlink" href="#module-src.dieta_especial.logs_models.api.filters" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasEspeciaisFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queryset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/filters.html#LogQuantidadeDietasEspeciaisFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FilterSet</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter.base_filters">
+<span class="sig-name descname"><span class="pre">base_filters</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'ano':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'cei_ou_emei':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'classificacao':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'escola_uuid':</span> <span class="pre">&lt;django_filters.filters.UUIDFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'mes':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'nome_periodo_escolar':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'periodo_escolar':</span> <span class="pre">&lt;django_filters.filters.UUIDFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'unificado':</span> <span class="pre">&lt;django_filters.rest_framework.filters.BooleanFilter</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter.base_filters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter.declared_filters">
+<span class="sig-name descname"><span class="pre">declared_filters</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'ano':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'cei_ou_emei':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'classificacao':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'escola_uuid':</span> <span class="pre">&lt;django_filters.filters.UUIDFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'mes':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'nome_periodo_escolar':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'periodo_escolar':</span> <span class="pre">&lt;django_filters.filters.UUIDFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'unificado':</span> <span class="pre">&lt;django_filters.rest_framework.filters.BooleanFilter</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter.declared_filters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasRecreioNasFeriasFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queryset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/filters.html#LogQuantidadeDietasRecreioNasFeriasFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FilterSet</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter.base_filters">
+<span class="sig-name descname"><span class="pre">base_filters</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'ano':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'escola_uuid':</span> <span class="pre">&lt;django_filters.filters.UUIDFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'mes':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter.base_filters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter.declared_filters">
+<span class="sig-name descname"><span class="pre">declared_filters</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'ano':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'escola_uuid':</span> <span class="pre">&lt;django_filters.filters.UUIDFilter</span> <span class="pre">object&gt;,</span> <span class="pre">'mes':</span> <span class="pre">&lt;django_filters.filters.CharFilter</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter.declared_filters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.logs_models.api.serializers">
+<span id="serializers"></span><h2>serializers<a class="headerlink" href="#module-src.dieta_especial.logs_models.api.serializers" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasCEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasCEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasCEISerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'uuid')</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI" title="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEI</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer.get_dia">
+<span class="sig-name descname"><span class="pre">get_dia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasCEISerializer.get_dia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer.get_dia" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'uuid')</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI" title="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.get_dia">
+<span class="sig-name descname"><span class="pre">get_dia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.get_dia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer.get_dia" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'uuid')</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias" title="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFerias</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.get_dia">
+<span class="sig-name descname"><span class="pre">get_dia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.get_dia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer.get_dia" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LogQuantidadeDietasAutorizadasSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'uuid')</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas" title="src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadas</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer.get_dia">
+<span class="sig-name descname"><span class="pre">get_dia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/logs_models/api/serializers.html#LogQuantidadeDietasAutorizadasSerializer.get_dia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer.get_dia" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="models.html" class="btn btn-neutral float-left" title="models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="admin.html" class="btn btn-neutral float-right" title="admin" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

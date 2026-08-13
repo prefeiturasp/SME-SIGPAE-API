@@ -1,0 +1,605 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>api &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="admin" href="admin.html" />
+    <link rel="prev" title="models" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../dieta_especial.html">dieta_especial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.apps">apps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.forms">forms</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.urls">urls</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../protocolo_padrao.html">protocolo_padrao</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="models.html">models</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">api</a></li>
+<li class="toctree-l5"><a class="reference internal" href="admin.html">admin</a></li>
+<li class="toctree-l5"><a class="reference internal" href="constants.html">constants</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../logs_models.html">logs_models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tasks.html">tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../management.html">management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils.html">utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../dieta_especial.html">dieta_especial</a></li>
+          <li class="breadcrumb-item"><a href="../protocolo_padrao.html">protocolo_padrao</a></li>
+      <li class="breadcrumb-item active">api</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/dieta_especial/protocolo_padrao/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.dieta_especial.protocolo_padrao.api">
+<span id="api"></span><h1>api<a class="headerlink" href="#module-src.dieta_especial.protocolo_padrao.api" title="Link to this heading"></a></h1>
+<section id="module-src.dieta_especial.protocolo_padrao.api.viewsets">
+<span id="viewsets"></span><h2>viewsets<a class="headerlink" href="#module-src.dieta_especial.protocolo_padrao.api.viewsets" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ProtocoloPadraoDietaEspecialViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewSet</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.atualizar_editais">
+<span class="sig-name descname"><span class="pre">atualizar_editais</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet.atualizar_editais"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.atualizar_editais" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.basename">
+<span class="sig-name descname"><span class="pre">basename</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.basename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.criar_historico_editais">
+<span class="sig-name descname"><span class="pre">criar_historico_editais</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocolo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet.criar_historico_editais"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.criar_historico_editais" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.detail">
+<span class="sig-name descname"><span class="pre">detail</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.detail" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.filter_backends">
+<span class="sig-name descname"><span class="pre">filter_backends</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'django_filters.rest_framework.backends.DjangoFilterBackend'&gt;,)</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.filter_backends" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.filterset_fields">
+<span class="sig-name descname"><span class="pre">filterset_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('nome_protocolo',</span> <span class="pre">'status')</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.filterset_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.get_queryset">
+<span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet.get_queryset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.get_queryset" title="Link to this definition"></a></dt>
+<dd><p>Get the list of items for this view.
+This must be an iterable, and may be a queryset.
+Defaults to using <cite>self.queryset</cite>.</p>
+<p>This method should always be used rather than accessing <cite>self.queryset</cite>
+directly, as <cite>self.queryset</cite> gets evaluated only once, and those results
+are cached for all subsequent requests.</p>
+<p>You may want to override this if you need to provide different
+querysets depending on the incoming request.</p>
+<p>(Eg. return a list of items that is specific to the user)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.get_serializer_class">
+<span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet.get_serializer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.get_serializer_class" title="Link to this definition"></a></dt>
+<dd><p>Return the class to use for the serializer.
+Defaults to using <cite>self.serializer_class</cite>.</p>
+<p>You may want to override this if you need to provide different
+serializations depending on the incoming request.</p>
+<p>(Eg. admins get full serialization, others get basic serialization)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados">
+<span class="sig-name descname"><span class="pre">lista_protocolos_liberados</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados_por_edital">
+<span class="sig-name descname"><span class="pre">lista_protocolos_liberados_por_edital</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados_por_edital"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_protocolos_liberados_por_edital" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_status">
+<span class="sig-name descname"><span class="pre">lista_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet.lista_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lista_status" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lookup_field">
+<span class="sig-name descname"><span class="pre">lookup_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uuid'</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.lookup_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.nomes">
+<span class="sig-name descname"><span class="pre">nomes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/viewsets.html#ProtocoloPadraoDietaEspecialViewSet.nomes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.nomes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.pagination_class">
+<span class="sig-name descname"><span class="pre">pagination_class</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.pagination_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination" title="src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProtocoloPadraoPagination</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.permission_classes">
+<span class="sig-name descname"><span class="pre">permission_classes</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'rest_framework.permissions.IsAuthenticated'&gt;,)</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.permission_classes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.queryset">
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">ProtocoloPadraoDietaEspecial&gt;</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.queryset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.serializer_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer" title="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSerializer</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.suffix">
+<span class="sig-name descname"><span class="pre">suffix</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet.suffix" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.protocolo_padrao.api.serializers">
+<span id="serializers"></span><h2>serializers<a class="headerlink" href="#module-src.dieta_especial.protocolo_padrao.api.serializers" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlimentoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#AlimentoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#AlimentoSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__all__'</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.Alimento" title="src.dieta_especial.protocolo_padrao.models.Alimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">Alimento</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta.ordering">
+<span class="sig-name descname"><span class="pre">ordering</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'nome'</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer.Meta.ordering" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AlimentosSubstitutosSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#AlimentosSubstitutosSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#AlimentosSubstitutosSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'nome',</span> <span class="pre">'tipo')</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.Alimento" title="src.dieta_especial.protocolo_padrao.models.Alimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">Alimento</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.get_tipo">
+<span class="sig-name descname"><span class="pre">get_tipo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#AlimentosSubstitutosSerializer.get_tipo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer.get_tipo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ProtocoloPadraoDietaEspecialSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#ProtocoloPadraoDietaEspecialSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#ProtocoloPadraoDietaEspecialSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'nome_protocolo',</span> <span class="pre">'status',</span> <span class="pre">'orientacoes_gerais',</span> <span class="pre">'substituicoes',</span> <span class="pre">'editais',</span> <span class="pre">'historico',</span> <span class="pre">'outras_informacoes')</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial" title="src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.get_historico">
+<span class="sig-name descname"><span class="pre">get_historico</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#ProtocoloPadraoDietaEspecialSerializer.get_historico"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.get_historico" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.get_substituicoes">
+<span class="sig-name descname"><span class="pre">get_substituicoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#ProtocoloPadraoDietaEspecialSerializer.get_substituicoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer.get_substituicoes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ProtocoloPadraoDietaEspecialSimplesSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#ProtocoloPadraoDietaEspecialSimplesSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#ProtocoloPadraoDietaEspecialSimplesSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('nome_protocolo',</span> <span class="pre">'uuid')</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial" title="src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoAlimentoProtocoloPadraoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#SubstituicaoAlimentoProtocoloPadraoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#SubstituicaoAlimentoProtocoloPadraoSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__all__'</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao" title="src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoAlimentoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#SubstituicaoAlimentoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers.html#SubstituicaoAlimentoSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__all__'</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento" title="src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimento</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<section id="module-src.dieta_especial.protocolo_padrao.api.serializers_create">
+<span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-src.dieta_especial.protocolo_padrao.api.serializers_create" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ProtocoloPadraoDietaEspecialSerializerCreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#ProtocoloPadraoDietaEspecialSerializerCreate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#ProtocoloPadraoDietaEspecialSerializerCreate.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'nome_protocolo',</span> <span class="pre">'status',</span> <span class="pre">'orientacoes_gerais',</span> <span class="pre">'criado_em',</span> <span class="pre">'substituicoes',</span> <span class="pre">'editais')</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial" title="src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#ProtocoloPadraoDietaEspecialSerializerCreate.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.create" title="Link to this definition"></a></dt>
+<dd><p>We have a bit of extra checking around this in order to provide
+descriptive messages when something goes wrong, but this method is
+essentially just:</p>
+<blockquote>
+<div><p>return ExampleModel.objects.create(<a href="#id1"><span class="problematic" id="id2">**</span></a>validated_data)</p>
+</div></blockquote>
+<p>If there are many to many fields present on the instance then they
+cannot be set until the model is instantiated, in which case the
+implementation is like so:</p>
+<blockquote>
+<div><p>example_relationship = validated_data.pop(‘example_relationship’)
+instance = ExampleModel.objects.create(<a href="#id3"><span class="problematic" id="id4">**</span></a>validated_data)
+instance.example_relationship = example_relationship
+return instance</p>
+</div></blockquote>
+<p>The default implementation also does not handle nested relationships.
+If you want to support writable nested relationships you’ll need
+to write an explicit <cite>.create()</cite> method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#ProtocoloPadraoDietaEspecialSerializerCreate.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.ProtocoloPadraoDietaEspecialSerializerCreate.update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoAutorizarSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#SubstituicaoAutorizarSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#SubstituicaoAutorizarSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__all__'</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoAutorizarSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento" title="src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimento</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoCreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#SubstituicaoCreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#SubstituicaoCreateSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__all__'</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoCreateSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento" title="src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimento</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SubstituicaoProtocoloPadraoCreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#SubstituicaoProtocoloPadraoCreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/serializers_create.html#SubstituicaoProtocoloPadraoCreateSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer.Meta.exclude">
+<span class="sig-name descname"><span class="pre">exclude</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('protocolo_padrao',)</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer.Meta.exclude" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.serializers_create.SubstituicaoProtocoloPadraoCreateSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao" title="src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="module-src.dieta_especial.protocolo_padrao.api.pagination">
+<span id="pagination"></span><h2>pagination<a class="headerlink" href="#module-src.dieta_especial.protocolo_padrao.api.pagination" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ProtocoloPadraoPagination</span></span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/pagination.html#ProtocoloPadraoPagination"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PageNumberPagination</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.max_page_size">
+<span class="sig-name descname"><span class="pre">max_page_size</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.max_page_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.page_size">
+<span class="sig-name descname"><span class="pre">page_size</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.page_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.page_size_query_param">
+<span class="sig-name descname"><span class="pre">page_size_query_param</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'page_size'</span></span><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination.page_size_query_param" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.protocolo_padrao.api.utils">
+<span id="utils"></span><h2>utils<a class="headerlink" href="#module-src.dieta_especial.protocolo_padrao.api.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.utils.diff_protocolo_padrao">
+<span class="sig-name descname"><span class="pre">diff_protocolo_padrao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_editais</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_editais</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/utils.html#diff_protocolo_padrao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.utils.diff_protocolo_padrao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.utils.diff_substituicoes">
+<span class="sig-name descname"><span class="pre">diff_substituicoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">substituicoes_old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substituicoes_new</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/utils.html#diff_substituicoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.utils.diff_substituicoes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.utils.log_create">
+<span class="sig-name descname"><span class="pre">log_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocolo_padrao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/utils.html#log_create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.utils.log_create" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.utils.log_update">
+<span class="sig-name descname"><span class="pre">log_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substituicoes_old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substituicoes_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_editais</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_editais</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/utils.html#log_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.utils.log_update" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.protocolo_padrao.api.validators">
+<span id="validators"></span><h2>validators<a class="headerlink" href="#module-src.dieta_especial.protocolo_padrao.api.validators" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.protocolo_padrao.api.validators.edital_ja_existe_protocolo">
+<span class="sig-name descname"><span class="pre">edital_ja_existe_protocolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">editais</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantidade_editais_enviados</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/protocolo_padrao/api/validators.html#edital_ja_existe_protocolo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.protocolo_padrao.api.validators.edital_ja_existe_protocolo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="models.html" class="btn btn-neutral float-left" title="models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="admin.html" class="btn btn-neutral float-right" title="admin" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

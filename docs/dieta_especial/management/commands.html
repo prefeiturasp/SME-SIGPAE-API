@@ -1,0 +1,682 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>commands &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="utils" href="../utils.html" />
+    <link rel="prev" title="management" href="../management.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../dieta_especial.html">dieta_especial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.apps">apps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.forms">forms</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.urls">urls</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../protocolo_padrao.html">protocolo_padrao</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../logs_models.html">logs_models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tasks.html">tasks</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../management.html">management</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">commands</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../utils.html">utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../dieta_especial.html">dieta_especial</a></li>
+          <li class="breadcrumb-item"><a href="../management.html">management</a></li>
+      <li class="breadcrumb-item active">commands</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/dieta_especial/management/commands.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.dieta_especial.management.commands">
+<span id="commands"></span><h1>commands<a class="headerlink" href="#module-src.dieta_especial.management.commands" title="Link to this heading"></a></h1>
+<section id="module-src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas">
+<span id="corrige-alergias-intolerancias-duplicadas"></span><h2>corrige_alergias_intolerancias_duplicadas<a class="headerlink" href="#module-src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_alergias_intolerancias_duplicadas.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<p>Script para corrigir alergias/intolerancias duplicadas.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.corrige_alergias_intolerancias">
+<span class="sig-name descname"><span class="pre">corrige_alergias_intolerancias</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_alergias_intolerancias_duplicadas.html#Command.corrige_alergias_intolerancias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.corrige_alergias_intolerancias" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_alergias_intolerancias_duplicadas.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Corrige</span> <span class="pre">alergias/intolerancias</span> <span class="pre">duplicadas'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.normalizar_alergias_intolerancias">
+<span class="sig-name descname"><span class="pre">normalizar_alergias_intolerancias</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_alergias_intolerancias_duplicadas.html#Command.normalizar_alergias_intolerancias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.normalizar_alergias_intolerancias" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.remove_acentos">
+<span class="sig-name descname"><span class="pre">remove_acentos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_alergias_intolerancias_duplicadas.html#Command.remove_acentos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.remove_acentos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.remove_duplicados_alergias_intolerancias">
+<span class="sig-name descname"><span class="pre">remove_duplicados_alergias_intolerancias</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_alergias_intolerancias_duplicadas.html#Command.remove_duplicados_alergias_intolerancias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command.remove_duplicados_alergias_intolerancias" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.corrige_protocolos_padrao">
+<span id="corrige-protocolos-padrao"></span><h2>corrige_protocolos_padrao<a class="headerlink" href="#module-src.dieta_especial.management.commands.corrige_protocolos_padrao" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_protocolos_padrao.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_protocolos_padrao.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<p>Script para corrigir protocolos padrão de dieta especial.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.exclui_protocolos_nao_liberados">
+<span class="sig-name descname"><span class="pre">exclui_protocolos_nao_liberados</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_protocolos_padrao.html#Command.exclui_protocolos_nao_liberados"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.exclui_protocolos_nao_liberados" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_protocolos_padrao.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Corrige</span> <span class="pre">protocolos</span> <span class="pre">padrão</span> <span class="pre">de</span> <span class="pre">dieta</span> <span class="pre">especial'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.inativa_solicitacoes_de_alunos">
+<span class="sig-name descname"><span class="pre">inativa_solicitacoes_de_alunos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_protocolos_padrao.html#Command.inativa_solicitacoes_de_alunos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.inativa_solicitacoes_de_alunos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.remove_novo">
+<span class="sig-name descname"><span class="pre">remove_novo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_protocolos_padrao.html#Command.remove_novo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.remove_novo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.trata_excecoes">
+<span class="sig-name descname"><span class="pre">trata_excecoes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/corrige_protocolos_padrao.html#Command.trata_excecoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command.trata_excecoes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.dieta_especial_autorizar">
+<span id="dieta-especial-autorizar"></span><h2>dieta_especial_autorizar<a class="headerlink" href="#module-src.dieta_especial.management.commands.dieta_especial_autorizar" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_autorizar.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_autorizar.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_autorizar.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_autorizar.Command.add_arguments">
+<span class="sig-name descname"><span class="pre">add_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_autorizar.html#Command.add_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_autorizar.Command.add_arguments" title="Link to this definition"></a></dt>
+<dd><p>Entry point for subclassed commands to add custom arguments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_autorizar.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_autorizar.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_autorizar.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_autorizar.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Autoriza</span> <span class="pre">uma</span> <span class="pre">Dieta</span> <span class="pre">Especial,</span> <span class="pre">informando</span> <span class="pre">o</span> <span class="pre">uuid</span> <span class="pre">da</span> <span class="pre">Dieta.\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_autorizar.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_autorizar.autorizar_dieta">
+<span class="sig-name descname"><span class="pre">autorizar_dieta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dieta_uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_autorizar.html#autorizar_dieta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_autorizar.autorizar_dieta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.dieta_especial_cancelar">
+<span id="dieta-especial-cancelar"></span><h2>dieta_especial_cancelar<a class="headerlink" href="#module-src.dieta_especial.management.commands.dieta_especial_cancelar" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_cancelar.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_cancelar.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_cancelar.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_cancelar.Command.add_arguments">
+<span class="sig-name descname"><span class="pre">add_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_cancelar.html#Command.add_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_cancelar.Command.add_arguments" title="Link to this definition"></a></dt>
+<dd><p>Entry point for subclassed commands to add custom arguments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_cancelar.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_cancelar.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_cancelar.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_cancelar.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Cancela</span> <span class="pre">uma</span> <span class="pre">Dieta</span> <span class="pre">Especial,</span> <span class="pre">informando</span> <span class="pre">o</span> <span class="pre">uuid</span> <span class="pre">da</span> <span class="pre">Dieta.\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_cancelar.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_cancelar.cancelar_dieta">
+<span class="sig-name descname"><span class="pre">cancelar_dieta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dieta_uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_cancelar.html#cancelar_dieta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_cancelar.cancelar_dieta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.dieta_especial_criar">
+<span id="dieta-especial-criar"></span><h2>dieta_especial_criar<a class="headerlink" href="#module-src.dieta_especial.management.commands.dieta_especial_criar" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_criar.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_criar.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_criar.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_criar.Command.add_arguments">
+<span class="sig-name descname"><span class="pre">add_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_criar.html#Command.add_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_criar.Command.add_arguments" title="Link to this definition"></a></dt>
+<dd><p>Entry point for subclassed commands to add custom arguments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_criar.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_criar.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_criar.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_criar.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Cria</span> <span class="pre">uma</span> <span class="pre">Dieta</span> <span class="pre">Especial,</span> <span class="pre">informando</span> <span class="pre">aluno</span> <span class="pre">e</span> <span class="pre">escola.\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_criar.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_criar.criar_dieta">
+<span class="sig-name descname"><span class="pre">criar_dieta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">codigo_eol_aluno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codigo_eol_escola</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_criar.html#criar_dieta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_criar.criar_dieta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.dieta_especial_deletar">
+<span id="dieta-especial-deletar"></span><h2>dieta_especial_deletar<a class="headerlink" href="#module-src.dieta_especial.management.commands.dieta_especial_deletar" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_deletar.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_deletar.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_deletar.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_deletar.Command.add_arguments">
+<span class="sig-name descname"><span class="pre">add_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_deletar.html#Command.add_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_deletar.Command.add_arguments" title="Link to this definition"></a></dt>
+<dd><p>Entry point for subclassed commands to add custom arguments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_deletar.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_deletar.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_deletar.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_deletar.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Deleta</span> <span class="pre">uma</span> <span class="pre">Dieta</span> <span class="pre">Especial,</span> <span class="pre">informando</span> <span class="pre">o</span> <span class="pre">uuid</span> <span class="pre">da</span> <span class="pre">Dieta.\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_deletar.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.dieta_especial_deletar.deletar_dieta">
+<span class="sig-name descname"><span class="pre">deletar_dieta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dieta_uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/dieta_especial_deletar.html#deletar_dieta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.dieta_especial_deletar.deletar_dieta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo">
+<span id="exportar-planilha-relacao-protocolo"></span><h2>exportar_planilha_relacao_protocolo<a class="headerlink" href="#module-src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/exportar_planilha_relacao_protocolo.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.compara_nome_protocolo">
+<span class="sig-name descname"><span class="pre">compara_nome_protocolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nome_protocolo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nomes_protocolos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_solicitacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/exportar_planilha_relacao_protocolo.html#Command.compara_nome_protocolo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.compara_nome_protocolo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.exportar_planilha">
+<span class="sig-name descname"><span class="pre">exportar_planilha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cabecalho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dicts_para_planilha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/exportar_planilha_relacao_protocolo.html#Command.exportar_planilha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.exportar_planilha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.fix_nome_protocolo">
+<span class="sig-name descname"><span class="pre">fix_nome_protocolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/exportar_planilha_relacao_protocolo.html#Command.fix_nome_protocolo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.fix_nome_protocolo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.formatar_tamanho_celulas">
+<span class="sig-name descname"><span class="pre">formatar_tamanho_celulas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/exportar_planilha_relacao_protocolo.html#Command.formatar_tamanho_celulas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.formatar_tamanho_celulas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/exportar_planilha_relacao_protocolo.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Verifica</span> <span class="pre">se</span> <span class="pre">os</span> <span class="pre">protocolos</span> <span class="pre">padrões</span> <span class="pre">da</span> <span class="pre">planilha</span> <span class="pre">de</span> <span class="pre">importação</span> <span class="pre">estão</span> <span class="pre">cadastrados</span> <span class="pre">no</span> <span class="pre">sistema\n</span>&#160;&#160;&#160; <span class="pre">para</span> <span class="pre">determinado</span> <span class="pre">Edital</span> <span class="pre">e</span> <span class="pre">exporta</span> <span class="pre">uma</span> <span class="pre">planilha</span> <span class="pre">com</span> <span class="pre">o</span> <span class="pre">resultado\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.similar">
+<span class="sig-name descname"><span class="pre">similar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/exportar_planilha_relacao_protocolo.html#Command.similar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command.similar" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.fix_nomes_protocolos">
+<span id="fix-nomes-protocolos"></span><h2>fix_nomes_protocolos<a class="headerlink" href="#module-src.dieta_especial.management.commands.fix_nomes_protocolos" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.fix_nomes_protocolos.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/fix_nomes_protocolos.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.fix_nomes_protocolos.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.fix_nomes_protocolos.Command.fix_nome_protocolo">
+<span class="sig-name descname"><span class="pre">fix_nome_protocolo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/fix_nomes_protocolos.html#Command.fix_nome_protocolo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.fix_nomes_protocolos.Command.fix_nome_protocolo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.fix_nomes_protocolos.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/fix_nomes_protocolos.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.fix_nomes_protocolos.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.fix_nomes_protocolos.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Corrigir</span> <span class="pre">caracteres</span> <span class="pre">especiais</span> <span class="pre">nos</span> <span class="pre">nomes</span> <span class="pre">dos</span> <span class="pre">portocolos</span> <span class="pre">salvos</span> <span class="pre">e</span> <span class="pre">nas</span> <span class="pre">solicitações</span> <span class="pre">de</span> <span class="pre">Dieta</span> <span class="pre">Especial\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.fix_nomes_protocolos.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar">
+<span id="gerar-logs-dietas-periodo-escolar"></span><h2>gerar_logs_dietas_periodo_escolar<a class="headerlink" href="#module-src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/gerar_logs_dietas_periodo_escolar.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<p>Script para criar logs de dietas especiais com periodo escolar.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/gerar_logs_dietas_periodo_escolar.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Corrige</span> <span class="pre">alergias/intolerancias</span> <span class="pre">duplicadas'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.gera_zip_protocolos">
+<span id="gera-zip-protocolos"></span><h2>gera_zip_protocolos<a class="headerlink" href="#module-src.dieta_especial.management.commands.gera_zip_protocolos" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.gera_zip_protocolos.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/gera_zip_protocolos.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.gera_zip_protocolos.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.gera_zip_protocolos.Command.add_arguments">
+<span class="sig-name descname"><span class="pre">add_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/gera_zip_protocolos.html#Command.add_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.gera_zip_protocolos.Command.add_arguments" title="Link to this definition"></a></dt>
+<dd><p>Entry point for subclassed commands to add custom arguments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.gera_zip_protocolos.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/gera_zip_protocolos.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.gera_zip_protocolos.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.gera_zip_protocolos.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Gera</span> <span class="pre">PDFs</span> <span class="pre">dos</span> <span class="pre">protocolos</span> <span class="pre">de</span> <span class="pre">dieta</span> <span class="pre">especial,</span> <span class="pre">salva</span> <span class="pre">o</span> <span class="pre">arquivo</span> <span class="pre">em</span> <span class="pre">memória</span> <span class="pre">e</span> <span class="pre">envia</span> <span class="pre">por</span> <span class="pre">e-mail'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.gera_zip_protocolos.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos">
+<span id="processar-planilha-protocolos-invalidos"></span><h2>processar_planilha_protocolos_invalidos<a class="headerlink" href="#module-src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_invalidos.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.check_deletar_solicitacoes">
+<span class="sig-name descname"><span class="pre">check_deletar_solicitacoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nome_planilha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_db</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_invalidos.html#Command.check_deletar_solicitacoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.check_deletar_solicitacoes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.exportar_planilha">
+<span class="sig-name descname"><span class="pre">exportar_planilha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lista</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_invalidos.html#Command.exportar_planilha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.exportar_planilha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.extrair_dados_planilha">
+<span class="sig-name descname"><span class="pre">extrair_dados_planilha</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_invalidos.html#Command.extrair_dados_planilha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.extrair_dados_planilha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.formatar_tamanho_celulas">
+<span class="sig-name descname"><span class="pre">formatar_tamanho_celulas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_invalidos.html#Command.formatar_tamanho_celulas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.formatar_tamanho_celulas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_invalidos.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Processar</span> <span class="pre">planilhas</span> <span class="pre">de</span> <span class="pre">devolutiva</span> <span class="pre">das</span> <span class="pre">POs</span> <span class="pre">para</span> <span class="pre">Dietas</span> <span class="pre">Especiais</span> <span class="pre">com</span> <span class="pre">protocolos</span> <span class="pre">inválidos\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.processar_planilha_protocolos_validos">
+<span id="processar-planilha-protocolos-validos"></span><h2>processar_planilha_protocolos_validos<a class="headerlink" href="#module-src.dieta_especial.management.commands.processar_planilha_protocolos_validos" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_validos.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.exportar_planilha">
+<span class="sig-name descname"><span class="pre">exportar_planilha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lista</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_validos.html#Command.exportar_planilha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.exportar_planilha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.extrair_dados_planilha">
+<span class="sig-name descname"><span class="pre">extrair_dados_planilha</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_validos.html#Command.extrair_dados_planilha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.extrair_dados_planilha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.formatar_tamanho_celulas">
+<span class="sig-name descname"><span class="pre">formatar_tamanho_celulas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_validos.html#Command.formatar_tamanho_celulas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.formatar_tamanho_celulas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_protocolos_validos.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Processar</span> <span class="pre">planilhas</span> <span class="pre">de</span> <span class="pre">devolutiva</span> <span class="pre">das</span> <span class="pre">POs</span> <span class="pre">para</span> <span class="pre">Dietas</span> <span class="pre">Especiais</span> <span class="pre">com</span> <span class="pre">protocolos</span> <span class="pre">válidos\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.processar_planilha_retorno_nucleo">
+<span id="processar-planilha-retorno-nucleo"></span><h2>processar_planilha_retorno_nucleo<a class="headerlink" href="#module-src.dieta_especial.management.commands.processar_planilha_retorno_nucleo" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_retorno_nucleo.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.exportar_planilha">
+<span class="sig-name descname"><span class="pre">exportar_planilha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lista</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_retorno_nucleo.html#Command.exportar_planilha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.exportar_planilha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.extrair_dados_planilha">
+<span class="sig-name descname"><span class="pre">extrair_dados_planilha</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_retorno_nucleo.html#Command.extrair_dados_planilha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.extrair_dados_planilha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.formatar_tamanho_celulas">
+<span class="sig-name descname"><span class="pre">formatar_tamanho_celulas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_retorno_nucleo.html#Command.formatar_tamanho_celulas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.formatar_tamanho_celulas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/processar_planilha_retorno_nucleo.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Processar</span> <span class="pre">planilhas</span> <span class="pre">de</span> <span class="pre">devolutiva</span> <span class="pre">das</span> <span class="pre">POs</span> <span class="pre">para</span> <span class="pre">Dietas</span> <span class="pre">Especiais</span> <span class="pre">com</span> <span class="pre">protocolos</span> <span class="pre">válidos\n</span>&#160;&#160;&#160; <span class="pre">'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.unifica_dietas_tipo_b">
+<span id="unifica-dietas-tipo-b"></span><h2>unifica_dietas_tipo_b<a class="headerlink" href="#module-src.dieta_especial.management.commands.unifica_dietas_tipo_b" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log">
+<span class="sig-name descname"><span class="pre">atualizar_quantidades_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao_lanche</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao_lanche_refeicao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command.atualizar_quantidades_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log_escolas_cei">
+<span class="sig-name descname"><span class="pre">atualizar_quantidades_log_escolas_cei</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command.atualizar_quantidades_log_escolas_cei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log_escolas_cei" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log_escolas_gerais">
+<span class="sig-name descname"><span class="pre">atualizar_quantidades_log_escolas_gerais</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command.atualizar_quantidades_log_escolas_gerais"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log_escolas_gerais" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.checa_se_classificacoes_exitem">
+<span class="sig-name descname"><span class="pre">checa_se_classificacoes_exitem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command.checa_se_classificacoes_exitem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.checa_se_classificacoes_exitem" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Unifica</span> <span class="pre">as</span> <span class="pre">dietas</span> <span class="pre">`Tipo</span> <span class="pre">B</span> <span class="pre">-</span> <span class="pre">LANCHE</span> <span class="pre">e</span> <span class="pre">REFEIÇÃO`</span> <span class="pre">e</span> <span class="pre">`Tipo</span> <span class="pre">B</span> <span class="pre">-</span> <span class="pre">LANCHE`</span> <span class="pre">em</span> <span class="pre">`Tipo</span> <span class="pre">B`'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.renomeia_categoria_medicao">
+<span class="sig-name descname"><span class="pre">renomeia_categoria_medicao</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command.renomeia_categoria_medicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.renomeia_categoria_medicao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.renomeia_classificacao_e_remove_extra">
+<span class="sig-name descname"><span class="pre">renomeia_classificacao_e_remove_extra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classificacao_tipo_b_lanche</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao_tipo_b_lanche_refeicao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command.renomeia_classificacao_e_remove_extra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.renomeia_classificacao_e_remove_extra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.unifica_fks_classificacao_tipo_b">
+<span class="sig-name descname"><span class="pre">unifica_fks_classificacao_tipo_b</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classificacao_tipo_b_lanche</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao_tipo_b_lanche_refeicao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/unifica_dietas_tipo_b.html#Command.unifica_fks_classificacao_tipo_b"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.unifica_fks_classificacao_tipo_b" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas">
+<span id="verificar-duplicidade-solicitacoes-dietas"></span><h2>verificar_duplicidade_solicitacoes_dietas<a class="headerlink" href="#module-src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/verificar_duplicidade_solicitacoes_dietas.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/verificar_duplicidade_solicitacoes_dietas.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Detecta</span> <span class="pre">alunos</span> <span class="pre">com</span> <span class="pre">mais</span> <span class="pre">de</span> <span class="pre">uma</span> <span class="pre">dieta</span> <span class="pre">especial</span> <span class="pre">autorizada</span> <span class="pre">e</span> <span class="pre">exporta</span> <span class="pre">para</span> <span class="pre">Excel.'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo">
+<span id="verificar-solicitacoes-sem-protocolo"></span><h2>verificar_solicitacoes_sem_protocolo<a class="headerlink" href="#module-src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/verificar_solicitacoes_sem_protocolo.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/management/commands/verificar_solicitacoes_sem_protocolo.html#Command.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command.handle" title="Link to this definition"></a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command.help">
+<span class="sig-name descname"><span class="pre">help</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Verifica</span> <span class="pre">solicitações</span> <span class="pre">de</span> <span class="pre">dieta</span> <span class="pre">especial</span> <span class="pre">autorizadas</span> <span class="pre">sem</span> <span class="pre">protocolo</span> <span class="pre">e</span> <span class="pre">exporta</span> <span class="pre">para</span> <span class="pre">Excel.'</span></span><a class="headerlink" href="#src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command.help" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../management.html" class="btn btn-neutral float-left" title="management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../utils.html" class="btn btn-neutral float-right" title="utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

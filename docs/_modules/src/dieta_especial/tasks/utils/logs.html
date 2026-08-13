@@ -1,0 +1,962 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.tasks.utils.logs &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.tasks.utils.logs</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.tasks.utils.logs</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dateutil.relativedelta</span><span class="w"> </span><span class="kn">import</span> <span class="n">relativedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantidade_meses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ETAPA_INFANTIL</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.logs_models.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LogQuantidadeDietasAutorizadas</span><span class="p">,</span>
+    <span class="n">LogQuantidadeDietasAutorizadasCEI</span><span class="p">,</span>
+    <span class="n">LogQuantidadeDietasAutorizadasRecreioNasFerias</span><span class="p">,</span>
+    <span class="n">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ClassificacaoDieta</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">FaixaEtaria</span><span class="p">,</span> <span class="n">PeriodoEscolar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.medicao_inicial.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolicitacaoMedicaoInicial</span>
+
+
+<div class="viewcode-block" id="cria_logs_totais_cei_por_faixa_etaria">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.cria_logs_totais_cei_por_faixa_etaria">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cria_logs_totais_cei_por_faixa_etaria</span><span class="p">(</span><span class="n">logs_escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">,</span> <span class="n">escola</span><span class="p">):</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="p">[</span><span class="n">log</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs_escola</span> <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="s2">&quot;INTEGRAL&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">logs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">logs_escola</span>
+    <span class="k">for</span> <span class="n">classificacao</span> <span class="ow">in</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">quantidade_total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">log</span><span class="o">.</span><span class="n">quantidade</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span> <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">classificacao</span> <span class="o">==</span> <span class="n">classificacao</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">log_total</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadasCEI</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+            <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade_total</span><span class="p">,</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+            <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">logs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="p">,</span>
+            <span class="n">faixa_etaria</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logs_escola</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_total</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs_escola</span></div>
+
+
+
+<div class="viewcode-block" id="get_quantidade_nao_matriculados_entre_4_e_6_anos">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.get_quantidade_nao_matriculados_entre_4_e_6_anos">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_quantidade_nao_matriculados_entre_4_e_6_anos</span><span class="p">(</span><span class="n">dietas</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">dietas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span><span class="p">,</span>
+        <span class="n">aluno__data_nascimento__lte</span><span class="o">=</span><span class="n">data_referencia</span> <span class="o">-</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+        <span class="n">aluno__data_nascimento__gte</span><span class="o">=</span><span class="n">data_referencia</span> <span class="o">-</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_quantidade_nao_matriculados_maior_6_anos">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.get_quantidade_nao_matriculados_maior_6_anos">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_quantidade_nao_matriculados_maior_6_anos</span><span class="p">(</span><span class="n">dietas</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">dietas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span><span class="p">,</span>
+        <span class="n">aluno__data_nascimento__lte</span><span class="o">=</span><span class="n">data_referencia</span> <span class="o">-</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_quantidade_dietas_emebs">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.get_quantidade_dietas_emebs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_quantidade_dietas_emebs</span><span class="p">(</span><span class="n">each</span><span class="p">,</span> <span class="n">dietas</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+    <span class="n">dietas_sem_alunos_nao_matriculados</span> <span class="o">=</span> <span class="n">dietas</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span>
+        <span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">each</span> <span class="o">==</span> <span class="s2">&quot;INFANTIL&quot;</span><span class="p">:</span>
+        <span class="n">quantidade</span> <span class="o">=</span> <span class="n">dietas_sem_alunos_nao_matriculados</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">aluno__etapa</span><span class="o">=</span><span class="n">ETAPA_INFANTIL</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">quantidade</span> <span class="o">+=</span> <span class="n">get_quantidade_nao_matriculados_entre_4_e_6_anos</span><span class="p">(</span>
+            <span class="n">dietas</span><span class="p">,</span> <span class="n">data_referencia</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">each</span> <span class="o">==</span> <span class="s2">&quot;FUNDAMENTAL&quot;</span><span class="p">:</span>
+        <span class="n">quantidade</span> <span class="o">=</span> <span class="n">dietas_sem_alunos_nao_matriculados</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span>
+            <span class="n">aluno__etapa</span><span class="o">=</span><span class="n">ETAPA_INFANTIL</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">quantidade</span> <span class="o">+=</span> <span class="n">get_quantidade_nao_matriculados_maior_6_anos</span><span class="p">(</span>
+            <span class="n">dietas</span><span class="p">,</span> <span class="n">data_referencia</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">quantidade</span> <span class="o">=</span> <span class="n">dietas_sem_alunos_nao_matriculados</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">quantidade</span> <span class="o">+=</span> <span class="n">get_quantidade_nao_matriculados_maior_6_anos</span><span class="p">(</span>
+            <span class="n">dietas</span><span class="p">,</span> <span class="n">data_referencia</span>
+        <span class="p">)</span>
+        <span class="n">quantidade</span> <span class="o">+=</span> <span class="n">get_quantidade_nao_matriculados_entre_4_e_6_anos</span><span class="p">(</span>
+            <span class="n">dietas</span><span class="p">,</span> <span class="n">data_referencia</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">quantidade</span></div>
+
+
+
+<div class="viewcode-block" id="logs_a_criar_sem_periodo_escolar">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.logs_a_criar_sem_periodo_escolar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">logs_a_criar_sem_periodo_escolar</span><span class="p">(</span>
+    <span class="n">logs_a_criar</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">dietas_filtradas</span><span class="p">,</span> <span class="n">ontem</span><span class="p">,</span> <span class="n">classificacao</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">escola</span><span class="o">.</span><span class="n">eh_emebs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;INFANTIL&quot;</span><span class="p">,</span> <span class="s2">&quot;FUNDAMENTAL&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">]:</span>
+            <span class="n">quantidade</span> <span class="o">=</span> <span class="n">get_quantidade_dietas_emebs</span><span class="p">(</span><span class="n">each</span><span class="p">,</span> <span class="n">dietas_filtradas</span><span class="p">,</span> <span class="n">ontem</span><span class="p">)</span>
+            <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadas</span><span class="p">(</span>
+                <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade</span><span class="p">,</span>
+                <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+                <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+                <span class="n">infantil_ou_fundamental</span><span class="o">=</span><span class="n">each</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadas</span><span class="p">(</span>
+            <span class="n">quantidade</span><span class="o">=</span><span class="n">dietas_filtradas</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<div class="viewcode-block" id="logs_periodo_integral_cei_ou_emei_escola_cemei">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.logs_periodo_integral_cei_ou_emei_escola_cemei">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">logs_periodo_integral_cei_ou_emei_escola_cemei</span><span class="p">(</span>
+    <span class="n">logs_a_criar</span><span class="p">,</span>
+    <span class="n">dietas_autorizadas</span><span class="p">,</span>
+    <span class="n">classificacao</span><span class="p">,</span>
+    <span class="n">escola</span><span class="p">,</span>
+    <span class="n">periodo_escolar_nome</span><span class="p">,</span>
+    <span class="n">dict_periodos</span><span class="p">,</span>
+    <span class="n">ontem</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">dietas</span> <span class="o">=</span> <span class="n">dietas_autorizadas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span> <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">Q</span><span class="p">(</span><span class="n">aluno__periodo_escolar__nome</span><span class="o">=</span><span class="n">periodo_escolar_nome</span><span class="p">)</span>
+        <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">quantidade_cei</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">quantidade_emei</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">dieta</span> <span class="ow">in</span> <span class="n">dietas</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dieta</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">serie</span><span class="p">:</span>
+            <span class="n">quantidade_cei</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">quantidade_emei</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">dieta</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">ciclo</span> <span class="o">==</span> <span class="n">dieta</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">CICLO_ALUNO_CEI</span><span class="p">:</span>
+            <span class="n">quantidade_cei</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">quantidade_emei</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">log_cei</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadas</span><span class="p">(</span>
+        <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade_cei</span><span class="p">,</span>
+        <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+        <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">dict_periodos</span><span class="p">[</span><span class="n">periodo_escolar_nome</span><span class="p">],</span>
+        <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+        <span class="n">cei_ou_emei</span><span class="o">=</span><span class="s2">&quot;CEI&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">log_emei</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadas</span><span class="p">(</span>
+        <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade_emei</span><span class="p">,</span>
+        <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+        <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">dict_periodos</span><span class="p">[</span><span class="n">periodo_escolar_nome</span><span class="p">],</span>
+        <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+        <span class="n">cei_ou_emei</span><span class="o">=</span><span class="s2">&quot;EMEI&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs_a_criar</span> <span class="o">+</span> <span class="p">[</span><span class="n">log_cei</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">log_emei</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="gera_logs_dietas_escolas_comuns">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_escolas_comuns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_logs_dietas_escolas_comuns</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dietas_autorizadas</span><span class="p">,</span> <span class="n">ontem</span><span class="p">):</span>
+    <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">dict_periodos</span> <span class="o">=</span> <span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">dict_periodos</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">classificacao</span> <span class="ow">in</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">dietas_filtradas</span> <span class="o">=</span> <span class="n">dietas_autorizadas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span> <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola</span>
+        <span class="p">)</span>
+        <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="n">logs_a_criar_sem_periodo_escolar</span><span class="p">(</span>
+            <span class="n">logs_a_criar</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">dietas_filtradas</span><span class="p">,</span> <span class="n">ontem</span><span class="p">,</span> <span class="n">classificacao</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">periodo_escolar_nome</span> <span class="ow">in</span> <span class="n">escola</span><span class="o">.</span><span class="n">periodos_escolares_com_alunos</span><span class="p">:</span>
+            <span class="n">dietas_filtradas_periodo</span> <span class="o">=</span> <span class="n">dietas_autorizadas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span> <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">aluno__periodo_escolar__nome</span><span class="o">=</span><span class="n">periodo_escolar_nome</span><span class="p">)</span>
+                <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">escola</span><span class="o">.</span><span class="n">eh_cemei</span> <span class="ow">and</span> <span class="n">periodo_escolar_nome</span> <span class="o">==</span> <span class="s2">&quot;INTEGRAL&quot;</span><span class="p">:</span>
+                <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="n">logs_periodo_integral_cei_ou_emei_escola_cemei</span><span class="p">(</span>
+                    <span class="n">logs_a_criar</span><span class="p">,</span>
+                    <span class="n">dietas_autorizadas</span><span class="p">,</span>
+                    <span class="n">classificacao</span><span class="p">,</span>
+                    <span class="n">escola</span><span class="p">,</span>
+                    <span class="n">periodo_escolar_nome</span><span class="p">,</span>
+                    <span class="n">dict_periodos</span><span class="p">,</span>
+                    <span class="n">ontem</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">escola</span><span class="o">.</span><span class="n">eh_emebs</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">each</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;INFANTIL&quot;</span><span class="p">,</span> <span class="s2">&quot;FUNDAMENTAL&quot;</span><span class="p">]:</span>
+                    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">get_quantidade_dietas_emebs</span><span class="p">(</span>
+                        <span class="n">each</span><span class="p">,</span> <span class="n">dietas_filtradas_periodo</span><span class="p">,</span> <span class="n">ontem</span>
+                    <span class="p">)</span>
+                    <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadas</span><span class="p">(</span>
+                        <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade</span><span class="p">,</span>
+                        <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+                        <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">dict_periodos</span><span class="p">[</span><span class="n">periodo_escolar_nome</span><span class="p">],</span>
+                        <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+                        <span class="n">infantil_ou_fundamental</span><span class="o">=</span><span class="n">each</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadas</span><span class="p">(</span>
+                    <span class="n">quantidade</span><span class="o">=</span><span class="n">dietas_filtradas_periodo</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+                    <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+                    <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">dict_periodos</span><span class="p">[</span><span class="n">periodo_escolar_nome</span><span class="p">],</span>
+                    <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<div class="viewcode-block" id="append_periodo_parcial">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.append_periodo_parcial">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">append_periodo_parcial</span><span class="p">(</span><span class="n">periodos</span><span class="p">,</span> <span class="n">solicitacao_medicao</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">solicitacao_medicao</span><span class="o">.</span><span class="n">ue_possui_alunos_periodo_parcial</span><span class="p">:</span>
+        <span class="n">periodos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PARCIAL&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">periodos</span></div>
+
+
+
+<div class="viewcode-block" id="append_faixas_dietas">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.append_faixas_dietas">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">append_faixas_dietas</span><span class="p">(</span><span class="n">dietas</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+    <span class="n">faixas</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dieta_periodo</span> <span class="ow">in</span> <span class="n">dietas</span><span class="p">:</span>
+        <span class="n">faixa</span> <span class="o">=</span> <span class="n">_faixa_etaria_para_aluno</span><span class="p">(</span><span class="n">dieta_periodo</span><span class="o">.</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">faixa</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">escola</span><span class="o">.</span><span class="n">eh_cemei</span>
+            <span class="ow">and</span> <span class="n">dieta_periodo</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">ciclo</span> <span class="o">!=</span> <span class="n">dieta_periodo</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">CICLO_ALUNO_CEI</span>
+        <span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">faixas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">faixa</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">faixas</span></div>
+
+
+
+<div class="viewcode-block" id="criar_logs_integral_parcial">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.criar_logs_integral_parcial">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">criar_logs_integral_parcial</span><span class="p">(</span>
+    <span class="n">eh_integral</span><span class="p">,</span>
+    <span class="n">dietas</span><span class="p">,</span>
+    <span class="n">solicitacao_medicao</span><span class="p">,</span>
+    <span class="n">escola</span><span class="p">,</span>
+    <span class="n">ontem</span><span class="p">,</span>
+    <span class="n">classificacao</span><span class="p">,</span>
+    <span class="n">periodo</span><span class="p">,</span>
+    <span class="n">faixas</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">dict_periodos</span> <span class="o">=</span> <span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">dict_periodos</span><span class="p">()</span>
+    <span class="n">faixas_alunos_parciais</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dieta</span> <span class="ow">in</span> <span class="n">dietas</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dieta</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span> <span class="ow">in</span> <span class="n">solicitacao_medicao</span><span class="o">.</span><span class="n">alunos_periodo_parcial</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;aluno__nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">):</span>
+            <span class="n">faixa</span> <span class="o">=</span> <span class="n">_faixa_etaria_para_aluno</span><span class="p">(</span><span class="n">dieta</span><span class="o">.</span><span class="n">aluno</span><span class="p">,</span> <span class="n">ontem</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">faixa</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">faixas_alunos_parciais</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">faixa</span><span class="p">)</span>
+    <span class="n">faixas</span> <span class="o">=</span> <span class="n">faixas</span> <span class="k">if</span> <span class="n">eh_integral</span> <span class="k">else</span> <span class="n">faixas_alunos_parciais</span>
+    <span class="k">for</span> <span class="n">faixa</span><span class="p">,</span> <span class="n">quantidade</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">faixas</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">eh_integral</span> <span class="ow">and</span> <span class="n">faixa</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">faixas_alunos_parciais</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">quantidade</span> <span class="o">=</span> <span class="n">quantidade</span> <span class="o">-</span> <span class="n">Counter</span><span class="p">(</span><span class="n">faixas_alunos_parciais</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">faixa</span><span class="p">)</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadasCEI</span><span class="p">(</span>
+            <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade</span><span class="p">,</span>
+            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+            <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">dict_periodos</span><span class="p">[</span><span class="n">periodo</span><span class="p">],</span>
+            <span class="n">faixa_etaria</span><span class="o">=</span><span class="n">faixa</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs</span></div>
+
+
+
+<div class="viewcode-block" id="faixas_por_periodo_e_faixa_etaria">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.faixas_por_periodo_e_faixa_etaria">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">faixas_por_periodo_e_faixa_etaria</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">periodo</span><span class="p">,</span> <span class="n">ontem</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">escola</span><span class="o">.</span><span class="n">matriculados_por_periodo_e_faixa_etaria</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">)[</span><span class="n">periodo</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">escola</span><span class="o">.</span><span class="n">matriculados_por_periodo_e_faixa_etaria</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">)[</span><span class="s2">&quot;INTEGRAL&quot;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="condicoes">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.condicoes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">condicoes</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">,</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">periodo</span><span class="p">,</span> <span class="n">faixa</span><span class="p">):</span>
+    <span class="n">resultado</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">escola</span> <span class="o">==</span> <span class="n">escola</span>
+        <span class="ow">and</span> <span class="n">log</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="n">ontem</span>
+        <span class="ow">and</span> <span class="n">log</span><span class="o">.</span><span class="n">classificacao</span> <span class="o">==</span> <span class="n">classificacao</span>
+        <span class="ow">and</span> <span class="n">log</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="n">periodo</span>
+        <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">log</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span> <span class="o">==</span> <span class="n">faixa</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">resultado</span></div>
+
+
+
+<div class="viewcode-block" id="existe_log">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.existe_log">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">existe_log</span><span class="p">(</span><span class="n">logs_a_criar</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">,</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">periodo</span><span class="p">,</span> <span class="n">faixa</span><span class="p">):</span>
+    <span class="n">resultado</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="nb">filter</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">log</span><span class="p">:</span> <span class="n">condicoes</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">,</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">periodo</span><span class="p">,</span> <span class="n">faixa</span><span class="p">),</span>
+            <span class="n">logs_a_criar</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">resultado</span></div>
+
+
+
+<div class="viewcode-block" id="append_logs_a_criar_de_quantidade_zero">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.append_logs_a_criar_de_quantidade_zero">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">append_logs_a_criar_de_quantidade_zero</span><span class="p">(</span><span class="n">logs_a_criar</span><span class="p">,</span> <span class="n">periodos</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">):</span>
+    <span class="n">dict_periodos</span> <span class="o">=</span> <span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">dict_periodos</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">periodo</span> <span class="ow">in</span> <span class="n">periodos</span><span class="p">:</span>
+        <span class="n">faixas</span> <span class="o">=</span> <span class="n">faixas_por_periodo_e_faixa_etaria</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">periodo</span><span class="p">,</span> <span class="n">ontem</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">faixa</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">faixas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">faixa</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">FaixaEtaria</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                    <span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="p">]:</span>
+                <span class="k">for</span> <span class="n">classificacao</span> <span class="ow">in</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">existe_log</span><span class="p">(</span>
+                        <span class="n">logs_a_criar</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">,</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">periodo</span><span class="p">,</span> <span class="n">faixa</span>
+                    <span class="p">):</span>
+                        <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadasCEI</span><span class="p">(</span>
+                            <span class="n">quantidade</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+                            <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+                            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+                            <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">dict_periodos</span><span class="p">[</span><span class="n">periodo</span><span class="p">],</span>
+                            <span class="n">faixa_etaria</span><span class="o">=</span><span class="n">FaixaEtaria</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">faixa</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<div class="viewcode-block" id="adicionar_logs_a_criar_integral_parcial">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.adicionar_logs_a_criar_integral_parcial">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">adicionar_logs_a_criar_integral_parcial</span><span class="p">(</span>
+    <span class="n">periodos</span><span class="p">,</span>
+    <span class="n">periodo</span><span class="p">,</span>
+    <span class="n">dietas</span><span class="p">,</span>
+    <span class="n">solicitacao_medicao</span><span class="p">,</span>
+    <span class="n">escola</span><span class="p">,</span>
+    <span class="n">ontem</span><span class="p">,</span>
+    <span class="n">classificacao</span><span class="p">,</span>
+    <span class="n">faixas</span><span class="p">,</span>
+    <span class="n">logs_a_criar</span><span class="p">,</span>
+    <span class="n">dict_periodos</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">periodo</span> <span class="o">==</span> <span class="s2">&quot;INTEGRAL&quot;</span> <span class="ow">and</span> <span class="s2">&quot;PARCIAL&quot;</span> <span class="ow">in</span> <span class="n">periodos</span><span class="p">:</span>
+        <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">criar_logs_integral_parcial</span><span class="p">(</span>
+                <span class="kc">True</span><span class="p">,</span>
+                <span class="n">dietas</span><span class="p">,</span>
+                <span class="n">solicitacao_medicao</span><span class="p">,</span>
+                <span class="n">escola</span><span class="p">,</span>
+                <span class="n">ontem</span><span class="p">,</span>
+                <span class="n">classificacao</span><span class="p">,</span>
+                <span class="n">periodo</span><span class="p">,</span>
+                <span class="n">faixas</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">periodo</span> <span class="o">==</span> <span class="s2">&quot;PARCIAL&quot;</span><span class="p">:</span>
+        <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">criar_logs_integral_parcial</span><span class="p">(</span>
+                <span class="kc">False</span><span class="p">,</span>
+                <span class="n">dietas</span><span class="p">,</span>
+                <span class="n">solicitacao_medicao</span><span class="p">,</span>
+                <span class="n">escola</span><span class="p">,</span>
+                <span class="n">ontem</span><span class="p">,</span>
+                <span class="n">classificacao</span><span class="p">,</span>
+                <span class="n">periodo</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">faixa</span><span class="p">,</span> <span class="n">quantidade</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">faixas</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">LogQuantidadeDietasAutorizadasCEI</span><span class="p">(</span>
+                    <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade</span><span class="p">,</span>
+                    <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+                    <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+                    <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">dict_periodos</span><span class="p">[</span><span class="n">periodo</span><span class="p">],</span>
+                    <span class="n">faixa_etaria</span><span class="o">=</span><span class="n">faixa</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<div class="viewcode-block" id="logs_a_criar_existe_solicitacao_medicao">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.logs_a_criar_existe_solicitacao_medicao">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">logs_a_criar_existe_solicitacao_medicao</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dietas_autorizadas</span><span class="p">,</span> <span class="n">ontem</span><span class="p">):</span>
+    <span class="n">solicitacao_medicao</span> <span class="o">=</span> <span class="n">SolicitacaoMedicaoInicial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">escola__codigo_eol</span><span class="o">=</span><span class="n">escola</span><span class="o">.</span><span class="n">codigo_eol</span><span class="p">,</span>
+        <span class="n">mes</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">month</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">ano</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+        <span class="n">recreio_nas_ferias</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">solicitacao_medicao</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ObjectDoesNotExist</span><span class="p">(</span><span class="s2">&quot;Solicitação de Medição Inicial não encontrada.&quot;</span><span class="p">)</span>
+    <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">periodos</span> <span class="o">=</span> <span class="n">escola</span><span class="o">.</span><span class="n">periodos_escolares_com_alunos</span>
+    <span class="n">periodos</span> <span class="o">=</span> <span class="n">append_periodo_parcial</span><span class="p">(</span><span class="n">periodos</span><span class="p">,</span> <span class="n">solicitacao_medicao</span><span class="p">)</span>
+    <span class="n">periodos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">periodos</span><span class="p">))</span>
+    <span class="n">dict_periodos</span> <span class="o">=</span> <span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">dict_periodos</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">periodo</span> <span class="ow">in</span> <span class="n">periodos</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">classificacao</span> <span class="ow">in</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">dietas</span> <span class="o">=</span> <span class="n">dietas_autorizadas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span> <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola</span>
+            <span class="p">)</span>
+            <span class="n">dietas_filtradas_periodo</span> <span class="o">=</span> <span class="n">dietas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">aluno__periodo_escolar__nome</span><span class="o">=</span><span class="n">periodo</span>
+            <span class="p">)</span>
+            <span class="n">dietas_nao_matriculados</span> <span class="o">=</span> <span class="n">dietas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span>
+            <span class="p">)</span>
+            <span class="n">faixas</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">faixas</span> <span class="o">+=</span> <span class="n">append_faixas_dietas</span><span class="p">(</span><span class="n">dietas_filtradas_periodo</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">)</span>
+            <span class="n">faixas</span> <span class="o">+=</span> <span class="n">append_faixas_dietas</span><span class="p">(</span><span class="n">dietas_nao_matriculados</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">)</span>
+            <span class="n">adicionar_logs_a_criar_integral_parcial</span><span class="p">(</span>
+                <span class="n">periodos</span><span class="p">,</span>
+                <span class="n">periodo</span><span class="p">,</span>
+                <span class="n">dietas</span><span class="p">,</span>
+                <span class="n">solicitacao_medicao</span><span class="p">,</span>
+                <span class="n">escola</span><span class="p">,</span>
+                <span class="n">ontem</span><span class="p">,</span>
+                <span class="n">classificacao</span><span class="p">,</span>
+                <span class="n">faixas</span><span class="p">,</span>
+                <span class="n">logs_a_criar</span><span class="p">,</span>
+                <span class="n">dict_periodos</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="n">append_logs_a_criar_de_quantidade_zero</span><span class="p">(</span>
+        <span class="n">logs_a_criar</span><span class="p">,</span> <span class="n">periodos</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<div class="viewcode-block" id="logs_a_criar_nao_existe_solicitacao_medicao">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.logs_a_criar_nao_existe_solicitacao_medicao">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">logs_a_criar_nao_existe_solicitacao_medicao</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dietas_autorizadas</span><span class="p">,</span> <span class="n">ontem</span><span class="p">):</span>
+    <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">periodos</span> <span class="o">=</span> <span class="n">escola</span><span class="o">.</span><span class="n">periodos_escolares_com_alunos</span>
+    <span class="n">dict_periodos</span> <span class="o">=</span> <span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">dict_periodos</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">periodo</span> <span class="ow">in</span> <span class="n">periodos</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">classificacao</span> <span class="ow">in</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">dietas</span> <span class="o">=</span> <span class="n">dietas_autorizadas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span> <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola</span>
+            <span class="p">)</span>
+            <span class="n">dietas_filtradas_periodo</span> <span class="o">=</span> <span class="n">dietas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">aluno__periodo_escolar__nome</span><span class="o">=</span><span class="n">periodo</span>
+            <span class="p">)</span>
+            <span class="n">dietas_nao_matriculados</span> <span class="o">=</span> <span class="n">dietas</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span>
+            <span class="p">)</span>
+            <span class="n">faixas</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">faixas</span> <span class="o">+=</span> <span class="n">append_faixas_dietas</span><span class="p">(</span><span class="n">dietas_filtradas_periodo</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">)</span>
+            <span class="n">faixas</span> <span class="o">+=</span> <span class="n">append_faixas_dietas</span><span class="p">(</span><span class="n">dietas_nao_matriculados</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">faixa</span><span class="p">,</span> <span class="n">quantidade</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">faixas</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadasCEI</span><span class="p">(</span>
+                    <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade</span><span class="p">,</span>
+                    <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">ontem</span><span class="p">,</span>
+                    <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+                    <span class="n">periodo_escolar</span><span class="o">=</span><span class="n">dict_periodos</span><span class="p">[</span><span class="n">periodo</span><span class="p">],</span>
+                    <span class="n">faixa_etaria</span><span class="o">=</span><span class="n">faixa</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+    <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="n">append_logs_a_criar_de_quantidade_zero</span><span class="p">(</span>
+        <span class="n">logs_a_criar</span><span class="p">,</span> <span class="n">periodos</span><span class="p">,</span> <span class="n">escola</span><span class="p">,</span> <span class="n">ontem</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<div class="viewcode-block" id="gera_logs_dietas_escolas_cei">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_escolas_cei">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_logs_dietas_escolas_cei</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dietas_autorizadas</span><span class="p">,</span> <span class="n">ontem</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">logs_a_criar_existe_solicitacao_medicao</span><span class="p">(</span>
+            <span class="n">escola</span><span class="p">,</span> <span class="n">dietas_autorizadas</span><span class="p">,</span> <span class="n">ontem</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">logs_a_criar_nao_existe_solicitacao_medicao</span><span class="p">(</span>
+            <span class="n">escola</span><span class="p">,</span> <span class="n">dietas_autorizadas</span><span class="p">,</span> <span class="n">ontem</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="gera_logs_dietas_recreio_ferias_escolas_comuns">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_escolas_comuns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_logs_dietas_recreio_ferias_escolas_comuns</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dietas_recreio</span><span class="p">,</span> <span class="n">data_log</span><span class="p">):</span>
+    <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">classificacao</span> <span class="ow">in</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">dietas_filtradas</span> <span class="o">=</span> <span class="n">dietas_recreio</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+            <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">quantidade</span> <span class="o">=</span> <span class="n">dietas_filtradas</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadasRecreioNasFerias</span><span class="p">(</span>
+            <span class="n">quantidade</span><span class="o">=</span><span class="n">quantidade</span><span class="p">,</span>
+            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_log</span><span class="p">,</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<div class="viewcode-block" id="gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei</span><span class="p">(</span>
+    <span class="n">escola</span><span class="p">,</span> <span class="n">dietas_recreio</span><span class="p">,</span> <span class="n">data_log</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    - alunos &gt;= 4 anos OU ciclo != CICLO_ALUNO_CEI</span>
+<span class="sd">    - alunos não matriculados com idade &gt;= 4 anos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">classificacao</span> <span class="ow">in</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">dietas_filtradas</span> <span class="o">=</span> <span class="n">dietas_recreio</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+            <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">cont</span> <span class="o">=</span> <span class="n">_contar_dietas_sem_faixa</span><span class="p">(</span><span class="n">dietas_filtradas</span><span class="p">,</span> <span class="n">data_log</span><span class="p">)</span>
+
+        <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadasRecreioNasFerias</span><span class="p">(</span>
+            <span class="n">quantidade</span><span class="o">=</span><span class="n">cont</span><span class="p">,</span>
+            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_log</span><span class="p">,</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_contar_dietas_sem_faixa</span><span class="p">(</span><span class="n">dietas_filtradas</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Conta dietas que atendem aos critérios sem faixa etária.&quot;&quot;&quot;</span>
+    <span class="n">cont</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">dieta</span> <span class="ow">in</span> <span class="n">dietas_filtradas</span><span class="p">:</span>
+        <span class="n">aluno</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dieta</span><span class="p">,</span> <span class="s2">&quot;aluno&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">aluno</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">_deve_contar_aluno_sem_faixa</span><span class="p">(</span><span class="n">dieta</span><span class="p">,</span> <span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+            <span class="n">cont</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">cont</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deve_contar_aluno_sem_faixa</span><span class="p">(</span><span class="n">dieta</span><span class="p">,</span> <span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica se aluno deve ser contado (&gt;= 4 anos ou ciclo != CEI).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dieta</span><span class="o">.</span><span class="n">tipo_solicitacao</span> <span class="o">==</span> <span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_aluno_nao_matriculado_tem_4_anos_ou_mais</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">aluno</span><span class="o">.</span><span class="n">ciclo</span> <span class="o">!=</span> <span class="n">aluno</span><span class="o">.</span><span class="n">CICLO_ALUNO_CEI</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_aluno_nao_matriculado_tem_4_anos_ou_mais</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica se aluno não matriculado tem 4 anos ou mais.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">idade_meses</span> <span class="o">=</span> <span class="n">quantidade_meses</span><span class="p">(</span><span class="n">data_referencia</span><span class="p">,</span> <span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">idade_meses</span> <span class="o">&gt;=</span> <span class="mi">48</span>  <span class="c1"># 4 anos * 12 meses</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_faixa_etaria_para_aluno</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">meses</span> <span class="o">=</span> <span class="n">quantidade_meses</span><span class="p">(</span><span class="n">data_referencia</span><span class="p">,</span> <span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">)</span>
+    <span class="n">ultima_faixa</span> <span class="o">=</span> <span class="n">FaixaEtaria</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;fim&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ultima_faixa</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">meses</span> <span class="o">&gt;=</span> <span class="n">ultima_faixa</span><span class="o">.</span><span class="n">fim</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ultima_faixa</span>
+    <span class="k">return</span> <span class="n">FaixaEtaria</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inicio__lte</span><span class="o">=</span><span class="n">meses</span><span class="p">,</span> <span class="n">fim__gt</span><span class="o">=</span><span class="n">meses</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="gera_logs_dietas_recreio_ferias_escolas_cei">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_escolas_cei">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_logs_dietas_recreio_ferias_escolas_cei</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dietas_recreio</span><span class="p">,</span> <span class="n">data_log</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    - alunos NÃO MATRICULADOS com idade &lt;= 3a11m entram</span>
+<span class="sd">    - alunos MATRICULADOS ciclo 1 entram</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logs_a_criar</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">classificacao</span> <span class="ow">in</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">dietas_filtradas</span> <span class="o">=</span> <span class="n">dietas_recreio</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+            <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">contador_faixas</span> <span class="o">=</span> <span class="n">_contar_dietas_por_faixa</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dietas_filtradas</span><span class="p">,</span> <span class="n">data_log</span><span class="p">)</span>
+
+        <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">_criar_logs_com_quantidade</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">contador_faixas</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">logs_a_criar</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">_criar_logs_faixas_sem_alunos</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">logs_a_criar</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logs_a_criar</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_contar_dietas_por_faixa</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dietas_filtradas</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+    <span class="n">contador_faixas</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">dieta</span> <span class="ow">in</span> <span class="n">dietas_filtradas</span><span class="p">:</span>
+        <span class="n">aluno</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dieta</span><span class="p">,</span> <span class="s2">&quot;aluno&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">aluno</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">faixa</span> <span class="o">=</span> <span class="n">_obter_faixa_etaria_dieta</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dieta</span><span class="p">,</span> <span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">faixa</span><span class="p">:</span>
+            <span class="n">contador_faixas</span><span class="p">[</span><span class="n">faixa</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">contador_faixas</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_obter_faixa_etaria_dieta</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">dieta</span><span class="p">,</span> <span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Obtém faixa etária do aluno se ele atender aos critérios.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">escola</span><span class="o">.</span><span class="n">eh_cemei</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_obter_faixa_cemei</span><span class="p">(</span><span class="n">dieta</span><span class="p">,</span> <span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_faixa_etaria_para_aluno</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_obter_faixa_cemei</span><span class="p">(</span><span class="n">dieta</span><span class="p">,</span> <span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Obtém faixa etária para alunos de CEMEI.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dieta</span><span class="o">.</span><span class="n">tipo_solicitacao</span> <span class="o">==</span> <span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_obter_faixa_nao_matriculado_cemei</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">aluno</span><span class="o">.</span><span class="n">ciclo</span> <span class="o">==</span> <span class="n">aluno</span><span class="o">.</span><span class="n">CICLO_ALUNO_CEI</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_faixa_etaria_para_aluno</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_obter_faixa_nao_matriculado_cemei</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Obtém faixa para aluno não matriculado em CEMEI (até 3a11m).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">meses</span> <span class="o">=</span> <span class="n">quantidade_meses</span><span class="p">(</span><span class="n">data_referencia</span><span class="p">,</span> <span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">meses</span> <span class="o">&lt;=</span> <span class="mi">47</span><span class="p">:</span>  <span class="c1"># até 3a11m</span>
+        <span class="k">return</span> <span class="n">_faixa_etaria_para_aluno</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">data_referencia</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_criar_logs_com_quantidade</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">contador_faixas</span><span class="p">):</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">faixa</span><span class="p">,</span> <span class="n">qtd</span> <span class="ow">in</span> <span class="n">contador_faixas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</span><span class="p">(</span>
+            <span class="n">quantidade</span><span class="o">=</span><span class="n">qtd</span><span class="p">,</span>
+            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_log</span><span class="p">,</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+            <span class="n">faixa_etaria</span><span class="o">=</span><span class="n">faixa</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_criar_logs_faixas_sem_alunos</span><span class="p">(</span><span class="n">escola</span><span class="p">,</span> <span class="n">data_log</span><span class="p">,</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">logs_existentes</span><span class="p">):</span>
+    <span class="n">faixas_atuais</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">FaixaEtaria</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">faixas_com_log</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">faixa_etaria</span>
+        <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs_existentes</span>
+        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">escola</span> <span class="o">==</span> <span class="n">escola</span> <span class="ow">and</span> <span class="n">log</span><span class="o">.</span><span class="n">classificacao</span> <span class="o">==</span> <span class="n">classificacao</span>
+    <span class="p">}</span>
+    <span class="n">faixas_sem_log</span> <span class="o">=</span> <span class="n">faixas_atuais</span> <span class="o">-</span> <span class="n">faixas_com_log</span>
+
+    <span class="n">logs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">faixa</span> <span class="ow">in</span> <span class="n">faixas_sem_log</span><span class="p">:</span>
+        <span class="n">log_zero</span> <span class="o">=</span> <span class="n">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</span><span class="p">(</span>
+            <span class="n">quantidade</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_log</span><span class="p">,</span>
+            <span class="n">classificacao</span><span class="o">=</span><span class="n">classificacao</span><span class="p">,</span>
+            <span class="n">faixa_etaria</span><span class="o">=</span><span class="n">faixa</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_zero</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logs</span>
+
+
+<div class="viewcode-block" id="filtrar_logs_comuns_ja_existentes">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.filtrar_logs_comuns_ja_existentes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filtrar_logs_comuns_ja_existentes</span><span class="p">(</span><span class="n">logs</span><span class="p">):</span>
+    <span class="n">chaves_existentes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">LogQuantidadeDietasAutorizadas</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">data__in</span><span class="o">=</span><span class="p">{</span><span class="n">log</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;escola_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;periodo_escolar_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cei_ou_emei&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;infantil_ou_fundamental&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">logs_filtrados</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">:</span>
+        <span class="n">chave</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">escola_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">classificacao_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">periodo_escolar_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">cei_ou_emei</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">infantil_ou_fundamental</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">chave</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chaves_existentes</span><span class="p">:</span>
+            <span class="n">logs_filtrados</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+            <span class="n">chaves_existentes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">chave</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logs_filtrados</span></div>
+
+
+
+<div class="viewcode-block" id="filtrar_logs_cei_ja_existentes">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.filtrar_logs_cei_ja_existentes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filtrar_logs_cei_ja_existentes</span><span class="p">(</span><span class="n">logs</span><span class="p">):</span>
+    <span class="n">chaves_existentes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">LogQuantidadeDietasAutorizadasCEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">data__in</span><span class="o">=</span><span class="p">{</span><span class="n">log</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;escola_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;periodo_escolar_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;faixa_etaria_id&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">logs_filtrados</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">:</span>
+        <span class="n">chave</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">escola_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">classificacao_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">periodo_escolar_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">faixa_etaria_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">chave</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chaves_existentes</span><span class="p">:</span>
+            <span class="n">logs_filtrados</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+            <span class="n">chaves_existentes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">chave</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logs_filtrados</span></div>
+
+
+
+<div class="viewcode-block" id="filtrar_logs_recreio_ferias_ja_existentes">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.filtrar_logs_recreio_ferias_ja_existentes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filtrar_logs_recreio_ferias_ja_existentes</span><span class="p">(</span><span class="n">logs</span><span class="p">):</span>
+    <span class="n">chaves_existentes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">LogQuantidadeDietasAutorizadasRecreioNasFerias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">data__in</span><span class="o">=</span><span class="p">{</span><span class="n">log</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;escola_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao_id&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">logs_filtrados</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">:</span>
+        <span class="n">chave</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">escola_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">classificacao_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">chave</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chaves_existentes</span><span class="p">:</span>
+            <span class="n">logs_filtrados</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+            <span class="n">chaves_existentes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">chave</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logs_filtrados</span></div>
+
+
+
+<div class="viewcode-block" id="filtrar_logs_recreio_ferias_cei_ja_existentes">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.filtrar_logs_recreio_ferias_cei_ja_existentes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filtrar_logs_recreio_ferias_cei_ja_existentes</span><span class="p">(</span><span class="n">logs</span><span class="p">):</span>
+    <span class="n">chaves_existentes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">data__in</span><span class="o">=</span><span class="p">{</span><span class="n">log</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">&quot;escola_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;faixa_etaria_id&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">logs_filtrados</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">:</span>
+        <span class="n">chave</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">escola_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">classificacao_id</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">faixa_etaria_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">chave</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chaves_existentes</span><span class="p">:</span>
+            <span class="n">logs_filtrados</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+            <span class="n">chaves_existentes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">chave</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logs_filtrados</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

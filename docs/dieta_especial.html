@@ -1,0 +1,844 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dieta_especial &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="solicitacao_dieta_especial" href="dieta_especial/solicitacao_dieta_especial.html" />
+    <link rel="prev" title="suspensao_alimentacao_cei" href="cardapio/suspensao_alimentacao_cei.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">dieta_especial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-src.dieta_especial.apps">apps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.dieta_especial.apps.DietaEspecialConfig"><code class="docutils literal notranslate"><span class="pre">DietaEspecialConfig</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.dieta_especial.apps.DietaEspecialConfig.name"><code class="docutils literal notranslate"><span class="pre">DietaEspecialConfig.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-src.dieta_especial.forms">forms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.dieta_especial.forms.RelatorioDietaForm"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.dieta_especial.forms.RelatorioDietaForm.base_fields"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.base_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.dieta_especial.forms.RelatorioDietaForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.declared_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.dieta_especial.forms.RelatorioDietaForm.media"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.media</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-src.dieta_especial.urls">urls</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao.html">protocolo_padrao</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models.html">logs_models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks.html">tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management.html">management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/utils.html">utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Referência da API</a></li>
+      <li class="breadcrumb-item active">dieta_especial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/dieta_especial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dieta-especial">
+<h1>dieta_especial<a class="headerlink" href="#dieta-especial" title="Link to this heading"></a></h1>
+<p>Módulo de dieta especial do sistema SIGPAE. Gerencia solicitações de dieta
+especial por aluno, protocolos padrão de dieta, alimentos e substituições,
+logs de quantidade de dietas autorizadas, carga de dados por planilha e
+tarefas assíncronas de processamento e geração de relatórios.</p>
+<section id="module-src.dieta_especial.admin">
+<span id="admin"></span><span id="module-src.dieta_especial"></span><h2>admin<a class="headerlink" href="#module-src.dieta_especial.admin" title="Link to this heading"></a></h2>
+</section>
+<section id="module-src.dieta_especial.apps">
+<span id="apps"></span><h2>apps<a class="headerlink" href="#module-src.dieta_especial.apps" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.apps.DietaEspecialConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DietaEspecialConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/dieta_especial/apps.html#DietaEspecialConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.apps.DietaEspecialConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AppConfig</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.apps.DietaEspecialConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'src.dieta_especial'</span></span><a class="headerlink" href="#src.dieta_especial.apps.DietaEspecialConfig.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.constants">
+<span id="constants"></span><h2>constants<a class="headerlink" href="#module-src.dieta_especial.constants" title="Link to this heading"></a></h2>
+</section>
+<section id="module-src.dieta_especial.forms">
+<span id="forms"></span><h2>forms<a class="headerlink" href="#module-src.dieta_especial.forms" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.dieta_especial.forms.RelatorioDietaForm">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">RelatorioDietaForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id_%s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empty_permitted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_required_attribute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_field_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/dieta_especial/forms.html#RelatorioDietaForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.forms.RelatorioDietaForm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Form</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.forms.RelatorioDietaForm.base_fields">
+<span class="sig-name descname"><span class="pre">base_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'data_final':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;,</span> <span class="pre">'data_inicial':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;,</span> <span class="pre">'diagnostico':</span> <span class="pre">&lt;django.forms.models.ModelMultipleChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'dre':</span> <span class="pre">&lt;django.forms.models.ModelChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'escola':</span> <span class="pre">&lt;django.forms.models.ModelMultipleChoiceField</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#src.dieta_especial.forms.RelatorioDietaForm.base_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.forms.RelatorioDietaForm.declared_fields">
+<span class="sig-name descname"><span class="pre">declared_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'data_final':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;,</span> <span class="pre">'data_inicial':</span> <span class="pre">&lt;django.forms.fields.DateField</span> <span class="pre">object&gt;,</span> <span class="pre">'diagnostico':</span> <span class="pre">&lt;django.forms.models.ModelMultipleChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'dre':</span> <span class="pre">&lt;django.forms.models.ModelChoiceField</span> <span class="pre">object&gt;,</span> <span class="pre">'escola':</span> <span class="pre">&lt;django.forms.models.ModelMultipleChoiceField</span> <span class="pre">object&gt;}</span></span><a class="headerlink" href="#src.dieta_especial.forms.RelatorioDietaForm.declared_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.dieta_especial.forms.RelatorioDietaForm.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.dieta_especial.forms.RelatorioDietaForm.media" title="Link to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.urls">
+<span id="urls"></span><h2>urls<a class="headerlink" href="#module-src.dieta_especial.urls" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial.html">solicitacao_dieta_especial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html">models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#solicitacaodietaespecial">SolicitacaoDietaEspecial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecial</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#motivonegacao">MotivoNegacao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.MotivoNegacao"><code class="docutils literal notranslate"><span class="pre">MotivoNegacao</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#motivoalteracaoue">MotivoAlteracaoUE</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.MotivoAlteracaoUE"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoUE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#alergiaintolerancia">AlergiaIntolerancia</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.AlergiaIntolerancia"><code class="docutils literal notranslate"><span class="pre">AlergiaIntolerancia</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#classificacaodieta">ClassificacaoDieta</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta"><code class="docutils literal notranslate"><span class="pre">ClassificacaoDieta</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#anexo">Anexo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.Anexo"><code class="docutils literal notranslate"><span class="pre">Anexo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#solicitacoesdietaespecialativasinativasporaluno">SolicitacoesDietaEspecialAtivasInativasPorAluno</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacoesDietaEspecialAtivasInativasPorAluno"><code class="docutils literal notranslate"><span class="pre">SolicitacoesDietaEspecialAtivasInativasPorAluno</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html">api</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.viewsets">viewsets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.AlergiaIntoleranciaViewSet"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.AlimentoViewSet"><code class="docutils literal notranslate"><span class="pre">AlimentoViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.ClassificacaoDietaViewSet"><code class="docutils literal notranslate"><span class="pre">ClassificacaoDietaViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.MotivoAlteracaoUEViewSet"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoUEViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.MotivoNegacaoViewSet"><code class="docutils literal notranslate"><span class="pre">MotivoNegacaoViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialViewSet"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoView"><code class="docutils literal notranslate"><span class="pre">SolicitacoesAtivasInativasPorAlunoView</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.filters">filters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.filters.AlimentoFilter"><code class="docutils literal notranslate"><span class="pre">AlimentoFilter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.filters.DietaEspecialFilter"><code class="docutils literal notranslate"><span class="pre">DietaEspecialFilter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.filters.MotivoNegacaoFilter"><code class="docutils literal notranslate"><span class="pre">MotivoNegacaoFilter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.forms">forms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.forms.NegaDietaEspecialForm"><code class="docutils literal notranslate"><span class="pre">NegaDietaEspecialForm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.forms.RelatorioQuantitativoSolicDietaEspForm"><code class="docutils literal notranslate"><span class="pre">RelatorioQuantitativoSolicDietaEspForm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.forms.SolicitacoesAtivasInativasPorAlunoForm"><code class="docutils literal notranslate"><span class="pre">SolicitacoesAtivasInativasPorAlunoForm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.pagination">pagination</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.pagination.RelatorioPagination"><code class="docutils literal notranslate"><span class="pre">RelatorioPagination</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.serializers">serializers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.AlergiaIntoleranciaSerializer"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.AnexoSerializer"><code class="docutils literal notranslate"><span class="pre">AnexoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.ClassificacaoDietaSerializer"><code class="docutils literal notranslate"><span class="pre">ClassificacaoDietaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.DiretoriaRegionalSerializer"><code class="docutils literal notranslate"><span class="pre">DiretoriaRegionalSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.EscolaSerializer"><code class="docutils literal notranslate"><span class="pre">EscolaSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.MotivoAlteracaoUESerializer"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoUESerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.MotivoNegacaoSerializer"><code class="docutils literal notranslate"><span class="pre">MotivoNegacaoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.RelatorioQuantitativoSolicDietaEspSerializer"><code class="docutils literal notranslate"><span class="pre">RelatorioQuantitativoSolicDietaEspSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialAutorizarSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAutorizarSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialExportXLSXSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialExportXLSXSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialLogSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialLogSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialRecreioNasFeriasSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialRecreioNasFeriasSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialRelatorioTercSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialRelatorioTercSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialSimplesSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialSimplesSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacaoDietaEspecialUpdateSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialUpdateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.SolicitacoesAtivasInativasPorAlunoSerializer"><code class="docutils literal notranslate"><span class="pre">SolicitacoesAtivasInativasPorAlunoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.serializers.UnidadeEducacionalSerializer"><code class="docutils literal notranslate"><span class="pre">UnidadeEducacionalSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.serializers_create">serializers_create</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.utils">utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.utils.filtrar_alunos_com_dietas_nos_status_e_rastro_escola"><code class="docutils literal notranslate"><span class="pre">filtrar_alunos_com_dietas_nos_status_e_rastro_escola()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.utils.trata_lotes_dict_duplicados"><code class="docutils literal notranslate"><span class="pre">trata_lotes_dict_duplicados()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.validators">validators</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.validators.AlunoSerializerValidator"><code class="docutils literal notranslate"><span class="pre">AlunoSerializerValidator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.validators.atributos_lista_nao_vazios"><code class="docutils literal notranslate"><span class="pre">atributos_lista_nao_vazios()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.validators.atributos_string_nao_vazios"><code class="docutils literal notranslate"><span class="pre">atributos_string_nao_vazios()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.validators.deve_ter_atributos"><code class="docutils literal notranslate"><span class="pre">deve_ter_atributos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.validators.masca_data_valida"><code class="docutils literal notranslate"><span class="pre">masca_data_valida()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.validators.somente_digitos"><code class="docutils literal notranslate"><span class="pre">somente_digitos()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html">admin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.AlergiaIntoleranciaAdmin"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.AlergiaIntoleranciaAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.AlergiaIntoleranciaAdmin.media"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.AlergiaIntoleranciaAdmin.message_user"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaAdmin.message_user()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.AlergiaIntoleranciaAdmin.ordering"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaAdmin.ordering</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.AlergiaIntoleranciaAdmin.save_model"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaAdmin.save_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.AlergiaIntoleranciaAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.change_list_template"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.change_list_template</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.filter_horizontal"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.filter_horizontal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.get_urls"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.get_urls()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.inativa_dietas"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.inativa_dietas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.inlines</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.list_display_links"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.list_display_links</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.media"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/admin.html#src.dieta_especial.solicitacao_dieta_especial.admin.SolicitacaoDietaEspecialAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/constants.html">constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/services.html">services</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/services.html#module-src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo">historico_protocolo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/services.html#src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo.atualiza_historico_protocolo"><code class="docutils literal notranslate"><span class="pre">atualiza_historico_protocolo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/services.html#src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo.normalizar_substituicao"><code class="docutils literal notranslate"><span class="pre">normalizar_substituicao()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/solicitacao_dieta_especial/services.html#src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo.remove_tag_p"><code class="docutils literal notranslate"><span class="pre">remove_tag_p()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/protocolo_padrao.html">protocolo_padrao</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html">models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#alimento">Alimento</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.Alimento"><code class="docutils literal notranslate"><span class="pre">Alimento</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#substituicaoalimento">SubstituicaoAlimento</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimento</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#alimentosubstituto">AlimentoSubstituto</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.AlimentoSubstituto"><code class="docutils literal notranslate"><span class="pre">AlimentoSubstituto</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#protocolopadraodietaespecial">ProtocoloPadraoDietaEspecial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.ProtocoloPadraoDietaEspecial"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecial</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#substituicaoalimentoprotocolopadrao">SubstituicaoAlimentoProtocoloPadrao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/models.html#src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimentoProtocoloPadrao"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadrao</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html">api</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.viewsets">viewsets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.viewsets.ProtocoloPadraoDietaEspecialViewSet"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialViewSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.serializers">serializers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.AlimentoSerializer"><code class="docutils literal notranslate"><span class="pre">AlimentoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.AlimentosSubstitutosSerializer"><code class="docutils literal notranslate"><span class="pre">AlimentosSubstitutosSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSerializer"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.ProtocoloPadraoDietaEspecialSimplesSerializer"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialSimplesSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoProtocoloPadraoSerializer"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.serializers.SubstituicaoAlimentoSerializer"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.serializers_create">serializers_create</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.pagination">pagination</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.pagination.ProtocoloPadraoPagination"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoPagination</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.utils">utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.diff_protocolo_padrao"><code class="docutils literal notranslate"><span class="pre">diff_protocolo_padrao()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.diff_substituicoes"><code class="docutils literal notranslate"><span class="pre">diff_substituicoes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.log_create"><code class="docutils literal notranslate"><span class="pre">log_create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.log_update"><code class="docutils literal notranslate"><span class="pre">log_update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.validators">validators</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.validators.edital_ja_existe_protocolo"><code class="docutils literal notranslate"><span class="pre">edital_ja_existe_protocolo()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html">admin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.media"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.ordering"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.ordering</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.AlimentoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">AlimentoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin.inlines</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin.media"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.ProtocoloPadraoDietaEspecialAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoInline"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoInline</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoInline.extra"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoInline.extra</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoInline.media"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoInline.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoInline.model"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline.extra"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline.extra</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline.filter_horizontal"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline.filter_horizontal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline.media"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/protocolo_padrao/admin.html#src.dieta_especial.protocolo_padrao.admin.SubstituicaoAlimentoProtocoloPadraoInline.model"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoProtocoloPadraoInline.model</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/protocolo_padrao/constants.html">constants</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/logs_models.html">logs_models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/logs_models/models.html">models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/models.html#logdietasativascanceladasautomaticamente">LogDietasAtivasCanceladasAutomaticamente</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente"><code class="docutils literal notranslate"><span class="pre">LogDietasAtivasCanceladasAutomaticamente</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/models.html#logquantidadedietasautorizadas">LogQuantidadeDietasAutorizadas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadas</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/models.html#logquantidadedietasautorizadascei">LogQuantidadeDietasAutorizadasCEI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/models.html#logquantidadedietasautorizadasrecreionasferias">LogQuantidadeDietasAutorizadasRecreioNasFerias</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFerias</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/models.html#logquantidadedietasautorizadasrecreionasferiascei">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/logs_models/api.html">api</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.viewsets">viewsets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasCEIViewSet"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEIViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasViewSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.viewsets.LogQuantidadeDietasAutorizadasViewSet"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasViewSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.filters">filters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasEspeciaisFilter"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasEspeciaisFilter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.filters.LogQuantidadeDietasRecreioNasFeriasFilter"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasRecreioNasFeriasFilter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.serializers">serializers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasCEISerializer"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEISerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEISerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/api.html#src.dieta_especial.logs_models.api.serializers.LogQuantidadeDietasAutorizadasSerializer"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasSerializer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/logs_models/admin.html">admin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.FaixaEtariaAtivaFilter"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaAtivaFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.FaixaEtariaAtivaFilter.lookups"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaAtivaFilter.lookups()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.FaixaEtariaAtivaFilter.parameter_name"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaAtivaFilter.parameter_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.FaixaEtariaAtivaFilter.queryset"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaAtivaFilter.queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.FaixaEtariaAtivaFilter.title"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaAtivaFilter.title</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogDietasAtivasCanceladasAutomaticamenteAdmin"><code class="docutils literal notranslate"><span class="pre">LogDietasAtivasCanceladasAutomaticamenteAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogDietasAtivasCanceladasAutomaticamenteAdmin.get_criado_em"><code class="docutils literal notranslate"><span class="pre">LogDietasAtivasCanceladasAutomaticamenteAdmin.get_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogDietasAtivasCanceladasAutomaticamenteAdmin.get_escola_existe"><code class="docutils literal notranslate"><span class="pre">LogDietasAtivasCanceladasAutomaticamenteAdmin.get_escola_existe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogDietasAtivasCanceladasAutomaticamenteAdmin.has_add_permission"><code class="docutils literal notranslate"><span class="pre">LogDietasAtivasCanceladasAutomaticamenteAdmin.has_add_permission()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogDietasAtivasCanceladasAutomaticamenteAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">LogDietasAtivasCanceladasAutomaticamenteAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogDietasAtivasCanceladasAutomaticamenteAdmin.media"><code class="docutils literal notranslate"><span class="pre">LogDietasAtivasCanceladasAutomaticamenteAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogDietasAtivasCanceladasAutomaticamenteAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">LogDietasAtivasCanceladasAutomaticamenteAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasAdmin"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasAdmin.media"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasCEIAdmin"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEIAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasCEIAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEIAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasCEIAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEIAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasCEIAdmin.media"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEIAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasCEIAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEIAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin.media"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin.media"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/admin.html#src.dieta_especial.logs_models.admin.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEIAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/logs_models/fixtures.html">fixtures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/logs_models/fixtures.html#module-src.dieta_especial.logs_models.fixtures.factories">factories</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/fixtures.html#src.dieta_especial.logs_models.fixtures.factories.base.LogQuantidadeDietasAutorizadasCEIFactory"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasCEIFactory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/logs_models/fixtures.html#src.dieta_especial.logs_models.fixtures.factories.base.LogQuantidadeDietasAutorizadasFactory"><code class="docutils literal notranslate"><span class="pre">LogQuantidadeDietasAutorizadasFactory</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/carga_dados.html">carga_dados</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/carga_dados/models.html">models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.alterado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.alterado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.conteudo"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.conteudo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.criado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.get_next_by_alterado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.get_next_by_alterado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.get_next_by_criado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.get_next_by_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.get_previous_by_alterado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.get_previous_by_alterado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.get_previous_by_criado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.get_previous_by_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.get_status_display"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.get_status_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.id"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.log"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.log</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.objects"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.status"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos.uuid"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos.uuid</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.alterado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.alterado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.conteudo"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.conteudo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.criado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.get_next_by_alterado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.get_next_by_alterado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.get_next_by_criado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.get_next_by_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.get_previous_by_alterado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.get_previous_by_alterado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.get_previous_by_criado_em"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.get_previous_by_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.get_status_display"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.get_status_display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.id"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.log"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.log</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.objects"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.resultado"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.resultado</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.status"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial.uuid"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial.uuid</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.arquivo"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.arquivo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.arquivo_unidades_da_rede"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.arquivo_unidades_da_rede</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.criado_em"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.get_next_by_criado_em"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.get_next_by_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.get_previous_by_criado_em"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.get_previous_by_criado_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.id"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.objects"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.resultado"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.resultado</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas.tempfile"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas.tempfile</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/carga_dados/admin.html">admin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutosAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin.actions"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutosAdmin.actions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutosAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutosAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin.media"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutosAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin.processa_carga"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutosAdmin.processa_carga()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutosAdmin.readonly_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecialAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin.actions"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecialAdmin.actions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecialAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecialAdmin.list_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin.media"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecialAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin.processa_carga"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecialAdmin.processa_carga()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecialAdmin.readonly_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivasAdmin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.actions"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivasAdmin.actions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.analisar_planilha_dietas_ativas"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivasAdmin.analisar_planilha_dietas_ativas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.gerar_json_do_eol"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivasAdmin.gerar_json_do_eol()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.has_delete_permission"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivasAdmin.has_delete_permission()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivasAdmin.list_display</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.media"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivasAdmin.media</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.save_model"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivasAdmin.save_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/tasks.html">tasks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/admin_actions.html">admin_actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/logs.html">logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/processamentos.html">processamentos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/relatorio_pdf.html">relatorio_pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/relatorio_terceirizadas_pdf.html">relatorio_terceirizadas_pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/relatorio_terceirizadas_xlsx.html">relatorio_terceirizadas_xlsx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/relatorio_historico_logs_pdf.html">relatorio_historico_logs_pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/relatorio_historico_logs_xlsx.html">relatorio_historico_logs_xlsx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/relatorio_recreio_nas_ferias_pdf.html">relatorio_recreio_nas_ferias_pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/relatorio_recreio_nas_ferias_xlsx.html">relatorio_recreio_nas_ferias_xlsx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/tasks/utils.html">utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.logs">logs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.adicionar_logs_a_criar_integral_parcial"><code class="docutils literal notranslate"><span class="pre">adicionar_logs_a_criar_integral_parcial()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.append_faixas_dietas"><code class="docutils literal notranslate"><span class="pre">append_faixas_dietas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.append_logs_a_criar_de_quantidade_zero"><code class="docutils literal notranslate"><span class="pre">append_logs_a_criar_de_quantidade_zero()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.append_periodo_parcial"><code class="docutils literal notranslate"><span class="pre">append_periodo_parcial()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.condicoes"><code class="docutils literal notranslate"><span class="pre">condicoes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.cria_logs_totais_cei_por_faixa_etaria"><code class="docutils literal notranslate"><span class="pre">cria_logs_totais_cei_por_faixa_etaria()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.criar_logs_integral_parcial"><code class="docutils literal notranslate"><span class="pre">criar_logs_integral_parcial()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.existe_log"><code class="docutils literal notranslate"><span class="pre">existe_log()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.faixas_por_periodo_e_faixa_etaria"><code class="docutils literal notranslate"><span class="pre">faixas_por_periodo_e_faixa_etaria()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.filtrar_logs_cei_ja_existentes"><code class="docutils literal notranslate"><span class="pre">filtrar_logs_cei_ja_existentes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.filtrar_logs_comuns_ja_existentes"><code class="docutils literal notranslate"><span class="pre">filtrar_logs_comuns_ja_existentes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.filtrar_logs_recreio_ferias_cei_ja_existentes"><code class="docutils literal notranslate"><span class="pre">filtrar_logs_recreio_ferias_cei_ja_existentes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.filtrar_logs_recreio_ferias_ja_existentes"><code class="docutils literal notranslate"><span class="pre">filtrar_logs_recreio_ferias_ja_existentes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_escolas_cei"><code class="docutils literal notranslate"><span class="pre">gera_logs_dietas_escolas_cei()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_escolas_comuns"><code class="docutils literal notranslate"><span class="pre">gera_logs_dietas_escolas_comuns()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_escolas_cei"><code class="docutils literal notranslate"><span class="pre">gera_logs_dietas_recreio_ferias_escolas_cei()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_escolas_comuns"><code class="docutils literal notranslate"><span class="pre">gera_logs_dietas_recreio_ferias_escolas_comuns()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei"><code class="docutils literal notranslate"><span class="pre">gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.get_quantidade_dietas_emebs"><code class="docutils literal notranslate"><span class="pre">get_quantidade_dietas_emebs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.get_quantidade_nao_matriculados_entre_4_e_6_anos"><code class="docutils literal notranslate"><span class="pre">get_quantidade_nao_matriculados_entre_4_e_6_anos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.get_quantidade_nao_matriculados_maior_6_anos"><code class="docutils literal notranslate"><span class="pre">get_quantidade_nao_matriculados_maior_6_anos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.logs_a_criar_existe_solicitacao_medicao"><code class="docutils literal notranslate"><span class="pre">logs_a_criar_existe_solicitacao_medicao()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.logs_a_criar_nao_existe_solicitacao_medicao"><code class="docutils literal notranslate"><span class="pre">logs_a_criar_nao_existe_solicitacao_medicao()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.logs_a_criar_sem_periodo_escolar"><code class="docutils literal notranslate"><span class="pre">logs_a_criar_sem_periodo_escolar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.logs.logs_periodo_integral_cei_ou_emei_escola_cemei"><code class="docutils literal notranslate"><span class="pre">logs_periodo_integral_cei_ou_emei_escola_cemei()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.processamentos">processamentos</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.processamentos.cancela_dietas_ativas_automaticamente"><code class="docutils literal notranslate"><span class="pre">cancela_dietas_ativas_automaticamente()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.processamentos.cancela_dietas_pendente_autorizacao"><code class="docutils literal notranslate"><span class="pre">cancela_dietas_pendente_autorizacao()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.processamentos.inicia_dietas_temporarias"><code class="docutils literal notranslate"><span class="pre">inicia_dietas_temporarias()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.processamentos.termina_dietas_especiais"><code class="docutils literal notranslate"><span class="pre">termina_dietas_especiais()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_historico_logs">relatorio_historico_logs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.build_titulo"><code class="docutils literal notranslate"><span class="pre">build_titulo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.build_xlsx_relatorio_historico_dietas"><code class="docutils literal notranslate"><span class="pre">build_xlsx_relatorio_historico_dietas()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.encontrar_todos_os_periodos"><code class="docutils literal notranslate"><span class="pre">encontrar_todos_os_periodos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.formata_celula_faixa_etaria"><code class="docutils literal notranslate"><span class="pre">formata_celula_faixa_etaria()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.formata_logs_para_titulo"><code class="docutils literal notranslate"><span class="pre">formata_logs_para_titulo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.gera_pdf_relatorio_historico_dieta_especial"><code class="docutils literal notranslate"><span class="pre">gera_pdf_relatorio_historico_dieta_especial()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria"><code class="docutils literal notranslate"><span class="pre">get_faixa_etaria()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_cei"><code class="docutils literal notranslate"><span class="pre">get_faixa_etaria_cei()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_cemei"><code class="docutils literal notranslate"><span class="pre">get_faixa_etaria_cemei()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_emebs"><code class="docutils literal notranslate"><span class="pre">get_faixa_etaria_emebs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.processar_cemei"><code class="docutils literal notranslate"><span class="pre">processar_cemei()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.processar_emebs"><code class="docutils literal notranslate"><span class="pre">processar_emebs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.reestruturar_resultados"><code class="docutils literal notranslate"><span class="pre">reestruturar_resultados()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias">relatorio_recreio_nas_ferias</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_dicionario_relatorio_recreio"><code class="docutils literal notranslate"><span class="pre">gera_dicionario_relatorio_recreio()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_pdf_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">gera_pdf_relatorio_recreio_nas_ferias()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_xlsx_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">gera_xlsx_relatorio_recreio_nas_ferias()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx">relatorio_terceirizadas_xlsx</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx.build_titulo"><code class="docutils literal notranslate"><span class="pre">build_titulo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx.build_xlsx_relatorio_terceirizadas"><code class="docutils literal notranslate"><span class="pre">build_xlsx_relatorio_terceirizadas()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/management.html">management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/management/commands.html">commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas">corrige_alergias_intolerancias_duplicadas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.corrige_protocolos_padrao">corrige_protocolos_padrao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.corrige_protocolos_padrao.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_autorizar">dieta_especial_autorizar</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_autorizar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_autorizar.autorizar_dieta"><code class="docutils literal notranslate"><span class="pre">autorizar_dieta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_cancelar">dieta_especial_cancelar</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_cancelar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_cancelar.cancelar_dieta"><code class="docutils literal notranslate"><span class="pre">cancelar_dieta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_criar">dieta_especial_criar</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.criar_dieta"><code class="docutils literal notranslate"><span class="pre">criar_dieta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_deletar">dieta_especial_deletar</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_deletar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_deletar.deletar_dieta"><code class="docutils literal notranslate"><span class="pre">deletar_dieta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo">exportar_planilha_relacao_protocolo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.fix_nomes_protocolos">fix_nomes_protocolos</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.fix_nomes_protocolos.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar">gerar_logs_dietas_periodo_escolar</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.gera_zip_protocolos">gera_zip_protocolos</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.gera_zip_protocolos.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos">processar_planilha_protocolos_invalidos</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_validos">processar_planilha_protocolos_validos</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.processar_planilha_protocolos_validos.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_retorno_nucleo">processar_planilha_retorno_nucleo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.processar_planilha_retorno_nucleo.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.unifica_dietas_tipo_b">unifica_dietas_tipo_b</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas">verificar_duplicidade_solicitacoes_dietas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo">verificar_solicitacoes_sem_protocolo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/management/commands.html#src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/utils.html">utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/utils.html#module-src.dieta_especial.utils.admin">admin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/utils.html#src.dieta_especial.utils.admin.is_alpha_numeric_and_has_single_space"><code class="docutils literal notranslate"><span class="pre">is_alpha_numeric_and_has_single_space()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/utils.html#module-src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias">filtra_relatorio_recreio_nas_ferias</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.filtra_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">filtra_relatorio_recreio_nas_ferias()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.gera_filtros_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">gera_filtros_relatorio_recreio_nas_ferias()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/utils.html#module-src.dieta_especial.utils.gera_dicionario_historico_dietas">gera_dicionario_historico_dietas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/utils.html#src.dieta_especial.utils.gera_dicionario_historico_dietas.gera_dicionario_historico_dietas"><code class="docutils literal notranslate"><span class="pre">gera_dicionario_historico_dietas()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/utils.html#module-src.dieta_especial.utils.gerar_filtros_relatorio_historico">gerar_filtros_relatorio_historico</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/utils.html#src.dieta_especial.utils.gerar_filtros_relatorio_historico.gerar_filtros_relatorio_historico"><code class="docutils literal notranslate"><span class="pre">gerar_filtros_relatorio_historico()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/utils.html#module-src.dieta_especial.utils.get_logs_historico_dietas">get_logs_historico_dietas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/utils.html#src.dieta_especial.utils.get_logs_historico_dietas.get_logs_historico_dietas"><code class="docutils literal notranslate"><span class="pre">get_logs_historico_dietas()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/data.html">data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/data.html#module-src.dieta_especial.data.alergia_intolerancia">alergia_intolerancia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/data.html#module-src.dieta_especial.data.alimentos">alimentos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/data.html#module-src.dieta_especial.data.classificacao_dieta">classificacao_dieta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/data.html#module-src.dieta_especial.data.motivo_alteracao_ue">motivo_alteracao_ue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/data.html#module-src.dieta_especial.data.motivo_negacao">motivo_negacao</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dieta_especial/fixtures.html">fixtures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dieta_especial/fixtures.html#module-src.dieta_especial.fixtures.factories">factories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlergiaIntoleranciaFactory"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlergiaIntoleranciaFactory.descricao"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaFactory.descricao</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlimentoFactory"><code class="docutils literal notranslate"><span class="pre">AlimentoFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlimentoFactory.nome"><code class="docutils literal notranslate"><span class="pre">AlimentoFactory.nome</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ClassificacaoDietaFactory"><code class="docutils literal notranslate"><span class="pre">ClassificacaoDietaFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ClassificacaoDietaFactory.nome"><code class="docutils literal notranslate"><span class="pre">ClassificacaoDietaFactory.nome</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.MotivoAlteracaoUEFactory"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoUEFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.MotivoAlteracaoUEFactory.nome"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoUEFactory.nome</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ProtocoloPadraoDietaEspecialFactory"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ProtocoloPadraoDietaEspecialFactory.nome_protocolo"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialFactory.nome_protocolo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ProtocoloPadraoDietaEspecialFactory.status"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialFactory.status</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SolicitacaoDietaEspecialFactory"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SolicitacaoDietaEspecialFactory.aluno"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialFactory.aluno</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SolicitacaoDietaEspecialFactory.classificacao"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialFactory.classificacao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SolicitacaoDietaEspecialFactory.escola_destino"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialFactory.escola_destino</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SolicitacaoDietaEspecialFactory.rastro_escola"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialFactory.rastro_escola</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SubstituicaoAlimentoFactory"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SubstituicaoAlimentoFactory.alimento"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoFactory.alimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SubstituicaoAlimentoFactory.solicitacao_dieta_especial"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoFactory.solicitacao_dieta_especial</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SubstituicaoAlimentoFactory.tipo"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoFactory.tipo</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cardapio/suspensao_alimentacao_cei.html" class="btn btn-neutral float-left" title="suspensao_alimentacao_cei" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dieta_especial/solicitacao_dieta_especial.html" class="btn btn-neutral float-right" title="solicitacao_dieta_especial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

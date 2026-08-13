@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="management" href="../management.html" />
+    <link rel="prev" title="relatorio_recreio_nas_ferias_xlsx" href="relatorio_recreio_nas_ferias_xlsx.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../dieta_especial.html">dieta_especial</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.admin">admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.apps">apps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.constants">constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.forms">forms</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.urls">urls</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../solicitacao_dieta_especial.html">solicitacao_dieta_especial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../protocolo_padrao.html">protocolo_padrao</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../logs_models.html">logs_models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../carga_dados.html">carga_dados</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../tasks.html">tasks</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="admin_actions.html">admin_actions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="logs.html">logs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="processamentos.html">processamentos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="relatorio_pdf.html">relatorio_pdf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="relatorio_terceirizadas_pdf.html">relatorio_terceirizadas_pdf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="relatorio_terceirizadas_xlsx.html">relatorio_terceirizadas_xlsx</a></li>
+<li class="toctree-l5"><a class="reference internal" href="relatorio_historico_logs_pdf.html">relatorio_historico_logs_pdf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="relatorio_historico_logs_xlsx.html">relatorio_historico_logs_xlsx</a></li>
+<li class="toctree-l5"><a class="reference internal" href="relatorio_recreio_nas_ferias_pdf.html">relatorio_recreio_nas_ferias_pdf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="relatorio_recreio_nas_ferias_xlsx.html">relatorio_recreio_nas_ferias_xlsx</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">utils</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../management.html">management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils.html">utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../dieta_especial.html">dieta_especial</a></li>
+          <li class="breadcrumb-item"><a href="../tasks.html">tasks</a></li>
+      <li class="breadcrumb-item active">utils</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/dieta_especial/tasks/utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.dieta_especial.tasks.utils">
+<span id="utils"></span><h1>utils<a class="headerlink" href="#module-src.dieta_especial.tasks.utils" title="Link to this heading"></a></h1>
+<section id="module-src.dieta_especial.tasks.utils.logs">
+<span id="logs"></span><h2>logs<a class="headerlink" href="#module-src.dieta_especial.tasks.utils.logs" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.adicionar_logs_a_criar_integral_parcial">
+<span class="sig-name descname"><span class="pre">adicionar_logs_a_criar_integral_parcial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">periodos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solicitacao_medicao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs_a_criar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_periodos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#adicionar_logs_a_criar_integral_parcial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.adicionar_logs_a_criar_integral_parcial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.append_faixas_dietas">
+<span class="sig-name descname"><span class="pre">append_faixas_dietas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dietas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_referencia</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#append_faixas_dietas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.append_faixas_dietas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.append_logs_a_criar_de_quantidade_zero">
+<span class="sig-name descname"><span class="pre">append_logs_a_criar_de_quantidade_zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_a_criar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#append_logs_a_criar_de_quantidade_zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.append_logs_a_criar_de_quantidade_zero" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.append_periodo_parcial">
+<span class="sig-name descname"><span class="pre">append_periodo_parcial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">periodos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solicitacao_medicao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#append_periodo_parcial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.append_periodo_parcial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.condicoes">
+<span class="sig-name descname"><span class="pre">condicoes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#condicoes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.condicoes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.cria_logs_totais_cei_por_faixa_etaria">
+<span class="sig-name descname"><span class="pre">cria_logs_totais_cei_por_faixa_etaria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#cria_logs_totais_cei_por_faixa_etaria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.cria_logs_totais_cei_por_faixa_etaria" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.criar_logs_integral_parcial">
+<span class="sig-name descname"><span class="pre">criar_logs_integral_parcial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eh_integral</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solicitacao_medicao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#criar_logs_integral_parcial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.criar_logs_integral_parcial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.existe_log">
+<span class="sig-name descname"><span class="pre">existe_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_a_criar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#existe_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.existe_log" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.faixas_por_periodo_e_faixa_etaria">
+<span class="sig-name descname"><span class="pre">faixas_por_periodo_e_faixa_etaria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#faixas_por_periodo_e_faixa_etaria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.faixas_por_periodo_e_faixa_etaria" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.filtrar_logs_cei_ja_existentes">
+<span class="sig-name descname"><span class="pre">filtrar_logs_cei_ja_existentes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#filtrar_logs_cei_ja_existentes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.filtrar_logs_cei_ja_existentes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.filtrar_logs_comuns_ja_existentes">
+<span class="sig-name descname"><span class="pre">filtrar_logs_comuns_ja_existentes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#filtrar_logs_comuns_ja_existentes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.filtrar_logs_comuns_ja_existentes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.filtrar_logs_recreio_ferias_cei_ja_existentes">
+<span class="sig-name descname"><span class="pre">filtrar_logs_recreio_ferias_cei_ja_existentes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#filtrar_logs_recreio_ferias_cei_ja_existentes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.filtrar_logs_recreio_ferias_cei_ja_existentes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.filtrar_logs_recreio_ferias_ja_existentes">
+<span class="sig-name descname"><span class="pre">filtrar_logs_recreio_ferias_ja_existentes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#filtrar_logs_recreio_ferias_ja_existentes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.filtrar_logs_recreio_ferias_ja_existentes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.gera_logs_dietas_escolas_cei">
+<span class="sig-name descname"><span class="pre">gera_logs_dietas_escolas_cei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_autorizadas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#gera_logs_dietas_escolas_cei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_escolas_cei" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.gera_logs_dietas_escolas_comuns">
+<span class="sig-name descname"><span class="pre">gera_logs_dietas_escolas_comuns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_autorizadas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#gera_logs_dietas_escolas_comuns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_escolas_comuns" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_escolas_cei">
+<span class="sig-name descname"><span class="pre">gera_logs_dietas_recreio_ferias_escolas_cei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_recreio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_log</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#gera_logs_dietas_recreio_ferias_escolas_cei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_escolas_cei" title="Link to this definition"></a></dt>
+<dd><ul class="simple">
+<li><p>alunos NÃO MATRICULADOS com idade &lt;= 3a11m entram</p></li>
+<li><p>alunos MATRICULADOS ciclo 1 entram</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_escolas_comuns">
+<span class="sig-name descname"><span class="pre">gera_logs_dietas_recreio_ferias_escolas_comuns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_recreio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_log</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#gera_logs_dietas_recreio_ferias_escolas_comuns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_escolas_comuns" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei">
+<span class="sig-name descname"><span class="pre">gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_recreio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_log</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei" title="Link to this definition"></a></dt>
+<dd><ul class="simple">
+<li><p>alunos &gt;= 4 anos OU ciclo != CICLO_ALUNO_CEI</p></li>
+<li><p>alunos não matriculados com idade &gt;= 4 anos.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.get_quantidade_dietas_emebs">
+<span class="sig-name descname"><span class="pre">get_quantidade_dietas_emebs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">each</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_referencia</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#get_quantidade_dietas_emebs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.get_quantidade_dietas_emebs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.get_quantidade_nao_matriculados_entre_4_e_6_anos">
+<span class="sig-name descname"><span class="pre">get_quantidade_nao_matriculados_entre_4_e_6_anos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dietas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_referencia</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#get_quantidade_nao_matriculados_entre_4_e_6_anos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.get_quantidade_nao_matriculados_entre_4_e_6_anos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.get_quantidade_nao_matriculados_maior_6_anos">
+<span class="sig-name descname"><span class="pre">get_quantidade_nao_matriculados_maior_6_anos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dietas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_referencia</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#get_quantidade_nao_matriculados_maior_6_anos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.get_quantidade_nao_matriculados_maior_6_anos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.logs_a_criar_existe_solicitacao_medicao">
+<span class="sig-name descname"><span class="pre">logs_a_criar_existe_solicitacao_medicao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_autorizadas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#logs_a_criar_existe_solicitacao_medicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.logs_a_criar_existe_solicitacao_medicao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.logs_a_criar_nao_existe_solicitacao_medicao">
+<span class="sig-name descname"><span class="pre">logs_a_criar_nao_existe_solicitacao_medicao</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_autorizadas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#logs_a_criar_nao_existe_solicitacao_medicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.logs_a_criar_nao_existe_solicitacao_medicao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.logs_a_criar_sem_periodo_escolar">
+<span class="sig-name descname"><span class="pre">logs_a_criar_sem_periodo_escolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_a_criar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_filtradas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#logs_a_criar_sem_periodo_escolar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.logs_a_criar_sem_periodo_escolar" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.logs.logs_periodo_integral_cei_ou_emei_escola_cemei">
+<span class="sig-name descname"><span class="pre">logs_periodo_integral_cei_ou_emei_escola_cemei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_a_criar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dietas_autorizadas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">escola</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodo_escolar_nome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_periodos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/logs.html#logs_periodo_integral_cei_ou_emei_escola_cemei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.logs.logs_periodo_integral_cei_ou_emei_escola_cemei" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.tasks.utils.processamentos">
+<span id="processamentos"></span><h2>processamentos<a class="headerlink" href="#module-src.dieta_especial.tasks.utils.processamentos" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.processamentos.cancela_dietas_ativas_automaticamente">
+<span class="sig-name descname"><span class="pre">cancela_dietas_ativas_automaticamente</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/processamentos.html#cancela_dietas_ativas_automaticamente"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.processamentos.cancela_dietas_ativas_automaticamente" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.processamentos.cancela_dietas_pendente_autorizacao">
+<span class="sig-name descname"><span class="pre">cancela_dietas_pendente_autorizacao</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/processamentos.html#cancela_dietas_pendente_autorizacao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.processamentos.cancela_dietas_pendente_autorizacao" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.processamentos.inicia_dietas_temporarias">
+<span class="sig-name descname"><span class="pre">inicia_dietas_temporarias</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/processamentos.html#inicia_dietas_temporarias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.processamentos.inicia_dietas_temporarias" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.processamentos.termina_dietas_especiais">
+<span class="sig-name descname"><span class="pre">termina_dietas_especiais</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usuario</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/processamentos.html#termina_dietas_especiais"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.processamentos.termina_dietas_especiais" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.tasks.utils.relatorio_historico_logs">
+<span id="relatorio-historico-logs"></span><h2>relatorio_historico_logs<a class="headerlink" href="#module-src.dieta_especial.tasks.utils.relatorio_historico_logs" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.build_titulo">
+<span class="sig-name descname"><span class="pre">build_titulo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_dietas_formatados</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">querydict_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_pdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#build_titulo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.build_titulo" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.build_xlsx_relatorio_historico_dietas">
+<span class="sig-name descname"><span class="pre">build_xlsx_relatorio_historico_dietas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs_dietas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">querydict_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#build_xlsx_relatorio_historico_dietas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.build_xlsx_relatorio_historico_dietas" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.encontrar_todos_os_periodos">
+<span class="sig-name descname"><span class="pre">encontrar_todos_os_periodos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#encontrar_todos_os_periodos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.encontrar_todos_os_periodos" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.formata_celula_faixa_etaria">
+<span class="sig-name descname"><span class="pre">formata_celula_faixa_etaria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workbook</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worksheet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_cor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valor_celula</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#formata_celula_faixa_etaria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.formata_celula_faixa_etaria" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.formata_logs_para_titulo">
+<span class="sig-name descname"><span class="pre">formata_logs_para_titulo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logs_dietas</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#formata_logs_para_titulo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.formata_logs_para_titulo" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.gera_pdf_relatorio_historico_dieta_especial">
+<span class="sig-name descname"><span class="pre">gera_pdf_relatorio_historico_dieta_especial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dados</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titulo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iniciais_dre</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#gera_pdf_relatorio_historico_dieta_especial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.gera_pdf_relatorio_historico_dieta_especial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria">
+<span class="sig-name descname"><span class="pre">get_faixa_etaria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#get_faixa_etaria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_cei">
+<span class="sig-name descname"><span class="pre">get_faixa_etaria_cei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixa_etaria</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#get_faixa_etaria_cei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_cei" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_cemei">
+<span class="sig-name descname"><span class="pre">get_faixa_etaria_cemei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixa_etaria</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#get_faixa_etaria_cemei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_cemei" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_emebs">
+<span class="sig-name descname"><span class="pre">get_faixa_etaria_emebs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faixa_etaria</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#get_faixa_etaria_emebs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_emebs" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.processar_cemei">
+<span class="sig-name descname"><span class="pre">processar_cemei</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">periodos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#processar_cemei"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.processar_cemei" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.processar_emebs">
+<span class="sig-name descname"><span class="pre">processar_emebs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">periodos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#processar_emebs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.processar_emebs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_historico_logs.reestruturar_resultados">
+<span class="sig-name descname"><span class="pre">reestruturar_resultados</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objeto</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_historico_logs.html#reestruturar_resultados"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_historico_logs.reestruturar_resultados" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias">
+<span id="relatorio-recreio-nas-ferias"></span><h2>relatorio_recreio_nas_ferias<a class="headerlink" href="#module-src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_dicionario_relatorio_recreio">
+<span class="sig-name descname"><span class="pre">gera_dicionario_relatorio_recreio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solicitacoes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_recreio_nas_ferias.html#gera_dicionario_relatorio_recreio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_dicionario_relatorio_recreio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_pdf_relatorio_recreio_nas_ferias">
+<span class="sig-name descname"><span class="pre">gera_pdf_relatorio_recreio_nas_ferias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dados</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lote</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_recreio_nas_ferias.html#gera_pdf_relatorio_recreio_nas_ferias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_pdf_relatorio_recreio_nas_ferias" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_xlsx_relatorio_recreio_nas_ferias">
+<span class="sig-name descname"><span class="pre">gera_xlsx_relatorio_recreio_nas_ferias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dados</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lote</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_recreio_nas_ferias.html#gera_xlsx_relatorio_recreio_nas_ferias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias.gera_xlsx_relatorio_recreio_nas_ferias" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx">
+<span id="relatorio-terceirizadas-xlsx"></span><h2>relatorio_terceirizadas_xlsx<a class="headerlink" href="#module-src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx.build_titulo">
+<span class="sig-name descname"><span class="pre">build_titulo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lotes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocolos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_inicial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_final</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_terceirizadas_xlsx.html#build_titulo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx.build_titulo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx.build_xlsx_relatorio_terceirizadas">
+<span class="sig-name descname"><span class="pre">build_xlsx_relatorio_terceirizadas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queryset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lotes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classificacoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocolos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_inicial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_final</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exibir_diagnostico</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/tasks/utils/relatorio_terceirizadas_xlsx.html#build_xlsx_relatorio_terceirizadas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx.build_xlsx_relatorio_terceirizadas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="relatorio_recreio_nas_ferias_xlsx.html" class="btn btn-neutral float-left" title="relatorio_recreio_nas_ferias_xlsx" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../management.html" class="btn btn-neutral float-right" title="management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
