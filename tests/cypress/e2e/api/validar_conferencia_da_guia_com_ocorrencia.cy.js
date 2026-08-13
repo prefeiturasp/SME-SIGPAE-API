@@ -140,7 +140,9 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 
 					const conferencia = responseLista.body.results.find(
 						(item) =>
-							item.guia.situacao === 'ATIVA' && item.guia.status === 'Recebida',
+							item.guia.situacao === 'ATIVA' &&
+							item.guia.status === 'Recebida' &&
+							item.eh_reposicao === false,
 					)
 					expect(conferencia).to.exist
 
