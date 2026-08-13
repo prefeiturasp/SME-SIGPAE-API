@@ -129,7 +129,6 @@ LOCAL_APPS = [
     "src.medicao_inicial.apps.MedicaoInicialConfig",
     "src.pre_recebimento.apps.PreRecebimentoConfig",
     "src.recebimento.apps.RecebimentoConfig",
-    "src.pos_recebimento.apps.PosRecebimentoConfig",
     "src.imr.apps.ImrConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

@@ -19,7 +19,6 @@ from src.dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     ADMINISTRADOR_EMPRESA,
     COGESTOR_DRE,
-    DILOG_QUALIDADE,
     DIRETOR_UE,
     USUARIO_EMPRESA,
 )
@@ -51,7 +50,6 @@ from src.perfil.api.serializers import (
     RedefinirSenhaSerializer,
     UsuarioComCoreSSOCreateSerializer,
     UsuarioSerializer,
-    UsuarioSimplesSerializer,
     VinculoSerializer,
     VinculoSimplesSerializer,
 )
@@ -69,9 +67,6 @@ from src.perfil.tasks import (
     processa_planilha_usuario_ue_parceira_coresso_async,
 )
 from src.perfil.utils import PerfilPagination
-from src.pos_recebimento.api.permissions import (
-    PermissaoParaCadastrarTermoRecebimentoDefinitivo,
-)
 from src.terceirizada.models import Terceirizada
 
 logger = logging.getLogger(__name__)
@@ -82,25 +77,6 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "uuid"
     queryset = Usuario.objects.all()
     serializer_class = UsuarioDetalheSerializer
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path="fiscais",
-        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
-    )
-    def fiscais(self, request):
-        """Usuários com perfil DILOG_QUALIDADE para seleção de fiscais
-        no cadastro do Termo de Recebimento Definitivo (Pós-Recebimento)."""
-        fiscais = (
-            Usuario.objects.filter(
-                vinculos__perfil__nome=DILOG_QUALIDADE,
-                vinculos__ativo=True,
-            )
-            .distinct()
-            .order_by("nome")
-        )
-        return Response({"results": UsuarioSimplesSerializer(fiscais, many=True).data})
 
     @action(detail=False, url_path="atualizar-email", methods=["patch"])
     def atualizar_email(self, request):
