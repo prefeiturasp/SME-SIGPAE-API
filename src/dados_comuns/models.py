@@ -141,7 +141,7 @@ class LogSolicitacoesUsuario(
         CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
         CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
         ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
-        FICHA_TECNICA_CADASTRADA
+        FICHA_TECNICA_CADASTRADA,
     ) = range(115)
 
     STATUS_POSSIVEIS = (
@@ -479,7 +479,7 @@ class CategoriaPerguntaFrequente(ExportModelOperationsMixin("cat_faq"), models.M
 
 class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
     categoria = models.ForeignKey(
-        "CategoriaPerguntaFrequente", on_delete=models.PROTECT
+        "CategoriaPerguntaFrequente", on_delete=models.CASCADE
     )
     pergunta = models.TextField("Pergunta")
     resposta = models.TextField("Resposta")
@@ -792,3 +792,28 @@ class SolicitacaoAberta(models.Model):
         retorno = f'Solicitação "#{str(self.uuid_solicitacao).upper()[:5]}"'
         retorno += f' está aberta e em edição pelo usuário "{self.usuario}"'
         return retorno
+
+
+class VersaoSistemaManager(models.Manager):
+    def get(self):
+        obj, _ = self.get_queryset().get_or_create(id=1)
+        return obj
+
+
+class VersaoSistema(models.Model):
+    id = models.PositiveIntegerField(primary_key=True, default=1, editable=False)
+    versao = models.CharField(max_length=50, default="2.71.5")
+    atualizada_em = models.DateTimeField(auto_now=True)
+
+    objects = VersaoSistemaManager()
+
+    class Meta:
+        verbose_name = "Versão do Sistema"
+        verbose_name_plural = "Versões do Sistema"
+
+    def save(self, *args, **kwargs):
+        self.id = 1
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.versao

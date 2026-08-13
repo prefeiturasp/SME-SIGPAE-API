@@ -6,12 +6,20 @@ from model_bakery import baker
 from rest_framework import status
 
 from ..models import DiaSuspensaoAtividades, FaixaEtaria, MudancaFaixasEtarias
-from ..services import NovoSGPServicoLogado
-from .conftest import mocked_foto_aluno_novosgp, mocked_response, mocked_token_novosgp
+from ..services import NovoSGPServicoLogado, NovoSGPServicoLogadoException
+from .conftest import mocked_foto_aluno_novosgp, mocked_response
 
 ENDPOINT_ALUNOS_POR_PERIODO = "quantidade-alunos-por-periodo"
 ENDPOINT_LOTES = "lotes"
 ENDPOINT_LISTA_DIAS = "dias-suspensao-atividades/lista-dias"
+
+
+def _mock_obter_token_erro(monkeypatch):
+    def _raise_login_error(self):
+        raise NovoSGPServicoLogadoException("Não foi possível logar no sistema")
+
+    monkeypatch.setattr(NovoSGPServicoLogado, "_obter_token", _raise_login_error)
+
 
 def test_url_endpoint_quantidade_alunos_por_periodo(client_autenticado, escola):
     response = client_autenticado.get(
@@ -173,8 +181,8 @@ def test_url_endpoint_lista_faixas_etarias(
 def test_url_endpoint_get_foto_aluno(client_autenticado_da_escola, aluno, monkeypatch):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -191,8 +199,8 @@ def test_url_endpoint_get_foto_aluno_204(
 ):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -206,14 +214,30 @@ def test_url_endpoint_get_foto_aluno_204(
 def test_url_endpoint_get_foto_aluno_token_invalido(
     client_autenticado_da_escola, aluno, monkeypatch
 ):
-    monkeypatch.setattr(
-        NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(None, 204),
-    )
+    _mock_obter_token_erro(monkeypatch)
     response = client_autenticado_da_escola.get(f"/alunos/{aluno.codigo_eol}/ver-foto/")
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json()["detail"] == "Não foi possível logar no sistema"
+
+
+def test_url_endpoint_get_foto_aluno_codae(
+    client_autenticado_coordenador_codae, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer abc123",
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_foto_aluno",
+        lambda p1, p2: mocked_response(mocked_foto_aluno_novosgp(), 200),
+    )
+    response = client_autenticado_coordenador_codae.get(
+        f"/alunos/{aluno.codigo_eol}/ver-foto/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["data"] == mocked_foto_aluno_novosgp()
 
 
 def test_url_endpoint_update_foto_aluno(
@@ -224,8 +248,8 @@ def test_url_endpoint_update_foto_aluno(
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -247,8 +271,8 @@ def test_url_endpoint_update_foto_aluno_error(
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -267,11 +291,7 @@ def test_url_endpoint_update_foto_aluno_token_invalido(
     foto = SimpleUploadedFile(
         "file.jpg", str.encode("file_content"), content_type="image/jpg"
     )
-    monkeypatch.setattr(
-        NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 204),
-    )
+    _mock_obter_token_erro(monkeypatch)
     response = client_autenticado_da_escola.post(
         f"/alunos/{aluno.codigo_eol}/atualizar-foto/", {"file": foto}
     )
@@ -284,8 +304,8 @@ def test_url_endpoint_deletar_foto_aluno(
 ):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -303,8 +323,8 @@ def test_url_endpoint_deletar_foto_aluno_204(
 ):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -320,11 +340,7 @@ def test_url_endpoint_deletar_foto_aluno_204(
 def test_url_endpoint_deletar_foto_aluno_token_invalido(
     client_autenticado_da_escola, aluno, monkeypatch
 ):
-    monkeypatch.setattr(
-        NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(None, 204),
-    )
+    _mock_obter_token_erro(monkeypatch)
     response = client_autenticado_da_escola.delete(
         f"/alunos/{aluno.codigo_eol}/deletar-foto/"
     )
@@ -921,7 +937,7 @@ ENDPOINT_LOTES_SIMPLES = "lotes-simples"
 def test_url_endpoint_lotes_simples_filtro_edital(
     client_autenticado, lote, diretoria_regional
 ):
-    from src.terceirizada.models import Edital, Contrato
+    from src.terceirizada.models import Contrato, Edital
 
     edital = baker.make(Edital, numero="Edital Teste")
     outro_lote = baker.make("Lote", nome="Outro Lote")

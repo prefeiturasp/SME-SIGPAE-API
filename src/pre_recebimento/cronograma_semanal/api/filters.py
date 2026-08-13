@@ -1,7 +1,8 @@
+from django.db.models import Exists, OuterRef
 from django_filters import rest_framework as filters
 
 from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
-from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
+from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal, ProgramacaoEntregaSemanal
 
 
 class CronogramaSemanalFilter(filters.FilterSet):
@@ -37,17 +38,37 @@ class CronogramaSemanalFilter(filters.FilterSet):
         choices=[(str(state), state) for state in CronogramaSemanalWorkflow.states],
     )
     data_inicial = filters.DateFilter(
-        field_name="alterado_em",
-        lookup_expr="gte",
+        method="filter_por_periodo",
         label="Data Inicial",
         input_formats=["%d/%m/%Y"],
     )
     data_final = filters.DateFilter(
-        field_name="alterado_em",
-        lookup_expr="lte",
+        method="filter_por_periodo",
         label="Data Final",
         input_formats=["%d/%m/%Y"],
     )
+
+    def filter_por_periodo(self, queryset, name, value):
+        return queryset
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        data_inicial = self.form.cleaned_data.get("data_inicial")
+        data_final = self.form.cleaned_data.get("data_final")
+
+        if data_inicial or data_final:
+            programacoes = ProgramacaoEntregaSemanal.objects.filter(
+                cronograma_semanal=OuterRef("pk")
+            )
+            if data_inicial:
+                programacoes = programacoes.filter(data_fim__gte=data_inicial)
+            if data_final:
+                programacoes = programacoes.filter(data_inicio__lte=data_final)
+
+            queryset = queryset.filter(Exists(programacoes))
+
+        return queryset
 
     class Meta:
         model = CronogramaSemanal

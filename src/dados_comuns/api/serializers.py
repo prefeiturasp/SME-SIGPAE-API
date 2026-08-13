@@ -213,10 +213,18 @@ class CategoriaPerguntaFrequenteSerializer(serializers.ModelSerializer):
         )
 
         if categoria_duplicada:
-            raise serializers.ValidationError(
-                "Não é possível cadastrar a categoria, pois já existe uma categoria "
-                "com esse nome. Altere o nome informado e tente novamente."
-            )
+            if self.instance:
+                mensagem = (
+                    "Não é possível cadastrar a categoria, pois já existe uma "
+                    "categoria com esse nome. Altere o nome informado e tente novamente."
+                )
+            else:
+                mensagem = (
+                    "Não é possível cadastrar a categoria, pois já existe uma "
+                    "categoria com esse nome. Altere o nome informado e tente novamente."
+                )
+
+            raise serializers.ValidationError(mensagem)
 
         return nome
 
