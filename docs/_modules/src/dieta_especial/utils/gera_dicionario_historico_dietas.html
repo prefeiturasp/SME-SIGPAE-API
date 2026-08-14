@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.utils.gera_dicionario_historico_dietas &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.utils.gera_dicionario_historico_dietas</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.utils.gera_dicionario_historico_dietas</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">faixa_to_string</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UNIDADES_CEI</span><span class="p">,</span>
+    <span class="n">UNIDADES_CEMEI</span><span class="p">,</span>
+    <span class="n">UNIDADES_EMEBS</span><span class="p">,</span>
+    <span class="n">UNIDADES_EMEI_EMEF_CIEJA</span><span class="p">,</span>
+    <span class="n">UNIDADES_SEM_PERIODOS</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.get_logs_historico_dietas</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logs_historico_dietas</span>
+
+
+<div class="viewcode-block" id="gera_dicionario_historico_dietas">
+<a class="viewcode-back" href="../../../../dieta_especial/utils.html#src.dieta_especial.utils.gera_dicionario_historico_dietas.gera_dicionario_historico_dietas">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_dicionario_historico_dietas</span><span class="p">(</span><span class="n">filtros</span><span class="p">):</span>
+    <span class="n">log_dietas</span> <span class="o">=</span> <span class="n">get_logs_historico_dietas</span><span class="p">(</span><span class="n">filtros</span><span class="p">)</span>
+    <span class="n">periodo_escolar_selecionado</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="s2">&quot;periodo_escolar__uuid__in&quot;</span> <span class="ow">in</span> <span class="n">filtros</span><span class="p">:</span>
+        <span class="n">periodo_escolar_selecionado</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">escolas</span><span class="p">,</span> <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">_transformar_dados_escolas</span><span class="p">(</span>
+        <span class="n">log_dietas</span><span class="p">,</span> <span class="n">periodo_escolar_selecionado</span>
+    <span class="p">)</span>
+    <span class="n">informacoes</span> <span class="o">=</span> <span class="n">_formatar_informacoes_historioco_dietas</span><span class="p">(</span><span class="n">escolas</span><span class="p">,</span> <span class="n">total_dietas</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">informacoes</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_transformar_dados_escolas</span><span class="p">(</span><span class="n">dados</span><span class="p">,</span> <span class="n">periodo_escolar_selecionado</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">escolas</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;tipo_unidade&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;lote&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;classificacoes&quot;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span>
+                <span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;infantil&quot;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="s2">&quot;fundamental&quot;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="s2">&quot;periodos&quot;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="s2">&quot;por_idade&quot;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="s2">&quot;turma_infantil&quot;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="s2">&quot;faixa_etaria&quot;</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">tipos_unidades</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">tipo</span><span class="p">:</span> <span class="n">_unidades_tipo_emebs</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_EMEBS</span><span class="p">},</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">tipo</span><span class="p">:</span> <span class="n">_unidades_tipos_emei_emef_cieja</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_EMEI_EMEF_CIEJA</span><span class="p">},</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">tipo</span><span class="p">:</span> <span class="n">_unidades_tipos_cmct_ceugestao</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_SEM_PERIODOS</span><span class="p">},</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">tipo</span><span class="p">:</span> <span class="n">_unidades_tipo_cemei</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_CEMEI</span><span class="p">},</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">tipo</span><span class="p">:</span> <span class="n">_unidades_tipo_cei</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_CEI</span><span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">total_dietas</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dados</span><span class="p">:</span>
+        <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_escola&quot;</span><span class="p">]</span>
+        <span class="n">tipo_unidade</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tipo_unidade&quot;</span><span class="p">]</span>
+
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;tipo_unidade&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tipo_unidade</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;lote&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;lote&quot;</span><span class="p">]</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+        <span class="n">unidade</span> <span class="o">=</span> <span class="n">tipos_unidades</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tipo_unidade</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">total_dietas</span> <span class="o">+=</span> <span class="n">unidade</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">escolas</span><span class="p">,</span> <span class="n">periodo_escolar_selecionado</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">escolas</span><span class="p">,</span> <span class="n">total_dietas</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_formatar_informacoes_historioco_dietas</span><span class="p">(</span><span class="n">escolas</span><span class="p">,</span> <span class="n">total_dietas</span><span class="p">):</span>
+    <span class="n">tipos_unidades</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">tipo</span><span class="p">:</span> <span class="n">_formatar_periodos_emebs</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_EMEBS</span><span class="p">},</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">tipo</span><span class="p">:</span> <span class="n">_formatar_periodos_emei_emef_cieja</span>
+            <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_EMEI_EMEF_CIEJA</span>
+        <span class="p">},</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">tipo</span><span class="p">:</span> <span class="n">_formatar_periodos_cemei</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_CEMEI</span><span class="p">},</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">tipo</span><span class="p">:</span> <span class="n">_formatar_periodos_cei</span> <span class="k">for</span> <span class="n">tipo</span> <span class="ow">in</span> <span class="n">UNIDADES_CEI</span><span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">resultado</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">escola_nome</span><span class="p">,</span> <span class="n">dados_escola</span> <span class="ow">in</span> <span class="n">escolas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">classificacao</span><span class="p">,</span> <span class="n">dados_classificacao</span> <span class="ow">in</span> <span class="n">dados_escola</span><span class="p">[</span>
+            <span class="s2">&quot;classificacoes&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">tipo_unidade</span> <span class="o">=</span> <span class="n">dados_escola</span><span class="p">[</span><span class="s2">&quot;tipo_unidade&quot;</span><span class="p">]</span>
+            <span class="n">informacao_escola_por_classificacao</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">dados_escola</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;lote&quot;</span><span class="p">:</span> <span class="n">dados_escola</span><span class="p">[</span><span class="s2">&quot;lote&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;unidade_educacional&quot;</span><span class="p">:</span> <span class="n">escola_nome</span><span class="p">,</span>
+                <span class="s2">&quot;tipo_unidade&quot;</span><span class="p">:</span> <span class="n">dados_escola</span><span class="p">[</span><span class="s2">&quot;tipo_unidade&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;classificacao&quot;</span><span class="p">:</span> <span class="n">classificacao</span><span class="p">,</span>
+                <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">dados_classificacao</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+            <span class="n">unidade</span> <span class="o">=</span> <span class="n">tipos_unidades</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tipo_unidade</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">unidade</span><span class="p">(</span><span class="n">informacao_escola_por_classificacao</span><span class="p">,</span> <span class="n">dados_classificacao</span><span class="p">)</span>
+            <span class="n">resultado</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">informacao_escola_por_classificacao</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;total_dietas&quot;</span><span class="p">:</span> <span class="n">total_dietas</span><span class="p">,</span>
+        <span class="s2">&quot;resultados&quot;</span><span class="p">:</span> <span class="n">resultado</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unidades_tipo_emebs</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">escolas</span><span class="p">,</span> <span class="n">periodo_escolar_selecionado</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_escola&quot;</span><span class="p">]</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_classificacao&quot;</span><span class="p">]</span>
+    <span class="n">periodo_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_periodo_escolar&quot;</span><span class="p">]</span>
+    <span class="n">tipo_turma</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;infantil_ou_fundamental&quot;</span><span class="p">]</span>
+    <span class="n">cei_emei</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;cei_ou_emei&quot;</span><span class="p">]</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;quantidade_total&quot;</span><span class="p">]</span>
+
+    <span class="n">total_dietas</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">periodo_escola</span><span class="p">:</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tipo_turma</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()][</span>
+            <span class="n">periodo_escola</span>
+        <span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+        <span class="k">if</span> <span class="n">periodo_escolar_selecionado</span><span class="p">:</span>
+            <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+            <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+    <span class="k">elif</span> <span class="n">periodo_escola</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tipo_turma</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span> <span class="ow">and</span> <span class="n">cei_emei</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span><span class="p">:</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+        <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+    <span class="k">return</span> <span class="n">total_dietas</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unidades_tipos_emei_emef_cieja</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">escolas</span><span class="p">,</span> <span class="n">periodo_escolar_selecionado</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_escola&quot;</span><span class="p">]</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_classificacao&quot;</span><span class="p">]</span>
+    <span class="n">periodo_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_periodo_escolar&quot;</span><span class="p">]</span>
+    <span class="n">tipo_turma</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;infantil_ou_fundamental&quot;</span><span class="p">]</span>
+    <span class="n">cei_emei</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;cei_ou_emei&quot;</span><span class="p">]</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;quantidade_total&quot;</span><span class="p">]</span>
+
+    <span class="n">total_dietas</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">periodo_escola</span><span class="p">:</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;periodos&quot;</span><span class="p">][</span>
+            <span class="n">periodo_escola</span>
+        <span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+        <span class="k">if</span> <span class="n">periodo_escolar_selecionado</span><span class="p">:</span>
+            <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+            <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+    <span class="k">elif</span> <span class="n">periodo_escola</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tipo_turma</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span> <span class="ow">and</span> <span class="n">cei_emei</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span><span class="p">:</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+        <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+
+    <span class="k">return</span> <span class="n">total_dietas</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unidades_tipos_cmct_ceugestao</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">escolas</span><span class="p">,</span> <span class="n">periodo_escolar_selecionado</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_escola&quot;</span><span class="p">]</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_classificacao&quot;</span><span class="p">]</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;quantidade_total&quot;</span><span class="p">]</span>
+
+    <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+    <span class="k">return</span> <span class="n">quantidade</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unidades_tipo_cei</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">escolas</span><span class="p">,</span> <span class="n">periodo_escolar_selecionado</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_escola&quot;</span><span class="p">]</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_classificacao&quot;</span><span class="p">]</span>
+    <span class="n">periodo_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_periodo_escolar&quot;</span><span class="p">]</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;quantidade_total&quot;</span><span class="p">]</span>
+    <span class="n">inicio</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;inicio&quot;</span><span class="p">]</span>
+    <span class="n">fim</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;fim&quot;</span><span class="p">]</span>
+
+    <span class="n">total_dietas</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">inicio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">faixa_etaria_infantil</span> <span class="o">=</span> <span class="n">faixa_to_string</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;inicio&quot;</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;fim&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;periodos&quot;</span><span class="p">][</span>
+                <span class="n">periodo_escola</span>
+            <span class="p">]</span>
+            <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;periodos&quot;</span><span class="p">][</span>
+                <span class="n">periodo_escola</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;periodos&quot;</span><span class="p">][</span>
+            <span class="n">periodo_escola</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;faixa&quot;</span><span class="p">:</span> <span class="n">faixa_etaria_infantil</span><span class="p">,</span> <span class="s2">&quot;autorizadas&quot;</span><span class="p">:</span> <span class="n">quantidade</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">periodo_escola</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;MANHA&quot;</span><span class="p">,</span> <span class="s2">&quot;TARDE&quot;</span><span class="p">]:</span>
+            <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+            <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+        <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+
+    <span class="k">return</span> <span class="n">total_dietas</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unidades_tipo_cemei</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">escolas</span><span class="p">,</span> <span class="n">periodo_escolar_selecionado</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_escola&quot;</span><span class="p">]</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_classificacao&quot;</span><span class="p">]</span>
+    <span class="n">periodo_escola</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;nome_periodo_escolar&quot;</span><span class="p">]</span>
+    <span class="n">tipo_turma</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;infantil_ou_fundamental&quot;</span><span class="p">]</span>
+    <span class="n">cei_emei</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;cei_ou_emei&quot;</span><span class="p">]</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;quantidade_total&quot;</span><span class="p">]</span>
+    <span class="n">inicio</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;inicio&quot;</span><span class="p">]</span>
+    <span class="n">fim</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;fim&quot;</span><span class="p">]</span>
+
+    <span class="n">total_dietas</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">inicio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">faixa_etaria_infantil</span> <span class="o">=</span> <span class="n">faixa_to_string</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;inicio&quot;</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;fim&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;por_idade&quot;</span><span class="p">][</span>
+                <span class="n">periodo_escola</span>
+            <span class="p">]</span>
+            <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;por_idade&quot;</span><span class="p">][</span>
+                <span class="n">periodo_escola</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;por_idade&quot;</span><span class="p">][</span>
+            <span class="n">periodo_escola</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;faixa&quot;</span><span class="p">:</span> <span class="n">faixa_etaria_infantil</span><span class="p">,</span> <span class="s2">&quot;autorizadas&quot;</span><span class="p">:</span> <span class="n">quantidade</span><span class="p">})</span>
+    <span class="k">elif</span> <span class="n">inicio</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tipo_turma</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cei_emei</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+        <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+    <span class="k">elif</span> <span class="n">periodo_escola</span><span class="p">:</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;turma_infantil&quot;</span><span class="p">][</span>
+            <span class="n">periodo_escola</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">quantidade</span>
+        <span class="k">if</span> <span class="n">periodo_escolar_selecionado</span><span class="p">:</span>
+            <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+            <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+    <span class="k">elif</span> <span class="n">periodo_escola</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tipo_turma</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span> <span class="ow">and</span> <span class="n">cei_emei</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span><span class="p">:</span>
+        <span class="n">escolas</span><span class="p">[</span><span class="n">nome_escola</span><span class="p">][</span><span class="s2">&quot;classificacoes&quot;</span><span class="p">][</span><span class="n">classificacao</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">quantidade</span>
+        <span class="n">total_dietas</span> <span class="o">=</span> <span class="n">quantidade</span>
+
+    <span class="k">return</span> <span class="n">total_dietas</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_formatar_periodos_emebs</span><span class="p">(</span><span class="n">informacao_escola_por_classificacao</span><span class="p">,</span> <span class="n">dados_classificacao</span><span class="p">):</span>
+    <span class="n">informacao_escola_por_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">infantil</span> <span class="o">=</span> <span class="n">dados_classificacao</span><span class="p">[</span><span class="s2">&quot;infantil&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">infantil</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">informacao_escola_por_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">][</span><span class="s2">&quot;infantil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;autorizadas&quot;</span><span class="p">:</span> <span class="n">q</span><span class="p">}</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">infantil</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+    <span class="n">fundamental</span> <span class="o">=</span> <span class="n">dados_classificacao</span><span class="p">[</span><span class="s2">&quot;fundamental&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fundamental</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">informacao_escola_por_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">][</span><span class="s2">&quot;fundamental&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;autorizadas&quot;</span><span class="p">:</span> <span class="n">q</span><span class="p">}</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">fundamental</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_formatar_periodos_emei_emef_cieja</span><span class="p">(</span>
+    <span class="n">informacao_escola_por_classificacao</span><span class="p">,</span> <span class="n">dados_classificacao</span>
+<span class="p">):</span>
+    <span class="n">informacao_escola_por_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;autorizadas&quot;</span><span class="p">:</span> <span class="n">q</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">dados_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_formatar_periodos_cemei</span><span class="p">(</span><span class="n">informacao_escola_por_classificacao</span><span class="p">,</span> <span class="n">dados_classificacao</span><span class="p">):</span>
+    <span class="n">informacao_escola_por_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">turma_infantil</span> <span class="o">=</span> <span class="n">dados_classificacao</span><span class="p">[</span><span class="s2">&quot;turma_infantil&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">turma_infantil</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">informacao_escola_por_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">][</span><span class="s2">&quot;turma_infantil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;autorizadas&quot;</span><span class="p">:</span> <span class="n">q</span><span class="p">}</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">turma_infantil</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+    <span class="n">por_idade</span> <span class="o">=</span> <span class="n">dados_classificacao</span><span class="p">[</span><span class="s2">&quot;por_idade&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">por_idade</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">informacao_escola_por_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">][</span><span class="s2">&quot;por_idade&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;faixa_etaria&quot;</span><span class="p">:</span> <span class="n">q</span><span class="p">}</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">por_idade</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_formatar_periodos_cei</span><span class="p">(</span><span class="n">informacao_escola_por_classificacao</span><span class="p">,</span> <span class="n">dados_classificacao</span><span class="p">):</span>
+    <span class="n">informacao_escola_por_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;faixa_etaria&quot;</span><span class="p">:</span> <span class="n">q</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">dados_classificacao</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

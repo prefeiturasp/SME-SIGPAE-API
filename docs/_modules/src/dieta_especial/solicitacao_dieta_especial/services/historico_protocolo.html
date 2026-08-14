@@ -1,0 +1,506 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bs4</span><span class="w"> </span><span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.template.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_to_string</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.protocolo_padrao.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Alimento</span><span class="p">,</span>
+    <span class="n">ProtocoloPadraoDietaEspecial</span><span class="p">,</span>
+    <span class="n">SubstituicaoAlimento</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlergiaIntolerancia</span><span class="p">,</span>
+    <span class="n">ClassificacaoDieta</span><span class="p">,</span>
+    <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="atualiza_historico_protocolo">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/services.html#src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo.atualiza_historico_protocolo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">atualiza_historico_protocolo</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">dados_protocolo_novo</span><span class="p">:</span> <span class="nb">dict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Atualiza o histórico de alterações de um protocolo de dieta especial.</span>
+<span class="sd">    Compara os dados atuais do protocolo com os novos dados e gera um HTML com as diferenças.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial a ser comparada.</span>
+<span class="sd">        dados_protocolo_novo (dict): Dicionário com os novos dados do protocolo.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: Se ocorrer algum erro durante o processamento das alterações.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: HTML com as alterações identificadas ou string vazia se não houver alterações.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">alteracoes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Relação por Diagnóstico&quot;</span><span class="p">:</span> <span class="n">_compara_alergias</span><span class="p">(</span>
+                <span class="n">instance</span><span class="p">,</span> <span class="n">dados_protocolo_novo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Classificação da Dieta&quot;</span><span class="p">:</span> <span class="n">_compara_classificacao</span><span class="p">(</span>
+                <span class="n">instance</span><span class="p">,</span> <span class="n">dados_protocolo_novo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classificacao&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Nome do Protocolo Padrão&quot;</span><span class="p">:</span> <span class="n">_compara_protocolo</span><span class="p">(</span>
+                <span class="n">instance</span><span class="p">,</span> <span class="n">dados_protocolo_novo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;protocolo_padrao&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Orientações Gerais&quot;</span><span class="p">:</span> <span class="n">_compara_orientacoes</span><span class="p">(</span>
+                <span class="n">instance</span><span class="p">,</span> <span class="n">dados_protocolo_novo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;orientacoes_gerais&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Substituições de Alimentos&quot;</span><span class="p">:</span> <span class="n">_compara_substituicoes</span><span class="p">(</span>
+                <span class="n">instance</span><span class="p">,</span> <span class="n">dados_protocolo_novo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Data de término&quot;</span><span class="p">:</span> <span class="n">_compara_data_de_termino</span><span class="p">(</span>
+                <span class="n">instance</span><span class="p">,</span> <span class="n">dados_protocolo_novo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_termino&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Informações adicionais&quot;</span><span class="p">:</span> <span class="n">_compara_informacoes_adicionais</span><span class="p">(</span>
+                <span class="n">instance</span><span class="p">,</span>
+                <span class="n">dados_protocolo_novo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;informacoes_adicionais&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">alteracoes_validas</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">alteracoes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">alteracoes_validas</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span>
+                <span class="s2">&quot;dieta_especial/historico_atualizacao_dieta.html&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;alteracoes&quot;</span><span class="p">:</span> <span class="n">alteracoes_validas</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">html_content</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Ocorreu um erro ao gerar as informações do histórico: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="remove_tag_p">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/services.html#src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo.remove_tag_p">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_tag_p</span><span class="p">(</span><span class="n">html_conteudo</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove a primeira tag &lt;p&gt; e seu fechamento &lt;/p&gt; de um conteúdo HTML,</span>
+<span class="sd">    caso não existam listas (&lt;ul&gt;, &lt;ol&gt;) ou tabelas (&lt;table&gt;) em nenhuma parte do conteúdo.</span>
+<span class="sd">    Caso haja qualquer uma dessas tags, mantém o HTML original.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        html_conteudo (str): String contendo o HTML a ser processado.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: HTML modificado, sem o primeiro &lt;p&gt; se aplicável, ou o HTML original.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">html_conteudo</span> <span class="o">=</span> <span class="n">html_conteudo</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">html_conteudo</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">html_conteudo</span>
+
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html_conteudo</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">([</span><span class="s2">&quot;ul&quot;</span><span class="p">,</span> <span class="s2">&quot;ol&quot;</span><span class="p">,</span> <span class="s2">&quot;table&quot;</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="n">html_conteudo</span>
+
+    <span class="n">indice_fechamento</span> <span class="o">=</span> <span class="n">html_conteudo</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">indice_fechamento</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">html_conteudo</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;&quot;</span><span class="p">)</span> <span class="p">:</span> <span class="n">indice_fechamento</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">html_conteudo</span><span class="p">[</span><span class="n">indice_fechamento</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="s2">&quot;&lt;/p&gt;&quot;</span><span class="p">)</span> <span class="p">:]</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">html_conteudo</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compara_alergias</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">novas_alergias</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compara as alergias/intolerâncias atuais com as novas.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as alergias/intolerâncias atuais.</span>
+<span class="sd">        novas_alergias (list[str]): Lista de IDs das novas alergias/intolerâncias.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[dict]: Dicionário com as descrições antigas e novas se houver diferença, None caso contrário.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">novas_alergias</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">alergias</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">alergias_intolerancias</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;descricao&quot;</span><span class="p">)</span>
+    <span class="n">ids_alergias_atuais</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">alergias</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">ids_alergias_novas</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">novas_alergias</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">ids_alergias_atuais</span> <span class="o">!=</span> <span class="n">ids_alergias_novas</span><span class="p">:</span>
+        <span class="n">nome_novas_alergias</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">AlergiaIntolerancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ids_alergias_novas</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;descricao&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;descricao&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;de&quot;</span><span class="p">:</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">alergia</span><span class="o">.</span><span class="n">descricao</span> <span class="k">for</span> <span class="n">alergia</span> <span class="ow">in</span> <span class="n">alergias</span><span class="p">),</span>
+            <span class="s2">&quot;para&quot;</span><span class="p">:</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nome_novas_alergias</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compara_classificacao</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">nova_classificacao</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compara a classificação atual da dieta com a nova.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com a classificação atual.</span>
+<span class="sd">        nova_classificacao (str): ID da nova classificação.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[dict]: Dicionário com os nomes antigo e novo se houver diferença, None caso contrário.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nova_classificacao</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">classificacao</span>
+    <span class="n">id_classificacao_nova</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nova_classificacao</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">classificacao</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">id_classificacao_nova</span><span class="p">:</span>
+        <span class="n">classificacao_nova</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">id_classificacao_nova</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;de&quot;</span><span class="p">:</span> <span class="n">classificacao</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span> <span class="s2">&quot;para&quot;</span><span class="p">:</span> <span class="n">classificacao_nova</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compara_protocolo</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">uuid_novo_procotolo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compara o protocolo padrão atual com o novo.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com o protocolo atual.</span>
+<span class="sd">        uuid_novo_procotolo (Optional[str]): UUID do novo protocolo.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[dict]: Dicionário com os nomes antigo e novo se houver diferença, None caso contrário.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">uuid_novo_procotolo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">protocolo_padrao</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span> <span class="o">!=</span> <span class="n">uuid_novo_procotolo</span><span class="p">:</span>
+        <span class="n">protocolo_novo</span> <span class="o">=</span> <span class="n">ProtocoloPadraoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="n">uuid_novo_procotolo</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;de&quot;</span><span class="p">:</span> <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">nome_protocolo</span><span class="p">,</span>
+            <span class="s2">&quot;para&quot;</span><span class="p">:</span> <span class="n">protocolo_novo</span><span class="o">.</span><span class="n">nome_protocolo</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compara_orientacoes</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">nova_orientacao</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compara as orientações gerais atuais com as novas.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as orientações atuais.</span>
+<span class="sd">        nova_orientacao (str): Novas orientações em formato HTML.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[dict]: Dicionário com os textos antigo e novo se houver diferença, None caso contrário.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nova_orientacao</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">orientacoes_gerais</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">orientacoes_gerais</span>
+    <span class="k">if</span> <span class="n">orientacoes_gerais</span> <span class="o">!=</span> <span class="n">nova_orientacao</span><span class="p">:</span>
+        <span class="n">texto_instance</span> <span class="o">=</span> <span class="n">remove_tag_p</span><span class="p">(</span><span class="n">orientacoes_gerais</span><span class="p">)</span>
+        <span class="n">texto_novo</span> <span class="o">=</span> <span class="n">remove_tag_p</span><span class="p">(</span><span class="n">nova_orientacao</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;de&quot;</span><span class="p">:</span> <span class="n">texto_instance</span><span class="p">,</span> <span class="s2">&quot;para&quot;</span><span class="p">:</span> <span class="n">texto_novo</span><span class="p">}</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compara_data_de_termino</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">nova_data_termino</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compara a data de término atual com a nova.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com a data atual.</span>
+<span class="sd">        nova_data_termino (Optional[str]): Nova data de término no formato YYYY-MM-DD.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[dict]: Dicionário com as datas formatadas antiga e nova se houver diferença, None caso contrário.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_termino_instance</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">data_termino</span>
+    <span class="n">nova_data_termino</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">nova_data_termino</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">nova_data_termino</span>
+        <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">data_termino_instance</span> <span class="o">!=</span> <span class="n">nova_data_termino</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;de&quot;</span><span class="p">:</span> <span class="n">_formata_data_termino</span><span class="p">(</span><span class="n">data_termino_instance</span><span class="p">),</span>
+            <span class="s2">&quot;para&quot;</span><span class="p">:</span> <span class="n">_formata_data_termino</span><span class="p">(</span><span class="n">nova_data_termino</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_formata_data_termino</span><span class="p">(</span><span class="n">data_termino</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Formata a data de término para exibição.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_termino (Optional[datetime.date]): Data a ser formatada.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Texto formatado da data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data_termino</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">texto</span> <span class="o">=</span> <span class="s2">&quot;Sem data término&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">texto</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Com data de término </span><span class="si">{</span><span class="n">data_termino</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%Y&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">texto</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compara_informacoes_adicionais</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">nova_informacao</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compara as informações adicionais atuais com as novas.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as informações atuais.</span>
+<span class="sd">        nova_informacao (Optional[str]): Novas informações adicionais em formato HTML.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[dict]: Dicionário com os textos antigo e novo se houver diferença, None caso contrário.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nova_informacao</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">informacoes_adicionais</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">informacoes_adicionais</span>
+    <span class="k">if</span> <span class="n">informacoes_adicionais</span> <span class="o">!=</span> <span class="n">nova_informacao</span><span class="p">:</span>
+        <span class="n">texto_instance</span> <span class="o">=</span> <span class="n">remove_tag_p</span><span class="p">(</span><span class="n">informacoes_adicionais</span><span class="p">)</span>
+        <span class="n">texto_novo</span> <span class="o">=</span> <span class="n">remove_tag_p</span><span class="p">(</span><span class="n">nova_informacao</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;de&quot;</span><span class="p">:</span> <span class="n">texto_instance</span><span class="p">,</span> <span class="s2">&quot;para&quot;</span><span class="p">:</span> <span class="n">texto_novo</span><span class="p">}</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="normalizar_substituicao">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/services.html#src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo.normalizar_substituicao">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalizar_substituicao</span><span class="p">(</span><span class="n">sub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">SubstituicaoAlimento</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normaliza os dados de substituição de alimento para comparação.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sub (Union[SubstituicaoAlimento, dict]): Pode ser uma instância de SubstituicaoAlimento</span>
+<span class="sd">            ou um dicionário com os dados da substituição.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dicionário normalizado com alimento, tipo e substitutos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">SubstituicaoAlimento</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;alimento&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="s2">&quot;tipo&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">SubstituicaoAlimento</span><span class="o">.</span><span class="n">TIPO_CHOICES</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">tipo</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+            <span class="s2">&quot;substitutos&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">nome</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sub</span><span class="o">.</span><span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">)</span>
+            <span class="p">],</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="s2">&quot;substitutos&quot;</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">:</span>
+        <span class="n">alimento</span> <span class="o">=</span> <span class="n">Alimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]))</span>
+        <span class="n">alimentos_substitutos</span> <span class="o">=</span> <span class="n">Alimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">uuid__in</span><span class="o">=</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;alimento&quot;</span><span class="p">:</span> <span class="n">alimento</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="s2">&quot;tipo&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">SubstituicaoAlimento</span><span class="o">.</span><span class="n">TIPO_CHOICES</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;tipo&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+            <span class="s2">&quot;substitutos&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">nome</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">alimentos_substitutos</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compara_substituicoes</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">substituicoes_novas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compara as substituições de alimentos atuais com as novas.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        instance (SolicitacaoDietaEspecial): Instância do modelo SolicitacaoDietaEspecial com as substituições atuais.</span>
+<span class="sd">        substituicoes_novas (list[dict]): Lista de novas substituições.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dicionário com itens incluídos, excluídos e alterados se houver diferença, None caso contrário.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">atuais</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">normalizar_substituicao</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">substituicaoalimento_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;alimento__nome&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">novas</span> <span class="o">=</span> <span class="p">[</span><span class="n">normalizar_substituicao</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">substituicoes_novas</span><span class="p">]</span>
+    <span class="n">alimentos_atuais</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">atuais</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">alimentos_novos</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">novas</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+
+    <span class="n">incluidos</span> <span class="o">=</span> <span class="n">_identifica_incluidos</span><span class="p">(</span><span class="n">alimentos_atuais</span><span class="p">,</span> <span class="n">alimentos_novos</span><span class="p">)</span>
+    <span class="n">excluidos</span> <span class="o">=</span> <span class="n">_identifica_excluidos</span><span class="p">(</span><span class="n">alimentos_atuais</span><span class="p">,</span> <span class="n">alimentos_novos</span><span class="p">)</span>
+    <span class="n">alterados</span> <span class="o">=</span> <span class="n">_identifica_alterados</span><span class="p">(</span><span class="n">alimentos_atuais</span><span class="p">,</span> <span class="n">alimentos_novos</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">incluidos</span> <span class="ow">or</span> <span class="n">excluidos</span> <span class="ow">or</span> <span class="n">alterados</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;incluidos&quot;</span><span class="p">:</span> <span class="n">incluidos</span><span class="p">,</span> <span class="s2">&quot;excluidos&quot;</span><span class="p">:</span> <span class="n">excluidos</span><span class="p">,</span> <span class="s2">&quot;alterados&quot;</span><span class="p">:</span> <span class="n">alterados</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_identifica_excluidos</span><span class="p">(</span><span class="n">atuais_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">novos_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifica itens que foram excluídos nas substituições.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atuais_dict (dict): Dicionário com substituições atuais.</span>
+<span class="sd">        novos_dict (dict): Dicionário com novas substituições.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[dict]: Lista de dicionários com os itens excluídos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;tipo&quot;</span><span class="p">:</span> <span class="s2">&quot;ITEM EXCLUÍDO&quot;</span><span class="p">,</span> <span class="s2">&quot;dados&quot;</span><span class="p">:</span> <span class="n">dados</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">alimento</span><span class="p">,</span> <span class="n">dados</span> <span class="ow">in</span> <span class="n">atuais_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">alimento</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">novos_dict</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_identifica_incluidos</span><span class="p">(</span><span class="n">atuais_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">novos_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifica itens que foram incluídos nas substituições.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atuais_dict (dict): Dicionário com substituições atuais.</span>
+<span class="sd">        novos_dict (dict): Dicionário com novas substituições.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[dict]: Lista de dicionários com os itens incluídos.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;tipo&quot;</span><span class="p">:</span> <span class="s2">&quot;ITEM INCLUÍDO&quot;</span><span class="p">,</span> <span class="s2">&quot;dados&quot;</span><span class="p">:</span> <span class="n">dados</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">alimento</span><span class="p">,</span> <span class="n">dados</span> <span class="ow">in</span> <span class="n">novos_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">alimento</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">atuais_dict</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_identifica_alterados</span><span class="p">(</span><span class="n">atuais_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">novos_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifica itens que foram alterados nas substituições.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atuais_dict (dict): Dicionário com substituições atuais.</span>
+<span class="sd">        novos_dict (dict): Dicionário com novas substituições.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[dict]: Lista de dicionários com os itens alterados.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;tipo&quot;</span><span class="p">:</span> <span class="s2">&quot;ITEM ALTERADO&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;de&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;tipo&quot;</span><span class="p">:</span> <span class="s2">&quot;ITEM ALTERADO DE&quot;</span><span class="p">,</span> <span class="s2">&quot;dados&quot;</span><span class="p">:</span> <span class="n">atuais_dict</span><span class="p">[</span><span class="n">alimento</span><span class="p">]},</span>
+            <span class="s2">&quot;para&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;tipo&quot;</span><span class="p">:</span> <span class="s2">&quot;ITEM ALTERADO PARA&quot;</span><span class="p">,</span> <span class="s2">&quot;dados&quot;</span><span class="p">:</span> <span class="n">dados</span><span class="p">},</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">alimento</span><span class="p">,</span> <span class="n">dados</span> <span class="ow">in</span> <span class="n">novos_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">alimento</span> <span class="ow">in</span> <span class="n">atuais_dict</span> <span class="ow">and</span> <span class="n">dados</span> <span class="o">!=</span> <span class="n">atuais_dict</span><span class="p">[</span><span class="n">alimento</span><span class="p">]</span>
+    <span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
