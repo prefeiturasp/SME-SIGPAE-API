@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>admin &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="fixtures" href="fixtures.html" />
+    <link rel="prev" title="api" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../cronograma_entrega.html">cronograma_entrega</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ficha_tecnica.html">ficha_tecnica</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../documento_recebimento.html">documento_recebimento</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="models.html">models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.html">api</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pos_recebimento.html">pos_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../pre_recebimento.html">pre_recebimento</a></li>
+          <li class="breadcrumb-item"><a href="../documento_recebimento.html">documento_recebimento</a></li>
+      <li class="breadcrumb-item active">admin</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/pre_recebimento/documento_recebimento/admin.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.pre_recebimento.documento_recebimento.admin">
+<span id="admin"></span><h1>admin<a class="headerlink" href="#module-src.pre_recebimento.documento_recebimento.admin" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ArquivoDoTipoDeDocumentoInline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/admin.html#ArquivoDoTipoDeDocumentoInline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NestedStackedInline</span></code></p>
+<p>Inline dos arquivos de um tipo de documento (aninhada ao inline de tipos).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.extra">
+<span class="sig-name descname"><span class="pre">extra</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.extra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.fk_name">
+<span class="sig-name descname"><span class="pre">fk_name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tipo_de_documento'</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.fk_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento" title="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.show_change_link">
+<span class="sig-name descname"><span class="pre">show_change_link</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.show_change_link" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DocumentoDeRecebimentoAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/admin.html#DocumentoDeRecebimentoAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NestedModelAdmin</span></code></p>
+<p>Admin do Documento de Recebimento com inlines aninhadas de tipos e arquivos.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.form">
+<span class="sig-name descname"><span class="pre">form</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.form" title="Link to this definition"></a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">ArquivoForm</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.get_cronograma">
+<span class="sig-name descname"><span class="pre">get_cronograma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/admin.html#DocumentoDeRecebimentoAdmin.get_cronograma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.get_cronograma" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.get_produto">
+<span class="sig-name descname"><span class="pre">get_produto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/admin.html#DocumentoDeRecebimentoAdmin.get_produto"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.get_produto" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.inlines">
+<span class="sig-name descname"><span class="pre">inlines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline'&gt;]</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.inlines" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('get_cronograma',</span> <span class="pre">'get_produto',</span> <span class="pre">'numero_laudo',</span> <span class="pre">'criado_em')</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',)</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cronograma__numero',</span> <span class="pre">'cronograma__ficha_tecnica__produto__nome')</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoDocumentoRecebimentoInline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/admin.html#TipoDocumentoRecebimentoInline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NestedStackedInline</span></code></p>
+<p>Inline dos tipos de documento do recebimento, com os arquivos aninhados.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.extra">
+<span class="sig-name descname"><span class="pre">extra</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.extra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.fk_name">
+<span class="sig-name descname"><span class="pre">fk_name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'documento_recebimento'</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.fk_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.inlines">
+<span class="sig-name descname"><span class="pre">inlines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline'&gt;]</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.inlines" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento" title="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',)</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.readonly_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.show_change_link">
+<span class="sig-name descname"><span class="pre">show_change_link</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.show_change_link" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p>Configurações de administração do submódulo de documentos de recebimento:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin</span></code> (<code class="docutils literal notranslate"><span class="pre">NestedModelAdmin</span></code>): lista os
+documentos com cronograma (<code class="docutils literal notranslate"><span class="pre">get_cronograma</span></code>), produto
+(<code class="docutils literal notranslate"><span class="pre">get_produto</span></code>, lido de <code class="docutils literal notranslate"><span class="pre">cronograma.ficha_tecnica.produto.nome</span></code>),
+número do laudo e data de criação; busca por número do cronograma ou
+nome do produto; mantém <code class="docutils literal notranslate"><span class="pre">uuid</span></code> como somente leitura; usa o formulário
+<code class="docutils literal notranslate"><span class="pre">ArquivoForm</span></code> e inlines aninhadas: <code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline</span></code>
+(tipos de documento, com <code class="docutils literal notranslate"><span class="pre">uuid</span></code> somente leitura) contendo
+<code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline</span></code> (arquivos do tipo).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo</span></code> é registrado com o admin padrão do Django.</p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="api" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fixtures.html" class="btn btn-neutral float-right" title="fixtures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

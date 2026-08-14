@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pos_recebimento.api.serializers.serializers_create &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pos_recebimento.api.serializers.serializers_create</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pos_recebimento.api.serializers.serializers_create</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DILOG_QUALIDADE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.perfil.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Usuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cronograma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.terceirizada.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Contrato</span><span class="p">,</span> <span class="n">Terceirizada</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">...models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TermoRecebimentoDefinitivo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..services</span><span class="w"> </span><span class="kn">import</span> <span class="n">TermoRecebimentoDefinitivoService</span>
+
+
+<div class="viewcode-block" id="CronogramaTermoRecebimentoDefinitivoCreateSerializer">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.CronogramaTermoRecebimentoDefinitivoCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaTermoRecebimentoDefinitivoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Item de cronograma do Termo de Recebimento Definitivo.</span>
+
+<span class="sd">    Cada cronograma possui seu próprio valor de contrato e quantidade</span>
+<span class="sd">    total recebida.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;does_not_exist&quot;</span><span class="p">:</span> <span class="s2">&quot;Cronograma não encontrado.&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">valor_contrato</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+        <span class="n">max_digits</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+        <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">quantidade_total_recebida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+        <span class="n">max_digits</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+        <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoCreateSerializer">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoCreateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TermoRecebimentoDefinitivoCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serializador de criação do Termo de Recebimento Definitivo.</span>
+
+<span class="sd">    Recebe os uuids de empresa, contrato, cronogramas (cada um com seu</span>
+<span class="sd">    valor de contrato e quantidade recebida) e fiscais, e valida as</span>
+<span class="sd">    regras de negócio:</span>
+
+<span class="sd">    - todos os campos obrigatórios;</span>
+<span class="sd">    - empresa com ao menos uma ficha de recebimento &quot;Assinado CODAE&quot;;</span>
+<span class="sd">    - contrato vinculado à empresa selecionada;</span>
+<span class="sd">    - cronogramas vinculados ao contrato/empresa selecionados;</span>
+<span class="sd">    - fiscais com perfil DILOG_QUALIDADE;</span>
+<span class="sd">    - valor do contrato e quantidade total recebida maiores que zero.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Terceirizada</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;does_not_exist&quot;</span><span class="p">:</span> <span class="s2">&quot;Empresa não encontrada.&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">contrato</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Contrato</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;does_not_exist&quot;</span><span class="p">:</span> <span class="s2">&quot;Contrato não encontrado.&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">cronogramas</span> <span class="o">=</span> <span class="n">CronogramaTermoRecebimentoDefinitivoCreateSerializer</span><span class="p">(</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fiscal_1</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Usuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;does_not_exist&quot;</span><span class="p">:</span> <span class="s2">&quot;Fiscal 1 não encontrado.&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">fiscal_2</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Usuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;does_not_exist&quot;</span><span class="p">:</span> <span class="s2">&quot;Fiscal 2 não encontrado.&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">fiscal_3</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">Usuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;does_not_exist&quot;</span><span class="p">:</span> <span class="s2">&quot;Fiscal 3 não encontrado.&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoCreateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoCreateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TermoRecebimentoDefinitivo</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contrato&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cronogramas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fiscal_1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fiscal_2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fiscal_3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;texto_termo&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_valida_empresa_com_ficha_assinada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">empresa</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Empresa deve possuir ao menos uma ficha de recebimento</span>
+<span class="sd">        &#39;Assinado CODAE&#39; (FichaDeRecebimentoWorkflow.ASSINADA).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">TermoRecebimentoDefinitivoService</span><span class="o">.</span><span class="n">empresa_tem_ficha_assinada</span><span class="p">(</span><span class="n">empresa</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;A empresa deve possuir ao menos uma ficha de recebimento &quot;</span>
+                <span class="s2">&quot;assinada pela CODAE.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_valida_contrato_da_empresa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">empresa</span><span class="p">,</span> <span class="n">contrato</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;O contrato informado deve pertencer à empresa selecionada.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">contrato</span><span class="o">.</span><span class="n">terceirizada_id</span> <span class="o">!=</span> <span class="n">empresa</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;O contrato informado não pertence à empresa selecionada.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_valida_cronogramas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">empresa</span><span class="p">,</span> <span class="n">contrato</span><span class="p">,</span> <span class="n">cronogramas</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cronogramas não podem se repetir no payload e devem pertencer</span>
+<span class="sd">        ao contrato e à empresa selecionados.&quot;&quot;&quot;</span>
+        <span class="n">uuids_informados</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">cronogramas</span><span class="p">:</span>
+            <span class="n">cronograma</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;cronograma&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">in</span> <span class="n">uuids_informados</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;O cronograma </span><span class="si">{</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span><span class="si">}</span><span class="s2"> foi informado mais de &quot;</span>
+                    <span class="s2">&quot;uma vez.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">uuids_informados</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cronograma</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">contrato_id</span> <span class="o">!=</span> <span class="n">contrato</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;O cronograma </span><span class="si">{</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span><span class="si">}</span><span class="s2"> não pertence ao &quot;</span>
+                    <span class="s2">&quot;contrato selecionado.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">empresa_id</span> <span class="o">!=</span> <span class="n">empresa</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;O cronograma </span><span class="si">{</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span><span class="si">}</span><span class="s2"> não pertence à &quot;</span>
+                    <span class="s2">&quot;empresa selecionada.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_valida_fiscais</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fiscais</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cada fiscal deve possuir vínculo ativo com o perfil</span>
+<span class="sd">        DILOG_QUALIDADE.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">campo</span><span class="p">,</span> <span class="n">fiscal</span> <span class="ow">in</span> <span class="n">fiscais</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fiscal</span><span class="o">.</span><span class="n">vinculos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">perfil__nome</span><span class="o">=</span><span class="n">DILOG_QUALIDADE</span><span class="p">,</span> <span class="n">ativo</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">campo</span><span class="p">:</span> <span class="s2">&quot;O usuário informado não possui o perfil DILOG_QUALIDADE.&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoCreateSerializer.validate">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoCreateSerializer.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="n">empresa</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;empresa&quot;</span><span class="p">)</span>
+        <span class="n">contrato</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;contrato&quot;</span><span class="p">)</span>
+        <span class="n">cronogramas</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cronogramas&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valida_empresa_com_ficha_assinada</span><span class="p">(</span><span class="n">empresa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valida_contrato_da_empresa</span><span class="p">(</span><span class="n">empresa</span><span class="p">,</span> <span class="n">contrato</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valida_cronogramas</span><span class="p">(</span><span class="n">empresa</span><span class="p">,</span> <span class="n">contrato</span><span class="p">,</span> <span class="n">cronogramas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valida_fiscais</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;fiscal_1&quot;</span><span class="p">,</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fiscal_1&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;fiscal_2&quot;</span><span class="p">,</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fiscal_2&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;fiscal_3&quot;</span><span class="p">,</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fiscal_3&quot;</span><span class="p">)),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cronogramas</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;valor_contrato&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;valor_contrato&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">errors</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;cronogramas[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">].valor_contrato&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;O valor do contrato deve ser maior que zero.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;quantidade_total_recebida&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;quantidade_total_recebida&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+            <span class="p">):</span>
+                <span class="n">errors</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;cronogramas[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">].quantidade_total_recebida&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;A quantidade total recebida deve ser maior que zero.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">attrs</span></div>
+
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoCreateSerializer.validate_texto_termo">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoCreateSerializer.validate_texto_termo">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_texto_termo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;O texto do termo é obrigatório.&quot;</span><span class="p">)</span>
+        <span class="n">texto_limpo</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;[^&gt;]*&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">texto_limpo</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;O texto do termo é obrigatório e deve conter conteúdo.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -11,6 +11,8 @@ from .models import (
 
 
 class ArquivoDoTipoDeDocumentoInline(NestedStackedInline):
+    """Inline dos arquivos de um tipo de documento (aninhada ao inline de tipos)."""
+
     model = ArquivoDoTipoDeDocumento
     extra = 0
     fk_name = "tipo_de_documento"
@@ -18,6 +20,8 @@ class ArquivoDoTipoDeDocumentoInline(NestedStackedInline):
 
 
 class TipoDocumentoRecebimentoInline(NestedStackedInline):
+    """Inline dos tipos de documento do recebimento, com os arquivos aninhados."""
+
     model = TipoDeDocumentoDeRecebimento
     extra = 0
     show_change_link = True
@@ -29,9 +33,11 @@ class TipoDocumentoRecebimentoInline(NestedStackedInline):
 
 
 class DocumentoDeRecebimentoAdmin(NestedModelAdmin):
+    """Admin do Documento de Recebimento com inlines aninhadas de tipos e arquivos."""
+
     form = ArquivoForm
     list_display = ("get_cronograma", "get_produto", "numero_laudo", "criado_em")
-    search_fields = ("cronograma__numero", "produto__nome")
+    search_fields = ("cronograma__numero", "cronograma__ficha_tecnica__produto__nome")
     readonly_fields = ("uuid",)
     inlines = [
         TipoDocumentoRecebimentoInline,

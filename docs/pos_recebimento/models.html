@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="api" href="api.html" />
+    <link rel="prev" title="pos_recebimento" href="../pos_recebimento.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cardapio.html">cardapio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../pos_recebimento.html">pos_recebimento</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#termorecebimentodefinitivo">TermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#cronogramatermorecebimentodefinitivo">CronogramaTermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api.html">api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="admin.html">admin</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../pos_recebimento.html">pos_recebimento</a></li>
+      <li class="breadcrumb-item active">models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pos_recebimento/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.pos_recebimento.models">
+<span id="models"></span><h1>models<a class="headerlink" href="#module-src.pos_recebimento.models" title="Link to this heading"></a></h1>
+<section id="termorecebimentodefinitivo">
+<h2>TermoRecebimentoDefinitivo<a class="headerlink" href="#termorecebimentodefinitivo" title="Link to this heading"></a></h2>
+<p>O Termo de Recebimento Definitivo é o documento que formaliza o
+recebimento definitivo (físico e financeiro) de produtos de uma
+empresa/contrato no módulo Pós-Recebimento. Ele registra a entrega final
+de um conjunto de cronogramas de entrega, nomeia os fiscais responsáveis
+(três usuários com perfil <code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code>) e carrega o texto do termo
+(conteúdo rico, ex.: HTML gerado por um editor de texto).</p>
+<p>Regras de negócio da criação:</p>
+<ul class="simple">
+<li><p>A <strong>empresa</strong> deve possuir ao menos uma ficha de recebimento com status
+“Assinado CODAE” (<code class="docutils literal notranslate"><span class="pre">FichaDeRecebimentoWorkflow.ASSINADA</span></code>). Essa regra é
+aplicada tanto na listagem de empresas disponíveis
+(<code class="docutils literal notranslate"><span class="pre">/terceirizadas/lista-empresas-pos-recebimento/</span></code>) quanto na validação
+do payload de criação do termo.</p></li>
+<li><p>O <strong>contrato</strong> deve pertencer à empresa selecionada
+(<code class="docutils literal notranslate"><span class="pre">contrato.terceirizada</span> <span class="pre">==</span> <span class="pre">empresa</span></code>).</p></li>
+<li><p>Cada <strong>cronograma</strong> deve pertencer ao contrato e à empresa selecionados
+e não pode ser repetido no mesmo payload.</p></li>
+<li><p>Os <strong>fiscais</strong> devem possuir vínculo ativo com o perfil <code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code>.</p></li>
+<li><p>O <strong>texto do termo</strong> é obrigatório e deve conter conteúdo textual após a
+remoção das tags HTML (não basta apenas <code class="docutils literal notranslate"><span class="pre">&lt;p&gt;&lt;/p&gt;</span></code>).</p></li>
+<li><p>A criação via API <strong>sempre persiste o termo com status ``ENVIADO``</strong>
+(fluxo “Salvar e Enviar”), independentemente do default do modelo
+(<code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code>). O status <code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code> existe no modelo, mas não é
+utilizado pela API atual.</p></li>
+</ul>
+<p>Cada cronograma do termo carrega o seu próprio <strong>valor de contrato</strong> e
+<strong>quantidade total recebida</strong> (valores decimais de até 15 dígitos com 2
+casas decimais), armazenados no modelo intermediário
+<a class="reference internal" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a> — ambos devem ser maiores
+que zero.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TermoRecebimentoDefinitivo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/models.html#TermoRecebimentoDefinitivo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoPor</span></code></p>
+<p>Termo de Recebimento Definitivo do módulo Pós-Recebimento.</p>
+<p>Registra a formalização do recebimento definitivo de produtos de uma
+empresa/contrato, vinculando um ou mais cronogramas, os fiscais
+(perfil DILOG_QUALIDADE) responsáveis e o texto do termo.</p>
+<p>Regra de negócio: a empresa deve possuir ao menos uma ficha de
+recebimento com status “Assinado CODAE” (FichaDeRecebimentoWorkflow.ASSINADA).
+A regra é aplicada na listagem de empresas disponíveis e validada
+novamente na criação do termo via API. A criação via API persiste o
+termo sempre com status ENVIADO (fluxo “Salvar e Enviar”).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">ModeloBase</span></code>)</p>
+<p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django para identificar o termo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único do termo, usado em integrações, endpoints
+que expõem UUID e como referência nas mensagens de log.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.empresa">
+<span class="sig-name descname"><span class="pre">empresa</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Terceirizada</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.empresa" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Empresa fornecedora responsável pelas entregas formalizadas no termo.
+Campo obrigatório com <code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code> (não pode ser removida
+enquanto houver termo vinculado).</p>
+<p>Regra de negócio: a empresa deve possuir ao menos uma ficha de
+recebimento “Assinado CODAE” (<code class="docutils literal notranslate"><span class="pre">FichaDeRecebimentoWorkflow.ASSINADA</span></code>)
+para ser utilizada em um termo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.contrato">
+<span class="sig-name descname"><span class="pre">contrato</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Contrato</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.contrato" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Contrato ao qual as entregas pertencem. Campo obrigatório com
+<code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code>.</p>
+<p>Regra de negócio: o contrato deve pertencer à empresa selecionada
+(<code class="docutils literal notranslate"><span class="pre">contrato.terceirizada</span> <span class="pre">==</span> <span class="pre">empresa</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.cronogramas">
+<span class="sig-name descname"><span class="pre">cronogramas</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><span class="pre">Cronograma</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.cronogramas" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação M:N com <a class="reference internal" href="../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cronograma</span></code></a> através do
+modelo intermediário <a class="reference internal" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a>.</p>
+<p>Lista os cronogramas de entrega formalizados no termo. Cada vínculo
+carrega o <code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> e a <code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code>
+específicos daquele cronograma (ver <code class="docutils literal notranslate"><span class="pre">cronogramas_termo</span></code>).</p>
+<p>Regra de negócio: cada cronograma deve pertencer ao contrato e à
+empresa selecionados e não pode ser repetido no mesmo termo
+(<code class="docutils literal notranslate"><span class="pre">unique_together</span></code> entre <code class="docutils literal notranslate"><span class="pre">termo</span></code> e <code class="docutils literal notranslate"><span class="pre">cronograma</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.cronogramas_termo">
+<span class="sig-name descname"><span class="pre">cronogramas_termo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.cronogramas_termo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a>
+(<code class="docutils literal notranslate"><span class="pre">related_name=&quot;cronogramas_termo&quot;</span></code>).</p>
+<p>Acesso direto às linhas intermediárias do termo, incluindo o valor de
+contrato e a quantidade total recebida de cada cronograma. É a fonte
+utilizada pelo serializador de saída para expor os cronogramas com
+seus valores.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_1">
+<span class="sig-name descname"><span class="pre">fiscal_1</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_1" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Primeiro fiscal responsável pelo recebimento. Campo obrigatório com
+<code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code> (usuário não pode ser removido enquanto houver
+termo vinculado).</p>
+<p>Regra de negócio: o usuário deve possuir vínculo ativo com o perfil
+<code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_2">
+<span class="sig-name descname"><span class="pre">fiscal_2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_2" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Segundo fiscal responsável pelo recebimento. Mesmas regras de
+<code class="docutils literal notranslate"><span class="pre">fiscal_1</span></code> (obrigatório, <code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code>, perfil
+<code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code> com vínculo ativo).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_3">
+<span class="sig-name descname"><span class="pre">fiscal_3</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_3" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Terceiro fiscal responsável pelo recebimento. Mesmas regras de
+<code class="docutils literal notranslate"><span class="pre">fiscal_1</span></code> (obrigatório, <code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code>, perfil
+<code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code> com vínculo ativo).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.texto_termo">
+<span class="sig-name descname"><span class="pre">texto_termo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.texto_termo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Texto do termo em conteúdo rico (aceita HTML, ex.: produzido por
+editor de texto). Obrigatório e deve conter conteúdo textual após a
+remoção das tags HTML.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.status" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Status do termo. Valores possíveis: <code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code> (Rascunho) e
+<code class="docutils literal notranslate"><span class="pre">ENVIADO</span></code> (Enviado). O default do modelo é <code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code>, porém a
+criação via API <strong>sempre persiste ``ENVIADO``</strong> (fluxo “Salvar e
+Enviar”).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.criado_por">
+<span class="sig-name descname"><span class="pre">criado_por</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.criado_por" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoPor</span></code>)</p>
+<p><strong>Descrição:</strong>
+Usuário que criou o termo. Preenchido com o usuário autenticado da
+requisição no momento da criação via API.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.alterado_por">
+<span class="sig-name descname"><span class="pre">alterado_por</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.alterado_por" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Usuário que realizou a última alteração do termo. Preenchido com o
+usuário autenticado da requisição no momento da criação via API
+(mesmo usuário de <code class="docutils literal notranslate"><span class="pre">criado_por</span></code> na criação).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação do termo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.TermoRecebimentoDefinitivo.alterado_em">
+<span class="sig-name descname"><span class="pre">alterado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo.alterado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemAlteradoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na última alteração do termo.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="cronogramatermorecebimentodefinitivo">
+<h2>CronogramaTermoRecebimentoDefinitivo<a class="headerlink" href="#cronogramatermorecebimentodefinitivo" title="Link to this heading"></a></h2>
+<p>Modelo intermediário (through) que vincula um <a class="reference internal" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo" title="src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a>
+a um <a class="reference internal" href="../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cronograma</span></code></a>.</p>
+<p>Como cada cronograma de um termo pode ter valores financeiros próprios,
+o valor de contrato e a quantidade total recebida são armazenados <strong>neste
+modelo</strong> (por cronograma) e não no termo. O mesmo cronograma não pode
+aparecer duas vezes no mesmo termo (<code class="docutils literal notranslate"><span class="pre">unique_together</span></code> entre <code class="docutils literal notranslate"><span class="pre">termo</span></code> e
+<code class="docutils literal notranslate"><span class="pre">cronograma</span></code>).</p>
+<p>Regras de negócio na criação:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> deve ser maior que zero.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code> deve ser maior que zero.</p></li>
+<li><p>O cronograma deve pertencer ao contrato e à empresa selecionados no termo.</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/models.html#CronogramaTermoRecebimentoDefinitivo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Cronograma vinculado a um Termo de Recebimento Definitivo.</p>
+<p>Cada cronograma do termo possui seu próprio valor de contrato e
+quantidade total recebida (repetidos por cronograma).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django para identificar o vínculo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.termo">
+<span class="sig-name descname"><span class="pre">termo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pos_recebimento.models.TermoRecebimentoDefinitivo" title="src.pos_recebimento.models.TermoRecebimentoDefinitivo"><span class="pre">TermoRecebimentoDefinitivo</span></a></span><a class="headerlink" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.termo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Termo de Recebimento Definitivo ao qual o vínculo pertence.
+<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>: ao remover o termo, os vínculos são removidos
+junto.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.cronograma">
+<span class="sig-name descname"><span class="pre">cronograma</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><span class="pre">Cronograma</span></a></span><a class="headerlink" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.cronograma" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Cronograma de entrega vinculado ao termo. <code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code>: o
+cronograma não pode ser removido enquanto houver termo vinculado.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.valor_contrato">
+<span class="sig-name descname"><span class="pre">valor_contrato</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">decimal.Decimal</span></span><a class="headerlink" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.valor_contrato" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Valor de contrato (em reais) relativo a este cronograma dentro do
+termo. Decimal com até 15 dígitos e 2 casas decimais. Deve ser maior
+que zero.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.quantidade_total_recebida">
+<span class="sig-name descname"><span class="pre">quantidade_total_recebida</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">decimal.Decimal</span></span><a class="headerlink" href="#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.quantidade_total_recebida" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Quantidade total recebida relativa a este cronograma dentro do termo.
+Decimal com até 15 dígitos e 2 casas decimais. Deve ser maior que zero.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../pos_recebimento.html" class="btn btn-neutral float-left" title="pos_recebimento" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="api" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

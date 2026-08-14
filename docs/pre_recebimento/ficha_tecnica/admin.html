@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>admin &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="fixtures" href="fixtures.html" />
+    <link rel="prev" title="api" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../cronograma_entrega.html">cronograma_entrega</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../ficha_tecnica.html">ficha_tecnica</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="models.html">models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api.html">api</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline"><code class="docutils literal notranslate"><span class="pre">AnaliseFichaTecnicaInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin"><code class="docutils literal notranslate"><span class="pre">FabricanteFichaTecnicaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin"><code class="docutils literal notranslate"><span class="pre">FichaTecnicaDoProdutoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline"><code class="docutils literal notranslate"><span class="pre">InformacoesNutricionaisFichaTecnicaInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../documento_recebimento.html">documento_recebimento</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pos_recebimento.html">pos_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../pre_recebimento.html">pre_recebimento</a></li>
+          <li class="breadcrumb-item"><a href="../ficha_tecnica.html">ficha_tecnica</a></li>
+      <li class="breadcrumb-item active">admin</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/pre_recebimento/ficha_tecnica/admin.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.pre_recebimento.ficha_tecnica.admin">
+<span id="admin"></span><h1>admin<a class="headerlink" href="#module-src.pre_recebimento.ficha_tecnica.admin" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AnaliseFichaTecnicaInline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/admin.html#AnaliseFichaTecnicaInline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StackedInline</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline.extra">
+<span class="sig-name descname"><span class="pre">extra</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline.extra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica" title="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnaliseFichaTecnica</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FabricanteFichaTecnicaAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/admin.html#FabricanteFichaTecnicaAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('__str__',</span> <span class="pre">'fabricante',</span> <span class="pre">'cidade',</span> <span class="pre">'estado',</span> <span class="pre">'telefone',</span> <span class="pre">'email')</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.list_filter">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('estado',)</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',)</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('fabricante__nome',</span> <span class="pre">'cnpj',</span> <span class="pre">'cidade',</span> <span class="pre">'email')</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FichaTecnicaDoProdutoAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/admin.html#FichaTecnicaDoProdutoAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.inlines">
+<span class="sig-name descname"><span class="pre">inlines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline'&gt;)</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.inlines" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('numero',</span> <span class="pre">'produto',</span> <span class="pre">'categoria',</span> <span class="pre">'empresa',</span> <span class="pre">'fabricante')</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.list_filter">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('status',)</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('produto__nome',</span> <span class="pre">'numero',</span> <span class="pre">'categoria',</span> <span class="pre">'empresa__nome_fantasia',</span> <span class="pre">'fabricante__fabricante__nome')</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.search_help_text">
+<span class="sig-name descname"><span class="pre">search_help_text</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Pesquise</span> <span class="pre">por:</span> <span class="pre">nome</span> <span class="pre">do</span> <span class="pre">produto,</span> <span class="pre">número,</span> <span class="pre">categoria,</span> <span class="pre">nome</span> <span class="pre">da</span> <span class="pre">empresa,</span> <span class="pre">nome</span> <span class="pre">do</span> <span class="pre">fabricante'</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin.search_help_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InformacoesNutricionaisFichaTecnicaInline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/admin.html#InformacoesNutricionaisFichaTecnicaInline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TabularInline</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline.extra">
+<span class="sig-name descname"><span class="pre">extra</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline.extra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica" title="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica"><code class="xref py py-class docutils literal notranslate"><span class="pre">InformacoesNutricionaisFichaTecnica</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Configurações de administração do submódulo de fichas técnicas:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FichaTecnicaDoProdutoAdmin</span></code>: lista as fichas com <code class="docutils literal notranslate"><span class="pre">numero</span></code>,
+<code class="docutils literal notranslate"><span class="pre">produto</span></code>, <code class="docutils literal notranslate"><span class="pre">categoria</span></code>, <code class="docutils literal notranslate"><span class="pre">empresa</span></code> e <code class="docutils literal notranslate"><span class="pre">fabricante</span></code>; permite editar
+inline as informações nutricionais (<code class="docutils literal notranslate"><span class="pre">InformacoesNutricionaisFichaTecnicaInline</span></code>)
+e as análises (<code class="docutils literal notranslate"><span class="pre">AnaliseFichaTecnicaInline</span></code>); busca por nome do produto,
+número, categoria, nome da empresa e nome do fabricante; filtra por
+<code class="docutils literal notranslate"><span class="pre">status</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FabricanteFichaTecnicaAdmin</span></code>: lista os fabricantes das fichas com
+fabricante, cidade, estado, telefone e e-mail; filtra por <code class="docutils literal notranslate"><span class="pre">estado</span></code>;
+busca por nome do fabricante, CNPJ, cidade e e-mail; mantém <code class="docutils literal notranslate"><span class="pre">uuid</span></code> como
+somente leitura.</p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="api" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fixtures.html" class="btn btn-neutral float-right" title="fixtures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,594 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="api" href="api.html" />
+    <link rel="prev" title="documento_recebimento" href="../documento_recebimento.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../cronograma_entrega.html">cronograma_entrega</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ficha_tecnica.html">ficha_tecnica</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../documento_recebimento.html">documento_recebimento</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.data_maxima_recebimento_pre_save"><code class="docutils literal notranslate"><span class="pre">data_maxima_recebimento_pre_save()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#arquivodotipodedocumento">ArquivoDoTipoDeDocumento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#tipodedocumentoderecebimento">TipoDeDocumentoDeRecebimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#documentoderecebimento">DocumentoDeRecebimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#datadefabricaoeprazo">DataDeFabricaoEPrazo</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api.html">api</a></li>
+<li class="toctree-l4"><a class="reference internal" href="admin.html">admin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pos_recebimento.html">pos_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../pre_recebimento.html">pre_recebimento</a></li>
+          <li class="breadcrumb-item"><a href="../documento_recebimento.html">documento_recebimento</a></li>
+      <li class="breadcrumb-item active">models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/pre_recebimento/documento_recebimento/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.pre_recebimento.documento_recebimento.models">
+<span id="models"></span><h1>models<a class="headerlink" href="#module-src.pre_recebimento.documento_recebimento.models" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.data_maxima_recebimento_pre_save">
+<span class="sig-name descname"><span class="pre">data_maxima_recebimento_pre_save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/models.html#data_maxima_recebimento_pre_save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.data_maxima_recebimento_pre_save" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<section id="arquivodotipodedocumento">
+<h2>ArquivoDoTipoDeDocumento<a class="headerlink" href="#arquivodotipodedocumento" title="Link to this heading"></a></h2>
+<p>Arquivo (PDF ou imagem) anexado a um tipo de documento de recebimento.
+É o que efetivamente comprova o documento apresentado pelo fornecedor
+(ex.: o PDF do laudo laboratorial).</p>
+<p>Regras de negócio:</p>
+<ul class="simple">
+<li><p>Extensões aceitas: <code class="docutils literal notranslate"><span class="pre">PDF</span></code>, <code class="docutils literal notranslate"><span class="pre">PNG</span></code>, <code class="docutils literal notranslate"><span class="pre">JPG</span></code> e <code class="docutils literal notranslate"><span class="pre">JPEG</span></code>
+(<code class="docutils literal notranslate"><span class="pre">FileExtensionValidator</span></code>).</p></li>
+<li><p>Tamanho máximo de 10 MB (<code class="docutils literal notranslate"><span class="pre">validate_file_size_10mb</span></code>).</p></li>
+<li><p>Ao excluir o registro, o arquivo físico também é removido do disco
+(override de <code class="docutils literal notranslate"><span class="pre">delete</span></code>).</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ArquivoDoTipoDeDocumento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_de_documento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arquivo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/models.html#ArquivoDoTipoDeDocumento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único do arquivo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.tipo_de_documento">
+<span class="sig-name descname"><span class="pre">tipo_de_documento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento" title="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento"><span class="pre">TipoDeDocumentoDeRecebimento</span></a></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.tipo_de_documento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Tipo de documento ao qual o arquivo pertence (<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.arquivo">
+<span class="sig-name descname"><span class="pre">arquivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.fields.files.FieldFile</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.arquivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Arquivo enviado (<code class="docutils literal notranslate"><span class="pre">upload_to=&quot;documentos_de_recebimento&quot;</span></code>), aceitando
+PDF/PNG/JPG/JPEG até 10 MB. Recebido como base64 pela API e convertido
+para <code class="docutils literal notranslate"><span class="pre">ContentFile</span></code> no helper de criação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.nome">
+<span class="sig-name descname"><span class="pre">nome</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.nome" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Nome de exibição do arquivo.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="tipodedocumentoderecebimento">
+<h2>TipoDeDocumentoDeRecebimento<a class="headerlink" href="#tipodedocumentoderecebimento" title="Link to this heading"></a></h2>
+<p>Tipo de documento exigido/apresentado no recebimento de um cronograma,
+com seus arquivos anexados. O mesmo tipo não pode se repetir em um mesmo
+documento (<code class="docutils literal notranslate"><span class="pre">unique_together</span></code> entre <code class="docutils literal notranslate"><span class="pre">documento_recebimento</span></code> e
+<code class="docutils literal notranslate"><span class="pre">tipo_documento</span></code>).</p>
+<p>Tipos possíveis:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LAUDO</span></code> (Laudo) — obrigatório na correção de documentos.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DECLARACAO_LEI_1512010</span></code> (Declaração de atendimento a Lei Municipal: 15.120/10).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CERTIFICADO_CONF_ORGANICA</span></code> (Certificado de conformidade orgânica).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RASTREABILIDADE</span></code> (Rastreabilidade).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DECLARACAO_MATERIA_ORGANICA</span></code> (Declaração de Matéria Láctea).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUTROS</span></code> (Outros) — exige <code class="docutils literal notranslate"><span class="pre">descricao_documento</span></code>.</p></li>
+</ul>
+<p>Regra de negócio: quando o tipo é <code class="docutils literal notranslate"><span class="pre">LAUDO</span></code>, o serializador de criação
+exige que cada arquivo tenha <code class="docutils literal notranslate"><span class="pre">arquivo</span></code> e <code class="docutils literal notranslate"><span class="pre">nome</span></code> preenchidos.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TipoDeDocumentoDeRecebimento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">documento_recebimento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_documento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descricao_documento</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/models.html#TipoDeDocumentoDeRecebimento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único do tipo de documento.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.documento_recebimento">
+<span class="sig-name descname"><span class="pre">documento_recebimento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento" title="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento"><span class="pre">DocumentoDeRecebimento</span></a></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.documento_recebimento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Documento de recebimento ao qual o tipo pertence
+(<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.tipo_documento">
+<span class="sig-name descname"><span class="pre">tipo_documento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.tipo_documento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Tipo do documento. Valores possíveis: <code class="docutils literal notranslate"><span class="pre">LAUDO</span></code>,
+<code class="docutils literal notranslate"><span class="pre">DECLARACAO_LEI_1512010</span></code>, <code class="docutils literal notranslate"><span class="pre">CERTIFICADO_CONF_ORGANICA</span></code>,
+<code class="docutils literal notranslate"><span class="pre">RASTREABILIDADE</span></code>, <code class="docutils literal notranslate"><span class="pre">DECLARACAO_MATERIA_ORGANICA</span></code> e <code class="docutils literal notranslate"><span class="pre">OUTROS</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.descricao_documento">
+<span class="sig-name descname"><span class="pre">descricao_documento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.descricao_documento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Descrição do documento. Obrigatória quando <code class="docutils literal notranslate"><span class="pre">tipo_documento</span> <span class="pre">=</span> <span class="pre">OUTROS</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.arquivos">
+<span class="sig-name descname"><span class="pre">arquivos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento" title="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento"><span class="pre">ArquivoDoTipoDeDocumento</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.arquivos" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento" title="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento</span></code></a>
+(<code class="docutils literal notranslate"><span class="pre">related_name=&quot;arquivos&quot;</span></code>). Lista os arquivos anexados a este tipo
+de documento.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="documentoderecebimento">
+<h2>DocumentoDeRecebimento<a class="headerlink" href="#documentoderecebimento" title="Link to this heading"></a></h2>
+<p>Modelo central do submódulo. Representa o conjunto de documentos de
+recebimento apresentados pelo fornecedor para um cronograma de entrega,
+incluindo o número do laudo, o laboratório credenciado, a quantidade do
+laudo, o lote e as datas de fabricação/validade/prazo de recebimento.</p>
+<p>Possui um <strong>workflow de aprovação</strong>
+(<code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoWorkflow</span></code>) com os estados:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DOCUMENTO_CRIADO</span></code> (Documento Criado) — estado inicial.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_ANALISE</span></code> (Enviado para Análise) — enviado pelo
+fornecedor (transição <code class="docutils literal notranslate"><span class="pre">inicia_fluxo</span></code>); dispara notificação e e-mail
+para os perfis <code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code> e <code class="docutils literal notranslate"><span class="pre">COORDENADOR_CODAE_DILOG_LOGISTICA</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_CORRECAO</span></code> (Enviado para Correção) — a CODAE solicitou
+correções (transição <code class="docutils literal notranslate"><span class="pre">qualidade_solicita_correcao</span></code>, com o texto em
+<code class="docutils literal notranslate"><span class="pre">correcao_solicitada</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">APROVADO</span></code> (Aprovado) — a CODAE aprovou (transição
+<code class="docutils literal notranslate"><span class="pre">qualidade_aprova_analise</span></code>).</p></li>
+</ul>
+<p>O fluxo também permite <code class="docutils literal notranslate"><span class="pre">fornecedor_realiza_correcao</span></code> (de
+<code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_CORRECAO</span></code> para <code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_ANALISE</span></code>) e
+<code class="docutils literal notranslate"><span class="pre">fornecedor_atualiza</span></code> (de <code class="docutils literal notranslate"><span class="pre">APROVADO</span></code> para <code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_ANALISE</span></code>).
+Cada transição gera um <code class="docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code> do tipo
+<code class="docutils literal notranslate"><span class="pre">DOCUMENTO_DE_RECEBIMENTO</span></code>.</p>
+<p>Regras de negócio:</p>
+<ul class="simple">
+<li><p>Ao corrigir um documento (fornecedor), é obrigatório informar ao menos
+um tipo <code class="docutils literal notranslate"><span class="pre">LAUDO</span></code> (validado no <code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoCorrecaoSerializer</span></code>).
+Na criação, quando um tipo <code class="docutils literal notranslate"><span class="pre">LAUDO</span></code> é informado, cada arquivo deve ter
+<code class="docutils literal notranslate"><span class="pre">arquivo</span></code> e <code class="docutils literal notranslate"><span class="pre">nome</span></code> preenchidos.</p></li>
+<li><p>O laudo assinado (<code class="docutils literal notranslate"><span class="pre">arquivo_laudo_assinado</span></code>) é gerado a partir do log de
+aprovação (<code class="docutils literal notranslate"><span class="pre">DOCUMENTO_APROVADO</span></code>) e do arquivo de tipo <code class="docutils literal notranslate"><span class="pre">LAUDO</span></code>; o
+endpoint de download restringe a geração a documentos <code class="docutils literal notranslate"><span class="pre">APROVADO</span></code>.</p></li>
+<li><p>O saldo do laudo é calculado como <code class="docutils literal notranslate"><span class="pre">quantidade_laudo</span></code> menos o total
+recebido em fichas assinadas menos os ajustes de saldo
+(<code class="docutils literal notranslate"><span class="pre">calcular_saldo_laudo</span></code>, no serializador).</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DocumentoDeRecebimento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alterado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cronograma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numero_laudo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laboratorio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantidade_laudo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numero_lote_laudo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unidade_medida</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_final_lote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correcao_solicitada</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/models.html#DocumentoDeRecebimento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoDocumentoDeRecebimento</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">ModeloBase</span></code>)</p>
+<p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único do documento de recebimento.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.id_externo">
+<span class="sig-name descname"><span class="pre">id_externo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.id_externo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo amigável composto pelos 5 primeiros caracteres
+maiúsculos do UUID.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.cronograma">
+<span class="sig-name descname"><span class="pre">cronograma</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">cronograma_entrega.Cronograma</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.cronograma" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Cronograma de entrega ao qual o documento se refere
+(<code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code>). Fornecedores só veem documentos dos seus
+próprios cronogramas.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.numero_laudo">
+<span class="sig-name descname"><span class="pre">numero_laudo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.numero_laudo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número do laudo. Obrigatório na criação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.laboratorio">
+<span class="sig-name descname"><span class="pre">laboratorio</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">qualidade.Laboratorio</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.laboratorio" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Laboratório credenciado responsável pelo laudo
+(<code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code>, opcional).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.quantidade_laudo">
+<span class="sig-name descname"><span class="pre">quantidade_laudo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">decimal.Decimal</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.quantidade_laudo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Quantidade total do laudo (Decimal com até 15 dígitos e 2 casas
+decimais). Base do cálculo do saldo do laudo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.numero_lote_laudo">
+<span class="sig-name descname"><span class="pre">numero_lote_laudo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.numero_lote_laudo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número(s) do(s) lote(s) do laudo (pode conter vários, separados).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.unidade_medida">
+<span class="sig-name descname"><span class="pre">unidade_medida</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">base.UnidadeMedida</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.unidade_medida" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida da quantidade do laudo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.data_final_lote">
+<span class="sig-name descname"><span class="pre">data_final_lote</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.data_final_lote" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Data de conclusão do laudo (data final do lote).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.correcao_solicitada">
+<span class="sig-name descname"><span class="pre">correcao_solicitada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.correcao_solicitada" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Texto da correção solicitada pela CODAE quando o documento foi
+enviado para correção. Também usado pelo serializador de análise
+para decidir entre aprovar ou solicitar correção.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.status" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/fluxo_status.py</span></code> (<code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoWorkflow</span></code>)</p>
+<p><strong>Descrição:</strong>
+Status atual do workflow. Estados possíveis: <code class="docutils literal notranslate"><span class="pre">DOCUMENTO_CRIADO</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_ANALISE</span></code>, <code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_CORRECAO</span></code> e <code class="docutils literal notranslate"><span class="pre">APROVADO</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação do documento.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.alterado_em">
+<span class="sig-name descname"><span class="pre">alterado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.alterado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemAlteradoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na última alteração do documento.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.logs">
+<span class="sig-name descname"><span class="pre">logs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">LogSolicitacoesUsuario</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.logs" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">Logs</span></code>)</p>
+<p><strong>Descrição:</strong>
+Lista dos registros de log de transições de status do documento,
+ordenados por <code class="docutils literal notranslate"><span class="pre">criado_em</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.log_mais_recente">
+<span class="sig-name descname"><span class="pre">log_mais_recente</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LogSolicitacoesUsuario</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.log_mais_recente" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">Logs</span></code>)</p>
+<p><strong>Descrição:</strong>
+Último registro de log de transição de status do documento.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.tipos_de_documentos">
+<span class="sig-name descname"><span class="pre">tipos_de_documentos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento" title="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento"><span class="pre">TipoDeDocumentoDeRecebimento</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.tipos_de_documentos" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento" title="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento</span></code></a>
+(<code class="docutils literal notranslate"><span class="pre">related_name=&quot;tipos_de_documentos&quot;</span></code>). Lista os tipos de documento
+apresentados (laudo, declarações, certificados, etc.), cada um com
+seus arquivos.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.datas_fabricacao_e_prazos">
+<span class="sig-name descname"><span class="pre">datas_fabricacao_e_prazos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo" title="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo"><span class="pre">DataDeFabricaoEPrazo</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.datas_fabricacao_e_prazos" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo" title="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo</span></code></a>
+(<code class="docutils literal notranslate"><span class="pre">related_name=&quot;datas_fabricacao_e_prazos&quot;</span></code>). Lista as datas de
+fabricação/validade e os prazos máximos de recebimento do lote.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.fichas_documentos">
+<span class="sig-name descname"><span class="pre">fichas_documentos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><span class="pre">DocumentoFichaDeRecebimento</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.fichas_documentos" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentoFichaDeRecebimento</span></code>
+(<code class="docutils literal notranslate"><span class="pre">related_name=&quot;fichas_documentos&quot;</span></code>). Vínculo com as fichas de
+recebimento que registraram quantidades recebidas contra este
+documento.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.fichas_recebimentos">
+<span class="sig-name descname"><span class="pre">fichas_recebimentos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><span class="pre">FichaDeRecebimento</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.fichas_recebimentos" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação M:N com <code class="xref py py-class docutils literal notranslate"><span class="pre">FichaDeRecebimento</span></code> através de
+<code class="docutils literal notranslate"><span class="pre">DocumentoFichaDeRecebimento</span></code> (<code class="docutils literal notranslate"><span class="pre">related_name=&quot;fichas_recebimentos&quot;</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.ajustes_saldo">
+<span class="sig-name descname"><span class="pre">ajustes_saldo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><span class="pre">AjusteSaldo</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.ajustes_saldo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <code class="xref py py-class docutils literal notranslate"><span class="pre">AjusteSaldo</span></code>
+(<code class="docutils literal notranslate"><span class="pre">related_name=&quot;ajustes_saldo&quot;</span></code>). Ajustes (descontos) de saldo do
+laudo registrados posteriormente.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.arquivo_laudo_assinado">
+<span class="sig-name descname"><span class="pre">arquivo_laudo_assinado</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bytes</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.arquivo_laudo_assinado" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Propriedade que gera o PDF do laudo assinado digitalmente: busca o
+log de aprovação (<code class="docutils literal notranslate"><span class="pre">DOCUMENTO_APROVADO</span></code>), o arquivo do tipo
+<code class="docutils literal notranslate"><span class="pre">LAUDO</span></code> e mescla o rodapé de assinatura digital na última página.
+Lança <code class="docutils literal notranslate"><span class="pre">ValidationError</span></code> se não houver log de aprovação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.salvar_log_transicao">
+<span class="sig-name descname"><span class="pre">salvar_log_transicao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span></span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/models.html#DocumentoDeRecebimento.salvar_log_transicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.salvar_log_transicao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Registra no log uma transição de status do documento, criando um
+<code class="docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code> com o tipo <code class="docutils literal notranslate"><span class="pre">DOCUMENTO_DE_RECEBIMENTO</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="datadefabricaoeprazo">
+<h2>DataDeFabricaoEPrazo<a class="headerlink" href="#datadefabricaoeprazo" title="Link to this heading"></a></h2>
+<p>Datas de fabricação e validade dos lotes do laudo, com o prazo máximo
+para recebimento. O <code class="docutils literal notranslate"><span class="pre">prazo_maximo_recebimento</span></code> é informado em dias
+(30/60/90/120/180) ou <code class="docutils literal notranslate"><span class="pre">OUTRO</span></code> (com justificativa); quando diferente de
+<code class="docutils literal notranslate"><span class="pre">OUTRO</span></code>, a <code class="docutils literal notranslate"><span class="pre">data_maxima_recebimento</span></code> é calculada automaticamente
+(signal <code class="docutils literal notranslate"><span class="pre">pre_save</span></code>) somando o prazo à <code class="docutils literal notranslate"><span class="pre">data_fabricacao</span></code>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DataDeFabricaoEPrazo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">documento_recebimento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_fabricacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_validade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_maxima_recebimento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prazo_maximo_recebimento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">justificativa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/documento_recebimento/models.html#DataDeFabricaoEPrazo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único do registro.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.documento_recebimento">
+<span class="sig-name descname"><span class="pre">documento_recebimento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento" title="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento"><span class="pre">DocumentoDeRecebimento</span></a></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.documento_recebimento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Documento de recebimento ao qual o registro pertence
+(<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_fabricacao">
+<span class="sig-name descname"><span class="pre">data_fabricacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_fabricacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Data de fabricação do lote. Obrigatória na análise final.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_validade">
+<span class="sig-name descname"><span class="pre">data_validade</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_validade" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Data de validade do lote. Obrigatória na análise final.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_maxima_recebimento">
+<span class="sig-name descname"><span class="pre">data_maxima_recebimento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_maxima_recebimento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Data máxima de recebimento do lote. Calculada automaticamente no
+<code class="docutils literal notranslate"><span class="pre">pre_save</span></code> como <code class="docutils literal notranslate"><span class="pre">data_fabricacao</span> <span class="pre">+</span> <span class="pre">prazo_maximo_recebimento</span></code>
+quando o prazo é numérico (diferente de <code class="docutils literal notranslate"><span class="pre">OUTRO</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.prazo_maximo_recebimento">
+<span class="sig-name descname"><span class="pre">prazo_maximo_recebimento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.prazo_maximo_recebimento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Prazo máximo para recebimento em dias. Valores possíveis: <code class="docutils literal notranslate"><span class="pre">30</span></code>,
+<code class="docutils literal notranslate"><span class="pre">60</span></code>, <code class="docutils literal notranslate"><span class="pre">90</span></code>, <code class="docutils literal notranslate"><span class="pre">120</span></code>, <code class="docutils literal notranslate"><span class="pre">180</span></code> e <code class="docutils literal notranslate"><span class="pre">OUTRO</span></code>. Obrigatório na análise
+final; quando <code class="docutils literal notranslate"><span class="pre">OUTRO</span></code>, exige <code class="docutils literal notranslate"><span class="pre">justificativa</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.justificativa">
+<span class="sig-name descname"><span class="pre">justificativa</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.justificativa" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Justificativa. Obrigatória quando <code class="docutils literal notranslate"><span class="pre">prazo_maximo_recebimento</span> <span class="pre">=</span> <span class="pre">OUTRO</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../documento_recebimento.html" class="btn btn-neutral float-left" title="documento_recebimento" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="api" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
