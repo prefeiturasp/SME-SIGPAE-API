@@ -19,6 +19,9 @@ class TermoRecebimentoDefinitivoViewSet(
     permission_classes = (PermissaoParaCadastrarTermoRecebimentoDefinitivo,)
 
     def perform_create(self, serializer):
+        """Persiste o termo com status ``ENVIADO`` e cria as linhas do
+        modelo intermediário (cronograma + valor_contrato + quantidade
+        total recebida) para cada cronograma do payload."""
         cronogramas = serializer.validated_data.pop("cronogramas")
         instance = serializer.save(
             criado_por=self.request.user,
@@ -34,6 +37,8 @@ class TermoRecebimentoDefinitivoViewSet(
             )
 
     def create(self, request, *args, **kwargs):
+        """Cria o termo (valida, persiste e retorna 201 com o serializador
+        de saída)."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

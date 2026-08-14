@@ -67,6 +67,9 @@ class DocumentoDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        """Cria o documento de recebimento para o cronograma informado,
+        cria os tipos de documento (helper) e inicia o fluxo (o documento
+        passa para ENVIADO_PARA_ANALISE)."""
         user = self.context["request"].user
 
         uuid_cronograma = validated_data.pop("cronograma", None)

@@ -4,6 +4,9 @@ from .models import CronogramaTermoRecebimentoDefinitivo, TermoRecebimentoDefini
 
 
 class CronogramaTermoRecebimentoDefinitivoInline(admin.TabularInline):
+    """Inline dos cronogramas do termo com valor de contrato e quantidade
+    total recebida (edição em linha no formulário do termo)."""
+
     model = CronogramaTermoRecebimentoDefinitivo
     extra = 0
     fields = ("cronograma", "valor_contrato", "quantidade_total_recebida")
@@ -11,6 +14,8 @@ class CronogramaTermoRecebimentoDefinitivoInline(admin.TabularInline):
 
 @admin.register(TermoRecebimentoDefinitivo)
 class TermoRecebimentoDefinitivoAdmin(admin.ModelAdmin):
+    """Admin do Termo de Recebimento Definitivo com inline dos cronogramas."""
+
     list_display = (
         "uuid",
         "empresa",
@@ -27,6 +32,8 @@ class TermoRecebimentoDefinitivoAdmin(admin.ModelAdmin):
 
 @admin.register(CronogramaTermoRecebimentoDefinitivo)
 class CronogramaTermoRecebimentoDefinitivoAdmin(admin.ModelAdmin):
+    """Admin dos cronogramas vinculados aos termos de recebimento definitivo."""
+
     list_display = (
         "termo",
         "cronograma",

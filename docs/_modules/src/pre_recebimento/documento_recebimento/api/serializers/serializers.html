@@ -1,0 +1,643 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.documento_recebimento.api.serializers.serializers &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.documento_recebimento.api.serializers.serializers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.documento_recebimento.api.serializers.serializers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.base.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ArquivoDoTipoDeDocumento</span><span class="p">,</span>
+    <span class="n">DataDeFabricaoEPrazo</span><span class="p">,</span>
+    <span class="n">DocumentoDeRecebimento</span><span class="p">,</span>
+    <span class="n">TipoDeDocumentoDeRecebimento</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.qualidade.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LaboratorioCredenciadoSimplesSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.recebimento.ajuste_saldo_laudo.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AjusteSaldo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.recebimento.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocumentoFichaDeRecebimento</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.....dados_comuns.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LogSolicitacoesUsuarioSimplesSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="calcular_saldo_laudo">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.calcular_saldo_laudo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calcular_saldo_laudo</span><span class="p">(</span><span class="n">documento_recebimento</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+
+    <span class="n">total_recebido</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">DocumentoFichaDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">documento_recebimento</span><span class="o">=</span><span class="n">documento_recebimento</span><span class="p">,</span>
+            <span class="n">ficha_recebimento__status</span><span class="o">=</span><span class="s2">&quot;ASSINADA&quot;</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;quantidade_recebida&quot;</span><span class="p">))[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span>
+        <span class="ow">or</span> <span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">total_recebido</span> <span class="o">=</span> <span class="n">DocumentoFichaDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">documento_recebimento</span><span class="o">=</span><span class="n">documento_recebimento</span><span class="p">,</span>
+        <span class="n">ficha_recebimento__status</span><span class="o">=</span><span class="s2">&quot;ASSINADA&quot;</span><span class="p">,</span>
+        <span class="n">quantidade_recebida__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;quantidade_recebida&quot;</span><span class="p">))[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">total_recebido</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">total_recebido</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s2">&quot;0.00&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">total_recebido</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">total_recebido</span><span class="p">))</span>
+
+    <span class="n">total_ajustes</span> <span class="o">=</span> <span class="n">AjusteSaldo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">documento_recebimento</span><span class="o">=</span><span class="n">documento_recebimento</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s2">&quot;quantidade_descontada&quot;</span><span class="p">))[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">total_ajustes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">total_ajustes</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s2">&quot;0.00&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">total_ajustes</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">total_ajustes</span><span class="p">))</span>
+
+    <span class="n">quantidade_laudo</span> <span class="o">=</span> <span class="n">documento_recebimento</span><span class="o">.</span><span class="n">quantidade_laudo</span>
+    <span class="k">if</span> <span class="n">quantidade_laudo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">quantidade_laudo</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s2">&quot;0.00&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">quantidade_laudo</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">quantidade_laudo</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">quantidade_laudo</span> <span class="o">-</span> <span class="n">total_recebido</span> <span class="o">-</span> <span class="n">total_ajustes</span></div>
+
+
+
+<div class="viewcode-block" id="DocRecebimentoFichaDeRecebimentoSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoFichaDeRecebimentoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocRecebimentoFichaDeRecebimentoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">datas_fabricacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">datas_validade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">quantidade_recebida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">saldo_laudo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DocRecebimentoFichaDeRecebimentoSerializer.get_datas_fabricacao">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoFichaDeRecebimentoSerializer.get_datas_fabricacao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_datas_fabricacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">d</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">datas_fabricacao_e_prazos</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                        <span class="s2">&quot;data_fabricacao&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoFichaDeRecebimentoSerializer.get_datas_validade">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoFichaDeRecebimentoSerializer.get_datas_validade">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_datas_validade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">d</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">datas_fabricacao_e_prazos</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+                        <span class="s2">&quot;data_validade&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoFichaDeRecebimentoSerializer.get_quantidade_recebida">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoFichaDeRecebimentoSerializer.get_quantidade_recebida">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_quantidade_recebida</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;context&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;ficha_recebimento&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
+            <span class="n">ficha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;ficha_recebimento&quot;</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">documento_ficha</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">fichas_documentos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ficha_recebimento</span><span class="o">=</span><span class="n">ficha</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">documento_ficha</span><span class="o">.</span><span class="n">quantidade_recebida</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoFichaDeRecebimentoSerializer.get_saldo_laudo">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoFichaDeRecebimentoSerializer.get_saldo_laudo">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_saldo_laudo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">calcular_saldo_laudo</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoFichaDeRecebimentoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoFichaDeRecebimentoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_lote_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;datas_fabricacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;datas_validade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;saldo_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade_recebida&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocumentoDeRecebimentoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">criado_em</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">pregao_chamada_publica</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoSerializer.get_numero_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoSerializer.get_numero_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoSerializer.get_pregao_chamada_publica">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoSerializer.get_pregao_chamada_publica">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pregao_chamada_publica</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">pregao_chamada_publica</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">contrato</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoSerializer.get_nome_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoSerializer.get_nome_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoSerializer.get_criado_em">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoSerializer.get_criado_em">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_criado_em</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pregao_chamada_publica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PainelDocumentoDeRecebimentoSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.PainelDocumentoDeRecebimentoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PainelDocumentoDeRecebimentoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;cronograma.numero&quot;</span><span class="p">)</span>
+    <span class="n">nome_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">log_mais_recente</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PainelDocumentoDeRecebimentoSerializer.get_nome_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.PainelDocumentoDeRecebimentoSerializer.get_nome_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="PainelDocumentoDeRecebimentoSerializer.get_nome_empresa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.PainelDocumentoDeRecebimentoSerializer.get_nome_empresa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_empresa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="PainelDocumentoDeRecebimentoSerializer.get_log_mais_recente">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.PainelDocumentoDeRecebimentoSerializer.get_log_mais_recente">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_log_mais_recente</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">==</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PainelDocumentoDeRecebimentoSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.PainelDocumentoDeRecebimentoSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PainelDocumentoDeRecebimentoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.PainelDocumentoDeRecebimentoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log_mais_recente&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ArquivoDoTipoDeDocumentoLookupSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.ArquivoDoTipoDeDocumentoLookupSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArquivoDoTipoDeDocumentoLookupSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="ArquivoDoTipoDeDocumentoLookupSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.ArquivoDoTipoDeDocumentoLookupSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ArquivoDoTipoDeDocumento</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;tipo_de_documento&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TipoDocumentoDeRecebimentoLookupSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.TipoDocumentoDeRecebimentoLookupSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoDocumentoDeRecebimentoLookupSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">arquivos</span> <span class="o">=</span> <span class="n">ArquivoDoTipoDeDocumentoLookupSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TipoDocumentoDeRecebimentoLookupSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.TipoDocumentoDeRecebimentoLookupSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TipoDeDocumentoDeRecebimento</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;documento_recebimento&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocRecebimentoDetalharSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">criado_em</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">pregao_chamada_publica</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">tipos_de_documentos</span> <span class="o">=</span> <span class="n">TipoDocumentoDeRecebimentoLookupSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuarioSimplesSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DocRecebimentoDetalharSerializer.get_numero_cronograma">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharSerializer.get_numero_cronograma">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharSerializer.get_pregao_chamada_publica">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharSerializer.get_pregao_chamada_publica">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pregao_chamada_publica</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">pregao_chamada_publica</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">contrato</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharSerializer.get_nome_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharSerializer.get_nome_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharSerializer.get_criado_em">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharSerializer.get_criado_em">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_criado_em</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_cronograma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pregao_chamada_publica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipos_de_documentos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;correcao_solicitada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;logs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DataDeFabricacaoEPrazoLookupSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DataDeFabricacaoEPrazoLookupSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataDeFabricacaoEPrazoLookupSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="DataDeFabricacaoEPrazoLookupSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DataDeFabricacaoEPrazoLookupSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DataDeFabricaoEPrazo</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;documento_recebimento&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharCodaeSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharCodaeSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocRecebimentoDetalharCodaeSerializer</span><span class="p">(</span><span class="n">DocRecebimentoDetalharSerializer</span><span class="p">):</span>
+    <span class="n">laboratorio</span> <span class="o">=</span> <span class="n">LaboratorioCredenciadoSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">datas_fabricacao_e_prazos</span> <span class="o">=</span> <span class="n">DataDeFabricacaoEPrazoLookupSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">numero_sei</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">fornecedor</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">saldo_laudo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DocRecebimentoDetalharCodaeSerializer.get_numero_sei">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharCodaeSerializer.get_numero_sei">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_sei</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">processo</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">contrato</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharCodaeSerializer.get_fornecedor">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharCodaeSerializer.get_fornecedor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fornecedor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">nome_fantasia</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharCodaeSerializer.get_saldo_laudo">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharCodaeSerializer.get_saldo_laudo">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_saldo_laudo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">calcular_saldo_laudo</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocRecebimentoDetalharCodaeSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocRecebimentoDetalharCodaeSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">(</span><span class="n">DocRecebimentoDetalharSerializer</span><span class="o">.</span><span class="n">Meta</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">DocRecebimentoDetalharSerializer</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">fields</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">&quot;fornecedor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_sei&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;laboratorio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;saldo_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_lote_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_final_lote&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;datas_fabricacao_e_prazos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;correcao_solicitada&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoDetalheRelatorioSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoDetalheRelatorioSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocumentoDeRecebimentoDetalheRelatorioSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">nome_laboratorio</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;laboratorio.nome&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;unidade_medida.abreviacao&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">datas_fabricacao_e_prazos</span> <span class="o">=</span> <span class="n">DataDeFabricacaoEPrazoLookupSerializer</span><span class="p">(</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">status_documento</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">saldo_inicial_laudo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;quantidade_laudo&quot;</span><span class="p">,</span> <span class="n">max_digits</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">saldo_atual</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoDetalheRelatorioSerializer.get_saldo_atual">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoDetalheRelatorioSerializer.get_saldo_atual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_saldo_atual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">calcular_saldo_laudo</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoDetalheRelatorioSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoDetalheRelatorioSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_laboratorio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_lote_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_final_lote&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;saldo_inicial_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;saldo_atual&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;datas_fabricacao_e_prazos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_documento&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CronogramaRelatorioDocumentosSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.CronogramaRelatorioDocumentosSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaRelatorioDocumentosSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">numero_cronograma</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;numero&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;ficha_tecnica.produto.nome&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;empresa.razao_social&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">numero_pregao_chamada_publica</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">numero_processo_sei</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;contrato.processo&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">documentos</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CronogramaRelatorioDocumentosSerializer.get_numero_pregao_chamada_publica">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.CronogramaRelatorioDocumentosSerializer.get_numero_pregao_chamada_publica">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numero_pregao_chamada_publica</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span><span class="o">.</span><span class="n">numero_pregao</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">contrato</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CronogramaRelatorioDocumentosSerializer.get_documentos">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.CronogramaRelatorioDocumentosSerializer.get_documentos">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_documentos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">documentos_de_recebimento</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span>
+            <span class="s2">&quot;laboratorio&quot;</span><span class="p">,</span> <span class="s2">&quot;unidade_medida&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s2">&quot;datas_fabricacao_e_prazos&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DocumentoDeRecebimentoDetalheRelatorioSerializer</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoParaAjusteSaldoSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoParaAjusteSaldoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocumentoDeRecebimentoParaAjusteSaldoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;unidade_medida.abreviacao&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">saldo_atual</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoParaAjusteSaldoSerializer.get_saldo_atual">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoParaAjusteSaldoSerializer.get_saldo_atual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_saldo_atual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">calcular_saldo_laudo</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoParaAjusteSaldoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoParaAjusteSaldoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade_laudo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;saldo_atual&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

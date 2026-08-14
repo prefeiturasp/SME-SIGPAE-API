@@ -1,0 +1,1721 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="api" href="api.html" />
+    <link rel="prev" title="ficha_tecnica" href="../ficha_tecnica.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../cardapio.html">cardapio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html">alteracao_tipo_alimentacao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.behaviors">behaviors</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDesteMesManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDoMesCorrenteManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioVencidaManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html">alteracao_tipo_alimentacao_cei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEIModelAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine"><code class="docutils literal notranslate"><span class="pre">SubstituicoesCEIInLine</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.AlteracaoCardapioCEI"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.FaixaEtariaSubstituicaoAlimentacaoCEI"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html">alteracao_tipo_alimentacao_cemei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.admin.AlteracaoCardapioCEMEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEMEIModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEMEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.FaixaEtariaSubstituicaoAlimentacaoCEMEICEI"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEMEICEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.DataIntervaloAlteracaoCardapioCEMEI"><code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapioCEMEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers.AlteracoesCardapioCEMEIDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEMEIDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers.AlteracoesCardapioCEMEIDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEMEIDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/base.html">base</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#src.cardapio.base.admin.MotivoDRENaoValidaAdmin"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValidaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#src.cardapio.base.admin.TipoAlimentacaoAdmin"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacaoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#src.cardapio.base.models.TipoAlimentacao"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#src.cardapio.base.models.MotivoDRENaoValida"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/base.html#module-src.cardapio.base.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html">inversao_dia_cardapio</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioDesteMesManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioVencidaManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/management.html">management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/management.html#module-src.cardapio.management.commands">commands</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/management.html#src.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html">suspensao_alimentacao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoModelAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.QuantidadePorPeriodoSuspensaoAlimentacaoInline"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacaoInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacaoInline"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.MotivoSuspensao"><code class="docutils literal notranslate"><span class="pre">MotivoSuspensao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacao</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers.GrupoSuspensaoAlimentacaoDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers.GrupoSuspensaoAlimentacaoDesteMesManager"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html">suspensao_alimentacao_cei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEIModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../dieta_especial.html">dieta_especial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial.html">solicitacao_dieta_especial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/models.html#solicitacaodietaespecial">SolicitacaoDietaEspecial</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/models.html#motivonegacao">MotivoNegacao</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/models.html#motivoalteracaoue">MotivoAlteracaoUE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/models.html#alergiaintolerancia">AlergiaIntolerancia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/models.html#classificacaodieta">ClassificacaoDieta</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/models.html#anexo">Anexo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/models.html#solicitacoesdietaespecialativasinativasporaluno">SolicitacoesDietaEspecialAtivasInativasPorAluno</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.forms">forms</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.pagination">pagination</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.utils">utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.validators">validators</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/services.html">services</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/solicitacao_dieta_especial/services.html#module-src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo">historico_protocolo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/protocolo_padrao.html">protocolo_padrao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/models.html#alimento">Alimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/models.html#substituicaoalimento">SubstituicaoAlimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/models.html#alimentosubstituto">AlimentoSubstituto</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/models.html#protocolopadraodietaespecial">ProtocoloPadraoDietaEspecial</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/models.html#substituicaoalimentoprotocolopadrao">SubstituicaoAlimentoProtocoloPadrao</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.pagination">pagination</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.utils">utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.validators">validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/logs_models.html">logs_models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/logs_models/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/models.html#logdietasativascanceladasautomaticamente">LogDietasAtivasCanceladasAutomaticamente</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadas">LogQuantidadeDietasAutorizadas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadascei">LogQuantidadeDietasAutorizadasCEI</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadasrecreionasferias">LogQuantidadeDietasAutorizadasRecreioNasFerias</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadasrecreionasferiascei">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/logs_models/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.serializers">serializers</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/logs_models/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/logs_models/fixtures.html#module-src.dieta_especial.logs_models.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/carga_dados.html">carga_dados</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/carga_dados/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/tasks.html">tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/admin_actions.html">admin_actions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/logs.html">logs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/processamentos.html">processamentos</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/relatorio_pdf.html">relatorio_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/relatorio_terceirizadas_pdf.html">relatorio_terceirizadas_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/relatorio_terceirizadas_xlsx.html">relatorio_terceirizadas_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/relatorio_historico_logs_pdf.html">relatorio_historico_logs_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/relatorio_historico_logs_xlsx.html">relatorio_historico_logs_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/relatorio_recreio_nas_ferias_pdf.html">relatorio_recreio_nas_ferias_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/relatorio_recreio_nas_ferias_xlsx.html">relatorio_recreio_nas_ferias_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/tasks/utils.html">utils</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.logs">logs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.processamentos">processamentos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_historico_logs">relatorio_historico_logs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias">relatorio_recreio_nas_ferias</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx">relatorio_terceirizadas_xlsx</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/management.html">management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/management/commands.html">commands</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas">corrige_alergias_intolerancias_duplicadas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.corrige_protocolos_padrao">corrige_protocolos_padrao</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_autorizar">dieta_especial_autorizar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_cancelar">dieta_especial_cancelar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_criar">dieta_especial_criar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_deletar">dieta_especial_deletar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo">exportar_planilha_relacao_protocolo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.fix_nomes_protocolos">fix_nomes_protocolos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar">gerar_logs_dietas_periodo_escolar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.gera_zip_protocolos">gera_zip_protocolos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos">processar_planilha_protocolos_invalidos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_validos">processar_planilha_protocolos_validos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_retorno_nucleo">processar_planilha_retorno_nucleo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.unifica_dietas_tipo_b">unifica_dietas_tipo_b</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas">verificar_duplicidade_solicitacoes_dietas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo">verificar_solicitacoes_sem_protocolo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/utils.html">utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/utils.html#module-src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias">filtra_relatorio_recreio_nas_ferias</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.filtra_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">filtra_relatorio_recreio_nas_ferias()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.gera_filtros_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">gera_filtros_relatorio_recreio_nas_ferias()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/utils.html#module-src.dieta_especial.utils.gera_dicionario_historico_dietas">gera_dicionario_historico_dietas</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/utils.html#src.dieta_especial.utils.gera_dicionario_historico_dietas.gera_dicionario_historico_dietas"><code class="docutils literal notranslate"><span class="pre">gera_dicionario_historico_dietas()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/utils.html#module-src.dieta_especial.utils.gerar_filtros_relatorio_historico">gerar_filtros_relatorio_historico</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/utils.html#src.dieta_especial.utils.gerar_filtros_relatorio_historico.gerar_filtros_relatorio_historico"><code class="docutils literal notranslate"><span class="pre">gerar_filtros_relatorio_historico()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/utils.html#module-src.dieta_especial.utils.get_logs_historico_dietas">get_logs_historico_dietas</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/utils.html#src.dieta_especial.utils.get_logs_historico_dietas.get_logs_historico_dietas"><code class="docutils literal notranslate"><span class="pre">get_logs_historico_dietas()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/data.html">data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/data.html#module-src.dieta_especial.data.alergia_intolerancia">alergia_intolerancia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/data.html#module-src.dieta_especial.data.alimentos">alimentos</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/data.html#module-src.dieta_especial.data.classificacao_dieta">classificacao_dieta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/data.html#module-src.dieta_especial.data.motivo_alteracao_ue">motivo_alteracao_ue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/data.html#module-src.dieta_especial.data.motivo_negacao">motivo_negacao</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial/fixtures.html">fixtures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial/fixtures.html#module-src.dieta_especial.fixtures.factories">factories</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlergiaIntoleranciaFactory"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlimentoFactory"><code class="docutils literal notranslate"><span class="pre">AlimentoFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ClassificacaoDietaFactory"><code class="docutils literal notranslate"><span class="pre">ClassificacaoDietaFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.MotivoAlteracaoUEFactory"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoUEFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ProtocoloPadraoDietaEspecialFactory"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SolicitacaoDietaEspecialFactory"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SubstituicaoAlimentoFactory"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoFactory</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.apps">apps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial.html#src.dieta_especial.apps.DietaEspecialConfig"><code class="docutils literal notranslate"><span class="pre">DietaEspecialConfig</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial.html#src.dieta_especial.apps.DietaEspecialConfig.name"><code class="docutils literal notranslate"><span class="pre">DietaEspecialConfig.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dieta_especial.html#module-src.dieta_especial.forms">forms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.base_fields"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.base_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.declared_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.media"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.media</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../pre_recebimento.html">pre_recebimento</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../cronograma_entrega.html">cronograma_entrega</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../cronograma_entrega/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.gerar_numero_solicitacao"><code class="docutils literal notranslate"><span class="pre">gerar_numero_solicitacao()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/models.html#cronograma">Cronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/models.html#etapasdocronograma">EtapasDoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/models.html#programacaodorecebimentodocronograma">ProgramacaoDoRecebimentoDoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/models.html#solicitacaoalteracaocronograma">SolicitacaoAlteracaoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/models.html#solicitacaoalteracaocronogramaqueryset">SolicitacaoAlteracaoCronogramaQuerySet</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/models.html#interrupcaoprogramadaentrega">InterrupcaoProgramadaEntrega</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../cronograma_entrega/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/api.html#viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.helpers">helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../cronograma_entrega/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.CronogramaAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasAntigasInline"><code class="docutils literal notranslate"><span class="pre">EtapasAntigasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasInline"><code class="docutils literal notranslate"><span class="pre">EtapasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasNovasInline"><code class="docutils literal notranslate"><span class="pre">EtapasNovasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.SolicitacaoAdmin"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../cronograma_entrega/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../cronograma_entrega/fixtures.html#module-src.pre_recebimento.cronograma_entrega.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="reference internal" href="../ficha_tecnica.html">ficha_tecnica</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.gerar_numero_ficha_tecnica"><code class="docutils literal notranslate"><span class="pre">gerar_numero_ficha_tecnica()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#fabricantefichatecnica">FabricanteFichaTecnica</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#fichatecnicadoproduto">FichaTecnicaDoProduto</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#informacoesnutricionaisfichatecnica">InformacoesNutricionaisFichaTecnica</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#analisefichatecnica">AnaliseFichaTecnica</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api.html#viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api.html#module-src.pre_recebimento.ficha_tecnica.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api.html#module-src.pre_recebimento.ficha_tecnica.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api.html#module-src.pre_recebimento.ficha_tecnica.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api.html#module-src.pre_recebimento.ficha_tecnica.api.helpers">helpers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="api.html#relatorio-fichas-tecnicas-excel">relatorio_fichas_tecnicas_excel</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="admin.html#src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline"><code class="docutils literal notranslate"><span class="pre">AnaliseFichaTecnicaInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="admin.html#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin"><code class="docutils literal notranslate"><span class="pre">FabricanteFichaTecnicaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="admin.html#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin"><code class="docutils literal notranslate"><span class="pre">FichaTecnicaDoProdutoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="admin.html#src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline"><code class="docutils literal notranslate"><span class="pre">InformacoesNutricionaisFichaTecnicaInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="fixtures.html#module-src.pre_recebimento.ficha_tecnica.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../documento_recebimento.html">documento_recebimento</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../documento_recebimento/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.data_maxima_recebimento_pre_save"><code class="docutils literal notranslate"><span class="pre">data_maxima_recebimento_pre_save()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/models.html#arquivodotipodedocumento">ArquivoDoTipoDeDocumento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/models.html#tipodedocumentoderecebimento">TipoDeDocumentoDeRecebimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/models.html#documentoderecebimento">DocumentoDeRecebimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/models.html#datadefabricaoeprazo">DataDeFabricaoEPrazo</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../documento_recebimento/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.helpers">helpers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel">relatorio_documentos_recebimento_excel</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../documento_recebimento/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../documento_recebimento/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../documento_recebimento/fixtures.html#module-src.pre_recebimento.documento_recebimento.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pos_recebimento.html">pos_recebimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../pos_recebimento/models.html">models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../pos_recebimento/models.html#termorecebimentodefinitivo">TermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../pos_recebimento/models.html#cronogramatermorecebimentodefinitivo">CronogramaTermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../pos_recebimento/api.html">api</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../pos_recebimento/api.html#module-src.pos_recebimento.api.viewsets">viewsets</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../pos_recebimento/api.html#module-src.pos_recebimento.api.permissions">permissions</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/api.html#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../pos_recebimento/api.html#module-src.pos_recebimento.api.services">services</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/api.html#src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoService</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/api.html#module-src.pos_recebimento.api.serializers.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/api.html#module-src.pos_recebimento.api.serializers.serializers_create">serializers_create</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../pos_recebimento/admin.html">admin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.extra"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.extra</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.model"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.inlines</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_filter</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../../pre_recebimento.html">pre_recebimento</a></li>
+          <li class="breadcrumb-item"><a href="../ficha_tecnica.html">ficha_tecnica</a></li>
+      <li class="breadcrumb-item active">models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/pre_recebimento/ficha_tecnica/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.pre_recebimento.ficha_tecnica.models">
+<span id="models"></span><h1>models<a class="headerlink" href="#module-src.pre_recebimento.ficha_tecnica.models" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.gerar_numero_ficha_tecnica">
+<span class="sig-name descname"><span class="pre">gerar_numero_ficha_tecnica</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/models.html#gerar_numero_ficha_tecnica"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.gerar_numero_ficha_tecnica" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<section id="fabricantefichatecnica">
+<h2>FabricanteFichaTecnica<a class="headerlink" href="#fabricantefichatecnica" title="Link to this heading"></a></h2>
+<p>Armazena os dados do fabricante (e do envasador/distribuidor) específicos
+de uma ficha técnica. Diferente do cadastro global de
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Fabricante</span></code>, estes dados são
+“congelados” na ficha no momento do cadastro, podendo divergir do
+cadastro mestre (CNPJ, endereço, contato, etc.).</p>
+<p>A mesma entidade é usada tanto para o campo <code class="docutils literal notranslate"><span class="pre">fabricante</span></code> quanto para o
+campo <code class="docutils literal notranslate"><span class="pre">envasador_distribuidor</span></code> da ficha (duas instâncias distintas).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FabricanteFichaTecnica</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/models.html#FabricanteFichaTecnica"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code></p>
+<p>Modelo para armazenar informações do fabricante específicas para uma ficha técnica.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">ModeloBase</span></code>)</p>
+<p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único do registro de fabricante da ficha.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.fabricante">
+<span class="sig-name descname"><span class="pre">fabricante</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">produto.Fabricante</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.fabricante" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Referência opcional ao cadastro global de fabricante
+(<code class="docutils literal notranslate"><span class="pre">on_delete=SET_NULL</span></code>). Quando presente, o nome exibido vem deste
+cadastro; os demais dados (endereço, contato) ficam neste modelo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.cnpj">
+<span class="sig-name descname"><span class="pre">cnpj</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.cnpj" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+CNPJ do fabricante/envasador (até 14 dígitos, mínimo 14 com
+<code class="docutils literal notranslate"><span class="pre">MinLengthValidator</span></code>). Aceita apenas números (sem máscara).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.cep">
+<span class="sig-name descname"><span class="pre">cep</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.cep" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+CEP (8 dígitos, sem máscara).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.endereco">
+<span class="sig-name descname"><span class="pre">endereco</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.endereco" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Logradouro do endereço.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.numero">
+<span class="sig-name descname"><span class="pre">numero</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.numero" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número do endereço.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.complemento">
+<span class="sig-name descname"><span class="pre">complemento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.complemento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Complemento do endereço (ex.: bloco, andar, sala).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.bairro">
+<span class="sig-name descname"><span class="pre">bairro</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.bairro" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bairro.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.cidade">
+<span class="sig-name descname"><span class="pre">cidade</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.cidade" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Cidade.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.estado">
+<span class="sig-name descname"><span class="pre">estado</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.estado" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Estado (UF). Utilizado no filtro do admin por estado.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.email">
+<span class="sig-name descname"><span class="pre">email</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.email" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+E-mail de contato (<code class="docutils literal notranslate"><span class="pre">EmailField</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.telefone">
+<span class="sig-name descname"><span class="pre">telefone</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.telefone" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Telefone de contato (até 13 caracteres, mínimo 8 com
+<code class="docutils literal notranslate"><span class="pre">MinLengthValidator</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação do registro.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.alterado_em">
+<span class="sig-name descname"><span class="pre">alterado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.alterado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemAlteradoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na última alteração do registro.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.NotUpdated">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NotUpdated</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica.NotUpdated" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectNotUpdated</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseError</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="fichatecnicadoproduto">
+<h2>FichaTecnicaDoProduto<a class="headerlink" href="#fichatecnicadoproduto" title="Link to this heading"></a></h2>
+<p>Modelo central do submódulo. Representa a ficha técnica de um produto
+alimentício: especificações do produto, fabricante/envasador, tabela
+nutricional, conservação, transporte, embalagens, rotulagem, responsável
+técnico e modo de preparo.</p>
+<p>O número da ficha é gerado automaticamente após a primeira gravação no
+formato <code class="docutils literal notranslate"><span class="pre">FTXXX</span></code> (<code class="docutils literal notranslate"><span class="pre">XXX</span></code> é o PK preenchido com zeros), via signal
+<code class="docutils literal notranslate"><span class="pre">post_save</span></code>.</p>
+<p>A ficha possui um <strong>workflow de aprovação</strong>
+(<code class="docutils literal notranslate"><span class="pre">FichaTecnicaDoProdutoWorkflow</span></code>) com os estados:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code> (Rascunho) — estado inicial; cadastro parcial pelo fornecedor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ENVIADA_PARA_ANALISE</span></code> (Enviada para Análise) — enviada pelo fornecedor para a GPCODAE (transição <code class="docutils literal notranslate"><span class="pre">inicia_fluxo</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">APROVADA</span></code> (Aprovada) — aprovada pela GPCODAE (transição <code class="docutils literal notranslate"><span class="pre">gpcodae_aprova</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ENVIADA_PARA_CORRECAO</span></code> (Enviada para Correção) — devolvida ao fornecedor com correções (transição <code class="docutils literal notranslate"><span class="pre">gpcodae_envia_para_correcao</span></code>).</p></li>
+</ul>
+<p>O fluxo também permite: <code class="docutils literal notranslate"><span class="pre">fornecedor_corrige</span></code> (de <code class="docutils literal notranslate"><span class="pre">ENVIADA_PARA_CORRECAO</span></code>
+de volta para <code class="docutils literal notranslate"><span class="pre">ENVIADA_PARA_ANALISE</span></code>) e <code class="docutils literal notranslate"><span class="pre">fornecedor_atualiza</span></code> (de
+<code class="docutils literal notranslate"><span class="pre">APROVADA</span></code> para <code class="docutils literal notranslate"><span class="pre">ENVIADA_PARA_ANALISE</span></code> — atualização de uma ficha já
+aprovada). Cada transição gera um <code class="docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code> do tipo
+<code class="docutils literal notranslate"><span class="pre">FICHA_TECNICA_DO_PRODUTO</span></code> e o envio para análise dispara e-mail de
+notificação.</p>
+<p>Regras de negócio por categoria (aplicadas nos serializadores/validators):</p>
+<ul class="simple">
+<li><p><strong>FLV</strong> (hortifrutigranjeiros): exige <code class="docutils literal notranslate"><span class="pre">organico</span></code> e <code class="docutils literal notranslate"><span class="pre">especie_variedade</span></code>.</p></li>
+<li><p><strong>Perecíveis</strong>: exige <code class="docutils literal notranslate"><span class="pre">organico</span></code>, <code class="docutils literal notranslate"><span class="pre">prazo_validade_descongelamento</span></code>,
+<code class="docutils literal notranslate"><span class="pre">temperatura_congelamento</span></code>, <code class="docutils literal notranslate"><span class="pre">temperatura_veiculo</span></code>,
+<code class="docutils literal notranslate"><span class="pre">condicoes_de_transporte</span></code> e <code class="docutils literal notranslate"><span class="pre">variacao_percentual</span></code>.</p></li>
+<li><p><strong>Não perecíveis</strong>: exige <code class="docutils literal notranslate"><span class="pre">organico</span></code> e <code class="docutils literal notranslate"><span class="pre">produto_eh_liquido</span></code>.</p></li>
+</ul>
+<p>Campos dependentes obrigatórios:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">organico</span> <span class="pre">=</span> <span class="pre">True</span></code> exige <code class="docutils literal notranslate"><span class="pre">mecanismo_controle</span></code> (CERTIFICACAO/OPAC/OCS).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alergenicos</span> <span class="pre">=</span> <span class="pre">True</span></code> exige <code class="docutils literal notranslate"><span class="pre">ingredientes_alergenicos</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lactose</span> <span class="pre">=</span> <span class="pre">True</span></code> exige <code class="docutils literal notranslate"><span class="pre">lactose_detalhe</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">produto_eh_liquido</span> <span class="pre">=</span> <span class="pre">True</span></code> exige <code class="docutils literal notranslate"><span class="pre">volume_embalagem_primaria</span></code> e
+<code class="docutils literal notranslate"><span class="pre">unidade_medida_volume_primaria</span></code>.</p></li>
+</ul>
+<p>As declarações de conformidade com o Anexo I do Edital
+(<code class="docutils literal notranslate"><span class="pre">embalagens_de_acordo_com_anexo</span></code> e <code class="docutils literal notranslate"><span class="pre">rotulo_legivel</span></code>) devem ser
+marcadas como <code class="docutils literal notranslate"><span class="pre">True</span></code> na criação (validadas no serializador de criação).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FichaTecnicaDoProduto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alterado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numero</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">produto</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marca</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categoria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tipo_entrega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">programa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pregao_chamada_publica</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empresa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fabricante</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">envasador_distribuidor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prazo_validade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numero_registro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">organico</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mecanismo_controle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">especie_variedade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">componentes_produto</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alergenicos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ingredientes_alergenicos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gluten</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lactose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lactose_detalhe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">porcao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unidade_medida_porcao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valor_unidade_caseira</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unidade_medida_caseira</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prazo_validade_descongelamento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condicoes_de_conservacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperatura_congelamento</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperatura_veiculo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condicoes_de_transporte</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embalagem_primaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embalagem_secundaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embalagens_de_acordo_com_anexo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_embalagem_primaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">produto_eh_liquido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_embalagem_primaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unidade_medida_volume_primaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peso_liquido_embalagem_primaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unidade_medida_primaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peso_liquido_embalagem_secundaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unidade_medida_secundaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peso_embalagem_primaria_vazia</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unidade_medida_primaria_vazia</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peso_embalagem_secundaria_vazia</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unidade_medida_secundaria_vazia</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variacao_percentual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sistema_vedacao_embalagem_secundaria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotulo_legivel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nome_responsavel_tecnico</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">habilitacao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numero_registro_orgao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arquivo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modo_de_preparo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">informacoes_adicionais</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/models.html#FichaTecnicaDoProduto"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoFichaTecnicaDoProduto</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">ModeloBase</span></code>)</p>
+<p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único da ficha, usado em integrações e endpoints.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.id_externo">
+<span class="sig-name descname"><span class="pre">id_externo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.id_externo" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo amigável composto pelos 5 primeiros caracteres
+maiúsculos do UUID.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.numero">
+<span class="sig-name descname"><span class="pre">numero</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.numero" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número da ficha técnica, único, gerado automaticamente após a criação
+no formato <code class="docutils literal notranslate"><span class="pre">FTXXX</span></code> (<code class="docutils literal notranslate"><span class="pre">XXX</span></code> = PK com zeros à esquerda).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.produto">
+<span class="sig-name descname"><span class="pre">produto</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">produto.NomeDeProdutoEdital</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.produto" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Produto (nome do produto do edital) ao qual a ficha se refere.
+Obrigatório com <code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.marca">
+<span class="sig-name descname"><span class="pre">marca</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">produto.Marca</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.marca" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Marca do produto (opcional, <code class="docutils literal notranslate"><span class="pre">on_delete=PROTECT</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.categoria">
+<span class="sig-name descname"><span class="pre">categoria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.categoria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Categoria do produto. Valores possíveis: <code class="docutils literal notranslate"><span class="pre">PERECIVEIS</span></code> (Perecíveis),
+<code class="docutils literal notranslate"><span class="pre">NAO_PERECIVEIS</span></code> (Não Perecíveis) e <code class="docutils literal notranslate"><span class="pre">FLV</span></code>. Define o conjunto de
+campos obrigatórios da ficha.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.tipo_entrega">
+<span class="sig-name descname"><span class="pre">tipo_entrega</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.tipo_entrega" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Tipo de entrega. Valores possíveis: <code class="docutils literal notranslate"><span class="pre">ARMAZEM</span></code> (Armazém, default) e
+<code class="docutils literal notranslate"><span class="pre">PONTO_A_PONTO</span></code> (Ponto a Ponto). Fichas <code class="docutils literal notranslate"><span class="pre">FLV</span></code> + <code class="docutils literal notranslate"><span class="pre">PONTO_A_PONTO</span></code>
+têm regras de análise simplificadas (não exigem os blocos de
+informações nutricionais, conservação, armazenamento, embalagem/
+rotulagem e modo de preparo).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.programa">
+<span class="sig-name descname"><span class="pre">programa</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.programa" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Programa de alimentação. Valores possíveis: <code class="docutils literal notranslate"><span class="pre">LEVE_LEITE</span></code> (Leve
+Leite) e <code class="docutils literal notranslate"><span class="pre">ALIMENTACAO_ESCOLAR</span></code> (Alimentação Escolar, default).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.pregao_chamada_publica">
+<span class="sig-name descname"><span class="pre">pregao_chamada_publica</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.pregao_chamada_publica" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número do pregão eletrônico / chamada pública ao qual o produto está
+vinculado.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.empresa">
+<span class="sig-name descname"><span class="pre">empresa</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">terceirizada.Terceirizada</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.empresa" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Empresa fornecedora responsável pela ficha (<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>).
+Utilizada para filtrar as fichas visíveis para usuários fornecedores.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.fabricante">
+<span class="sig-name descname"><span class="pre">fabricante</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica" title="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica"><span class="pre">FabricanteFichaTecnica</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.fabricante" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Dados do fabricante específicos da ficha (<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.envasador_distribuidor">
+<span class="sig-name descname"><span class="pre">envasador_distribuidor</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica" title="src.pre_recebimento.ficha_tecnica.models.FabricanteFichaTecnica"><span class="pre">FabricanteFichaTecnica</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.envasador_distribuidor" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Dados do envasador/distribuidor específicos da ficha
+(<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.prazo_validade">
+<span class="sig-name descname"><span class="pre">prazo_validade</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.prazo_validade" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Prazo de validade do produto.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.numero_registro">
+<span class="sig-name descname"><span class="pre">numero_registro</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.numero_registro" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número do registro do rótulo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.organico">
+<span class="sig-name descname"><span class="pre">organico</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.organico" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Indica se o produto é orgânico. Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, exige
+<code class="docutils literal notranslate"><span class="pre">mecanismo_controle</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.mecanismo_controle">
+<span class="sig-name descname"><span class="pre">mecanismo_controle</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.mecanismo_controle" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Mecanismo de controle de produto orgânico. Valores possíveis:
+<code class="docutils literal notranslate"><span class="pre">CERTIFICACAO</span></code> (Certificação), <code class="docutils literal notranslate"><span class="pre">OPAC</span></code> e <code class="docutils literal notranslate"><span class="pre">OCS</span></code>. Obrigatório
+quando <code class="docutils literal notranslate"><span class="pre">organico</span> <span class="pre">=</span> <span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.especie_variedade">
+<span class="sig-name descname"><span class="pre">especie_variedade</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.especie_variedade" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Espécie ou variedade cultivada. Obrigatório para fichas <code class="docutils literal notranslate"><span class="pre">FLV</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.componentes_produto">
+<span class="sig-name descname"><span class="pre">componentes_produto</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.componentes_produto" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Componentes do produto (texto).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.alergenicos">
+<span class="sig-name descname"><span class="pre">alergenicos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.alergenicos" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Indica se o produto pode conter alergênicos. Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, exige
+<code class="docutils literal notranslate"><span class="pre">ingredientes_alergenicos</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.ingredientes_alergenicos">
+<span class="sig-name descname"><span class="pre">ingredientes_alergenicos</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.ingredientes_alergenicos" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Ingredientes/aditivos alergênicos. Obrigatório quando
+<code class="docutils literal notranslate"><span class="pre">alergenicos</span> <span class="pre">=</span> <span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.gluten">
+<span class="sig-name descname"><span class="pre">gluten</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.gluten" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Indica se o produto contém glúten.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.lactose">
+<span class="sig-name descname"><span class="pre">lactose</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.lactose" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Indica se o produto contém lactose. Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, exige
+<code class="docutils literal notranslate"><span class="pre">lactose_detalhe</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.lactose_detalhe">
+<span class="sig-name descname"><span class="pre">lactose_detalhe</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.lactose_detalhe" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Detalhamento sobre a lactose. Obrigatório quando <code class="docutils literal notranslate"><span class="pre">lactose</span> <span class="pre">=</span> <span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.porcao">
+<span class="sig-name descname"><span class="pre">porcao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.porcao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Porção (quantidade de referência para a tabela nutricional).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_porcao">
+<span class="sig-name descname"><span class="pre">unidade_medida_porcao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">base.UnidadeMedida</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_porcao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida da porção (ex.: g, ml).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.valor_unidade_caseira">
+<span class="sig-name descname"><span class="pre">valor_unidade_caseira</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.valor_unidade_caseira" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Medida caseira correspondente à porção (ex.: “1 colher de sopa”).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_caseira">
+<span class="sig-name descname"><span class="pre">unidade_medida_caseira</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_caseira" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida caseira (texto livre).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.informacoes_nutricionais">
+<span class="sig-name descname"><span class="pre">informacoes_nutricionais</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica" title="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica"><span class="pre">InformacoesNutricionaisFichaTecnica</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.informacoes_nutricionais" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica" title="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica"><code class="xref py py-class docutils literal notranslate"><span class="pre">InformacoesNutricionaisFichaTecnica</span></code></a>.
+Lista os itens da tabela nutricional da ficha (cada um com quantidade
+por 100 g, por porção e valor diário).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.prazo_validade_descongelamento">
+<span class="sig-name descname"><span class="pre">prazo_validade_descongelamento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.prazo_validade_descongelamento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Prazo de validade após o descongelamento, mantido sob refrigeração.
+Obrigatório para produtos perecíveis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.condicoes_de_conservacao">
+<span class="sig-name descname"><span class="pre">condicoes_de_conservacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.condicoes_de_conservacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Condições de conservação e prazo máximo para consumo após a abertura
+da embalagem primária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.temperatura_congelamento">
+<span class="sig-name descname"><span class="pre">temperatura_congelamento</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.temperatura_congelamento" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Temperatura de congelamento do produto. Obrigatório para perecíveis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.temperatura_veiculo">
+<span class="sig-name descname"><span class="pre">temperatura_veiculo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.temperatura_veiculo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Temperatura interna do veículo para transporte. Obrigatório para
+perecíveis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.condicoes_de_transporte">
+<span class="sig-name descname"><span class="pre">condicoes_de_transporte</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.condicoes_de_transporte" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Condições de transporte do produto. Obrigatório para perecíveis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.embalagem_primaria">
+<span class="sig-name descname"><span class="pre">embalagem_primaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.embalagem_primaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Descrição da embalagem primária do produto.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.embalagem_secundaria">
+<span class="sig-name descname"><span class="pre">embalagem_secundaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.embalagem_secundaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Descrição da embalagem secundária do produto.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.embalagens_de_acordo_com_anexo">
+<span class="sig-name descname"><span class="pre">embalagens_de_acordo_com_anexo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.embalagens_de_acordo_com_anexo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Declaração de que as embalagens primária e secundária estão de acordo
+com as especificações do Anexo I do Edital. Deve ser marcada como
+<code class="docutils literal notranslate"><span class="pre">True</span></code> na criação (validação no serializador).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.material_embalagem_primaria">
+<span class="sig-name descname"><span class="pre">material_embalagem_primaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.material_embalagem_primaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Material da embalagem primária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.produto_eh_liquido">
+<span class="sig-name descname"><span class="pre">produto_eh_liquido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.produto_eh_liquido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Indica se o produto é líquido. Quando <code class="docutils literal notranslate"><span class="pre">True</span></code>, exige
+<code class="docutils literal notranslate"><span class="pre">volume_embalagem_primaria</span></code> e <code class="docutils literal notranslate"><span class="pre">unidade_medida_volume_primaria</span></code>.
+Obrigatório para não perecíveis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.volume_embalagem_primaria">
+<span class="sig-name descname"><span class="pre">volume_embalagem_primaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.volume_embalagem_primaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Volume do produto na embalagem primária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_volume_primaria">
+<span class="sig-name descname"><span class="pre">unidade_medida_volume_primaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">base.UnidadeMedida</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_volume_primaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida do volume da embalagem primária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.peso_liquido_embalagem_primaria">
+<span class="sig-name descname"><span class="pre">peso_liquido_embalagem_primaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.peso_liquido_embalagem_primaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Peso líquido do produto na embalagem primária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_primaria">
+<span class="sig-name descname"><span class="pre">unidade_medida_primaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">base.UnidadeMedida</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_primaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida do peso líquido da embalagem primária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.peso_liquido_embalagem_secundaria">
+<span class="sig-name descname"><span class="pre">peso_liquido_embalagem_secundaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.peso_liquido_embalagem_secundaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Peso líquido do produto na embalagem secundária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_secundaria">
+<span class="sig-name descname"><span class="pre">unidade_medida_secundaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">base.UnidadeMedida</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_secundaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida do peso líquido da embalagem secundária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.peso_embalagem_primaria_vazia">
+<span class="sig-name descname"><span class="pre">peso_embalagem_primaria_vazia</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.peso_embalagem_primaria_vazia" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Peso da embalagem primária vazia.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_primaria_vazia">
+<span class="sig-name descname"><span class="pre">unidade_medida_primaria_vazia</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">base.UnidadeMedida</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_primaria_vazia" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida do peso da embalagem primária vazia.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.peso_embalagem_secundaria_vazia">
+<span class="sig-name descname"><span class="pre">peso_embalagem_secundaria_vazia</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.peso_embalagem_secundaria_vazia" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Peso da embalagem secundária vazia.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_secundaria_vazia">
+<span class="sig-name descname"><span class="pre">unidade_medida_secundaria_vazia</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">base.UnidadeMedida</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.unidade_medida_secundaria_vazia" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Unidade de medida do peso da embalagem secundária vazia.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.variacao_percentual">
+<span class="sig-name descname"><span class="pre">variacao_percentual</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.variacao_percentual" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Variação percentual aceita nos pesos. Obrigatório para perecíveis.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.sistema_vedacao_embalagem_secundaria">
+<span class="sig-name descname"><span class="pre">sistema_vedacao_embalagem_secundaria</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.sistema_vedacao_embalagem_secundaria" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Sistema de vedação da embalagem secundária.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.rotulo_legivel">
+<span class="sig-name descname"><span class="pre">rotulo_legivel</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.rotulo_legivel" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Declaração de que o rótulo da embalagem primária (e secundária, se
+for o caso) conterá, de forma legível e indelével, todas as
+informações solicitadas no Anexo I do Edital. Deve ser marcada como
+<code class="docutils literal notranslate"><span class="pre">True</span></code> na criação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.nome_responsavel_tecnico">
+<span class="sig-name descname"><span class="pre">nome_responsavel_tecnico</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.nome_responsavel_tecnico" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Nome completo do responsável técnico.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.habilitacao">
+<span class="sig-name descname"><span class="pre">habilitacao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.habilitacao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Habilitação do responsável técnico.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.numero_registro_orgao">
+<span class="sig-name descname"><span class="pre">numero_registro_orgao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.numero_registro_orgao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Número do registro em órgão competente do responsável técnico.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.arquivo">
+<span class="sig-name descname"><span class="pre">arquivo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.fields.files.FieldFile</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.arquivo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Arquivo PDF da ficha técnica (<code class="docutils literal notranslate"><span class="pre">upload_to=&quot;fichas_tecnicas&quot;</span></code>), com
+validação de extensão PDF e tamanho máximo de 10 MB. Recebido como
+base64 pela API e convertido para <code class="docutils literal notranslate"><span class="pre">ContentFile</span></code> no helper de criação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.modo_de_preparo">
+<span class="sig-name descname"><span class="pre">modo_de_preparo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.modo_de_preparo" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Modo de preparo do produto.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.informacoes_adicionais">
+<span class="sig-name descname"><span class="pre">informacoes_adicionais</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.informacoes_adicionais" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Informações adicionais da ficha.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.status" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/fluxo_status.py</span></code> (<code class="docutils literal notranslate"><span class="pre">FichaTecnicaDoProdutoWorkflow</span></code>)</p>
+<p><strong>Descrição:</strong>
+Status atual do workflow. Estados possíveis: <code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ENVIADA_PARA_ANALISE</span></code>, <code class="docutils literal notranslate"><span class="pre">APROVADA</span></code> e <code class="docutils literal notranslate"><span class="pre">ENVIADA_PARA_CORRECAO</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação da ficha.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.alterado_em">
+<span class="sig-name descname"><span class="pre">alterado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.alterado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemAlteradoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na última alteração da ficha.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.logs">
+<span class="sig-name descname"><span class="pre">logs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">LogSolicitacoesUsuario</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.logs" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">Logs</span></code>)</p>
+<p><strong>Descrição:</strong>
+Lista dos registros de log de transições de status da ficha,
+ordenados por <code class="docutils literal notranslate"><span class="pre">criado_em</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.log_mais_recente">
+<span class="sig-name descname"><span class="pre">log_mais_recente</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LogSolicitacoesUsuario</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.log_mais_recente" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">Logs</span></code>)</p>
+<p><strong>Descrição:</strong>
+Último registro de log de transição de status da ficha. Usado nos
+serializadores de painel/detalhe para exibir a data/hora da última
+movimentação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.analises">
+<span class="sig-name descname"><span class="pre">analises</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica" title="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica"><span class="pre">AnaliseFichaTecnica</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.analises" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:N com <a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica" title="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnaliseFichaTecnica</span></code></a>. Lista as
+análises da GPCODAE realizadas sobre a ficha, ordenáveis por
+<code class="docutils literal notranslate"><span class="pre">criado_em</span></code> (a análise vigente é a última).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.cronograma">
+<span class="sig-name descname"><span class="pre">cronograma</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">django.db.models.QuerySet</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><span class="pre">Cronograma</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.cronograma" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa com <a class="reference internal" href="../cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.Cronograma" title="src.pre_recebimento.cronograma_entrega.models.Cronograma"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cronograma</span></code></a> via o
+campo <code class="docutils literal notranslate"><span class="pre">Cronograma.ficha_tecnica</span></code> (definido sem <code class="docutils literal notranslate"><span class="pre">related_name</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">cronograma</span></code> é o <strong>nome de consulta (query name)</strong> da relação —
+usado em filtros ORM como <code class="docutils literal notranslate"><span class="pre">cronograma__isnull</span></code> (endpoint
+<code class="docutils literal notranslate"><span class="pre">lista-simples-sem-cronograma</span></code>). O accessor padrão de instância é
+<code class="docutils literal notranslate"><span class="pre">cronograma_set</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.layout_embalagem">
+<span class="sig-name descname"><span class="pre">layout_embalagem</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">layout_embalagem.LayoutDeEmbalagem</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.layout_embalagem" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:1 com <code class="xref py py-class docutils literal notranslate"><span class="pre">LayoutDeEmbalagem</span></code>.
+Layout de embalagem vinculado à ficha, quando existir.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.questoes_conferencia">
+<span class="sig-name descname"><span class="pre">questoes_conferencia</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">recebimento.QuestoesPorProduto</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.questoes_conferencia" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Relação reversa 1:1 com <code class="xref py py-class docutils literal notranslate"><span class="pre">QuestoesPorProduto</span></code>. Questões de conferência
+de qualidade vinculadas à ficha, quando existirem.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.ponto_a_ponto">
+<span class="sig-name descname"><span class="pre">ponto_a_ponto</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.ponto_a_ponto" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Propriedade que indica se a ficha é do tipo Ponto a Ponto (FLV).
+Retorna <code class="docutils literal notranslate"><span class="pre">True</span></code> quando <code class="docutils literal notranslate"><span class="pre">tipo_entrega</span> <span class="pre">=</span> <span class="pre">PONTO_A_PONTO</span></code>. Usada nos
+serializadores e na lógica de análise: fichas FLV ponto a ponto não
+exigem os blocos de informações nutricionais, conservação,
+armazenamento, embalagem/rotulagem e modo de preparo.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.salvar_log_transicao">
+<span class="sig-name descname"><span class="pre">salvar_log_transicao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span></span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/models.html#FichaTecnicaDoProduto.salvar_log_transicao"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.salvar_log_transicao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Registra no log uma transição de status da ficha, criando um
+<code class="docutils literal notranslate"><span class="pre">LogSolicitacoesUsuario</span></code> com o tipo <code class="docutils literal notranslate"><span class="pre">FICHA_TECNICA_DO_PRODUTO</span></code>.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.NotUpdated">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NotUpdated</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto.NotUpdated" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectNotUpdated</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseError</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="informacoesnutricionaisfichatecnica">
+<h2>InformacoesNutricionaisFichaTecnica<a class="headerlink" href="#informacoesnutricionaisfichatecnica" title="Link to this heading"></a></h2>
+<p>Item da tabela nutricional de uma ficha técnica. Vincula uma
+<code class="xref py py-class docutils literal notranslate"><span class="pre">InformacaoNutricional</span></code>
+(ex.: “Valor energético”, “Carboidratos”) aos valores declarados por
+100 g, por porção e o valor diário (percentual).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InformacoesNutricionaisFichaTecnica</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ficha_tecnica</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">informacao_nutricional</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantidade_por_100g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantidade_porcao</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valor_diario</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/models.html#InformacoesNutricionaisFichaTecnica"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único do item nutricional.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.ficha_tecnica">
+<span class="sig-name descname"><span class="pre">ficha_tecnica</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto" title="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto"><span class="pre">FichaTecnicaDoProduto</span></a></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.ficha_tecnica" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Ficha técnica à qual o item pertence (<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.informacao_nutricional">
+<span class="sig-name descname"><span class="pre">informacao_nutricional</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">produto.InformacaoNutricional</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.informacao_nutricional" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Informação nutricional de referência (nome do nutriente/informação),
+com <code class="docutils literal notranslate"><span class="pre">on_delete=DO_NOTHING</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.quantidade_por_100g">
+<span class="sig-name descname"><span class="pre">quantidade_por_100g</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.quantidade_por_100g" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Quantidade do nutriente por 100 g (texto, ex.: “12,5 g”).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.quantidade_porcao">
+<span class="sig-name descname"><span class="pre">quantidade_porcao</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.quantidade_porcao" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Quantidade do nutriente por porção (texto).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.valor_diario">
+<span class="sig-name descname"><span class="pre">valor_diario</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.valor_diario" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Percentual do valor diário de referência (texto, ex.: “5%”).</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.NotUpdated">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NotUpdated</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.InformacoesNutricionaisFichaTecnica.NotUpdated" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectNotUpdated</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseError</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="analisefichatecnica">
+<h2>AnaliseFichaTecnica<a class="headerlink" href="#analisefichatecnica" title="Link to this heading"></a></h2>
+<p>Registro da análise da ficha técnica pela GPCODAE. A análise é dividida
+em blocos (“collapses”) de conferência, cada um com um campo
+<code class="docutils literal notranslate"><span class="pre">*_conferido</span></code> (bool) e um campo <code class="docutils literal notranslate"><span class="pre">*_correcoes</span></code> (texto com as
+observações/correções exigidas quando o bloco não foi aprovado).</p>
+<p>Blocos de conferência:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fabricante_envasador</span></code> — fabricante e envasador/distribuidor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">detalhes_produto</span></code> — detalhes do produto (validade, orgânico, componentes, alergênicos, glúten, lactose).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">informacoes_nutricionais</span></code> — tabela nutricional.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conservacao</span></code> — conservação e descongelamento (perecíveis).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperatura_e_transporte</span></code> — temperaturas e transporte (perecíveis).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">armazenamento</span></code> — embalagens (primária/secundária).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">embalagem_e_rotulagem</span></code> — embalagens, pesos, vedações e rotulagem.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">responsavel_tecnico</span></code> — responsável técnico e arquivo.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modo_preparo</span></code> — modo de preparo.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">outras_informacoes</span></code> — informações adicionais (só booleano).</p></li>
+</ul>
+<p>Regras de negócio da análise:</p>
+<ul class="simple">
+<li><p>A propriedade <code class="xref py py-attr docutils literal notranslate"><span class="pre">aprovada</span></code> computa se todos os blocos necessários
+foram conferidos sem correções. Para fichas <code class="docutils literal notranslate"><span class="pre">FLV</span></code> ponto a ponto, os
+blocos de informações nutricionais, conservação, armazenamento,
+embalagem/rotulagem e modo de preparo são ignorados.</p></li>
+<li><p>Ao salvar uma análise com <code class="docutils literal notranslate"><span class="pre">aprovada</span> <span class="pre">=</span> <span class="pre">True</span></code> a ficha é aprovada
+(<code class="docutils literal notranslate"><span class="pre">gpcodae_aprova</span></code>); caso contrário é enviada para correção
+(<code class="docutils literal notranslate"><span class="pre">gpcodae_envia_para_correcao</span></code>).</p></li>
+<li><p>Na análise, um bloco marcado <code class="docutils literal notranslate"><span class="pre">*_conferido</span> <span class="pre">=</span> <span class="pre">False</span></code> exige
+<code class="docutils literal notranslate"><span class="pre">*_correcoes</span></code> preenchido; um bloco <code class="docutils literal notranslate"><span class="pre">True</span></code> exige <code class="docutils literal notranslate"><span class="pre">*_correcoes</span></code> vazio.</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AnaliseFichaTecnica</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alterado_em</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criado_por</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ficha_tecnica</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fabricante_envasador_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fabricante_envasador_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detalhes_produto_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detalhes_produto_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">informacoes_nutricionais_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">informacoes_nutricionais_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conservacao_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conservacao_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperatura_e_transporte_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperatura_e_transporte_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">armazenamento_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">armazenamento_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embalagem_e_rotulagem_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embalagem_e_rotulagem_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responsavel_tecnico_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responsavel_tecnico_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modo_preparo_conferido</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modo_preparo_correcoes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outras_informacoes_conferido</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/pre_recebimento/ficha_tecnica/models.html#AnaliseFichaTecnica"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModeloBase</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoPor</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.id" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">ModeloBase</span></code>)</p>
+<p><strong>Descrição:</strong>
+Chave primária inteira criada automaticamente pelo Django.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">uuid.UUID</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.uuid" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>)</p>
+<p><strong>Descrição:</strong>
+Identificador externo único da análise.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.ficha_tecnica">
+<span class="sig-name descname"><span class="pre">ficha_tecnica</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto" title="src.pre_recebimento.ficha_tecnica.models.FichaTecnicaDoProduto"><span class="pre">FichaTecnicaDoProduto</span></a></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.ficha_tecnica" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Ficha técnica analisada (<code class="docutils literal notranslate"><span class="pre">on_delete=CASCADE</span></code>). Uma ficha pode ter
+várias análises ao longo do tempo (a vigente é a última por
+<code class="docutils literal notranslate"><span class="pre">criado_em</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.fabricante_envasador_conferido">
+<span class="sig-name descname"><span class="pre">fabricante_envasador_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.fabricante_envasador_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Fabricante/Envasador” conferido (sem correções pendentes).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.fabricante_envasador_correcoes">
+<span class="sig-name descname"><span class="pre">fabricante_envasador_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.fabricante_envasador_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Fabricante/Envasador”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.detalhes_produto_conferido">
+<span class="sig-name descname"><span class="pre">detalhes_produto_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.detalhes_produto_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Detalhes do Produto” conferido.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.detalhes_produto_correcoes">
+<span class="sig-name descname"><span class="pre">detalhes_produto_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.detalhes_produto_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Detalhes do Produto”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.informacoes_nutricionais_conferido">
+<span class="sig-name descname"><span class="pre">informacoes_nutricionais_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.informacoes_nutricionais_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Informações Nutricionais” conferido. Ignorado para fichas
+FLV ponto a ponto.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.informacoes_nutricionais_correcoes">
+<span class="sig-name descname"><span class="pre">informacoes_nutricionais_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.informacoes_nutricionais_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Informações Nutricionais”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.conservacao_conferido">
+<span class="sig-name descname"><span class="pre">conservacao_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.conservacao_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Conservação” conferido (perecíveis).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.conservacao_correcoes">
+<span class="sig-name descname"><span class="pre">conservacao_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.conservacao_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Conservação”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.temperatura_e_transporte_conferido">
+<span class="sig-name descname"><span class="pre">temperatura_e_transporte_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.temperatura_e_transporte_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Temperatura e Transporte” conferido (perecíveis). Aceita
+<code class="docutils literal notranslate"><span class="pre">None</span></code> na validação de aprovação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.temperatura_e_transporte_correcoes">
+<span class="sig-name descname"><span class="pre">temperatura_e_transporte_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.temperatura_e_transporte_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Temperatura e Transporte”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.armazenamento_conferido">
+<span class="sig-name descname"><span class="pre">armazenamento_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.armazenamento_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Armazenamento” conferido.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.armazenamento_correcoes">
+<span class="sig-name descname"><span class="pre">armazenamento_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.armazenamento_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Armazenamento”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.embalagem_e_rotulagem_conferido">
+<span class="sig-name descname"><span class="pre">embalagem_e_rotulagem_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.embalagem_e_rotulagem_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Embalagem e Rotulagem” conferido.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.embalagem_e_rotulagem_correcoes">
+<span class="sig-name descname"><span class="pre">embalagem_e_rotulagem_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.embalagem_e_rotulagem_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Embalagem e Rotulagem”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.responsavel_tecnico_conferido">
+<span class="sig-name descname"><span class="pre">responsavel_tecnico_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.responsavel_tecnico_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Responsável Técnico” conferido.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.responsavel_tecnico_correcoes">
+<span class="sig-name descname"><span class="pre">responsavel_tecnico_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.responsavel_tecnico_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Responsável Técnico”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.modo_preparo_conferido">
+<span class="sig-name descname"><span class="pre">modo_preparo_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.modo_preparo_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Modo de Preparo” conferido.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.modo_preparo_correcoes">
+<span class="sig-name descname"><span class="pre">modo_preparo_correcoes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.modo_preparo_correcoes" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Correções exigidas no bloco “Modo de Preparo”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.outras_informacoes_conferido">
+<span class="sig-name descname"><span class="pre">outras_informacoes_conferido</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.outras_informacoes_conferido" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Bloco “Outras Informações” conferido. Não possui campo de correções;
+é sempre exigido <code class="docutils literal notranslate"><span class="pre">True</span></code> para a aprovação.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.criado_por">
+<span class="sig-name descname"><span class="pre">criado_por</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">perfil.Usuario</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.criado_por" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoPor</span></code>)</p>
+<p><strong>Descrição:</strong>
+Usuário que realizou a análise.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.criado_em">
+<span class="sig-name descname"><span class="pre">criado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.criado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">CriadoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na criação da análise.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.alterado_em">
+<span class="sig-name descname"><span class="pre">alterado_em</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime.datetime</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.alterado_em" title="Link to this definition"></a></dt>
+<dd><p><strong>Origem:</strong>
+<code class="docutils literal notranslate"><span class="pre">dados_comuns/behaviors.py</span></code> (<code class="docutils literal notranslate"><span class="pre">TemAlteradoEm</span></code>)</p>
+<p><strong>Descrição:</strong>
+Timestamp preenchido automaticamente na última alteração da análise.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.aprovada">
+<span class="sig-name descname"><span class="pre">aprovada</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.aprovada" title="Link to this definition"></a></dt>
+<dd><p><strong>Descrição:</strong>
+Propriedade que indica se a análise aprovou a ficha. Todos os blocos
+exigidos devem estar <code class="docutils literal notranslate"><span class="pre">True</span></code> e sem correções, com exceção de
+<code class="docutils literal notranslate"><span class="pre">temperatura_e_transporte</span></code> (aceita <code class="docutils literal notranslate"><span class="pre">None</span></code>). Para fichas FLV ponto
+a ponto, os blocos de informações nutricionais, conservação,
+armazenamento, embalagem/rotulagem e modo de preparo são ignorados.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.NotUpdated">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NotUpdated</span></span><a class="headerlink" href="#src.pre_recebimento.ficha_tecnica.models.AnaliseFichaTecnica.NotUpdated" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectNotUpdated</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseError</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../ficha_tecnica.html" class="btn btn-neutral float-left" title="ficha_tecnica" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="api" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

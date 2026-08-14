@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.protocolo_padrao.api.utils &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.protocolo_padrao.api.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.protocolo_padrao.api.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+
+<div class="viewcode-block" id="log_create">
+<a class="viewcode-back" href="../../../../../dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.log_create">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_create</span><span class="p">(</span><span class="n">protocolo_padrao</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">historico</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">historico</span><span class="p">[</span><span class="s2">&quot;created_at&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+    <span class="n">historico</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span>
+            <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+            <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">user</span>
+        <span class="k">else</span> <span class="n">user</span>
+    <span class="p">)</span>
+    <span class="n">historico</span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;CREATE&quot;</span>
+
+    <span class="n">editais</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">edital</span> <span class="ow">in</span> <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">editais</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">editais</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edital</span><span class="o">.</span><span class="n">numero</span><span class="p">)</span>
+
+    <span class="n">substituicoes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">substituicao</span> <span class="ow">in</span> <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">alimentos_substitutos</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="n">substitutos</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">alimentos_substitutos</span><span class="p">,</span> <span class="o">*</span><span class="n">subs</span><span class="p">]</span>
+        <span class="n">substituicoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;tipo&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">tipo</span><span class="p">},</span>
+                <span class="s2">&quot;alimento&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                        <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;substitutos&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">substitutos</span><span class="p">},</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="n">historico</span><span class="p">[</span><span class="s2">&quot;changes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">id</span><span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;nome_protocolo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">nome_protocolo</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;orientacoes_gerais&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">orientacoes_gerais</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">status</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">uuid</span><span class="p">)},</span>
+        <span class="p">{</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span> <span class="s2">&quot;changes&quot;</span><span class="p">:</span> <span class="n">substituicoes</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;editais&quot;</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">editais</span><span class="p">},</span>
+    <span class="p">]</span>
+
+    <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">historico</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">historico</span><span class="p">])</span>
+    <span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="log_update">
+<a class="viewcode-back" href="../../../../../dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.log_update">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_update</span><span class="p">(</span>
+    <span class="n">instance</span><span class="p">,</span>
+    <span class="n">validated_data</span><span class="p">,</span>
+    <span class="n">substituicoes_old</span><span class="p">,</span>
+    <span class="n">substituicoes_new</span><span class="p">,</span>
+    <span class="n">new_editais</span><span class="p">,</span>
+    <span class="n">old_editais</span><span class="p">,</span>
+    <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">historico</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">changes</span> <span class="o">=</span> <span class="n">diff_protocolo_padrao</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">,</span> <span class="n">new_editais</span><span class="p">,</span> <span class="n">old_editais</span><span class="p">)</span>
+    <span class="n">changes_subs</span> <span class="o">=</span> <span class="n">diff_substituicoes</span><span class="p">(</span><span class="n">substituicoes_old</span><span class="p">,</span> <span class="n">substituicoes_new</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">changes_subs</span><span class="p">:</span>
+        <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span> <span class="s2">&quot;changes&quot;</span><span class="p">:</span> <span class="n">changes_subs</span><span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">changes</span><span class="p">:</span>
+        <span class="n">historico</span><span class="p">[</span><span class="s2">&quot;updated_at&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="n">historico</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span>
+                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+                <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+                <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">user</span>
+            <span class="k">else</span> <span class="n">user</span>
+        <span class="p">)</span>
+        <span class="n">historico</span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;UPDATE&quot;</span>
+        <span class="n">historico</span><span class="p">[</span><span class="s2">&quot;changes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">changes</span>
+
+        <span class="n">hist</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">historico</span><span class="p">)</span> <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">historico</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">hist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">historico</span><span class="p">)</span>
+
+        <span class="n">instance</span><span class="o">.</span><span class="n">historico</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="diff_protocolo_padrao">
+<a class="viewcode-back" href="../../../../../dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.diff_protocolo_padrao">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">diff_protocolo_padrao</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">,</span> <span class="n">new_editais</span><span class="p">,</span> <span class="n">old_editais</span><span class="p">):</span>
+    <span class="n">changes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">nome_protocolo</span> <span class="o">!=</span> <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;nome_protocolo&quot;</span><span class="p">]:</span>
+        <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;nome_protocolo&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">instance</span><span class="o">.</span><span class="n">nome_protocolo</span><span class="p">,</span>
+                <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;nome_protocolo&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">orientacoes_gerais</span> <span class="o">!=</span> <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;orientacoes_gerais&quot;</span><span class="p">]:</span>
+        <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;orientacoes_gerais&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">instance</span><span class="o">.</span><span class="n">orientacoes_gerais</span><span class="p">,</span>
+                <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;orientacoes_gerais&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]:</span>
+        <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">instance</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]}</span>
+        <span class="p">)</span>
+
+    <span class="n">new_editais_list_ordered</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">new_editais</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">old_editais_list_ordered</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">old_editais</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">new_editais_list_ordered</span> <span class="o">!=</span> <span class="n">old_editais_list_ordered</span><span class="p">:</span>
+        <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;editais&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">edital</span><span class="o">.</span><span class="n">numero</span> <span class="k">for</span> <span class="n">edital</span> <span class="ow">in</span> <span class="n">old_editais</span><span class="o">.</span><span class="n">all</span><span class="p">()],</span>
+                <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">edital</span><span class="o">.</span><span class="n">numero</span> <span class="k">for</span> <span class="n">edital</span> <span class="ow">in</span> <span class="n">new_editais</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">changes</span></div>
+
+
+
+<div class="viewcode-block" id="diff_substituicoes">
+<a class="viewcode-back" href="../../../../../dieta_especial/protocolo_padrao/api.html#src.dieta_especial.protocolo_padrao.api.utils.diff_substituicoes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">diff_substituicoes</span><span class="p">(</span><span class="n">substituicoes_old</span><span class="p">,</span> <span class="n">substituicoes_new</span><span class="p">):</span>  <span class="c1"># noqa C901</span>
+    <span class="n">substituicoes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Tratando adição e edição de substituíções</span>
+    <span class="k">if</span> <span class="n">substituicoes_old</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">substituicoes_new</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">subs_new</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">substituicoes_new</span><span class="p">):</span>
+            <span class="n">sub</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">subs</span> <span class="o">=</span> <span class="n">substituicoes_old</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="n">subs</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">subs</span> <span class="ow">or</span> <span class="n">subs</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">subs</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">id</span> <span class="k">if</span> <span class="n">subs</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">subs</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">subs</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                        <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">subs</span> <span class="ow">or</span> <span class="n">subs</span><span class="o">.</span><span class="n">tipo</span> <span class="o">!=</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;tipo&quot;</span><span class="p">]:</span>
+                <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;tipo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">subs</span><span class="o">.</span><span class="n">tipo</span> <span class="k">if</span> <span class="n">subs</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;tipo&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">subs_new</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">}</span>
+
+            <span class="n">al_subs_ids</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">subs</span><span class="o">.</span><span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">subs</span>
+                <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">)</span>
+            <span class="n">subs_ids_old</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">subs</span><span class="o">.</span><span class="n">substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">subs</span>
+                <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">)</span>
+
+            <span class="n">ids_olds</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">al_subs_ids</span><span class="p">,</span> <span class="o">*</span><span class="n">subs_ids_old</span><span class="p">]</span>
+            <span class="n">ids_news</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]])</span>
+
+            <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">zip_longest</span>
+
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="nb">map</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">zip_longest</span><span class="p">(</span><span class="n">ids_olds</span><span class="p">,</span> <span class="n">ids_news</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">from_</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">if</span> <span class="n">subs</span><span class="p">:</span>
+                    <span class="n">alimentos_substitutos</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+                        <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subs</span><span class="o">.</span><span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                    <span class="p">]</span>
+
+                    <span class="n">substitutos_</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+                        <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subs</span><span class="o">.</span><span class="n">substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                    <span class="p">]</span>
+
+                    <span class="n">substitutos</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">alimentos_substitutos</span><span class="p">,</span> <span class="o">*</span><span class="n">substitutos_</span><span class="p">]</span>
+                    <span class="n">from_</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;nome&quot;</span><span class="p">]}</span>
+                            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">substitutos</span>
+                        <span class="p">]</span>
+                        <span class="k">if</span> <span class="n">substitutos</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+
+                <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">from_</span><span class="p">,</span>
+                    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+                            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]</span>
+                        <span class="p">]</span>
+                        <span class="k">if</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">),</span>
+                <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">sub</span><span class="p">:</span>
+                <span class="n">substituicoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># trata a remoção de uma substituíção</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">subs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">substituicoes_old</span><span class="o">.</span><span class="n">all</span><span class="p">()):</span>
+            <span class="n">sub</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">subs_new</span> <span class="o">=</span> <span class="n">substituicoes_new</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="n">subs_new</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">subs_new</span> <span class="ow">or</span> <span class="n">subs</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">subs</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">subs</span><span class="o">.</span><span class="n">alimento</span><span class="o">.</span><span class="n">nome</span><span class="p">},</span>
+                    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">id</span> <span class="k">if</span> <span class="n">subs_new</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;alimento&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">subs_new</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">subs_new</span> <span class="ow">or</span> <span class="n">subs</span><span class="o">.</span><span class="n">tipo</span> <span class="o">!=</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;tipo&quot;</span><span class="p">]:</span>
+                <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;tipo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">subs</span><span class="o">.</span><span class="n">tipo</span><span class="p">,</span>
+                    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;tipo&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">subs_new</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">}</span>
+
+            <span class="n">al_sub_ids</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">subs</span><span class="o">.</span><span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">subs</span>
+                <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">)</span>
+            <span class="n">subs_ids_old</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">subs</span><span class="o">.</span><span class="n">substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">subs</span>
+                <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">)</span>
+
+            <span class="n">ids_olds</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">al_sub_ids</span><span class="p">,</span> <span class="o">*</span><span class="n">subs_ids_old</span><span class="p">]</span>
+            <span class="n">ids_news</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">sorted</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]])</span> <span class="k">if</span> <span class="n">subs_new</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">)</span>
+
+            <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">zip_longest</span>
+
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="nb">map</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">zip_longest</span><span class="p">(</span><span class="n">ids_olds</span><span class="p">,</span> <span class="n">ids_news</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">to_</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">subs_new</span><span class="p">:</span>
+                    <span class="n">to_</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+                            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]</span>
+                        <span class="p">]</span>
+                        <span class="k">if</span> <span class="n">subs_new</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+
+                <span class="n">alimentos_substitutos</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+                    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subs</span><span class="o">.</span><span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                <span class="p">]</span>
+
+                <span class="n">substitutos_</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">uuid</span><span class="p">),</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">nome</span><span class="p">}</span>
+                    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subs</span><span class="o">.</span><span class="n">substitutos</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                <span class="p">]</span>
+
+                <span class="n">substitutos</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">alimentos_substitutos</span><span class="p">,</span> <span class="o">*</span><span class="n">substitutos_</span><span class="p">]</span>
+
+                <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span> <span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;nome&quot;</span><span class="p">]}</span>
+                            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">substitutos</span>
+                        <span class="p">]</span>
+                        <span class="k">if</span> <span class="n">substitutos</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">to_</span><span class="p">,</span>
+                <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">sub</span><span class="p">:</span>
+                <span class="n">substituicoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">substituicoes</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

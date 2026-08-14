@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.tasks.utils.relatorio_historico_logs &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.tasks.utils.relatorio_historico_logs</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.tasks.utils.relatorio_historico_logs</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinaryIO</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.template.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_to_string</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiretoriaRegional</span><span class="p">,</span> <span class="n">PeriodoEscolar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">faixa_to_string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.relatorios.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">html_to_pdf_file</span>
+
+
+<div class="viewcode-block" id="get_faixa_etaria_cei">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_cei">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_faixa_etaria_cei</span><span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">faixa_etaria</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;tipo_unidade&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;CEI DIRET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CEU CEI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CEI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CCI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CCI/CIPS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CEI CEU&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="k">return</span> <span class="n">faixa_etaria</span>
+    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">faixa_to_string</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;inicio&quot;</span><span class="p">],</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;fim&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">faixa_etaria</span></div>
+
+
+
+<div class="viewcode-block" id="get_faixa_etaria_cemei">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_cemei">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_faixa_etaria_cemei</span><span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">faixa_etaria</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;tipo_unidade&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;CEMEI&quot;</span><span class="p">,</span> <span class="s2">&quot;CEU CEMEI&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">faixa_etaria</span>
+    <span class="k">if</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;inicio&quot;</span><span class="p">]:</span>
+        <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">faixa_to_string</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;inicio&quot;</span><span class="p">],</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;fim&quot;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="s2">&quot;Infantil&quot;</span>
+    <span class="k">return</span> <span class="n">faixa_etaria</span></div>
+
+
+
+<div class="viewcode-block" id="get_faixa_etaria_emebs">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria_emebs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_faixa_etaria_emebs</span><span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">faixa_etaria</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;tipo_unidade&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;EMEBS&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">faixa_etaria</span>
+    <span class="k">if</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;infantil_ou_fundamental&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INFANTIL&quot;</span><span class="p">:</span>
+        <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="s2">&quot;Infantil (4 a 6 anos)&quot;</span>
+    <span class="k">elif</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;infantil_ou_fundamental&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;FUNDAMENTAL&quot;</span><span class="p">:</span>
+        <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="s2">&quot;Fundamental (acima de 6 anos)&quot;</span>
+    <span class="k">return</span> <span class="n">faixa_etaria</span></div>
+
+
+
+<div class="viewcode-block" id="get_faixa_etaria">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.get_faixa_etaria">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_faixa_etaria</span><span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">get_faixa_etaria_cei</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">faixa_etaria</span><span class="p">)</span>
+    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">get_faixa_etaria_cemei</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">faixa_etaria</span><span class="p">)</span>
+    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">get_faixa_etaria_emebs</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">faixa_etaria</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">faixa_etaria</span></div>
+
+
+
+<div class="viewcode-block" id="formata_logs_para_titulo">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.formata_logs_para_titulo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">formata_logs_para_titulo</span><span class="p">(</span><span class="n">logs_dietas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+    <span class="n">logs_dietas_formatados</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;lote_dre&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;lote&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> - DRE </span><span class="si">{</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;dre&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_educacional&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;nome_escola&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;classificacao_da_dieta&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;nome_classificacao&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;nome_periodo_escolar&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;faixa_etaria&quot;</span><span class="p">:</span> <span class="n">get_faixa_etaria</span><span class="p">(</span><span class="n">log</span><span class="p">),</span>
+            <span class="s2">&quot;dietas_autorizadas&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;quantidade_total&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;data_de_referencia&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs_dietas</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">logs_dietas_formatados</span></div>
+
+
+
+<div class="viewcode-block" id="encontrar_todos_os_periodos">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.encontrar_todos_os_periodos">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">encontrar_todos_os_periodos</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="n">periodos</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">chave</span><span class="p">,</span> <span class="n">valor</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">chave</span> <span class="o">==</span> <span class="s2">&quot;periodo&quot;</span><span class="p">:</span>
+                <span class="n">periodos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valor</span><span class="p">)</span>
+            <span class="n">periodos</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">encontrar_todos_os_periodos</span><span class="p">(</span><span class="n">valor</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="n">periodos</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">encontrar_todos_os_periodos</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+
+    <span class="n">periodos_unicos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">periodos</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">periodos_unicos</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="build_titulo">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.build_titulo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_titulo</span><span class="p">(</span>
+    <span class="n">logs_dietas_formatados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
+    <span class="n">querydict_params</span><span class="p">:</span> <span class="n">QueryDict</span><span class="p">,</span>
+    <span class="n">for_pdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">lote_nome</span> <span class="o">=</span> <span class="n">logs_dietas_formatados</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;lote_dre&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; - DRE &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dre_nome</span> <span class="o">=</span> <span class="n">DiretoriaRegional</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">iniciais</span><span class="o">=</span><span class="n">logs_dietas_formatados</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;lote_dre&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; DRE &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">nome</span>
+    <span class="n">data_referencia</span> <span class="o">=</span> <span class="n">logs_dietas_formatados</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;data_de_referencia&quot;</span><span class="p">]</span>
+
+    <span class="n">bold</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&lt;strong&gt;</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&lt;/strong&gt;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">for_pdf</span>
+        <span class="k">else</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="n">titulo</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Total de Dietas Autorizadas em </span><span class="si">{</span><span class="n">bold</span><span class="p">(</span><span class="n">data_referencia</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="k">if</span> <span class="n">for_pdf</span><span class="p">:</span>
+        <span class="n">titulo</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;para as unidades da DRE </span><span class="si">{</span><span class="n">bold</span><span class="p">(</span><span class="n">dre_nome</span><span class="p">)</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">bold</span><span class="p">(</span><span class="n">lote_nome</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">titulo</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;para as unidades da DRE </span><span class="si">{</span><span class="n">dre_nome</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">periodos_escolares</span> <span class="o">=</span> <span class="n">querydict_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;periodos_escolares_selecionadas[]&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">periodos_escolares</span><span class="p">:</span>
+        <span class="n">nomes_periodos</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">nome</span>
+            <span class="k">for</span> <span class="n">nome</span> <span class="ow">in</span> <span class="n">PeriodoEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">uuid__in</span><span class="o">=</span><span class="n">periodos_escolares</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nome</span> <span class="ow">and</span> <span class="n">nome</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span>
+        <span class="p">)</span>
+        <span class="n">titulo</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; | </span><span class="si">{</span><span class="n">bold</span><span class="p">(</span><span class="s1">&#39;Períodos:&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">nomes_periodos</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">elif</span> <span class="n">for_pdf</span><span class="p">:</span>
+        <span class="n">nomes_periodos</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">nome</span>
+            <span class="k">for</span> <span class="n">nome</span> <span class="ow">in</span> <span class="n">encontrar_todos_os_periodos</span><span class="p">(</span><span class="n">logs_dietas_formatados</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nome</span> <span class="ow">and</span> <span class="n">nome</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span>
+        <span class="p">)</span>
+        <span class="n">titulo</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; | </span><span class="si">{</span><span class="n">bold</span><span class="p">(</span><span class="s1">&#39;Períodos:&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">nomes_periodos</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">total_dietas</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;dietas_autorizadas&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs_dietas_formatados</span><span class="p">)</span>
+    <span class="n">data_extraido</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+
+    <span class="n">titulo</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;: </span><span class="si">{</span><span class="n">bold</span><span class="p">(</span><span class="n">total_dietas</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">titulo</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; | Data de extração do relatório: </span><span class="si">{</span><span class="n">bold</span><span class="p">(</span><span class="n">data_extraido</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">titulo</span></div>
+
+
+
+<div class="viewcode-block" id="formata_celula_faixa_etaria">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.formata_celula_faixa_etaria">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">formata_celula_faixa_etaria</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">hash_cor</span><span class="p">,</span> <span class="n">valor_celula</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">col_index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">&quot;faixa_etaria&quot;</span><span class="p">)</span>
+    <span class="n">excel_col_letter</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">col_index</span><span class="p">)</span>
+    <span class="n">format_infantil</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="s2">&quot;bg_color&quot;</span><span class="p">:</span> <span class="n">hash_cor</span><span class="p">})</span>
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">conditional_format</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">excel_col_letter</span><span class="si">}</span><span class="s2">5:</span><span class="si">{</span><span class="n">excel_col_letter</span><span class="si">}{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cell&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criteria&quot;</span><span class="p">:</span> <span class="s2">&quot;==&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">valor_celula</span><span class="p">,</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">format_infantil</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="build_xlsx_relatorio_historico_dietas">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.build_xlsx_relatorio_historico_dietas">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_xlsx_relatorio_historico_dietas</span><span class="p">(</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">logs_dietas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">querydict_params</span><span class="p">:</span> <span class="n">QueryDict</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+    <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">ExcelWriter</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;xlsxwriter&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xlwriter</span><span class="p">:</span>
+        <span class="n">logs_dietas_formatados</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;lote_dre&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;lote&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> - DRE </span><span class="si">{</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;dre&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unidade_educacional&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;nome_escola&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;classificacao_da_dieta&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;nome_classificacao&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;nome_periodo_escolar&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;faixa_etaria&quot;</span><span class="p">:</span> <span class="n">get_faixa_etaria</span><span class="p">(</span><span class="n">log</span><span class="p">),</span>
+                <span class="s2">&quot;dietas_autorizadas&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;quantidade_total&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;data_de_referencia&quot;</span><span class="p">:</span> <span class="n">log</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs_dietas</span>
+        <span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">logs_dietas_formatados</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Nº&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Adiciona linhas em branco no comeco do arquivo</span>
+        <span class="n">df_auxiliar</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)],</span> <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_auxiliar</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_auxiliar</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_auxiliar</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xlwriter</span><span class="p">,</span> <span class="s2">&quot;Histórico de Dietas Autorizadas&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">workbook</span> <span class="o">=</span> <span class="n">xlwriter</span><span class="o">.</span><span class="n">book</span>
+        <span class="n">worksheet</span> <span class="o">=</span> <span class="n">xlwriter</span><span class="o">.</span><span class="n">sheets</span><span class="p">[</span><span class="s2">&quot;Histórico de Dietas Autorizadas&quot;</span><span class="p">]</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="s2">&quot;B:H&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="s2">&quot;C:C&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="n">merge_format</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_color&quot;</span><span class="p">:</span> <span class="s2">&quot;#a9d18e&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">merge_format</span><span class="o">.</span><span class="n">set_align</span><span class="p">(</span><span class="s2">&quot;vcenter&quot;</span><span class="p">)</span>
+        <span class="n">cell_format</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+        <span class="n">cell_format</span><span class="o">.</span><span class="n">set_text_wrap</span><span class="p">()</span>
+        <span class="n">cell_format</span><span class="o">.</span><span class="n">set_align</span><span class="p">(</span><span class="s2">&quot;vcenter&quot;</span><span class="p">)</span>
+        <span class="n">v_center_format</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">()</span>
+        <span class="n">v_center_format</span><span class="o">.</span><span class="n">set_align</span><span class="p">(</span><span class="s2">&quot;vcenter&quot;</span><span class="p">)</span>
+        <span class="n">single_cell_format</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="s2">&quot;bg_color&quot;</span><span class="p">:</span> <span class="s2">&quot;#a9d18e&quot;</span><span class="p">})</span>
+        <span class="n">len_cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="n">len_cols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;Relatório Histórico de Dietas Especiais Autorizadas&quot;</span><span class="p">,</span>
+            <span class="n">merge_format</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">insert_image</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;src/relatorios/static/images/logo-sigpae.png&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;x_offset&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;y_offset&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;x_scale&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+                <span class="s2">&quot;y_scale&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">titulo</span> <span class="o">=</span> <span class="n">build_titulo</span><span class="p">(</span><span class="n">logs_dietas_formatados</span><span class="p">,</span> <span class="n">querydict_params</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">len_cols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">cell_format</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Nº&quot;</span><span class="p">,</span> <span class="n">single_cell_format</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Lote/DRE&quot;</span><span class="p">,</span> <span class="n">single_cell_format</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Unidade Educacional&quot;</span><span class="p">,</span> <span class="n">single_cell_format</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Classificação da Dieta&quot;</span><span class="p">,</span> <span class="n">single_cell_format</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;Período&quot;</span><span class="p">,</span> <span class="n">single_cell_format</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Faixa Etária&quot;</span><span class="p">,</span> <span class="n">single_cell_format</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;Dietas Autorizadas&quot;</span><span class="p">,</span> <span class="n">single_cell_format</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;Data de Referência&quot;</span><span class="p">,</span> <span class="n">single_cell_format</span><span class="p">)</span>
+
+        <span class="n">formata_celula_faixa_etaria</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="s2">&quot;#F4B084&quot;</span><span class="p">,</span> <span class="s1">&#39;&quot;Infantil&quot;&#39;</span><span class="p">)</span>
+        <span class="n">formata_celula_faixa_etaria</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="s2">&quot;#BDD7EE&quot;</span><span class="p">,</span> <span class="s1">&#39;&quot;Infantil (4 a 6 anos)&quot;&#39;</span>
+        <span class="p">)</span>
+        <span class="n">formata_celula_faixa_etaria</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="s2">&quot;#C6E0B4&quot;</span><span class="p">,</span> <span class="s1">&#39;&quot;Fundamental (acima de 6 anos)&quot;&#39;</span>
+        <span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="processar_cemei">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.processar_cemei">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">processar_cemei</span><span class="p">(</span><span class="n">periodos</span><span class="p">):</span>
+    <span class="n">turma_infantil</span> <span class="o">=</span> <span class="n">periodos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;turma_infantil&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">por_idade</span> <span class="o">=</span> <span class="n">periodos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;por_idade&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="n">dados_combinados</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">turma_infantil</span><span class="p">:</span>
+        <span class="n">periodo</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;periodo&quot;</span><span class="p">]</span>
+        <span class="n">dados_combinados</span><span class="p">[</span><span class="n">periodo</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">periodo</span><span class="p">,</span>
+            <span class="s2">&quot;autorizadas_infantil&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;autorizadas&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;por_idade&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">por_idade</span><span class="p">:</span>
+        <span class="n">periodo</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;periodo&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">periodo</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dados_combinados</span><span class="p">:</span>
+            <span class="n">dados_combinados</span><span class="p">[</span><span class="n">periodo</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">periodo</span><span class="p">,</span>
+                <span class="s2">&quot;autorizadas_infantil&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;por_idade&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+        <span class="n">dados_combinados</span><span class="p">[</span><span class="n">periodo</span><span class="p">][</span><span class="s2">&quot;por_idade&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;faixa_etaria&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">dados_combinados</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="processar_emebs">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.processar_emebs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">processar_emebs</span><span class="p">(</span><span class="n">periodos</span><span class="p">):</span>
+    <span class="n">infantil</span> <span class="o">=</span> <span class="n">periodos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;infantil&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">fundamental</span> <span class="o">=</span> <span class="n">periodos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fundamental&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="n">dados_combinados</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">infantil</span><span class="p">:</span>
+        <span class="n">periodo</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;periodo&quot;</span><span class="p">]</span>
+        <span class="n">dados_combinados</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="n">periodo</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">periodo</span><span class="p">,</span>
+                <span class="s2">&quot;autorizadas_infantil&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;autorizadas_fundamental&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">dados_combinados</span><span class="p">[</span><span class="n">periodo</span><span class="p">][</span><span class="s2">&quot;autorizadas_infantil&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;autorizadas&quot;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">fundamental</span><span class="p">:</span>
+        <span class="n">periodo</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;periodo&quot;</span><span class="p">]</span>
+        <span class="n">dados_combinados</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="n">periodo</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;periodo&quot;</span><span class="p">:</span> <span class="n">periodo</span><span class="p">,</span>
+                <span class="s2">&quot;autorizadas_infantil&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;autorizadas_fundamental&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">dados_combinados</span><span class="p">[</span><span class="n">periodo</span><span class="p">][</span><span class="s2">&quot;autorizadas_fundamental&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;autorizadas&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">dados_combinados</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="reestruturar_resultados">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.reestruturar_resultados">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reestruturar_resultados</span><span class="p">(</span><span class="n">objeto</span><span class="p">):</span>
+    <span class="n">unidades_cemei</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CEMEI&quot;</span><span class="p">,</span> <span class="s2">&quot;CEU CEMEI&quot;</span><span class="p">]</span>
+    <span class="n">unidades_emebs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;EMEBS&quot;</span><span class="p">]</span>
+
+    <span class="n">resultados_novos</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">resultado</span> <span class="ow">in</span> <span class="n">objeto</span><span class="p">[</span><span class="s2">&quot;resultados&quot;</span><span class="p">]:</span>
+        <span class="n">novo_resultado</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">resultado</span><span class="p">)</span>
+        <span class="n">tipo_unidade</span> <span class="o">=</span> <span class="n">resultado</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tipo_unidade&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">periodos</span> <span class="o">=</span> <span class="n">resultado</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;periodos&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="k">if</span> <span class="n">tipo_unidade</span> <span class="ow">in</span> <span class="n">unidades_cemei</span><span class="p">:</span>
+            <span class="n">novo_resultado</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">processar_cemei</span><span class="p">(</span><span class="n">periodos</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tipo_unidade</span> <span class="ow">in</span> <span class="n">unidades_emebs</span><span class="p">:</span>
+            <span class="n">novo_resultado</span><span class="p">[</span><span class="s2">&quot;periodos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">processar_emebs</span><span class="p">(</span><span class="n">periodos</span><span class="p">)</span>
+
+        <span class="n">resultados_novos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">novo_resultado</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;total_dietas&quot;</span><span class="p">:</span> <span class="n">objeto</span><span class="p">[</span><span class="s2">&quot;total_dietas&quot;</span><span class="p">],</span> <span class="s2">&quot;resultados&quot;</span><span class="p">:</span> <span class="n">resultados_novos</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="gera_pdf_relatorio_historico_dieta_especial">
+<a class="viewcode-back" href="../../../../../dieta_especial/tasks/utils.html#src.dieta_especial.tasks.utils.relatorio_historico_logs.gera_pdf_relatorio_historico_dieta_especial">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_pdf_relatorio_historico_dieta_especial</span><span class="p">(</span><span class="n">dados</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">iniciais_dre</span><span class="p">):</span>
+    <span class="n">unidades_cei</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CEI DIRET&quot;</span><span class="p">,</span> <span class="s2">&quot;CEU CEI&quot;</span><span class="p">,</span> <span class="s2">&quot;CEI&quot;</span><span class="p">,</span> <span class="s2">&quot;CCI&quot;</span><span class="p">,</span> <span class="s2">&quot;CCI/CIPS&quot;</span><span class="p">,</span> <span class="s2">&quot;CEI CEU&quot;</span><span class="p">]</span>
+    <span class="n">unidades_cemei</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CEMEI&quot;</span><span class="p">,</span> <span class="s2">&quot;CEU CEMEI&quot;</span><span class="p">]</span>
+    <span class="n">unidades_emei_emef</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;EMEI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CEU EMEI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CEU EMEI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EMEF&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CEU EMEF&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EMEFM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CIEJA&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">unidades_emebs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;EMEBS&quot;</span><span class="p">]</span>
+    <span class="n">unidades_sem_periodos</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CMCT&quot;</span><span class="p">,</span> <span class="s2">&quot;CEU GESTAO&quot;</span><span class="p">]</span>
+
+    <span class="n">dados</span> <span class="o">=</span> <span class="n">reestruturar_resultados</span><span class="p">(</span><span class="n">dados</span><span class="p">)</span>
+
+    <span class="n">html_string</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span>
+        <span class="s2">&quot;relatorio_historico_dieta_especial.html&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;unidades_cei&quot;</span><span class="p">:</span> <span class="n">unidades_cei</span><span class="p">,</span>
+            <span class="s2">&quot;unidades_cemei&quot;</span><span class="p">:</span> <span class="n">unidades_cemei</span><span class="p">,</span>
+            <span class="s2">&quot;unidades_emei_emef&quot;</span><span class="p">:</span> <span class="n">unidades_emei_emef</span><span class="p">,</span>
+            <span class="s2">&quot;unidades_emebs&quot;</span><span class="p">:</span> <span class="n">unidades_emebs</span><span class="p">,</span>
+            <span class="s2">&quot;unidades_sem_periodos&quot;</span><span class="p">:</span> <span class="n">unidades_sem_periodos</span><span class="p">,</span>
+            <span class="s2">&quot;dados&quot;</span><span class="p">:</span> <span class="n">dados</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
+            <span class="s2">&quot;titulo_filtros&quot;</span><span class="p">:</span> <span class="n">titulo</span><span class="p">,</span>
+            <span class="s2">&quot;iniciais_dre&quot;</span><span class="p">:</span> <span class="n">iniciais_dre</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">html_to_pdf_file</span><span class="p">(</span>
+        <span class="n">html_string</span><span class="p">,</span> <span class="s2">&quot;relatorio_historico_dieta_especial.pdf&quot;</span><span class="p">,</span> <span class="n">is_async</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
