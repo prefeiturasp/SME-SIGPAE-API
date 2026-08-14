@@ -3209,6 +3209,9 @@ def validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros):
 
     medicao_programas_projetos = solicitacao.get_medicao_programas_e_projetos
 
+    if not medicao_programas_projetos:
+        return lista_erros
+
     lista_erros = validate_solicitacoes_continuas(
         solicitacao,
         lista_erros,
@@ -3343,6 +3346,9 @@ def validate_solicitacoes_etec(solicitacao, lista_erros):
         return lista_erros
 
     medicao_etec = solicitacao.get_medicao_etec
+
+    if not medicao_etec:
+        return lista_erros
 
     return validate_solicitacoes_continuas(
         solicitacao, lista_erros, inclusoes, medicao_etec, "ETEC", False
