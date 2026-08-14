@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pos_recebimento &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="models" href="pos_recebimento/models.html" />
+    <link rel="prev" title="fixtures" href="pre_recebimento/ficha_tecnica/fixtures.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cardapio.html">cardapio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pre_recebimento.html">pre_recebimento</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pos_recebimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/api.html">api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html">admin</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Referência da API</a></li>
+      <li class="breadcrumb-item active">pos_recebimento</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pos_recebimento.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pos-recebimento">
+<h1>pos_recebimento<a class="headerlink" href="#pos-recebimento" title="Link to this heading"></a></h1>
+<p>Módulo de pós-recebimento do sistema SIGPAE. Gerencia a formalização do
+recebimento definitivo de produtos de uma empresa/contrato por meio do
+Termo de Recebimento Definitivo, documento que vincula um ou mais
+cronogramas de entrega, os fiscais responsáveis (perfil
+<code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code>) e o texto do termo.</p>
+<p>O módulo é composto por:</p>
+<ul class="simple">
+<li><p><strong>Modelos</strong>: <a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo" title="src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a>
+(termo em si) e o modelo intermediário
+<a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a>
+(cronograma do termo, com valor de contrato e quantidade total recebida
+próprios).</p></li>
+<li><p><strong>API</strong>: endpoint único de criação (<code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/pos-recebimento/termos/</span></code>),
+com permissão restrita aos perfis <code class="docutils literal notranslate"><span class="pre">DILOG_CRONOGRAMA</span></code> e
+<code class="docutils literal notranslate"><span class="pre">COORDENADOR_CODAE_DILOG_LOGISTICA</span></code> vinculados à CODAE.</p></li>
+<li><p><strong>Admin</strong>: telas de administração dos dois modelos, com edição inline
+dos cronogramas do termo.</p></li>
+</ul>
+<p>Regra central de negócio: a empresa só pode ser utilizada em um termo se
+possuir ao menos uma ficha de recebimento com status “Assinado CODAE”
+(<code class="docutils literal notranslate"><span class="pre">FichaDeRecebimentoWorkflow.ASSINADA</span></code>). A criação do termo pela API
+sempre persiste o termo com status <code class="docutils literal notranslate"><span class="pre">ENVIADO</span></code> (fluxo “Salvar e Enviar”).</p>
+<div class="toctree-wrapper compound" id="module-src.pos_recebimento">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pos_recebimento/models.html">models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pos_recebimento/models.html#termorecebimentodefinitivo">TermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.id"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.uuid"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.empresa"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.empresa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.contrato"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.contrato</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.cronogramas"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.cronogramas</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.cronogramas_termo"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.cronogramas_termo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_1"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.fiscal_1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_2"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.fiscal_2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.fiscal_3"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.fiscal_3</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.texto_termo"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.texto_termo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.status"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.criado_por"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.criado_por</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.alterado_por"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.alterado_por</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.criado_em"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo.alterado_em"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo.alterado_em</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pos_recebimento/models.html#cronogramatermorecebimentodefinitivo">CronogramaTermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.id"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.termo"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo.termo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.cronograma"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo.cronograma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.valor_contrato"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo.valor_contrato</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo.quantidade_total_recebida"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo.quantidade_total_recebida</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pos_recebimento/api.html">api</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pos_recebimento/api.html#module-src.pos_recebimento.api.viewsets">viewsets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.create"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.lookup_field"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet.lookup_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.perform_create"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet.perform_create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.permission_classes"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet.permission_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.queryset"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet.queryset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.serializer_class"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet.serializer_class</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pos_recebimento/api.html#module-src.pos_recebimento.api.permissions">permissions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo.PERFIS_PERMITIDOS"><code class="docutils literal notranslate"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo.PERFIS_PERMITIDOS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo.has_permission"><code class="docutils literal notranslate"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo.has_permission()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pos_recebimento/api.html#module-src.pos_recebimento.api.services">services</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService.empresa_tem_ficha_assinada"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoService.empresa_tem_ficha_assinada()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/api.html#module-src.pos_recebimento.api.serializers.serializers">serializers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoSerializer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/api.html#module-src.pos_recebimento.api.serializers.serializers_create">serializers_create</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers_create.CronogramaTermoRecebimentoDefinitivoCreateSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoCreateSerializer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pos_recebimento/admin.html">admin</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.extra"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.fields</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.model"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.inlines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_filter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pre_recebimento/ficha_tecnica/fixtures.html" class="btn btn-neutral float-left" title="fixtures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pos_recebimento/models.html" class="btn btn-neutral float-right" title="models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -39,12 +39,13 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
     Recebe os uuids de empresa, contrato, cronogramas (cada um com seu
     valor de contrato e quantidade recebida) e fiscais, e valida as
     regras de negócio:
-      - todos os campos obrigatórios;
-      - empresa com ao menos uma ficha de recebimento "Assinado CODAE";
-      - contrato vinculado à empresa selecionada;
-      - cronogramas vinculados ao contrato/empresa selecionados;
-      - fiscais com perfil DILOG_QUALIDADE;
-      - valor do contrato e quantidade total recebida maiores que zero.
+
+    - todos os campos obrigatórios;
+    - empresa com ao menos uma ficha de recebimento "Assinado CODAE";
+    - contrato vinculado à empresa selecionada;
+    - cronogramas vinculados ao contrato/empresa selecionados;
+    - fiscais com perfil DILOG_QUALIDADE;
+    - valor do contrato e quantidade total recebida maiores que zero.
     """
 
     empresa = serializers.SlugRelatedField(
@@ -90,6 +91,8 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
         )
 
     def _valida_empresa_com_ficha_assinada(self, empresa):
+        """Empresa deve possuir ao menos uma ficha de recebimento
+        'Assinado CODAE' (FichaDeRecebimentoWorkflow.ASSINADA)."""
         if not TermoRecebimentoDefinitivoService.empresa_tem_ficha_assinada(empresa):
             raise serializers.ValidationError(
                 "A empresa deve possuir ao menos uma ficha de recebimento "
@@ -97,12 +100,15 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
             )
 
     def _valida_contrato_da_empresa(self, empresa, contrato):
+        """O contrato informado deve pertencer à empresa selecionada."""
         if contrato.terceirizada_id != empresa.id:
             raise serializers.ValidationError(
                 "O contrato informado não pertence à empresa selecionada."
             )
 
     def _valida_cronogramas(self, empresa, contrato, cronogramas):
+        """Cronogramas não podem se repetir no payload e devem pertencer
+        ao contrato e à empresa selecionados."""
         uuids_informados = []
         for item in cronogramas:
             cronograma = item["cronograma"]
@@ -124,6 +130,8 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
                 )
 
     def _valida_fiscais(self, fiscais):
+        """Cada fiscal deve possuir vínculo ativo com o perfil
+        DILOG_QUALIDADE."""
         for campo, fiscal in fiscais:
             if not fiscal.vinculos.filter(
                 perfil__nome=DILOG_QUALIDADE, ativo=True

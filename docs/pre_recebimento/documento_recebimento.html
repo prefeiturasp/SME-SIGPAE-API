@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>documento_recebimento &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="models" href="documento_recebimento/models.html" />
+    <link rel="prev" title="fixtures" href="ficha_tecnica/fixtures.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cardapio.html">cardapio</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cronograma_entrega.html">cronograma_entrega</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ficha_tecnica.html">ficha_tecnica</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">documento_recebimento</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html">models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html">api</a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/admin.html">admin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html">fixtures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../pos_recebimento.html">pos_recebimento</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../pre_recebimento.html">pre_recebimento</a></li>
+      <li class="breadcrumb-item active">documento_recebimento</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pre_recebimento/documento_recebimento.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="documento-recebimento">
+<h1>documento_recebimento<a class="headerlink" href="#documento-recebimento" title="Link to this heading"></a></h1>
+<p>Submódulo de documentos de recebimento do pré-recebimento. Gerencia os
+documentos que o fornecedor deve apresentar para cada cronograma de
+entrega (laudo laboratorial, declarações, certificados, rastreabilidade,
+etc.), o fluxo de análise da CODAE/DILOG Qualidade (aprovação ou correção)
+e a assinatura digital do laudo.</p>
+<p>O submódulo é composto por:</p>
+<ul class="simple">
+<li><p><strong>Modelos</strong>: <a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento" title="src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentoDeRecebimento</span></code></a>
+(documento por cronograma, com workflow de aprovação),
+<a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento" title="src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento"><code class="xref py py-class docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento</span></code></a>
+(tipos de documento e seus arquivos),
+<a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento" title="src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento</span></code></a>
+(arquivo de um tipo de documento) e
+<a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo" title="src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo</span></code></a>
+(datas de fabricação/validade e prazo máximo de recebimento do lote).</p></li>
+<li><p><strong>API</strong>: endpoints de cadastro pelo fornecedor, análise pela CODAE
+(rascunho e final), correção/atualização pelo fornecedor, download do
+laudo assinado, dashboard e relatórios.</p></li>
+<li><p><strong>Admin</strong>: telas com inlines aninhadas (tipos de documento → arquivos).</p></li>
+</ul>
+<p>Regras centrais de negócio:</p>
+<ul class="simple">
+<li><p>O documento nasce com status <code class="docutils literal notranslate"><span class="pre">DOCUMENTO_CRIADO</span></code> e, ao ser enviado
+pelo fornecedor, vai para <code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_ANALISE</span></code> (notificação e e-mail
+para <code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code> e <code class="docutils literal notranslate"><span class="pre">COORDENADOR_CODAE_DILOG_LOGISTICA</span></code>).</p></li>
+<li><p>A CODAE pode aprovar (<code class="docutils literal notranslate"><span class="pre">APROVADO</span></code>) ou enviar para correção
+(<code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_CORRECAO</span></code>) com uma <code class="docutils literal notranslate"><span class="pre">correcao_solicitada</span></code>.</p></li>
+<li><p>O fornecedor corrige (volta para <code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_ANALISE</span></code>) ou atualiza
+um documento já aprovado (também volta para <code class="docutils literal notranslate"><span class="pre">ENVIADO_PARA_ANALISE</span></code>).</p></li>
+<li><p>Na correção, o documento deve conter ao menos um tipo <code class="docutils literal notranslate"><span class="pre">LAUDO</span></code>; na
+criação, um tipo <code class="docutils literal notranslate"><span class="pre">LAUDO</span></code> informado exige arquivos com <code class="docutils literal notranslate"><span class="pre">arquivo</span></code> e
+<code class="docutils literal notranslate"><span class="pre">nome</span></code>.</p></li>
+</ul>
+<div class="toctree-wrapper compound" id="module-src.pre_recebimento.documento_recebimento">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documento_recebimento/models.html">models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.data_maxima_recebimento_pre_save"><code class="docutils literal notranslate"><span class="pre">data_maxima_recebimento_pre_save()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/models.html#arquivodotipodedocumento">ArquivoDoTipoDeDocumento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.id"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.uuid"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.tipo_de_documento"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento.tipo_de_documento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.arquivo"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento.arquivo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.ArquivoDoTipoDeDocumento.nome"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumento.nome</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/models.html#tipodedocumentoderecebimento">TipoDeDocumentoDeRecebimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.id"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.uuid"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.documento_recebimento"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento.documento_recebimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.tipo_documento"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento.tipo_documento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.descricao_documento"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento.descricao_documento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.TipoDeDocumentoDeRecebimento.arquivos"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimento.arquivos</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/models.html#documentoderecebimento">DocumentoDeRecebimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.id"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.uuid"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.id_externo"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.id_externo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.cronograma"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.cronograma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.numero_laudo"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.numero_laudo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.laboratorio"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.laboratorio</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.quantidade_laudo"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.quantidade_laudo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.numero_lote_laudo"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.numero_lote_laudo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.unidade_medida"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.unidade_medida</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.data_final_lote"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.data_final_lote</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.correcao_solicitada"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.correcao_solicitada</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.status"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.criado_em"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.criado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.alterado_em"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.alterado_em</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.logs"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.logs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.log_mais_recente"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.log_mais_recente</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.tipos_de_documentos"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.tipos_de_documentos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.datas_fabricacao_e_prazos"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.datas_fabricacao_e_prazos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.fichas_documentos"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.fichas_documentos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.fichas_recebimentos"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.fichas_recebimentos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.ajustes_saldo"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.ajustes_saldo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.arquivo_laudo_assinado"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.arquivo_laudo_assinado</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DocumentoDeRecebimento.salvar_log_transicao"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimento.salvar_log_transicao</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/models.html#datadefabricaoeprazo">DataDeFabricaoEPrazo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.id"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.uuid"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo.uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.documento_recebimento"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo.documento_recebimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_fabricacao"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo.data_fabricacao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_validade"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo.data_validade</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.data_maxima_recebimento"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo.data_maxima_recebimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.prazo_maximo_recebimento"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo.prazo_maximo_recebimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.DataDeFabricaoEPrazo.justificativa"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazo.justificativa</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documento_recebimento/api.html">api</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.viewsets">viewsets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.codae_analisa_documentos"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.codae_analisa_documentos()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.codae_analisa_documentos_rascunho"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.codae_analisa_documentos_rascunho()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.dashboard"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.dashboard()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.download_laudo_assinado"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.download_laudo_assinado()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.exportar_excel"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.exportar_excel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.filter_backends"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.filter_backends</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.filterset_class"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.filterset_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.fornecedor_realiza_atualizacao"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.fornecedor_realiza_atualizacao()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.fornecedor_realiza_correcao"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.fornecedor_realiza_correcao()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.get_queryset"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.get_queryset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.get_serializer_class"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.get_serializer_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.lista_relatorio"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.lista_relatorio()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.lookup_field"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.lookup_field</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.pagination_class"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.pagination_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.permission_action_classes"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.permission_action_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.permission_classes"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.permission_classes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.serializer_class"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoModelViewSet.serializer_class</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.filters">filters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.filters.CronogramaRelatorioDocumentosFilter"><code class="docutils literal notranslate"><span class="pre">CronogramaRelatorioDocumentosFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.filters.CronogramaRelatorioDocumentosFilter.base_filters"><code class="docutils literal notranslate"><span class="pre">CronogramaRelatorioDocumentosFilter.base_filters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.filters.CronogramaRelatorioDocumentosFilter.declared_filters"><code class="docutils literal notranslate"><span class="pre">CronogramaRelatorioDocumentosFilter.declared_filters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.filters.DocumentoDeRecebimentoFilter"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.filters.DocumentoDeRecebimentoFilter.base_filters"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFilter.base_filters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.filters.DocumentoDeRecebimentoFilter.declared_filters"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFilter.declared_filters</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.services">services</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.services.ServiceDashboardDocumentosDeRecebimento"><code class="docutils literal notranslate"><span class="pre">ServiceDashboardDocumentosDeRecebimento</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.services.ServiceDashboardDocumentosDeRecebimento.STATUS_POR_PERFIL"><code class="docutils literal notranslate"><span class="pre">ServiceDashboardDocumentosDeRecebimento.STATUS_POR_PERFIL</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.helpers">helpers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.helpers.cria_datas_e_prazos_doc_recebimento"><code class="docutils literal notranslate"><span class="pre">cria_datas_e_prazos_doc_recebimento()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.helpers.cria_tipos_de_documentos"><code class="docutils literal notranslate"><span class="pre">cria_tipos_de_documentos()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel">relatorio_documentos_recebimento_excel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel.gera_relatorio_documentos_recebimento_xlsx"><code class="docutils literal notranslate"><span class="pre">gera_relatorio_documentos_recebimento_xlsx()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.serializers.serializers">serializers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.ArquivoDoTipoDeDocumentoLookupSerializer"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoLookupSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.CronogramaRelatorioDocumentosSerializer"><code class="docutils literal notranslate"><span class="pre">CronogramaRelatorioDocumentosSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.DataDeFabricacaoEPrazoLookupSerializer"><code class="docutils literal notranslate"><span class="pre">DataDeFabricacaoEPrazoLookupSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.DocRecebimentoDetalharCodaeSerializer"><code class="docutils literal notranslate"><span class="pre">DocRecebimentoDetalharCodaeSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.DocRecebimentoDetalharSerializer"><code class="docutils literal notranslate"><span class="pre">DocRecebimentoDetalharSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.DocRecebimentoFichaDeRecebimentoSerializer"><code class="docutils literal notranslate"><span class="pre">DocRecebimentoFichaDeRecebimentoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.DocumentoDeRecebimentoDetalheRelatorioSerializer"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoDetalheRelatorioSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.DocumentoDeRecebimentoParaAjusteSaldoSerializer"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoParaAjusteSaldoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.DocumentoDeRecebimentoSerializer"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.PainelDocumentoDeRecebimentoSerializer"><code class="docutils literal notranslate"><span class="pre">PainelDocumentoDeRecebimentoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.TipoDocumentoDeRecebimentoLookupSerializer"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoDeRecebimentoLookupSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializers.calcular_saldo_laudo"><code class="docutils literal notranslate"><span class="pre">calcular_saldo_laudo()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.serializers.serializer_create">serializer_create</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.DataDeFabricaoEPrazoAnalisarRascunhoSerializer"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazoAnalisarRascunhoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.DataDeFabricaoEPrazoAnalisarSerializer"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazoAnalisarSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.DocumentoDeRecebimentoAnalisarRascunhoSerializer"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAnalisarRascunhoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.DocumentoDeRecebimentoAnalisarSerializer"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAnalisarSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.DocumentoDeRecebimentoAtualizacaoSerializer"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAtualizacaoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.DocumentoDeRecebimentoCorrecaoSerializer"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoCorrecaoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.DocumentoDeRecebimentoCreateSerializer"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoCreateSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.TipoDeDocumentoDeRecebimentoCorrecaoSerializer"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimentoCorrecaoSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.TipoDeDocumentoDeRecebimentoCreateSerializer"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimentoCreateSerializer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documento_recebimento/admin.html">admin</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.extra"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.fk_name"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline.fk_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.media"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.model"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline.model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline.show_change_link"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline.show_change_link</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.form"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin.form</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.get_cronograma"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin.get_cronograma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.get_produto"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin.get_produto()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin.inlines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin.list_display</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.media"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.extra"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline.extra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.fk_name"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline.fk_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.inlines"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline.inlines</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.media"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline.media</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.model"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline.model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.readonly_fields"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline.readonly_fields</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline.show_change_link"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline.show_change_link</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documento_recebimento/fixtures.html">fixtures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documento_recebimento/fixtures.html#module-src.pre_recebimento.documento_recebimento.fixtures.factories">factories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.ArquivoDoTipoDeDocumentoFactory"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.ArquivoDoTipoDeDocumentoFactory.arquivo"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoFactory.arquivo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.ArquivoDoTipoDeDocumentoFactory.tipo_de_documento"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoFactory.tipo_de_documento</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DataDeFabricaoEPrazoFactory"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazoFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DataDeFabricaoEPrazoFactory.data_fabricacao"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazoFactory.data_fabricacao</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DataDeFabricaoEPrazoFactory.data_validade"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazoFactory.data_validade</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DataDeFabricaoEPrazoFactory.documento_recebimento"><code class="docutils literal notranslate"><span class="pre">DataDeFabricaoEPrazoFactory.documento_recebimento</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DocumentoDeRecebimentoFactory"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DocumentoDeRecebimentoFactory.cronograma"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFactory.cronograma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DocumentoDeRecebimentoFactory.laboratorio"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFactory.laboratorio</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DocumentoDeRecebimentoFactory.numero_laudo"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFactory.numero_laudo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DocumentoDeRecebimentoFactory.numero_lote_laudo"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFactory.numero_lote_laudo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.DocumentoDeRecebimentoFactory.unidade_medida"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoFactory.unidade_medida</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.TipoDeDocumentoDeRecebimentoFactory"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimentoFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.TipoDeDocumentoDeRecebimentoFactory.documento_recebimento"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimentoFactory.documento_recebimento</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="documento_recebimento/fixtures.html#src.pre_recebimento.documento_recebimento.fixtures.factories.documentos_de_recebimento_factory.TipoDeDocumentoDeRecebimentoFactory.tipo_documento"><code class="docutils literal notranslate"><span class="pre">TipoDeDocumentoDeRecebimentoFactory.tipo_documento</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ficha_tecnica/fixtures.html" class="btn btn-neutral float-left" title="fixtures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="documento_recebimento/models.html" class="btn btn-neutral float-right" title="models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

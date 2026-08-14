@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>admin &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="api" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cardapio.html">cardapio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../pos_recebimento.html">pos_recebimento</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html">api</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">admin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.extra"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.extra</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.model"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.inlines</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_filter</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../pos_recebimento.html">pos_recebimento</a></li>
+      <li class="breadcrumb-item active">admin</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pos_recebimento/admin.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.pos_recebimento.admin">
+<span id="admin"></span><h1>admin<a class="headerlink" href="#module-src.pos_recebimento.admin" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/admin.html#CronogramaTermoRecebimentoDefinitivoAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin dos cronogramas vinculados aos termos de recebimento definitivo.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('termo',</span> <span class="pre">'cronograma',</span> <span class="pre">'valor_contrato',</span> <span class="pre">'quantidade_total_recebida')</span></span><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('termo__uuid',</span> <span class="pre">'cronograma__numero')</span></span><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/admin.html#CronogramaTermoRecebimentoDefinitivoInline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TabularInline</span></code></p>
+<p>Inline dos cronogramas do termo com valor de contrato e quantidade
+total recebida (edição em linha no formulário do termo).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.extra">
+<span class="sig-name descname"><span class="pre">extra</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.extra" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cronograma',</span> <span class="pre">'valor_contrato',</span> <span class="pre">'quantidade_total_recebida')</span></span><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TermoRecebimentoDefinitivoAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/admin.html#TermoRecebimentoDefinitivoAdmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
+<p>Admin do Termo de Recebimento Definitivo com inline dos cronogramas.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.inlines">
+<span class="sig-name descname"><span class="pre">inlines</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline'&gt;,)</span></span><a class="headerlink" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.inlines" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_display">
+<span class="sig-name descname"><span class="pre">list_display</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'empresa',</span> <span class="pre">'contrato',</span> <span class="pre">'status',</span> <span class="pre">'criado_em',</span> <span class="pre">'alterado_em')</span></span><a class="headerlink" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_display" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_filter">
+<span class="sig-name descname"><span class="pre">list_filter</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('status',)</span></span><a class="headerlink" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_filter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.media">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.media" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.readonly_fields">
+<span class="sig-name descname"><span class="pre">readonly_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'criado_em',</span> <span class="pre">'alterado_em',</span> <span class="pre">'criado_por')</span></span><a class="headerlink" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.readonly_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.search_fields">
+<span class="sig-name descname"><span class="pre">search_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('empresa__nome_fantasia',</span> <span class="pre">'contrato__numero',</span> <span class="pre">'uuid')</span></span><a class="headerlink" href="#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.search_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p>Configurações de administração do Pós-Recebimento:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin</span></code>: lista os termos com <code class="docutils literal notranslate"><span class="pre">uuid</span></code>,
+<code class="docutils literal notranslate"><span class="pre">empresa</span></code>, <code class="docutils literal notranslate"><span class="pre">contrato</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code>, <code class="docutils literal notranslate"><span class="pre">criado_em</span></code> e <code class="docutils literal notranslate"><span class="pre">alterado_em</span></code>.
+Permite editar inline os cronogramas do termo
+(<code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline</span></code>, com <code class="docutils literal notranslate"><span class="pre">cronograma</span></code>,
+<code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> e <code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code>), mantém os campos
+<code class="docutils literal notranslate"><span class="pre">uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">criado_em</span></code>, <code class="docutils literal notranslate"><span class="pre">alterado_em</span></code> e <code class="docutils literal notranslate"><span class="pre">criado_por</span></code> como somente
+leitura, busca por nome fantasia da empresa, número do contrato ou
+<code class="docutils literal notranslate"><span class="pre">uuid</span></code> e filtra por <code class="docutils literal notranslate"><span class="pre">status</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin</span></code>: lista os vínculos
+<code class="docutils literal notranslate"><span class="pre">termo</span></code>/<code class="docutils literal notranslate"><span class="pre">cronograma</span></code> com <code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> e
+<code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code>, com busca por <code class="docutils literal notranslate"><span class="pre">uuid</span></code> do termo ou número
+do cronograma.</p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="api" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

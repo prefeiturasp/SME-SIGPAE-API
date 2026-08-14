@@ -13,3 +13,5 @@ de recebimento.
    :maxdepth: 4
 
    pre_recebimento/cronograma_entrega
+   pre_recebimento/ficha_tecnica
+   pre_recebimento/documento_recebimento

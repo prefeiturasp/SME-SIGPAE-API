@@ -8,4 +8,5 @@ Módulos principais do sistema.
 
    cardapio
    pre_recebimento
+   pos_recebimento
 

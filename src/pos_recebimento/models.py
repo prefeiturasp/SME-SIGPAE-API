@@ -14,8 +14,10 @@ class TermoRecebimentoDefinitivo(ModeloBase, CriadoPor):
     (perfil DILOG_QUALIDADE) responsáveis e o texto do termo.
 
     Regra de negócio: a empresa deve possuir ao menos uma ficha de
-    recebimento com status "Assinado CODAE" (FichaDeRecebimentoWorkflow.ASSINADA),
-    regra aplicada na listagem de empresas disponíveis.
+    recebimento com status "Assinado CODAE" (FichaDeRecebimentoWorkflow.ASSINADA).
+    A regra é aplicada na listagem de empresas disponíveis e validada
+    novamente na criação do termo via API. A criação via API persiste o
+    termo sempre com status ENVIADO (fluxo "Salvar e Enviar").
     """
 
     RASCUNHO = "RASCUNHO"
