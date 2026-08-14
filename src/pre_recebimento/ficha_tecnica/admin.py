@@ -33,11 +33,11 @@ class FichaTecnicaDoProdutoAdmin(admin.ModelAdmin):
     search_fields = (
         "produto__nome",
         "numero",
-        "categoria__nome",
-        "empresa__nome",
-        "fabricante__nome",
+        "categoria",
+        "empresa__nome_fantasia",
+        "fabricante__fabricante__nome",
     )
-    search_help_text = "Pesquise por: nome do produto, número, nome da categoria, nome da empresa, nome do fabricante"
+    search_help_text = "Pesquise por: nome do produto, número, categoria, nome da empresa, nome do fabricante"
     list_filter = ("status",)
 
 

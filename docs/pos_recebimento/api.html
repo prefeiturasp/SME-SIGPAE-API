@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>api &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="admin" href="admin.html" />
+    <link rel="prev" title="models" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Referência da API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cardapio.html">cardapio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pre_recebimento.html">pre_recebimento</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../pos_recebimento.html">pos_recebimento</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="models.html">models</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">api</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.pos_recebimento.api.viewsets">viewsets</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.pos_recebimento.api.permissions">permissions</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.pos_recebimento.api.services">services</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoService</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-src.pos_recebimento.api.serializers.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#module-src.pos_recebimento.api.serializers.serializers_create">serializers_create</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="admin.html">admin</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Referência da API</a></li>
+          <li class="breadcrumb-item"><a href="../pos_recebimento.html">pos_recebimento</a></li>
+      <li class="breadcrumb-item active">api</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pos_recebimento/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.pos_recebimento.api">
+<span id="api"></span><h1>api<a class="headerlink" href="#module-src.pos_recebimento.api" title="Link to this heading"></a></h1>
+<p>O módulo de API do Pós-Recebimento expõe um único endpoint de criação:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/pos-recebimento/termos/</span></code> — criação do Termo de Recebimento
+Definitivo (basename <code class="docutils literal notranslate"><span class="pre">termos-recebimento-definitivo</span></code>).</p></li>
+</ul>
+<p>O payload de criação espera os uuids de <code class="docutils literal notranslate"><span class="pre">empresa</span></code>, <code class="docutils literal notranslate"><span class="pre">contrato</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cronogramas</span></code> (cada um com <code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> e
+<code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code>), <code class="docutils literal notranslate"><span class="pre">fiscal_1</span></code>, <code class="docutils literal notranslate"><span class="pre">fiscal_2</span></code>, <code class="docutils literal notranslate"><span class="pre">fiscal_3</span></code> e
+<code class="docutils literal notranslate"><span class="pre">texto_termo</span></code>. Respostas: <code class="docutils literal notranslate"><span class="pre">201</span></code> com o termo serializado, <code class="docutils literal notranslate"><span class="pre">400</span></code> com os
+erros de validação ou <code class="docutils literal notranslate"><span class="pre">403</span></code> para usuários sem permissão.</p>
+<section id="module-src.pos_recebimento.api.viewsets">
+<span id="viewsets"></span><h2>viewsets<a class="headerlink" href="#module-src.pos_recebimento.api.viewsets" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TermoRecebimentoDefinitivoViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/viewsets.html#TermoRecebimentoDefinitivoViewSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CreateModelMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericViewSet</span></code></p>
+<p>Criação do Termo de Recebimento Definitivo (Salvar e Enviar).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/viewsets.html#TermoRecebimentoDefinitivoViewSet.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.create" title="Link to this definition"></a></dt>
+<dd><p>Cria o termo (valida, persiste e retorna 201 com o serializador
+de saída).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.lookup_field">
+<span class="sig-name descname"><span class="pre">lookup_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uuid'</span></span><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.lookup_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.perform_create">
+<span class="sig-name descname"><span class="pre">perform_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serializer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/viewsets.html#TermoRecebimentoDefinitivoViewSet.perform_create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.perform_create" title="Link to this definition"></a></dt>
+<dd><p>Persiste o termo com status <code class="docutils literal notranslate"><span class="pre">ENVIADO</span></code> e cria as linhas do
+modelo intermediário (cronograma + valor_contrato + quantidade
+total recebida) para cada cronograma do payload.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.permission_classes">
+<span class="sig-name descname"><span class="pre">permission_classes</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo'&gt;,)</span></span><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.permission_classes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.queryset">
+<span class="sig-name descname"><span class="pre">queryset</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;QuerySet</span> <span class="pre">de</span> <span class="pre">TermoRecebimentoDefinitivo&gt;</span></span><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.queryset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.serializer_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer" title="src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoCreateSerializer</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<p>O <code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet</span></code> implementa o fluxo “Salvar e
+Enviar”: a criação é feita em uma única operação e o termo é persistido
+com status <code class="docutils literal notranslate"><span class="pre">ENVIADO</span></code>, independentemente do default do modelo
+(<code class="docutils literal notranslate"><span class="pre">RASCUNHO</span></code>). O <code class="docutils literal notranslate"><span class="pre">criado_por</span></code> e o <code class="docutils literal notranslate"><span class="pre">alterado_por</span></code> são preenchidos com
+o usuário autenticado da requisição.</p>
+<p>O fluxo de criação:</p>
+<ol class="arabic simple">
+<li><p>O serializador de criação valida o payload (ver <code class="docutils literal notranslate"><span class="pre">serializers_create</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">perform_create</span></code> retira os cronogramas do <code class="docutils literal notranslate"><span class="pre">validated_data</span></code>, salva o
+termo com <code class="docutils literal notranslate"><span class="pre">status=ENVIADO</span></code> e os usuários da requisição.</p></li>
+<li><p>Para cada item de cronograma é criada uma linha do modelo intermediário
+<a class="reference internal" href="models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a>
+com o <code class="docutils literal notranslate"><span class="pre">cronograma</span></code>, <code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> e <code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code>.</p></li>
+<li><p>A resposta <code class="docutils literal notranslate"><span class="pre">201</span></code> é montada com o serializador de saída
+(<a class="reference internal" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer" title="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoSerializer</span></code></a>),
+que já traz empresa, contrato, cronogramas (com valores) e fiscais
+serializados pelos serializers de seus respectivos módulos.</p></li>
+</ol>
+</section>
+<section id="module-src.pos_recebimento.api.permissions">
+<span id="permissions"></span><h2>permissions<a class="headerlink" href="#module-src.pos_recebimento.api.permissions" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo</span></span><a class="reference internal" href="../_modules/src/pos_recebimento/api/permissions.html#PermissaoParaCadastrarTermoRecebimentoDefinitivo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BasePermission</span></code></p>
+<p>Permissão para cadastrar/visualizar Termo de Recebimento Definitivo.</p>
+<p>Apenas os perfis DILOG_CRONOGRAMA e COORDENADOR_CODAE_DILOG_LOGISTICA
+(vinculados à CODAE) podem acessar as funcionalidades do módulo
+Pós-Recebimento.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo.PERFIS_PERMITIDOS">
+<span class="sig-name descname"><span class="pre">PERFIS_PERMITIDOS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['DILOG_CRONOGRAMA',</span> <span class="pre">'COORDENADOR_CODAE_DILOG_LOGISTICA']</span></span><a class="headerlink" href="#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo.PERFIS_PERMITIDOS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo.has_permission">
+<span class="sig-name descname"><span class="pre">has_permission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/permissions.html#PermissaoParaCadastrarTermoRecebimentoDefinitivo.has_permission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo.has_permission" title="Link to this definition"></a></dt>
+<dd><p>Return <cite>True</cite> if permission is granted, <cite>False</cite> otherwise.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Permissão <code class="docutils literal notranslate"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo</span></code>: apenas
+usuários autenticados, com vínculo atual ativo vinculado à CODAE
+(instituição <code class="docutils literal notranslate"><span class="pre">Codae</span></code>) e cujo perfil do vínculo atual seja
+<code class="docutils literal notranslate"><span class="pre">DILOG_CRONOGRAMA</span></code> ou <code class="docutils literal notranslate"><span class="pre">COORDENADOR_CODAE_DILOG_LOGISTICA</span></code> podem acessar
+as funcionalidades do Pós-Recebimento.</p>
+<p>Além do endpoint de criação de termos, essa mesma permissão protege as
+listagens de apoio ao cadastro, implementadas em outros módulos:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/terceirizadas/lista-empresas-pos-recebimento/</span></code> — empresas com ao
+menos uma ficha de recebimento “Assinado CODAE”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/cronogramas/lista-cronogramas-pos-recebimento/?contrato_id=&lt;uuid&gt;</span></code>
+— cronogramas vinculados ao contrato selecionado.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/cronogramas/&lt;uuid&gt;/dados-cronograma-pos-recebimento/</span></code> — dados do
+cronograma para preenchimento automático do cadastro.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/usuarios/fiscais/</span></code> — usuários com perfil <code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code> e
+vínculo ativo para seleção dos fiscais.</p></li>
+</ul>
+</section>
+<section id="module-src.pos_recebimento.api.services">
+<span id="services"></span><h2>services<a class="headerlink" href="#module-src.pos_recebimento.api.services" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TermoRecebimentoDefinitivoService</span></span><a class="reference internal" href="../_modules/src/pos_recebimento/api/services.html#TermoRecebimentoDefinitivoService"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Regra de negócio do Pós-Recebimento referente ao modelo novo.</p>
+<p>As listagens de empresas, contratos, cronogramas e fiscais foram
+movidas para os services/viewsets dos seus respectivos módulos
+(terceirizada, pre_recebimento e perfil). Aqui permanece apenas a
+regra utilizada na criação do Termo de Recebimento Definitivo.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService.empresa_tem_ficha_assinada">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">empresa_tem_ficha_assinada</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">empresa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/services.html#TermoRecebimentoDefinitivoService.empresa_tem_ficha_assinada"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService.empresa_tem_ficha_assinada" title="Link to this definition"></a></dt>
+<dd><p>Verifica se uma empresa possui ficha de recebimento assinada pela CODAE.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>O <code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoService</span></code> concentra as regras de negócio do
+Pós-Recebimento. Atualmente mantém apenas a regra
+<code class="docutils literal notranslate"><span class="pre">empresa_tem_ficha_assinada</span></code>: verifica se a empresa possui ao menos uma
+ficha de recebimento com status “Assinado CODAE”
+(<code class="docutils literal notranslate"><span class="pre">FichaDeRecebimentoWorkflow.ASSINADA</span></code>), navegando pela relação
+<code class="docutils literal notranslate"><span class="pre">empresa</span> <span class="pre">-&gt;</span> <span class="pre">cronogramas</span> <span class="pre">-&gt;</span> <span class="pre">etapas</span> <span class="pre">-&gt;</span> <span class="pre">ficha</span> <span class="pre">de</span> <span class="pre">recebimento</span></code>.</p>
+<section id="module-src.pos_recebimento.api.serializers.serializers">
+<span id="serializers"></span><h3>serializers<a class="headerlink" href="#module-src.pos_recebimento.api.serializers.serializers" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CronogramaTermoRecebimentoDefinitivoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#CronogramaTermoRecebimentoDefinitivoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Cronograma do termo com valor de contrato e quantidade recebida.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#CronogramaTermoRecebimentoDefinitivoSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cronograma',</span> <span class="pre">'valor_contrato',</span> <span class="pre">'quantidade_total_recebida')</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo" title="src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer.Meta.read_only_fields">
+<span class="sig-name descname"><span class="pre">read_only_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cronograma',</span> <span class="pre">'valor_contrato',</span> <span class="pre">'quantidade_total_recebida')</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer.Meta.read_only_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TermoRecebimentoDefinitivoSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#TermoRecebimentoDefinitivoSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializador de saída do Termo de Recebimento Definitivo.</p>
+<p>Os modelos já existentes (empresa, contrato, cronogramas e fiscais)
+são serializados pelos serializers de seus respectivos módulos. Cada
+cronograma possui seu próprio valor de contrato e quantidade recebida.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#TermoRecebimentoDefinitivoSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'empresa',</span> <span class="pre">'contrato',</span> <span class="pre">'cronogramas',</span> <span class="pre">'fiscal_1',</span> <span class="pre">'fiscal_2',</span> <span class="pre">'fiscal_3',</span> <span class="pre">'texto_termo',</span> <span class="pre">'status',</span> <span class="pre">'criado_em',</span> <span class="pre">'alterado_em')</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo" title="src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer.Meta.read_only_fields">
+<span class="sig-name descname"><span class="pre">read_only_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'empresa',</span> <span class="pre">'contrato',</span> <span class="pre">'cronogramas',</span> <span class="pre">'fiscal_1',</span> <span class="pre">'fiscal_2',</span> <span class="pre">'fiscal_3',</span> <span class="pre">'texto_termo',</span> <span class="pre">'status',</span> <span class="pre">'criado_em',</span> <span class="pre">'alterado_em')</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer.Meta.read_only_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<p>Serializadores de saída (somente leitura):</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer" title="src.pos_recebimento.api.serializers.serializers.CronogramaTermoRecebimentoDefinitivoSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoSerializer</span></code></a>: expõe o
+cronograma (serializado por <code class="docutils literal notranslate"><span class="pre">CronogramaSimplesSerializer</span></code>), o
+<code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> e a <code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code>.</p></li>
+<li><p><a class="reference internal" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer" title="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoSerializer</span></code></a>: serializa o termo com
+empresa (<code class="docutils literal notranslate"><span class="pre">TerceirizadaSimplesSerializer</span></code>), contrato
+(<code class="docutils literal notranslate"><span class="pre">ContratoSimplesSerializer</span></code>), cronogramas (via relação reversa
+<code class="docutils literal notranslate"><span class="pre">cronogramas_termo</span></code>, cada um com seus valores), fiscais
+(<code class="docutils literal notranslate"><span class="pre">UsuarioSimplesSerializer</span></code>), <code class="docutils literal notranslate"><span class="pre">texto_termo</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code> e timestamps
+de criação/alteração. Todos os campos são somente leitura.</p></li>
+</ul>
+</section>
+<section id="module-src.pos_recebimento.api.serializers.serializers_create">
+<span id="serializers-create"></span><h3>serializers_create<a class="headerlink" href="#module-src.pos_recebimento.api.serializers.serializers_create" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers_create.CronogramaTermoRecebimentoDefinitivoCreateSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CronogramaTermoRecebimentoDefinitivoCreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers_create.html#CronogramaTermoRecebimentoDefinitivoCreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers_create.CronogramaTermoRecebimentoDefinitivoCreateSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Serializer</span></code></p>
+<p>Item de cronograma do Termo de Recebimento Definitivo.</p>
+<p>Cada cronograma possui seu próprio valor de contrato e quantidade
+total recebida.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TermoRecebimentoDefinitivoCreateSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers_create.html#TermoRecebimentoDefinitivoCreateSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Serializador de criação do Termo de Recebimento Definitivo.</p>
+<p>Recebe os uuids de empresa, contrato, cronogramas (cada um com seu
+valor de contrato e quantidade recebida) e fiscais, e valida as
+regras de negócio:</p>
+<ul class="simple">
+<li><p>todos os campos obrigatórios;</p></li>
+<li><p>empresa com ao menos uma ficha de recebimento “Assinado CODAE”;</p></li>
+<li><p>contrato vinculado à empresa selecionada;</p></li>
+<li><p>cronogramas vinculados ao contrato/empresa selecionados;</p></li>
+<li><p>fiscais com perfil DILOG_QUALIDADE;</p></li>
+<li><p>valor do contrato e quantidade total recebida maiores que zero.</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers_create.html#TermoRecebimentoDefinitivoCreateSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('empresa',</span> <span class="pre">'contrato',</span> <span class="pre">'cronogramas',</span> <span class="pre">'fiscal_1',</span> <span class="pre">'fiscal_2',</span> <span class="pre">'fiscal_3',</span> <span class="pre">'texto_termo')</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo" title="src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers_create.html#TermoRecebimentoDefinitivoCreateSerializer.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.validate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.validate_texto_termo">
+<span class="sig-name descname"><span class="pre">validate_texto_termo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers_create.html#TermoRecebimentoDefinitivoCreateSerializer.validate_texto_termo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer.validate_texto_termo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p>Serializadores de criação (entrada):</p>
+<ul>
+<li><p><a class="reference internal" href="#src.pos_recebimento.api.serializers.serializers_create.CronogramaTermoRecebimentoDefinitivoCreateSerializer" title="src.pos_recebimento.api.serializers.serializers_create.CronogramaTermoRecebimentoDefinitivoCreateSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoCreateSerializer</span></code></a>: item de
+cronograma do payload, composto por <code class="docutils literal notranslate"><span class="pre">cronograma</span></code> (uuid via
+<code class="docutils literal notranslate"><span class="pre">SlugRelatedField</span></code>), <code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> e <code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code>
+(decimais com até 15 dígitos e 2 casas decimais).</p></li>
+<li><p><a class="reference internal" href="#src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer" title="src.pos_recebimento.api.serializers.serializers_create.TermoRecebimentoDefinitivoCreateSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoCreateSerializer</span></code></a>: serializador
+principal do create. Recebe os uuids de empresa, contrato, cronogramas e
+fiscais e aplica as regras de negócio (na ordem):</p>
+<ol class="arabic simple">
+<li><p><strong>Campos obrigatórios</strong>: <code class="docutils literal notranslate"><span class="pre">empresa</span></code>, <code class="docutils literal notranslate"><span class="pre">contrato</span></code>, <code class="docutils literal notranslate"><span class="pre">cronogramas</span></code>
+(não pode ser vazio — <code class="docutils literal notranslate"><span class="pre">allow_empty=False</span></code>), <code class="docutils literal notranslate"><span class="pre">fiscal_1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">fiscal_2</span></code>, <code class="docutils literal notranslate"><span class="pre">fiscal_3</span></code> e <code class="docutils literal notranslate"><span class="pre">texto_termo</span></code>.</p></li>
+<li><p><strong>Empresa com ficha assinada</strong>: a empresa deve possuir ao menos uma
+ficha de recebimento “Assinado CODAE”.</p></li>
+<li><p><strong>Contrato da empresa</strong>: <code class="docutils literal notranslate"><span class="pre">contrato.terceirizada</span></code> deve ser a empresa
+selecionada.</p></li>
+<li><p><strong>Cronogramas</strong>: não podem repetir uuid no mesmo payload; cada
+cronograma deve pertencer ao contrato selecionado
+(<code class="docutils literal notranslate"><span class="pre">cronograma.contrato</span></code>) e à empresa selecionada
+(<code class="docutils literal notranslate"><span class="pre">cronograma.empresa</span></code>).</p></li>
+<li><p><strong>Fiscais</strong>: cada um deve possuir vínculo ativo com o perfil
+<code class="docutils literal notranslate"><span class="pre">DILOG_QUALIDADE</span></code>.</p></li>
+<li><p><strong>Valores por cronograma</strong>: <code class="docutils literal notranslate"><span class="pre">valor_contrato</span></code> e
+<code class="docutils literal notranslate"><span class="pre">quantidade_total_recebida</span></code> devem ser maiores que zero.</p></li>
+<li><p><strong>Texto do termo</strong>: obrigatório e deve conter conteúdo textual após a
+remoção das tags HTML (<code class="docutils literal notranslate"><span class="pre">validate_texto_termo</span></code>).</p></li>
+</ol>
+<p>Mensagens de erro padrão por campo não encontrado: “Empresa não
+encontrada.”, “Contrato não encontrado.”, “Cronograma não encontrado.” e
+“Fiscal N não encontrado.”.</p>
+</li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="models.html" class="btn btn-neutral float-left" title="models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="admin.html" class="btn btn-neutral float-right" title="admin" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
