@@ -97,6 +97,8 @@ def get_dias_com_suspensao(solicitacao: SolicitacaoMedicaoInicial) -> list[str]:
     Esses dias devem ser desconsiderados dos dias letivos na finalização da
     medição inicial, pois o frontend os bloqueia para lançamento.
     """
+    if not solicitacao:
+        return []
     escola = solicitacao.escola
     mes = int(solicitacao.mes)
     ano = int(solicitacao.ano)
@@ -2692,8 +2694,10 @@ def valida_alimentacoes_solicitacoes_continuas(
 ):
     periodo_com_erro = False
     categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
-    dias_suspensos = get_dias_com_suspensao(
-        medicao_programas_projetos.solicitacao_medicao_inicial
+    dias_suspensos = (
+        get_dias_com_suspensao(medicao_programas_projetos.solicitacao_medicao_inicial)
+        if medicao_programas_projetos
+        else []
     )
     for dia in range(1, quantidade_dias_mes + 1):
         feriados = calendario.holidays(int(ano))
@@ -2939,8 +2943,10 @@ def valida_dietas_solicitacoes_continuas(
     classificacoes = ClassificacaoDieta.objects.filter(
         id__in=ids_categorias_existentes_no_mes
     )
-    dias_suspensos = get_dias_com_suspensao(
-        medicao_programas_projetos.solicitacao_medicao_inicial
+    dias_suspensos = (
+        get_dias_com_suspensao(medicao_programas_projetos.solicitacao_medicao_inicial)
+        if medicao_programas_projetos
+        else []
     )
     for classificacao in classificacoes:
         nomes_campos, categoria = get_nomes_campos_categoria(
