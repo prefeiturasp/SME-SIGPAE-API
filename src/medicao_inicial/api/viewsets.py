@@ -285,7 +285,9 @@ class DiaSobremesaDoceViewSet(ViewSetActionPermissionMixin, ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         DiaSobremesaDoce.objects.filter(
-            data=instance.data, tipo_unidade=instance.tipo_unidade
+            data=instance.data,
+            tipo_unidade=instance.tipo_unidade,
+            tipo=instance.tipo,
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
