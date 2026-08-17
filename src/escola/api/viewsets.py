@@ -180,8 +180,18 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
         "tipo_unidade__uuid": ["in"],
         "diretoria_regional__uuid": ["exact"],
         "lote__uuid": ["exact"],
+        "tipo_gestao__nome": ["exact"],
     }
     pagination_class = None
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        excluir_tipo_unidade = self.request.query_params.getlist(
+            "excluir_tipo_unidade__uuid[]"
+        )
+        if excluir_tipo_unidade:
+            queryset = queryset.exclude(tipo_unidade__uuid__in=excluir_tipo_unidade)
+        return queryset
 
     @action(detail=True, url_path="periodos-escolares", url_name="periodos-escolares")
     def periodos_escolares(self, _, uuid: str):
