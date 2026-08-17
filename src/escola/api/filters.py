@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from django_filters import rest_framework as filters
 
 from src.escola.models import Aluno, Escola, HistoricoMatriculaAluno
+from src.terceirizada.models import Terceirizada
 
 
 class DiretoriaRegionalFilter(filters.FilterSet):
@@ -22,6 +23,13 @@ class EscolaParaFiltrosFilter(filters.FilterSet):
         }
 
     def filter_queryset(self, queryset):
+        if self.request and isinstance(
+            self.request.user.vinculo_atual.instituicao, Terceirizada
+        ):
+            queryset = queryset.filter(
+                lote__terceirizada=self.request.user.vinculo_atual.instituicao
+            )
+
         queryset = super().filter_queryset(queryset)
 
         tipos_unidades = self.data.getlist("tipo_unidade__uuid[]")
