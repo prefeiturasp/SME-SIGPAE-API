@@ -19,8 +19,21 @@ Cypress.Commands.add('autenticar_login', (usuario, senha) => {
 			login,
 			password,
 		},
+		failOnStatusCode: false,
 	}).then((responseUserToken) => {
-		globalThis.token = responseUserToken.body.access
-		return responseUserToken
+		const status = responseUserToken.status
+		if (status >= 200 && status < 400) {
+			globalThis.token = responseUserToken.body.access
+			return responseUserToken
+		}
+		Cypress.log({
+			name: 'autenticar_login',
+			message: `Login retornou status ${status}`,
+		})
+		throw new Error(
+			`Falha no login: status ${status} - ${JSON.stringify(
+				responseUserToken.body,
+			)}`,
+		)
 	})
 })
