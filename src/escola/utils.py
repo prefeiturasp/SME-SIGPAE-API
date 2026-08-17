@@ -692,12 +692,24 @@ def _coleta_alunos_por_dia(
     data_final=None,
 ):
     for log_aluno_dia in log_periodo_faixa.logs_alunos_por_dia.all():
+        aluno_model = log_aluno_dia.aluno
+
         if escola and not aluno_pertence_a_escola(
-            log_aluno_dia.aluno, escola, data_inicial, data_final
+            aluno_model, escola, data_inicial, data_final
         ):
             continue
-        data_nascimento = log_aluno_dia.aluno.data_nascimento
-        aluno = f"{log_aluno_dia.aluno.nome} - {data_nascimento.day:02d}/{data_nascimento.month:02d}/{data_nascimento.year}"
+
+        data_nascimento = aluno_model.data_nascimento
+        aluno = (
+            f"{aluno_model.nome} - "
+            f"{data_nascimento.day:02d}/"
+            f"{data_nascimento.month:02d}/"
+            f"{data_nascimento.year}"
+        )
+
+        if aluno_model.serie:
+            aluno = f"{aluno} - {aluno_model.serie}"
+
         alunos_por_dia.append(aluno)
         alunos_por_faixa_append(alunos_por_faixa, aluno)
 
