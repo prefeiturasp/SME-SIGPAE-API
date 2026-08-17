@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.carga_dados.admin &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.carga_dados.admin</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.carga_dados.admin</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">admin</span><span class="p">,</span> <span class="n">messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">HttpResponse</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.tasks.admin_actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_escolas_task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.utils_analise_dietas_ativas</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.utils_escola</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_tempfile</span><span class="p">,</span> <span class="n">escreve_escolas_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.processamento_arquivos.dieta_especial</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">importa_alimentos</span><span class="p">,</span>
+    <span class="n">importa_dietas_especiais</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ArquivoCargaAlimentosSubstitutos</span><span class="p">,</span>
+    <span class="n">ArquivoCargaDietaEspecial</span><span class="p">,</span>
+    <span class="n">PlanilhaDietasAtivas</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="PlanilhaDietasAtivasAdmin">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">PlanilhaDietasAtivas</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PlanilhaDietasAtivasAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;__str__&quot;</span><span class="p">,</span> <span class="s2">&quot;tempfile&quot;</span><span class="p">,</span> <span class="s2">&quot;criado_em&quot;</span><span class="p">)</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;analisar_planilha_dietas_ativas&quot;</span><span class="p">,</span> <span class="s2">&quot;gerar_json_do_eol&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PlanilhaDietasAtivasAdmin.save_model">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.save_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">change</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">change</span><span class="p">:</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">tempfile</span> <span class="o">=</span> <span class="n">create_tempfile</span><span class="p">()</span>
+            <span class="n">escreve_escolas_json</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">tempfile</span><span class="p">,</span> <span class="s2">&quot;{</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">save</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PlanilhaDietasAtivasAdmin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">change</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PlanilhaDietasAtivasAdmin.analisar_planilha_dietas_ativas">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.analisar_planilha_dietas_ativas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analisar_planilha_dietas_ativas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Escolha somente uma planilha.&quot;</span><span class="p">,</span> <span class="n">messages</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> planilha foi marcada para ser analisada.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+
+        <span class="n">tempfile</span> <span class="o">=</span> <span class="n">queryset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tempfile</span>
+
+        <span class="n">arquivo</span> <span class="o">=</span> <span class="n">queryset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">arquivo</span>
+        <span class="n">arquivo_unidades_da_rede</span> <span class="o">=</span> <span class="n">queryset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">arquivo_unidades_da_rede</span>
+        <span class="n">resultado</span><span class="p">,</span> <span class="n">arquivo_final</span> <span class="o">=</span> <span class="n">main</span><span class="p">(</span>
+            <span class="n">arquivo</span><span class="o">=</span><span class="n">arquivo</span><span class="p">,</span>
+            <span class="n">arquivo_codigos_escolas</span><span class="o">=</span><span class="n">arquivo_unidades_da_rede</span><span class="p">,</span>
+            <span class="n">tempfile</span><span class="o">=</span><span class="n">tempfile</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">arquivo_final</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">resultado</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="n">DATA</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">nome_arquivo</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;resultado_analise_dietas_ativas_</span><span class="si">{</span><span class="n">DATA</span><span class="si">}</span><span class="s2">_01.xlsx&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">resultado</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;application/ms-excel&quot;</span><span class="p">)</span>
+        <span class="n">response</span><span class="p">[</span><span class="s2">&quot;Content-Disposition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;attachment; filename=&quot;</span><span class="si">{</span><span class="n">nome_arquivo</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+    <span class="n">analisar_planilha_dietas_ativas</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Analisar planilha dietas ativas&quot;</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="PlanilhaDietasAtivasAdmin.gerar_json_do_eol">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.gerar_json_do_eol">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gerar_json_do_eol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Escolha somente uma planilha.&quot;</span><span class="p">,</span> <span class="n">messages</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> planilha foi marcada para ser analisada.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+        <span class="n">get_escolas_task</span><span class="o">.</span><span class="n">delay</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PlanilhaDietasAtivasAdmin.has_delete_permission">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.PlanilhaDietasAtivasAdmin.has_delete_permission">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_delete_permission</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ArquivoCargaDietaEspecialAdmin">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">ArquivoCargaDietaEspecial</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArquivoCargaDietaEspecialAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;__str__&quot;</span><span class="p">,</span> <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">)</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;resultado&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,)</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;processa_carga&quot;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="ArquivoCargaDietaEspecialAdmin.processa_carga">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaDietaEspecialAdmin.processa_carga">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">processa_carga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Escolha somente uma planilha.&quot;</span><span class="p">,</span> <span class="n">messages</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">importa_dietas_especiais</span><span class="p">(</span><span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">arquivo</span><span class="o">=</span><span class="n">queryset</span><span class="o">.</span><span class="n">first</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Processo Terminado. Verifique o status do processo. </span><span class="si">{</span><span class="n">queryset</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="n">processa_carga</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Realiza a importação das solicitações de dietas especiais&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ArquivoCargaAlimentosSubstitutosAdmin">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin">[docs]</a>
+<span class="nd">@admin</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">ArquivoCargaAlimentosSubstitutos</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArquivoCargaAlimentosSubstitutosAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;__str__&quot;</span><span class="p">,</span> <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">)</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,)</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;processa_carga&quot;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="ArquivoCargaAlimentosSubstitutosAdmin.processa_carga">
+<a class="viewcode-back" href="../../../../dieta_especial/carga_dados/admin.html#src.dieta_especial.carga_dados.admin.ArquivoCargaAlimentosSubstitutosAdmin.processa_carga">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">processa_carga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Escolha somente uma planilha.&quot;</span><span class="p">,</span> <span class="n">messages</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">importa_alimentos</span><span class="p">(</span><span class="n">arquivo</span><span class="o">=</span><span class="n">queryset</span><span class="o">.</span><span class="n">first</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_user</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Processo Terminado. Verifique o status do processo. </span><span class="si">{</span><span class="n">queryset</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="n">processa_carga</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Realiza a importação dos alimentos e alimentos substitutos&quot;</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

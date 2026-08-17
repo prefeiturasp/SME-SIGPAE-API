@@ -1,0 +1,187 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.management.commands.gera_zip_protocolos &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.management.commands.gera_zip_protocolos</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.management.commands.gera_zip_protocolos</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.conf</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.management.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseCommand</span><span class="p">,</span> <span class="n">CommandError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">weasyprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTML</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">envia_email_unico_com_anexo_inmemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.relatorios.relatorios</span><span class="w"> </span><span class="kn">import</span> <span class="n">relatorio_dieta_especial_protocolo</span>
+
+
+<div class="viewcode-block" id="Command">
+<a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.gera_zip_protocolos.Command">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">):</span>
+    <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;Gera PDFs dos protocolos de dieta especial, salva o arquivo em memória e envia por e-mail&quot;</span>
+
+<div class="viewcode-block" id="Command.add_arguments">
+<a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.gera_zip_protocolos.Command.add_arguments">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--lote&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Nome do lote (obrigatório)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--email&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;E-mail de destino (obrigatório)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--inicio&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Índice inicial (opcional)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--fim&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Índice final (opcional)&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Command.handle">
+<a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.gera_zip_protocolos.Command.handle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="n">lote</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">&quot;lote&quot;</span><span class="p">]</span>
+        <span class="n">email</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span>
+        <span class="n">inicio</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">&quot;inicio&quot;</span><span class="p">]</span>
+        <span class="n">fim</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">&quot;fim&quot;</span><span class="p">]</span>
+
+        <span class="n">zip_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;protocolos_dieta_especial_</span><span class="si">{</span><span class="n">lote</span><span class="si">}</span><span class="s2">.zip&quot;</span>
+        <span class="n">buffer_zip</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+
+        <span class="n">dietas</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">status</span><span class="o">=</span><span class="s2">&quot;CODAE_AUTORIZADO&quot;</span><span class="p">,</span> <span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">escola_destino__lote__nome</span><span class="o">=</span><span class="n">lote</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;escola_destino__nome&quot;</span><span class="p">,</span> <span class="s2">&quot;aluno__nome&quot;</span><span class="p">)[</span><span class="n">inicio</span><span class="p">:</span><span class="n">fim</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dietas</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s2">&quot;Nenhuma dieta encontrada com os filtros fornecidos.&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">buffer_zip</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">dieta</span> <span class="ow">in</span> <span class="n">dietas</span><span class="p">:</span>
+                <span class="n">nome</span> <span class="o">=</span> <span class="n">dieta</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">dieta</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">nome</span>
+                <span class="n">codigo</span> <span class="o">=</span> <span class="n">dieta</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">codigo_eol</span> <span class="ow">or</span> <span class="s2">&quot;Nao matriculado&quot;</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Protocolo - </span><span class="si">{</span><span class="n">nome_escola</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">nome</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">codigo</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+
+                <span class="n">html_string</span> <span class="o">=</span> <span class="n">relatorio_dieta_especial_protocolo</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">dieta</span><span class="p">)</span>
+                <span class="n">pdf_buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+                <span class="n">HTML</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">html_string</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">STATIC_URL</span><span class="p">)</span><span class="o">.</span><span class="n">write_pdf</span><span class="p">(</span>
+                    <span class="n">pdf_buffer</span>
+                <span class="p">)</span>
+
+                <span class="n">zip_file</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pdf_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adicionado: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+
+        <span class="n">envia_email_unico_com_anexo_inmemory</span><span class="p">(</span>
+            <span class="n">assunto</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Protocolos de Dieta Especial - </span><span class="si">{</span><span class="n">lote</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">inicio</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="n">fim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">corpo</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                &lt;p&gt;Olá,&lt;/p&gt;</span>
+<span class="s2">                &lt;p&gt;Segue em anexo o arquivo ZIP com os protocolos do lote &lt;strong&gt;</span><span class="si">{</span><span class="n">lote</span><span class="si">}</span><span class="s2">&lt;/strong&gt;.&lt;/p&gt;</span>
+<span class="s2">                &lt;p&gt;Atenciosamente,&lt;br&gt;SIGPAE&lt;/p&gt;</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">,</span>
+            <span class="n">anexo_nome</span><span class="o">=</span><span class="n">zip_filename</span><span class="p">,</span>
+            <span class="n">mimetypes</span><span class="o">=</span><span class="s2">&quot;application/zip&quot;</span><span class="p">,</span>
+            <span class="n">anexo</span><span class="o">=</span><span class="n">buffer_zip</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;E-mail enviado para </span><span class="si">{</span><span class="n">email</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

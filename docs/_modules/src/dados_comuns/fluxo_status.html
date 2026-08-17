@@ -4155,10 +4155,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_salva_rastro_solicitacao</span><span class="p">()</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
+            <span class="n">ja_existe_log</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE</span><span class="p">,</span>
-                <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="p">)</span>
+                <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_INICIAL</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ja_existe_log</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
+                    <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE</span><span class="p">,</span>
+                    <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                <span class="p">)</span>
 
     <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">&quot;ue_envia&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_ue_envia_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

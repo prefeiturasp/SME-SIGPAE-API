@@ -1,0 +1,1432 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.solicitacao_dieta_especial.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../cardapio.html">cardapio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html">alteracao_tipo_alimentacao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.behaviors">behaviors</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDesteMesManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDoMesCorrenteManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioVencidaManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html">alteracao_tipo_alimentacao_cei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEIModelAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine"><code class="docutils literal notranslate"><span class="pre">SubstituicoesCEIInLine</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.AlteracaoCardapioCEI"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.FaixaEtariaSubstituicaoAlimentacaoCEI"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html">alteracao_tipo_alimentacao_cemei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.admin.AlteracaoCardapioCEMEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEMEIModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEMEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.FaixaEtariaSubstituicaoAlimentacaoCEMEICEI"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEMEICEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.DataIntervaloAlteracaoCardapioCEMEI"><code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapioCEMEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers.AlteracoesCardapioCEMEIDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEMEIDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers.AlteracoesCardapioCEMEIDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEMEIDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/base.html">base</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#src.cardapio.base.admin.MotivoDRENaoValidaAdmin"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValidaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#src.cardapio.base.admin.TipoAlimentacaoAdmin"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacaoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#src.cardapio.base.models.TipoAlimentacao"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#src.cardapio.base.models.MotivoDRENaoValida"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/base.html#module-src.cardapio.base.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html">inversao_dia_cardapio</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioDesteMesManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioVencidaManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/management.html">management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/management.html#module-src.cardapio.management.commands">commands</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/management.html#src.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html">suspensao_alimentacao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoModelAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.QuantidadePorPeriodoSuspensaoAlimentacaoInline"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacaoInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacaoInline"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.MotivoSuspensao"><code class="docutils literal notranslate"><span class="pre">MotivoSuspensao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacao</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers.GrupoSuspensaoAlimentacaoDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers.GrupoSuspensaoAlimentacaoDesteMesManager"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html">suspensao_alimentacao_cei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEIModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dieta_especial.html">dieta_especial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial.html">solicitacao_dieta_especial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#solicitacaodietaespecial">SolicitacaoDietaEspecial</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#motivonegacao">MotivoNegacao</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#motivoalteracaoue">MotivoAlteracaoUE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#alergiaintolerancia">AlergiaIntolerancia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#classificacaodieta">ClassificacaoDieta</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#anexo">Anexo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#solicitacoesdietaespecialativasinativasporaluno">SolicitacoesDietaEspecialAtivasInativasPorAluno</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.forms">forms</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.pagination">pagination</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.utils">utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.validators">validators</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/services.html">services</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/solicitacao_dieta_especial/services.html#module-src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo">historico_protocolo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao.html">protocolo_padrao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/models.html#alimento">Alimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/models.html#substituicaoalimento">SubstituicaoAlimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/models.html#alimentosubstituto">AlimentoSubstituto</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/models.html#protocolopadraodietaespecial">ProtocoloPadraoDietaEspecial</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/models.html#substituicaoalimentoprotocolopadrao">SubstituicaoAlimentoProtocoloPadrao</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.pagination">pagination</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.utils">utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.validators">validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/logs_models.html">logs_models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/logs_models/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/models.html#logdietasativascanceladasautomaticamente">LogDietasAtivasCanceladasAutomaticamente</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadas">LogQuantidadeDietasAutorizadas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadascei">LogQuantidadeDietasAutorizadasCEI</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadasrecreionasferias">LogQuantidadeDietasAutorizadasRecreioNasFerias</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadasrecreionasferiascei">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/logs_models/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.serializers">serializers</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/logs_models/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/logs_models/fixtures.html#module-src.dieta_especial.logs_models.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/carga_dados.html">carga_dados</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/carga_dados/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/tasks.html">tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/admin_actions.html">admin_actions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/logs.html">logs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/processamentos.html">processamentos</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/relatorio_pdf.html">relatorio_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/relatorio_terceirizadas_pdf.html">relatorio_terceirizadas_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/relatorio_terceirizadas_xlsx.html">relatorio_terceirizadas_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/relatorio_historico_logs_pdf.html">relatorio_historico_logs_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/relatorio_historico_logs_xlsx.html">relatorio_historico_logs_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/relatorio_recreio_nas_ferias_pdf.html">relatorio_recreio_nas_ferias_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/relatorio_recreio_nas_ferias_xlsx.html">relatorio_recreio_nas_ferias_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/tasks/utils.html">utils</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.logs">logs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.processamentos">processamentos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_historico_logs">relatorio_historico_logs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias">relatorio_recreio_nas_ferias</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx">relatorio_terceirizadas_xlsx</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/management.html">management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/management/commands.html">commands</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas">corrige_alergias_intolerancias_duplicadas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.corrige_protocolos_padrao">corrige_protocolos_padrao</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_autorizar">dieta_especial_autorizar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_cancelar">dieta_especial_cancelar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_criar">dieta_especial_criar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_deletar">dieta_especial_deletar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo">exportar_planilha_relacao_protocolo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.fix_nomes_protocolos">fix_nomes_protocolos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar">gerar_logs_dietas_periodo_escolar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.gera_zip_protocolos">gera_zip_protocolos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos">processar_planilha_protocolos_invalidos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_validos">processar_planilha_protocolos_validos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_retorno_nucleo">processar_planilha_retorno_nucleo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.unifica_dietas_tipo_b">unifica_dietas_tipo_b</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas">verificar_duplicidade_solicitacoes_dietas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo">verificar_solicitacoes_sem_protocolo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/utils.html">utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/utils.html#module-src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias">filtra_relatorio_recreio_nas_ferias</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.filtra_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">filtra_relatorio_recreio_nas_ferias()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.gera_filtros_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">gera_filtros_relatorio_recreio_nas_ferias()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/utils.html#module-src.dieta_especial.utils.gera_dicionario_historico_dietas">gera_dicionario_historico_dietas</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/utils.html#src.dieta_especial.utils.gera_dicionario_historico_dietas.gera_dicionario_historico_dietas"><code class="docutils literal notranslate"><span class="pre">gera_dicionario_historico_dietas()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/utils.html#module-src.dieta_especial.utils.gerar_filtros_relatorio_historico">gerar_filtros_relatorio_historico</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/utils.html#src.dieta_especial.utils.gerar_filtros_relatorio_historico.gerar_filtros_relatorio_historico"><code class="docutils literal notranslate"><span class="pre">gerar_filtros_relatorio_historico()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/utils.html#module-src.dieta_especial.utils.get_logs_historico_dietas">get_logs_historico_dietas</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/utils.html#src.dieta_especial.utils.get_logs_historico_dietas.get_logs_historico_dietas"><code class="docutils literal notranslate"><span class="pre">get_logs_historico_dietas()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/data.html">data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/data.html#module-src.dieta_especial.data.alergia_intolerancia">alergia_intolerancia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/data.html#module-src.dieta_especial.data.alimentos">alimentos</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/data.html#module-src.dieta_especial.data.classificacao_dieta">classificacao_dieta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/data.html#module-src.dieta_especial.data.motivo_alteracao_ue">motivo_alteracao_ue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/data.html#module-src.dieta_especial.data.motivo_negacao">motivo_negacao</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial/fixtures.html">fixtures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial/fixtures.html#module-src.dieta_especial.fixtures.factories">factories</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlergiaIntoleranciaFactory"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlimentoFactory"><code class="docutils literal notranslate"><span class="pre">AlimentoFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ClassificacaoDietaFactory"><code class="docutils literal notranslate"><span class="pre">ClassificacaoDietaFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.MotivoAlteracaoUEFactory"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoUEFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ProtocoloPadraoDietaEspecialFactory"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SolicitacaoDietaEspecialFactory"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SubstituicaoAlimentoFactory"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoFactory</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial.html#module-src.dieta_especial.apps">apps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial.html#src.dieta_especial.apps.DietaEspecialConfig"><code class="docutils literal notranslate"><span class="pre">DietaEspecialConfig</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial.html#src.dieta_especial.apps.DietaEspecialConfig.name"><code class="docutils literal notranslate"><span class="pre">DietaEspecialConfig.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../dieta_especial.html#module-src.dieta_especial.forms">forms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.base_fields"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.base_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.declared_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.media"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.media</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../pre_recebimento.html">pre_recebimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega.html">cronograma_entrega</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.gerar_numero_solicitacao"><code class="docutils literal notranslate"><span class="pre">gerar_numero_solicitacao()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/models.html#cronograma">Cronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/models.html#etapasdocronograma">EtapasDoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/models.html#programacaodorecebimentodocronograma">ProgramacaoDoRecebimentoDoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/models.html#solicitacaoalteracaocronograma">SolicitacaoAlteracaoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/models.html#solicitacaoalteracaocronogramaqueryset">SolicitacaoAlteracaoCronogramaQuerySet</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/models.html#interrupcaoprogramadaentrega">InterrupcaoProgramadaEntrega</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/api.html#viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.helpers">helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.CronogramaAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasAntigasInline"><code class="docutils literal notranslate"><span class="pre">EtapasAntigasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasInline"><code class="docutils literal notranslate"><span class="pre">EtapasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasNovasInline"><code class="docutils literal notranslate"><span class="pre">EtapasNovasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.SolicitacaoAdmin"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/cronograma_entrega/fixtures.html#module-src.pre_recebimento.cronograma_entrega.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica.html">ficha_tecnica</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/models.html#src.pre_recebimento.ficha_tecnica.models.gerar_numero_ficha_tecnica"><code class="docutils literal notranslate"><span class="pre">gerar_numero_ficha_tecnica()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/models.html#fabricantefichatecnica">FabricanteFichaTecnica</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/models.html#fichatecnicadoproduto">FichaTecnicaDoProduto</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/models.html#informacoesnutricionaisfichatecnica">InformacoesNutricionaisFichaTecnica</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/models.html#analisefichatecnica">AnaliseFichaTecnica</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/api.html#viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.helpers">helpers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/api.html#relatorio-fichas-tecnicas-excel">relatorio_fichas_tecnicas_excel</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/admin.html#src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline"><code class="docutils literal notranslate"><span class="pre">AnaliseFichaTecnicaInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/admin.html#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin"><code class="docutils literal notranslate"><span class="pre">FabricanteFichaTecnicaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/admin.html#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin"><code class="docutils literal notranslate"><span class="pre">FichaTecnicaDoProdutoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/admin.html#src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline"><code class="docutils literal notranslate"><span class="pre">InformacoesNutricionaisFichaTecnicaInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/ficha_tecnica/fixtures.html#module-src.pre_recebimento.ficha_tecnica.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento.html">documento_recebimento</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.data_maxima_recebimento_pre_save"><code class="docutils literal notranslate"><span class="pre">data_maxima_recebimento_pre_save()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/models.html#arquivodotipodedocumento">ArquivoDoTipoDeDocumento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/models.html#tipodedocumentoderecebimento">TipoDeDocumentoDeRecebimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/models.html#documentoderecebimento">DocumentoDeRecebimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/models.html#datadefabricaoeprazo">DataDeFabricaoEPrazo</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.helpers">helpers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel">relatorio_documentos_recebimento_excel</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pre_recebimento/documento_recebimento/fixtures.html#module-src.pre_recebimento.documento_recebimento.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../pos_recebimento.html">pos_recebimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../pos_recebimento/models.html">models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pos_recebimento/models.html#termorecebimentodefinitivo">TermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pos_recebimento/models.html#cronogramatermorecebimentodefinitivo">CronogramaTermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../pos_recebimento/api.html">api</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.viewsets">viewsets</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.permissions">permissions</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/api.html#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.services">services</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/api.html#src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoService</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.serializers.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.serializers.serializers_create">serializers_create</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../pos_recebimento/admin.html">admin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.extra"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.extra</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.model"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.inlines</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_filter</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.solicitacao_dieta_especial.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.solicitacao_dieta_especial.models</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Modelos do submódulo de solicitações de dieta especial.</span>
+
+<span class="sd">Define o modelo central :class:`SolicitacaoDietaEspecial`, os catálogos de</span>
+<span class="sd">apoio (motivos de negação, motivos de alteração de U.E., alergias e</span>
+<span class="sd">intolerâncias, classificações de dieta), o :class:`Anexo` e a view não</span>
+<span class="sd">gerenciada :class:`SolicitacoesDietaEspecialAtivasInativasPorAluno`.</span>
+
+<span class="sd">As listas de constantes no topo do módulo agrupam os eventos de log</span>
+<span class="sd">(:class:`~src.dados_comuns.models.LogSolicitacoesUsuario`) que caracterizam</span>
+<span class="sd">cada situação da solicitação (pendente, autorizada, negada ou cancelada).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.validators</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxLengthValidator</span><span class="p">,</span> <span class="n">MinLengthValidator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span><span class="p">,</span> <span class="n">QuerySet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Ativavel</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">Descritivel</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">Nomeavel</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoDietaEspecialPartindoDaEscola</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_base64_to_contentfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlunoSerializer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Aluno</span><span class="p">,</span> <span class="n">Escola</span>
+
+<span class="n">PENDENTES_EVENTO_DIETA_ESPECIAL</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INICIO_FLUXO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INICIO_FLUXO_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INICIO_FLUXO_ALTERACAO_UE_DIETA_ESPECIAL</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">AUTORIZADO_EVENTO_DIETA_ESPECIAL</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">INICIO_FLUXO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">NEGADOS_EVENTO_DIETA_ESPECIAL</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_NEGOU</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_NEGOU_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_NEGOU_CANCELAMENTO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_NEGOU_ALTERACAO_UE_DIETA_ESPECIAL</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">CANCELADOS_EVENTO_DIETA_ESPECIAL</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ESCOLA_CANCELOU</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CANCELADO_ALUNO_MUDOU_ESCOLA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CANCELADO_ALUNO_NAO_PERTENCE_REDE</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERMINADA_AUTOMATICAMENTE_SISTEMA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CANCELADO_ENCERRAMENTO_MATRICULA</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">CANCELADOS_EVENTO_DIETA_ESPECIAL_TEMP</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ESCOLA_CANCELOU</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_INATIVACAO</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERMINADA_AUTOMATICAMENTE_SISTEMA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERCEIRIZADA_TOMOU_CIENCIA</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_CANCELAMENTO_DIETA_ESPECIAL</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CANCELADO_ENCERRAMENTO_MATRICULA</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="MotivoNegacao">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.MotivoNegacao">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoNegacao</span><span class="p">(</span><span class="n">Descritivel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Catálogo de motivos de negação de uma solicitação de dieta especial.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        processo (str): Processo ao qual o motivo se aplica. Pode ser</span>
+<span class="sd">            ``CANCELAMENTO`` (solicitação de cancelamento de uma dieta especial ativa) ou ``INCLUSAO``</span>
+<span class="sd">            (solicitação de inclusão de uma nova dieta especial).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CANCELAMENTO</span> <span class="o">=</span> <span class="s2">&quot;CANCELAMENTO&quot;</span>
+    <span class="n">INCLUSAO</span> <span class="o">=</span> <span class="s2">&quot;INCLUSAO&quot;</span>
+
+    <span class="n">PROCESSO_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">CANCELAMENTO</span><span class="p">,</span> <span class="s2">&quot;Solicitação de Cancelamento&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">INCLUSAO</span><span class="p">,</span> <span class="s2">&quot;Solicitação de Inclusão&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">processo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">PROCESSO_CHOICES</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">INCLUSAO</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a descrição do motivo de negação.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">descricao</span></div>
+
+
+
+<div class="viewcode-block" id="MotivoAlteracaoUE">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.MotivoAlteracaoUE">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoAlteracaoUE</span><span class="p">(</span><span class="n">Descritivel</span><span class="p">,</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">Ativavel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Catálogo de motivos de alteração de unidade educacional da dieta.</span>
+
+<span class="sd">    Motivos possíveis:</span>
+
+<span class="sd">    - **Recreio nas Férias**: a criança vai passar alguns dias em outra</span>
+<span class="sd">      unidade educacional durante as férias escolares e precisa da sua dieta</span>
+<span class="sd">      especial atendida nessa outra unidade.</span>
+<span class="sd">    - **Outro**: a criança vai passar alguns dias em outra unidade educacional</span>
+<span class="sd">      por algum outro motivo e precisa da sua dieta especial atendida nessa</span>
+<span class="sd">      outra unidade.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o nome do motivo de alteração de U.E.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Motivo Alteração U.E&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Motivo Alteração U.E&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="AlergiaIntolerancia">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.AlergiaIntolerancia">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlergiaIntolerancia</span><span class="p">(</span><span class="n">Descritivel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Catálogo de alergias e intolerâncias alimentares (diagnósticos).</span>
+
+<span class="sd">    Exemplos de diagnósticos:</span>
+
+<span class="sd">    - Alergias (ovo, leite, amendoim)</span>
+<span class="sd">    - TEA</span>
+<span class="sd">    - Diabetes</span>
+<span class="sd">    - Doenças</span>
+<span class="sd">    - Intolerâncias</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a descrição da alergia/intolerância.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">descricao</span></div>
+
+
+
+<div class="viewcode-block" id="ClassificacaoDieta">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClassificacaoDieta</span><span class="p">(</span><span class="n">Descritivel</span><span class="p">,</span> <span class="n">Nomeavel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Catálogo de classificações de dieta especial.</span>
+
+<span class="sd">    Classificações possíveis:</span>
+
+<span class="sd">    - **Tipo A**: alimentos diferenciados mais caros para troca; a troca vale</span>
+<span class="sd">      apenas para o lanche.</span>
+<span class="sd">    - **Tipo A Enteral / Aminoácidos**: alimentos caros para troca igual ao</span>
+<span class="sd">      tipo A; a troca vale para lanche e refeição.</span>
+<span class="sd">    - **Tipo B**: alimentos diferenciados, com menor custo que os do tipo A.</span>
+<span class="sd">    - **Tipo C**: apenas altera algum ingrediente por outro, sem custo</span>
+<span class="sd">      adicional. Ex.: troca peixe por carne.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o nome da classificação de dieta.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecial</span><span class="p">(</span>
+    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;dieta_especial&quot;</span><span class="p">),</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">CriadoPor</span><span class="p">,</span>
+    <span class="n">FluxoDietaEspecialPartindoDaEscola</span><span class="p">,</span>
+    <span class="n">TemPrioridade</span><span class="p">,</span>
+    <span class="n">Logs</span><span class="p">,</span>
+    <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
+    <span class="n">Ativavel</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solicitação de dieta especial de um aluno.</span>
+
+<span class="sd">    Modelo central do módulo de dieta especial. Representa a solicitação de</span>
+<span class="sd">    dieta especial de um aluno e percorre um fluxo de autorização que envolve</span>
+<span class="sd">    a escola e a CODAE. Pode ser uma inclusão comum, uma alteração de U.E.,</span>
+<span class="sd">    um cancelamento de dieta ou uma solicitação para aluno não matriculado.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMUM</span> <span class="o">=</span> <span class="s2">&quot;COMUM&quot;</span>
+    <span class="n">ALUNO_NAO_MATRICULADO</span> <span class="o">=</span> <span class="s2">&quot;ALUNO_NAO_MATRICULADO&quot;</span>
+    <span class="n">ALTERACAO_UE</span> <span class="o">=</span> <span class="s2">&quot;ALTERACAO_UE&quot;</span>
+    <span class="n">CANCELAMENTO_DIETA</span> <span class="o">=</span> <span class="s2">&quot;CANCELAMENTO_DIETA&quot;</span>
+
+    <span class="n">DESCRICAO_SOLICITACAO</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;CODAE_A_AUTORIZAR&quot;</span><span class="p">:</span> <span class="s2">&quot;Solicitação de Inclusão&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CODAE_NEGOU_PEDIDO&quot;</span><span class="p">:</span> <span class="s2">&quot;Negada a Inclusão&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CODAE_AUTORIZADO&quot;</span><span class="p">:</span> <span class="s2">&quot;Autorizada&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ESCOLA_SOLICITOU_INATIVACAO&quot;</span><span class="p">:</span> <span class="s2">&quot;Solicitação de Cancelamento&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CODAE_NEGOU_INATIVACAO&quot;</span><span class="p">:</span> <span class="s2">&quot;Negada o Cancelamento&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CODAE_AUTORIZOU_INATIVACAO&quot;</span><span class="p">:</span> <span class="s2">&quot;Cancelamento Autorizado&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ESCOLA_CANCELOU&quot;</span><span class="p">:</span> <span class="s2">&quot;Cancelada pela Unidade Escolar&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">TIPO_SOLICITACAO_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">COMUM</span><span class="p">,</span> <span class="s2">&quot;Comum&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">ALUNO_NAO_MATRICULADO</span><span class="p">,</span> <span class="s2">&quot;Aluno não matriculado&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">ALTERACAO_UE</span><span class="p">,</span> <span class="s2">&quot;Alteração U.E&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">CANCELAMENTO_DIETA</span><span class="p">,</span> <span class="s2">&quot;Cancelamento de dieta especial&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Aluno&quot;</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;dietas_especiais&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nome_completo_pescritor</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Nome completo do pescritor da receita&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">registro_funcional_pescritor</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Registro funcional do pescritor da receita&quot;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;CRN/CRM/CRFa...&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">MaxLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">registro_funcional_nutricionista</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Registro funcional do nutricionista&quot;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;CRN/CRM/CRFa...&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Preenchido pela Escola</span>
+    <span class="n">observacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Observações&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Preenchido pela_ CODAE ao autorizar a dieta</span>
+    <span class="n">informacoes_adicionais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Informações Adicionais&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;ProtocoloPadraoDietaEspecial&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;solicitacoes_dietas_especiais&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Nome do Protocolo&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Preenchido pela NutriCODAE ao autorizar a dieta</span>
+    <span class="n">orientacoes_gerais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Orientações Gerais&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Confirmar se PROTECT é a melhor escolha para o campos abaixo</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;ClassificacaoDieta&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span>
+    <span class="p">)</span>
+    <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="s2">&quot;AlergiaIntolerancia&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># TODO: Confirmar se PROTECT é a melhor escolha para o campos abaixo</span>
+    <span class="n">motivo_negacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;MotivoNegacao&quot;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="c1"># TODO: Mover essa justificativa para o log de transição de status</span>
+    <span class="n">justificativa_negacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">data_termino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">motivo_alteracao_ue</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;MotivoAlteracaoUE&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+
+    <span class="n">escola_destino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Escola&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+
+    <span class="n">dieta_alterada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;self&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+
+    <span class="n">data_inicio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">tipo_solicitacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_SOLICITACAO_CHOICES</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;COMUM&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">observacoes_alteracao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">&quot;Observações Alteração&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">caracteristicas_do_alimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="s2">&quot;Características dos alimentos&quot;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">conferido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s2">&quot;Marcar como conferido?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">eh_importado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s2">&quot;Proveniente de importacao?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">dieta_para_recreio_ferias</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="s2">&quot;Dieta para Recreio nas Férias&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">SolicitacaoDietaEspecial</span><span class="p">],</span> <span class="n">status</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conta quantas solicitações distintas já passaram pelos status informados.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            solicitacoes (QuerySet[SolicitacaoDietaEspecial]): Queryset de</span>
+<span class="sd">                solicitações a analisar.</span>
+<span class="sd">            status (list[int]): Eventos de log que caracterizam os status.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Quantidade de solicitações que já estiveram em ao menos um</span>
+<span class="sd">            dos status informados.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">uuids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">solicitacoes</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">uuid_original__in</span><span class="o">=</span><span class="n">uuids</span><span class="p">,</span> <span class="n">status_evento__in</span><span class="o">=</span><span class="n">status</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid_original&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_pendentes">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_pendentes">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_solicitacoes_que_ja_estiveram_pendentes</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">SolicitacaoDietaEspecial</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conta quantas solicitações do queryset já estiveram pendentes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            solicitacoes (QuerySet[SolicitacaoDietaEspecial]): Queryset de</span>
+<span class="sd">                solicitações a analisar.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Quantidade de solicitações que já estiveram pendentes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+            <span class="n">solicitacoes</span><span class="p">,</span> <span class="n">PENDENTES_EVENTO_DIETA_ESPECIAL</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_autorizadas">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_autorizadas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_solicitacoes_que_ja_estiveram_autorizadas</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">SolicitacaoDietaEspecial</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conta quantas solicitações do queryset já estiveram autorizadas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            solicitacoes (QuerySet[SolicitacaoDietaEspecial]): Queryset de</span>
+<span class="sd">                solicitações a analisar.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Quantidade de solicitações que já estiveram autorizadas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+            <span class="n">solicitacoes</span><span class="p">,</span> <span class="n">AUTORIZADO_EVENTO_DIETA_ESPECIAL</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_negadas">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_negadas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_solicitacoes_que_ja_estiveram_negadas</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">SolicitacaoDietaEspecial</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conta quantas solicitações do queryset já estiveram negadas.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            solicitacoes (QuerySet[SolicitacaoDietaEspecial]): Queryset de</span>
+<span class="sd">                solicitações a analisar.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Quantidade de solicitações que já estiveram negadas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+            <span class="n">solicitacoes</span><span class="p">,</span> <span class="n">NEGADOS_EVENTO_DIETA_ESPECIAL</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_canceladas">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.quantidade_solicitacoes_que_ja_estiveram_canceladas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantidade_solicitacoes_que_ja_estiveram_canceladas</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">solicitacoes</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">SolicitacaoDietaEspecial</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Conta quantas solicitações do queryset já estiveram canceladas.</span>
+
+<span class="sd">        Considera apenas solicitações do tipo ``ALTERACAO_UE`` e ``COMUM``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            solicitacoes (QuerySet[SolicitacaoDietaEspecial]): Queryset de</span>
+<span class="sd">                solicitações a analisar.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Quantidade de solicitações que já estiveram canceladas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solicitacoes</span> <span class="o">=</span> <span class="n">solicitacoes</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">tipo_solicitacao__in</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">,</span> <span class="s2">&quot;COMUM&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">CANCELADOS_EVENTO_DIETA_ESPECIAL_TEMP</span> <span class="o">+</span> <span class="n">CANCELADOS_EVENTO_DIETA_ESPECIAL</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_quantidade_solicitacoes_que_ja_estiveram_nos_status</span><span class="p">(</span>
+            <span class="n">solicitacoes</span><span class="p">,</span> <span class="n">status</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.get_totais_gerencial_dietas">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.get_totais_gerencial_dietas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_totais_gerencial_dietas</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">queryset</span><span class="p">:</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">SolicitacaoDietaEspecial</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calcula os totais gerenciais de dietas (solicitadas e por situação).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            queryset (QuerySet[SolicitacaoDietaEspecial] | None): Queryset</span>
+<span class="sd">                opcional de solicitações. Se ``None``, usa todas as</span>
+<span class="sd">                solicitações.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, int]: Dicionário com os totais de solicitações,</span>
+<span class="sd">            autorizadas, negadas e canceladas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="k">if</span> <span class="n">queryset</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">queryset</span>
+        <span class="p">)</span>
+
+        <span class="n">total_solicitacoes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">quantidade_solicitacoes_que_ja_estiveram_pendentes</span><span class="p">(</span>
+                <span class="n">queryset</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">total_autorizadas</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">quantidade_solicitacoes_que_ja_estiveram_autorizadas</span><span class="p">(</span>
+            <span class="n">queryset</span>
+        <span class="p">)</span>
+        <span class="n">total_negadas</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">quantidade_solicitacoes_que_ja_estiveram_negadas</span><span class="p">(</span>
+                <span class="n">queryset</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">total_canceladas</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">quantidade_solicitacoes_que_ja_estiveram_canceladas</span><span class="p">(</span>
+            <span class="n">queryset</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;total_solicitacoes&quot;</span><span class="p">:</span> <span class="n">total_solicitacoes</span><span class="p">,</span>
+            <span class="s2">&quot;total_autorizadas&quot;</span><span class="p">:</span> <span class="n">total_autorizadas</span><span class="p">,</span>
+            <span class="s2">&quot;total_negadas&quot;</span><span class="p">:</span> <span class="n">total_negadas</span><span class="p">,</span>
+            <span class="s2">&quot;total_canceladas&quot;</span><span class="p">:</span> <span class="n">total_canceladas</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aluno_possui_dieta_especial_autorizada_alteracao_ue_recreio_ferias</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">aluno</span><span class="p">:</span> <span class="n">Aluno</span><span class="p">,</span>
+        <span class="n">dieta_alterada</span><span class="p">:</span> <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span>
+        <span class="n">motivo_recreio_ferias</span><span class="p">:</span> <span class="n">MotivoAlteracaoUE</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica se o aluno já possui alteração de U.E. autorizada para recreio nas férias.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            aluno (Aluno): Aluno a verificar.</span>
+<span class="sd">            dieta_alterada (SolicitacaoDietaEspecial): Dieta alterada</span>
+<span class="sd">                (solicitação original).</span>
+<span class="sd">            motivo_recreio_ferias (MotivoAlteracaoUE): Motivo de alteração de</span>
+<span class="sd">                U.E. de recreio nas férias.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: ``True`` se já existir alteração de U.E. autorizada com o</span>
+<span class="sd">            motivo informado; ``False`` caso contrário.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">aluno</span><span class="o">=</span><span class="n">aluno</span><span class="p">,</span>
+            <span class="n">dieta_alterada</span><span class="o">=</span><span class="n">dieta_alterada</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">CODAE_AUTORIZADO</span><span class="p">,</span>
+            <span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">,</span>
+            <span class="n">motivo_alteracao_ue</span><span class="o">=</span><span class="n">motivo_recreio_ferias</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.aluno_possui_dieta_especial_pendente">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.aluno_possui_dieta_especial_pendente">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aluno_possui_dieta_especial_pendente</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">aluno</span><span class="p">:</span> <span class="n">Aluno</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verifica se o aluno possui alguma dieta especial pendente de autorização.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            aluno (Aluno): Aluno a verificar.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: ``True`` se existir dieta especial com status</span>
+<span class="sd">            ``CODAE_A_AUTORIZAR``; ``False`` caso contrário.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">aluno</span><span class="o">=</span><span class="n">aluno</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">CODAE_A_AUTORIZAR</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">DESCRICAO</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a descrição legível da solicitação conforme o status atual.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Texto no formato ``&quot;Dieta Especial - {descricao}&quot;``, ou</span>
+<span class="sd">            ``&quot;Dieta Especial&quot;`` quando não há descrição mapeada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">descricao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DESCRICAO_SOLICITACAO</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Dieta Especial - </span><span class="si">{</span><span class="n">descricao</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">descricao</span> <span class="k">else</span> <span class="s2">&quot;Dieta Especial&quot;</span>
+
+    <span class="c1"># Property necessária para retornar dados no serializer de criação de</span>
+    <span class="c1"># Dieta Especial</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aluno_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna os dados do aluno serializados.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dicionário com os dados do aluno retornados pelo</span>
+<span class="sd">            :class:`~src.escola.api.serializers.AlunoSerializer`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AlunoSerializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">anexos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuerySet</span><span class="p">[</span><span class="n">Anexo</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna os anexos associados à solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet[Anexo]: Queryset com os anexos da solicitação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">anexo_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">numero_alunos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a quantidade de alunos associada à solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String vazia (mantida por compatibilidade com o serializer).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">escola</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Escola</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a escola vinculada ao rastro da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Escola | None: Escola associada ao rastro da solicitação, ou</span>
+<span class="sd">            ``None`` se não houver rastro.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rastro_escola</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.cria_anexos_inativacao">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.cria_anexos_inativacao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cria_anexos_inativacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anexos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cria os anexos de laudo de alta para a inativação da dieta.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            anexos (list[dict[str, Any]]): Lista de anexos, em que cada item</span>
+<span class="sd">                possui as chaves ``base64`` (conteúdo do arquivo) e ``nome``</span>
+<span class="sd">                (nome do arquivo).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AssertionError: Se ``anexos`` não for uma lista não vazia.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">anexos</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;anexos precisa ser uma lista&quot;</span>  <span class="c1"># nosec</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">anexos</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;anexos não pode ser vazio&quot;</span>  <span class="c1"># nosec</span>
+        <span class="k">for</span> <span class="n">anexo</span> <span class="ow">in</span> <span class="n">anexos</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">convert_base64_to_contentfile</span><span class="p">(</span><span class="n">anexo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;base64&quot;</span><span class="p">))</span>
+            <span class="n">Anexo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">solicitacao_dieta_especial</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">arquivo</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                <span class="n">nome</span><span class="o">=</span><span class="n">anexo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">eh_laudo_alta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuerySet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna as substituições de alimento associadas à solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QuerySet: Queryset de :class:`~src.dieta_especial.protocolo_padrao.models.SubstituicaoAlimento`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substituicaoalimento_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">str_dre_lote_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Monta uma string legível com DRE, lote e escola de destino.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Texto no formato ``&quot;DRE X - LOTE - ESCOLA&quot;``, usando</span>
+<span class="sd">            ``&quot;SEM DRE&quot;``, ``&quot;SEM LOTE&quot;`` e ``&quot;SEM ESCOLA&quot;`` quando os dados</span>
+<span class="sd">            não estiverem disponíveis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dre</span> <span class="o">=</span> <span class="s2">&quot;SEM DRE&quot;</span>
+        <span class="n">lote</span> <span class="o">=</span> <span class="s2">&quot;SEM LOTE&quot;</span>
+        <span class="n">escola</span> <span class="o">=</span> <span class="s2">&quot;SEM ESCOLA&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="p">:</span>
+            <span class="n">escola</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="p">:</span>
+                <span class="n">dre</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;DRE </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">nome</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">lote</span><span class="p">:</span>
+                <span class="n">lote</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">lote</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dre</span><span class="si">}</span><span class="s2">  - </span><span class="si">{</span><span class="n">lote</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">escola</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.salvar_log_transicao">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.salvar_log_transicao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">salvar_log_transicao</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">status_evento</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">usuario</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registra um log de transição de status da solicitação.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            status_evento (int): Evento de log (transição de status) a gravar.</span>
+<span class="sd">            usuario (perfil.Usuario): Usuário responsável pela transição.</span>
+<span class="sd">            **kwargs (Any): Argumentos extras. Aceita ``justificativa``</span>
+<span class="sd">                (str) para a transição.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;justificativa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">descricao</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">status_evento</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">DIETA_ESPECIAL</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">usuario</span><span class="p">,</span>
+            <span class="n">uuid_original</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_nutricionista_with_registro_funcional</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o nome do nutricionista que autorizou a dieta, com registro funcional.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Texto ``&quot;Elaborado por {nome} - RF {registro}&quot;`` ou, quando o</span>
+<span class="sd">            usuário não possui registro funcional, o registro funcional</span>
+<span class="sd">            informado na solicitação.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU</span><span class="p">,</span>
+            <span class="n">solicitacao_tipo</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">DIETA_ESPECIAL</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">usuario</span>
+        <span class="k">if</span> <span class="n">usuario</span><span class="o">.</span><span class="n">registro_funcional</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Elaborado por </span><span class="si">{</span><span class="n">usuario</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2"> - RF </span><span class="si">{</span><span class="n">usuario</span><span class="o">.</span><span class="n">registro_funcional</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">registro_funcional_nutricionista</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_ultimo_log</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a data do último log da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str | None: Data formatada ``DD/MM/AAAA`` do último log, ou</span>
+<span class="sd">            ``None`` se não houver logs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">last</span><span class="p">()</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_log_autorizado</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogSolicitacoesUsuario</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o log de autorização da solicitação, se existir.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            LogSolicitacoesUsuario | None: Log de autorização (``CODAE_AUTORIZOU``</span>
+<span class="sd">            ou ``CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL``), ou ``None``</span>
+<span class="sd">            se a solicitação ainda não foi autorizada.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU</span><span class="p">)</span>
+                <span class="o">|</span> <span class="n">Q</span><span class="p">(</span>
+                    <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">CODAE_AUTORIZOU_ALTERACAO_UE_DIETA_ESPECIAL</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecial.clean">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial.clean">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Valida os campos da solicitação antes de salvar.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValidationError: Se a dieta for para recreio nas férias e não</span>
+<span class="sd">                possuir período preenchido, ou se a data final for anterior</span>
+<span class="sd">                à data inicial.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dieta_para_recreio_ferias</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicio</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_termino</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="s2">&quot;Os campos de período são obrigatórios quando dieta para recreio nas férias está selecionada.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_termino</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_inicio</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                    <span class="s2">&quot;A data final não pode ser anterior à data inicial.&quot;</span>
+                <span class="p">)</span></div>
+
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-ativo&quot;</span><span class="p">,</span> <span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Solicitação de dieta especial&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Solicitações de dieta especial&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna a representação legível da solicitação.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: ``&quot;{código_eol}: {nome}&quot;`` do aluno, ou</span>
+<span class="sd">            ``&quot;Solicitação #{id_externo}&quot;`` quando não há aluno vinculado.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">codigo_eol</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Solicitação #</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id_externo</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Anexo">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.Anexo">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Anexo</span><span class="p">(</span><span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">&quot;anexo&quot;</span><span class="p">),</span> <span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Anexo (arquivo) vinculado a uma solicitação de dieta especial.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        solicitacao_dieta_especial (SolicitacaoDietaEspecial): Solicitação à</span>
+<span class="sd">            qual o anexo pertence.</span>
+<span class="sd">        nome (str): Nome do arquivo.</span>
+<span class="sd">        arquivo (FileField): Arquivo enviado.</span>
+<span class="sd">        eh_laudo_alta (bool): Indica se o anexo é um laudo de alta.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">solicitacao_dieta_especial</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+    <span class="p">)</span>
+    <span class="n">nome</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">arquivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FileField</span><span class="p">()</span>
+    <span class="n">eh_laudo_alta</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna o nome do anexo.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacoesDietaEspecialAtivasInativasPorAluno">
+<a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacoesDietaEspecialAtivasInativasPorAluno">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacoesDietaEspecialAtivasInativasPorAluno</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;View não gerenciada com a quantidade de dietas ativas e inativas por aluno.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        aluno (Aluno): Aluno referenciado (chave primária).</span>
+<span class="sd">        ativas (int): Quantidade de dietas ativas do aluno.</span>
+<span class="sd">        inativas (int): Quantidade de dietas inativas do aluno.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">OneToOneField</span><span class="p">(</span><span class="n">Aluno</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ativas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    <span class="n">inativas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">managed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">db_table</span> <span class="o">=</span> <span class="s2">&quot;dietas_ativas_inativas_por_aluno&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

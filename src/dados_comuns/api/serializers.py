@@ -17,6 +17,7 @@ from ..models import (
     SolicitacaoAberta,
 )
 from ..services import ServiceMapeamentoLogsLinhaDoTempo
+from ..normalizers import normalizar_nome_categoria
 
 
 class CamposObrigatoriosMixin:
@@ -188,6 +189,45 @@ class ContatoSimplesSerializer(serializers.ModelSerializer):
 
 
 class CategoriaPerguntaFrequenteSerializer(serializers.ModelSerializer):
+    nome = serializers.CharField(
+        allow_blank=False,
+        max_length=100,
+        required=True,
+        trim_whitespace=True,
+    )
+
+    def validate_nome(self, value):
+        nome = value.strip()
+        nome_normalizado = normalizar_nome_categoria(nome)
+
+        categorias = CategoriaPerguntaFrequente.objects.all()
+
+        if self.instance:
+            categorias = categorias.exclude(pk=self.instance.pk)
+
+        nomes_cadastrados = categorias.values_list("nome", flat=True)
+
+        categoria_duplicada = any(
+            normalizar_nome_categoria(nome_cadastrado) == nome_normalizado
+            for nome_cadastrado in nomes_cadastrados
+        )
+
+        if categoria_duplicada:
+            if self.instance:
+                mensagem = (
+                    "Não é possível cadastrar a categoria, pois já existe uma "
+                    "categoria com esse nome. Altere o nome informado e tente novamente."
+                )
+            else:
+                mensagem = (
+                    "Não é possível cadastrar a categoria, pois já existe uma "
+                    "categoria com esse nome. Altere o nome informado e tente novamente."
+                )
+
+            raise serializers.ValidationError(mensagem)
+
+        return nome
+
     class Meta:
         model = CategoriaPerguntaFrequente
         exclude = ("id",)

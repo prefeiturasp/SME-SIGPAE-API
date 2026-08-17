@@ -133,13 +133,16 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 
 	context('Rota PUT api/conferencia-da-guia-com-ocorrencia/{uuid}/', () => {
 		it('Atualiza conferência da guia com ocorrência por UUID com sucesso', () => {
-			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=10&offset=0').then(
+			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then(
 				(responseLista) => {
 					expect(responseLista.status).to.eq(200)
 					expect(responseLista.body.results).to.be.an('array').and.not.to.be.empty
 
 					const conferencia = responseLista.body.results.find(
-						(item) => item.guia.situacao === 'ATIVA',
+						(item) =>
+							item.guia.situacao === 'ATIVA' &&
+							item.guia.status === 'Recebida' &&
+							item.eh_reposicao === false,
 					)
 					expect(conferencia).to.exist
 
@@ -177,7 +180,7 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 		})
 
 		it('Exibe erro ao atualizar conferência vinculada a guia arquivada', () => {
-			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=10&offset=0').then(
+			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then(
 				(responseLista) => {
 					expect(responseLista.status).to.eq(200)
 
@@ -222,12 +225,13 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 
 	context('Rota PATCH api/conferencia-da-guia-com-ocorrencia/{uuid}/', () => {
 		it('Atualiza parcialmente conferência por UUID com sucesso', () => {
-			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=10&offset=0').then(
+			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then(
 				(responseLista) => {
 					expect(responseLista.status).to.eq(200)
 
 					const conferencia = responseLista.body.results.find(
-						(item) => item.guia.situacao === 'ATIVA',
+						(item) =>
+							item.guia.situacao === 'ATIVA' && item.guia.status === 'Recebida',
 					)
 					expect(conferencia).to.exist
 

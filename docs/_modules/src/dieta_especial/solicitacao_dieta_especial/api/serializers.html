@@ -1,0 +1,1227 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.solicitacao_dieta_especial.api.serializers &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.solicitacao_dieta_especial.api.serializers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.solicitacao_dieta_especial.api.serializers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">environ</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">drf_base64.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelSerializer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span><span class="p">,</span> <span class="n">status</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ContatoSerializer</span><span class="p">,</span>
+    <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_instance_from_dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.validators</span><span class="w"> </span><span class="kn">import</span> <span class="n">nao_pode_ser_no_passado</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.protocolo_padrao.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ProtocoloPadraoDietaEspecialSimplesSerializer</span><span class="p">,</span>
+    <span class="n">SubstituicaoAlimentoSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.protocolo_padrao.api.serializers_create</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SubstituicaoAutorizarSerializer</span><span class="p">,</span>
+    <span class="n">SubstituicaoCreateSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.protocolo_padrao.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Alimento</span><span class="p">,</span>
+    <span class="n">ProtocoloPadraoDietaEspecial</span><span class="p">,</span>
+    <span class="n">SubstituicaoAlimento</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.api.serializers_create</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SolicitacaoDietaEspecialCreateSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.api.validators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">atributos_lista_nao_vazios</span><span class="p">,</span>
+    <span class="n">atributos_string_nao_vazios</span><span class="p">,</span>
+    <span class="n">deve_ter_atributos</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlergiaIntolerancia</span><span class="p">,</span>
+    <span class="n">Anexo</span><span class="p">,</span>
+    <span class="n">ClassificacaoDieta</span><span class="p">,</span>
+    <span class="n">MotivoAlteracaoUE</span><span class="p">,</span>
+    <span class="n">MotivoNegacao</span><span class="p">,</span>
+    <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AlunoSerializer</span><span class="p">,</span>
+    <span class="n">AlunoSimplesSerializer</span><span class="p">,</span>
+    <span class="n">EscolaNomeCodigoEOLSerializer</span><span class="p">,</span>
+    <span class="n">LoteNomeSerializer</span><span class="p">,</span>
+    <span class="n">LoteSerializer</span><span class="p">,</span>
+    <span class="n">TipoGestaoSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiretoriaRegional</span><span class="p">,</span> <span class="n">Escola</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">NovoSGPServicoLogadoException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.paineis_consolidados.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolicitacoesCODAE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.produto.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Produto</span><span class="p">,</span> <span class="n">SolicitacaoCadastroProdutoDieta</span>
+
+<span class="n">CLASSIFICACAO_NOME_SOURCE</span> <span class="o">=</span> <span class="s2">&quot;classificacao.nome&quot;</span>
+<span class="n">DATE_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span>
+
+
+<div class="viewcode-block" id="AlergiaIntoleranciaSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.AlergiaIntoleranciaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlergiaIntoleranciaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="AlergiaIntoleranciaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.AlergiaIntoleranciaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">AlergiaIntolerancia</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;__all__&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ClassificacaoDietaSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.ClassificacaoDietaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClassificacaoDietaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="ClassificacaoDietaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.ClassificacaoDietaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;__all__&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MotivoNegacaoSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.MotivoNegacaoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoNegacaoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="MotivoNegacaoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.MotivoNegacaoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">MotivoNegacao</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;__all__&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnexoSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.AnexoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnexoSerializer</span><span class="p">(</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">nome</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">arquivo_url</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AnexoSerializer.get_arquivo_url">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.AnexoSerializer.get_arquivo_url">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_arquivo_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">Env</span><span class="p">()</span>
+        <span class="n">api_url</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">str</span><span class="p">(</span><span class="s2">&quot;URL_ANEXO&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">api_url</span><span class="si">}{</span><span class="n">instance</span><span class="o">.</span><span class="n">arquivo</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="AnexoSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.AnexoSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Anexo</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;arquivo_url&quot;</span><span class="p">,</span> <span class="s2">&quot;arquivo&quot;</span><span class="p">,</span> <span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;eh_laudo_alta&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DiretoriaRegionalSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.DiretoriaRegionalSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiretoriaRegionalSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="DiretoriaRegionalSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.DiretoriaRegionalSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DiretoriaRegional</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;codigo_eol&quot;</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EscolaSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.EscolaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EscolaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">diretoria_regional</span> <span class="o">=</span> <span class="n">DiretoriaRegionalSerializer</span><span class="p">()</span>
+    <span class="n">tipo_gestao</span> <span class="o">=</span> <span class="n">TipoGestaoSerializer</span><span class="p">()</span>
+    <span class="n">lote</span> <span class="o">=</span> <span class="n">LoteNomeSerializer</span><span class="p">()</span>
+    <span class="n">contato</span> <span class="o">=</span> <span class="n">ContatoSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="EscolaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.EscolaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Escola</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;diretoria_regional&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_gestao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lote&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contato&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MotivoAlteracaoUESerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.MotivoAlteracaoUESerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoAlteracaoUESerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="MotivoAlteracaoUESerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.MotivoAlteracaoUESerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">MotivoAlteracaoUE</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;nome&quot;</span><span class="p">,</span> <span class="s2">&quot;descricao&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialAutorizarSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialAutorizarSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialAutorizarSerializer</span><span class="p">(</span>
+    <span class="n">SolicitacaoDietaEspecialCreateSerializer</span>
+<span class="p">):</span>
+<div class="viewcode-block" id="SolicitacaoDietaEspecialAutorizarSerializer.validate">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialAutorizarSerializer.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dados_a_validar</span><span class="p">):</span>
+        <span class="n">deve_ter_atributos</span><span class="p">(</span>
+            <span class="n">dados_a_validar</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;classificacao&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;registro_funcional_nutricionista&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;data_termino&quot;</span> <span class="ow">in</span> <span class="n">dados_a_validar</span><span class="p">:</span>
+            <span class="n">data_termino</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                <span class="n">dados_a_validar</span><span class="p">[</span><span class="s2">&quot;data_termino&quot;</span><span class="p">],</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="n">nao_pode_ser_no_passado</span><span class="p">(</span><span class="n">data_termino</span><span class="p">)</span>
+        <span class="n">atributos_lista_nao_vazios</span><span class="p">(</span>
+            <span class="n">dados_a_validar</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span> <span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">atributos_string_nao_vazios</span><span class="p">(</span>
+            <span class="n">dados_a_validar</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;registro_funcional_nutricionista&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">dados_a_validar</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialAutorizarSerializer.update">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialAutorizarSerializer.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>  <span class="c1"># noqa C901</span>
+        <span class="n">validated_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">)</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">)</span>
+
+        <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">ProtocoloPadraoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;protocolo_padrao&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">protocolo_padrao</span>
+
+        <span class="n">instance</span><span class="o">.</span><span class="n">classificacao_id</span> <span class="o">=</span> <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;classificacao&quot;</span><span class="p">]</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">registro_funcional_nutricionista</span> <span class="o">=</span> <span class="n">validated_data</span><span class="p">[</span>
+            <span class="s2">&quot;registro_funcional_nutricionista&quot;</span>
+        <span class="p">]</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">informacoes_adicionais</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;informacoes_adicionais&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">orientacoes_gerais</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;orientacoes_gerais&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">caracteristicas_do_alimento</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;caracteristicas_do_alimento&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nome_protocolo&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">data_termino</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_termino&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data_termino</span><span class="p">:</span>
+            <span class="n">data_termino</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">data_termino</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">data_termino</span> <span class="o">=</span> <span class="n">data_termino</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">data_termino</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">instance</span><span class="o">.</span><span class="n">alergias_intolerancias</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">ai</span> <span class="ow">in</span> <span class="n">alergias_intolerancias</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">alergias_intolerancias</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">AlergiaIntolerancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">ai</span><span class="p">))</span>
+
+        <span class="n">instance</span><span class="o">.</span><span class="n">substituicaoalimento_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">substituicao</span> <span class="ow">in</span> <span class="n">substituicoes</span><span class="p">:</span>
+            <span class="n">substituicao</span><span class="p">[</span><span class="s2">&quot;solicitacao_dieta_especial&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">id</span>
+            <span class="c1"># Separa Alimentos e Produtos.</span>
+            <span class="n">alimentos_substitutos</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">produtos_substitutos</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">substituto</span> <span class="ow">in</span> <span class="n">substituicao</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">Alimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">substituto</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
+                    <span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">substituto</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">Produto</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">substituto</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
+                    <span class="n">produtos_substitutos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">substituto</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Substituto não encontrado.&quot;</span><span class="p">)</span>
+
+            <span class="n">substituicao</span><span class="p">[</span><span class="s2">&quot;alimentos_substitutos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alimentos_substitutos</span>
+            <span class="n">substituicao</span><span class="p">[</span><span class="s2">&quot;substitutos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">produtos_substitutos</span>
+
+            <span class="n">create_serializer</span> <span class="o">=</span> <span class="n">SubstituicaoAutorizarSerializer</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">substituicao</span>
+            <span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="k">if</span> <span class="n">create_serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">instance</span><span class="o">.</span><span class="n">substituicaoalimento_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">create_serializer</span><span class="o">.</span><span class="n">save</span><span class="p">())</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">instance</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">AlunoSerializer</span><span class="p">()</span>
+    <span class="n">anexos</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">child</span><span class="o">=</span><span class="n">AnexoSerializer</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaSerializer</span><span class="p">()</span>
+    <span class="n">escola_destino</span> <span class="o">=</span> <span class="n">EscolaSerializer</span><span class="p">()</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">status_solicitacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">id_externo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">ClassificacaoDietaSerializer</span><span class="p">()</span>
+    <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">AlergiaIntoleranciaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">motivo_negacao</span> <span class="o">=</span> <span class="n">MotivoNegacaoSerializer</span><span class="p">()</span>
+    <span class="n">motivo_alteracao_ue</span> <span class="o">=</span> <span class="n">MotivoAlteracaoUESerializer</span><span class="p">()</span>
+    <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+    <span class="n">tem_solicitacao_cadastro_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">ProtocoloPadraoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialSerializer.get_substituicoes">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialSerializer.get_substituicoes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_substituicoes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">substituicoes</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;alimento__nome&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SubstituicaoAlimentoSerializer</span><span class="p">(</span><span class="n">substituicoes</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialSerializer.get_tem_solicitacao_cadastro_produto">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialSerializer.get_tem_solicitacao_cadastro_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tem_solicitacao_cadastro_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SolicitacaoCadastroProdutoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">solicitacao_dieta_especial</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">&quot;AGUARDANDO_CONFIRMACAO&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ativo&quot;</span><span class="p">,</span> <span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;id_externo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;escola_destino&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;anexos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_completo_pescritor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;registro_funcional_pescritor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observacoes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;protocolo_padrao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_protocolo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;orientacoes_gerais&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;informacoes_adicionais&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;caracteristicas_do_alimento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;motivo_negacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;justificativa_negacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;registro_funcional_nutricionista&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;logs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ativo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_termino&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_inicio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tem_solicitacao_cadastro_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observacoes_alteracao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;motivo_alteracao_ue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;conferido&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;eh_importado&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dieta_alterada&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dieta_para_recreio_ferias&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialUpdateSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialUpdateSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialUpdateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
+        <span class="n">slug_field</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">ProtocoloPadraoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">anexos</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">child</span><span class="o">=</span><span class="n">AnexoSerializer</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">PrimaryKeyRelatedField</span><span class="p">(</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">PrimaryKeyRelatedField</span><span class="p">(</span>
+        <span class="n">queryset</span><span class="o">=</span><span class="n">AlergiaIntolerancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">SubstituicaoCreateSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialUpdateSerializer.update">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialUpdateSerializer.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>  <span class="c1"># noqa C901</span>
+        <span class="n">anexos</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;anexos&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">substituicoes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;substituicoes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">update_instance_from_dict</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">anexos</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">anexo_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">anexo</span> <span class="ow">in</span> <span class="n">anexos</span><span class="p">:</span>
+                <span class="n">anexo</span><span class="p">[</span><span class="s2">&quot;solicitacao_dieta_especial_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">id</span>
+                <span class="n">ser</span> <span class="o">=</span> <span class="n">AnexoSerializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">anexo</span><span class="p">)</span>
+                <span class="n">ser</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">Anexo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">anexo</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">alergias_intolerancias</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">alergias_intolerancias</span><span class="o">.</span><span class="n">set</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">ai</span> <span class="ow">in</span> <span class="n">alergias_intolerancias</span><span class="p">:</span>
+                <span class="n">instance</span><span class="o">.</span><span class="n">alergias_intolerancias</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ai</span><span class="p">)</span>
+
+        <span class="n">instance</span><span class="o">.</span><span class="n">substituicaoalimento_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">substituicoes</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">substituicao</span> <span class="ow">in</span> <span class="n">substituicoes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">substituicao</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;substituicoes&quot;</span><span class="p">:</span> <span class="s2">&quot;Um ou mais itens na lista de substituições estão vazios.&quot;</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="n">substitutos</span> <span class="o">=</span> <span class="n">substituicao</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;substitutos&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">substituicao</span><span class="p">[</span><span class="s2">&quot;solicitacao_dieta_especial&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span>
+                <span class="n">subst_obj</span> <span class="o">=</span> <span class="n">SubstituicaoAlimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">substituicao</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">substitutos</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">substituto</span> <span class="ow">in</span> <span class="n">substitutos</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">substituto</span><span class="p">,</span> <span class="n">Alimento</span><span class="p">):</span>
+                            <span class="n">subst_obj</span><span class="o">.</span><span class="n">alimentos_substitutos</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">substituto</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">substituto</span><span class="p">,</span> <span class="n">Produto</span><span class="p">):</span>
+                            <span class="n">subst_obj</span><span class="o">.</span><span class="n">substitutos</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">substituto</span><span class="p">)</span>
+
+        <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">instance</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialUpdateSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialUpdateSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialLogSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialLogSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialLogSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">AlunoSerializer</span><span class="p">()</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">id_externo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialLogSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialLogSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;aluno&quot;</span><span class="p">,</span> <span class="s2">&quot;logs&quot;</span><span class="p">,</span> <span class="s2">&quot;id_externo&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacoesAtivasInativasPorAlunoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="n">dre</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">serie</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">codigo_eol_escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">codigo_eol</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">foto_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">classificacao_dieta_ativa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">nome</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">ativas</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">inativas</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer.get_escola_context">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer.get_escola_context">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_escola_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;_escola_contexto_id&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_escola_contexto_id</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer.get_ativas">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer.get_ativas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ativas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">escola_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_escola_context</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">codigo_eol</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">codigo_eol</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">escola_uuid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">ativas_qs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SolicitacoesCODAE</span><span class="o">.</span><span class="n">get_autorizados_dieta_especial</span><span class="p">()</span>
+            <span class="o">|</span> <span class="n">SolicitacoesCODAE</span><span class="o">.</span><span class="n">get_autorizadas_temporariamente_dieta_especial</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">codigo_eol_aluno</span><span class="o">=</span><span class="n">codigo_eol</span><span class="p">,</span> <span class="n">escola_uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">codigo_eol</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">uuid__in</span><span class="o">=</span><span class="n">ativas_qs</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                    <span class="n">aluno__nome</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="n">ativas_qs</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">count</span></div>
+
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer.get_inativas">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer.get_inativas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_inativas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">escola_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_escola_context</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">codigo_eol</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">codigo_eol</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">escola_uuid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">cancelados_qs</span> <span class="o">=</span> <span class="n">SolicitacoesCODAE</span><span class="o">.</span><span class="n">get_cancelados_dieta_especial</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">codigo_eol_aluno</span><span class="o">=</span><span class="n">codigo_eol</span>
+        <span class="p">)</span>
+        <span class="n">inativas_qs</span> <span class="o">=</span> <span class="n">SolicitacoesCODAE</span><span class="o">.</span><span class="n">get_inativas_dieta_especial</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">codigo_eol_aluno</span><span class="o">=</span><span class="n">codigo_eol</span>
+        <span class="p">)</span>
+        <span class="n">inativas_temp_qs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SolicitacoesCODAE</span><span class="o">.</span><span class="n">get_inativas_temporariamente_dieta_especial</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">codigo_eol_aluno</span><span class="o">=</span><span class="n">codigo_eol</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">cancelados_qs</span> <span class="o">=</span> <span class="n">cancelados_qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">tipo_solicitacao_dieta</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">,</span> <span class="n">escola_destino_uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+            <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="o">~</span><span class="n">Q</span><span class="p">(</span><span class="n">tipo_solicitacao_dieta</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">),</span> <span class="n">escola_uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">inativas_qs</span> <span class="o">=</span> <span class="n">inativas_qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">tipo_solicitacao_dieta</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">,</span> <span class="n">escola_destino_uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+            <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="o">~</span><span class="n">Q</span><span class="p">(</span><span class="n">tipo_solicitacao_dieta</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">),</span> <span class="n">escola_uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">inativas_temp_qs</span> <span class="o">=</span> <span class="n">inativas_temp_qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">tipo_solicitacao_dieta</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">,</span> <span class="n">escola_destino_uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+            <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="o">~</span><span class="n">Q</span><span class="p">(</span><span class="n">tipo_solicitacao_dieta</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">),</span> <span class="n">escola_uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">ids_inativas</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">ids_inativas</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cancelados_qs</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">ids_inativas</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inativas_qs</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">ids_inativas</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inativas_temp_qs</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">codigo_eol</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">uuid__in</span><span class="o">=</span><span class="n">ids_inativas</span><span class="p">,</span> <span class="n">aluno__nome</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">nome</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids_inativas</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer.get_dre">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer.get_dre">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;_escola_dre&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_escola_dre</span>
+        <span class="n">escola_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_escola_context</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">escola_id</span><span class="p">:</span>
+            <span class="n">dieta</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">rastro_escola_id</span><span class="o">=</span><span class="n">escola_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">dieta</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dieta</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">nome</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer.get_escola">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer.get_escola">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;_escola_nome&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_escola_nome</span>
+        <span class="n">escola_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_escola_context</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">escola_uuid</span><span class="p">:</span>
+            <span class="n">dieta</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">rastro_escola__uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">dieta</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dieta</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer.get_codigo_eol_escola">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer.get_codigo_eol_escola">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_codigo_eol_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;_escola_codigo_eol&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_escola_codigo_eol</span>
+        <span class="n">escola_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_escola_context</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">escola_uuid</span><span class="p">:</span>
+            <span class="n">dieta</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">rastro_escola__uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">dieta</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dieta</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">codigo_eol</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">codigo_eol</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">rastro_escola</span><span class="o">.</span><span class="n">codigo_eol</span></div>
+
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer.get_foto_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer.get_foto_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_foto_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">novo_sgp_service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;novo_sgp_service&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">codigo_eol</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">codigo_eol</span>
+        <span class="k">if</span> <span class="n">novo_sgp_service</span> <span class="ow">and</span> <span class="n">codigo_eol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">novo_sgp_service</span><span class="o">.</span><span class="n">pegar_foto_aluno</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">codigo_eol</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">:</span>
+                    <span class="n">string_foto</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;data:&quot;</span>
+                        <span class="o">+</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;download&quot;</span><span class="p">][</span><span class="s2">&quot;item2&quot;</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="s2">&quot;;base64,&quot;</span>
+                        <span class="o">+</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;download&quot;</span><span class="p">][</span><span class="s2">&quot;item1&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="n">string_foto</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">NovoSGPServicoLogadoException</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacoesAtivasInativasPorAlunoSerializer.get_classificacao_dieta_ativa">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacoesAtivasInativasPorAlunoSerializer.get_classificacao_dieta_ativa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_classificacao_dieta_ativa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">escola_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_escola_context</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">qs_dieta_ativa</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">dietas_especiais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ativo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">escola_uuid</span><span class="p">:</span>
+            <span class="n">qs_dieta_ativa</span> <span class="o">=</span> <span class="n">qs_dieta_ativa</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">rastro_escola__uuid</span><span class="o">=</span><span class="n">escola_uuid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">qs_dieta_ativa</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">qs_dieta_ativa</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">classificacao</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RelatorioQuantitativoSolicDietaEspSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.RelatorioQuantitativoSolicDietaEspSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RelatorioQuantitativoSolicDietaEspSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="n">dre</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;aluno__escola__diretoria_regional__nome&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;aluno__escola__nome&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">diagnostico</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;alergias_intolerancias__descricao&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;classificacao__nome&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ano_nasc_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;aluno__data_nascimento__year&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">qtde_ativas</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    <span class="n">qtde_inativas</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    <span class="n">qtde_pendentes</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialSimplesSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">AlunoSerializer</span><span class="p">()</span>
+    <span class="n">rastro_escola</span> <span class="o">=</span> <span class="n">EscolaSerializer</span><span class="p">()</span>
+    <span class="n">status_titulo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;status.state.title&quot;</span><span class="p">)</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">status_solicitacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">ClassificacaoDietaSerializer</span><span class="p">()</span>
+    <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">AlergiaIntoleranciaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">motivo_negacao</span> <span class="o">=</span> <span class="n">MotivoNegacaoSerializer</span><span class="p">()</span>
+    <span class="n">anexos</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ListField</span><span class="p">(</span><span class="n">child</span><span class="o">=</span><span class="n">AnexoSerializer</span><span class="p">(),</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;id_externo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rastro_escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_protocolo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;motivo_negacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;justificativa_negacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;registro_funcional_nutricionista&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;logs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;anexos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ativo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_inicio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_termino&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_titulo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_completo_pescritor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;registro_funcional_pescritor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;observacoes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;informacoes_adicionais&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dieta_para_recreio_ferias&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer</span><span class="p">(</span>
+    <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
+    <span class="n">codigo_eol_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_nascimento_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">classificacao_dieta</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_autorizacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_ultimo_log</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_codigo_eol_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_codigo_eol_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_codigo_eol_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">codigo_eol</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_nome_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_nome_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_data_nascimento_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_data_nascimento_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_nascimento_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_nome_escola">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_nome_escola">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_classificacao_dieta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_classificacao_dieta">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_classificacao_dieta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">classificacao</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">classificacao</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_alergias_intolerancias">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_alergias_intolerancias">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_alergias_intolerancias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">alergias_intolerancias</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;descricao&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_protocolo_padrao">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_protocolo_padrao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_protocolo_padrao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">nome_protocolo</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">nome_protocolo</span>
+            <span class="k">else</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">nome_protocolo</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">protocolo_padrao</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_data_autorizacao">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_data_autorizacao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_autorizacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_autorizacao</span> <span class="ow">or</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_data_ultimo_log">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.get_data_ultimo_log">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_ultimo_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">ultimo_log</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ultimo_log</span> <span class="ow">and</span> <span class="n">ultimo_log</span><span class="o">.</span><span class="n">criado_em</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">ultimo_log</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialNutriSupervisaoExportXLSXSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;codigo_eol_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_nascimento_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao_dieta&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;protocolo_padrao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_autorizacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_ultimo_log&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;context&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;AUTORIZADAS&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_ultimo_log&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="s2">&quot;AUTORIZADAS&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_nascimento_aluno&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;protocolo_padrao&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialExportXLSXSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">codigo_eol_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_nascimento_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">classificacao_dieta</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_autorizacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_ultimo_log</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.get_codigo_eol_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.get_codigo_eol_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_codigo_eol_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">codigo_eol</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.get_nome_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.get_nome_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.get_data_nascimento_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.get_data_nascimento_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_nascimento_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.get_nome_escola">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.get_nome_escola">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.get_classificacao_dieta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.get_classificacao_dieta">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_classificacao_dieta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">classificacao</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">classificacao</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.get_protocolo_padrao">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.get_protocolo_padrao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_protocolo_padrao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">nome_protocolo</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">nome_protocolo</span>
+            <span class="k">else</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">nome_protocolo</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">protocolo_padrao</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.get_data_autorizacao">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.get_data_autorizacao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_autorizacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_autorizacao</span> <span class="ow">or</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.get_data_ultimo_log">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.get_data_ultimo_log">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_ultimo_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">last</span><span class="p">()</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">logs</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialExportXLSXSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialExportXLSXSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;codigo_eol_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_nascimento_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao_dieta&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;protocolo_padrao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_autorizacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_ultimo_log&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;context&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;AUTORIZADAS&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_ultimo_log&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="s2">&quot;AUTORIZADAS&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_nascimento_aluno&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialRelatorioTercSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">cod_eol_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_nascimento_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nome_escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">codigo_eol_escola</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">serie_aluno</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;aluno.serie&quot;</span><span class="p">)</span>
+    <span class="n">status_solicitacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">rastro_lote</span> <span class="o">=</span> <span class="n">LoteSerializer</span><span class="p">()</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">ClassificacaoDietaSerializer</span><span class="p">()</span>
+    <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">ProtocoloPadraoDietaEspecialSimplesSerializer</span><span class="p">()</span>
+    <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_ultimo_log</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">data_autorizacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">AlergiaIntoleranciaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">tipo_gestao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">dre</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_nome_escola">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_nome_escola">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_codigo_eol_escola">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_codigo_eol_escola">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_codigo_eol_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">codigo_eol</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_cod_eol_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_cod_eol_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cod_eol_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">codigo_eol</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_nome_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_nome_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_data_nascimento_aluno">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_data_nascimento_aluno">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_nascimento_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">data_nascimento</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_nome_protocolo">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_nome_protocolo">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_protocolo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">nome_protocolo</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">nome_protocolo</span>
+            <span class="k">else</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">protocolo_padrao</span><span class="o">.</span><span class="n">nome_protocolo</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">protocolo_padrao</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_data_ultimo_log">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_data_ultimo_log">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_ultimo_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">logs</span><span class="o">.</span><span class="n">last</span><span class="p">()</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="n">DATE_FORMAT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">logs</span>
+                <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">status</span>
+                <span class="o">!=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">CODAE_AUTORIZADO</span>
+            <span class="p">)</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_tipo_gestao">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_tipo_gestao">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tipo_gestao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">tipo_gestao</span><span class="o">.</span><span class="n">nome</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">tipo_gestao</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.get_dre">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.get_dre">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">escola_destino</span><span class="o">.</span><span class="n">diretoria_regional</span><span class="o">.</span><span class="n">nome</span></div>
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRelatorioTercSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRelatorioTercSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;id_externo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cod_eol_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_nascimento_aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;codigo_eol_escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rastro_lote&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;protocolo_padrao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_protocolo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_ultimo_log&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_autorizacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_gestao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dre&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;serie_aluno&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UnidadeEducacionalSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.UnidadeEducacionalSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnidadeEducacionalSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="n">lote</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">unidade_educacional</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">tipo_unidade</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
+    <span class="n">periodos</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">JSONField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRecreioNasFeriasSerializer">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRecreioNasFeriasSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecialRecreioNasFeriasSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">AlunoSimplesSerializer</span><span class="p">()</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">EscolaNomeCodigoEOLSerializer</span><span class="p">()</span>
+    <span class="n">escola_destino</span> <span class="o">=</span> <span class="n">EscolaNomeCodigoEOLSerializer</span><span class="p">()</span>
+    <span class="n">alergias_intolerancias</span> <span class="o">=</span> <span class="n">AlergiaIntoleranciaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">ClassificacaoDietaSerializer</span><span class="p">()</span>
+    <span class="n">status_solicitacao</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRecreioNasFeriasSerializer.to_representation">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRecreioNasFeriasSerializer.to_representation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_processar_aluno</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_processar_escola</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_processar_escola_destino</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_processar_aluno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">aluno</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;aluno&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">aluno</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">tipo_solicitacao</span> <span class="o">==</span> <span class="n">instance</span><span class="o">.</span><span class="n">ALUNO_NAO_MATRICULADO</span><span class="p">:</span>
+            <span class="n">aluno</span><span class="p">[</span><span class="s2">&quot;codigo_eol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Aluno não matriculado&quot;</span>
+
+        <span class="n">aluno</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data_nascimento&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">aluno</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;escola&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_processar_escola</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">escola</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;escola&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">escola</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">tipo_solicitacao</span> <span class="o">==</span> <span class="n">instance</span><span class="o">.</span><span class="n">ALUNO_NAO_MATRICULADO</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;escola&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;nome&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;codigo_eol&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">}</span>
+            <span class="k">return</span>
+
+        <span class="n">escola</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;codigo_eol&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">escola</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;lote&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_processar_escola_destino</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">escola_destino</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;escola_destino&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">escola_destino</span><span class="p">:</span>
+            <span class="n">escola_destino</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;codigo_eol&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">escola_destino</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;lote&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SolicitacaoDietaEspecialRecreioNasFeriasSerializer.Meta">
+<a class="viewcode-back" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#src.dieta_especial.solicitacao_dieta_especial.api.viewsets.SolicitacaoDietaEspecialRecreioNasFeriasSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ativo&quot;</span><span class="p">,</span> <span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_inicio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_termino&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_solicitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aluno&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;escola_destino&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alergias_intolerancias&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classificacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dieta_alterada&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

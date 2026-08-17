@@ -108,7 +108,7 @@ from .filters import (
     DiretoriaRegionalFilter,
     LogAlunosMatriculadosFaixaEtariaDiaFilter,
 )
-from .permissions import PodeVerEditarFotoAlunoNoSGP
+from .permissions import PodeEditarFotoAlunoNoSGP, PodeVerFotoAlunoNoSGP
 from .serializers import (
     AlunosMatriculadosPeriodoEscolaSerializer,
     DiaCalendarioSerializer,
@@ -850,7 +850,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         detail=True,
         methods=["GET"],
         url_path="ver-foto",
-        permission_classes=(PodeVerEditarFotoAlunoNoSGP,),
+        permission_classes=(PodeVerFotoAlunoNoSGP,),
     )
     def ver_foto(self, request, codigo_eol):
         try:
@@ -867,7 +867,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         detail=True,
         methods=["POST"],
         url_path="atualizar-foto",
-        permission_classes=(PodeVerEditarFotoAlunoNoSGP,),
+        permission_classes=(PodeEditarFotoAlunoNoSGP,),
     )
     def atualizar_foto(self, request, codigo_eol):
         try:
@@ -886,7 +886,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         detail=True,
         methods=["DELETE"],
         url_path="deletar-foto",
-        permission_classes=(PodeVerEditarFotoAlunoNoSGP,),
+        permission_classes=(PodeEditarFotoAlunoNoSGP,),
     )
     def deletar_foto(self, request, codigo_eol):
         try:

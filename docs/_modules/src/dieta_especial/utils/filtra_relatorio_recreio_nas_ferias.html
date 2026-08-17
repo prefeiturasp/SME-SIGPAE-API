@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span><span class="p">,</span> <span class="n">QuerySet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryDict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="filtra_relatorio_recreio_nas_ferias">
+<a class="viewcode-back" href="../../../../dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.filtra_relatorio_recreio_nas_ferias">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filtra_relatorio_recreio_nas_ferias</span><span class="p">(</span><span class="n">query_params</span><span class="p">:</span> <span class="n">QueryDict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuerySet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retorna um queryset unificado com alunos matriculados e não matriculados que atendem aos critérios do Recreio nas Férias.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        query_params (QueryDict): Parâmetros de filtro da requisição.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        QuerySet: Conjunto de solicitações filtradas e ordenadas por escola de destino.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filtros</span> <span class="o">=</span> <span class="n">gera_filtros_relatorio_recreio_nas_ferias</span><span class="p">(</span><span class="n">query_params</span><span class="p">)</span>
+    <span class="n">padrao</span> <span class="o">=</span> <span class="n">filtros</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;padrao&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">matriculado</span> <span class="o">=</span> <span class="n">filtros</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matriculado&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">nao_matriculado</span> <span class="o">=</span> <span class="n">filtros</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nao_matriculado&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="n">status_permitidos</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">CODAE_AUTORIZADO</span><span class="p">,</span>
+        <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">workflow_class</span><span class="o">.</span><span class="n">TERMINADA_AUTOMATICAMENTE_SISTEMA</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">filtro_matriculados</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span>
+        <span class="n">status__in</span><span class="o">=</span><span class="n">status_permitidos</span><span class="p">,</span>
+        <span class="n">tipo_solicitacao</span><span class="o">=</span><span class="s2">&quot;ALTERACAO_UE&quot;</span><span class="p">,</span>
+        <span class="n">motivo_alteracao_ue__nome__icontains</span><span class="o">=</span><span class="s2">&quot;recreio&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">padrao</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">matriculado</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">filtro_nao_matriculados</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span>
+        <span class="n">status__in</span><span class="o">=</span><span class="n">status_permitidos</span><span class="p">,</span>
+        <span class="n">tipo_solicitacao__in</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">COMUM</span><span class="p">,</span>
+            <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">ALUNO_NAO_MATRICULADO</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">dieta_para_recreio_ferias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">padrao</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">nao_matriculado</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">filtro_matriculados</span> <span class="o">|</span> <span class="n">filtro_nao_matriculados</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;escola_destino__nome&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">queryset</span></div>
+
+
+
+<div class="viewcode-block" id="gera_filtros_relatorio_recreio_nas_ferias">
+<a class="viewcode-back" href="../../../../dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.gera_filtros_relatorio_recreio_nas_ferias">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_filtros_relatorio_recreio_nas_ferias</span><span class="p">(</span><span class="n">query_params</span><span class="p">:</span> <span class="n">QueryDict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gera os dicionários de filtros com base nos parâmetros da requisição.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        query_params (QueryDict): Parâmetros enviados na requisição HTTP.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict:  Dicionário com filtros para padrao, matriculado e nao_matriculado.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filtros</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;padrao&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;escola_destino__lote__uuid&quot;</span><span class="p">:</span> <span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lote&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s2">&quot;escola_destino__uuid__in&quot;</span><span class="p">:</span> <span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+                <span class="s2">&quot;unidades_educacionais_selecionadas&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;classificacao__id__in&quot;</span><span class="p">:</span> <span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+                <span class="s2">&quot;classificacoes_selecionadas&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;alergias_intolerancias__id__in&quot;</span><span class="p">:</span> <span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+                <span class="s2">&quot;alergias_intolerancias_selecionadas&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;matriculado&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;nao_matriculado&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="p">}</span>
+
+    <span class="n">data_inicio</span> <span class="o">=</span> <span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_inicio&quot;</span><span class="p">)</span>
+    <span class="n">data_fim</span> <span class="o">=</span> <span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_fim&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">data_inicio</span><span class="p">:</span>
+        <span class="n">data_ini</span> <span class="o">=</span> <span class="n">_parse_data</span><span class="p">(</span><span class="n">data_inicio</span><span class="p">,</span> <span class="s2">&quot;data_inicio&quot;</span><span class="p">)</span>
+        <span class="n">filtros</span><span class="p">[</span><span class="s2">&quot;padrao&quot;</span><span class="p">][</span><span class="s2">&quot;data_termino__gte&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_ini</span>
+    <span class="k">if</span> <span class="n">data_fim</span><span class="p">:</span>
+        <span class="n">data_fim</span> <span class="o">=</span> <span class="n">_parse_data</span><span class="p">(</span><span class="n">data_fim</span><span class="p">,</span> <span class="s2">&quot;data_fim&quot;</span><span class="p">)</span>
+        <span class="n">filtros</span><span class="p">[</span><span class="s2">&quot;padrao&quot;</span><span class="p">][</span><span class="s2">&quot;data_inicio__lte&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_fim</span>
+
+    <span class="n">filtros</span><span class="p">[</span><span class="s2">&quot;padrao&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">filtros</span><span class="p">[</span><span class="s2">&quot;padrao&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">[]]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">filtros</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_data</span><span class="p">(</span><span class="n">valor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">campo</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converte string de data no formato &#39;dd/mm/yyyy&#39; para objeto date</span>
+<span class="sd">    Args:</span>
+<span class="sd">        valor (str): string contendo a data.</span>
+<span class="sd">        campo (str): nome do campo para mensagens de erro.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValidationError: se o formato da data for inválido.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        datetime:  objeto date convertido.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Formato de data inválido para &#39;</span><span class="si">{</span><span class="n">campo</span><span class="si">}</span><span class="s2">&#39;. Use o formato dd/mm/yyyy&quot;</span>
+        <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

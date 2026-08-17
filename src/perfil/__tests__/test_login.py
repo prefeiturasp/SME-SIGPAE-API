@@ -244,6 +244,11 @@ def test_login_coresso_erro_usuario_sem_email(
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
         "pegar_token_acesso",
         lambda p1, p2, p3: mocked_response({"token": "#ABC123"}, 200),
     )
@@ -305,6 +310,11 @@ def test_login_coresso_diretor_sem_acesso_ao_coresso(
         EOLServicoSGP,
         "get_dados_usuario",
         lambda p1: mocked_response(mocked_response_get_dados_usuario_coresso(), 200),
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -466,6 +476,11 @@ def test_login_coresso_login_cpf_erro(client_autenticado_da_escola_adm, monkeypa
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
         "pegar_token_acesso",
         lambda p1, p2, p3: mocked_response({"token": "#ABC123"}, 200),
     )
@@ -581,6 +596,11 @@ def test_login_coresso_cargo_sem_acesso_automatico_no_sigpae(
 
     monkeypatch.setattr(
         AutenticacaoService, "autentica", lambda p1, p2: mocked_response({}, 200)
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
