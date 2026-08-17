@@ -1,19 +1,68 @@
 from unittest.mock import Mock
 
 import pytest
+from django.http import QueryDict
+from model_bakery import baker
 
 from src.escola.api.filters import (
     AlunoFilter,
     DiretoriaRegionalFilter,
+    EscolaParaFiltrosFilter,
     LogAlunosMatriculadosFaixaEtariaDiaFilter,
 )
 from src.escola.models import (
     Aluno,
     Escola,
     LogAlunosMatriculadosFaixaEtariaDia,
+    TipoUnidadeEscolar,
 )
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture
+def escolas_para_filtros(tipo_gestao):
+    dre = baker.make("DiretoriaRegional", nome="DRE FILTROS")
+    tipo_emef = baker.make(TipoUnidadeEscolar, iniciais="EMEF")
+    tipo_cei = baker.make(TipoUnidadeEscolar, iniciais="CEI")
+    lote_a = baker.make("Lote", nome="LOTE A")
+    lote_b = baker.make("Lote", nome="LOTE B")
+
+    escola_emef_lote_a = baker.make(
+        Escola,
+        codigo_eol="000001",
+        diretoria_regional=dre,
+        tipo_unidade=tipo_emef,
+        lote=lote_a,
+        tipo_gestao=tipo_gestao,
+    )
+    escola_emef_lote_b = baker.make(
+        Escola,
+        codigo_eol="000002",
+        diretoria_regional=dre,
+        tipo_unidade=tipo_emef,
+        lote=lote_b,
+        tipo_gestao=tipo_gestao,
+    )
+    escola_cei_lote_a = baker.make(
+        Escola,
+        codigo_eol="000003",
+        diretoria_regional=dre,
+        tipo_unidade=tipo_cei,
+        lote=lote_a,
+        tipo_gestao=tipo_gestao,
+    )
+
+    return {
+        "dre": dre,
+        "tipo_emef": tipo_emef,
+        "tipo_cei": tipo_cei,
+        "lote_a": lote_a,
+        "lote_b": lote_b,
+        "escola_emef_lote_a": escola_emef_lote_a,
+        "escola_emef_lote_b": escola_emef_lote_b,
+        "escola_cei_lote_a": escola_cei_lote_a,
+    }
 
 
 def test_diretoria_regional_filter(diretoria_regional):
@@ -197,3 +246,108 @@ def test_log_aluno_filter_dia(log_alunos_matriculados_faixa_etaria_dia):
         queryset=LogAlunosMatriculadosFaixaEtariaDia.objects.all(),
     )
     assert filtro.qs.count() == 0
+
+
+def test_escola_para_filtros_tipo_unidade_lista(escolas_para_filtros):
+    data = QueryDict(mutable=True)
+    data.setlist(
+        "tipo_unidade__uuid[]",
+        [str(escolas_para_filtros["tipo_emef"].uuid)],
+    )
+
+    filtro = EscolaParaFiltrosFilter(
+        data=data, queryset=Escola.objects.all().order_by("codigo_eol")
+    )
+
+    assert filtro.qs.count() == 2
+    assert set(filtro.qs.values_list("tipo_unidade__uuid", flat=True)) == {
+        escolas_para_filtros["tipo_emef"].uuid
+    }
+
+
+def test_escola_para_filtros_tipo_unidade_lista_multiplos(escolas_para_filtros):
+    data = QueryDict(mutable=True)
+    data.setlist(
+        "tipo_unidade__uuid[]",
+        [
+            str(escolas_para_filtros["tipo_emef"].uuid),
+            str(escolas_para_filtros["tipo_cei"].uuid),
+        ],
+    )
+
+    filtro = EscolaParaFiltrosFilter(
+        data=data, queryset=Escola.objects.all().order_by("codigo_eol")
+    )
+
+    assert filtro.qs.count() == 3
+
+
+def test_escola_para_filtros_lote_lista(escolas_para_filtros):
+    data = QueryDict(mutable=True)
+    data.setlist("lote__uuid[]", [str(escolas_para_filtros["lote_a"].uuid)])
+
+    filtro = EscolaParaFiltrosFilter(
+        data=data, queryset=Escola.objects.all().order_by("codigo_eol")
+    )
+
+    assert filtro.qs.count() == 2
+    assert set(filtro.qs.values_list("lote__uuid", flat=True)) == {
+        escolas_para_filtros["lote_a"].uuid
+    }
+
+
+def test_escola_para_filtros_excluir_tipo_unidade(escolas_para_filtros):
+    data = QueryDict(mutable=True)
+    data.setlist(
+        "excluir_tipo_unidade__uuid[]",
+        [str(escolas_para_filtros["tipo_emef"].uuid)],
+    )
+
+    filtro = EscolaParaFiltrosFilter(
+        data=data, queryset=Escola.objects.all().order_by("codigo_eol")
+    )
+
+    assert filtro.qs.count() == 1
+    assert filtro.qs[0].uuid == escolas_para_filtros["escola_cei_lote_a"].uuid
+
+
+def test_escola_para_filtros_tipo_unidade_in_existente(escolas_para_filtros):
+    data = QueryDict(f"tipo_unidade__uuid__in={escolas_para_filtros['tipo_cei'].uuid}")
+
+    filtro = EscolaParaFiltrosFilter(
+        data=data, queryset=Escola.objects.all().order_by("codigo_eol")
+    )
+
+    assert filtro.qs.count() == 1
+    assert filtro.qs[0].uuid == escolas_para_filtros["escola_cei_lote_a"].uuid
+
+
+def test_escola_para_filtros_lote_exact_existente(escolas_para_filtros):
+    data = QueryDict(f"lote__uuid={escolas_para_filtros['lote_b'].uuid}")
+
+    filtro = EscolaParaFiltrosFilter(
+        data=data, queryset=Escola.objects.all().order_by("codigo_eol")
+    )
+
+    assert filtro.qs.count() == 1
+    assert filtro.qs[0].uuid == escolas_para_filtros["escola_emef_lote_b"].uuid
+
+
+def test_escola_para_filtros_diretoria_regional_existente(escolas_para_filtros):
+    data = QueryDict(f"diretoria_regional__uuid={escolas_para_filtros['dre'].uuid}")
+
+    filtro = EscolaParaFiltrosFilter(
+        data=data, queryset=Escola.objects.all().order_by("codigo_eol")
+    )
+
+    assert filtro.qs.count() == 3
+
+
+def test_escola_para_filtros_tipo_gestao_existente(escolas_para_filtros, tipo_gestao):
+    data = QueryDict(f"tipo_gestao__nome={tipo_gestao.nome}")
+
+    filtro = EscolaParaFiltrosFilter(
+        data=data, queryset=Escola.objects.all().order_by("codigo_eol")
+    )
+
+    assert filtro.qs.count() == 3
