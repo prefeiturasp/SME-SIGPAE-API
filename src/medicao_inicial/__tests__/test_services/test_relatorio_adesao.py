@@ -421,6 +421,71 @@ def test_obtem_resultados_filtra_por_tipos_unidades(
     }
 
 
+def test_obtem_resultados_ordem_deterministica_de_periodos_e_alimentacoes(
+    categoria_medicao,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+
+    tipo_lanche = baker.make("TipoAlimentacao", nome="Lanche")
+    tipo_refeicao = baker.make("TipoAlimentacao", nome="Refeição")
+    tipo_sobremesa = baker.make("TipoAlimentacao", nome="Sobremesa")
+
+    # insere o período TARDE antes do MANHA para validar a ordenação dos períodos
+    periodo_tarde = make_periodo_escolar("TARDE")
+    medicao_tarde = make_medicao(solicitacao, periodo_tarde)
+    # insere as alimentações fora da ordem esperada (Sobremesa, Refeição, Lanche)
+    for tipo in [tipo_sobremesa, tipo_refeicao, tipo_lanche]:
+        make_valores_medicao(
+            medicao=medicao_tarde,
+            categoria_medicao=categoria_medicao,
+            valor="10",
+            tipo_alimentacao=tipo,
+            dia="01",
+        )
+    make_valores_medicao(
+        medicao=medicao_tarde,
+        categoria_medicao=categoria_medicao,
+        valor="10",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    periodo_manha = make_periodo_escolar("MANHA")
+    medicao_manha = make_medicao(solicitacao, periodo_manha)
+    for tipo in [tipo_sobremesa, tipo_refeicao, tipo_lanche]:
+        make_valores_medicao(
+            medicao=medicao_manha,
+            categoria_medicao=categoria_medicao,
+            valor="20",
+            tipo_alimentacao=tipo,
+            dia="01",
+        )
+    make_valores_medicao(
+        medicao=medicao_manha,
+        categoria_medicao=categoria_medicao,
+        valor="20",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    # act
+    resultados = obtem_resultados(QueryDict(f"mes_ano={mes}_{ano}"))
+
+    # assert
+    assert list(resultados.keys()) == ["MANHA", "TARDE"]
+    assert list(resultados["MANHA"].keys()) == ["LANCHE", "REFEIÇÃO", "SOBREMESA"]
+    assert list(resultados["TARDE"].keys()) == ["LANCHE", "REFEIÇÃO", "SOBREMESA"]
+
+
 def test_valida_parametros_periodo_lancamento():
     mes = "03"
     ano = "2024"
