@@ -7,6 +7,22 @@ from django.http import QueryDict
 from src.escola.models import Escola
 from src.medicao_inicial.models import Medicao, ValorMedicao
 
+ORDEM_PERIODOS = {
+    "MANHA": 1,
+    "TARDE": 2,
+    "INTEGRAL": 3,
+    "NOITE": 4,
+    "INTERMEDIARIO": 5,
+    "VESPERTINO": 6,
+}
+
+ORDEM_ALIMENTACOES = {
+    "LANCHE": 1,
+    "REFEIÇÃO": 2,
+    "SOBREMESA": 3,
+    "LANCHE 4H": 4,
+}
+
 
 def _obtem_medicoes(mes: str, ano: str, filtros: dict) -> QuerySet:
     """
@@ -301,6 +317,41 @@ def _parametros_consulta(
     return mes, ano, dia_inicial, dia_final, tipos_alimentacao
 
 
+def _ordena_resultados(resultados: dict) -> dict:
+    """
+    Ordena de forma determinística os períodos e as alimentações do resultado.
+
+    A ordem dos períodos é: Manhã, Tarde, Integral, Noite, Intermediário, Vespertino.
+    A ordem das alimentações é: Lanche, Refeição, Sobremesa, Lanche 4h.
+    Períodos ou alimentações desconhecidos são mantidos por último, na ordem em que aparecem.
+
+    Args:
+        resultados (dict): dicionário com os resultados consolidados.
+
+    Returns:
+        dict: dicionário com os períodos e alimentações ordenados.
+    """
+
+    def _chave_periodo(medicao_nome: str) -> int:
+        periodo = medicao_nome.split(" - ")[-1].strip()
+        return ORDEM_PERIODOS.get(periodo, len(ORDEM_PERIODOS) + 1)
+
+    def _chave_alimentacao(alimentacao_nome: str) -> int:
+        return ORDEM_ALIMENTACOES.get(alimentacao_nome, len(ORDEM_ALIMENTACOES) + 1)
+
+    return {
+        medicao_nome: dict(
+            sorted(
+                alimentacoes.items(),
+                key=lambda item: _chave_alimentacao(item[0]),
+            )
+        )
+        for medicao_nome, alimentacoes in sorted(
+            resultados.items(), key=lambda item: _chave_periodo(item[0])
+        )
+    }
+
+
 def _calcula_resultados(
     mes: str,
     ano: str,
@@ -337,7 +388,7 @@ def _calcula_resultados(
             dia_final,
         )
 
-    return resultados
+    return _ordena_resultados(resultados)
 
 
 def obtem_resultados(query_params: QueryDict) -> dict:
