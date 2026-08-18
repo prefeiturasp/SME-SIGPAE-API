@@ -229,6 +229,12 @@ class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=["get"], url_path="opcoes")
+    def opcoes(self, request):
+        categorias = self.get_queryset()
+        serializer = self.get_serializer(categorias, many=True)
+        return Response(serializer.data)
+
 
 class PerguntaFrequenteViewSet(ModelViewSet):
     lookup_field = "uuid"
