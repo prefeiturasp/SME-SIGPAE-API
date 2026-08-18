@@ -23,6 +23,7 @@ from src.cardapio.utils import ordem_periodos
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados,
+    obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
@@ -2261,6 +2262,8 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
+            if query_params.getlist("escola__uuid[]"):
+                return self._relatorio_adesao_por_escola(request, query_params)
             resultados = obtem_resultados(query_params)
 
             return Response(data=resultados, status=status.HTTP_200_OK)
@@ -2273,6 +2276,22 @@ class RelatoriosViewSet(ViewSet):
                 data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def _relatorio_adesao_por_escola(self, request: Request, query_params) -> Response:
+        resultados = obtem_resultados_por_escola(query_params)
+        paginator = CustomPagination()
+        paginator.page_size = 1
+        paginator.page_size_query_param = None
+        page = paginator.paginate_queryset(resultados, request)
+        return Response(
+            {
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "count": paginator.page.paginator.count,
+                "page_size": 1,
+                "results": page,
+            }
+        )
 
     @action(
         detail=False,
