@@ -3,16 +3,70 @@ from datetime import date, datetime
 import pytest
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
+from model_bakery import baker
 
 from src.medicao_inicial.services.relatorio_adesao import (
     _parse_data,
     _valida_ano_mes,
     _validar_mes_ano_data,
     obtem_resultados,
+    obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
 )
 
 pytestmark = pytest.mark.django_db
+
+
+def _cria_escola_e_solicitacao_aprovada(
+    escola_base, mes, ano, nome, codigo_eol, tipo_unidade=None
+):
+    escola = baker.make(
+        "Escola",
+        nome=nome,
+        lote=escola_base.lote,
+        diretoria_regional=escola_base.diretoria_regional,
+        tipo_gestao=escola_base.tipo_gestao,
+        tipo_unidade=tipo_unidade or escola_base.tipo_unidade,
+        codigo_eol=codigo_eol,
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola,
+        rastro_lote=escola.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    return escola, solicitacao
+
+
+def _cria_medicao_com_valores(
+    solicitacao,
+    periodo_escolar,
+    categoria_medicao,
+    tipo_alimentacao,
+    make_medicao,
+    make_valores_medicao,
+    valores,
+):
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    dias = [str(dia).rjust(2, "0") for dia in range(1, len(valores) + 1)]
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+    return medicao
 
 
 def test_obtem_resultados_relatorio_adesao_sem_periodo_de_lancamento(
@@ -166,6 +220,205 @@ def test_obtem_resultados_relatorio_adesao_solicitacao_nao_aprovada_pela_codae(
 
     # assert
     assert resultados == {}
+
+
+def test_obtem_resultados_por_escola(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    valores = range(1, 6)
+    total_servido = sum(valores)
+    total_frequencia = sum(valores)
+    total_adesao = round(total_servido / total_frequencia, 4)
+
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = _cria_medicao_com_valores(
+        solicitacao,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        valores,
+    )
+
+    escola2, solicitacao2 = _cria_escola_e_solicitacao_aprovada(
+        escola, mes, ano, "EMEF DOIS", "654321"
+    )
+    _cria_medicao_com_valores(
+        solicitacao2,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        valores,
+    )
+
+    # act
+    query_params = QueryDict(
+        f"mes_ano={mes}_{ano}"
+        f"&escola__uuid[]={escola.uuid}"
+        f"&escola__uuid[]={escola2.uuid}"
+    )
+    resultados = obtem_resultados_por_escola(query_params)
+
+    # assert
+    resultados_por_eol = {
+        resultado["escola"]["codigo_eol"]: resultado for resultado in resultados
+    }
+    assert set(resultados_por_eol.keys()) == {escola.codigo_eol, escola2.codigo_eol}
+
+    esperado = {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": total_servido,
+                "total_frequencia": total_frequencia,
+                "total_adesao": total_adesao,
+            }
+        }
+    }
+    assert resultados_por_eol[escola.codigo_eol]["escola"] == {
+        "nome": escola.nome,
+        "codigo_eol": escola.codigo_eol,
+    }
+    assert resultados_por_eol[escola.codigo_eol]["resultados"] == esperado
+    assert resultados_por_eol[escola2.codigo_eol]["escola"] == {
+        "nome": escola2.nome,
+        "codigo_eol": escola2.codigo_eol,
+    }
+    assert resultados_por_eol[escola2.codigo_eol]["resultados"] == esperado
+
+
+def test_obtem_resultados_por_escola_sem_medicoes_retorna_resultados_vazios(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    valores = range(1, 6)
+
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    _cria_medicao_com_valores(
+        solicitacao,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        valores,
+    )
+
+    escola_sem_medicao, _ = _cria_escola_e_solicitacao_aprovada(
+        escola, mes, ano, "EMEF SEM MEDICAO", "654321"
+    )
+
+    # act
+    query_params = QueryDict(
+        f"mes_ano={mes}_{ano}"
+        f"&escola__uuid[]={escola.uuid}"
+        f"&escola__uuid[]={escola_sem_medicao.uuid}"
+    )
+    resultados = obtem_resultados_por_escola(query_params)
+
+    # assert
+    resultados_por_eol = {
+        resultado["escola"]["codigo_eol"]: resultado for resultado in resultados
+    }
+    assert set(resultados_por_eol.keys()) == {
+        escola.codigo_eol,
+        escola_sem_medicao.codigo_eol,
+    }
+    assert resultados_por_eol[escola.codigo_eol]["resultados"] != {}
+    assert resultados_por_eol[escola_sem_medicao.codigo_eol]["resultados"] == {}
+
+
+def test_obtem_resultados_filtra_por_tipos_unidades(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    tipo_unidade_escolar_emei,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    valores = range(1, 6)
+    total_servido = sum(valores)
+    total_frequencia = sum(valores)
+    total_adesao = round(total_servido / total_frequencia, 4)
+
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = _cria_medicao_com_valores(
+        solicitacao,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        valores,
+    )
+
+    escola_emei, solicitacao_emei = _cria_escola_e_solicitacao_aprovada(
+        escola,
+        mes,
+        ano,
+        "EMEI TESTE",
+        "654321",
+        tipo_unidade=tipo_unidade_escolar_emei,
+    )
+    _cria_medicao_com_valores(
+        solicitacao_emei,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        [2, 3, 4, 5, 6],
+    )
+
+    # act
+    query_params = QueryDict(
+        f"mes_ano={mes}_{ano}&tipos_unidades[]={escola.tipo_unidade.uuid}"
+    )
+    resultados = obtem_resultados(query_params)
+
+    # assert
+    assert resultados == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": total_servido,
+                "total_frequencia": total_frequencia,
+                "total_adesao": total_adesao,
+            }
+        }
+    }
 
 
 def test_valida_parametros_periodo_lancamento():
