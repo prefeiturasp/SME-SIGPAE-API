@@ -106,6 +106,7 @@ from ..utils import (
 from .filters import (
     AlunoFilter,
     DiretoriaRegionalFilter,
+    EscolaParaFiltrosFilter,
     LogAlunosMatriculadosFaixaEtariaDiaFilter,
 )
 from .permissions import PodeEditarFotoAlunoNoSGP, PodeVerFotoAlunoNoSGP
@@ -176,11 +177,7 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
     )
     serializer_class = EscolaParaFiltrosReadOnlySerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = {
-        "tipo_unidade__uuid": ["in"],
-        "diretoria_regional__uuid": ["exact"],
-        "lote__uuid": ["exact"],
-    }
+    filterset_class = EscolaParaFiltrosFilter
     pagination_class = None
 
     @action(detail=True, url_path="periodos-escolares", url_name="periodos-escolares")

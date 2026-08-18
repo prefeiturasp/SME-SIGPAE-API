@@ -579,32 +579,7 @@ class SolicitacaoMedicaoInicialViewSet(
         ],
     )
     def meses_anos(self, request):
-        qs_solicitacao_medicao = SolicitacaoMedicaoInicial.objects.all()
-        query_set = self._condicao_por_usuario(self.get_queryset())
-
-        if (
-            isinstance(request.user.vinculo_atual.instituicao, DiretoriaRegional)
-            or request.user.tipo_usuario
-            in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]
-            or (
-                request.query_params.get("eh_relatorio_adesao")
-                and request.user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA
-            )
-        ):
-            qs_solicitacao_medicao = query_set
-
-        filtros = {}
-
-        if request.query_params.get("status"):
-            filtros["status"] = request.query_params.get("status")
-
-        if request.query_params.get("dre"):
-            filtros["escola__diretoria_regional__uuid"] = request.query_params.get(
-                "dre"
-            )
-
-        if filtros:
-            qs_solicitacao_medicao = qs_solicitacao_medicao.filter(**filtros)
+        qs_solicitacao_medicao = self._montar_queryset_meses_anos(request)
 
         meses_anos = qs_solicitacao_medicao.values_list(
             "mes", "ano", "recreio_nas_ferias__titulo", "recreio_nas_ferias__uuid"
@@ -644,6 +619,41 @@ class SolicitacaoMedicaoInicialViewSet(
             },
             status=status.HTTP_200_OK,
         )
+
+    def _montar_queryset_meses_anos(self, request):
+        qs_solicitacao_medicao = SolicitacaoMedicaoInicial.objects.all()
+        query_set = self._condicao_por_usuario(self.get_queryset())
+
+        if (
+            isinstance(request.user.vinculo_atual.instituicao, DiretoriaRegional)
+            or request.user.tipo_usuario
+            in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]
+            or (
+                request.query_params.get("eh_relatorio_adesao")
+                and request.user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA
+            )
+        ):
+            qs_solicitacao_medicao = query_set
+
+        if request.query_params.get("eh_relatorio_adesao"):
+            qs_solicitacao_medicao = qs_solicitacao_medicao.exclude(
+                recreio_nas_ferias__isnull=False
+            )
+
+        filtros = {}
+
+        if request.query_params.get("status"):
+            filtros["status"] = request.query_params.get("status")
+
+        if request.query_params.get("dre"):
+            filtros["escola__diretoria_regional__uuid"] = request.query_params.get(
+                "dre"
+            )
+
+        if filtros:
+            qs_solicitacao_medicao = qs_solicitacao_medicao.filter(**filtros)
+
+        return qs_solicitacao_medicao
 
     @action(detail=False, methods=["GET"], url_path="historico-ocorrencias-pdf")
     def historico_ocorrencias_pdf(self, request):
