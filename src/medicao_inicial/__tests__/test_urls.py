@@ -2177,7 +2177,7 @@ def test_url_endpoint_relatorio_adesao_com_escolas_paginado(
         rastro_lote=escola2.lote,
         status="MEDICAO_APROVADA_PELA_CODAE",
     )
-    make_medicao(solicitacao2, periodo_escolar)
+    medicao2 = make_medicao(solicitacao2, periodo_escolar)
     for dia, valor in zip(dias, valores):
         make_valores_medicao(
             medicao=medicao2,
