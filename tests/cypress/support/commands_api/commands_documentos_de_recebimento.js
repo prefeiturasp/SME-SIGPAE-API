@@ -15,3 +15,15 @@ Cypress.Commands.add(
 		})
 	},
 )
+
+Cypress.Commands.add('gerar_documentos_de_recebimento', () => {
+	return cy.request({
+		method: 'POST',
+		url: Cypress.config('baseUrl') + 'api/documentos-de-recebimento/',
+		timeout: 60000,
+		headers: {
+			Authorization: 'JWT ' + globalThis.token,
+		},
+		failOnStatusCode: false,
+	})
+})

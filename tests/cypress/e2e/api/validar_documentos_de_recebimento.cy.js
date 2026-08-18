@@ -59,4 +59,29 @@ describe('Validar rota de Documentos de Recebimento da aplicacao SIGPAE', () => 
 			})
 		})
 	})
+
+	context('Rota POST api/documentos-de-recebimento/', () => {
+		// Temporariamente desabilitado: nenhum usuario do .env possui permissao para o POST.
+		it.skip('Validar POST de Documentos de Recebimento com sucesso', () => {
+			cy.autenticar_login(
+				Cypress.env('usuario_coordenador_codae_dilog_logistica'),
+				senha,
+			)
+
+			cy.gerar_documentos_de_recebimento().then((response) => {
+				expect(response.status, JSON.stringify(response.body)).to.eq(201)
+			})
+		})
+
+		it('Validar POST de Documentos de Recebimento sem permissao', () => {
+			cy.autenticar_login(Cypress.env('usuario_codae'), senha)
+
+			cy.gerar_documentos_de_recebimento().then((response) => {
+				expect(response.status, JSON.stringify(response.body)).to.eq(403)
+				expect(response.body).to.deep.eq({
+					detail: 'Você não tem permissão para executar essa ação.',
+				})
+			})
+		})
+	})
 })
