@@ -17,3 +17,21 @@ Cypress.Commands.add(
 		})
 	},
 )
+
+Cypress.Commands.add(
+	'cadastrar_email',
+	(dadosEmail, autenticado = true) => {
+		const headers = autenticado
+			? { Authorization: 'JWT ' + globalThis.token }
+			: undefined
+
+		return cy.request({
+			method: 'POST',
+			url: Cypress.config('baseUrl') + 'api/email/',
+			body: dadosEmail,
+			timeout: 60000,
+			headers,
+			failOnStatusCode: false,
+		})
+	},
+)
