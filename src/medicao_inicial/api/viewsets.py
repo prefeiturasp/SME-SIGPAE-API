@@ -53,7 +53,7 @@ from ...dados_comuns.permissions import (
     UsuarioSupervisaoNutricao,
     ViewSetActionPermissionMixin,
 )
-from ...dados_comuns.utils import get_ultimo_dia_mes
+from ...dados_comuns.utils import convert_dict_to_querydict, get_ultimo_dia_mes
 from ...escola.api.permissions import (
     PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada,
 )
@@ -2249,34 +2249,6 @@ class EmpenhoViewSet(ModelViewSet):
         return EmpenhoSerializer
 
 
-def _converte_para_query_dict(data) -> QueryDict:
-    """
-    Converte o corpo de uma requisição em um QueryDict.
-
-    Endpoints que recebem muitos parâmetros de filtro (como listas de escolas) são POST,
-    permitindo que os dados venham no corpo da requisição, seja no formato
-    ``application/x-www-form-urlencoded`` (já um QueryDict) ou ``application/json``.
-
-    Args:
-        data: corpo da requisição (QueryDict ou dict).
-
-    Returns:
-        QueryDict: parâmetros normalizados para uso nas funções de consulta.
-    """
-    if isinstance(data, QueryDict):
-        return data
-
-    query_params = QueryDict(mutable=True)
-    for chave, valor in data.items():
-        if isinstance(valor, (list, tuple)):
-            chave_lista = chave if chave.endswith("[]") else f"{chave}[]"
-            for item in valor:
-                query_params.appendlist(chave_lista, str(item))
-        else:
-            query_params[chave] = str(valor)
-    return query_params
-
-
 class RelatoriosViewSet(ViewSet):
     permission_classes = [
         UsuarioEscolaTercTotal
@@ -2297,7 +2269,11 @@ class RelatoriosViewSet(ViewSet):
     )
     def relatorio_adesao(self, request: Request):
         try:
-            query_params = _converte_para_query_dict(request.data)
+            query_params = (
+                request.data
+                if isinstance(request.data, QueryDict)
+                else convert_dict_to_querydict(request.data)
+            )
             valida_parametros_periodo_lancamento(query_params)
             if query_params.getlist("escola__uuid[]"):
                 return self._relatorio_adesao_por_escola(request, query_params)
