@@ -51,4 +51,69 @@ describe('Validar rota de Email da aplicacao SIGPAE', () => {
 			})
 		})
 	})
+
+	context('Rota POST api/email/', () => {
+		// Temporariamente desabilitado: o POST altera a configuracao SMTP do QA.
+		it.skip('Validar POST de Email com sucesso', () => {
+			cy.autenticar_login(Cypress.env('usuario_codae'), Cypress.env('senha'))
+
+			cy.consultar_email({ limit: 1, offset: 0 }).then((responseLista) => {
+				expect(responseLista.status).to.eq(200)
+				expect(responseLista.body.results).to.be.an('array').and.not.be.empty
+
+				const dadosEmail = responseLista.body.results[0]
+
+				cy.cadastrar_email(dadosEmail).then((response) => {
+					expect(response.status).to.eq(201)
+					expect(response.body).to.include.all.keys(
+						'host',
+						'port',
+						'username',
+						'password',
+						'from_email',
+						'use_tls',
+						'use_ssl',
+						'timeout',
+					)
+				})
+			})
+		})
+
+		it('Validar POST de Email com dados invalidos', () => {
+			cy.autenticar_login(Cypress.env('usuario_codae'), Cypress.env('senha'))
+
+			cy.cadastrar_email({
+				host: '',
+				port: 'invalida',
+				username: '',
+				password: '',
+				from_email: 'email-invalido',
+				use_tls: 'invalido',
+				use_ssl: 'invalido',
+				timeout: 'invalido',
+			}).then((response) => {
+				expect(response.status).to.eq(400)
+				expect(response.body).to.be.an('object').and.not.be.empty
+			})
+		})
+
+		it('Validar POST de Email sem autenticacao', () => {
+			cy.cadastrar_email(
+				{
+					host: 'smtp.teste.local',
+					port: 587,
+					username: 'usuario.teste',
+					password: 'senha-teste',
+					from_email: 'teste@example.com',
+					use_tls: true,
+					use_ssl: false,
+					timeout: 30,
+				},
+				false,
+			).then((response) => {
+				expect(response.status).to.eq(401)
+				expect(response.body).to.have.property('detail')
+			})
+		})
+	})
 })
