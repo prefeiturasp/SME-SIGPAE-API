@@ -2,6 +2,7 @@ import datetime
 
 from des.models import DynamicEmailConfiguration
 from django.db import IntegrityError
+from django.db.models import Prefetch, Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
@@ -42,6 +43,21 @@ from .serializers import (
 )
 
 calendario = BrazilSaoPauloCity()
+
+
+def perguntas_frequentes_visiveis_para_usuario(usuario):
+    vinculo_atual = getattr(usuario, "vinculo_atual", None)
+
+    if not vinculo_atual or not vinculo_atual.perfil:
+        return PerguntaFrequente.objects.none()
+
+    return (
+        PerguntaFrequente.objects.filter(
+            Q(todos_os_perfis=True) | Q(perfis=vinculo_atual.perfil)
+        )
+        .distinct()
+        .prefetch_related("perfis")
+    )
 
 
 class ApiVersion(viewsets.ViewSet):
@@ -226,7 +242,11 @@ class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
 
     @action(detail=False, url_path="perguntas-por-categoria")
     def perguntas_por_categoria(self, request):
-        serializer = self.get_serializer(self.get_queryset(), many=True)
+        perguntas = perguntas_frequentes_visiveis_para_usuario(request.user)
+        categorias = self.get_queryset().prefetch_related(
+            Prefetch("perguntafrequente_set", queryset=perguntas)
+        )
+        serializer = self.get_serializer(categorias, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["get"], url_path="opcoes")
@@ -239,6 +259,22 @@ class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
 class PerguntaFrequenteViewSet(ModelViewSet):
     lookup_field = "uuid"
     queryset = PerguntaFrequente.objects.all()
+
+    def get_queryset(self):
+        queryset = (
+            super()
+            .get_queryset()
+            .select_related("categoria")
+            .prefetch_related("perfis")
+        )
+
+        if self.action in ["list", "retrieve"]:
+            perguntas_visiveis = perguntas_frequentes_visiveis_para_usuario(
+                self.request.user
+            )
+            return queryset.filter(pk__in=perguntas_visiveis)
+
+        return queryset
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
