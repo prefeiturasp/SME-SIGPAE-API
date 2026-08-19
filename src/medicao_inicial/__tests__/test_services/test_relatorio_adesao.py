@@ -77,7 +77,6 @@ def test_obtem_resultados_relatorio_adesao_sem_periodo_de_lancamento(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     solicitacao = make_solicitacao_medicao_inicial(
@@ -108,11 +107,9 @@ def test_obtem_resultados_relatorio_adesao_sem_periodo_de_lancamento(
             dia=dia,
         )
 
-    # act
     query_params = QueryDict(f"mes_ano={mes}_{ano}")
     resultados = obtem_resultados(query_params)
 
-    # assert
     assert resultados == {
         medicao.nome_periodo_grupo: {
             tipo_alimentacao_refeicao.nome.upper(): {
@@ -132,7 +129,6 @@ def test_obtem_resultados_relatorio_adesao_com_periodo_de_lancamento(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -165,13 +161,11 @@ def test_obtem_resultados_relatorio_adesao_com_periodo_de_lancamento(
             dia=dia,
         )
 
-    # act
     query_params = QueryDict(
         f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
     )
     resultados = obtem_resultados(query_params)
 
-    # assert
     assert resultados == {
         medicao.nome_periodo_grupo: {
             tipo_alimentacao_refeicao.nome.upper(): {
@@ -191,7 +185,6 @@ def test_obtem_resultados_relatorio_adesao_solicitacao_nao_aprovada_pela_codae(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     solicitacao = make_solicitacao_medicao_inicial(mes, ano)
@@ -214,11 +207,9 @@ def test_obtem_resultados_relatorio_adesao_solicitacao_nao_aprovada_pela_codae(
             nome_campo="frequencia",
         )
 
-    # act
     query_params = QueryDict(f"mes_ano={mes}_{ano}")
     resultados = obtem_resultados(query_params)
 
-    # assert
     assert resultados == {}
 
 
@@ -231,7 +222,6 @@ def test_obtem_resultados_por_escola(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     valores = range(1, 6)
@@ -266,7 +256,6 @@ def test_obtem_resultados_por_escola(
         valores,
     )
 
-    # act
     query_params = QueryDict(
         f"mes_ano={mes}_{ano}"
         f"&escola__uuid[]={escola.uuid}"
@@ -274,7 +263,6 @@ def test_obtem_resultados_por_escola(
     )
     resultados = obtem_resultados_por_escola(query_params)
 
-    # assert
     resultados_por_eol = {
         resultado["escola"]["codigo_eol"]: resultado for resultado in resultados
     }
@@ -310,7 +298,6 @@ def test_obtem_resultados_por_escola_sem_medicoes_retorna_resultados_vazios(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     valores = range(1, 6)
@@ -333,7 +320,6 @@ def test_obtem_resultados_por_escola_sem_medicoes_retorna_resultados_vazios(
         escola, mes, ano, "EMEF SEM MEDICAO", "654321"
     )
 
-    # act
     query_params = QueryDict(
         f"mes_ano={mes}_{ano}"
         f"&escola__uuid[]={escola.uuid}"
@@ -341,7 +327,6 @@ def test_obtem_resultados_por_escola_sem_medicoes_retorna_resultados_vazios(
     )
     resultados = obtem_resultados_por_escola(query_params)
 
-    # assert
     resultados_por_eol = {
         resultado["escola"]["codigo_eol"]: resultado for resultado in resultados
     }
@@ -363,7 +348,6 @@ def test_obtem_resultados_filtra_por_tipos_unidades(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     valores = range(1, 6)
@@ -403,13 +387,11 @@ def test_obtem_resultados_filtra_por_tipos_unidades(
         [2, 3, 4, 5, 6],
     )
 
-    # act
     query_params = QueryDict(
         f"mes_ano={mes}_{ano}&tipos_unidades[]={escola.tipo_unidade.uuid}"
     )
     resultados = obtem_resultados(query_params)
 
-    # assert
     assert resultados == {
         medicao.nome_periodo_grupo: {
             tipo_alimentacao_refeicao.nome.upper(): {
@@ -428,7 +410,6 @@ def test_obtem_resultados_ordem_deterministica_de_periodos_e_alimentacoes(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     solicitacao = make_solicitacao_medicao_inicial(
@@ -477,10 +458,8 @@ def test_obtem_resultados_ordem_deterministica_de_periodos_e_alimentacoes(
         dia="01",
     )
 
-    # act
     resultados = obtem_resultados(QueryDict(f"mes_ano={mes}_{ano}"))
 
-    # assert
     assert list(resultados.keys()) == ["MANHA", "TARDE"]
     assert list(resultados["MANHA"].keys()) == ["LANCHE", "REFEIÇÃO", "SOBREMESA"]
     assert list(resultados["TARDE"].keys()) == ["LANCHE", "REFEIÇÃO", "SOBREMESA"]

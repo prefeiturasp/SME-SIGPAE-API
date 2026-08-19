@@ -2004,7 +2004,6 @@ def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     solicitacao = make_solicitacao_medicao_inicial(
@@ -2060,7 +2059,6 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     solicitacao = make_solicitacao_medicao_inicial(
@@ -2129,7 +2127,6 @@ def test_url_endpoint_relatorio_adesao_com_escolas_paginado(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     valores = range(1, 6)
@@ -2200,13 +2197,11 @@ def test_url_endpoint_relatorio_adesao_com_escolas_paginado(
     }
     url = "/medicao-inicial/relatorios/relatorio-adesao/"
 
-    # act
     primeira_pagina = client_autenticado_coordenador_codae.get(url, url_params)
     segunda_pagina = client_autenticado_coordenador_codae.get(
         url, {**url_params, "page": 2}
     )
 
-    # assert
     assert primeira_pagina.status_code == status.HTTP_200_OK
     assert segunda_pagina.status_code == status.HTTP_200_OK
 
@@ -2308,7 +2303,6 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_com_mes_diferente_
 def test_url_endpoint_relatorio_adesao_exportar_xlsx(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
 
@@ -2322,7 +2316,6 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx(
 def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_periodo_lancamento(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -2348,7 +2341,6 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_mes_ano(
 def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_periodo_lancamento_ate(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -2366,7 +2358,6 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_periodo_lancamento_ate(
 def test_url_endpoint_relatorio_adesao_exportar_pdf(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
 
@@ -2380,7 +2371,6 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf(
 def test_url_endpoint_relatorio_adesao_exportar_pdf_com_periodo_lancamento(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -2406,7 +2396,6 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_mes_ano(
 def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_periodo_lancamento_ate(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"

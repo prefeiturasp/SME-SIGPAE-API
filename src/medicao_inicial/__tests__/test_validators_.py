@@ -231,7 +231,7 @@ def test_validate_medicao_cei_cemei_periodo_integral_dia_letivo_preenchido(
     make_log_matriculados_faixa_etaria_dia,
     make_valor_medicao_faixa_etaria,
 ):
-    # arrange
+
     dia = 1
     periodo_integral = make_periodo_escolar("INTEGRAL")
     medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo_integral)
@@ -246,10 +246,8 @@ def test_validate_medicao_cei_cemei_periodo_integral_dia_letivo_preenchido(
     )
     make_valor_medicao_faixa_etaria(medicao, "1", dia)
 
-    # act
     lista_erros = validate_medicao_cemei(solicitacao_medicao_inicial_cemei_simples)
 
-    # assert
     assert len(lista_erros) == 0
 
 
@@ -262,7 +260,6 @@ def test_validate_medicao_cei_cemei_periodo_integral_dia_letivo_nao_preenchido(
     make_log_matriculados_faixa_etaria_dia,
     categoria_medicao,
 ):
-    # arrange
     dia = 3
     periodo_integral = make_periodo_escolar("INTEGRAL")
     make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo_integral)
@@ -276,10 +273,7 @@ def test_validate_medicao_cei_cemei_periodo_integral_dia_letivo_nao_preenchido(
         dia, escola_cemei, solicitacao_medicao_inicial_cemei_simples, periodo_integral
     )
 
-    # act
     lista_erros = validate_medicao_cemei(solicitacao_medicao_inicial_cemei_simples)
-
-    # assert
     assert len(lista_erros) == 1
 
 

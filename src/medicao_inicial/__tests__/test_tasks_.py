@@ -70,7 +70,9 @@ class CriaSolicitacaoMedicaoInicialMesAtualTest(TestCase):
 
         mock_all.return_value = [escola_mock]
 
-        mock_select_for_update.return_value.filter.return_value.first.return_value = escola_mock
+        mock_select_for_update.return_value.filter.return_value.first.return_value = (
+            escola_mock
+        )
 
         mock_filter.return_value.exists.return_value = False
         mock_get.side_effect = SolicitacaoMedicaoInicial.DoesNotExist
@@ -225,7 +227,6 @@ def test_exporta_relatorio_adesao_para_xlsx(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -258,7 +259,6 @@ def test_exporta_relatorio_adesao_para_xlsx(
 
     nome_arquivo = "relatorio-adesao.xlsx"
 
-    # act
     query_params = QueryDict(
         f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
     )
@@ -284,13 +284,11 @@ def test_exporta_relatorio_adesao_para_xlsx(
 
 @pytest.mark.django_db
 def test_exporta_relatorio_adesao_para_xlsx_sem_resultados(usuario):
-    # arrange
     mes = "03"
     ano = "2024"
 
     nome_arquivo = "relatorio-adesao.xlsx"
 
-    # act
     resultados = {}
 
     exporta_relatorio_adesao_para_xlsx(
@@ -314,7 +312,6 @@ def test_exporta_relatorio_adesao_para_pdf(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -347,7 +344,6 @@ def test_exporta_relatorio_adesao_para_pdf(
 
     nome_arquivo = "relatorio-adesao.pdf"
 
-    # act
     query_params = query_params = QueryDict(
         f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
     )
@@ -373,13 +369,11 @@ def test_exporta_relatorio_adesao_para_pdf(
 
 @pytest.mark.django_db
 def test_exporta_relatorio_adesao_para_pdf_sem_resultados(usuario):
-    # arrange
     mes = "03"
     ano = "2024"
 
     nome_arquivo = "relatorio-adesao.pdf"
 
-    # act
     resultados = {}
 
     exporta_relatorio_adesao_para_pdf(
