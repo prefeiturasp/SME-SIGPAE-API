@@ -51,6 +51,12 @@ def perguntas_frequentes_visiveis_para_usuario(usuario):
     if not vinculo_atual or not vinculo_atual.perfil:
         return PerguntaFrequente.objects.none()
 
+    if (
+        vinculo_atual.perfil.nome
+        in PermissaoParaGerenciarCategoriasPerguntaFrequente.PERFIS_PERMITIDOS
+    ):
+        return PerguntaFrequente.objects.all().prefetch_related("perfis")
+
     return (
         PerguntaFrequente.objects.filter(
             Q(todos_os_perfis=True) | Q(perfis=vinculo_atual.perfil)
