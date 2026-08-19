@@ -415,6 +415,53 @@ def obtem_resultados(query_params: QueryDict) -> dict:
     )
 
 
+def obtem_escolas_ordenadas(escolas_uuid: list[str]) -> list[Escola]:
+    """
+    Retorna as escolas filtradas pelos UUIDs, ordenadas alfabeticamente pelo nome.
+
+    Args:
+        escolas_uuid (list[str]): lista de UUIDs de escolas.
+
+    Returns:
+        list[Escola]: escolas encontradas, ordenadas por nome.
+    """
+    return list(
+        Escola.objects.filter(uuid__in=escolas_uuid)
+        .only("uuid", "nome", "codigo_eol")
+        .order_by("nome")
+    )
+
+
+def obtem_resultados_para_escola(escola: Escola, query_params: QueryDict) -> dict:
+    """
+    Calcula os resultados consolidados de medições para uma única escola.
+
+    Args:
+        escola (Escola): escola para a qual os resultados serão calculados.
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        dict: dicionário com a identificação da escola e seus resultados.
+    """
+    mes, ano, dia_inicial, dia_final, tipos_alimentacao = _parametros_consulta(
+        query_params
+    )
+
+    filtros = _cria_filtros(query_params)
+    filtros["solicitacao_medicao_inicial__escola__uuid"] = escola.uuid
+    resultados = _calcula_resultados(
+        mes, ano, filtros, tipos_alimentacao, dia_inicial, dia_final
+    )
+
+    return {
+        "escola": {
+            "nome": escola.nome,
+            "codigo_eol": escola.codigo_eol,
+        },
+        "resultados": resultados,
+    }
+
+
 def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
     """
     Obtém e consolida resultados de medições de alimentação escolar agrupados por escola.
@@ -431,31 +478,11 @@ def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
         list[dict]: lista de dicionários no formato
         ``{"escola": {"nome": str, "codigo_eol": str}, "resultados": dict}``
     """
-    mes, ano, dia_inicial, dia_final, tipos_alimentacao = _parametros_consulta(
-        query_params
-    )
-
     escolas_uuid = query_params.getlist("escola__uuid[]")
-    escolas = Escola.objects.filter(uuid__in=escolas_uuid).order_by("nome")
-
-    resultados_por_escola = []
-    for escola in escolas:
-        filtros = _cria_filtros(query_params)
-        filtros["solicitacao_medicao_inicial__escola__uuid"] = escola.uuid
-        resultados = _calcula_resultados(
-            mes, ano, filtros, tipos_alimentacao, dia_inicial, dia_final
-        )
-        resultados_por_escola.append(
-            {
-                "escola": {
-                    "nome": escola.nome,
-                    "codigo_eol": escola.codigo_eol,
-                },
-                "resultados": resultados,
-            }
-        )
-
-    return resultados_por_escola
+    return [
+        obtem_resultados_para_escola(escola, query_params)
+        for escola in obtem_escolas_ordenadas(escolas_uuid)
+    ]
 
 
 def _valida_ano_mes(mes_ano: str) -> tuple[int, int]:
