@@ -9,7 +9,9 @@ from src.medicao_inicial.services.relatorio_adesao import (
     _parse_data,
     _valida_ano_mes,
     _validar_mes_ano_data,
+    obtem_escolas_ordenadas,
     obtem_resultados,
+    obtem_resultados_para_escola,
     obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
 )
@@ -393,6 +395,77 @@ def test_obtem_resultados_filtra_por_tipos_unidades(
     resultados = obtem_resultados(query_params)
 
     assert resultados == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": total_servido,
+                "total_frequencia": total_frequencia,
+                "total_adesao": total_adesao,
+            }
+        }
+    }
+
+
+def test_obtem_escolas_ordenadas_por_nome(
+    escola,
+):
+    # arrange
+    escola_aaa, _ = _cria_escola_e_solicitacao_aprovada(
+        escola, "03", "2024", "EMEF AAA", "111111"
+    )
+    escola_bbb, _ = _cria_escola_e_solicitacao_aprovada(
+        escola, "03", "2024", "EMEF BBB", "222222"
+    )
+
+    # act
+    escolas = obtem_escolas_ordenadas(
+        [str(escola_bbb.uuid), str(escola.uuid), str(escola_aaa.uuid)]
+    )
+
+    # assert
+    assert [e.nome for e in escolas] == ["EMEF AAA", "EMEF BBB", "EMEF TESTE"]
+
+
+def test_obtem_resultados_para_escola(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    valores = range(1, 6)
+    total_servido = sum(valores)
+    total_frequencia = sum(valores)
+    total_adesao = round(total_servido / total_frequencia, 4)
+
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = _cria_medicao_com_valores(
+        solicitacao,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        valores,
+    )
+
+    # act
+    query_params = QueryDict(f"mes_ano={mes}_{ano}&escola__uuid[]={escola.uuid}")
+    resultado = obtem_resultados_para_escola(escola, query_params)
+
+    # assert
+    assert resultado["escola"] == {
+        "nome": escola.nome,
+        "codigo_eol": escola.codigo_eol,
+    }
+    assert resultado["resultados"] == {
         medicao.nome_periodo_grupo: {
             tipo_alimentacao_refeicao.nome.upper(): {
                 "total_servido": total_servido,
