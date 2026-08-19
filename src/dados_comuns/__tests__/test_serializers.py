@@ -1,8 +1,12 @@
 import pytest
 from model_bakery import baker
 
-from ..api.serializers import CategoriaPerguntaFrequenteSerializer
-from ..models import CategoriaPerguntaFrequente
+from ..api.serializers import (
+    CategoriaPerguntaFrequenteSerializer,
+    PerguntaFrequenteCreateSerializer,
+    PerguntaFrequenteSerializer,
+)
+from ..models import CategoriaPerguntaFrequente, PerguntaFrequente
 
 
 @pytest.mark.django_db
@@ -109,3 +113,56 @@ def test_nao_permite_atualizar_categoria_com_nome_de_outra_categoria():
         "Não é possível cadastrar a categoria, pois já existe uma categoria "
         "com esse nome. Altere o nome informado e tente novamente."
     )
+
+@pytest.mark.django_db
+def test_nao_permite_associar_duvida_frequente_a_perfil_inativo():
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="16f009aa-bc83-45b4-919e-f9fe22bb8876",
+    )
+    perfil = baker.make(
+        "Perfil",
+        uuid="738efd93-630b-41db-84bc-29056b74228c",
+        ativo=False,
+    )
+    serializer = PerguntaFrequenteCreateSerializer(
+        data={
+            "categoria": str(categoria.uuid),
+            "perfis": [str(perfil.uuid)],
+            "todos_os_perfis": False,
+            "pergunta": "Como acessar o sistema?",
+            "resposta": "Utilize suas credenciais.",
+        }
+    )
+
+    assert serializer.is_valid() is False
+    assert serializer.errors["perfis"][0].code == "does_not_exist"
+
+
+@pytest.mark.django_db
+def test_serializa_categoria_perfis_e_opcao_todos_da_duvida_frequente():
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        nome="Gestão de Alimentação",
+        uuid="d84f29c4-6e6e-4d86-b9db-060f4e47458f",
+    )
+    perfil = baker.make(
+        "Perfil",
+        nome="DIRETOR_UE",
+        uuid="1d1db7f9-d1fb-478a-b482-d547fca1f27c",
+        ativo=True,
+    )
+    pergunta = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        todos_os_perfis=False,
+        uuid="ed405293-ff13-48f7-b317-2f803cf614a8",
+    )
+    pergunta.perfis.add(perfil)
+
+    dados = PerguntaFrequenteSerializer(pergunta).data
+
+    assert dados["categoria"]["uuid"] == str(categoria.uuid)
+    assert dados["perfis"][0]["uuid"] == str(perfil.uuid)
+    assert dados["perfis"][0]["ativo"] is True
+    assert dados["todos_os_perfis"] is False

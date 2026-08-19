@@ -17,6 +17,7 @@ from src.dados_comuns.permissions import (
     UsuarioAdministradorContratos,
     UsuarioDilogAbastecimento,
     PermissaoParaGerenciarCategoriasPerguntaFrequente,
+    PermissaoParaGerenciarPerguntasFrequentes,
 )
 
 pytestmark = pytest.mark.django_db
@@ -182,5 +183,26 @@ def test_usuario_nao_autenticado_nao_pode_gerenciar_categorias():
     request = MagicMock()
     request.user = AnonymousUser()
     permissao = PermissaoParaGerenciarCategoriasPerguntaFrequente()
+
+    assert not permissao.has_permission(request, None)
+
+def test_usuario_com_perfil_autorizado_pode_gerenciar_duvidas_frequentes(
+    usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda,
+):
+    request = MagicMock()
+    request.user = (
+        usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda
+    )
+    permissao = PermissaoParaGerenciarPerguntasFrequentes()
+
+    assert permissao.has_permission(request, None)
+
+def test_usuario_com_perfil_nao_autorizado_nao_pode_gerenciar_duvidas_frequentes(
+    usuario_teste_notificacao_autenticado,
+):
+    usuario, _ = usuario_teste_notificacao_autenticado
+    request = MagicMock()
+    request.user = usuario
+    permissao = PermissaoParaGerenciarPerguntasFrequentes()
 
     assert not permissao.has_permission(request, None)
