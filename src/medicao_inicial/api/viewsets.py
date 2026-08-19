@@ -4,9 +4,11 @@ import json
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
+from django.core.paginator import EmptyPage, Paginator
 from django.db import transaction
 from django.db.models import Exists, F, IntegerField, OuterRef, Q, QuerySet
 from django.db.models.functions import Cast
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status
@@ -15,6 +17,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.utils.urls import replace_query_param
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
@@ -22,7 +25,9 @@ from xworkflows import InvalidTransitionError
 from src.cardapio.utils import ordem_periodos
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.services.relatorio_adesao import (
+    obtem_escolas_ordenadas,
     obtem_resultados,
+    obtem_resultados_para_escola,
     valida_parametros_periodo_lancamento,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
@@ -48,7 +53,7 @@ from ...dados_comuns.permissions import (
     UsuarioSupervisaoNutricao,
     ViewSetActionPermissionMixin,
 )
-from ...dados_comuns.utils import get_ultimo_dia_mes
+from ...dados_comuns.utils import convert_dict_to_querydict, get_ultimo_dia_mes
 from ...escola.api.permissions import (
     PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada,
 )
@@ -2256,11 +2261,22 @@ class RelatoriosViewSet(ViewSet):
         | UsuarioSupervisaoNutricao
     ]
 
-    @action(detail=False, url_name="relatorio-adesao", url_path="relatorio-adesao")
+    @action(
+        detail=False,
+        methods=["post"],
+        url_name="relatorio-adesao",
+        url_path="relatorio-adesao",
+    )
     def relatorio_adesao(self, request: Request):
-        query_params = request.query_params
         try:
+            query_params = (
+                request.data
+                if isinstance(request.data, QueryDict)
+                else convert_dict_to_querydict(request.data)
+            )
             valida_parametros_periodo_lancamento(query_params)
+            if query_params.getlist("escola__uuid[]"):
+                return self._relatorio_adesao_por_escola(request, query_params)
             resultados = obtem_resultados(query_params)
 
             return Response(data=resultados, status=status.HTTP_200_OK)
@@ -2273,6 +2289,51 @@ class RelatoriosViewSet(ViewSet):
                 data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def _relatorio_adesao_por_escola(self, request: Request, query_params) -> Response:
+        escolas_uuid = query_params.getlist("escola__uuid[]")
+        escolas = obtem_escolas_ordenadas(escolas_uuid)
+        return self._pagina_resultados(request, query_params, escolas)
+
+    def _pagina_resultados(
+        self, request: Request, query_params, escolas: list
+    ) -> Response:
+        paginator = Paginator(escolas, 1)
+        page_number = query_params.get("page") or request.query_params.get("page", 1)
+        try:
+            page_number = int(page_number)
+        except (TypeError, ValueError):
+            raise ValidationError("O parâmetro 'page' deve ser um número inteiro")
+        try:
+            page = paginator.page(page_number)
+        except EmptyPage:
+            raise ValidationError("Página inválida")
+
+        resultados = [
+            obtem_resultados_para_escola(escola, query_params) for escola in page
+        ]
+
+        url = request.build_absolute_uri()
+        next_page = (
+            replace_query_param(url, "page", page.next_page_number())
+            if page.has_next()
+            else None
+        )
+        previous_page = (
+            replace_query_param(url, "page", page.previous_page_number())
+            if page.has_previous()
+            else None
+        )
+
+        return Response(
+            {
+                "next": next_page,
+                "previous": previous_page,
+                "count": paginator.count,
+                "page_size": 1,
+                "results": resultados,
+            }
+        )
 
     @action(
         detail=False,

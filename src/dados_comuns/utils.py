@@ -775,11 +775,23 @@ def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:
 
 
 def convert_dict_to_querydict(dict_: dict) -> QueryDict:
+    """
+    Converte um dicionário em um QueryDict.
+
+    Valores que são listas são adicionados como múltiplos valores na chave original
+    (ex.: ``unidades_educacionais_selecionadas``). Além disso, é adicionada a mesma
+    lista em uma chave com o sufixo ``[]`` (ex.: ``escola__uuid[]``), mantendo
+    compatibilidade com os dois formatos de chave usados nas consultas do sistema.
+    """
     query_dict = QueryDict("", mutable=True)
     for key, value in dict_.items():
         if isinstance(value, list):
             for item in value:
                 query_dict.update({key: item})
+            if not key.endswith("[]"):
+                key_brackets = f"{key}[]"
+                for item in value:
+                    query_dict.update({key_brackets: item})
         else:
             query_dict[key] = value
     return query_dict
