@@ -1,5 +1,63 @@
 {% load static %}
 
+{% block css %}
+<style>
+  .conteudo-titulo {
+    height: 60px !important;
+  }
+
+  .text-center {
+    font-size: 12px !important;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+  }
+
+  .article-dre {
+    width: 100% !important;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .produto-header {
+    color: #42474A;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+  }
+
+  .value-header {
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .info-container {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    color: #42474A;
+  }
+
+  .info-container .col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .info-container span {
+    margin: 4px 0;
+    font-size: 14px;
+  }
+
+  .info-body p {
+    margin-top: 0;
+  }
+</style>
+{% endblock %}
+
 <header class="header">
   <section class="titulo-e-logo flex-between">
     <div class="col-2">
@@ -15,7 +73,7 @@
     </div>
   </section>
 
-  <section class="conteudo-titulo">
+  <section class="conteudo-titulo" style="width: 100%;">
     <article class="article-dre">
       <div class="produto-header">
         <span class="label-header">Produto: </span>
