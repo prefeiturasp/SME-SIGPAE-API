@@ -174,163 +174,116 @@
 </style>
 {% endblock %}
 {% block conteudo %}
-<header class="header">
-  <section class="titulo-e-logo flex-between">
-    <div class="col-2">
-      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
-    </div>
-    <div class="col-8">
-      <h1 class="text-center">
-        SECRETARIA MUNICIPAL DE EDUCAÇÃO | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE
-      </h1>
-      <h1 class="text-center">
-        <strong>FICHA DO PRODUTO</strong>
-      </h1>
-    </div>
-  </section>
+{% include 'header_homologacao_produto.html' %}
 
-  <section class="conteudo-titulo">
-    <article class="article-dre">
-      <div class="produto-header">
-        <span class="label-header">Produto: </span>
-        <span class="value-header">{{ produto.nome }}</span>
+<main>
+  <section class="corpo-relatorio-produto">
+    <section class="nova-pagina-bloco" style="width: 100%">
+      <h3 class="section-titulo">
+        IDENTIFICAÇÃO DO PRODUTO
+      </h3>
+
+      <div class="info-body">
+        <span>O produto se destina a alimentação de alunos com dieta especial? </span>
+        {% if produto.eh_para_alunos_com_dieta %}
+        <strong>SIM</strong>
+        {% else %}
+        <strong>NÃO</strong>
+        {% endif %}
       </div>
-      <div class="produto-header">
-        <span class="label-header">Marca: </span>
-        <span class="value-header">{{ produto.marca }}</span>
+
+      <div class="info-body">
+        <span>Fabricante: </span>
+        <strong>{{ produto.fabricante }}</strong>
       </div>
-      <div class="produto-header">
-        <span class="label-header">Tipo: </span>
-        <span class="value-header">
-          {% if produto.eh_para_alunos_com_dieta %}
-            DIETA ESPECIAL
-          {% else %}
-            COMUM
-          {% endif %}
-        </span>
+
+      <div class="info-body">
+        <span>Compoentes do produto: </span>
+        <p><strong>{{ produto.componentes }}</strong></p>
       </div>
-    </article>
-  </section>
 
-  <div class="info-container mt-2 border border-dark">
-    <div class="col">
-      <span class="pt-2 pb-2 grow-2">Data do Cadastro: <strong>{{ produto.ultima_homologacao.data_cadastro }}</strong></span>
-      <span class="pt-2 pb-2 grow-2">Empresa Solicitante (Terceirizada): <strong>{{ terceirizada.nome }}</strong></span>
-      <span class="pt-2 pb-2 grow-2">E-mail: <strong>{{ terceirizada.representante_email }}</strong></span>
-    </div>
-    <div class="col">
-      <span class="pt-2 pb-2 grow-2">Nº da Solicitação: </span>
-      <span class="pb-2 grow-2"></br></span>
-      <span class="pb-2 grow-2">Telefone: <strong>{{ terceirizada.representante_telefone }}</strong></span>
-    </div>
-  </div>
-</header>
+      <div class="info-body">
+        <span>O produto contém ou pode conter ingredientes/aditivos alergênicos?</span>
+        {% if produto.tem_aditivos_alergenicos %}
+        <strong>SIM</strong>
+        {% else %}
+        <strong>NÃO</strong>
+        {% endif %}
+      </div>
 
-<section class="corpo-relatorio-produto">
-  <section class="nova-pagina-bloco" style="width: 100%">
-    <h3 class="section-titulo">
-      IDENTIFICAÇÃO DO PRODUTO
-    </h3>
-
-    <div class="info-body">
-      <span>O produto se destina a alimentação de alunos com dieta especial? </span>
-      {% if produto.eh_para_alunos_com_dieta %}
-      <strong>SIM</strong>
-      {% else %}
-      <strong>NÃO</strong>
-      {% endif %}
-    </div>
-
-    <div class="info-body">
-      <span>Fabricante: </span>
-      <strong>{{ produto.fabricante }}</strong>
-    </div>
-
-    <div class="info-body">
-      <span>Compoentes do produto: </span>
-      <p><strong>{{ produto.componentes }}</strong></p>
-    </div>
-
-    <div class="info-body">
-      <span>O produto contém ou pode conter ingredientes/aditivos alergênicos?</span>
       {% if produto.tem_aditivos_alergenicos %}
-      <strong>SIM</strong>
-      {% else %}
-      <strong>NÃO</strong>
+      <div class="info-body">
+        <span>Quais?</span>
+        <strong>{{ produto.aditivos }}</strong>
+      </div>
       {% endif %}
-    </div>
+    </section>
 
-    {% if produto.tem_aditivos_alergenicos %}
-    <div class="info-body">
-      <span>Quais?</span>
-      <strong>{{ produto.aditivos }}</strong>
-    </div>
-    {% endif %}
-  </section>
+    <p style="page-break-before: avoid;"></p>
+    <section class="identificacao-produto mt" style="width: 100%">
+      <h3 class="section-titulo">
+        INFORMAÇÕES NUTRICIONAIS
+      </h3>
 
-  <p style="page-break-before: avoid;"></p>
-  <section class="identificacao-produto mt" style="width: 100%">
-    <h3 class="section-titulo">
-      INFORMAÇÕES NUTRICIONAIS
-    </h3>
+      <article class="duas-informacoes">
+        <div class="info-body" style="width: 50%">
+          <span>Porção: </span>
+          <strong>{{ produto.porcao }}</strong>
+        </div>
+        <div class="info-body">
+          <span>Unidade caseira: </span>
+          <strong>{{ produto.unidade_caseira }}</strong>
+        </div>
+      </article>
+    </section>
 
-    <article class="duas-informacoes">
-      <div class="info-body" style="width: 50%">
-        <span>Porção: </span>
-        <strong>{{ produto.porcao }}</strong>
-      </div>
+    <section class="tabela-informacoes-nutricionais">
+      <header>
+        <p>Quantidade por porção</p>
+        <p>% VD</p>
+      </header>
+      <ul>
+        {% for informacao in produto.informacoes_nutricionais.all %}
+        <li>
+          <p>{{ informacao.informacao_nutricional.nome }}</p>
+          <p>{{ informacao.quantidade_porcao }} {{ informacao.informacao_nutricional.medida }}</p>
+          <p>{{ informacao.valor_diario }}</p>
+        </li>
+        {% endfor %}
+      </ul>
+      <footer>
+        <b>IMPORTANTE:</b> * % VD com base em uma dieta de 2.000 Kcal ou 8.400 KJ. Seus valores diários podem ser maiores
+        ou
+        menores dependendo de suas necessidades energéticas. (**) VD não estabelecidos
+      </footer>
+    </section>
+
+    <section class="identificacao-produto nova-pagina-bloco" style="width: 100%">
+      <h3 class="section-titulo">
+        INFORMAÇÕES DO PRODUTO (CLASSIFICAÇÃO)
+      </h3>
+
+      <article class="duas-informacoes">
+        <div class="info-body" style="width: 50%">
+          <span>Tipo: </span>
+          <strong>{{ produto.tipo }}</strong>
+        </div>
+        <div class="info-body">
+          <span>Prazo de validade: </span>
+          <strong>{{ produto.prazo_validade }}</strong>
+        </div>
+      </article>
+
       <div class="info-body">
-        <span>Unidade caseira: </span>
-        <strong>{{ produto.unidade_caseira }}</strong>
+        <span>Embalagem primária: </span>
+        <strong>{{ produto.embalagem }}</strong>
       </div>
-    </article>
+    </section>
   </section>
 
-  <section class="tabela-informacoes-nutricionais">
-    <header>
-      <p>Quantidade por porção</p>
-      <p>% VD</p>
-    </header>
-    <ul>
-      {% for informacao in produto.informacoes_nutricionais.all %}
-      <li>
-        <p>{{ informacao.informacao_nutricional.nome }}</p>
-        <p>{{ informacao.quantidade_porcao }} {{ informacao.informacao_nutricional.medida }}</p>
-        <p>{{ informacao.valor_diario }}</p>
-      </li>
-      {% endfor %}
-    </ul>
-    <footer>
-      <b>IMPORTANTE:</b> * % VD com base em uma dieta de 2.000 Kcal ou 8.400 KJ. Seus valores diários podem ser maiores
-      ou
-      menores dependendo de suas necessidades energéticas. (**) VD não estabelecidos
-    </footer>
-  </section>
-
-  <section class="identificacao-produto nova-pagina-bloco" style="width: 100%">
-    <h3 class="section-titulo">
-      INFORMAÇÕES DO PRODUTO (CLASSIFICAÇÃO)
-    </h3>
-
-    <article class="duas-informacoes">
-      <div class="info-body" style="width: 50%">
-        <span>Tipo: </span>
-        <strong>{{ produto.tipo }}</strong>
-      </div>
-      <div class="info-body">
-        <span>Prazo de validade: </span>
-        <strong>{{ produto.prazo_validade }}</strong>
-      </div>
-    </article>
-
-    <div class="info-body">
-      <span>Embalagem primária: </span>
-      <strong>{{ produto.embalagem }}</strong>
-    </div>
-  </section>
-
-  <p style="page-break-before: always;"></p>
-  <section class="nova-pagina-bloco" style="width: 100%">
+  <p style="page-break-before: always; margin-top: 0; margin-bottom: -32px;"></p>
+  {% include 'header_homologacao_produto.html' %}
+  <section class="nova-pagina-bloco corpo-relatorio-produto" style="width: 100%">
     <h3 class="section-titulo">INFORMAÇÕES REFERENTES AO VOLUME E UNIDADE DE MEDIDA</h3>
 
     <section class="tabela-informacoes-referente-volume">
@@ -365,6 +318,6 @@
       <p><strong>{{ produto.numero_registro }}</strong></p>
     </div>
   </section>
-</section>
+</main>
 
 {% endblock %}

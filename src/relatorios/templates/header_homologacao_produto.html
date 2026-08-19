@@ -1,0 +1,53 @@
+{% load static %}
+
+<header class="header">
+  <section class="titulo-e-logo flex-between">
+    <div class="col-2">
+      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
+    </div>
+    <div class="col-8">
+      <h1 class="text-center">
+        SECRETARIA MUNICIPAL DE EDUCAÇÃO | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE
+      </h1>
+      <h1 class="text-center">
+        <strong>FICHA DO PRODUTO</strong>
+      </h1>
+    </div>
+  </section>
+
+  <section class="conteudo-titulo">
+    <article class="article-dre">
+      <div class="produto-header">
+        <span class="label-header">Produto: </span>
+        <span class="value-header">{{ produto.nome }}</span>
+      </div>
+      <div class="produto-header">
+        <span class="label-header">Marca: </span>
+        <span class="value-header">{{ produto.marca }}</span>
+      </div>
+      <div class="produto-header">
+        <span class="label-header">Tipo: </span>
+        <span class="value-header">
+          {% if produto.eh_para_alunos_com_dieta %}
+            DIETA ESPECIAL
+          {% else %}
+            COMUM
+          {% endif %}
+        </span>
+      </div>
+    </article>
+  </section>
+
+  <div class="info-container mt-2 border border-dark">
+    <div class="col">
+      <span class="pt-2 pb-2 grow-2">Data do Cadastro: <strong>{{ produto.ultima_homologacao.data_cadastro }}</strong></span>
+      <span class="pt-2 pb-2 grow-2">Empresa Solicitante (Terceirizada): <strong>{{ terceirizada.nome }}</strong></span>
+      <span class="pt-2 pb-2 grow-2">E-mail: <strong>{{ terceirizada.representante_email }}</strong></span>
+    </div>
+    <div class="col">
+      <span class="pt-2 pb-2 grow-2">Nº da Solicitação: <strong>{{ produto.id_externo }}</strong></span>
+      <span class="pb-2 grow-2"></br></span>
+      <span class="pb-2 grow-2">Telefone: <strong>{{ terceirizada.representante_telefone }}</strong></span>
+    </div>
+  </div>
+</header>
