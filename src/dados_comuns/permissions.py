@@ -1752,3 +1752,6 @@ class PermissaoParaGerenciarCategoriasPerguntaFrequente(BasePermission):
             and isinstance(usuario.vinculo_atual.instituicao, Codae)
             and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
         )
+    
+class PermissaoParaGerenciarPerguntasFrequentes(PermissaoParaGerenciarCategoriasPerguntaFrequente):
+    """Permissão para gerenciar dúvidas frequentes na página de ajuda."""

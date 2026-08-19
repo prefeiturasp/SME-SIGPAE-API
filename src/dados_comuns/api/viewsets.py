@@ -26,7 +26,7 @@ from ..models import (
 )
 from ..permissions import (
     PermissaoParaGerenciarCategoriasPerguntaFrequente,
-    UsuarioCODAEGestaoAlimentacao,
+    PermissaoParaGerenciarPerguntasFrequentes,
 )
 from ..utils import obter_dias_uteis_apos
 from .filters import CentralDeDownloadFilter, NotificacaoFilter
@@ -282,9 +282,17 @@ class PerguntaFrequenteViewSet(ModelViewSet):
         return PerguntaFrequenteSerializer
 
     def get_permissions(self):
-        if self.action in ["create", "update", "partial_update", "destroy"]:
-            self.permission_classes = (UsuarioCODAEGestaoAlimentacao,)
-        return super(PerguntaFrequenteViewSet, self).get_permissions()
+        classes_de_permissao = [IsAuthenticated]
+
+        if self.action in {
+            "create",
+            "update",
+            "partial_update",
+            "destroy",
+        }:
+            classes_de_permissao.append(PermissaoParaGerenciarPerguntasFrequentes)
+
+        return [permission() for permission in classes_de_permissao]
 
 
 class NotificacaoViewSet(viewsets.ModelViewSet):
