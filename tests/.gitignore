@@ -5,6 +5,7 @@ videos/
 node_modules/
 package-lock.json
 .env
+.certs/
 
 # Others
 tmp
