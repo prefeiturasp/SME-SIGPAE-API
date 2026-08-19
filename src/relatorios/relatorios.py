@@ -1258,6 +1258,8 @@ def relatorio_produto_homologacao(request, produto):
             "justificativa_analise_sensorial": justificativa_analise_sensorial,
         },
     )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
     return html_to_pdf_response(
         html_string, f"produto_homologacao_{produto.id_externo}.pdf"
     )

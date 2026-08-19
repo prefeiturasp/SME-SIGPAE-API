@@ -138,6 +138,36 @@
     border-left: 1px solid #C0C0C0;
   }
 
+  @page {
+    size: A4;
+    margin-bottom: 2em;
+    @bottom-left {
+      background: #EEEEEE;
+      color: #000000;
+      content: '';
+      font-size: 10px;
+      width: 100%;
+      padding: 1em 2em 4em 2em;
+      margin-top: 1em;
+    }
+    @bottom-center {
+      background: #EEEEEE;
+      color: #000000;
+      content: counter(page) "/" counter(pages);
+      font-size: 10px;
+      padding: 1em 2em 4em 2em;
+      margin-top: 1em;
+    }
+    @bottom-right {
+      background: #EEEEEE;
+      color: #000000;
+      content: 'Documento gerado em dt_file';
+      font-size: 10px;
+      padding: 1em 2em 4em 2em;
+      margin-top: 1em;
+    }
+  }
+
   .nova-pagina-bloco {
     display: inline-block !important;
   }
@@ -171,14 +201,20 @@
       </div>
       <div class="produto-header">
         <span class="label-header">Tipo: </span>
-        <span class="value-header">{{ "DIETA ESPECIAL" if produto.eh_para_alunos_com_dieta else "COMUM" }}</span>
+        <span class="value-header">
+          {% if produto.eh_para_alunos_com_dieta %}
+            DIETA ESPECIAL
+          {% else %}
+            COMUM
+          {% endif %}
+        </span>
       </div>
     </article>
   </section>
 
   <div class="info-container mt-2 border border-dark">
     <div class="col">
-      <span class="pt-2 pb-2 grow-2">Data do Cadastro: {{ produto.ultima_homologacao.data_cadastro }}</span>
+      <span class="pt-2 pb-2 grow-2">Data do Cadastro: <strong>{{ produto.ultima_homologacao.data_cadastro }}</strong></span>
       <span class="pt-2 pb-2 grow-2">Empresa Solicitante (Terceirizada): <strong>{{ terceirizada.nome }}</strong></span>
       <span class="pt-2 pb-2 grow-2">E-mail: <strong>{{ terceirizada.representante_email }}</strong></span>
     </div>
