@@ -227,7 +227,10 @@ class DataDeFabricaoEPrazo(TemChaveExterna):
     justificativa = models.TextField("Justificativa", blank=True)
 
     def __str__(self):
-        return f'{self.documento_recebimento.cronograma.numero} - {self.data_fabricacao.strftime("%d/%m/%Y")}'
+        data_fabricacao = (
+            self.data_fabricacao.strftime("%d/%m/%Y") if self.data_fabricacao else "-"
+        )
+        return f"{self.documento_recebimento.cronograma.numero} - {data_fabricacao}"
 
     class Meta:
         verbose_name = "Data de Fabricação e Prazo"
