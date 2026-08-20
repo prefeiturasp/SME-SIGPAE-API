@@ -13,6 +13,7 @@ from ..cronograma_entrega.models import (
     SolicitacaoAlteracaoCronograma,
 )
 from ..documento_recebimento.models import (
+    DataDeFabricaoEPrazo,
     DocumentoDeRecebimento,
     TipoDeDocumentoDeRecebimento,
 )
@@ -291,6 +292,40 @@ def test_tipo_de_documento_de_recebimento_meta_modelo(
     obj = tipo_de_documento_de_recebimento_factory.create()
     assert obj._meta.verbose_name == "Tipo de Documento de Recebimento"
     assert obj._meta.verbose_name_plural == "Tipos de Documentos de Recebimento"
+
+
+def test_data_de_fabricacao_e_prazo_instance_model(data_de_fabricao_e_prazo_factory):
+    obj = data_de_fabricao_e_prazo_factory.create()
+    assert isinstance(obj, DataDeFabricaoEPrazo)
+    assert obj.documento_recebimento
+
+
+def test_data_de_fabricacao_e_prazo_srt_model_com_data(
+    data_de_fabricao_e_prazo_factory,
+):
+    obj = data_de_fabricao_e_prazo_factory.create()
+    expected = (
+        f"{obj.documento_recebimento.cronograma.numero} - "
+        f'{obj.data_fabricacao.strftime("%d/%m/%Y")}'
+    )
+    assert obj.__str__() == expected
+
+
+def test_data_de_fabricacao_e_prazo_srt_model_sem_data(
+    data_de_fabricao_e_prazo_factory,
+):
+    obj = data_de_fabricao_e_prazo_factory.create(data_fabricacao=None)
+    assert obj.data_fabricacao is None
+    assert (
+        obj.__str__()
+        == f"{obj.documento_recebimento.cronograma.numero} - -"
+    )
+
+
+def test_data_de_fabricacao_e_prazo_meta_modelo(data_de_fabricao_e_prazo_factory):
+    obj = data_de_fabricao_e_prazo_factory.create()
+    assert obj._meta.verbose_name == "Data de Fabricação e Prazo"
+    assert obj._meta.verbose_name_plural == "Datas de Fabricação e Prazos"
 
 
 def test_ficha_tecnica_programa(ficha_tecnica_factory):
