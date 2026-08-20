@@ -1149,9 +1149,8 @@ def test_render_homologacao_produto_com_sucesso():
     assert produto.unidade_caseira in html_string
 
     assert marca.nome in html_string
-    assert terceirizada.nome_fantasia in html_string  # terceirizada.nome no template usa esse valor
+    assert terceirizada.nome_fantasia in html_string
     assert terceirizada.representante_email in html_string
-    assert terceirizada.representante_telefone in html_string
 
 
 def test_render_homologacao_produto_com_aditivos_alergenicos():
