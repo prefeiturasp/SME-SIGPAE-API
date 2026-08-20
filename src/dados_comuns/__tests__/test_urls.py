@@ -950,7 +950,7 @@ def test_url_nao_cadastra_duvida_frequente_com_perfil_nao_autorizado(
     ).exists()
 
 
-def test_url_lista_apenas_duvidas_visiveis_para_perfil_atual(
+def test_url_perfil_gerenciador_lista_todas_as_duvidas(
     client_autenticado_coordenador_codae,
 ):
     usuario = Usuario.objects.get(email="cogestor_1@sme.prefeitura.sp.gov.br")
@@ -992,10 +992,11 @@ def test_url_lista_apenas_duvidas_visiveis_para_perfil_atual(
     assert uuids == {
         str(pergunta_todos.uuid),
         str(pergunta_perfil_atual.uuid),
+        str(pergunta_outro_perfil.uuid),
     }
 
 
-def test_url_mantem_categorias_e_filtra_perguntas_por_perfil_atual(
+def test_url_perfil_gerenciador_lista_todas_as_duvidas_por_categoria(
     client_autenticado_coordenador_codae,
 ):
     usuario = Usuario.objects.get(email="cogestor_1@sme.prefeitura.sp.gov.br")
@@ -1037,4 +1038,6 @@ def test_url_mantem_categorias_e_filtra_perguntas_por_perfil_atual(
     assert categorias[str(categoria_com_pergunta.uuid)][0]["uuid"] == str(
         pergunta_visivel.uuid
     )
-    assert categorias[str(categoria_sem_pergunta_visivel.uuid)] == []
+    assert categorias[str(categoria_sem_pergunta_visivel.uuid)][0]["uuid"] == str(
+        pergunta_invisivel.uuid
+    )
