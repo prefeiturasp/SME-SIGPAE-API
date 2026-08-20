@@ -39,7 +39,6 @@ from ..dados_comuns.fluxo_status import (
 )
 from ..dados_comuns.fluxo_status import GuiaRemessaWorkFlow as GuiaStatus
 from ..dados_comuns.fluxo_status import (
-    ReclamacaoProdutoWorkflow,
     SolicitacaoMedicaoInicialWorkflow,
 )
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -93,7 +92,6 @@ from .utils import (
     formata_motivos_inclusao,
     get_config_cabecario_relatorio_analise,
     get_diretorias_regionais,
-    get_ultima_justificativa_analise_sensorial,
     get_width,
     todas_escolas_sol_kit_lanche_unificado_cancelado,
 )
@@ -1229,33 +1227,17 @@ def relatorio_produto_homologacao(request, produto):
     """
     Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
     Segura contra métodos HTTP inseguros.
-
     """
 
     valida_request_method_get(request)
 
     homologacao = produto.homologacao
     terceirizada = homologacao.rastro_terceirizada
-    reclamacao = homologacao.reclamacoes.filter(
-        status=ReclamacaoProdutoWorkflow.CODAE_ACEITOU
-    ).first()
-    logs = homologacao.logs
-    lotes = terceirizada.lotes.all()
-    justificativa_analise_sensorial = get_ultima_justificativa_analise_sensorial(
-        produto
-    )
     html_string = render_to_string(
         "homologacao_produto.html",
         {
             "terceirizada": terceirizada,
-            "reclamacao": reclamacao,
-            "homologacao": homologacao,
-            "fluxo": constants.FLUXO_HOMOLOGACAO_PRODUTO,
-            "width": get_width(constants.FLUXO_HOMOLOGACAO_PRODUTO, logs),
             "produto": produto,
-            "diretorias_regionais": get_diretorias_regionais(lotes),
-            "logs": formata_logs(logs),
-            "justificativa_analise_sensorial": justificativa_analise_sensorial,
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
