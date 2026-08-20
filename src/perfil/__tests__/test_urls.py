@@ -252,6 +252,7 @@ def test_confirmar_email(client, usuarios_pendentes_confirmacao, tipo_gestao):
                 "nome": "título do perfil",
                 "uuid": "d38e10da-c5e3-4dd5-9916-010fc250595a",
                 "visao": None,
+                "ativo": True,
             },
             "ativo": True,
         },

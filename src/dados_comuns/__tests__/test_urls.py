@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
 from ...escola.models import TipoUnidadeEscolar
+from ...perfil.models import Usuario
 from ..models import (
     CategoriaPerguntaFrequente,
     CentralDeDownload,
@@ -883,4 +884,160 @@ def test_url_lista_categorias_ordenadas_da_mais_antiga_para_mais_recente(
     )
     assert uuids.index(str(categoria_2.uuid)) < uuids.index(
         str(categoria_3.uuid)
+    )
+
+
+def test_url_cadastra_duvida_frequente_com_perfil_autorizado(
+    client,
+    usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda,
+):
+    usuario = (
+        usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda
+    )
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="16e630a8-4564-4c32-888a-47615407b4b4",
+    )
+    perfil = baker.make(
+        "Perfil",
+        uuid="602e25e5-3d0e-44a2-8993-6b30742ee924",
+        ativo=True,
+    )
+    client.force_login(usuario)
+
+    response = client.post(
+        "/perguntas-frequentes/",
+        content_type="application/json",
+        data={
+            "categoria": str(categoria.uuid),
+            "perfis": [str(perfil.uuid)],
+            "todos_os_perfis": False,
+            "pergunta": "Como consultar uma dúvida frequente?",
+            "resposta": "Acesse a página de Ajuda.",
+        },
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    pergunta = PerguntaFrequente.objects.get(uuid=response.json()["uuid"])
+    assert pergunta.categoria == categoria
+    assert list(pergunta.perfis.all()) == [perfil]
+
+
+def test_url_nao_cadastra_duvida_frequente_com_perfil_nao_autorizado(
+    usuario_teste_notificacao_autenticado,
+):
+    _, client = usuario_teste_notificacao_autenticado
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="e9273c66-396d-4996-8530-4251037e36f2",
+    )
+
+    response = client.post(
+        "/perguntas-frequentes/",
+        content_type="application/json",
+        data={
+            "categoria": str(categoria.uuid),
+            "perfis": [],
+            "todos_os_perfis": True,
+            "pergunta": "Dúvida sem permissão",
+            "resposta": "Esta dúvida não deve ser cadastrada.",
+        },
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert not PerguntaFrequente.objects.filter(
+        pergunta="Dúvida sem permissão"
+    ).exists()
+
+
+def test_url_perfil_gerenciador_lista_todas_as_duvidas(
+    client_autenticado_coordenador_codae,
+):
+    usuario = Usuario.objects.get(email="cogestor_1@sme.prefeitura.sp.gov.br")
+    perfil_atual = usuario.vinculo_atual.perfil
+    outro_perfil = baker.make(
+        "Perfil",
+        uuid="6886938f-73a8-4be5-b223-943c580863a2",
+        ativo=True,
+    )
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="2794fa5f-0bd8-4687-97ae-67b6ea21403c",
+    )
+    pergunta_todos = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        todos_os_perfis=True,
+        uuid="6d003422-d965-47cf-a618-a12c23cb5464",
+    )
+    pergunta_perfil_atual = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        todos_os_perfis=False,
+        uuid="22573ae0-8364-41fb-a35f-64136942d67d",
+    )
+    pergunta_outro_perfil = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        todos_os_perfis=False,
+        uuid="782b6b12-1180-4788-ad71-a967e4313859",
+    )
+    pergunta_perfil_atual.perfis.add(perfil_atual)
+    pergunta_outro_perfil.perfis.add(outro_perfil)
+
+    response = client_autenticado_coordenador_codae.get("/perguntas-frequentes/")
+
+    assert response.status_code == status.HTTP_200_OK
+    uuids = {item["uuid"] for item in response.json()["results"]}
+    assert uuids == {
+        str(pergunta_todos.uuid),
+        str(pergunta_perfil_atual.uuid),
+        str(pergunta_outro_perfil.uuid),
+    }
+
+
+def test_url_perfil_gerenciador_lista_todas_as_duvidas_por_categoria(
+    client_autenticado_coordenador_codae,
+):
+    usuario = Usuario.objects.get(email="cogestor_1@sme.prefeitura.sp.gov.br")
+    perfil_atual = usuario.vinculo_atual.perfil
+    outro_perfil = baker.make(
+        "Perfil",
+        uuid="3b198176-5b92-447a-be4e-a31b58797c68",
+        ativo=True,
+    )
+    categoria_com_pergunta = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="1ff561ec-f454-4303-8bbc-43a577b9eeaf",
+    )
+    categoria_sem_pergunta_visivel = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="db8cf575-3b92-4b4b-b654-c6235952957c",
+    )
+    pergunta_visivel = baker.make(
+        PerguntaFrequente,
+        categoria=categoria_com_pergunta,
+        todos_os_perfis=False,
+        uuid="118bdfa7-7ab0-447a-a431-5659d0b54cf5",
+    )
+    pergunta_invisivel = baker.make(
+        PerguntaFrequente,
+        categoria=categoria_sem_pergunta_visivel,
+        todos_os_perfis=False,
+        uuid="af441715-b128-4247-85a7-c621824e55c4",
+    )
+    pergunta_visivel.perfis.add(perfil_atual)
+    pergunta_invisivel.perfis.add(outro_perfil)
+
+    response = client_autenticado_coordenador_codae.get(
+        "/categorias-pergunta-frequente/perguntas-por-categoria/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    categorias = {item["uuid"]: item["perguntas"] for item in response.json()}
+    assert categorias[str(categoria_com_pergunta.uuid)][0]["uuid"] == str(
+        pergunta_visivel.uuid
+    )
+    assert categorias[str(categoria_sem_pergunta_visivel.uuid)][0]["uuid"] == str(
+        pergunta_invisivel.uuid
     )

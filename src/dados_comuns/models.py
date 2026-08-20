@@ -481,6 +481,12 @@ class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
     categoria = models.ForeignKey(
         "CategoriaPerguntaFrequente", on_delete=models.CASCADE
     )
+    perfis = models.ManyToManyField(
+        "perfil.Perfil",
+        related_name="perguntas_frequentes",
+        blank=True,
+    )
+    todos_os_perfis = models.BooleanField(default=False)
     pergunta = models.TextField("Pergunta")
     resposta = models.TextField("Resposta")
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
