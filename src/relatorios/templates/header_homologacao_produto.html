@@ -105,7 +105,7 @@
     <div class="col">
       <span class="pt-2 pb-2 grow-2">Nº da Solicitação: <strong>{{ produto.id_externo }}</strong></span>
       <span class="pb-2 grow-2"></br></span>
-      <span class="pb-2 grow-2">Telefone: <strong>{{ terceirizada.representante_telefone }}</strong></span>
+      <span class="pb-2 grow-2">Telefone: <strong>{{ produto.ultima_homologacao.rastro_terceirizada.contatos.all.0.telefone }}</strong></span>
     </div>
   </div>
 </header>
