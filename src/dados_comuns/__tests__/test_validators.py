@@ -24,7 +24,6 @@ from ..validators import (
     deve_ter_extensao_xls_xlsx_pdf,
     dia_util,
     escola_tem_dia_letivo_no_calendario,
-    existe_inclusao_alimentacao_autorizada_com_refeicao_e_lanche,
     nao_pode_ser_feriado,
     nao_pode_ser_no_passado,
     objeto_nao_deve_ter_duplicidade,
@@ -270,42 +269,30 @@ def test_valida_duplicidade_solicitacoes_duplicada_cei(
         valida_duplicidade_solicitacoes_cei(solicitacao_substituicao_cardapio_cei, data)
 
 
-def _make_inclusao_normal_autorizada_com_refeicao_e_lanche(escola, data):
+def _make_inclusao_normal_autorizada(escola, data, periodo_tipos):
+    """Cria uma inclusão normal autorizada com períodos e tipos informados.
+
+    Args:
+        escola (Escola): Escola da inclusão.
+        data (datetime.date): Data da inclusão.
+        periodo_tipos (dict): Mapeamento ``{periodo_nome: [tipo_nomes]}``.
+    """
     grupo = baker.make(
         "GrupoInclusaoAlimentacaoNormal",
         escola=escola,
         status="CODAE_AUTORIZADO",
     )
     baker.make("InclusaoAlimentacaoNormal", grupo_inclusao=grupo, data=data)
-    refeicao = baker.make("TipoAlimentacao", nome="Refeição")
-    lanche = baker.make("TipoAlimentacao", nome="Lanche")
-    quantidade = baker.make(
-        "QuantidadePorPeriodo",
-        grupo_inclusao_normal=grupo,
-        numero_alunos=100,
-        periodo_escolar=baker.make("PeriodoEscolar"),
-    )
-    quantidade.tipos_alimentacao.set([refeicao, lanche])
-    return grupo
-
-
-def _make_inclusao_normal_autorizada_periodos(escola, data, periodo_nomes):
-    grupo = baker.make(
-        "GrupoInclusaoAlimentacaoNormal",
-        escola=escola,
-        status="CODAE_AUTORIZADO",
-    )
-    baker.make("InclusaoAlimentacaoNormal", grupo_inclusao=grupo, data=data)
-    refeicao = baker.make("TipoAlimentacao", nome="Refeição")
-    lanche = baker.make("TipoAlimentacao", nome="Lanche")
-    for nome in periodo_nomes:
+    for periodo_nome, tipo_nomes in periodo_tipos.items():
         quantidade = baker.make(
             "QuantidadePorPeriodo",
             grupo_inclusao_normal=grupo,
             numero_alunos=100,
-            periodo_escolar=baker.make("PeriodoEscolar", nome=nome),
+            periodo_escolar=baker.make("PeriodoEscolar", nome=periodo_nome),
         )
-        quantidade.tipos_alimentacao.set([refeicao, lanche])
+        quantidade.tipos_alimentacao.set(
+            [baker.make("TipoAlimentacao", nome=nome) for nome in tipo_nomes]
+        )
     return grupo
 
 
@@ -352,41 +339,6 @@ def test_unidade_tem_dia_letivo_sigpae_outra_escola(escola):
     dia_letivo = baker.make(DiaLetivoSIGPAE, data=data)
     dia_letivo.escolas.add(outra_escola)
     assert unidade_tem_dia_letivo_sigpae(escola, data) is False
-
-
-def test_existe_inclusao_alimentacao_autorizada_com_refeicao_e_lanche(escola):
-    data = datetime.date(2024, 4, 10)
-    _make_inclusao_normal_autorizada_com_refeicao_e_lanche(escola, data)
-    assert (
-        existe_inclusao_alimentacao_autorizada_com_refeicao_e_lanche(
-            escola, data, GrupoInclusaoAlimentacaoNormal
-        )
-        is True
-    )
-
-
-def test_existe_inclusao_alimentacao_autorizada_sem_lanche(escola):
-    data = datetime.date(2024, 4, 10)
-    grupo = baker.make(
-        "GrupoInclusaoAlimentacaoNormal",
-        escola=escola,
-        status="CODAE_AUTORIZADO",
-    )
-    baker.make("InclusaoAlimentacaoNormal", grupo_inclusao=grupo, data=data)
-    refeicao = baker.make("TipoAlimentacao", nome="Refeição")
-    quantidade = baker.make(
-        "QuantidadePorPeriodo",
-        grupo_inclusao_normal=grupo,
-        numero_alunos=100,
-        periodo_escolar=baker.make("PeriodoEscolar"),
-    )
-    quantidade.tipos_alimentacao.set([refeicao])
-    assert (
-        existe_inclusao_alimentacao_autorizada_com_refeicao_e_lanche(
-            escola, data, GrupoInclusaoAlimentacaoNormal
-        )
-        is False
-    )
 
 
 def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_com_dia_letivo(escola):
@@ -456,7 +408,7 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_sabado_com_dia_letivo_sig
 
 def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_sabado_com_inclusao(escola):
     data = datetime.date(2024, 4, 13)  # sábado
-    _make_inclusao_normal_autorizada_com_refeicao_e_lanche(escola, data)
+    _make_inclusao_normal_autorizada(escola, data, {"MANHA": ["Refeição", "Lanche"]})
     assert (
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
             escola, data, GrupoInclusaoAlimentacaoNormal
@@ -467,7 +419,7 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_sabado_com_inclusao(escol
 
 def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_com_inclusao(escola):
     data = datetime.date(2024, 4, 10)
-    _make_inclusao_normal_autorizada_com_refeicao_e_lanche(escola, data)
+    _make_inclusao_normal_autorizada(escola, data, {"MANHA": ["Refeição", "Lanche"]})
     assert (
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
             escola, data, GrupoInclusaoAlimentacaoNormal
@@ -478,10 +430,13 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_com_inclusao(escola):
 
 def test_valida_rpl_inclusao_periodo_contido(escola):
     data = datetime.date(2024, 4, 10)
-    _make_inclusao_normal_autorizada_periodos(escola, data, ["MANHA"])
+    _make_inclusao_normal_autorizada(escola, data, {"MANHA": ["Refeição", "Lanche"]})
     assert (
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-            escola, data, GrupoInclusaoAlimentacaoNormal, ["MANHA"]
+            escola,
+            data,
+            GrupoInclusaoAlimentacaoNormal,
+            [{"periodo": "MANHA", "lanches": ["Lanche"]}],
         )
         is True
     )
@@ -489,37 +444,104 @@ def test_valida_rpl_inclusao_periodo_contido(escola):
 
 def test_valida_rpl_inclusao_periodo_nao_contido(escola):
     data = datetime.date(2024, 4, 10)
-    _make_inclusao_normal_autorizada_periodos(escola, data, ["MANHA"])
+    _make_inclusao_normal_autorizada(escola, data, {"MANHA": ["Refeição", "Lanche"]})
     with pytest.raises(
         ValidationError,
         match="somente nos períodos MANHA",
     ):
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-            escola, data, GrupoInclusaoAlimentacaoNormal, ["TARDE"]
+            escola,
+            data,
+            GrupoInclusaoAlimentacaoNormal,
+            [{"periodo": "TARDE", "lanches": ["Lanche"]}],
         )
 
 
 def test_valida_rpl_inclusao_um_periodo_nao_contido_entre_varios(escola):
     data = datetime.date(2024, 4, 10)
-    _make_inclusao_normal_autorizada_periodos(escola, data, ["MANHA", "TARDE"])
+    _make_inclusao_normal_autorizada(
+        escola,
+        data,
+        {"MANHA": ["Refeição", "Lanche"], "TARDE": ["Refeição", "Lanche"]},
+    )
     with pytest.raises(
         ValidationError,
         match="somente nos períodos MANHA e TARDE",
     ):
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-            escola, data, GrupoInclusaoAlimentacaoNormal, ["MANHA", "INTEGRAL"]
+            escola,
+            data,
+            GrupoInclusaoAlimentacaoNormal,
+            [
+                {"periodo": "MANHA", "lanches": ["Lanche"]},
+                {"periodo": "INTEGRAL", "lanches": ["Lanche"]},
+            ],
         )
 
 
 def test_valida_rpl_inclusao_todos_periodos_contidos(escola):
     data = datetime.date(2024, 4, 10)
-    _make_inclusao_normal_autorizada_periodos(escola, data, ["MANHA", "TARDE"])
+    _make_inclusao_normal_autorizada(
+        escola,
+        data,
+        {"MANHA": ["Refeição", "Lanche"], "TARDE": ["Refeição", "Lanche"]},
+    )
     assert (
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-            escola, data, GrupoInclusaoAlimentacaoNormal, ["MANHA", "TARDE"]
+            escola,
+            data,
+            GrupoInclusaoAlimentacaoNormal,
+            [
+                {"periodo": "MANHA", "lanches": ["Lanche"]},
+                {"periodo": "TARDE", "lanches": ["Lanche"]},
+            ],
         )
         is True
     )
+
+
+def test_valida_rpl_inclusao_sem_refeicao_e_lanche(escola):
+    data = datetime.date(2024, 4, 10)
+    _make_inclusao_normal_autorizada(escola, data, {"MANHA": ["Refeição"]})
+    with pytest.raises(
+        ValidationError,
+        match="não possui Refeição e Lanche autorizado para o periodo MANHA",
+    ):
+        valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+            escola,
+            data,
+            GrupoInclusaoAlimentacaoNormal,
+            [{"periodo": "MANHA", "lanches": ["Lanche"]}],
+        )
+
+
+def test_valida_rpl_inclusao_com_lanche_4h(escola):
+    data = datetime.date(2024, 4, 10)
+    _make_inclusao_normal_autorizada(escola, data, {"MANHA": ["Refeição", "Lanche 4h"]})
+    assert (
+        valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+            escola,
+            data,
+            GrupoInclusaoAlimentacaoNormal,
+            [{"periodo": "MANHA", "lanches": ["Lanche 4h"]}],
+        )
+        is True
+    )
+
+
+def test_valida_rpl_inclusao_lanche_4h_nao_autorizado(escola):
+    data = datetime.date(2024, 4, 10)
+    _make_inclusao_normal_autorizada(escola, data, {"MANHA": ["Refeição", "Lanche"]})
+    with pytest.raises(
+        ValidationError,
+        match="não possui Refeição e Lanche 4h autorizado para o periodo MANHA",
+    ):
+        valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+            escola,
+            data,
+            GrupoInclusaoAlimentacaoNormal,
+            [{"periodo": "MANHA", "lanches": ["Lanche 4h"]}],
+        )
 
 
 def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_sem_nada(escola):
@@ -544,9 +566,21 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_inclusao_cei(escola):
     refeicao = baker.make("TipoAlimentacao", nome="Refeição")
     lanche = baker.make("TipoAlimentacao", nome="Lanche")
     inclusao.tipos_alimentacao.set([refeicao, lanche])
+    faixa = baker.make("FaixaEtaria")
+    periodo_externo = baker.make("PeriodoEscolar", nome="MANHA")
+    baker.make(
+        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI",
+        inclusao_alimentacao_da_cei=inclusao,
+        faixa_etaria=faixa,
+        quantidade_alunos=10,
+        periodo_externo=periodo_externo,
+    )
     assert (
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-            escola, data, InclusaoAlimentacaoDaCEI
+            escola,
+            data,
+            InclusaoAlimentacaoDaCEI,
+            [{"periodo": "MANHA", "lanches": ["Lanche"]}],
         )
         is True
     )
@@ -566,16 +600,20 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_inclusao_cemei(escola):
     )
     refeicao = baker.make("TipoAlimentacao", nome="Refeição")
     lanche = baker.make("TipoAlimentacao", nome="Lanche")
+    periodo = baker.make("PeriodoEscolar", nome="MANHA")
     quantidade = baker.make(
         "QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI",
         inclusao_alimentacao_cemei=inclusao,
         quantidade_alunos=10,
-        periodo_escolar=baker.make("PeriodoEscolar"),
+        periodo_escolar=periodo,
     )
     quantidade.tipos_alimentacao.set([refeicao, lanche])
     assert (
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-            escola, data, InclusaoDeAlimentacaoCEMEI
+            escola,
+            data,
+            InclusaoDeAlimentacaoCEMEI,
+            [{"periodo": "MANHA", "lanches": ["Lanche"]}],
         )
         is True
     )

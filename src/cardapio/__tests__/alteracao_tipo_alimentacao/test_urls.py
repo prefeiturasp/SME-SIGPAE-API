@@ -1241,3 +1241,51 @@ def test_url_endpoint_alt_card_rpl_com_inclusao_normal_autorizada(
         data=json.dumps(data),
     )
     assert response.status_code == status.HTTP_201_CREATED
+
+
+@freeze_time("2023-11-09")
+def test_url_endpoint_alt_card_rpl_inclusao_sem_lanche_para_periodo(
+    client_autenticado_vinculo_escola_cardapio,
+    motivo_alteracao_cardapio_rpl,
+    escola_com_vinculo_alimentacao,
+    periodo_manha,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    grupo = baker.make(
+        "GrupoInclusaoAlimentacaoNormal",
+        escola=escola_com_vinculo_alimentacao,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "InclusaoAlimentacaoNormal",
+        grupo_inclusao=grupo,
+        data=datetime.date(2023, 11, 18),
+    )
+    quantidade = baker.make(
+        "QuantidadePorPeriodo",
+        grupo_inclusao_normal=grupo,
+        numero_alunos=100,
+        periodo_escolar=periodo_manha,
+    )
+    quantidade.tipos_alimentacao.set([tipo_alimentacao])
+
+    data = _payload_rpl(
+        escola_com_vinculo_alimentacao,
+        motivo_alteracao_cardapio_rpl,
+        periodo_manha,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+    )
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "non_field_errors": [
+            "Para o dia 18/11, a inclusão autorizada não possui Refeição e "
+            "Lanche autorizado para o periodo MANHA."
+        ]
+    }
