@@ -148,15 +148,25 @@ class AlteracaoCardapioCEISerializerCreate(AlteracaoCardapioSerializerCreateBase
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cei(attrs, data)
             escola = Escola.objects.get(uuid=attrs["escola"])
-            periodos = []
+            periodos_lanches = []
             for substituicao in attrs.get("substituicoes", []):
                 periodo_uuid = substituicao.get("periodo_escolar")
-                if periodo_uuid:
-                    periodo = PeriodoEscolar.objects.filter(uuid=periodo_uuid).first()
-                    if periodo:
-                        periodos.append(periodo.nome)
+                periodo = (
+                    PeriodoEscolar.objects.filter(uuid=periodo_uuid).first()
+                    if periodo_uuid
+                    else None
+                )
+                if not periodo:
+                    continue
+                lanches = []
+                para_uuid = substituicao.get("tipo_alimentacao_para")
+                if para_uuid:
+                    para = TipoAlimentacao.objects.filter(uuid=para_uuid).first()
+                    if para:
+                        lanches.append(para.nome)
+                periodos_lanches.append({"periodo": periodo.nome, "lanches": lanches})
             valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-                escola, data, InclusaoAlimentacaoDaCEI, periodos
+                escola, data, InclusaoAlimentacaoDaCEI, periodos_lanches
             )
         return data
 

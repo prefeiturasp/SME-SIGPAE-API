@@ -335,22 +335,36 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         motivo = validated_data.get("motivo", None)
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cemei(validated_data)
-            periodos = [
-                substituicao["periodo_escolar"].nome
-                for substituicao in validated_data.get(
-                    "substituicoes_cemei_cei_periodo_escolar", []
+            periodos_lanches = []
+            for substituicao in validated_data.get(
+                "substituicoes_cemei_cei_periodo_escolar", []
+            ):
+                periodos_lanches.append(
+                    {
+                        "periodo": substituicao["periodo_escolar"].nome,
+                        "lanches": [
+                            tipo.nome
+                            for tipo in substituicao.get("tipos_alimentacao_para", [])
+                        ],
+                    }
                 )
-            ] + [
-                substituicao["periodo_escolar"].nome
-                for substituicao in validated_data.get(
-                    "substituicoes_cemei_emei_periodo_escolar", []
+            for substituicao in validated_data.get(
+                "substituicoes_cemei_emei_periodo_escolar", []
+            ):
+                periodos_lanches.append(
+                    {
+                        "periodo": substituicao["periodo_escolar"].nome,
+                        "lanches": [
+                            tipo.nome
+                            for tipo in substituicao.get("tipos_alimentacao_para", [])
+                        ],
+                    }
                 )
-            ]
             valida_dia_letivo_ou_inclusao_alimentacao_rpl(
                 validated_data["escola"],
                 validated_data["alterar_dia"],
                 InclusaoDeAlimentacaoCEMEI,
-                periodos,
+                periodos_lanches,
             )
         substituicoes_cemei_cei_periodo_escolar = validated_data.pop(
             "substituicoes_cemei_cei_periodo_escolar", []
