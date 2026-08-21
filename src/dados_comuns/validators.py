@@ -17,12 +17,13 @@ from ..cardapio.alteracao_tipo_alimentacao_cei.models import (
 )
 from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
 from .constants import obter_dias_uteis_apos_hoje
-from .utils import datetime_range, eh_dia_util
+from .utils import datetime_range, eh_dia_util, eh_fim_de_semana
 
 calendario = BrazilSaoPauloCity()
 ERROR_MSG_EXISTE_RPL_MES = (
     "Já existe uma solicitação de RPL para o mês e período selecionado!"
 )
+RPL_MOTIVO_NOME = "RPL - Refeição por Lanche"
 
 
 def nao_pode_ser_no_passado(data: datetime.date):
@@ -149,6 +150,161 @@ def valida_duplicidade_solicitacoes_cemei(attrs):
     if solicitacoes:
         raise serializers.ValidationError(ERROR_MSG_EXISTE_RPL_MES)
     return True
+
+
+def escola_tem_dia_letivo_no_calendario(escola, data):
+    """Verifica se a escola possui dia letivo no DiaCalendario para a data.
+
+    A consulta considera qualquer registro de ``DiaCalendario`` da escola com
+    ``dia_letivo=True`` para a data informada.
+
+    Args:
+        escola (Escola): Unidade educacional que está fazendo a solicitação.
+        data (datetime.date): Data informada na solicitação.
+
+    Returns:
+        bool: ``True`` quando a escola possui ``DiaCalendario`` com
+        ``dia_letivo=True`` para a data.
+    """
+    return escola.calendario.filter(data=data, dia_letivo=True).exists()
+
+
+def unidade_tem_dia_letivo_sigpae(escola, data):
+    """Verifica se a unidade educacional possui DiaLetivoSIGPAE para a data.
+
+    A unidade é considerada contemplada pelo DiaLetivoSIGPAE quando:
+        - está listada diretamente no ``escolas`` do DiaLetivoSIGPAE da data; OU
+        - não existe nenhuma unidade listada no DiaLetivoSIGPAE da data, mas o
+          ``lotes`` e o ``tipos_unidade_escolar`` daquele dia contemplam o lote
+          e o tipo de unidade da escola.
+
+    Args:
+        escola (Escola): Unidade educacional que está fazendo a solicitação.
+        data (datetime.date): Data informada na solicitação.
+
+    Returns:
+        bool: ``True`` quando a escola está contemplada por algum
+        DiaLetivoSIGPAE da data.
+    """
+    from ..escola.dias_letivos.models import DiaLetivoSIGPAE
+
+    dias_letivos = DiaLetivoSIGPAE.objects.filter(data=data)
+    if dias_letivos.filter(escolas=escola).exists():
+        return True
+    return dias_letivos.filter(
+        escolas=None,
+        lotes=escola.lote,
+        tipos_unidade_escolar=escola.tipo_unidade,
+    ).exists()
+
+
+def existe_inclusao_alimentacao_autorizada_com_refeicao_e_lanche(escola, data, modelo):
+    """Verifica se existe uma Inclusão de Alimentação autorizada na data.
+
+    Considera apenas inclusões que não sejam do tipo Inclusão Contínua e que
+    tenham, simultaneamente, os tipos de alimentação Refeição e Lanche.
+
+    Args:
+        escola (Escola): Unidade educacional que está fazendo a solicitação.
+        data (datetime.date): Data informada na solicitação.
+        modelo (Model): Modelo de inclusão de alimentação a ser consultado. Pode
+            ser ``GrupoInclusaoAlimentacaoNormal``,
+            ``InclusaoAlimentacaoDaCEI`` ou ``InclusaoDeAlimentacaoCEMEI``.
+
+    Returns:
+        bool: ``True`` quando existe inclusão autorizada com refeição e lanche
+        para a data informada.
+    """
+    from ..inclusao_alimentacao.models import (
+        GrupoInclusaoAlimentacaoNormal,
+        InclusaoAlimentacaoDaCEI,
+        InclusaoDeAlimentacaoCEMEI,
+    )
+
+    if modelo is GrupoInclusaoAlimentacaoNormal:
+        return (
+            modelo.objects.filter(
+                escola=escola,
+                status="CODAE_AUTORIZADO",
+                inclusoes_normais__data=data,
+                inclusoes_normais__cancelado=False,
+                quantidades_por_periodo__tipos_alimentacao__nome="Refeição",
+            )
+            .filter(quantidades_por_periodo__tipos_alimentacao__nome="Lanche")
+            .exists()
+        )
+
+    if modelo is InclusaoAlimentacaoDaCEI:
+        return (
+            modelo.objects.filter(
+                escola=escola,
+                status="CODAE_AUTORIZADO",
+                dias_motivos_da_inclusao_cei__data=data,
+                dias_motivos_da_inclusao_cei__cancelado=False,
+                tipos_alimentacao__nome="Refeição",
+            )
+            .filter(tipos_alimentacao__nome="Lanche")
+            .exists()
+        )
+
+    if modelo is InclusaoDeAlimentacaoCEMEI:
+        return (
+            modelo.objects.filter(
+                escola=escola,
+                status="CODAE_AUTORIZADO",
+                dias_motivos_da_inclusao_cemei__data=data,
+                dias_motivos_da_inclusao_cemei__cancelado=False,
+                quantidade_alunos_emei_da_inclusao_cemei__tipos_alimentacao__nome="Refeição",
+            )
+            .filter(
+                quantidade_alunos_emei_da_inclusao_cemei__tipos_alimentacao__nome="Lanche"
+            )
+            .exists()
+        )
+
+    return False
+
+
+def valida_dia_letivo_ou_inclusao_alimentacao_rpl(escola, data, modelo):
+    """Valida a data de uma solicitação RPL para a unidade educacional.
+
+    Permite o envio quando:
+        - de segunda a sexta, a escola possui ``DiaCalendario`` com
+          ``dia_letivo=True`` para a data; OU
+        - a unidade possui DiaLetivoSIGPAE para a data; OU
+        - existe uma Inclusão de Alimentação autorizada (não contínua) para a
+          mesma data com refeição e lanche.
+
+    A verificação de ``DiaCalendario`` é aplicada somente de segunda a sexta.
+    Aos sábados e domingos, valem sempre as regras de DiaLetivoSIGPAE ou de
+    inclusão de alimentação autorizada.
+
+    Caso nenhuma das condições seja atendida, impede o envio da solicitação.
+
+    Args:
+        escola (Escola): Unidade educacional que está fazendo a solicitação.
+        data (datetime.date): Data informada na solicitação.
+        modelo (Model): Modelo de inclusão de alimentação a ser consultado.
+
+    Returns:
+        bool: ``True`` quando a data é válida para a solicitação RPL.
+
+    Raises:
+        serializers.ValidationError: Quando a data não é um dia letivo e não
+        existe uma inclusão de alimentação para a data.
+    """
+    if not eh_fim_de_semana(data) and escola_tem_dia_letivo_no_calendario(escola, data):
+        return True
+    if unidade_tem_dia_letivo_sigpae(escola, data):
+        return True
+    if existe_inclusao_alimentacao_autorizada_com_refeicao_e_lanche(
+        escola, data, modelo
+    ):
+        return True
+    raise serializers.ValidationError(
+        f'Dia {data.strftime("%d/%m")} não é um dia letivo ou não existe uma '
+        "inclusão de alimentação para a data"
+    )
 
 
 def deve_ser_dia_letivo_e_dia_da_semana(escola, data: datetime.date):

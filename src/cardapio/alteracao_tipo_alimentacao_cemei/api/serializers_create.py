@@ -19,9 +19,11 @@ from src.dados_comuns.validators import (
     deve_pedir_com_antecedencia,
     deve_ser_no_mesmo_ano_corrente,
     nao_pode_ser_no_passado,
+    valida_dia_letivo_ou_inclusao_alimentacao_rpl,
     valida_duplicidade_solicitacoes_cemei,
 )
 from src.escola.models import Escola, FaixaEtaria, PeriodoEscolar
+from src.inclusao_alimentacao.models import InclusaoDeAlimentacaoCEMEI
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEMEICEICreateSerializer(
@@ -333,6 +335,11 @@ class AlteracaoCardapioCEMEISerializerCreate(serializers.ModelSerializer):
         motivo = validated_data.get("motivo", None)
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cemei(validated_data)
+            valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+                validated_data["escola"],
+                validated_data["alterar_dia"],
+                InclusaoDeAlimentacaoCEMEI,
+            )
         substituicoes_cemei_cei_periodo_escolar = validated_data.pop(
             "substituicoes_cemei_cei_periodo_escolar", []
         )
