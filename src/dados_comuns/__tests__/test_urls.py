@@ -950,6 +950,44 @@ def test_url_nao_cadastra_duvida_frequente_com_perfil_nao_autorizado(
     ).exists()
 
 
+def test_url_lista_duvidas_ordenadas_e_paginadas(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="b41e9df6-bf6d-467b-a438-cffe80c1fa13",
+    )
+    datas = [
+        "2026-08-01",
+        "2026-08-02",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+    ]
+    perguntas = []
+
+    for data in datas:
+        with freeze_time(data):
+            perguntas.append(
+                baker.make(
+                    PerguntaFrequente,
+                    categoria=categoria,
+                    todos_os_perfis=True,
+                )
+            )
+
+    response = client_autenticado_coordenador_codae.get("/perguntas-frequentes/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 6
+    assert response.json()["page_size"] == 5
+    assert len(response.json()["results"]) == 5
+    assert [item["uuid"] for item in response.json()["results"]] == [
+        str(pergunta.uuid) for pergunta in reversed(perguntas)
+    ][:5]
+
+
 def test_url_perfil_gerenciador_lista_todas_as_duvidas(
     client_autenticado_coordenador_codae,
 ):
