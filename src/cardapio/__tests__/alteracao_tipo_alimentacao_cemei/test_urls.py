@@ -1,7 +1,9 @@
+import datetime
 import json
 
 import pytest
 from freezegun import freeze_time
+from model_bakery import baker
 from rest_framework import status
 
 from src.dados_comuns import constants
@@ -10,6 +12,7 @@ from src.dados_comuns.constants import (
     PEDIDOS_DRE,
     SEM_FILTRO,
 )
+from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 
 pytestmark = pytest.mark.django_db
 
@@ -157,3 +160,93 @@ def test_url_alteracoes_cardapio_cemei_dre(client_autenticado_vinculo_dre_escola
     assert "count" not in data
     assert "results" in data
     assert isinstance(data["results"], list)
+
+
+def _payload_rpl_cemei(
+    escola_cemei,
+    motivo_rpl,
+    periodo_escolar,
+    tipo_alimentacao_refeicao,
+    tipo_alimentacao_lanche,
+    faixas_etarias_ativas,
+):
+    return {
+        "escola": str(escola_cemei.uuid),
+        "motivo": str(motivo_rpl.uuid),
+        "alunos_cei_e_ou_emei": "CEI",
+        "alterar_dia": "30/07/2023",
+        "substituicoes_cemei_cei_periodo_escolar": [
+            {
+                "periodo_escolar": str(periodo_escolar.uuid),
+                "tipos_alimentacao_de": [str(tipo_alimentacao_refeicao.uuid)],
+                "tipos_alimentacao_para": [str(tipo_alimentacao_lanche.uuid)],
+                "faixas_etarias": [
+                    {
+                        "faixa_etaria": str(faixas_etarias_ativas[0].uuid),
+                        "quantidade": "12",
+                        "matriculados_quando_criado": 33,
+                    }
+                ],
+            }
+        ],
+        "substituicoes_cemei_emei_periodo_escolar": [],
+        "observacao": "<p>teste</p>",
+    }
+
+
+@freeze_time("2023-07-14")
+def test_create_alteracao_cemei_rpl_sem_dia_letivo_ou_inclusao_deve_bloquear(
+    client_autenticado_vinculo_escola_cemei,
+    escola_cemei,
+    motivo_alteracao_cardapio_rpl,
+    periodo_escolar,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+    faixas_etarias_ativas,
+):
+    data = _payload_rpl_cemei(
+        escola_cemei,
+        motivo_alteracao_cardapio_rpl,
+        periodo_escolar,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+        faixas_etarias_ativas,
+    )
+    response = client_autenticado_vinculo_escola_cemei.post(
+        "/alteracoes-cardapio-cemei/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == [
+        "Dia 30/07 não é um dia letivo ou não existe uma inclusão de "
+        "alimentação para a data"
+    ]
+
+
+@freeze_time("2023-07-14")
+def test_create_alteracao_cemei_rpl_com_dia_letivo_sigpae(
+    client_autenticado_vinculo_escola_cemei,
+    escola_cemei,
+    motivo_alteracao_cardapio_rpl,
+    periodo_escolar,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+    faixas_etarias_ativas,
+):
+    dia_letivo = baker.make(DiaLetivoSIGPAE, data=datetime.date(2023, 7, 30))
+    dia_letivo.escolas.add(escola_cemei)
+    data = _payload_rpl_cemei(
+        escola_cemei,
+        motivo_alteracao_cardapio_rpl,
+        periodo_escolar,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+        faixas_etarias_ativas,
+    )
+    response = client_autenticado_vinculo_escola_cemei.post(
+        "/alteracoes-cardapio-cemei/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_201_CREATED

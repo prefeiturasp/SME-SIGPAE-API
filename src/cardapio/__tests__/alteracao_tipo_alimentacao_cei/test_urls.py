@@ -1,4 +1,9 @@
+import datetime
+import json
+
 import pytest
+from freezegun import freeze_time
+from model_bakery import baker
 from rest_framework import status
 
 from src.dados_comuns import constants
@@ -8,6 +13,7 @@ from src.dados_comuns.constants import (
     SEM_FILTRO,
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
+from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 
 pytestmark = pytest.mark.django_db
 
@@ -81,3 +87,79 @@ def test_url_alteracoes_cardapio_cei_dre(client_autenticado_vinculo_dre_inclusao
     assert "count" not in data
     assert "results" in data
     assert isinstance(data["results"], list)
+
+
+def _payload_rpl_cei(
+    escola_cei,
+    motivo_rpl,
+    periodo_escolar,
+    tipo_alimentacao_refeicao,
+    tipo_alimentacao_lanche,
+):
+    return {
+        "escola": str(escola_cei.uuid),
+        "motivo": str(motivo_rpl.uuid),
+        "data": "18/11/2023",
+        "substituicoes": [
+            {
+                "periodo_escolar": str(periodo_escolar.uuid),
+                "tipos_alimentacao_de": [str(tipo_alimentacao_refeicao.uuid)],
+                "tipo_alimentacao_para": str(tipo_alimentacao_lanche.uuid),
+                "faixas_etarias": [],
+            }
+        ],
+    }
+
+
+@freeze_time("2023-11-09")
+def test_alteracao_cei_rpl_sem_dia_letivo_ou_inclusao_deve_bloquear(
+    client_autenticado_vinculo_escola_cei_cardapio,
+    escola_cei,
+    motivo_alteracao_cardapio_rpl,
+    periodo_escolar,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    data = _payload_rpl_cei(
+        escola_cei,
+        motivo_alteracao_cardapio_rpl,
+        periodo_escolar,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+    )
+    response = client_autenticado_vinculo_escola_cei_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD_CEI}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["data"] == [
+        "Dia 18/11 não é um dia letivo ou não existe uma inclusão de "
+        "alimentação para a data"
+    ]
+
+
+@freeze_time("2023-11-09")
+def test_alteracao_cei_rpl_com_dia_letivo_sigpae(
+    client_autenticado_vinculo_escola_cei_cardapio,
+    escola_cei,
+    motivo_alteracao_cardapio_rpl,
+    periodo_escolar,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    dia_letivo = baker.make(DiaLetivoSIGPAE, data=datetime.date(2023, 11, 18))
+    dia_letivo.escolas.add(escola_cei)
+    data = _payload_rpl_cei(
+        escola_cei,
+        motivo_alteracao_cardapio_rpl,
+        periodo_escolar,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+    )
+    response = client_autenticado_vinculo_escola_cei_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD_CEI}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
