@@ -20,7 +20,7 @@ from src.dados_comuns.validators import (
     valida_dia_letivo_ou_inclusao_alimentacao_rpl,
     valida_duplicidade_solicitacoes_cei,
 )
-from src.escola.models import Escola, FaixaEtaria
+from src.escola.models import Escola, FaixaEtaria, PeriodoEscolar
 from src.inclusao_alimentacao.models import InclusaoAlimentacaoDaCEI
 
 
@@ -148,8 +148,15 @@ class AlteracaoCardapioCEISerializerCreate(AlteracaoCardapioSerializerCreateBase
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cei(attrs, data)
             escola = Escola.objects.get(uuid=attrs["escola"])
+            periodos = []
+            for substituicao in attrs.get("substituicoes", []):
+                periodo_uuid = substituicao.get("periodo_escolar")
+                if periodo_uuid:
+                    periodo = PeriodoEscolar.objects.filter(uuid=periodo_uuid).first()
+                    if periodo:
+                        periodos.append(periodo.nome)
             valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-                escola, data, InclusaoAlimentacaoDaCEI
+                escola, data, InclusaoAlimentacaoDaCEI, periodos
             )
         return data
 

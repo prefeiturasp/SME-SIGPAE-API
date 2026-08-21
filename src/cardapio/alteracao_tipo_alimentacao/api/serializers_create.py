@@ -270,8 +270,15 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
             deve_pedir_com_antecedencia(attrs["data_inicial"])
         if attrs["motivo"].nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes(attrs)
+            periodos = [
+                substituicao["periodo_escolar"].nome
+                for substituicao in attrs["substituicoes"]
+            ]
             valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-                escola, attrs["data_inicial"], GrupoInclusaoAlimentacaoNormal
+                escola,
+                attrs["data_inicial"],
+                GrupoInclusaoAlimentacaoNormal,
+                periodos,
             )
         deve_ser_no_mesmo_ano_corrente(attrs["data_inicial"])
 
