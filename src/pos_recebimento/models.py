@@ -17,15 +17,23 @@ class TermoRecebimentoDefinitivo(ModeloBase, CriadoPor):
     recebimento com status "Assinado CODAE" (FichaDeRecebimentoWorkflow.ASSINADA).
     A regra é aplicada na listagem de empresas disponíveis e validada
     novamente na criação do termo via API. A criação via API persiste o
-    termo sempre com status ENVIADO (fluxo "Salvar e Enviar").
+    termo sempre com status ENVIADO_FISCAIS (fluxo "Salvar e Enviar").
     """
 
     RASCUNHO = "RASCUNHO"
-    ENVIADO = "ENVIADO"
+    ENVIADO_FISCAIS = "ENVIADO_FISCAIS"
+    ENVIADO_DILOG = "ENVIADO_DILOG"
+    ENVIADO_COORDENADOR = "ENVIADO_COORDENADOR"
+    ENVIADO_FORNECEDOR = "ENVIADO_FORNECEDOR"
+    ASSINADO_FORNECEDOR = "ASSINADO_FORNECEDOR"
 
     STATUS_CHOICES = (
         (RASCUNHO, "Rascunho"),
-        (ENVIADO, "Enviado"),
+        (ENVIADO_FISCAIS, "Enviado Fiscais"),
+        (ENVIADO_DILOG, "Enviado DILOG"),
+        (ENVIADO_COORDENADOR, "Enviado Coordenador"),
+        (ENVIADO_FORNECEDOR, "Enviado Fornecedor"),
+        (ASSINADO_FORNECEDOR, "Assinado Fornecedor"),
     )
 
     empresa = models.ForeignKey(

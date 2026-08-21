@@ -57,7 +57,7 @@ def test_termo_create_retorna_201(
 
     assert response.status_code == status.HTTP_201_CREATED
     termo = TermoRecebimentoDefinitivo.objects.get(uuid=response.json()["uuid"])
-    assert termo.status == TermoRecebimentoDefinitivo.ENVIADO
+    assert termo.status == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
     assert termo.criado_por is not None
     assert termo.alterado_por is not None
     assert termo.cronogramas_termo.count() == 1
