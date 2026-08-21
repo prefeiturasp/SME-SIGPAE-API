@@ -6,6 +6,8 @@ from django.template.loader import render_to_string
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.produto.models import Produto, Marca, Fabricante, HomologacaoProduto
+from src.terceirizada.models import Terceirizada
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -1101,3 +1103,69 @@ def test_relatorio_solicitacao_medicao_recreio_nas_ferias_cemei_rodape_aprovacao
     assert "Aprovado por CODAE em" in texto
     assert "05/08/2025" in texto
     assert "Usuário TESTE" in texto
+
+
+def test_render_homologacao_produto_com_sucesso():
+    marca = baker.make(Marca, nome="Marca Teste Alimentos")
+    fabricante = baker.make(Fabricante, nome="Fabricante Teste S/A")
+    terceirizada = baker.make(
+        Terceirizada,
+        nome_fantasia="Empresa Terceirizada XYZ",
+        representante_email="contato@terceirizada.com",
+        representante_telefone="(11) 99999-9999",
+    )
+
+    produto = baker.make(
+        Produto,
+        nome="Arroz Integral Tipo 1",
+        marca=marca,
+        fabricante=fabricante,
+        componentes="Arroz integral em grãos",
+        tipo="Alimento Seco",
+        embalagem="Pacote Plástico 1kg",
+        prazo_validade="12 meses",
+        info_armazenamento="Local seco e arejado",
+        numero_registro="REG-123456/2026",
+        porcao="50g",
+        unidade_caseira="1/4 xícara",
+        tem_gluten=False,
+        tem_aditivos_alergenicos=False,
+    )
+
+    contexto = {
+        "terceirizada": terceirizada,
+        "produto": produto,
+    }
+    html_string = render_to_string("homologacao_produto.html", contexto)
+
+    assert produto.nome in html_string
+    assert produto.componentes in html_string
+    assert produto.tipo in html_string
+    assert produto.embalagem in html_string
+    assert produto.prazo_validade in html_string
+    assert produto.info_armazenamento in html_string
+    assert produto.numero_registro in html_string
+    assert produto.porcao in html_string
+    assert produto.unidade_caseira in html_string
+
+    assert marca.nome in html_string
+    assert terceirizada.nome_fantasia in html_string
+    assert terceirizada.representante_email in html_string
+
+
+def test_render_homologacao_produto_com_aditivos_alergenicos():
+    produto = baker.make(
+        Produto,
+        nome="Biscoito Recheado",
+        tem_aditivos_alergenicos=True,
+        aditivos="Contém derivados de trigo, soja e leite.",
+    )
+
+    html_string = render_to_string(
+        "homologacao_produto.html",
+        {"terceirizada": None, "produto": produto},
+    )
+
+    assert produto.nome in html_string
+    assert "SIM" in html_string
+    assert produto.aditivos in html_string
