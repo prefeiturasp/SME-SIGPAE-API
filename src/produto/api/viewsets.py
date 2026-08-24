@@ -112,6 +112,7 @@ from ..tasks import (
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
+    gera_pdf_relatorio_historico_produto_async,
 )
 from ..utils.query_produtos_por_status import (
     produtos_aguardando_amostra_analise_sensorial,
@@ -1868,6 +1869,28 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     )
     def relatorio(self, request, uuid=None):
         return relatorio_produto_homologacao(request, produto=self.get_object())
+
+    @action(
+        detail=True,
+        url_path=constants.RELATORIO_HISTORICO,
+        methods=["get"],
+        permission_classes=(AllowAny,),
+    )
+    def relatorio_historico(self, request, uuid=None):
+        user = request.user.get_username()
+        produto = self.get_object()
+        nome_arquivo = f"relatorio_historico_produto_{produto.id_externo}.pdf"
+
+        gera_pdf_relatorio_historico_produto_async.delay(
+            user=user,
+            nome_arquivo=nome_arquivo,
+            uuid_produto=str(produto.uuid),
+        )
+
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
 
     @action(
         detail=True,

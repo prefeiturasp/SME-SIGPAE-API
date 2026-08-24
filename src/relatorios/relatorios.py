@@ -1247,6 +1247,32 @@ def relatorio_produto_homologacao(request, produto):
     )
 
 
+def relatorio_historico_produto(produto):
+    homologacao = produto.homologacao
+    terceirizada = homologacao.rastro_terceirizada
+    logs = homologacao.logs.order_by("criado_em")
+
+    html_string = render_to_string(
+        "relatorio_historico_produto.html",
+        {
+            "terceirizada": terceirizada,
+            "homologacao": homologacao,
+            "produto": produto,
+            "logs": formata_logs(logs),
+        },
+    )
+
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
+
+    response = html_to_pdf_response(
+        html_string,
+        f"relatorio_historico_produto_{produto.id_externo}.pdf",
+    )
+
+    return response.content
+
+
 def relatorio_marcas_por_produto_homologacao(produtos, dados, filtros):
     html_string = render_to_string(
         "homologacao_marcas_por_produto.html",
