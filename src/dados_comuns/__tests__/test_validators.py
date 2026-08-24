@@ -628,7 +628,7 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_parte_cei(escola):
         inclusao_alimentacao_cemei=inclusao,
         data=data,
     )
-    faixa = baker.make("FaixaEtaria")
+    faixa = baker.make("FaixaEtaria", inicio=0, fim=12, ativo=True)
     periodo = baker.make("PeriodoEscolar", nome="MANHA")
     baker.make(
         "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
@@ -657,7 +657,7 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_parte_errada(escola
         inclusao_alimentacao_cemei=inclusao,
         data=data,
     )
-    faixa = baker.make("FaixaEtaria")
+    faixa = baker.make("FaixaEtaria", inicio=0, fim=12, ativo=True)
     periodo = baker.make("PeriodoEscolar", nome="MANHA")
     baker.make(
         "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
@@ -687,7 +687,7 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_todos_sem_emei(esco
         inclusao_alimentacao_cemei=inclusao,
         data=data,
     )
-    faixa = baker.make("FaixaEtaria")
+    faixa = baker.make("FaixaEtaria", inicio=0, fim=12, ativo=True)
     periodo = baker.make("PeriodoEscolar", nome="MANHA")
     baker.make(
         "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
@@ -717,7 +717,7 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_escopo_nulo(escola)
         inclusao_alimentacao_cemei=inclusao,
         data=data,
     )
-    faixa = baker.make("FaixaEtaria")
+    faixa = baker.make("FaixaEtaria", inicio=0, fim=12, ativo=True)
     periodo = baker.make("PeriodoEscolar", nome="MANHA")
     baker.make(
         "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
