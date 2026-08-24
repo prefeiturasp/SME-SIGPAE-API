@@ -438,8 +438,89 @@ def _valida_inclusao_alimentacao_cei_rpl(escola, data, modelo):
     )
 
 
+def _partes_inclusao_cemei_autorizadas(escola, data, modelo):
+    """Retorna as partes (CEI/EMEI) cobertas pela inclusão CEMEI autorizada.
+
+    Args:
+        escola (Escola): Unidade educacional que está fazendo a solicitação.
+        data (datetime.date): Data informada na solicitação.
+        modelo (Model): Modelo de inclusão de alimentação a ser consultado.
+
+    Returns:
+        set[str]: Conjunto com as partes cobertas, podendo conter ``"CEI"`` e
+        ``"EMEI"``.
+    """
+    inclusoes = _inclusoes_alimentacao_autorizadas_base(escola, data, modelo)
+    partes = set()
+    if inclusoes.filter(quantidade_alunos_cei_da_inclusao_cemei__isnull=False).exists():
+        partes.add("CEI")
+    if inclusoes.filter(
+        quantidade_alunos_emei_da_inclusao_cemei__isnull=False
+    ).exists():
+        partes.add("EMEI")
+    return partes
+
+
+def _valida_parte_cemei_autorizada(data, parte, partes_autorizadas):
+    """Valida se a parte solicitada está coberta pela inclusão CEMEI.
+
+    Args:
+        data (datetime.date): Data informada na solicitação.
+        parte (str): Parte solicitada (``"CEI"`` ou ``"EMEI"``).
+        partes_autorizadas (set[str]): Partes cobertas pela inclusão.
+
+    Raises:
+        serializers.ValidationError: Quando a parte solicitada não está coberta.
+    """
+    if parte not in partes_autorizadas:
+        raise serializers.ValidationError(
+            f"Inclusão autorizada para o dia {data.strftime('%d/%m')} somente nos "
+            f"para {_formata_periodos_para_mensagem(partes_autorizadas)}"
+        )
+
+
+def _valida_inclusao_alimentacao_cemei_rpl(
+    escola, data, modelo, alunos_cei_e_ou_emei, periodos_lanches_emei
+):
+    """Valida a solicitação RPL de CEMEI contra a inclusão de alimentação.
+
+    Para a parte CEI, basta existir a inclusão; para a parte EMEI, valida
+    Refeição e o lanche solicitado por período, como em EMEI/EMEF.
+
+    Args:
+        escola (Escola): Unidade educacional que está fazendo a solicitação.
+        data (datetime.date): Data informada na solicitação.
+        modelo (Model): Modelo de inclusão de alimentação a ser consultado.
+        alunos_cei_e_ou_emei (str): Escopo da solicitação (``"CEI"``, ``"EMEI"``
+            ou ``"TODOS"``).
+        periodos_lanches_emei (Iterable[dict]): Períodos e lanches das
+            substituições EMEI da solicitação.
+
+    Returns:
+        bool: ``True`` quando a inclusão autorizada atende a solicitação.
+
+    Raises:
+        serializers.ValidationError: Quando não há inclusão, quando a parte
+        solicitada não está coberta ou quando a parte EMEI não possui Refeição e
+        o lanche solicitado.
+    """
+    partes_autorizadas = _partes_inclusao_cemei_autorizadas(escola, data, modelo)
+    if not partes_autorizadas:
+        raise serializers.ValidationError(
+            f'Dia {data.strftime("%d/%m")} não é um dia letivo ou não existe uma '
+            "inclusão de alimentação para a data"
+        )
+    if alunos_cei_e_ou_emei in ("CEI", "TODOS"):
+        _valida_parte_cemei_autorizada(data, "CEI", partes_autorizadas)
+    if alunos_cei_e_ou_emei in ("EMEI", "TODOS"):
+        _valida_parte_cemei_autorizada(data, "EMEI", partes_autorizadas)
+    if alunos_cei_e_ou_emei in ("EMEI", "TODOS"):
+        _valida_inclusao_alimentacao_rpl(escola, data, modelo, periodos_lanches_emei)
+    return True
+
+
 def valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-    escola, data, modelo, periodos_lanches=None
+    escola, data, modelo, periodos_lanches=None, alunos_cei_e_ou_emei=None
 ):
     """Valida a data de uma solicitação RPL para a unidade educacional.
 
@@ -462,7 +543,9 @@ def valida_dia_letivo_ou_inclusao_alimentacao_rpl(
         periodos_lanches (Iterable[dict], optional): Itens no formato
             ``{"periodo": str, "lanches": list[str]}``, representando os
             períodos da solicitação RPL e os tipos de lanche substituídos em
-            cada período.
+            cada período. Para CEMEI, contém somente as substituições EMEI.
+        alunos_cei_e_ou_emei (str, optional): Escopo da solicitação CEMEI
+            (``"CEI"``, ``"EMEI"`` ou ``"TODOS"``).
 
     Returns:
         bool: ``True`` quando a data é válida para a solicitação RPL.
@@ -473,7 +556,10 @@ def valida_dia_letivo_ou_inclusao_alimentacao_rpl(
         está autorizado na inclusão ou quando a inclusão não possui Refeição e o
         lanche solicitado para o período.
     """
-    from ..inclusao_alimentacao.models import InclusaoAlimentacaoDaCEI
+    from ..inclusao_alimentacao.models import (
+        InclusaoAlimentacaoDaCEI,
+        InclusaoDeAlimentacaoCEMEI,
+    )
 
     if not eh_fim_de_semana(data) and escola_tem_dia_letivo_no_calendario(escola, data):
         return True
@@ -481,6 +567,10 @@ def valida_dia_letivo_ou_inclusao_alimentacao_rpl(
         return True
     if modelo is InclusaoAlimentacaoDaCEI:
         return _valida_inclusao_alimentacao_cei_rpl(escola, data, modelo)
+    if modelo is InclusaoDeAlimentacaoCEMEI:
+        return _valida_inclusao_alimentacao_cemei_rpl(
+            escola, data, modelo, alunos_cei_e_ou_emei, periodos_lanches
+        )
     return _valida_inclusao_alimentacao_rpl(escola, data, modelo, periodos_lanches)
 
 
