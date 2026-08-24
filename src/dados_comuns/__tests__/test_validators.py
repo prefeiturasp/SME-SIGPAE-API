@@ -563,27 +563,23 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_inclusao_cei(escola):
         status="CODAE_AUTORIZADO",
     )
     baker.make("DiasMotivosInclusaoDeAlimentacaoCEI", inclusao_cei=inclusao, data=data)
-    refeicao = baker.make("TipoAlimentacao", nome="Refeição")
-    lanche = baker.make("TipoAlimentacao", nome="Lanche")
-    inclusao.tipos_alimentacao.set([refeicao, lanche])
-    faixa = baker.make("FaixaEtaria")
-    periodo_externo = baker.make("PeriodoEscolar", nome="MANHA")
-    baker.make(
-        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI",
-        inclusao_alimentacao_da_cei=inclusao,
-        faixa_etaria=faixa,
-        quantidade_alunos=10,
-        periodo_externo=periodo_externo,
-    )
     assert (
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
-            escola,
-            data,
-            InclusaoAlimentacaoDaCEI,
-            [{"periodo": "MANHA", "lanches": ["Lanche"]}],
+            escola, data, InclusaoAlimentacaoDaCEI
         )
         is True
     )
+
+
+def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cei_sem_inclusao(escola):
+    data = datetime.date(2024, 4, 10)
+    with pytest.raises(
+        ValidationError,
+        match="Dia 10/04 não é um dia letivo ou não existe uma inclusão",
+    ):
+        valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+            escola, data, InclusaoAlimentacaoDaCEI
+        )
 
 
 def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_inclusao_cemei(escola):
