@@ -610,6 +610,66 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_inclusao_cemei(escola):
             data,
             InclusaoDeAlimentacaoCEMEI,
             [{"periodo": "MANHA", "lanches": ["Lanche"]}],
+            "EMEI",
         )
         is True
     )
+
+
+def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_parte_cei(escola):
+    data = datetime.date(2024, 4, 10)
+    inclusao = baker.make(
+        "InclusaoDeAlimentacaoCEMEI",
+        escola=escola,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        data=data,
+    )
+    faixa = baker.make("FaixaEtaria")
+    periodo = baker.make("PeriodoEscolar", nome="MANHA")
+    baker.make(
+        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        faixa_etaria=faixa,
+        quantidade_alunos=10,
+        periodo_escolar=periodo,
+    )
+    assert (
+        valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+            escola, data, InclusaoDeAlimentacaoCEMEI, [], "CEI"
+        )
+        is True
+    )
+
+
+def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_parte_errada(escola):
+    data = datetime.date(2024, 4, 10)
+    inclusao = baker.make(
+        "InclusaoDeAlimentacaoCEMEI",
+        escola=escola,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        data=data,
+    )
+    faixa = baker.make("FaixaEtaria")
+    periodo = baker.make("PeriodoEscolar", nome="MANHA")
+    baker.make(
+        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        faixa_etaria=faixa,
+        quantidade_alunos=10,
+        periodo_escolar=periodo,
+    )
+    with pytest.raises(
+        ValidationError,
+        match="somente nos para CEI",
+    ):
+        valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+            escola, data, InclusaoDeAlimentacaoCEMEI, [], "EMEI"
+        )

@@ -250,3 +250,50 @@ def test_create_alteracao_cemei_rpl_com_dia_letivo_sigpae(
         data=json.dumps(data),
     )
     assert response.status_code == status.HTTP_201_CREATED
+
+
+@freeze_time("2023-07-14")
+def test_create_alteracao_cemei_rpl_cei_com_inclusao_somente_emei_deve_bloquear(
+    client_autenticado_vinculo_escola_cemei,
+    escola_cemei,
+    motivo_alteracao_cardapio_rpl,
+    periodo_escolar,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+    faixas_etarias_ativas,
+):
+    inclusao = baker.make(
+        "InclusaoDeAlimentacaoCEMEI",
+        escola=escola_cemei,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        data=datetime.date(2023, 7, 30),
+    )
+    quantidade = baker.make(
+        "QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        quantidade_alunos=10,
+        periodo_escolar=periodo_escolar,
+    )
+    quantidade.tipos_alimentacao.set([tipo_alimentacao, tipo_alimentacao_lanche])
+
+    data = _payload_rpl_cemei(
+        escola_cemei,
+        motivo_alteracao_cardapio_rpl,
+        periodo_escolar,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+        faixas_etarias_ativas,
+    )
+    response = client_autenticado_vinculo_escola_cemei.post(
+        "/alteracoes-cardapio-cemei/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == [
+        "Inclusão autorizada para o dia 30/07 somente nos para EMEI"
+    ]
