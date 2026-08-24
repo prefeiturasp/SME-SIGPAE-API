@@ -308,3 +308,6 @@ celerybeat-schedule.dir
 
 requirements.txt
 pgdata/**/*
+
+### IA
+AGENTS.md
