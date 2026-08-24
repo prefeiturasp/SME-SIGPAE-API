@@ -668,8 +668,68 @@ def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_parte_errada(escola
     )
     with pytest.raises(
         ValidationError,
-        match="somente nos para CEI",
+        match="somente para CEI",
     ):
         valida_dia_letivo_ou_inclusao_alimentacao_rpl(
             escola, data, InclusaoDeAlimentacaoCEMEI, [], "EMEI"
+        )
+
+
+def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_todos_sem_emei(escola):
+    data = datetime.date(2024, 4, 10)
+    inclusao = baker.make(
+        "InclusaoDeAlimentacaoCEMEI",
+        escola=escola,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        data=data,
+    )
+    faixa = baker.make("FaixaEtaria")
+    periodo = baker.make("PeriodoEscolar", nome="MANHA")
+    baker.make(
+        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        faixa_etaria=faixa,
+        quantidade_alunos=10,
+        periodo_escolar=periodo,
+    )
+    with pytest.raises(
+        ValidationError,
+        match="somente para CEI",
+    ):
+        valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+            escola, data, InclusaoDeAlimentacaoCEMEI, [], "TODOS"
+        )
+
+
+def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_cemei_escopo_nulo(escola):
+    data = datetime.date(2024, 4, 10)
+    inclusao = baker.make(
+        "InclusaoDeAlimentacaoCEMEI",
+        escola=escola,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        data=data,
+    )
+    faixa = baker.make("FaixaEtaria")
+    periodo = baker.make("PeriodoEscolar", nome="MANHA")
+    baker.make(
+        "QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI",
+        inclusao_alimentacao_cemei=inclusao,
+        faixa_etaria=faixa,
+        quantidade_alunos=10,
+        periodo_escolar=periodo,
+    )
+    with pytest.raises(
+        ValidationError,
+        match="somente para CEI",
+    ):
+        valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+            escola, data, InclusaoDeAlimentacaoCEMEI, [], None
         )

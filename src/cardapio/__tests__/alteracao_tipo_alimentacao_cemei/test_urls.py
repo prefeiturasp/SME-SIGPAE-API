@@ -294,6 +294,4 @@ def test_create_alteracao_cemei_rpl_cei_com_inclusao_somente_emei_deve_bloquear(
         data=json.dumps(data),
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == [
-        "Inclusão autorizada para o dia 30/07 somente nos para EMEI"
-    ]
+    assert response.json() == ["Inclusão autorizada para o dia 30/07 somente para EMEI"]
