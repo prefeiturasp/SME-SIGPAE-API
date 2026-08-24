@@ -264,7 +264,8 @@ class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
 
 class PerguntaFrequenteViewSet(ModelViewSet):
     lookup_field = "uuid"
-    queryset = PerguntaFrequente.objects.all()
+    queryset = PerguntaFrequente.objects.all().order_by("-criado_em")
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = (
