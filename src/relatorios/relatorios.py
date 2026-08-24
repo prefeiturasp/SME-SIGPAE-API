@@ -8,6 +8,7 @@ from django.db.models import F, FloatField, Sum
 from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
+from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from src.dados_comuns.constants import (
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     ORDEM_UNIDADES_GRUPO_CEI,
@@ -94,6 +95,7 @@ from .utils import (
     get_diretorias_regionais,
     get_width,
     todas_escolas_sol_kit_lanche_unificado_cancelado,
+    get_ultima_justificativa_analise_sensorial,
 )
 
 env = environ.Env()
@@ -1233,11 +1235,33 @@ def relatorio_produto_homologacao(request, produto):
 
     homologacao = produto.homologacao
     terceirizada = homologacao.rastro_terceirizada
+    reclamacao = homologacao.reclamacoes.filter(
+        status=ReclamacaoProdutoWorkflow.CODAE_ACEITOU
+    ).first()
+    logs = homologacao.logs
+    lotes = terceirizada.lotes.all()
+    justificativa_analise_sensorial = get_ultima_justificativa_analise_sensorial(
+        produto
+    )
+
+    template_name = (
+        "homologacao_produto_antigo.html"
+        if env("DJANGO_ENV") == "production"
+        else "homologacao_produto.html"
+    )
+
     html_string = render_to_string(
-        "homologacao_produto.html",
+        template_name,
         {
             "terceirizada": terceirizada,
+            "reclamacao": reclamacao,
+            "homologacao": homologacao,
+            "fluxo": constants.FLUXO_HOMOLOGACAO_PRODUTO,
+            "width": get_width(constants.FLUXO_HOMOLOGACAO_PRODUTO, logs),
             "produto": produto,
+            "diretorias_regionais": get_diretorias_regionais(lotes),
+            "logs": formata_logs(logs),
+            "justificativa_analise_sensorial": justificativa_analise_sensorial,
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
