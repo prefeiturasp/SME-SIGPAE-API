@@ -559,6 +559,7 @@ def valida_datas_alteracao_cardapio(attrs):
                     AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO,
                 ],
                 alteracao_cardapio__escola=attrs["escola"],
+                alteracao_cardapio__motivo__nome="Lanche Emergencial",
                 alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar=substituicao[
                     "periodo_escolar"
                 ],
