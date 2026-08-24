@@ -8,7 +8,7 @@
   <head>
     <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
     <link rel="stylesheet" href="{% sass_src 'css/cabecalho_titulo.scss' %}" type="text/css">
-    <link rel="stylesheet" href="{% sass_src 'css/relatorio_historico_ocorrencias_medicao_inicial.scss' %}" type="text/css">
+    <link rel="stylesheet" href="{% sass_src 'css/relatorio_historico_produto.scss' %}" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,600,600i,700,700i,900,900i" rel="stylesheet" integrity="sha384-8Ziol4op0VH6BFebcG6KrQKYKkZLBT02jlLuqC96f3IpOd/VT2N7LbF45ozQ7FjR" crossorigin="anonymous" />
     <title>SIGPAE</title>
   </head>
@@ -64,7 +64,7 @@
                 Fabricante: <strong>{{ produto.fabricante.nome }}</strong>
               </p>
               <p style="margin: 0.4em 0;">
-                Destinação a dieta especial:
+                O produto se destina a alimentação de alunos com dieta especial?
                 <strong>
                   {% if produto.eh_para_alunos_com_dieta %}Sim{% else %}Não{% endif %}
                 </strong>
