@@ -1879,7 +1879,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     def relatorio_historico(self, request, uuid=None):
         user = request.user.get_username()
         produto = self.get_object()
-        nome_arquivo = f"produto_homologacao_{produto.id_externo}.pdf"
+        nome_arquivo = f"relatorio_historico_produto_{produto.id_externo}.pdf"
 
         gera_pdf_relatorio_historico_produto_async.delay(
             user=user,
