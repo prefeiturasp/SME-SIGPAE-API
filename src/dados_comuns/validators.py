@@ -412,6 +412,32 @@ def _valida_inclusao_alimentacao_rpl(escola, data, modelo, periodos_lanches):
     return True
 
 
+def _valida_inclusao_alimentacao_cei_rpl(escola, data, modelo):
+    """Valida a solicitação RPL de CEI contra a inclusão de alimentação.
+
+    Para CEI, basta existir uma inclusão de alimentação autorizada para a data,
+    sem verificar os tipos de alimentação incluídos nem os períodos.
+
+    Args:
+        escola (Escola): Unidade educacional que está fazendo a solicitação.
+        data (datetime.date): Data informada na solicitação.
+        modelo (Model): Modelo de inclusão de alimentação a ser consultado.
+
+    Returns:
+        bool: ``True`` quando existe uma inclusão autorizada para a data.
+
+    Raises:
+        serializers.ValidationError: Quando não há inclusão autorizada para a
+        data.
+    """
+    if _inclusoes_alimentacao_autorizadas_base(escola, data, modelo).exists():
+        return True
+    raise serializers.ValidationError(
+        f'Dia {data.strftime("%d/%m")} não é um dia letivo ou não existe uma '
+        "inclusão de alimentação para a data"
+    )
+
+
 def valida_dia_letivo_ou_inclusao_alimentacao_rpl(
     escola, data, modelo, periodos_lanches=None
 ):
@@ -447,10 +473,14 @@ def valida_dia_letivo_ou_inclusao_alimentacao_rpl(
         está autorizado na inclusão ou quando a inclusão não possui Refeição e o
         lanche solicitado para o período.
     """
+    from ..inclusao_alimentacao.models import InclusaoAlimentacaoDaCEI
+
     if not eh_fim_de_semana(data) and escola_tem_dia_letivo_no_calendario(escola, data):
         return True
     if unidade_tem_dia_letivo_sigpae(escola, data):
         return True
+    if modelo is InclusaoAlimentacaoDaCEI:
+        return _valida_inclusao_alimentacao_cei_rpl(escola, data, modelo)
     return _valida_inclusao_alimentacao_rpl(escola, data, modelo, periodos_lanches)
 
 
