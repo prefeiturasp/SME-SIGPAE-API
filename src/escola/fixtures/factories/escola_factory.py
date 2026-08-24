@@ -108,8 +108,8 @@ class LogAlunosMatriculadosPeriodoEscolaFactory(DjangoModelFactory):
 
 
 class FaixaEtariaFactory(DjangoModelFactory):
-    inicio = Sequence(lambda n: fake.unique.random_int(min=0, max=10))
-    fim = Sequence(lambda n: fake.unique.random_int(min=11, max=36))
+    inicio = Sequence(lambda n: fake.random_int(min=0, max=10))
+    fim = Sequence(lambda n: fake.random_int(min=11, max=36))
 
     class Meta:
         model = FaixaEtaria
