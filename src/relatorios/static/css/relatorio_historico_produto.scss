@@ -31,6 +31,19 @@
   }
 }
 
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 24px !important;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+
+  .marca-content {
+    width: 45% !important;
+  }
+}
+
 .page-container .status-evento {
   display: inline-block;
   white-space: nowrap;

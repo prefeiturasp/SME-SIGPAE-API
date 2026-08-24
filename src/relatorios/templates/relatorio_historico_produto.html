@@ -57,12 +57,14 @@
               <p style="margin: 0.4em 0;">
                 Produto: <strong>{{ produto.nome }}</strong>
               </p>
-              <p style="margin: 0.4em 0;">
-                Marca: <strong>{{ produto.marca.nome }}</strong>
-              </p>
-              <p style="margin: 0.4em 0;">
-                Fabricante: <strong>{{ produto.fabricante.nome }}</strong>
-              </p>
+              <div class="flex-row">
+                <p class="marca-content" style="margin: 0.4em 0;">
+                  Marca: <strong>{{ produto.marca.nome }}</strong>
+                </p>
+                <p style="margin: 0.4em 0;">
+                  Fabricante: <strong>{{ produto.fabricante.nome }}</strong>
+                </p>
+              </div>
               <p style="margin: 0.4em 0;">
                 O produto se destina a alimentação de alunos com dieta especial?
                 <strong>
@@ -70,7 +72,7 @@
                 </strong>
               </p>
               <p style="margin: 0.4em 0;">
-                Componentes do Produto: <strong>{{ produto.componentes }}</strong>
+                Componentes do Produto: <br><strong>{{ produto.componentes }}</strong>
               </p>
             </div>
           {% endif %}
@@ -87,7 +89,7 @@
               </strong>
             </p>
             <p style="margin: 0.4em 0;">
-              Justificativa: <strong>{{ log.justificativa|striptags }}</strong>
+              Justificativa: <br><strong>{{ log.justificativa|striptags }}</strong>
             </p>
           </div>
 
