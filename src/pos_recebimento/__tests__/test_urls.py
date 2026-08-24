@@ -57,7 +57,7 @@ def test_termo_create_retorna_201(
 
     assert response.status_code == status.HTTP_201_CREATED
     termo = TermoRecebimentoDefinitivo.objects.get(uuid=response.json()["uuid"])
-    assert termo.status == TermoRecebimentoDefinitivo.ENVIADO
+    assert termo.status == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
     assert termo.criado_por is not None
     assert termo.alterado_por is not None
     assert termo.cronogramas_termo.count() == 1
@@ -301,3 +301,65 @@ def test_termo_create_valida_valores_maiores_que_zero(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "cronogramas[0].valor_contrato" in response.data
     assert "cronogramas[0].quantidade_total_recebida" in response.data
+
+
+def test_termo_list_retorna_200_paginado_com_serializer_de_listagem(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+):
+    response = client_autenticado_dilog_cronograma.get("/pos-recebimento/termos/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 1
+    resultado = response.json()["results"][0]
+    assert resultado["uuid"] == str(termo_listagem.uuid)
+    assert sorted(resultado["numeros_cronogramas"]) == ["111/2026", "222/2026"]
+    assert "texto_termo" not in resultado
+
+
+def test_termo_list_ordena_do_mais_recente_para_o_mais_antigo(
+    client_autenticado_dilog_cronograma,
+    termos_listagem_ordenados,
+):
+    response = client_autenticado_dilog_cronograma.get("/pos-recebimento/termos/")
+
+    assert response.status_code == status.HTTP_200_OK
+    uuids = [resultado["uuid"] for resultado in response.json()["results"]]
+    assert uuids == [str(termo.uuid) for termo in reversed(termos_listagem_ordenados)]
+
+
+def test_termo_list_nao_duplica_termo_com_varios_cronogramas(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+):
+    """O filtro atravessa M2M; sem ``distinct()`` o termo viria uma vez por cronograma."""
+    response = client_autenticado_dilog_cronograma.get(
+        "/pos-recebimento/termos/", {"numero_cronograma": "2026"}
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 1
+    assert len(response.json()["results"]) == 1
+
+
+def test_termo_list_pagina_resultados(
+    client_autenticado_dilog_cronograma,
+    termos_listagem_ordenados,
+):
+    response = client_autenticado_dilog_cronograma.get(
+        "/pos-recebimento/termos/", {"page_size": 2}
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 3
+    assert len(response.json()["results"]) == 2
+    assert response.json()["next"] is not None
+
+
+def test_termo_list_negado_para_perfil_sem_permissao(
+    client_autenticado_qualidade,
+    termo_listagem,
+):
+    response = client_autenticado_qualidade.get("/pos-recebimento/termos/")
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN

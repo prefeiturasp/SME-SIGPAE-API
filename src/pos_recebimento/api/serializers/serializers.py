@@ -27,6 +27,53 @@ class CronogramaTermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer
         read_only_fields = fields
 
 
+class TermoRecebimentoDefinitivoListagemSerializer(serializers.ModelSerializer):
+    """
+    Serializador para a listagem de Termos de Recebimento Definitivo.
+    """
+
+    nome_empresa = serializers.CharField(
+        source="empresa.nome_fantasia",
+        read_only=True,
+    )
+    cnpj_empresa = serializers.CharField(
+        source="empresa.cnpj",
+        read_only=True,
+    )
+    numero_contrato = serializers.CharField(
+        source="contrato.numero",
+        read_only=True,
+    )
+    numeros_cronogramas = serializers.SerializerMethodField()
+    status_display = serializers.CharField(
+        source="get_status_display",
+        read_only=True,
+    )
+    data_cadastro = serializers.SerializerMethodField()
+
+    def get_data_cadastro(self, obj):
+        return obj.criado_em.strftime("%d/%m/%Y")
+
+    def get_numeros_cronogramas(self, obj):
+        """Números dos cronogramas vinculados ao termo."""
+        return [cronograma.numero for cronograma in obj.cronogramas.all()]
+
+    class Meta:
+        model = TermoRecebimentoDefinitivo
+        fields = (
+            "uuid",
+            "nome_empresa",
+            "cnpj_empresa",
+            "numero_contrato",
+            "numeros_cronogramas",
+            "status",
+            "status_display",
+            "data_cadastro",
+            "alterado_em",
+        )
+        read_only_fields = fields
+
+
 class TermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
     """Serializador de saída do Termo de Recebimento Definitivo.
 
