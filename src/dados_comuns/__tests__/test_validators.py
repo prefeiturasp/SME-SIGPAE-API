@@ -27,7 +27,6 @@ from ..validators import (
     nao_pode_ser_feriado,
     nao_pode_ser_no_passado,
     objeto_nao_deve_ter_duplicidade,
-    unidade_tem_dia_letivo_sigpae,
     valida_dia_letivo_ou_inclusao_alimentacao_rpl,
     valida_duplicidade_solicitacoes,
     valida_duplicidade_solicitacoes_cei,
@@ -319,11 +318,11 @@ def _make_inclusao_normal_autorizada(escola, data, periodo_tipos):
     return grupo
 
 
-def test_unidade_tem_dia_letivo_sigpae_escola_dentro(escola):
+def test_esta_em_dia_letivo_sigpae_escola_dentro(escola):
     data = datetime.date(2024, 4, 10)
     dia_letivo = baker.make(DiaLetivoSIGPAE, data=data)
     dia_letivo.escolas.add(escola)
-    assert unidade_tem_dia_letivo_sigpae(escola, data) is True
+    assert escola.esta_em_dia_letivo_sigpae(data) is True
 
 
 def test_escola_tem_dia_letivo_no_calendario_true(escola):
@@ -343,25 +342,25 @@ def test_escola_tem_dia_letivo_no_calendario_sem_registro(escola):
     assert escola_tem_dia_letivo_no_calendario(escola, data) is False
 
 
-def test_unidade_tem_dia_letivo_sigpae_lote_e_tipo_unidade(escola):
+def test_esta_em_dia_letivo_sigpae_lote_e_tipo_unidade(escola):
     data = datetime.date(2024, 4, 10)
     dia_letivo = baker.make(DiaLetivoSIGPAE, data=data)
     dia_letivo.lotes.add(escola.lote)
     dia_letivo.tipos_unidade_escolar.add(escola.tipo_unidade)
-    assert unidade_tem_dia_letivo_sigpae(escola, data) is True
+    assert escola.esta_em_dia_letivo_sigpae(data) is True
 
 
-def test_unidade_tem_dia_letivo_sigpae_sem_registro(escola):
+def test_esta_em_dia_letivo_sigpae_sem_registro(escola):
     data = datetime.date(2024, 4, 10)
-    assert unidade_tem_dia_letivo_sigpae(escola, data) is False
+    assert escola.esta_em_dia_letivo_sigpae(data) is False
 
 
-def test_unidade_tem_dia_letivo_sigpae_outra_escola(escola):
+def test_esta_em_dia_letivo_sigpae_outra_escola(escola):
     data = datetime.date(2024, 4, 10)
     outra_escola = baker.make("Escola")
     dia_letivo = baker.make(DiaLetivoSIGPAE, data=data)
     dia_letivo.escolas.add(outra_escola)
-    assert unidade_tem_dia_letivo_sigpae(escola, data) is False
+    assert escola.esta_em_dia_letivo_sigpae(data) is False
 
 
 def test_valida_dia_letivo_ou_inclusao_alimentacao_rpl_com_dia_letivo(escola):

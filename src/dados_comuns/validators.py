@@ -169,35 +169,6 @@ def escola_tem_dia_letivo_no_calendario(escola, data):
     return escola.calendario.filter(data=data, dia_letivo=True).exists()
 
 
-def unidade_tem_dia_letivo_sigpae(escola, data):
-    """Verifica se a unidade educacional possui DiaLetivoSIGPAE para a data.
-
-    A unidade é considerada contemplada pelo DiaLetivoSIGPAE quando:
-        - está listada diretamente no ``escolas`` do DiaLetivoSIGPAE da data; OU
-        - não existe nenhuma unidade listada no DiaLetivoSIGPAE da data, mas o
-          ``lotes`` e o ``tipos_unidade_escolar`` daquele dia contemplam o lote
-          e o tipo de unidade da escola.
-
-    Args:
-        escola (Escola): Unidade educacional que está fazendo a solicitação.
-        data (datetime.date): Data informada na solicitação.
-
-    Returns:
-        bool: ``True`` quando a escola está contemplada por algum
-        DiaLetivoSIGPAE da data.
-    """
-    from ..escola.dias_letivos.models import DiaLetivoSIGPAE
-
-    dias_letivos = DiaLetivoSIGPAE.objects.filter(data=data)
-    if dias_letivos.filter(escolas=escola).exists():
-        return True
-    return dias_letivos.filter(
-        escolas=None,
-        lotes=escola.lote,
-        tipos_unidade_escolar=escola.tipo_unidade,
-    ).exists()
-
-
 def _inclusoes_alimentacao_autorizadas_base(escola, data, modelo):
     """Retorna as Inclusões de Alimentação autorizadas (não contínuas) na data.
 
@@ -564,7 +535,7 @@ def valida_dia_letivo_ou_inclusao_alimentacao_rpl(
 
     if not eh_fim_de_semana(data) and escola_tem_dia_letivo_no_calendario(escola, data):
         return True
-    if unidade_tem_dia_letivo_sigpae(escola, data):
+    if escola.esta_em_dia_letivo_sigpae(data):
         return True
     if modelo is InclusaoAlimentacaoDaCEI:
         return _valida_inclusao_alimentacao_cei_rpl(escola, data, modelo)
