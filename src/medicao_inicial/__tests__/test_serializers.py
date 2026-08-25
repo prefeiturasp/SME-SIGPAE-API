@@ -567,6 +567,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
     def _setup_categoria(self):
         return CategoriaMedicaoFactory.create(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
 
+    def _setup_grupo_medicao(self):
+        return baker.make("GrupoMedicao", nome="Solicitações de Alimentação")
+
     def _setup_kit_lanche(self, escola, data):
         from src.kit_lanche.fixtures.factories.base_factory import (
             KitLancheFactory,
@@ -608,6 +611,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_medicao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 5))
@@ -642,6 +646,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_medicao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 15))
@@ -673,6 +678,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_medicao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 15))
