@@ -47,7 +47,7 @@
       <h4 class="center">ALTERAÇÃO DE CRONOGRAMA</h4>
       <div class="produto">
         <div class="title">Produto:</div>
-        <h4 class="title titulo-secao">
+        <h4 class="title font-weight-bold produto-nome">
           {{ cronograma.ficha_tecnica.produto.nome }} {% if
           cronograma.ficha_tecnica.programa == 'LEVE_LEITE' %}
           <span class="tag-leve-leite">LEVE LEITE - PLL</span>
@@ -59,13 +59,13 @@
       <div class="dados_cronograma">
         <h5 class="title titulo-secao">Dados do Produto</h5>
 
-        <div class="dados font-weight-bold">
+        <div class="dados">
           <div>Marca:</div>
           <div>Quantidade Total Programada:</div>
           <div>Custo Unitário do Produto:</div>
         </div>
 
-        <div class="dados pb-3">
+        <div class="dados font-weight-bold produto-dados pb-3">
           <div>{{cronograma.ficha_tecnica.marca.nome}}</div>
           <div>
             {{cronograma.qtd_total_programada|agrupador_milhar_com_decimal}}
@@ -74,12 +74,12 @@
           <div>R$ {{cronograma.custo_unitario_produto|floatformat:2}}</div>
         </div>
 
-        <div class="dados font-weight-bold">
+        <div class="dados">
           <div>Embalagem Primária:</div>
           <div>Embalagem Secundária:</div>
         </div>
 
-        <div class="dados pb-3">
+        <div class="dados font-weight-bold produto-dados pb-3">
           <div>
             {{cronograma.ficha_tecnica.peso_liquido_embalagem_primaria}}
             {{cronograma.ficha_tecnica.unidade_medida_primaria.abreviacao}}
@@ -131,14 +131,14 @@
       <hr />
 
       <div class="armazem">
-        <h5 class="title titulo-secao">Armazém</h5>
-        <span class="nome-armazem">
+        <h5 class="title titulo-secao titulo-armazem">Armazém</h5>
+        <span>
           <strong>{{ cronograma.armazem.nome_fantasia|upper }}</strong>
         </span>
       </div>
 
       <div>
-        <h5 class="title titulo-secao">Solicitação de Alteração do Fornecedor</h5>
+        <h5 class="title titulo-secao titulo-laranja">Solicitação de Alteração do Fornecedor</h5>
 
         <div class="table-responsive-sm">
           <table class="table table-lg table-bordered table-cronograma-alteracao">
@@ -180,6 +180,11 @@
       </div>
 
       <div class="campo-de-texto pb-4">
+        <div>
+          <p><strong class="asterisco">*</strong> Justificativa</p>
+          <div class="area-texto">{{solicitacao_cronograma.justificativa}}</div>
+        </div>
+
         <h5 class="title titulo-secao">Análise Cronograma</h5>
         <div class="area-texto">{{justificativa_cronograma}}</div>
 
