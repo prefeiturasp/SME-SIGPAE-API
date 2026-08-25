@@ -130,11 +130,18 @@ html, body {
   width: 100%;
 }
 
+.titulo-armazem {
+    margin-bottom: 8px !important;
+}
+
+.produto-nome {
+  margin-top: 8px !important;
+}
 
 .dados {
   display: flex;
   flex-wrap: wrap;
-  padding: 6px 0;
+  padding: 2px 0;
 
   div {
     flex-basis: 33.3%;
@@ -173,6 +180,11 @@ html, body {
   background-color: #f8cea5;
 }
 
+.titulo-laranja {
+  margin-bottom: 12px !important;
+  color: #d06d12;
+}
+
 .tag-leve-leite {
   display: inline-block;
   background-color: #90cefd;
@@ -198,10 +210,13 @@ html, body {
     padding-right: 28px;
 
     .area-texto {
-      min-height: 200px;
+      min-height: 160px;
       background-color: #dadada;
       border-radius: 0.35rem;
       padding: 8px 16px;
   }
 }
 
+.asterisco {
+  color: red;
+}
