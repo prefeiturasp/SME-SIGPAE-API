@@ -169,6 +169,29 @@ def test_deve_ser_dia_letivo_e_dia_da_semana_feriado_sem_registro_falha(escola):
         deve_ser_dia_letivo_e_dia_da_semana(escola, data)
 
 
+def test_deve_ser_dia_letivo_e_dia_da_semana_dia_letivo_sigpae_com_escola_sucesso(
+    escola,
+):
+    # Sábado: 2025-01-04, sem registro de DiaCalendario no SGP
+    data = datetime.date(2025, 1, 4)
+    baker.make("escola.DiaLetivoSIGPAE", data=data, escolas=[escola])
+    assert deve_ser_dia_letivo_e_dia_da_semana(escola, data) is True
+
+
+def test_deve_ser_dia_letivo_e_dia_da_semana_dia_letivo_sigpae_sem_unidades_sucesso(
+    escola,
+):
+    # Sábado: 2025-01-04, sem registro de DiaCalendario no SGP
+    data = datetime.date(2025, 1, 4)
+    baker.make(
+        "escola.DiaLetivoSIGPAE",
+        data=data,
+        lotes=[escola.lote],
+        tipos_unidade_escolar=[escola.tipo_unidade],
+    )
+    assert deve_ser_dia_letivo_e_dia_da_semana(escola, data) is True
+
+
 @freeze_time("2019-07-10")
 def test_valida_ano_diferente_exception(data_inversao_ano_diferente):
     data_inversao, esperado = data_inversao_ano_diferente
