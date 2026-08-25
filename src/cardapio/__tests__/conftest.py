@@ -34,6 +34,11 @@ def tipo_alimentacao():
 
 
 @pytest.fixture
+def tipo_alimentacao_lanche():
+    return baker.make("cardapio.TipoAlimentacao", nome="Lanche")
+
+
+@pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return baker.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
 
@@ -270,6 +275,11 @@ def motivo_alteracao_cardapio_lanche_emergencial():
         nome="Lanche Emergencial",
         uuid="19d0bca9-3cfe-4542-869e-185d580fef06",
     )
+
+
+@pytest.fixture
+def motivo_alteracao_cardapio_rpl():
+    return baker.make(MotivoAlteracaoCardapio, nome="RPL - Refeição por Lanche")
 
 
 @pytest.fixture
