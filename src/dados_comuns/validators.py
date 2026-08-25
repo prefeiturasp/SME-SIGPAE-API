@@ -156,7 +156,8 @@ def deve_ser_dia_letivo_e_dia_da_semana(escola, data: datetime.date):
 
     Para dias de semana normais (Seg–Sex): passa sempre.
     Para sábados, domingos e feriados: exige que exista um registro
-    DiaCalendario com dia_letivo=True para aquela escola e data.
+    DiaCalendario com dia_letivo=True para aquela escola e data, ou um
+    DiaLetivoSIGPAE contemplando a escola naquela data.
     """
     SEXTA_FEIRA = 4
 
@@ -167,7 +168,7 @@ def deve_ser_dia_letivo_e_dia_da_semana(escola, data: datetime.date):
         dia_letivo = escola.calendario.filter(
             data=data, dia_letivo=True, periodo_escolar=None
         ).exists()
-        if not dia_letivo:
+        if not dia_letivo and not escola.esta_em_dia_letivo_sigpae(data):
             raise serializers.ValidationError(
                 f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
             )
