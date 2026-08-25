@@ -16,7 +16,8 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
     Args:
         query_params (QueryDict): Parâmetros de filtro da requisição.
     Returns:
-        QuerySet: Conjunto de solicitações filtradas e ordenadas por escola de destino.
+        QuerySet: Conjunto de solicitações filtradas e ordenadas por escola de
+        destino e, em caso de empate, pelo id.
     """
     filtros = gera_filtros_relatorio_recreio_nas_ferias(query_params)
     padrao = filtros.get("padrao", {})
@@ -49,7 +50,7 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
 
     queryset = SolicitacaoDietaEspecial.objects.filter(
         filtro_matriculados | filtro_nao_matriculados
-    ).order_by("escola_destino__nome")
+    ).order_by("escola_destino__nome", "id")
 
     return queryset
 
