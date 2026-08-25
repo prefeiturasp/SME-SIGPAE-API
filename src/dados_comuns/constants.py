@@ -89,6 +89,7 @@ FILTRO_STATUS_HOMOLOGACAO = (
 )
 
 RELATORIO = "relatorio"
+RELATORIO_HISTORICO = "relatorio-historico"
 RELATORIO_ANALISE = "relatorio-analise-sensorial"
 RELATORIO_SUSPENSOS = "relatorio-produtos-suspensos"
 RELATORIO_RECEBIMENTO = "relatorio-analise-sensorial-recebimento"
