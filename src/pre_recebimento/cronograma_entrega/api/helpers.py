@@ -300,3 +300,40 @@ def migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas):
         )
         etapa_antiga.cronograma = None
         etapa_antiga.save(update_fields=["cronograma"])
+
+
+def _aplica_etapas_e_programacoes(cronograma, solicitacao):
+    """Substitui etapas e programações de recebimento do cronograma pelas novas."""
+    cronograma.qtd_total_programada = solicitacao.qtd_total_programada
+    etapas_novas = list(solicitacao.etapas_novas.all())
+    cronograma.etapas.set(etapas_novas)
+    cronograma.programacoes_de_recebimento.all().delete()
+    cronograma.programacoes_de_recebimento.set(
+        solicitacao.programacoes_novas.all()
+    )
+    cronograma.save()
+
+
+def aplicar_alteracao_cronograma(cronograma, solicitacao):
+    """Aplica a alteração de cronograma conforme o status da solicitação.
+
+    - ``APROVADO_DILOG``: aplica com migração das fichas de recebimento
+      (fluxo do fornecedor, após aprovação da DILOG).
+    - ``SOLICITACAO_CRIADA``, ``ALTERACAO_ENVIADA_FORNECEDOR`` e
+      ``FORNECEDOR_CIENTE``: aplica sem migração de fichas (fluxo
+      CODAE/DILOG, a alteração já nasce finalizada; o primeiro status
+      cobre a criação pela DILOG e o último o fallback de cronogramas
+      legados na ciência do fornecedor).
+    - demais status: não aplica (solicitações reprovadas/em análise).
+    """
+    if solicitacao.status == solicitacao.workflow_class.APROVADO_DILOG:
+        etapas_antigas = list(solicitacao.etapas_antigas.all())
+        etapas_novas = list(solicitacao.etapas_novas.all())
+        migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas)
+        _aplica_etapas_e_programacoes(cronograma, solicitacao)
+    elif solicitacao.status in [
+        solicitacao.workflow_class.SOLICITACAO_CRIADA,
+        solicitacao.workflow_class.ALTERACAO_ENVIADA_FORNECEDOR,
+        solicitacao.workflow_class.FORNECEDOR_CIENTE,
+    ]:
+        _aplica_etapas_e_programacoes(cronograma, solicitacao)
