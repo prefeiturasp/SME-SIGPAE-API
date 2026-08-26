@@ -48,6 +48,29 @@ def test_create_formulario_supervisao(
     assert instance.respostas_nao_se_aplica.count() == 2
 
 
+def test_administrador_supervisao_cria_relatorio_associado_ao_proprio_usuario(
+    client_autenticado_administrador_supervisao_nutricao,
+    escola,
+):
+    client, usuario = client_autenticado_administrador_supervisao_nutricao
+    payload = {
+        "data": "2026-08-24",
+        "escola": str(escola.uuid),
+        "ocorrencias": [],
+        "ocorrencias_nao_se_aplica": [],
+    }
+
+    response = client.post(
+        "/imr/rascunho-formulario-supervisao/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    formulario = FormularioSupervisao.objects.get(uuid=response.json()["uuid"])
+    assert formulario.formulario_base.usuario == usuario
+
+
 def test_formulario_supervisao_tipo_ocorrencia_nao_existe(
     client_autenticado_vinculo_coordenador_supervisao_nutricao, escola
 ):

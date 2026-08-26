@@ -1,10 +1,12 @@
 import uuid
 
 import pytest
+from model_bakery import baker
 from pypdf import PdfReader
 from rest_framework import status
 
 from config.celery import app
+from src.dados_comuns import constants
 from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
 from src.imr.api.viewsets import FormularioSupervisaoModelViewSet
 from src.imr.models import (
@@ -188,6 +190,198 @@ def test_url_lista_formularios_supervisao(
     assert response.status_code == status.HTTP_200_OK
 
 
+def test_administrador_supervisao_lista_apenas_os_proprios_relatorios(
+    client_autenticado_administrador_supervisao_nutricao,
+    formulario_supervisao_factory,
+):
+    client, usuario = client_autenticado_administrador_supervisao_nutricao
+    relatorio_proprio = formulario_supervisao_factory.create(
+        formulario_base__usuario=usuario
+    )
+    formulario_supervisao_factory.create()
+
+    response = client.get("/imr/formulario-supervisao/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 1
+    assert response.json()["results"][0]["uuid"] == str(relatorio_proprio.uuid)
+
+
+def test_dashboard_administrador_supervisao_contabiliza_apenas_relatorios_proprios(
+    client_autenticado_administrador_supervisao_nutricao,
+    formulario_supervisao_factory,
+):
+    client, usuario = client_autenticado_administrador_supervisao_nutricao
+    formulario_supervisao_factory.create(formulario_base__usuario=usuario)
+    formulario_supervisao_factory.create()
+
+    response = client.get("/imr/formulario-supervisao/dashboard/")
+
+    assert response.status_code == status.HTTP_200_OK
+    total = next(
+        resultado
+        for resultado in response.json()["results"]
+        if resultado["status"] == "TODOS_OS_RELATORIOS"
+    )
+    assert total["total"] == 1
+
+
+def test_administrador_supervisao_nao_acessa_relatorio_de_outra_nutricionista(
+    client_autenticado_administrador_supervisao_nutricao,
+    formulario_supervisao_factory,
+):
+    client, _ = client_autenticado_administrador_supervisao_nutricao
+    relatorio = formulario_supervisao_factory.create()
+
+    response = client.get(f"/imr/formulario-supervisao/{relatorio.uuid}/")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_administrador_supervisao_nao_gera_pdf_de_outra_nutricionista(
+    client_autenticado_administrador_supervisao_nutricao,
+    formulario_supervisao_factory,
+):
+    client, _ = client_autenticado_administrador_supervisao_nutricao
+    relatorio = formulario_supervisao_factory.create()
+
+    response = client.get(
+        f"/imr/formulario-supervisao/{relatorio.uuid}/relatorio-pdf/"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_administrador_supervisao_lista_apenas_seu_nome(
+    client_autenticado_administrador_supervisao_nutricao,
+    formulario_supervisao_factory,
+):
+    client, usuario = client_autenticado_administrador_supervisao_nutricao
+    formulario_supervisao_factory.create(formulario_base__usuario=usuario)
+    formulario_supervisao_factory.create(
+        formulario_base__usuario__nome="Outra nutricionista"
+    )
+
+    response = client.get(
+        "/imr/formulario-supervisao/lista_nomes_nutricionistas/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["results"] == [usuario.nome]
+
+
+def test_cogestor_dre_lista_apenas_relatorios_da_propria_dre(
+    client_autenticado_cogestor_dre,
+    diretoria_regional_factory,
+    escola_factory,
+    formulario_supervisao_factory,
+):
+    client, diretoria_regional = client_autenticado_cogestor_dre
+    outra_diretoria = diretoria_regional_factory.create()
+    escola_da_dre = escola_factory.create(diretoria_regional=diretoria_regional)
+    escola_de_outra_dre = escola_factory.create(diretoria_regional=outra_diretoria)
+    relatorio_da_dre = formulario_supervisao_factory.create(escola=escola_da_dre)
+    formulario_supervisao_factory.create(escola=escola_de_outra_dre)
+
+    response = client.get("/imr/formulario-supervisao/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 1
+    assert response.json()["results"][0]["uuid"] == str(relatorio_da_dre.uuid)
+
+
+def test_cogestor_dre_nao_amplia_escopo_com_filtro(
+    client_autenticado_cogestor_dre,
+    diretoria_regional_factory,
+    escola_factory,
+    formulario_supervisao_factory,
+):
+    client, _ = client_autenticado_cogestor_dre
+    outra_diretoria = diretoria_regional_factory.create()
+    outra_escola = escola_factory.create(diretoria_regional=outra_diretoria)
+    formulario_supervisao_factory.create(escola=outra_escola)
+
+    response = client.get(
+        "/imr/formulario-supervisao/",
+        {"diretoria_regional": str(outra_diretoria.uuid)},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 0
+
+
+def test_terceirizada_lista_apenas_relatorios_dos_proprios_lotes(
+    client_autenticado_terceirizada,
+    lote_factory,
+    escola_factory,
+    formulario_supervisao_factory,
+):
+    client, terceirizada = client_autenticado_terceirizada
+    lote_da_terceirizada = lote_factory.create(terceirizada=terceirizada)
+    lote_de_outra_terceirizada = lote_factory.create()
+    escola_da_terceirizada = escola_factory.create(lote=lote_da_terceirizada)
+    escola_de_outra_terceirizada = escola_factory.create(
+        lote=lote_de_outra_terceirizada
+    )
+    relatorio_da_terceirizada = formulario_supervisao_factory.create(
+        escola=escola_da_terceirizada
+    )
+    formulario_supervisao_factory.create(escola=escola_de_outra_terceirizada)
+
+    response = client.get("/imr/formulario-supervisao/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 1
+    assert response.json()["results"][0]["uuid"] == str(
+        relatorio_da_terceirizada.uuid
+    )
+
+
+@pytest.mark.parametrize(
+    "nome_perfil",
+    [
+        constants.COORDENADOR_SUPERVISAO_NUTRICAO,
+        constants.COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        constants.ADMINISTRADOR_MEDICAO,
+        constants.ADMINISTRADOR_CODAE_GABINETE,
+        constants.DINUTRE_DIRETORIA,
+        constants.COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+    ],
+)
+def test_perfis_codae_listam_todos_os_relatorios(
+    client,
+    django_user_model,
+    codae,
+    formulario_supervisao_factory,
+    nome_perfil,
+):
+    senha = constants.DJANGO_ADMIN_PASSWORD
+    email = f"{nome_perfil.lower()}@test.com"
+    usuario = django_user_model.objects.create_user(
+        username=email,
+        password=senha,
+        email=email,
+        registro_funcional="4321098",
+    )
+    perfil = baker.make("Perfil", nome=nome_perfil, ativo=True)
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=codae,
+        perfil=perfil,
+        data_inicial="2026-08-24",
+        ativo=True,
+    )
+    formulario_supervisao_factory.create()
+    formulario_supervisao_factory.create()
+    client.login(username=usuario.username, password=senha)
+
+    response = client.get("/imr/formulario-supervisao/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 2
+
+
 def test_url_dashboard_supervisao(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     formulario_supervisao_factory,
@@ -219,7 +413,7 @@ def test_url_dashboard_supervisao(
         for result in results
         if result["status"] == FormularioSupervisao.workflow_class.EM_PREENCHIMENTO
     )
-    assert em_preenchimento["total"] == 2
+    assert em_preenchimento["total"] == 3
 
     nutrimanifestacao_a_validar = next(
         result
@@ -227,12 +421,12 @@ def test_url_dashboard_supervisao(
         if result["status"]
         == FormularioSupervisao.workflow_class.NUTRIMANIFESTACAO_A_VALIDAR
     )
-    assert nutrimanifestacao_a_validar["total"] == 2
+    assert nutrimanifestacao_a_validar["total"] == 3
 
     total = next(
         result for result in results if result["status"] == "TODOS_OS_RELATORIOS"
     )
-    assert total["total"] == 4
+    assert total["total"] == 6
 
 
 def test_get_respostas(
