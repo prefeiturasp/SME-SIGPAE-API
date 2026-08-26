@@ -254,6 +254,7 @@ CODAE_QUESTIONOU_UE = "CODAE questionou U.E. sobre reclamação"
 CODAE_RESPONDEU_RECLAMACAO = "CODAE respondeu ao reclamante da reclamação"
 TERCEIRIZADA_RESPONDEU_RECLAMACAO = "Terceirizada respondeu a reclamação"
 UE_RESPONDEU_RECLAMACAO = "U.E. respondeu a reclamação"
+ESCOLA_CANCELOU_LABEL = "Escola cancelou"
 
 TIPO_SOLICITACAO_DIETA = {
     "COMUM": "COMUM",

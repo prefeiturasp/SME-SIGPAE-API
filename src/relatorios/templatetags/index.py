@@ -114,7 +114,7 @@ def class_css(log):
     ]:
         classe_css = "active"
     elif log.status_evento_explicacao in [
-        "Escola cancelou",
+        constants.ESCOLA_CANCELOU_LABEL,
         "DRE cancelou",
         "Terceirizada cancelou homologação",
         "CODAE suspendeu o produto",

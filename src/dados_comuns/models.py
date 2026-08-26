@@ -5,6 +5,8 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 
+from .constants import ESCOLA_CANCELOU_LABEL
+
 
 class LogSolicitacoesUsuario(
     ExportModelOperationsMixin("log_solicitacoes"), models.Model
@@ -156,7 +158,7 @@ class LogSolicitacoesUsuario(
         (DRE_PEDIU_REVISAO, "DRE pediu revisão"),
         (DRE_NAO_VALIDOU, "DRE não validou"),
         (ESCOLA_REVISOU, "Escola revisou"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
         (CODAE_NEGOU_CANCELAMENTO, "CODAE negou cancelamento"),
         (DRE_CANCELOU, "DRE cancelou"),
         (CODAE_QUESTIONOU, "Questionamento pela CODAE"),

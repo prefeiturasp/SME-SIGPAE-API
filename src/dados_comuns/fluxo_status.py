@@ -26,6 +26,7 @@ from .constants import (
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DIRETOR_UE,
+    ESCOLA_CANCELOU_LABEL,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
 from .services import EmailENotificacaoService, PartesInteressadasService
@@ -84,7 +85,7 @@ class PedidoAPartirDaEscolaWorkflow(xwf_models.Workflow):
             "Terceirizada respondeu se é possível atender a solicitação",
         ),
         (TERCEIRIZADA_TOMOU_CIENCIA, "Terceirizada tomou"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
         (CANCELADO_AUTOMATICAMENTE, "Cancelamento automático"),
     )
 
@@ -204,7 +205,7 @@ class InformativoPartindoDaEscolaWorkflow(xwf_models.Workflow):
         (RASCUNHO, "Rascunho"),
         (INFORMADO, "Informado"),
         (TERCEIRIZADA_TOMOU_CIENCIA, "Terceirizada toma ciencia"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
     )
 
     transitions = (
@@ -433,7 +434,7 @@ class DietaEspecialWorkflow(xwf_models.Workflow):
         (CODAE_NEGOU_PEDIDO, "CODAE negou a solicitação"),
         (CODAE_AUTORIZADO, "CODAE autorizou"),
         (TERCEIRIZADA_TOMOU_CIENCIA, "Terceirizada toma ciencia"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
         (CODAE_NEGOU_CANCELAMENTO, "CODAE negou o cancelamento"),
         (ESCOLA_SOLICITOU_INATIVACAO, "Escola solicitou cancelamento"),
         (CODAE_NEGOU_INATIVACAO, "CODAE negou o cancelamento"),
