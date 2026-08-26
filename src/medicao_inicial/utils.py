@@ -2977,7 +2977,6 @@ def popula_campos_cemei(
     indice_categoria = 0
     indice_periodo = 0
 
-    categoria_corrente = tabela["categorias"][indice_categoria]
     faixas_etarias = tabela["faixas_etarias"]
     periodo_corrente = tabela["periodos"][indice_periodo]
 
@@ -3010,7 +3009,6 @@ def popula_campos_cemei(
             dia,
             indice_periodo,
             logs_dietas,
-            categoria_corrente,
             indice_campo,
             faixas_etarias,
             valores_dia,
@@ -3221,7 +3219,6 @@ def popula_campos_faixas_etarias(
     dia,
     indice_periodo,
     logs_dietas,
-    categoria_corrente,
     indice_campo,
     faixas_etarias,
     valores_dia,
