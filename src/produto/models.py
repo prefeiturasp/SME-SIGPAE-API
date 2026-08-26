@@ -382,12 +382,12 @@ class NomeDeProdutoEdital(
 class LogNomeDeProdutoEdital(
     TemChaveExterna, TemIdentificadorExternoAmigavel, CriadoEm, CriadoPor
 ):
-    ACAO = (
+    OPCOES_ACAO = (
         ("a", "ativar"),
         ("i", "inativar"),
     )
     acao = models.CharField(
-        "ação", max_length=1, choices=ACAO, null=True, blank=True
+        "ação", max_length=1, choices=OPCOES_ACAO, null=True, blank=True
     )  # noqa DJ01
     nome_de_produto_edital = models.ForeignKey(
         NomeDeProdutoEdital, on_delete=models.SET_NULL, null=True, blank=True
