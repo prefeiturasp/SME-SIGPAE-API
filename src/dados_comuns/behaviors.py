@@ -585,13 +585,13 @@ class PerfilDiretorSupervisao(models.Model):
     DIRETOR = "DIRETOR"
     SUPERVISAO = "SUPERVISAO"
 
-    PERFIS = (
+    OPCOES_PERFIS = (
         (DIRETOR, "DIRETOR"),
         (SUPERVISAO, "SUPERVISAO"),
     )
 
     perfis = ArrayField(
-        models.CharField(choices=PERFIS, default=[], blank=True),
+        models.CharField(choices=OPCOES_PERFIS, default=[], blank=True),
         null=True,
         blank=True,
     )
