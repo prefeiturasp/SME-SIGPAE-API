@@ -172,6 +172,8 @@ def dias_uteis_apos(request):
 
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
+    # Habilita acesso ao banco para todos os testes deste pacote,
+    # sem exigir o marcador django_db em cada teste individualmente.
     pass
 
 
@@ -1324,7 +1326,9 @@ def solicitacao_alteracao_cronograma_com_ficha(
         "administrador-codae-gabinete",
     ],
 )
-def usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda(request, django_user_model):
+def usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda(
+    request, django_user_model
+):
     """Cria um usuário vinculado com um dos perfis autorizados a cadastrar categorias na página de Ajuda."""
     perfil = baker.make(
         "Perfil",
