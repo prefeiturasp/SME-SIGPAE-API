@@ -1350,7 +1350,6 @@ def build_headers_tabelas_cemei(solicitacao):
                         False,
                         "CEMEI",
                         limite_campos,
-                        recreio=recreio,
                     )
                     indice_atual += 1
                     tabelas += [cria_tabela_vazia_cemei()]
@@ -1364,7 +1363,6 @@ def build_headers_tabelas_cemei(solicitacao):
                         True,
                         "CEMEI",
                         limite_campos,
-                        recreio=recreio,
                     )
                 else:
                     indice_atual += 1
