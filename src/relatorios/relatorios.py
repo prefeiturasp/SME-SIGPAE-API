@@ -2481,7 +2481,10 @@ def _busca_log_justificativa_cronograma(logs, autor_justificativa):
         ),
         None,
     )
-    return log_correto.justificativa if log_correto else ""
+    return {
+        "justificativa": log_correto.justificativa if log_correto else "",
+        "titulo": log_correto.status_evento_explicacao if log_correto else dict_logs[autor_justificativa][0],
+    }
 
 
 def _pinta_tabela(campo, etapa_nova, etapa_antiga):
@@ -2545,6 +2548,12 @@ def get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao_cronograma):
         solicitacao_cronograma.etapas_novas,
         solicitacao_cronograma.etapas_antigas,
     )
+
+    log_cronograma = _busca_log_justificativa_cronograma(logs, "cronograma")
+    log_abastecimento = _busca_log_justificativa_cronograma(logs, "abastecimento")
+
+    eh_fornecedor_ciente = solicitacao_cronograma.get_status_display() == "Fornecedor Ciente"
+
     html_string = render_to_string(
         "pre_recebimento/cronogramas/relatorio_solicitacao_alteracao_cronograma.html",
         {
@@ -2552,8 +2561,10 @@ def get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao_cronograma):
             "cronograma": solicitacao_cronograma.cronograma,
             "empresa": solicitacao_cronograma.cronograma.empresa,
             "etapas_com_diff": etapas_com_diff,
-            "justificativa_cronograma": _busca_log_justificativa_cronograma(logs, "cronograma"),
-            "justificativa_abastecimento": _busca_log_justificativa_cronograma(logs, "abastecimento"),
+            "justificativa_cronograma": log_cronograma["justificativa"],
+            "justificativa_abastecimento": log_abastecimento["justificativa"],
+            "titulo_abastecimento": log_abastecimento["titulo"],
+            "eh_fornecedor_ciente": eh_fornecedor_ciente,
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
