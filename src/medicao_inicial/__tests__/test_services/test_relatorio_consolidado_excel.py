@@ -6,6 +6,11 @@ import pytest
 from model_bakery import baker
 from openpyxl import load_workbook
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+)
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
     _formata_filtros,
     _formata_total_geral,
@@ -82,10 +87,10 @@ def test_gera_relatorio_consolidado_xlsx_emef(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
     )
     assert rows[3] == (
@@ -285,10 +290,10 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
     )
     assert rows[3] == (
@@ -511,7 +516,7 @@ def test_gera_relatorio_consolidado_xlsx_cei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
         None,
@@ -519,7 +524,7 @@ def test_gera_relatorio_consolidado_xlsx_cei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
         None,
         None,
@@ -535,7 +540,7 @@ def test_gera_relatorio_consolidado_xlsx_cei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
         None,
@@ -543,7 +548,7 @@ def test_gera_relatorio_consolidado_xlsx_cei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
         None,
         None,
@@ -555,8 +560,8 @@ def test_gera_relatorio_consolidado_xlsx_cei(
         None,
         "TARDE",
         None,
-        "DIETA ESPECIAL - TIPO A",
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_A,
+        DIETA_ESPECIAL_TIPO_B,
     )
     assert rows[3] == (
         "Tipo",
@@ -1003,7 +1008,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
         None,
@@ -1011,7 +1016,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
         None,
         None,
@@ -1027,7 +1032,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
         None,
@@ -1035,7 +1040,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
         None,
         None,
@@ -1061,10 +1066,10 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
         "PROGRAMAS E PROJETOS",
         None,
@@ -1072,9 +1077,9 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
     )
     assert rows[3] == (
@@ -1349,7 +1354,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei_unifica_dieta_enteral_programas_e
     categoria_medicao_dieta_a_enteral_aminoacidos,
 ):
     medicao_programas_e_projetos = relatorio_consolidado_xlsx_cemei.medicoes.get(
-        grupo__nome="Programas e Projetos"
+        grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS
     )
     baker.make(
         "ValorMedicao",
@@ -1379,7 +1384,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei_unifica_dieta_enteral_programas_e
         value == "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
         for value in rows[2]
     )
-    assert rows[2].count("DIETA ESPECIAL - TIPO A") == 4
+    assert rows[2].count(DIETA_ESPECIAL_TIPO_A) == 4
 
 
 def test_gera_relatorio_consolidado_xlsx_emebs(
@@ -1642,10 +1647,10 @@ def test_gera_relatorio_consolidado_xlsx_emebs(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
         "MANHA",
         None,
@@ -1677,10 +1682,10 @@ def test_gera_relatorio_consolidado_xlsx_emebs(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
     )
     assert rows[4] == (
@@ -2064,10 +2069,10 @@ def test_gera_relatorio_consolidado_xlsx_cieja_cmct(
         "PROGRAMAS E PROJETOS",
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
         None,
     )
     assert rows[3] == (
@@ -2601,7 +2606,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         "COLABORADORES",
         None,
         None,
@@ -2792,7 +2797,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cei(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         None,
         None,
         None,
@@ -2994,7 +2999,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emef(
         None,
         None,
         None,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         "COLABORADORES",
         None,
         None,

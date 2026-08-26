@@ -3,6 +3,10 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+)
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.medicao_inicial.validators import (
@@ -13,7 +17,7 @@ from src.medicao_inicial.validators import (
 pytestmark = pytest.mark.django_db
 
 
-PROGRAMAS_E_PROJETOS = "Programas e Projetos"
+PROGRAMAS_E_PROJETOS = GRUPO_PROGRAMAS_E_PROJETOS
 
 
 @freeze_time("2025-09-01")
@@ -28,7 +32,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         self.periodo_manha = periodo_escolar_factory.create(nome="MANHA")
         self.classificacao_tipo_a = classificacao_dieta_factory.create(nome="Tipo A")
         self.categoria_medicao_dieta_tipo_a = categoria_medicao_factory.create(
-            nome="DIETA ESPECIAL - TIPO A"
+            nome=DIETA_ESPECIAL_TIPO_A
         )
         self.categoria_solicitacoes_alimentacao = categoria_medicao_factory.create(
             nome="SOLICITAÇÕES DE ALIMENTAÇÃO"

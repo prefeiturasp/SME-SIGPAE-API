@@ -722,9 +722,13 @@ def build_rows_faixas_etarias(tabela):
     for _, campos_list in tabela["categorias_dos_periodos"].items():
         for campos in campos_list:
             numero_campos = campos["numero_campos"] + 1
-            faixas_limite = faixas_etarias[index_inicial:index_inicial + numero_campos]
+            faixas_limite = faixas_etarias[
+                index_inicial : index_inicial + numero_campos
+            ]
             if faixas_limite:
-                html_output += _build_ths_categoria(faixas_limite, recreio, campos["categoria"])
+                html_output += _build_ths_categoria(
+                    faixas_limite, recreio, campos["categoria"]
+                )
             index_inicial += numero_campos
 
     return "".join(html_output)
@@ -761,9 +765,13 @@ def build_headers_faixas_etarias(tabela):
     for _, campos_list in tabela["categorias_dos_periodos"].items():
         for campos in campos_list:
             numero_campos = campos["numero_campos"] + 1
-            faixas_limite = faixas_etarias[index_inicial:index_inicial + numero_campos]
+            faixas_limite = faixas_etarias[
+                index_inicial : index_inicial + numero_campos
+            ]
             if faixas_limite:
-                html_output += _build_ths_header_categoria(faixas_limite, recreio, campos["categoria"])
+                html_output += _build_ths_header_categoria(
+                    faixas_limite, recreio, campos["categoria"]
+                )
             index_inicial += numero_campos
 
     for _ in tabela["nomes_campos"]:
@@ -865,9 +873,9 @@ def get_colspan(periodo):
         "TOTAL": 1,
         "NOITE": 1,
         "ETEC": 1,
-        "Infantil INTEGRAL": 1,
-        "Infantil MANHA": 1,
-        "Infantil TARDE": 1,
+        constants.GRUPO_INFANTIL_INTEGRAL: 1,
+        constants.GRUPO_INFANTIL_MANHA: 1,
+        constants.GRUPO_INFANTIL_TARDE: 1,
         "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES": 1,
         "DIETA TIPO A": 1,
         "DIETA ENTERAL / REST. DE AMINOÁCIDOS": 1,
@@ -885,9 +893,9 @@ def get_nome_header(nome):
         "NOITE": "NOITE/EJA",
         "TIPO A": "DIETAS TIPO A / ENTERAL / REST. DE AMINOÁCIDOS",
         "TIPO B": "DIETAS TIPO B",
-        "Infantil INTEGRAL": "INTEGRAL",
-        "Infantil MANHA": "MANHÃ",
-        "Infantil TARDE": "TARDE",
+        constants.GRUPO_INFANTIL_INTEGRAL: "INTEGRAL",
+        constants.GRUPO_INFANTIL_MANHA: "MANHÃ",
+        constants.GRUPO_INFANTIL_TARDE: "TARDE",
     }
 
     return nomes.get(nome, nome.upper())
@@ -896,8 +904,8 @@ def get_nome_header(nome):
 @register.filter
 def get_nome_categoria(nome):
     nomes = {
-        "DIETA ESPECIAL - TIPO A": "DIETA TIPO A",
-        "DIETA ESPECIAL - TIPO B": "DIETA TIPO B",
+        constants.DIETA_ESPECIAL_TIPO_A: "DIETA TIPO A",
+        constants.DIETA_ESPECIAL_TIPO_B: "DIETA TIPO B",
     }
 
     return nomes.get(nome, nome.upper())
@@ -1147,12 +1155,12 @@ def remove_style(value):
 def nomes_relatorio_correcao_medicao(nome):
     nomes = {
         "MANHA": "Manhã",
-        "Infantil MANHA": "Infantil Manhã",
+        constants.GRUPO_INFANTIL_MANHA: "Infantil Manhã",
         "NOITE": "Noturno - EJA",
         "INTERMEDIARIO": "Intermediário",
         "ETEC": "ETEC",
-        "DIETA ESPECIAL - TIPO A": "Dieta Tipo A",
-        "DIETA ESPECIAL - TIPO B": "Dieta Tipo B",
+        constants.DIETA_ESPECIAL_TIPO_A: "Dieta Tipo A",
+        constants.DIETA_ESPECIAL_TIPO_B: "Dieta Tipo B",
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": "Dieta Tipo A Enteral/Restrição de Aminoácidos",
     }
 

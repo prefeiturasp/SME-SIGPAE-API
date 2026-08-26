@@ -256,14 +256,14 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
     COMUM = "Comum"
     DIETA_ESPECIAL = "Dieta especial"
 
-    TIPO_PRODUTO = {
+    OPCOES_TIPO_PRODUTO = {
         COMUM: "Comum",
         DIETA_ESPECIAL: "Dieta especial",
     }
 
     TIPO_PRODUTO_CHOICES = (
-        (COMUM, TIPO_PRODUTO[COMUM]),
-        (DIETA_ESPECIAL, TIPO_PRODUTO[DIETA_ESPECIAL]),
+        (COMUM, OPCOES_TIPO_PRODUTO[COMUM]),
+        (DIETA_ESPECIAL, OPCOES_TIPO_PRODUTO[DIETA_ESPECIAL]),
     )
 
     produto = models.ForeignKey(
@@ -345,14 +345,14 @@ class NomeDeProdutoEdital(
     TERCEIRIZADA = "TERCEIRIZADA"
     LOGISTICA = "LOGISTICA"
 
-    TIPO_PRODUTO = {
+    OPCOES_TIPO_PRODUTO = {
         TERCEIRIZADA: "Terceirizada",
         LOGISTICA: "Logistica",
     }
 
     TIPO_PRODUTO_CHOICES = (
-        (TERCEIRIZADA, TIPO_PRODUTO[TERCEIRIZADA]),
-        (LOGISTICA, TIPO_PRODUTO[LOGISTICA]),
+        (TERCEIRIZADA, OPCOES_TIPO_PRODUTO[TERCEIRIZADA]),
+        (LOGISTICA, OPCOES_TIPO_PRODUTO[LOGISTICA]),
     )
 
     tipo_produto = models.CharField(
@@ -382,12 +382,12 @@ class NomeDeProdutoEdital(
 class LogNomeDeProdutoEdital(
     TemChaveExterna, TemIdentificadorExternoAmigavel, CriadoEm, CriadoPor
 ):
-    ACAO = (
+    OPCOES_ACAO = (
         ("a", "ativar"),
         ("i", "inativar"),
     )
     acao = models.CharField(
-        "ação", max_length=1, choices=ACAO, null=True, blank=True
+        "ação", max_length=1, choices=OPCOES_ACAO, null=True, blank=True
     )  # noqa DJ01
     nome_de_produto_edital = models.ForeignKey(
         NomeDeProdutoEdital, on_delete=models.SET_NULL, null=True, blank=True
@@ -1034,14 +1034,14 @@ class AnaliseSensorial(TemChaveExterna, TemIdentificadorExternoAmigavel, CriadoE
     STATUS_AGUARDANDO_RESPOSTA = "AGUARDANDO_RESPOSTA"
     STATUS_RESPONDIDA = "RESPONDIDA"
 
-    STATUS = {
+    OPCOES_STATUS = {
         STATUS_AGUARDANDO_RESPOSTA: "Aguardando resposta",
         STATUS_RESPONDIDA: "Respondida",
     }
 
     STATUS_CHOICES = (
-        (STATUS_AGUARDANDO_RESPOSTA, STATUS[STATUS_AGUARDANDO_RESPOSTA]),
-        (STATUS_RESPONDIDA, STATUS[STATUS_RESPONDIDA]),
+        (STATUS_AGUARDANDO_RESPOSTA, OPCOES_STATUS[STATUS_AGUARDANDO_RESPOSTA]),
+        (STATUS_RESPONDIDA, OPCOES_STATUS[STATUS_RESPONDIDA]),
     )
 
     homologacao_produto = models.ForeignKey(

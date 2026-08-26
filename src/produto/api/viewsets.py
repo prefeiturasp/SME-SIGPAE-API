@@ -108,11 +108,11 @@ from ..models import (
 )
 from ..tasks import (
     gera_excel_relatorio_reclamacao_produtos_async,
+    gera_pdf_relatorio_historico_produto_async,
     gera_pdf_relatorio_produtos_homologados_async,
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
-    gera_pdf_relatorio_historico_produto_async,
 )
 from ..utils.query_produtos_por_status import (
     produtos_aguardando_amostra_analise_sensorial,
@@ -2714,14 +2714,14 @@ class ProdutosEditaisViewSet(viewsets.ModelViewSet):
             queryset = self.get_queryset().filter(edital__uuid__in=editais_uuid)
             if (
                 tipo_produto_edital_origem.lower()
-                == ProdutoEdital.TIPO_PRODUTO["Comum"].lower()
+                == ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"].lower()
             ):
                 queryset = queryset.filter(
-                    tipo_produto__icontains=ProdutoEdital.TIPO_PRODUTO["Comum"]
+                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"]
                 )
             else:
                 queryset = queryset.exclude(
-                    tipo_produto__icontains=ProdutoEdital.TIPO_PRODUTO["Comum"]
+                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"]
                 )
             queryset = queryset.order_by("produto__nome", "produto__marca__nome")
             data = self.get_serializer(queryset, many=True).data

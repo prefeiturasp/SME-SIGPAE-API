@@ -6,6 +6,13 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_INFANTIL_INTEGRAL,
+    GRUPO_INFANTIL_MANHA,
+    GRUPO_INFANTIL_TARDE,
+)
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
@@ -26,6 +33,7 @@ from src.medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
     busca_dias_zerados,
+    get_eh_dia_letivo,
     get_lista_categorias_campos,
     get_lista_categorias_campos_cei,
     get_nome_campo,
@@ -42,7 +50,6 @@ from src.medicao_inicial.utils import (
     obter_instancia_dados,
     substitui_criador_system_por_usuario_real,
     tratar_valores,
-    get_eh_dia_letivo,
 )
 
 from .data import (
@@ -79,7 +86,7 @@ def test_utils_build_dict_relacao_categorias_e_campos(
             "refeicao",
             "sobremesa",
         ],
-        "DIETA ESPECIAL - TIPO B": [
+        DIETA_ESPECIAL_TIPO_B: [
             "aprovadas",
             "lanche",
             "lanche_emergencial",
@@ -125,7 +132,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
         },
         {
             "periodos": ["MANHA", "TARDE"],
-            "categorias": ["DIETA ESPECIAL - TIPO B", "ALIMENTAÇÃO"],
+            "categorias": [DIETA_ESPECIAL_TIPO_B, "ALIMENTAÇÃO"],
             "nomes_campos": [
                 "aprovadas",
                 "lanche",
@@ -146,7 +153,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "ordem_periodos_grupos": [1, 2],
             "dias_letivos": [],
             "categorias_dos_periodos": {
-                "MANHA": [{"categoria": "DIETA ESPECIAL - TIPO B", "numero_campos": 5}],
+                "MANHA": [{"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5}],
                 "TARDE": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 7}],
             },
         },
@@ -154,7 +161,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "periodos": ["TARDE"],
             "categorias": [
                 "DIETA ESPECIAL - TIPO A ENTERAL",
-                "DIETA ESPECIAL - TIPO B",
+                DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
                 "aprovadas",
@@ -179,7 +186,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
                         "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
                         "numero_campos": 5,
                     },
-                    {"categoria": "DIETA ESPECIAL - TIPO B", "numero_campos": 5},
+                    {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
                 ]
             },
         },
@@ -222,9 +229,9 @@ def test_build_headers_tabelas_emebs(solicitacao_medicao_inicial_varios_valores_
 
 
 def test_get_nome_periodo():
-    assert get_nome_periodo("Infantil INTEGRAL") == "INTEGRAL"
-    assert get_nome_periodo("Infantil MANHA") == "MANHA"
-    assert get_nome_periodo("Infantil TARDE") == "TARDE"
+    assert get_nome_periodo(GRUPO_INFANTIL_INTEGRAL) == "INTEGRAL"
+    assert get_nome_periodo(GRUPO_INFANTIL_MANHA) == "MANHA"
+    assert get_nome_periodo(GRUPO_INFANTIL_TARDE) == "TARDE"
     assert get_nome_periodo("Fundamental MANHA") == "Fundamental MANHA"
     assert get_nome_periodo("EJA NOITE") == "EJA NOITE"
 
@@ -333,7 +340,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
         },
         {
             "periodos": ["MANHA", "TARDE"],
-            "categorias": ["DIETA ESPECIAL - TIPO B", "ALIMENTAÇÃO"],
+            "categorias": [DIETA_ESPECIAL_TIPO_B, "ALIMENTAÇÃO"],
             "nomes_campos": [
                 "aprovadas",
                 "lanche",
@@ -420,7 +427,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
                 False,
             ],
             "categorias_dos_periodos": {
-                "MANHA": [{"categoria": "DIETA ESPECIAL - TIPO B", "numero_campos": 5}],
+                "MANHA": [{"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5}],
                 "TARDE": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 7}],
             },
         },
@@ -428,7 +435,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             "periodos": ["TARDE"],
             "categorias": [
                 "DIETA ESPECIAL - TIPO A ENTERAL",
-                "DIETA ESPECIAL - TIPO B",
+                DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
                 "aprovadas",
@@ -519,7 +526,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
                         "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
                         "numero_campos": 5,
                     },
-                    {"categoria": "DIETA ESPECIAL - TIPO B", "numero_campos": 5},
+                    {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
                 ]
             },
         },
@@ -994,7 +1001,7 @@ def test_avalia_soma_total_com_dados_tabela_anterior():
                 "periodo": "INTEGRAL",
             },
             {
-                "categoria": "DIETA ESPECIAL - TIPO B",
+                "categoria": DIETA_ESPECIAL_TIPO_B,
                 "faixas_etarias": ["04 a 05 meses", "06 meses"],
                 "periodo": "INTEGRAL",
             },
@@ -1599,9 +1606,9 @@ def test_busca_dias_zerados_emef(medicoes_frequencia_zerada_emef):
     assert "13" in resultado["alimentacoes"]
     assert "20" not in resultado["alimentacoes"]
 
-    assert "05" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
-    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
-    assert "20" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+    assert "05" in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]
+    assert "13" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]
+    assert "20" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]
 
 
 def test_busca_dias_zerados_emebs(medicoes_frequencia_zerada_emebs):
@@ -1616,14 +1623,14 @@ def test_busca_dias_zerados_emebs(medicoes_frequencia_zerada_emebs):
     assert "24" not in resultado["alimentacoes"]["INFANTIL"]
     assert "24" not in resultado["alimentacoes"]["FUNDAMENTAL"]
 
-    assert "10" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
-    assert "10" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+    assert "10" in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["INFANTIL"]
+    assert "10" in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["FUNDAMENTAL"]
 
-    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
-    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+    assert "13" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["INFANTIL"]
+    assert "13" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["FUNDAMENTAL"]
 
-    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
-    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+    assert "24" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["INFANTIL"]
+    assert "24" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["FUNDAMENTAL"]
 
 
 def set_up_faixas_etarias(faixa_etaria_factory):

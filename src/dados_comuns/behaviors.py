@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models.fields.files import FileField
 
 from .constants import (
+    FORMATO_DATA_BRASILEIRO,
     LIMITE_INFERIOR,
     LIMITE_SUPERIOR,
     PRIORITARIO,
@@ -376,7 +377,7 @@ class Logs(object):
             LogSolicitacoesUsuario.SUSPENSAO_ALIMENTACAO_CEI,
         ]:
             return (
-                self.logs.first().criado_em.strftime("%d/%m/%Y")
+                self.logs.first().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
                 if self.logs.exists()
                 else ""
             )
@@ -389,7 +390,7 @@ class Logs(object):
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
             )
             if log:
-                return log.last().criado_em.strftime("%d/%m/%Y")
+                return log.last().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         return ""
 
     @property
@@ -409,7 +410,7 @@ class Logs(object):
                 ],
             )
             if log:
-                return log.last().criado_em.strftime("%d/%m/%Y")
+                return log.last().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         return ""
 
     @property
@@ -429,7 +430,7 @@ class Logs(object):
                 ],
             )
             if log:
-                return log.last().criado_em.strftime("%d/%m/%Y")
+                return log.last().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         return ""
 
 
@@ -585,13 +586,13 @@ class PerfilDiretorSupervisao(models.Model):
     DIRETOR = "DIRETOR"
     SUPERVISAO = "SUPERVISAO"
 
-    PERFIS = (
+    OPCOES_PERFIS = (
         (DIRETOR, "DIRETOR"),
         (SUPERVISAO, "SUPERVISAO"),
     )
 
     perfis = ArrayField(
-        models.CharField(choices=PERFIS, default=[], blank=True),
+        models.CharField(choices=OPCOES_PERFIS, default=[], blank=True),
         null=True,
         blank=True,
     )

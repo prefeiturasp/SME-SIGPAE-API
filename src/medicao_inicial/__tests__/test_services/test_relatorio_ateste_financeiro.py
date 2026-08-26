@@ -2,19 +2,27 @@ from decimal import Decimal
 
 import pytest
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+)
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_cemei,
-    build_relatorio_financeiro_grupo_emei,
     build_relatorio_financeiro_grupo_emebs,
+    build_relatorio_financeiro_grupo_emei,
 )
 from src.medicao_inicial.utils import normalizar_nome_campo
 from src.relatorios.relatorios import gerar_relatorio_ateste_financeiro
 from src.relatorios.utils import extrair_texto_de_pdf
 
 TEMPLATE_HTML_CEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html"
-TEMPLATE_HTML_CEMEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html"
-TEMPLATE_HTML_EMEBS = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emebs.html"
+TEMPLATE_HTML_CEMEI = (
+    "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html"
+)
+TEMPLATE_HTML_EMEBS = (
+    "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emebs.html"
+)
 TEMPLATE_HTML_EMEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emei.html"
 
 
@@ -82,8 +90,8 @@ def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
     assert "Grupo 1" in texto
 
     assert "ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS" in texto
-    assert "DIETA ESPECIAL - TIPO A" in texto
-    assert "DIETA ESPECIAL - TIPO B" in texto
+    assert DIETA_ESPECIAL_TIPO_A in texto
+    assert DIETA_ESPECIAL_TIPO_B in texto
 
     assert "CONSOLIDADO TOTAL (A + B + C)" in texto
     assert "QUANTIDADE SERVIDA:" in texto
@@ -110,8 +118,8 @@ def test_build_relatorio_financeiro_grupo_emei(
 
     valores_por_tipo = {
         "ALIMENTAÇÃO": [10, 20, 30],
-        "DIETA ESPECIAL - TIPO A": [2, 4, 6],
-        "DIETA ESPECIAL - TIPO B": [1, 2, 3],
+        DIETA_ESPECIAL_TIPO_A: [2, 4, 6],
+        DIETA_ESPECIAL_TIPO_B: [1, 2, 3],
     }
 
     totais_consumo = {
@@ -178,7 +186,7 @@ def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
 
     assert "TIPOS DE ALIMENTAÇÕES - SEM DIETAS" in texto
     assert "DIETA ESPECIAL - TIPO A, A ENTERAL E RESTRIÇÃO DE AMINOÁCIDOS" in texto
-    assert "DIETA ESPECIAL - TIPO B" in texto
+    assert DIETA_ESPECIAL_TIPO_B in texto
 
     assert "CONSOLIDADO TOTAL (A + B + C)" in texto
 
@@ -201,8 +209,8 @@ def test_build_relatorio_financeiro_grupo_cieja(
 
     valores_por_tipo = {
         "ALIMENTAÇÃO": [30, 60, 90],
-        "DIETA ESPECIAL - TIPO A": [20, 40, 60],
-        "DIETA ESPECIAL - TIPO B": [11, 22, 33],
+        DIETA_ESPECIAL_TIPO_A: [20, 40, 60],
+        DIETA_ESPECIAL_TIPO_B: [11, 22, 33],
     }
 
     totais_consumo = {
@@ -298,8 +306,8 @@ def test_build_relatorio_financeiro_grupo_cemei(
 
     valores_por_tipo = {
         "ALIMENTAÇÃO": [55, 66, 77],
-        "DIETA ESPECIAL - TIPO A": [11, 22, 33],
-        "DIETA ESPECIAL - TIPO B": [44, 55, 88],
+        DIETA_ESPECIAL_TIPO_A: [11, 22, 33],
+        DIETA_ESPECIAL_TIPO_B: [44, 55, 88],
     }
 
     totais_consumo_tipo = {
@@ -388,15 +396,15 @@ def test_build_relatorio_financeiro_grupo_emef(
         tipo_alimentacao_lanche.nome,
         tipo_alimentacao_lanche_4h.nome,
         tipo_alimentacao_refeicao.nome,
-        "Refeição EJA"
+        "Refeição EJA",
     ]
 
     GRUPO_NOME = grupo_unidade_escolar_emef.nome
 
     valores_por_tipo = {
         "ALIMENTAÇÃO": [68, 78, 88, 98],
-        "DIETA ESPECIAL - TIPO A": [65, 75, 85, 95],
-        "DIETA ESPECIAL - TIPO B": [69, 79, 89, 99],
+        DIETA_ESPECIAL_TIPO_A: [65, 75, 85, 95],
+        DIETA_ESPECIAL_TIPO_B: [69, 79, 89, 99],
     }
 
     totais_consumo = {
@@ -421,11 +429,13 @@ def test_build_relatorio_financeiro_grupo_emef(
 
     for tipo in ["REFEIÇÃO - EJA", "KIT LANCHE"]:
         assert any(
-            linha.get("tipo") == tipo
-            for linha in resultado["alimentacao"]["linhas"]
+            linha.get("tipo") == tipo for linha in resultado["alimentacao"]["linhas"]
         )
 
-    assert resultado["cabecalho"]["grupo_unidade_escolar"] == "Grupo 4 (CEU EMEF, CEU GESTAO, EMEF, EMEFM)"
+    assert (
+        resultado["cabecalho"]["grupo_unidade_escolar"]
+        == "Grupo 4 (CEU EMEF, CEU GESTAO, EMEF, EMEFM)"
+    )
     assert resultado["cabecalho"]["data_referencia"] == "OUTUBRO/2025"
 
 
@@ -479,13 +489,13 @@ def test_build_relatorio_financeiro_grupo_emebs(
     valores_por_tipo = {
         "INFANTIL": {
             "ALIMENTAÇÃO": [68, 78, 88, 98],
-            "DIETA ESPECIAL - TIPO A": [65, 75, 85, 95],
-            "DIETA ESPECIAL - TIPO B": [69, 79, 89, 99],
+            DIETA_ESPECIAL_TIPO_A: [65, 75, 85, 95],
+            DIETA_ESPECIAL_TIPO_B: [69, 79, 89, 99],
         },
         "FUNDAMENTAL": {
             "ALIMENTAÇÃO": [10, 20, 30, 40],
-            "DIETA ESPECIAL - TIPO A": [11, 21, 31, 41],
-            "DIETA ESPECIAL - TIPO B": [12, 22, 32, 42],
+            DIETA_ESPECIAL_TIPO_A: [11, 21, 31, 41],
+            DIETA_ESPECIAL_TIPO_B: [12, 22, 32, 42],
         },
     }
 

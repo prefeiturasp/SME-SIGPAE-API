@@ -11,7 +11,15 @@ from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
-from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    DJANGO_ADMIN_PASSWORD,
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+)
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import (
@@ -662,7 +670,7 @@ def cronograma(
 
 @pytest.fixture
 def categoria_dieta_a():
-    return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
+    return baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
 
 
 @pytest.fixture
@@ -763,22 +771,16 @@ def recreio_nas_ferias(escola):
 @pytest.fixture
 def solicitacao_medicao_inicial_recreio_nas_ferias(escola, recreio_nas_ferias):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
-    grupo_recreio = baker.make("GrupoMedicao", nome="Recreio nas Férias")
+    grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
     grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
 
-    categoria_alimentacao = baker.make(
-        "CategoriaMedicao", nome="ALIMENTAÇÃO"
-    )
-    categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A"
-    )
+    categoria_alimentacao = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    categoria_dieta_a = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
     categoria_dieta_enteral = baker.make(
         "CategoriaMedicao",
         nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
     )
-    categoria_dieta_b = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B"
-    )
+    categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
 
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -890,9 +892,7 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae(
         uuid_original=solicitacao_medicao_inicial_recreio_nas_ferias.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
-        criado_em=datetime.datetime(
-            2025, 8, 5, 10, 0, 0, tzinfo=datetime.timezone.utc
-        ),
+        criado_em=datetime.datetime(2025, 8, 5, 10, 0, 0, tzinfo=datetime.timezone.utc),
         usuario=usuario,
     )
 
@@ -1076,18 +1076,20 @@ def recreio_nas_ferias_cemei(escola_cemei):
 
 
 @pytest.fixture
-def solicitacao_medicao_inicial_recreio_nas_ferias_cei(escola_cei, recreio_nas_ferias_cei):
+def solicitacao_medicao_inicial_recreio_nas_ferias_cei(
+    escola_cei, recreio_nas_ferias_cei
+):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
-    grupo_recreio = baker.make("GrupoMedicao", nome="Recreio nas Férias")
+    grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
     grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
 
     categoria_alimentacao = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
-    categoria_dieta_a = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
+    categoria_dieta_a = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
     categoria_dieta_enteral = baker.make(
         "CategoriaMedicao",
         nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
     )
-    categoria_dieta_b = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
 
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -1192,9 +1194,7 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cei_aprovada_codae(
         uuid_original=solicitacao_medicao_inicial_recreio_nas_ferias_cei.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
-        criado_em=datetime.datetime(
-            2025, 8, 5, 10, 0, 0, tzinfo=datetime.timezone.utc
-        ),
+        criado_em=datetime.datetime(2025, 8, 5, 10, 0, 0, tzinfo=datetime.timezone.utc),
         usuario=usuario,
     )
 
@@ -1221,15 +1221,15 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cemei(
 
     grupo_0a3 = baker.make(
         "GrupoMedicao",
-        nome="Recreio nas Férias - de 0 a 3 anos e 11 meses",
+        nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     )
     grupo_4a14 = baker.make(
         "GrupoMedicao",
-        nome="Recreio nas Férias - 4 a 14 anos",
+        nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     )
     grupo_solicitacoes = baker.make(
         "GrupoMedicao",
-        nome="Solicitações de Alimentação",
+        nome=GRUPO_SOLICITACOES_ALIMENTACAO,
     )
     grupo_colaboradores = baker.make(
         "GrupoMedicao",
@@ -1408,9 +1408,7 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cemei_aprovada_codae(
         uuid_original=solicitacao_medicao_inicial_recreio_nas_ferias_cemei.uuid,
         status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
         solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
-        criado_em=datetime.datetime(
-            2025, 8, 5, 10, 0, 0, tzinfo=datetime.timezone.utc
-        ),
+        criado_em=datetime.datetime(2025, 8, 5, 10, 0, 0, tzinfo=datetime.timezone.utc),
         usuario=usuario,
     )
 

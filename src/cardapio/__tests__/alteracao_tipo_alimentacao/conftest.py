@@ -12,6 +12,7 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
+from src.dados_comuns.constants import TIPO_ALIMENTACAO
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 
 
@@ -292,9 +293,9 @@ def daqui_dez_dias_ou_ultimo_dia_do_ano():
     ]
 )
 def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano):
-    alimentacao1 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao1")
-    alimentacao2 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao2")
-    alimentacao3 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao3")
+    alimentacao1 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao1")
+    alimentacao2 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao2")
+    alimentacao3 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao3")
     periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
     tipo_unidade_escolar = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
     escola = baker.make(

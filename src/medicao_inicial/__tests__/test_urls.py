@@ -7,6 +7,17 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    GRUPO_INFANTIL_INTEGRAL,
+    GRUPO_INFANTIL_MANHA,
+    GRUPO_INFANTIL_TARDE,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+)
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
     DescontoFinanceiro,
@@ -535,8 +546,8 @@ def test_url_endpoint_periodos_grupos_medicao(
         None,
         None,
         None,
-        "Programas e Projetos",
-        "Solicitações de Alimentação",
+        GRUPO_PROGRAMAS_E_PROJETOS,
+        GRUPO_SOLICITACOES_ALIMENTACAO,
         "ETEC",
     ]
     assert [r["nome_periodo_grupo"] for r in results] == [
@@ -544,8 +555,8 @@ def test_url_endpoint_periodos_grupos_medicao(
         "TARDE",
         "INTEGRAL",
         "NOITE",
-        "Programas e Projetos",
-        "Solicitações de Alimentação",
+        GRUPO_PROGRAMAS_E_PROJETOS,
+        GRUPO_SOLICITACOES_ALIMENTACAO,
         "ETEC",
     ]
 
@@ -672,7 +683,7 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
             [
                 r
                 for r in response.data["results"]
-                if r["nome_periodo_grupo"] == "Infantil MANHA"
+                if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
             ]
         )
         == 1
@@ -681,12 +692,12 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
         [
             r
             for r in response.data["results"]
-            if r["nome_periodo_grupo"] == "Infantil MANHA"
+            if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
         ][0]["quantidade_alunos"]
     assert [
         r
         for r in response.data["results"]
-        if r["nome_periodo_grupo"] == "Infantil MANHA"
+        if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
     ][0]["valor_total"] == 80
 
 
@@ -1631,7 +1642,7 @@ def test_finaliza_medicao_inicial_salva_logs(
     assert (
         medicao_manha.valores_medicao.filter(
             nome_campo="dietas_autorizadas",
-            categoria_medicao__nome="DIETA ESPECIAL - TIPO A",
+            categoria_medicao__nome=DIETA_ESPECIAL_TIPO_A,
         ).count()
         == 30
     )
@@ -1665,7 +1676,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 
     medicao_programas_projetos = (
         solicitacao_medicao_inicial_teste_salvar_logs.medicoes.get(
-            grupo__nome="Programas e Projetos"
+            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS
         )
     )
     assert (
@@ -1687,7 +1698,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 
     medicao_solicitacoes_alimentacao = (
         solicitacao_medicao_inicial_teste_salvar_logs.medicoes.get(
-            grupo__nome="Solicitações de Alimentação"
+            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO
         )
     )
     assert (
@@ -1930,9 +1941,9 @@ def test_periodos_escola_cemei_com_alunos_emei(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 3
     dados = response.data["results"]
-    assert dados[0] == "Infantil MANHA"
-    assert dados[1] == "Infantil TARDE"
-    assert dados[2] == "Infantil INTEGRAL"
+    assert dados[0] == GRUPO_INFANTIL_MANHA
+    assert dados[1] == GRUPO_INFANTIL_TARDE
+    assert dados[2] == GRUPO_INFANTIL_INTEGRAL
 
 
 def test_periodos_permissoes_lancamentos_especiais_mes_ano(
@@ -3401,10 +3412,10 @@ def test_url_endpoint_totais_atendimento_consumo(
     data = response.data
 
     assert "ALIMENTAÇÃO" in data
-    assert "DIETA ESPECIAL - TIPO A" in data
+    assert DIETA_ESPECIAL_TIPO_A in data
 
     alimentacao = data["ALIMENTAÇÃO"]
-    dieta_a = data["DIETA ESPECIAL - TIPO A"]
+    dieta_a = data[DIETA_ESPECIAL_TIPO_A]
 
     assert "total_refeicao" in alimentacao
     assert "refeicao" in dieta_a
@@ -3426,7 +3437,7 @@ def test_url_dias_frequencia_zerada(
     resultado = response.json()
     assert "05" in resultado["alimentacoes"]
     assert "13" in resultado["alimentacoes"]
-    assert resultado["dietas"]["DIETA ESPECIAL - TIPO A"] == ["05"]
+    assert resultado["dietas"][DIETA_ESPECIAL_TIPO_A] == ["05"]
 
 
 def test_url_dias_frequencia_zerada_solicitacao_nao_encontrada(
@@ -3685,7 +3696,7 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento_kit_lanche(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert {
         "erro": "Restam dias a serem lançados nos Kit Lanches.",
-        "periodo_escolar": "Solicitações de Alimentação",
+        "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
     } in response.json()
 
 
@@ -3728,11 +3739,11 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -3815,11 +3826,11 @@ def test_url_endpoint_finaliza_medicao_recreio_cei_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -3887,7 +3898,7 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_0_A_3,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
@@ -3895,15 +3906,15 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_4_A_14,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_4_A_14,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_0_A_3,
         },
     ]
 

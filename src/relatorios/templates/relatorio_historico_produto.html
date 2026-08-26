@@ -40,7 +40,7 @@
               </strong>
             </p>
             <p style="margin: 0.4em 0;">Justificativa:</p>
-            <div>{{ log.justificativa|safe }}</div>
+            <div>{{ log.justificativa | safe_content }}</div>
           </div>
 
           {% else %}

@@ -34,7 +34,11 @@ from utility.carga_dados.escola.importa_dados import (
 from utility.carga_dados.terceirizada.importa_dados import cria_terceirizadas
 
 from ...escola import models
-from ..constants import COORDENADOR_LOGISTICA, DJANGO_ADMIN_PASSWORD
+from ..constants import (
+    COORDENADOR_LOGISTICA,
+    DJANGO_ADMIN_PASSWORD,
+    TIPO_ALIMENTACAO,
+)
 from ..models import (
     CentralDeDownload,
     LogSolicitacoesUsuario,
@@ -172,6 +176,8 @@ def dias_uteis_apos(request):
 
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
+    # Habilita acesso ao banco para todos os testes deste pacote,
+    # sem exigir o marcador django_db em cada teste individualmente.
     pass
 
 
@@ -732,7 +738,7 @@ def arquivo_temporario():
     finally:
         try:
             os.remove(file_path)
-        except:
+        except OSError:
             pass
 
 
@@ -1007,17 +1013,17 @@ def escola_cemei_1():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make("cardapio.TipoAlimentacao", nome="Refeição")
+    return baker.make(TIPO_ALIMENTACAO, nome="Refeição")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make("cardapio.TipoAlimentacao", nome="Lanche")
+    return baker.make(TIPO_ALIMENTACAO, nome="Lanche")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
+    return baker.make(TIPO_ALIMENTACAO, nome="Lanche Emergencial")
 
 
 @pytest.fixture
@@ -1324,7 +1330,9 @@ def solicitacao_alteracao_cronograma_com_ficha(
         "administrador-codae-gabinete",
     ],
 )
-def usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda(request, django_user_model):
+def usuario_com_perfil_autorizado_a_cadastrar_novas_categorias_na_pagina_de_ajuda(
+    request, django_user_model
+):
     """Cria um usuário vinculado com um dos perfis autorizados a cadastrar categorias na página de Ajuda."""
     perfil = baker.make(
         "Perfil",

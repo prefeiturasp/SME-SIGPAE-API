@@ -8,8 +8,8 @@ from django.db.models import F, FloatField, Sum
 from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
-from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS,
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
@@ -18,6 +18,7 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
+from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from src.dados_comuns.utils import convert_image_to_base64
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
@@ -93,9 +94,9 @@ from .utils import (
     formata_motivos_inclusao,
     get_config_cabecario_relatorio_analise,
     get_diretorias_regionais,
+    get_ultima_justificativa_analise_sensorial,
     get_width,
     todas_escolas_sol_kit_lanche_unificado_cancelado,
-    get_ultima_justificativa_analise_sensorial,
 )
 
 env = environ.Env()
@@ -1823,7 +1824,7 @@ def _ajustar_labels_recreio_nas_ferias(tabelas: list, titulo_recreio: str) -> No
     Ajusta in-place os labels de períodos e categorias das tabelas
     conforme o título do recreio nas férias.
     """
-    PERIODO_PARTICIPANTES = "Recreio nas Férias"
+    PERIODO_PARTICIPANTES = GRUPO_RECREIO_NAS_FERIAS
     PERIODO_COLABORADORES = "Colaboradores"
     CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
 

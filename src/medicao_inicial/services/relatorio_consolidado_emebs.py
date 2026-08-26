@@ -5,6 +5,10 @@ from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_EMEBS,
@@ -102,7 +106,7 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
         .distinct()
     )
 
-    if nome_periodo != "Solicitações de Alimentação":
+    if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
         if nome_periodo.upper() != "NOITE":
             infantil += [
                 "total_refeicoes_pagamento",
@@ -202,7 +206,7 @@ def _update_dietas_alimentacoes(
 
 
 def _unificar_dietas_tipo_a(dietas_alimentacoes, turma):
-    dieta_principal = "DIETA ESPECIAL - TIPO A"
+    dieta_principal = DIETA_ESPECIAL_TIPO_A
     dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
     valor_principal = dietas_alimentacoes.get(turma, {}).get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(turma, {}).get(dieta_alternativa, [])
@@ -258,15 +262,15 @@ def _generate_columns(dict_periodos_dietas):
     solicitacoes = []
     if "INFANTIL" in dict_periodos_dietas:
         solicitacoes += dict_periodos_dietas["INFANTIL"].pop(
-            "Solicitações de Alimentação", []
+            GRUPO_SOLICITACOES_ALIMENTACAO, []
         )
     if "FUNDAMENTAL" in dict_periodos_dietas:
         solicitacoes += dict_periodos_dietas["FUNDAMENTAL"].pop(
-            "Solicitações de Alimentação", []
+            GRUPO_SOLICITACOES_ALIMENTACAO, []
         )
     ordem_solicitacoes = ["lanche_emergencial", "kit_lanche"]
     solicitacoes = sorted(solicitacoes, key=lambda x: ordem_solicitacoes.index(x))
-    columns = [("", "Solicitações de Alimentação", valor) for valor in solicitacoes]
+    columns = [("", GRUPO_SOLICITACOES_ALIMENTACAO, valor) for valor in solicitacoes]
     for turma, categorias in dict_periodos_dietas.items():
         for categoria, valores in categorias.items():
             dados = valores if len(valores) > 0 else ["Sem registro"]
@@ -349,14 +353,14 @@ def _processa_periodo_campo(
 def _define_filtro(periodo, dietas_especiais, periodos_escolares):
     filtros = {}
     if periodo in [
-        "Programas e Projetos",
+        GRUPO_PROGRAMAS_E_PROJETOS,
         "ETEC",
-        "Solicitações de Alimentação",
+        GRUPO_SOLICITACOES_ALIMENTACAO,
     ]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
-        filtros["grupo__nome__in"] = ["Programas e Projetos", "ETEC"]
+        filtros["grupo__nome__in"] = [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
@@ -375,10 +379,10 @@ def processa_dieta_especial(
 
     categorias = (
         [
-            "DIETA ESPECIAL - TIPO A",
+            DIETA_ESPECIAL_TIPO_A,
             "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
         ]
-        if periodo == "DIETA ESPECIAL - TIPO A"
+        if periodo == DIETA_ESPECIAL_TIPO_A
         else [periodo]
     )
     total = 0.0
@@ -398,7 +402,7 @@ def processa_periodo_regular(
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
         return _get_total_pagamento(medicao, campo, turma, query_params)
 
-    if periodo == "Solicitações de Alimentação":
+    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         categorias = [periodo.upper()]
         turma = ["INFANTIL", "FUNDAMENTAL"]
     else:
@@ -435,7 +439,7 @@ def _get_total_pagamento(medicao, nome_campo, turma, query_params=None):
             total_valores > 0
             and medicao.periodo_escolar
             in medicao.solicitacao_medicao_inicial.escola.periodos_escolares()
-        ) or (medicao.grupo and medicao.grupo.nome == "Programas e Projetos"):
+        ) or (medicao.grupo and medicao.grupo.nome == GRUPO_PROGRAMAS_E_PROJETOS):
             valor_padrao = 0
         else:
             valor_padrao = "-"
@@ -574,7 +578,7 @@ def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
 
     headers = []
     for turma, chave, valor in colunas:
-        if chave == "Solicitações de Alimentação":
+        if chave == GRUPO_SOLICITACOES_ALIMENTACAO:
             headers.append(("", "", NOMES_CAMPOS[valor]))
         else:
             headers.append((turma, chave.upper(), NOMES_CAMPOS[valor]))
@@ -646,8 +650,8 @@ def ajusta_layout_tabela(workbook, worksheet, df):
         "VESPERTINO": formatacao_vespertino,
         "INTERMEDIARIO": formatacao_intermediario,
         "PROGRAMAS E PROJETOS": formatacao_programas,
-        "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
+        DIETA_ESPECIAL_TIPO_A: formatacao_dieta_a,
+        DIETA_ESPECIAL_TIPO_B: formatacao_dieta_b,
     }
     formatacao_turma = {
         "": {"formatacao": formatacao_level2, "nome": ""},

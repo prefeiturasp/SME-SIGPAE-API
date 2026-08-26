@@ -318,7 +318,7 @@ class FichaTecnicaDoProduto(
         self.numero = f"FT{str(self.pk).zfill(3)}"
 
     @property
-    def ponto_a_ponto(self) -> bool:
+    def eh_ponto_a_ponto(self) -> bool:
         return self.tipo_entrega == self.PONTO_A_PONTO
 
 
