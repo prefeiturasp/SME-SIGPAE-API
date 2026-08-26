@@ -225,7 +225,7 @@ class GrupoSuspensaoAlimentacao(
         Returns:
             str: String ``"Suspensão de Alimentação"``.
         """
-        return "Suspensão de Alimentação"
+        return self.DESCRICAO
 
     @property
     def path(self):
@@ -301,7 +301,7 @@ class GrupoSuspensaoAlimentacao(
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
-            "tipo_doc": "Suspensão de Alimentação",
+            "tipo_doc": self.DESCRICAO,
             "data_evento": datas,
             "numero_alunos": self.numero_alunos,
             "label_data": label_data,

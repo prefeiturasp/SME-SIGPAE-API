@@ -11,6 +11,8 @@ from src.escola.models import (
     TipoTurma,
 )
 
+TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
+
 
 @pytest.fixture(
     params=[
@@ -74,9 +76,9 @@ def horarios_combos_tipo_alimentacao_invalidos(request):
 
 @pytest.fixture()
 def alterar_tipos_alimentacao_data():
-    alimentacao1 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao1")
-    alimentacao2 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao2")
-    alimentacao3 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao3")
+    alimentacao1 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao1")
+    alimentacao2 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao2")
+    alimentacao3 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao3")
     periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
     tipo_unidade_escolar = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
     vinculo = baker.make(

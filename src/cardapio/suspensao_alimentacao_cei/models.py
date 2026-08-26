@@ -17,6 +17,8 @@ from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
 
+DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
+
 
 class SuspensaoAlimentacaoDaCEI(
     ExportModelOperationsMixin("suspensao_alimentacao_de_cei"),
@@ -41,7 +43,7 @@ class SuspensaoAlimentacaoDaCEI(
     em vez de uma tabela auxiliar de quantidades por período.
     """
 
-    DESCRICAO = "Suspensão de Alimentação de CEI"
+    DESCRICAO = DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI
     escola = models.ForeignKey("escola.Escola", on_delete=models.DO_NOTHING)
     motivo = models.ForeignKey(MotivoSuspensao, on_delete=models.DO_NOTHING)
     outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
@@ -154,7 +156,7 @@ class SuspensaoAlimentacaoDaCEI(
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
-            "tipo_doc": "Suspensão de Alimentação de CEI",
+            "tipo_doc": self.DESCRICAO,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "motivo": self.motivo,
@@ -173,7 +175,7 @@ class SuspensaoAlimentacaoDaCEI(
         return f"{self.id_externo}"
 
     class Meta:
-        verbose_name = "Suspensão de Alimentação de CEI"
+        verbose_name = DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI
         verbose_name_plural = "Suspensões de Alimentação de CEI"
 
 
