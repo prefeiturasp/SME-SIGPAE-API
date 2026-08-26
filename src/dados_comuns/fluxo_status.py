@@ -27,6 +27,7 @@ from .constants import (
     DILOG_DIRETORIA,
     DIRETOR_UE,
     EM_ANALISE_LABEL,
+    ERRO_SALVAR_LOG_TRANSICAO,
     ESCOLA_CANCELOU_LABEL,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
@@ -900,7 +901,7 @@ class FluxoSolicitacaoRemessa(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     def _preenche_template_e_envia_email(
         self, assunto, titulo, user, partes_interessadas
@@ -1177,7 +1178,7 @@ class FluxoSolicitacaoDeAlteracao(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     def _preenche_template_e_envia_email(
         self, template, assunto, titulo, partes_interessadas, log_transicao, situacao
@@ -1401,7 +1402,7 @@ class FluxoGuiaRemessa(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     def _preenche_template_e_envia_email(
         self, template, assunto, titulo, partes_interessadas, log_transicao, url
@@ -1675,7 +1676,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         return self.status == self.workflow_class.RASCUNHO
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     #
     # Esses hooks são chamados automaticamente após a
@@ -2382,7 +2383,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         return []
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     #
     # Esses hooks são chamados automaticamente após a
@@ -2784,7 +2785,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         return []
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     def _preenche_template_e_envia_email(
         self, assunto, titulo, user, partes_interessadas

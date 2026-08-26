@@ -256,6 +256,7 @@ TERCEIRIZADA_RESPONDEU_RECLAMACAO = "Terceirizada respondeu a reclamação"
 UE_RESPONDEU_RECLAMACAO = "U.E. respondeu a reclamação"
 ESCOLA_CANCELOU_LABEL = "Escola cancelou"
 EM_ANALISE_LABEL = "Em análise"
+ERRO_SALVAR_LOG_TRANSICAO = "Deve criar um método salvar_log_transicao"
 
 TIPO_SOLICITACAO_DIETA = {
     "COMUM": "COMUM",
