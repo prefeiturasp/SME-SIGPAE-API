@@ -579,6 +579,27 @@ class Escola(
 
         return historico.tipo_unidade if historico else self.tipo_unidade
 
+    def esta_em_dia_letivo_sigpae(self, data: datetime.date) -> bool:
+        """Indica se a escola está contemplada em um DiaLetivoSIGPAE da data.
+
+        A escola é contemplada quando está entre as unidades do dia letivo ou,
+        não havendo unidades cadastradas, quando seu tipo de unidade e lote
+        estão entre os do dia letivo.
+        """
+        from .dias_letivos.models import DiaLetivoSIGPAE
+
+        if DiaLetivoSIGPAE.objects.filter(data=data, escolas=self).exists():
+            return True
+
+        return (
+            DiaLetivoSIGPAE.objects.filter(data=data, escolas__isnull=True)
+            .filter(
+                tipos_unidade_escolar=self.tipo_unidade,
+                lotes=self.lote,
+            )
+            .exists()
+        )
+
     @property
     def ultimo_dia_letivo(self):
         DEZEMBRO = 12
