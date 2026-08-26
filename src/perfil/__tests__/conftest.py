@@ -14,6 +14,7 @@ from ...dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     DILOG_ABASTECIMENTO,
     DJANGO_ADMIN_PASSWORD,
+    EMAIL_ADMIN,
 )
 from .. import models
 from ..api.serializers import UsuarioSerializer, UsuarioUpdateSerializer
@@ -827,7 +828,7 @@ def email_list_invalidos(request):
 
 @pytest.fixture
 def fake_user(client):
-    email = "admin@admin.com"
+    email = EMAIL_ADMIN
     password = DJANGO_ADMIN_PASSWORD
     user = models.Usuario.objects.create_user(
         email=email,
@@ -841,7 +842,7 @@ def fake_user(client):
 
 @pytest.fixture
 def usuario_autenticado(client):
-    email = "admin@admin.com"
+    email = EMAIL_ADMIN
     password = DJANGO_ADMIN_PASSWORD
     client.login(username=email, password=password)
     return client

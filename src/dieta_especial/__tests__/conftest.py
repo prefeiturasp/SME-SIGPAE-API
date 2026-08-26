@@ -34,7 +34,7 @@ CLASSIFICACAO_DIETA_NOME_TIPO_A = "Tipo A"
 
 @pytest.fixture
 def usuario_admin():
-    return baker.make("Usuario", email="admin@admin.com", is_superuser=True)
+    return baker.make("Usuario", email=constants.EMAIL_ADMIN, is_superuser=True)
 
 
 @pytest.fixture
