@@ -33,6 +33,7 @@ from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_fac
 )
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     ValorMedicao,
 )
@@ -567,6 +568,12 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
     def _setup_categoria(self):
         return CategoriaMedicaoFactory.create(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
 
+    def _setup_grupo_solicitacoes_alimentacao(self):
+        grupo, _ = GrupoMedicao.objects.get_or_create(
+            nome="Solicitações de Alimentação"
+        )
+        return grupo
+
     def _setup_kit_lanche(self, escola, data):
         from src.kit_lanche.fixtures.factories.base_factory import (
             KitLancheFactory,
@@ -608,6 +615,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_solicitacoes_alimentacao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 5))
@@ -642,6 +650,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_solicitacoes_alimentacao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 15))
@@ -673,6 +682,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_solicitacoes_alimentacao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 15))
