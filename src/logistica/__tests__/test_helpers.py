@@ -1,5 +1,6 @@
 import pytest
 
+from src.dados_comuns.constants import EM_ANALISE_LABEL
 from src.logistica.api.helpers import (
     remove_acentos_de_strings,
     retorna_dados_normalizados_excel_entregas_distribuidor,
@@ -27,7 +28,7 @@ def test_retorna_statis_das_resquisicoes():
     status1 = retorna_status_das_requisicoes([" "])
     status2 = retorna_status_das_requisicoes(["Todos"])
     status3 = retorna_status_das_requisicoes(
-        ["Aguardando envio", "Enviada", "Cancelada", "Confirmada", "Em análise"]
+        ["Aguardando envio", "Enviada", "Cancelada", "Confirmada", EM_ANALISE_LABEL]
     )
     todos_status = [
         "AGUARDANDO_ENVIO",
@@ -51,7 +52,7 @@ def test_retorna_status_para_usuario():
     assert status0 == "Aguardando envio"
     assert status1 == "Enviada"
     assert status2 == "Confirmada"
-    assert status3 == "Em análise"
+    assert status3 == EM_ANALISE_LABEL
     assert status4 == "Cancelada"
 
 

@@ -26,6 +26,7 @@ from .constants import (
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DIRETOR_UE,
+    EM_ANALISE_LABEL,
     ESCOLA_CANCELOU_LABEL,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
@@ -234,7 +235,7 @@ class SolicitacaoRemessaWorkFlow(xwf_models.Workflow):
         (AGUARDANDO_CANCELAMENTO, "Aguardando cancelamento"),
         (PAPA_CANCELA, "Cancelada"),
         (DISTRIBUIDOR_CONFIRMA, "Confirmada"),
-        (DISTRIBUIDOR_SOLICITA_ALTERACAO, "Em análise"),
+        (DISTRIBUIDOR_SOLICITA_ALTERACAO, EM_ANALISE_LABEL),
         (DILOG_ACEITA_ALTERACAO, "Alterada"),
     )
 
@@ -284,7 +285,7 @@ class SolicitacaoDeAlteracaoWorkFlow(xwf_models.Workflow):
     NEGADA = "NEGADA"
 
     states = (
-        (EM_ANALISE, "Em análise"),
+        (EM_ANALISE, EM_ANALISE_LABEL),
         (ACEITA, "Aceita"),
         (NEGADA, "Negada"),
     )
@@ -4939,7 +4940,7 @@ class CronogramaAlteracaoWorkflow(xwf_models.Workflow):
 
     states = (
         (SOLICITACAO_CRIADA, "Solicitação criada"),
-        (EM_ANALISE, "Em análise"),
+        (EM_ANALISE, EM_ANALISE_LABEL),
         (ALTERACAO_ENVIADA_FORNECEDOR, "Alteração Enviada ao Fornecedor"),
         (FORNECEDOR_CIENTE, "Fornecedor Ciente"),
         (CRONOGRAMA_CIENTE, "Cronograma ciente"),
@@ -6151,7 +6152,7 @@ class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
 
     states = (
         (RELATORIO_FINANCEIRO_GERADO, "Relatório Financeiro Gerado"),
-        (EM_ANALISE, "Em análise"),
+        (EM_ANALISE, EM_ANALISE_LABEL),
         (GERADA_MEDICAO_FINAL, "Gerada Medição Final"),
         (FINALIZADO, "Finalizado"),
     )
