@@ -5,6 +5,7 @@ import pytest
 from model_bakery import baker
 from rest_framework import serializers
 
+from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
@@ -570,7 +571,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
 
     def _setup_grupo_solicitacoes_alimentacao(self):
         grupo, _ = GrupoMedicao.objects.get_or_create(
-            nome="Solicitações de Alimentação"
+            nome=GRUPO_SOLICITACOES_ALIMENTACAO
         )
         return grupo
 
@@ -631,7 +632,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             solicitacao
         )
 
-        medicao = solicitacao.medicoes.get(grupo__nome="Solicitações de Alimentação")
+        medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
         categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
         valor = ValorMedicao.objects.filter(
             medicao=medicao,
@@ -692,7 +693,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             solicitacao
         )
 
-        medicao = solicitacao.medicoes.get(grupo__nome="Solicitações de Alimentação")
+        medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
         categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
         valor = ValorMedicao.objects.filter(
             medicao=medicao,

@@ -1,5 +1,9 @@
 import pytest
 
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+)
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
     buscar_alimentacoes_recreio_cemei,
@@ -13,8 +17,8 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
 from utility.carga_dados.perfil.importa_dados import Q
 
 pytestmark = pytest.mark.django_db
-GRUPO_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
-GRUPO_EMEI = "Recreio nas Férias - 4 a 14 anos"
+GRUPO_CEI = GRUPO_RECREIO_NAS_FERIAS_0_A_3
+GRUPO_EMEI = GRUPO_RECREIO_NAS_FERIAS_4_A_14
 GRUPO_COLABORADORES = "Colaboradores"
 
 

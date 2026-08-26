@@ -34,6 +34,7 @@ from src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao
 from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
+from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -157,7 +158,7 @@ class TestUseCaseTransferenciaLotes:
 
     def _setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(
-            nome="Programas e Projetos"
+            nome=GRUPO_PROGRAMAS_E_PROJETOS
         )
 
     def _setup_inclusao_continua_programas_projetos(self):

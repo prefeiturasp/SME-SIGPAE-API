@@ -7,6 +7,10 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_CIEJA_CMCT,
@@ -30,9 +34,6 @@ from src.medicao_inicial.services.utils import (
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
-
-NOME_PERIODO_SOLICITACAO_ALIMENTACAO = "Solicitações de Alimentação"
-DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
 
 
 def get_alimentacoes_por_periodo(
@@ -139,7 +140,7 @@ def _get_lista_alimentacoes(
         .distinct()
     )
 
-    if nome_periodo != NOME_PERIODO_SOLICITACAO_ALIMENTACAO:
+    if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
         lista_alimentacoes += [
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -363,14 +364,14 @@ def _define_filtro(
     """
     filtros = {}
     if periodo in [
-        "Programas e Projetos",
+        GRUPO_PROGRAMAS_E_PROJETOS,
         "ETEC",
-        NOME_PERIODO_SOLICITACAO_ALIMENTACAO,
+        GRUPO_SOLICITACOES_ALIMENTACAO,
     ]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
-        filtros["grupo__nome__in"] = ["Programas e Projetos", "ETEC"]
+        filtros["grupo__nome__in"] = [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
@@ -453,7 +454,7 @@ def processa_periodo_regular(
 
     categorias = (
         [periodo.upper()]
-        if periodo == NOME_PERIODO_SOLICITACAO_ALIMENTACAO
+        if periodo == GRUPO_SOLICITACOES_ALIMENTACAO
         else ["ALIMENTAÇÃO"]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
@@ -576,7 +577,7 @@ def ajusta_layout_tabela(
         "PROGRAMAS E PROJETOS": formatacao_programas,
         "ETEC": formatacao_etec,
         DIETA_ESPECIAL_TIPO_A: formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
+        DIETA_ESPECIAL_TIPO_B: formatacao_dieta_b,
     }
 
     for col_num, value in enumerate(df.columns.values):

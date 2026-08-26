@@ -8,6 +8,10 @@ from rest_framework import status
 from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
+from src.dados_comuns.constants import (
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -56,7 +60,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentosEscolaSemAlunosRegulares:
 
     def setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(
-            nome="Programas e Projetos"
+            nome=GRUPO_PROGRAMAS_E_PROJETOS
         )
 
     def setup_inclusao_continua_programas_projetos(self, escola_cmct):
@@ -95,9 +99,11 @@ class TestUseCaseFinalizaMedicaoSemLancamentosEscolaSemAlunosRegulares:
             return GrupoMedicaoFactory.create(nome=nome)
 
     def setup_grupos_medicao(self):
-        self.grupo_programas_projetos = self.get_or_create_grupo("Programas e Projetos")
+        self.grupo_programas_projetos = self.get_or_create_grupo(
+            GRUPO_PROGRAMAS_E_PROJETOS
+        )
         self.grupo_solicitacoes_alimentacao = self.get_or_create_grupo(
-            "Solicitações de Alimentação"
+            GRUPO_SOLICITACOES_ALIMENTACAO
         )
 
     def setup_medicao_programas_projetos_com_observacao(self):
@@ -158,7 +164,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentosEscolaSemAlunosRegulares:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == [
             {
-                "periodo_escolar": "Programas e Projetos",
+                "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
                 "erro": "Existem solicitações de alimentações no período, adicione ao menos uma justificativa para finalizar",
             }
         ]
@@ -205,11 +211,11 @@ class TestUseCaseFinalizaMedicaoSemLancamentosEscolaSemAlunosRegulares:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == [
             {
-                "periodo_escolar": "Solicitações de Alimentação",
+                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
                 "erro": "Existem solicitações de alimentações no período. Não é possível finalizar sem lançamentos.",
             },
             {
-                "periodo_escolar": "Programas e Projetos",
+                "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
                 "erro": "Existem solicitações de alimentações no período, adicione ao menos uma justificativa para finalizar",
             },
         ]

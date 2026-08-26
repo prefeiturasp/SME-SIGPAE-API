@@ -8,6 +8,9 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     ORDEM_HEADERS_CEI,
     ORDEM_UNIDADES_GRUPO_CEI,
 )
@@ -195,7 +198,7 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str) -> dict:
     filtros = {}
-    if periodo == "Solicitações de Alimentação":
+    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         filtros["grupo__nome"] = periodo
     elif "DIETA ESPECIAL" in periodo:
         if "INTEGRAL" in periodo or "PARCIAL" in periodo:
@@ -241,7 +244,7 @@ def processa_periodo_regular(
         return "-"
 
     categoria = "ALIMENTAÇÃO"
-    if periodo == "Solicitações de Alimentação":
+    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         categoria = periodo.upper()
 
     soma = _calcula_soma_medicao(medicao, faixa_etaria, categoria, query_params)
@@ -320,11 +323,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - INTEGRAL": {
             "formatacao": formatacao_integral,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - INTEGRAL": {
             "formatacao": formatacao_integral,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         "PARCIAL": {
             "formatacao": formatacao_parcial,
@@ -332,11 +335,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - PARCIAL": {
             "formatacao": formatacao_parcial,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - PARCIAL": {
             "formatacao": formatacao_parcial,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         "MANHA": {
             "formatacao": formatacao_manha,
@@ -346,13 +349,13 @@ def ajusta_layout_tabela(
             "formatacao": formatacao_tarde,
             "nome": "TARDE",
         },
-        "DIETA ESPECIAL - TIPO A": {
+        DIETA_ESPECIAL_TIPO_A: {
             "formatacao": formatacao_dieta_a,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
-        "DIETA ESPECIAL - TIPO B": {
+        DIETA_ESPECIAL_TIPO_B: {
             "formatacao": formatacao_dieta_b,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
     }
 

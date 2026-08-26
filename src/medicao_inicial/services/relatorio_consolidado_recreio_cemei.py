@@ -4,6 +4,10 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS_RECREIO,
     ORDEM_HEADERS_RECREIO_CEMEI,
@@ -31,12 +35,9 @@ from src.medicao_inicial.services.utils import (
 )
 
 PROGRAMAS_E_PROJETOS = "PROGRAMAS E PROJETOS"
-DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
 DIETA_ESPECIAL_TIPO_A_ENTERAL = (
     "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
 )
-RECREIO_NAS_FERIAS_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
-RECREIO_NAS_FERIAS_EMEI = "Recreio nas Férias - 4 a 14 anos"
 
 
 def get_alimentacoes_por_periodo(
@@ -111,7 +112,7 @@ def _get_lista_alimentacoes(
         Lista contendo os identificadores das faixas etárias ou os nomes dos
         campos de alimentação.
     """
-    if medicao.grupo.nome == RECREIO_NAS_FERIAS_CEI:
+    if medicao.grupo.nome == GRUPO_RECREIO_NAS_FERIAS_0_A_3:
         return list(
             faixa.id
             for faixa in FaixaEtaria.objects.filter(
@@ -144,7 +145,7 @@ def _get_lista_alimentacoes(
             .distinct()
         )
 
-        if nome_periodo != "Solicitações de Alimentação":
+        if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
             lista_alimentacoes += [
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
@@ -167,7 +168,7 @@ def _get_lista_alimentacoes_dietas(
         Lista contendo os identificadores das faixas etárias ou os nomes dos
         campos associados à categoria informada.
     """
-    if medicao.grupo.nome == RECREIO_NAS_FERIAS_CEI:
+    if medicao.grupo.nome == GRUPO_RECREIO_NAS_FERIAS_0_A_3:
         return list(
             faixa.id
             for faixa in FaixaEtaria.objects.filter(
@@ -402,11 +403,11 @@ def _processa_dieta_especial(
     soma = "-"
     periodo_nome = periodo.split(" - ")[-1]
     categoria = " - ".join(periodo.split(" - ")[:2])
-    if periodo_nome in RECREIO_NAS_FERIAS_CEI.upper():
+    if periodo_nome in GRUPO_RECREIO_NAS_FERIAS_0_A_3.upper():
         soma = relatorio_consolidado_recreio_cei.processa_dieta_especial(
             solicitacao, filtros, campo, categoria, query_params
         )
-    elif periodo_nome in RECREIO_NAS_FERIAS_EMEI.upper():
+    elif periodo_nome in GRUPO_RECREIO_NAS_FERIAS_4_A_14.upper():
         soma = relatorio_consolidado_recreio_emei_emef.processa_dieta_especial(
             solicitacao, filtros, campo, categoria, query_params
         )
@@ -436,13 +437,13 @@ def _processa_periodo_regular(
         Valor calculado para o campo ou "-" quando não aplicável.
     """
     soma = "-"
-    if periodo == RECREIO_NAS_FERIAS_CEI:
+    if periodo == GRUPO_RECREIO_NAS_FERIAS_0_A_3:
         soma = relatorio_consolidado_recreio_cei.processa_grupos_recreio(
             solicitacao, filtros, campo, periodo, query_params
         )
     elif periodo in [
-        RECREIO_NAS_FERIAS_EMEI,
-        "Solicitações de Alimentação",
+        GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+        GRUPO_SOLICITACOES_ALIMENTACAO,
         "Colaboradores",
     ]:
         soma = relatorio_consolidado_recreio_emei_emef.processa_grupos_recreio(

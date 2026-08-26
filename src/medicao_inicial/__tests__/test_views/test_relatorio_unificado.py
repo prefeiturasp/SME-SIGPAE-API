@@ -7,7 +7,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework.test import APIClient
 
-from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD, GRUPO_RECREIO_NAS_FERIAS
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import CentralDeDownload
 from src.escola.fixtures.factories.escola_factory import (
@@ -426,7 +426,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.call_count == 1
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is True
-        assert "Recreio nas Férias" in call_kwargs["nome_arquivo"]
+        assert GRUPO_RECREIO_NAS_FERIAS in call_kwargs["nome_arquivo"]
 
     @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
     def test_gera_relatorio_unificado_sem_recreio_nao_passa_flag(
@@ -469,7 +469,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.called
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is False
-        assert "Recreio nas Férias" not in call_kwargs["nome_arquivo"]
+        assert GRUPO_RECREIO_NAS_FERIAS not in call_kwargs["nome_arquivo"]
 
     @patch("src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei")
     @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
@@ -625,7 +625,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.called
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is False
-        assert "Recreio nas Férias" not in call_kwargs["nome_arquivo"]
+        assert GRUPO_RECREIO_NAS_FERIAS not in call_kwargs["nome_arquivo"]
         assert len(html_strings_captured) == 1
         assert solicitacao_sem_recreio.uuid in call_kwargs["ids_solicitacoes"]
         assert solicitacao_com_recreio.uuid not in call_kwargs["ids_solicitacoes"]

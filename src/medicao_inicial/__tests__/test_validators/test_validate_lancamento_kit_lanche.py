@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 from model_bakery import baker
 
+from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
 from src.medicao_inicial.validators import validate_lancamento_kit_lanche
 
 pytestmark = pytest.mark.django_db
@@ -22,7 +23,7 @@ class TestValidateLancamentoKitLanche:
         medicao = baker.make(
             "Medicao",
             solicitacao_medicao_inicial=solicitacao,
-            grupo__nome="Solicitações de Alimentação",
+            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO,
         )
         return solicitacao, medicao
 
@@ -73,7 +74,7 @@ class TestValidateLancamentoKitLanche:
 
         assert retorno == [
             {
-                "periodo_escolar": "Solicitações de Alimentação",
+                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
                 "erro": "Restam dias a serem lançados nos Kit Lanches.",
             }
         ]
@@ -118,7 +119,7 @@ class TestValidateLancamentoKitLanche:
 
         assert retorno == [
             {
-                "periodo_escolar": "Solicitações de Alimentação",
+                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
                 "erro": "Restam dias a serem lançados nos Kit Lanches.",
             }
         ]

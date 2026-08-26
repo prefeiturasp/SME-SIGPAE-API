@@ -5,6 +5,12 @@ import openpyxl
 import pandas as pd
 import pytest
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+)
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emebs import (
@@ -41,14 +47,16 @@ def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emebs):
     assert len(colunas) == 66
     assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 29
     assert sum(1 for tupla in colunas if tupla[0] == "FUNDAMENTAL") == 35
-    assert sum(1 for tupla in colunas if tupla[1] == "Solicitações de Alimentação") == 2
+    assert (
+        sum(1 for tupla in colunas if tupla[1] == GRUPO_SOLICITACOES_ALIMENTACAO) == 2
+    )
     assert sum(1 for tupla in colunas if tupla[1] == "MANHA") == 12
     assert sum(1 for tupla in colunas if tupla[1] == "TARDE") == 12
     assert sum(1 for tupla in colunas if tupla[1] == "INTEGRAL") == 12
     assert sum(1 for tupla in colunas if tupla[1] == "NOITE") == 6
-    assert sum(1 for tupla in colunas if tupla[1] == "Programas e Projetos") == 12
-    assert sum(1 for tupla in colunas if tupla[1] == "DIETA ESPECIAL - TIPO A") == 6
-    assert sum(1 for tupla in colunas if tupla[1] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas if tupla[1] == GRUPO_PROGRAMAS_E_PROJETOS) == 12
+    assert sum(1 for tupla in colunas if tupla[1] == DIETA_ESPECIAL_TIPO_A) == 6
+    assert sum(1 for tupla in colunas if tupla[1] == DIETA_ESPECIAL_TIPO_B) == 4
     assert sum(1 for tupla in colunas if tupla[2] == "kit_lanche") == 1
     assert sum(1 for tupla in colunas if tupla[2] == "lanche_emergencial") == 1
     assert sum(1 for tupla in colunas if tupla[2] == "lanche") == 13
@@ -102,14 +110,16 @@ def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emebs):
         retorno,
     )
 
-    programas_projetos = _get_lista_alimentacoes(medicoes[4], "Programas e Projetos")
+    programas_projetos = _get_lista_alimentacoes(
+        medicoes[4], GRUPO_PROGRAMAS_E_PROJETOS
+    )
     assert isinstance(programas_projetos, tuple)
     assert programas_projetos == (
         retorno,
         retorno,
     )
 
-    solicitacao = _get_lista_alimentacoes(medicoes[5], "Solicitações de Alimentação")
+    solicitacao = _get_lista_alimentacoes(medicoes[5], GRUPO_SOLICITACOES_ALIMENTACAO)
     assert isinstance(solicitacao, tuple)
     assert solicitacao == (
         [],
@@ -152,9 +162,9 @@ def test_get_categorias_dietas(relatorio_consolidado_xlsx_emebs):
         "periodo_escolar__nome", "grupo__nome"
     )
     dietas = [
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
     ]
 
     categoria_integral = _get_categorias_dietas(medicoes[0])
@@ -179,9 +189,9 @@ def test_obter_dietas_especiais(relatorio_consolidado_xlsx_emebs):
         "periodo_escolar__nome", "grupo__nome"
     )
     dietas = [
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "DIETA ESPECIAL - TIPO B",
+        DIETA_ESPECIAL_TIPO_B,
     ]
     dietas_alimentacoes = {}
     dietas_alimentacoes = _obter_dietas_especiais(
@@ -190,14 +200,14 @@ def test_obter_dietas_especiais(relatorio_consolidado_xlsx_emebs):
     assert isinstance(dietas_alimentacoes, dict)
     assert "INFANTIL" in dietas_alimentacoes.keys()
     assert set(dietas).issubset(dietas_alimentacoes["INFANTIL"].keys())
-    assert dietas_alimentacoes["INFANTIL"]["DIETA ESPECIAL - TIPO A"] == [
+    assert dietas_alimentacoes["INFANTIL"][DIETA_ESPECIAL_TIPO_A] == [
         "lanche",
         "lanche_4h",
     ]
     assert dietas_alimentacoes["INFANTIL"][
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
     ] == ["lanche", "lanche_4h", "refeicao"]
-    assert dietas_alimentacoes["INFANTIL"]["DIETA ESPECIAL - TIPO B"] == [
+    assert dietas_alimentacoes["INFANTIL"][DIETA_ESPECIAL_TIPO_B] == [
         "lanche",
         "lanche_4h",
     ]
@@ -217,7 +227,7 @@ def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emebs):
     assert lista_alimentacoes_dietas == ["lanche", "lanche_4h", "refeicao"]
 
     lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas(
-        medicoes[4], "DIETA ESPECIAL - TIPO B", turma="FUNDAMENTAL"
+        medicoes[4], DIETA_ESPECIAL_TIPO_B, turma="FUNDAMENTAL"
     )
     assert isinstance(lista_alimentacoes_dietas, list)
     assert lista_alimentacoes_dietas == ["lanche", "lanche_4h"]
@@ -226,14 +236,13 @@ def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emebs):
 def test_update_dietas_alimentacoes():
     lista_alimentacoes = ["lanche", "lanche_4h"]
     dietas_alimentacoes = _update_dietas_alimentacoes(
-        {}, "DIETA ESPECIAL - TIPO A", lista_alimentacoes, turma="FUNDAMENTAL"
+        {}, DIETA_ESPECIAL_TIPO_A, lista_alimentacoes, turma="FUNDAMENTAL"
     )
     assert isinstance(dietas_alimentacoes, dict)
     assert "FUNDAMENTAL" in dietas_alimentacoes.keys()
-    assert "DIETA ESPECIAL - TIPO A" in dietas_alimentacoes["FUNDAMENTAL"].keys()
+    assert DIETA_ESPECIAL_TIPO_A in dietas_alimentacoes["FUNDAMENTAL"].keys()
     assert (
-        dietas_alimentacoes["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO A"]
-        == lista_alimentacoes
+        dietas_alimentacoes["FUNDAMENTAL"][DIETA_ESPECIAL_TIPO_A] == lista_alimentacoes
     )
 
 
@@ -245,18 +254,18 @@ def test_unificar_dietas():
                 "lanche_4h",
                 "refeicao",
             ],
-            "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+            DIETA_ESPECIAL_TIPO_B: ["lanche", "lanche_4h"],
         }
     }
     resultado = _unificar_dietas_tipo_a(dietas_alimentacoes, turma="FUNDAMENTAL")
     assert "FUNDAMENTAL" in resultado.keys()
-    assert "DIETA ESPECIAL - TIPO A" in resultado["FUNDAMENTAL"]
-    assert "DIETA ESPECIAL - TIPO B" in resultado["FUNDAMENTAL"]
+    assert DIETA_ESPECIAL_TIPO_A in resultado["FUNDAMENTAL"]
+    assert DIETA_ESPECIAL_TIPO_B in resultado["FUNDAMENTAL"]
     assert (
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
         not in resultado["FUNDAMENTAL"]
     )
-    assert len(resultado["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO A"]) == 3
+    assert len(resultado["FUNDAMENTAL"][DIETA_ESPECIAL_TIPO_A]) == 3
 
 
 def test_sort_and_merge():
@@ -283,18 +292,18 @@ def test_sort_and_merge():
         },
         "FUNDAMENTAL": {
             "MANHA": refeicoes,
-            "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+            GRUPO_SOLICITACOES_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
         },
     }
 
     dietas_alimentacoes = {
         "INFANTIL": {
-            "DIETA ESPECIAL - TIPO A": dieta_a,
-            "DIETA ESPECIAL - TIPO B": dieta_b,
+            DIETA_ESPECIAL_TIPO_A: dieta_a,
+            DIETA_ESPECIAL_TIPO_B: dieta_b,
         },
         "FUNDAMENTAL": {
-            "DIETA ESPECIAL - TIPO A": dieta_a,
-            "DIETA ESPECIAL - TIPO B": dieta_b,
+            DIETA_ESPECIAL_TIPO_A: dieta_a,
+            DIETA_ESPECIAL_TIPO_B: dieta_b,
         },
     }
 
@@ -318,26 +327,26 @@ def test_sort_and_merge():
         "sobremesa",
         "total_sobremesas_pagamento",
     ]
-    assert dict_periodos_dietas["FUNDAMENTAL"]["Solicitações de Alimentação"] == [
+    assert dict_periodos_dietas["FUNDAMENTAL"][GRUPO_SOLICITACOES_ALIMENTACAO] == [
         "kit_lanche",
         "lanche_emergencial",
     ]
 
-    assert dict_periodos_dietas["INFANTIL"]["DIETA ESPECIAL - TIPO A"] == [
+    assert dict_periodos_dietas["INFANTIL"][DIETA_ESPECIAL_TIPO_A] == [
         "lanche",
         "lanche_4h",
         "refeicao",
     ]
-    assert dict_periodos_dietas["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO A"] == [
+    assert dict_periodos_dietas["FUNDAMENTAL"][DIETA_ESPECIAL_TIPO_A] == [
         "lanche",
         "lanche_4h",
         "refeicao",
     ]
-    assert dict_periodos_dietas["INFANTIL"]["DIETA ESPECIAL - TIPO B"] == [
+    assert dict_periodos_dietas["INFANTIL"][DIETA_ESPECIAL_TIPO_B] == [
         "lanche",
         "lanche_4h",
     ]
-    assert dict_periodos_dietas["FUNDAMENTAL"]["DIETA ESPECIAL - TIPO B"] == [
+    assert dict_periodos_dietas["FUNDAMENTAL"][DIETA_ESPECIAL_TIPO_B] == [
         "lanche",
         "lanche_4h",
     ]
@@ -353,15 +362,15 @@ def test_generate_columns():
             "sobremesa",
             "total_sobremesas_pagamento",
         ],
-        "DIETA ESPECIAL - TIPO A": ["lanche", "lanche_4h", "refeicao"],
-        "DIETA ESPECIAL - TIPO B": ["lanche", "lanche_4h"],
+        DIETA_ESPECIAL_TIPO_A: ["lanche", "lanche_4h", "refeicao"],
+        DIETA_ESPECIAL_TIPO_B: ["lanche", "lanche_4h"],
     }
 
     dict_periodos_dietas = {
         "INFANTIL": periodos_dietas,
         "FUNDAMENTAL": {
             **periodos_dietas,
-            "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+            GRUPO_SOLICITACOES_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
         },
     }
     colunas = _generate_columns(dict_periodos_dietas)
@@ -369,10 +378,12 @@ def test_generate_columns():
     assert len(colunas) == 24
     assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 11
     assert sum(1 for tupla in colunas if tupla[0] == "FUNDAMENTAL") == 11
-    assert sum(1 for tupla in colunas if tupla[1] == "Solicitações de Alimentação") == 2
+    assert (
+        sum(1 for tupla in colunas if tupla[1] == GRUPO_SOLICITACOES_ALIMENTACAO) == 2
+    )
     assert sum(1 for tupla in colunas if tupla[1] == "MANHA") == 12
-    assert sum(1 for tupla in colunas if tupla[1] == "DIETA ESPECIAL - TIPO A") == 6
-    assert sum(1 for tupla in colunas if tupla[1] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas if tupla[1] == DIETA_ESPECIAL_TIPO_A) == 6
+    assert sum(1 for tupla in colunas if tupla[1] == DIETA_ESPECIAL_TIPO_B) == 4
     assert sum(1 for tupla in colunas if tupla[2] == "kit_lanche") == 1
     assert sum(1 for tupla in colunas if tupla[2] == "lanche_emergencial") == 1
     assert sum(1 for tupla in colunas if tupla[2] == "lanche") == 6
@@ -517,21 +528,21 @@ def test_define_filtro(relatorio_consolidado_xlsx_emebs):
     assert manha["periodo_escolar__nome"] == "MANHA"
 
     dieta_especial = _define_filtro(
-        "DIETA ESPECIAL - TIPO A", dietas_especiais, periodos_escolares
+        DIETA_ESPECIAL_TIPO_A, dietas_especiais, periodos_escolares
     )
     assert isinstance(dieta_especial, dict)
     assert "grupo__nome__in" in dieta_especial
     assert "periodo_escolar__nome__in" in dieta_especial
     assert dieta_especial["periodo_escolar__nome__in"] == periodos_escolares
-    assert dieta_especial["grupo__nome__in"] == ["Programas e Projetos", "ETEC"]
+    assert dieta_especial["grupo__nome__in"] == [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
 
     solicitacao = _define_filtro(
-        "Solicitações de Alimentação", dietas_especiais, periodos_escolares
+        GRUPO_SOLICITACOES_ALIMENTACAO, dietas_especiais, periodos_escolares
     )
     assert isinstance(solicitacao, dict)
     assert "periodo_escolar__nome" not in solicitacao
     assert "grupo__nome" in solicitacao
-    assert solicitacao["grupo__nome"] == "Solicitações de Alimentação"
+    assert solicitacao["grupo__nome"] == GRUPO_SOLICITACOES_ALIMENTACAO
 
 
 def test_processa_dieta_especial(relatorio_consolidado_xlsx_emebs):
@@ -548,9 +559,9 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emebs):
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     filtros = {
         "periodo_escolar__nome__in": periodos_escolares,
-        "grupo__nome__in": ["Programas e Projetos", "ETEC"],
+        "grupo__nome__in": [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"],
     }
-    periodo = "DIETA ESPECIAL - TIPO A"
+    periodo = DIETA_ESPECIAL_TIPO_A
     total = processa_dieta_especial(
         relatorio_consolidado_xlsx_emebs, filtros, campo, periodo, turma
     )
@@ -595,7 +606,7 @@ def test_calcula_soma_medicao_alimentacao(relatorio_consolidado_xlsx_emebs):
     noite = _calcula_soma_medicao(medicoes[2], campo, categoria, turma)
     assert math.isclose(noite, 350.0, rel_tol=1e-9)
 
-    categoria = ["Solicitações de Alimentação".upper()]
+    categoria = [GRUPO_SOLICITACOES_ALIMENTACAO.upper()]
     turma = ["INFANTIL", "FUNDAMENTAL"]
     solicitacao = _calcula_soma_medicao(medicoes[5], "kit_lanche", categoria, turma)
     assert math.isclose(solicitacao, 5.0, rel_tol=1e-9)
@@ -694,8 +705,8 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[1] == "INTEGRAL") == 12
     assert sum(1 for tupla in colunas_df if tupla[1] == "NOITE") == 6
     assert sum(1 for tupla in colunas_df if tupla[1] == "PROGRAMAS E PROJETOS") == 10
-    assert sum(1 for tupla in colunas_df if tupla[1] == "DIETA ESPECIAL - TIPO A") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "DIETA ESPECIAL - TIPO B") == 4
+    assert sum(1 for tupla in colunas_df if tupla[1] == DIETA_ESPECIAL_TIPO_A) == 6
+    assert sum(1 for tupla in colunas_df if tupla[1] == DIETA_ESPECIAL_TIPO_B) == 4
 
     assert sum(1 for tupla in colunas_df if tupla[2] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[2] == "Cód. EOL") == 1
@@ -906,10 +917,10 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_emebs):
     assert sheet["X4"].value == "PROGRAMAS E PROJETOS"
     assert sheet["X4"].fill.fgColor.rgb == "FF72BC17"
 
-    assert sheet["AC4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["AC4"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["AC4"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["AF4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["AF4"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["AF4"].fill.fgColor.rgb == "FF20AA73"
 
     assert sheet["AH3"].value == "FUNDAMENTAL (acima de 6 anos)"
@@ -930,10 +941,10 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_emebs):
     assert sheet["BF4"].value == "PROGRAMAS E PROJETOS"
     assert sheet["BF4"].fill.fgColor.rgb == "FF72BC17"
 
-    assert sheet["BK4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["BK4"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["BK4"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["BN4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["BN4"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["BN4"].fill.fgColor.rgb == "FF20AA73"
 
     workbook_openpyxl.close()
@@ -989,10 +1000,10 @@ def test_ajusta_layout_tabela_vespertino(informacoes_excel_writer_emebs):
     assert sheet["X4"].value == "PROGRAMAS E PROJETOS"
     assert sheet["X4"].fill.fgColor.rgb == "FF72BC17"
 
-    assert sheet["AC4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["AC4"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["AC4"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["AF4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["AF4"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["AF4"].fill.fgColor.rgb == "FF20AA73"
 
     assert sheet["AH3"].value == "FUNDAMENTAL (acima de 6 anos)"
@@ -1013,10 +1024,10 @@ def test_ajusta_layout_tabela_vespertino(informacoes_excel_writer_emebs):
     assert sheet["BF4"].value == "PROGRAMAS E PROJETOS"
     assert sheet["BF4"].fill.fgColor.rgb == "FF72BC17"
 
-    assert sheet["BK4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["BK4"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["BK4"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["BN4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["BN4"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["BN4"].fill.fgColor.rgb == "FF20AA73"
 
     workbook_openpyxl.close()
@@ -1072,10 +1083,10 @@ def test_ajusta_layout_tabela_intermediario(informacoes_excel_writer_emebs):
     assert sheet["X4"].value == "PROGRAMAS E PROJETOS"
     assert sheet["X4"].fill.fgColor.rgb == "FF72BC17"
 
-    assert sheet["AC4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["AC4"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["AC4"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["AF4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["AF4"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["AF4"].fill.fgColor.rgb == "FF20AA73"
 
     assert sheet["AH3"].value == "FUNDAMENTAL (acima de 6 anos)"
@@ -1096,10 +1107,10 @@ def test_ajusta_layout_tabela_intermediario(informacoes_excel_writer_emebs):
     assert sheet["BF4"].value == "PROGRAMAS E PROJETOS"
     assert sheet["BF4"].fill.fgColor.rgb == "FF72BC17"
 
-    assert sheet["BK4"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["BK4"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["BK4"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["BN4"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["BN4"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["BN4"].fill.fgColor.rgb == "FF20AA73"
 
     workbook_openpyxl.close()

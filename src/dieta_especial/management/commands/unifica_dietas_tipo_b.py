@@ -3,6 +3,7 @@ import logging
 import environ
 from django.core.management import BaseCommand
 
+from src.dados_comuns.constants import DIETA_ESPECIAL_TIPO_B
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -160,5 +161,5 @@ class Command(BaseCommand):
             self.style.SUCCESS("Renomeia categoria de medição para Tipo B")
         )
         CategoriaMedicao.objects.filter(nome="DIETA ESPECIAL - TIPO B - LANCHE").update(
-            nome="DIETA ESPECIAL - TIPO B"
+            nome=DIETA_ESPECIAL_TIPO_B
         )
