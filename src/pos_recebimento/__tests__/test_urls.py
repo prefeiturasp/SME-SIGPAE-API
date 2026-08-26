@@ -356,10 +356,33 @@ def test_termo_list_pagina_resultados(
     assert response.json()["next"] is not None
 
 
-def test_termo_list_negado_para_perfil_sem_permissao(
-    client_autenticado_qualidade,
+@pytest.mark.parametrize(
+    "nome_client",
+    [
+        "client_autenticado_dilog_cronograma",
+        "client_autenticado_qualidade",
+        "client_autenticado_dilog_diretoria",
+    ],
+)
+def test_termo_list_e_detalhe_liberados_para_perfis_de_visualizacao(
+    request,
+    nome_client,
     termo_listagem,
 ):
-    response = client_autenticado_qualidade.get("/pos-recebimento/termos/")
+    """Visualização é liberada para mais perfis do que o cadastro."""
+    client = request.getfixturevalue(nome_client)
+
+    assert client.get("/pos-recebimento/termos/").status_code == status.HTTP_200_OK
+    assert (
+        client.get(f"/pos-recebimento/termos/{termo_listagem.uuid}/").status_code
+        == status.HTTP_200_OK
+    )
+
+
+def test_termo_list_negado_para_perfil_fora_da_codae(
+    client_autenticado_distribuidor,
+    termo_listagem,
+):
+    response = client_autenticado_distribuidor.get("/pos-recebimento/termos/")
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
