@@ -256,14 +256,14 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
     COMUM = "Comum"
     DIETA_ESPECIAL = "Dieta especial"
 
-    TIPO_PRODUTO = {
+    OPCOES_TIPO_PRODUTO = {
         COMUM: "Comum",
         DIETA_ESPECIAL: "Dieta especial",
     }
 
     TIPO_PRODUTO_CHOICES = (
-        (COMUM, TIPO_PRODUTO[COMUM]),
-        (DIETA_ESPECIAL, TIPO_PRODUTO[DIETA_ESPECIAL]),
+        (COMUM, OPCOES_TIPO_PRODUTO[COMUM]),
+        (DIETA_ESPECIAL, OPCOES_TIPO_PRODUTO[DIETA_ESPECIAL]),
     )
 
     produto = models.ForeignKey(
@@ -345,14 +345,14 @@ class NomeDeProdutoEdital(
     TERCEIRIZADA = "TERCEIRIZADA"
     LOGISTICA = "LOGISTICA"
 
-    TIPO_PRODUTO = {
+    OPCOES_TIPO_PRODUTO = {
         TERCEIRIZADA: "Terceirizada",
         LOGISTICA: "Logistica",
     }
 
     TIPO_PRODUTO_CHOICES = (
-        (TERCEIRIZADA, TIPO_PRODUTO[TERCEIRIZADA]),
-        (LOGISTICA, TIPO_PRODUTO[LOGISTICA]),
+        (TERCEIRIZADA, OPCOES_TIPO_PRODUTO[TERCEIRIZADA]),
+        (LOGISTICA, OPCOES_TIPO_PRODUTO[LOGISTICA]),
     )
 
     tipo_produto = models.CharField(
