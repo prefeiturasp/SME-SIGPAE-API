@@ -2335,7 +2335,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
 class Subprefeitura(
     ExportModelOperationsMixin("subprefeitura"), Nomeavel, TemChaveExterna
 ):
-    AGRUPAMENTO = (
+    OPCOES_AGRUPAMENTO = (
         (1, 1),
         (2, 2),
         (3, 3),
@@ -2355,7 +2355,9 @@ class Subprefeitura(
         null=True,
         blank=True,
     )
-    agrupamento = models.PositiveSmallIntegerField(choices=AGRUPAMENTO, default=1)
+    agrupamento = models.PositiveSmallIntegerField(
+        choices=OPCOES_AGRUPAMENTO, default=1
+    )
 
     def __str__(self):
         return self.nome
