@@ -44,6 +44,7 @@ from ..models import (
 fake = Faker("pt_BR")
 Faker.seed(420)
 TERC_TOTAL = "TERC TOTAL"
+TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
 
 
 @pytest.fixture(
@@ -1009,17 +1010,17 @@ def escola_cemei_1():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make("cardapio.TipoAlimentacao", nome="Refeição")
+    return baker.make(TIPO_ALIMENTACAO, nome="Refeição")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make("cardapio.TipoAlimentacao", nome="Lanche")
+    return baker.make(TIPO_ALIMENTACAO, nome="Lanche")
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make("cardapio.TipoAlimentacao", nome="Lanche Emergencial")
+    return baker.make(TIPO_ALIMENTACAO, nome="Lanche Emergencial")
 
 
 @pytest.fixture
