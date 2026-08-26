@@ -6,7 +6,10 @@ from src.dados_comuns.api.paginations import DefaultPagination
 
 from ..models import CronogramaTermoRecebimentoDefinitivo, TermoRecebimentoDefinitivo
 from .filters import TermoRecebimentoDefinitivoFilter
-from .permissions import PermissaoParaCadastrarTermoRecebimentoDefinitivo
+from .permissions import (
+    PermissaoParaCadastrarTermoRecebimentoDefinitivo,
+    PermissaoParaVisualizarTermoRecebimentoDefinitivo,
+)
 from .serializers.serializers import (
     TermoRecebimentoDefinitivoListagemSerializer,
     TermoRecebimentoDefinitivoSerializer,
@@ -51,6 +54,13 @@ class TermoRecebimentoDefinitivoViewSet(
             )
 
         return queryset
+
+    def get_permissions(self):
+        """Visualização é liberada para mais perfis do que o cadastro."""
+        if self.action in ("list", "retrieve"):
+            return [PermissaoParaVisualizarTermoRecebimentoDefinitivo()]
+
+        return [PermissaoParaCadastrarTermoRecebimentoDefinitivo()]
 
     def get_serializer_class(self):
         """Retorna o serializer adequado conforme a ação."""

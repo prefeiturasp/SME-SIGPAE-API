@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from src.perfil.api.serializers import UsuarioSimplesSerializer
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
-    CronogramaSimplesSerializer,
+    CronogramaSerializer,
 )
 from src.terceirizada.api.serializers.serializers import (
     ContratoSimplesSerializer,
@@ -15,7 +15,7 @@ from ...models import CronogramaTermoRecebimentoDefinitivo, TermoRecebimentoDefi
 class CronogramaTermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
     """Cronograma do termo com valor de contrato e quantidade recebida."""
 
-    cronograma = CronogramaSimplesSerializer(read_only=True)
+    cronograma = CronogramaSerializer(read_only=True)
 
     class Meta:
         model = CronogramaTermoRecebimentoDefinitivo
