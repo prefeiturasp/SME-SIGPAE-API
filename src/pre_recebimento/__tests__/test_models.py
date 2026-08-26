@@ -1,8 +1,15 @@
+from datetime import timedelta
+
 import pytest
 from django.db import IntegrityError
+from django.utils import timezone
 from faker import Faker
+from model_bakery import baker
 
 from src.dados_comuns.fluxo_status import CronogramaAlteracaoWorkflow
+from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.pre_recebimento.cronograma_entrega.models import Cronograma
+from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 from ..base.models import UnidadeMedida
 from ..cronograma_entrega.models import (
@@ -19,12 +26,6 @@ from ..documento_recebimento.models import (
 )
 from ..ficha_tecnica.models import AnaliseFichaTecnica, FichaTecnicaDoProduto
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
-from src.pre_recebimento.cronograma_entrega.models import Cronograma
-from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
-from datetime import timedelta
-from django.utils import timezone
-from src.dados_comuns.models import LogSolicitacoesUsuario
-from model_bakery import baker
 
 pytestmark = pytest.mark.django_db
 
@@ -316,10 +317,7 @@ def test_data_de_fabricacao_e_prazo_srt_model_sem_data(
 ):
     obj = data_de_fabricao_e_prazo_factory.create(data_fabricacao=None)
     assert obj.data_fabricacao is None
-    assert (
-        obj.__str__()
-        == f"{obj.documento_recebimento.cronograma.numero} - -"
-    )
+    assert obj.__str__() == f"{obj.documento_recebimento.cronograma.numero} - -"
 
 
 def test_data_de_fabricacao_e_prazo_meta_modelo(data_de_fabricao_e_prazo_factory):
@@ -427,7 +425,7 @@ def test_ficha_tecnica_ponto_a_ponto_independente_da_categoria():
             tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
         )
 
-        assert ficha_tecnica.ponto_a_ponto is True
+        assert ficha_tecnica.eh_ponto_a_ponto is True
 
 
 def test_cronograma_identifica_ponto_a_ponto_pela_ficha_tecnica():
@@ -473,9 +471,7 @@ def test_ficha_tecnica_deve_retornar_logs_da_linha_do_tempo(
         LogSolicitacoesUsuario,
         uuid_original=ficha.uuid,
         usuario=usuario,
-        status_evento=(
-            LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE
-        ),
+        status_evento=(LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE),
     )
 
     baker.make(
@@ -496,9 +492,7 @@ def test_ficha_tecnica_deve_retornar_logs_da_linha_do_tempo(
     logs = list(ficha.logs)
 
     assert len(logs) == 2
-    assert logs[0].status_evento == (
-        LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA
-    )
+    assert logs[0].status_evento == (LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA)
     assert logs[1].status_evento == (
         LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE
     )

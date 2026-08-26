@@ -2,6 +2,9 @@ import datetime
 
 from rest_framework import serializers
 
+from src.dados_comuns.api.serializers import (
+    LogSolicitacoesUsuarioSerializer,
+)
 from src.pre_recebimento.base.api.serializers.serializers import (
     UnidadeMedidaSimplesSerializer,
 )
@@ -21,15 +24,11 @@ from src.terceirizada.api.serializers.serializers import (
     TerceirizadaLookUpSerializer,
 )
 
-from src.dados_comuns.api.serializers import (
-    LogSolicitacoesUsuarioSerializer,
-)
-
 
 class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
     produto = NomeDeProdutoEditalSerializer()
     uuid_empresa = serializers.SerializerMethodField()
-    ponto_a_ponto = serializers.BooleanField(read_only=True)
+    ponto_a_ponto = serializers.BooleanField(source="eh_ponto_a_ponto", read_only=True)
 
     def get_uuid_empresa(self, obj):
         return obj.empresa.uuid if obj.empresa else None
@@ -70,7 +69,7 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
     criado_em = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     programa = serializers.CharField()
-    ponto_a_ponto = serializers.BooleanField(read_only=True)
+    ponto_a_ponto = serializers.BooleanField(source="eh_ponto_a_ponto", read_only=True)
 
     def get_nome_produto(self, obj):
         return obj.produto.nome if obj.produto else None
@@ -213,7 +212,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "arquivo",
             "modo_de_preparo",
             "informacoes_adicionais",
-            "logs"
+            "logs",
         )
 
 
