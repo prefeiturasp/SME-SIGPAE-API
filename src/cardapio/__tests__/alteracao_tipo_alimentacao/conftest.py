@@ -12,9 +12,8 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
+from src.dados_comuns.constants import TIPO_ALIMENTACAO
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-
-TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
 
 
 @pytest.fixture(

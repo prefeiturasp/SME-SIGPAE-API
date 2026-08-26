@@ -13,11 +13,10 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
+from src.dados_comuns.constants import DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
-
-DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
 
 
 class SuspensaoAlimentacaoDaCEI(

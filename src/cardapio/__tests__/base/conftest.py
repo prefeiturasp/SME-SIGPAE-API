@@ -4,14 +4,13 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.dados_comuns.constants import TIPO_ALIMENTACAO
 from src.escola.models import (
     Escola,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
     TipoTurma,
 )
-
-TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
 
 
 @pytest.fixture(

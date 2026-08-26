@@ -588,3 +588,12 @@ TRADUCOES_FERIADOS = {
     "Dia da Consciência Negra": "Dia da Consciência Negra",
     "Christmas Day": "Natal",
 }
+
+#
+# LITERAIS REUTILIZÁVEIS (evitam duplicação de strings)
+#
+
+TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
+PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
+FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"

@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models.fields.files import FileField
 
 from .constants import (
+    FORMATO_DATA_BRASILEIRO,
     LIMITE_INFERIOR,
     LIMITE_SUPERIOR,
     PRIORITARIO,
@@ -16,8 +17,6 @@ from .constants import (
 )
 from .models import LogSolicitacoesUsuario
 from .utils import eh_dia_util, obter_dias_uteis_apos, ordena_dias_semana_comeca_domingo
-
-FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
 
 
 class Iniciais(models.Model):
