@@ -187,19 +187,23 @@
       </div>
 
       <div class="campo-de-texto pb-4">
-        <div>
+        <div class="bloco-justificativa">
           <p><strong class="asterisco">*</strong> Justificativa</p>
-          <div class="area-texto">{{ solicitacao_cronograma.justificativa }}</div>
+          <div class="area-texto">{{ solicitacao_cronograma.justificativa|linebreaksbr }}</div>
         </div>
 
         {% if justificativa_cronograma %}
-        <h5 class="title titulo-secao">Análise Cronograma</h5>
-        <div class="area-texto">{{ justificativa_cronograma }}</div>
+        <div class="bloco-justificativa">
+          <h5 class="title titulo-secao">Análise Cronograma</h5>
+          <div class="area-texto">{{ justificativa_cronograma }}</div>
+        </div>
         {% endif %}
 
         {% if not eh_fornecedor_ciente %}
-        <h5 class="title titulo-secao">{{ titulo_abastecimento }}</h5>
-        <div class="area-texto">{{ justificativa_abastecimento }}</div>
+        <div class="bloco-justificativa">
+          <h5 class="title titulo-secao">{{ titulo_abastecimento }}</h5>
+          <div class="area-texto">{{ justificativa_abastecimento }}</div>
+        </div>
 
         <h5 class="title titulo-secao">Aprovado DILOG</h5>
         {% endif %}

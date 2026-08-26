@@ -254,6 +254,17 @@ html, body {
       background-color: #dadada;
       border-radius: 0.35rem;
       padding: 8px 16px;
+      white-space: pre-line;
+      word-break: break-word;
+  }
+}
+
+.bloco-justificativa {
+  page-break-inside: avoid;
+  break-inside: avoid;
+
+  p, h5 {
+    margin-bottom: 12px
   }
 }
 
