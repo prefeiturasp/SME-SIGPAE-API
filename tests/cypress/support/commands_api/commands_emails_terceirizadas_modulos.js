@@ -30,3 +30,16 @@ Cypress.Commands.add('cadastrar_email_terceirizada_modulo', (dados) => {
 		failOnStatusCode: false,
 	})
 })
+
+Cypress.Commands.add('consultar_email_terceirizada_modulo_por_uuid', (uuid) => {
+	cy.request({
+		method: 'GET',
+		url:
+			Cypress.config('baseUrl') + `api/emails-terceirizadas-modulos/${uuid}/`,
+		timeout: 60000,
+		headers: {
+			Authorization: 'JWT ' + globalThis.token,
+		},
+		failOnStatusCode: false,
+	})
+})

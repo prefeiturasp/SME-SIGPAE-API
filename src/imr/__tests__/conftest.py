@@ -90,6 +90,104 @@ def client_autenticado_vinculo_nutrimanifestacao(client, django_user_model, coda
 
 
 @pytest.fixture
+def client_autenticado_administrador_supervisao_nutricao(
+    client, django_user_model, codae
+):
+    email = "administrador.supervisao@test.com"
+    senha = constants.DJANGO_ADMIN_PASSWORD
+    usuario = django_user_model.objects.create_user(
+        username=email,
+        password=senha,
+        email=email,
+        registro_funcional="7654321",
+        nome="Nutricionista administradora",
+    )
+    perfil = baker.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+        ativo=True,
+        uuid="4788c4ac-bce4-482b-a457-c78013b28aea",
+    )
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=codae,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=senha)
+    return client, usuario
+
+
+@pytest.fixture
+def client_autenticado_cogestor_dre(client, django_user_model):
+    email = "cogestor.dre@test.com"
+    senha = constants.DJANGO_ADMIN_PASSWORD
+    usuario = django_user_model.objects.create_user(
+        username=email,
+        password=senha,
+        email=email,
+        registro_funcional="6543210",
+        nome="Cogestor DRE",
+    )
+    perfil = baker.make(
+        "Perfil",
+        nome=constants.COGESTOR_DRE,
+        ativo=True,
+        uuid="44e531d8-6194-48c1-a939-f218db5b01f2",
+    )
+    diretoria_regional = baker.make(
+        "DiretoriaRegional",
+        uuid="a1b37727-d7c8-43c7-a249-8980ea4ff44c",
+    )
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=diretoria_regional,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=senha)
+    return client, diretoria_regional
+
+
+@pytest.fixture
+def client_autenticado_terceirizada(client, django_user_model):
+    email = "terceirizada.imr@test.com"
+    senha = constants.DJANGO_ADMIN_PASSWORD
+    usuario = django_user_model.objects.create_user(
+        username=email,
+        password=senha,
+        email=email,
+        registro_funcional="5432109",
+        nome="Usuário da terceirizada",
+    )
+    perfil = baker.make(
+        "Perfil",
+        nome=constants.ADMINISTRADOR_EMPRESA,
+        ativo=True,
+        uuid="ed32f61e-a931-4eb6-aa63-3ce950d6d256",
+    )
+    terceirizada = baker.make(
+        "Terceirizada",
+        tipo_servico="TERCEIRIZADA",
+        uuid="86939503-7383-464a-97af-2d62a356bcb4",
+    )
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=terceirizada,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=senha)
+    return client, terceirizada
+
+
+@pytest.fixture
 def tipo_ocorrencia_nutrisupervisor_com_parametrizacao(
     edital_factory,
     categoria_ocorrencia_factory,

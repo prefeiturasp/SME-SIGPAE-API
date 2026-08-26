@@ -21,25 +21,28 @@ function dataHoraValida(valor) {
 	)
 }
 
+function validarRegistro(registro) {
+	expect(registro).to.include.all.keys(
+		'modulo',
+		'terceirizada',
+		'uuid',
+		'email',
+		'criado_em',
+	)
+	expect(registro.modulo).to.be.a('string')
+	expect(registro.terceirizada).to.be.a('string')
+	expect(registro.uuid).to.be.a('string').and.not.be.empty
+	expect(registro.email).to.be.a('string').and.not.be.empty
+	expect(registro.criado_em).to.be.a('string').and.not.be.empty
+	expect(dataHoraValida(registro.criado_em)).to.eq(true)
+}
+
 function validarListaPaginada(response) {
 	expect(response.body).to.include.all.keys('count', 'next', 'previous', 'results')
 	expect(response.body.count).to.be.a('number').and.at.least(0)
 	expect(response.body.results).to.be.an('array')
 
-	response.body.results.forEach((registro) => {
-		expect(registro).to.include.all.keys(
-			'modulo',
-			'terceirizada',
-			'uuid',
-			'email',
-			'criado_em',
-		)
-		expect(registro.modulo).to.be.a('string')
-		expect(registro.terceirizada).to.be.a('string')
-		expect(registro.uuid).to.be.a('string').and.not.be.empty
-		expect(registro.email).to.be.a('string').and.not.be.empty
-		expect(registro.criado_em).to.be.a('string').and.not.be.empty
-	})
+	response.body.results.forEach(validarRegistro)
 }
 
 Given(
@@ -52,6 +55,20 @@ Given(
 When('consulto os emails de terceirizadas por modulo', function () {
 	cy.consultar_emails_terceirizadas_modulos().then((response) => {
 		this.response = response
+	})
+})
+
+When('consulto um email de terceirizada por UUID existente', function () {
+	cy.consultar_emails_terceirizadas_modulos().then((consulta) => {
+		expect(consulta.status, JSON.stringify(consulta.body)).to.eq(200)
+		expect(consulta.body.results).to.be.an('array').and.not.be.empty
+
+		this.uuidConsultado = consulta.body.results[0].uuid
+		cy.consultar_email_terceirizada_modulo_por_uuid(this.uuidConsultado).then(
+			(response) => {
+				this.response = response
+			},
+		)
 	})
 })
 
@@ -116,6 +133,15 @@ Then(
 	function () {
 		expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
 		validarListaPaginada(this.response)
+	},
+)
+
+Then(
+	'a consulta por UUID retorna status 200 e os dados do email',
+	function () {
+		expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
+		validarRegistro(this.response.body)
+		expect(this.response.body.uuid).to.eq(this.uuidConsultado)
 	},
 )
 
