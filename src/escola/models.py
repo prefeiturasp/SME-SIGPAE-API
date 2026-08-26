@@ -85,7 +85,11 @@ from ..kit_lanche.models import (
     SolicitacaoKitLancheCEMEI,
     SolicitacaoKitLancheUnificada,
 )
-from .constants import CEI_OU_EMEI, PERIODOS_ESPECIAIS_CEMEI
+from .constants import (
+    CEI_OU_EMEI,
+    INFANTIL_OU_FUNDAMENTAL,
+    PERIODOS_ESPECIAIS_CEMEI,
+)
 from .services import NovoSGPServicoLogado
 from .utils import deletar_alunos_periodo_parcial_outras_escolas, faixa_to_string
 
@@ -2935,12 +2939,6 @@ class AlunosMatriculadosPeriodoEscola(CriadoEm, TemAlteradoEm, TemChaveExterna):
 
 class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservacao):
     """Histórico da quantidade de Alunos por período."""
-
-    INFANTIL_OU_FUNDAMENTAL = (
-        ("N/A", "N/A"),
-        ("INFANTIL", "INFANTIL"),
-        ("FUNDAMENTAL", "FUNDAMENTAL"),
-    )
 
     escola = models.ForeignKey(
         Escola,
