@@ -4893,7 +4893,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
         from ..pre_recebimento.cronograma_entrega.api.helpers import (
-            migrar_fichas_para_etapas_novas,
+            aplicar_alteracao_cronograma,
         )
 
         user = kwargs["user"]
@@ -4905,22 +4905,10 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                     solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
                         uuid=solicitacao_uuid
                     )
-
-                    if solicitacao.status == solicitacao.workflow_class.APROVADO_DILOG:
-                        self.qtd_total_programada = solicitacao.qtd_total_programada
-
-                        etapas_antigas = list(solicitacao.etapas_antigas.all())
-                        etapas_novas = list(solicitacao.etapas_novas.all())
-
-                        migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas)
-
-                        self.etapas.set(etapas_novas)
-                        self.programacoes_de_recebimento.all().delete()
-                        self.programacoes_de_recebimento.set(
-                            solicitacao.programacoes_novas.all()
-                        )
-                        self.save()
-
+                    aplicar_alteracao_cronograma(
+                        cronograma=self,
+                        solicitacao=solicitacao,
+                    )
             except Exception as exc:
                 raise ValidationError(
                     f"Erro ao finalizar solicitação de alteração de cronograma: {str(exc)}"
