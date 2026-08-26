@@ -734,7 +734,7 @@ def arquivo_temporario():
     finally:
         try:
             os.remove(file_path)
-        except:
+        except OSError:
             pass
 
 
