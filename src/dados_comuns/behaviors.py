@@ -17,6 +17,8 @@ from .constants import (
 from .models import LogSolicitacoesUsuario
 from .utils import eh_dia_util, obter_dias_uteis_apos, ordena_dias_semana_comeca_domingo
 
+FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
+
 
 class Iniciais(models.Model):
     iniciais = models.CharField("Iniciais", blank=True, max_length=20)
@@ -376,7 +378,7 @@ class Logs(object):
             LogSolicitacoesUsuario.SUSPENSAO_ALIMENTACAO_CEI,
         ]:
             return (
-                self.logs.first().criado_em.strftime("%d/%m/%Y")
+                self.logs.first().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
                 if self.logs.exists()
                 else ""
             )
@@ -389,7 +391,7 @@ class Logs(object):
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
             )
             if log:
-                return log.last().criado_em.strftime("%d/%m/%Y")
+                return log.last().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         return ""
 
     @property
@@ -409,7 +411,7 @@ class Logs(object):
                 ],
             )
             if log:
-                return log.last().criado_em.strftime("%d/%m/%Y")
+                return log.last().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         return ""
 
     @property
@@ -429,7 +431,7 @@ class Logs(object):
                 ],
             )
             if log:
-                return log.last().criado_em.strftime("%d/%m/%Y")
+                return log.last().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         return ""
 
 
