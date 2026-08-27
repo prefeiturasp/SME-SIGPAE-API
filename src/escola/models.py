@@ -50,6 +50,7 @@ from ..dados_comuns.behaviors import (
 from ..dados_comuns.constants import (
     COORDENADOR_DIETA_ESPECIAL,
     COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+    CRIADO_EM,
     DIRETOR_UE,
     FORMATO_DATA_BRASILEIRO,
     GRUPO_PROGRAMAS_E_PROJETOS,
@@ -3201,7 +3202,7 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
 
 
 class LogAtualizaDadosAluno(models.Model):
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     codigo_eol = models.CharField("Codigo EOL da escola", max_length=50)
     status = models.PositiveSmallIntegerField("Status da requisição", default=0)
     msg_erro = models.TextField("Mensagem erro", blank=True)

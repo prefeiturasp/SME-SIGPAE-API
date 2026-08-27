@@ -3,7 +3,7 @@ import datetime
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_USUARIO
 
 from ..api.serializers.serializers_create_cei import (
     FaixaEtariaSolicitacaoKitLancheCEIAvulsaCreateSerializer,
@@ -28,7 +28,7 @@ def test_faixa_etaria_kit_lanche_cei_serializer():
 @pytest.mark.django_db
 def test_kit_lanche_cei_avulsa_serializer_create_create():
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     hoje = datetime.date.today()
     # TODO: Achar uma forma de esse teste travar a data atual do sistema,

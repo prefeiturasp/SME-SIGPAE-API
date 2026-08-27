@@ -23,6 +23,7 @@ from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     MODEL_ESCOLA,
     MODEL_TERCEIRIZADA,
+    MODEL_USUARIO,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoHomologacaoProduto,
@@ -293,7 +294,7 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
     )
     suspenso_em = models.DateTimeField("Suspenso em", null=True, blank=True)
     suspenso_por = models.ForeignKey(
-        "perfil.Usuario", on_delete=models.DO_NOTHING, null=True, blank=True
+        MODEL_USUARIO, on_delete=models.DO_NOTHING, null=True, blank=True
     )
 
     def criar_data_hora_vinculo(self, suspenso=False):

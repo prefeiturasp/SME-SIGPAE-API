@@ -8,7 +8,7 @@ from django.http import QueryDict
 from faker import Faker
 from model_bakery import baker
 
-from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA
+from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA, MODEL_USUARIO
 from src.produto.api.serializers.serializers import (
     HomologacaoProdutoPainelGerencialSerializer,
     ProdutoReclamacaoSerializer,
@@ -1052,7 +1052,7 @@ def item_cadastrado_4(embalagem_produto):
 
 @pytest.fixture
 def usuario():
-    return baker.make("perfil.Usuario")
+    return baker.make(MODEL_USUARIO)
 
 
 @pytest.fixture

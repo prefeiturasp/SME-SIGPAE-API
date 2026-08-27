@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from openpyxl import Workbook
 
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_USUARIO
 from src.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
@@ -128,7 +128,7 @@ def dieta_especial_ativa(solicitacao_dieta_especial):
 
 @pytest.fixture
 def usuario():
-    return baker.make("perfil.Usuario")
+    return baker.make(MODEL_USUARIO)
 
 
 @pytest.fixture

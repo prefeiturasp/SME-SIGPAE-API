@@ -25,6 +25,7 @@ from ..dados_comuns.behaviors import (
     TemSemana,
 )
 from ..dados_comuns.constants import (
+    CRIADO_EM,
     FORMATO_DATA_BRASILEIRO,
     GRUPO_INFANTIL_INTEGRAL,
     GRUPO_INFANTIL_MANHA,
@@ -35,6 +36,7 @@ from ..dados_comuns.constants import (
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
     MODEL_LOTE,
+    MODEL_USUARIO,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoRelatorioFinanceiroMedicaoInicial,
@@ -121,7 +123,7 @@ class SolicitacaoMedicaoInicial(
     )
     dre_ciencia_correcao_data = models.DateTimeField(blank=True, null=True)
     dre_ciencia_correcao_usuario = models.ForeignKey(
-        "perfil.Usuario",
+        MODEL_USUARIO,
         on_delete=models.SET_NULL,
         related_name="solicitacoes_medicao_ciencia_correcao",
         blank=True,
@@ -825,7 +827,7 @@ class PermissaoLancamentoEspecial(
 
 class LancheEmergencialDiario(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
-    criado_em = models.DateTimeField("Criado em", auto_now_add=True, null=True)
+    criado_em = models.DateTimeField(CRIADO_EM, auto_now_add=True, null=True)
     escola = models.ForeignKey(
         MODEL_ESCOLA,
         on_delete=models.CASCADE,
