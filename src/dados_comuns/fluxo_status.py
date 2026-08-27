@@ -30,6 +30,7 @@ from .constants import (
     ERRO_SALVAR_LOG_TRANSICAO,
     ESCOLA_CANCELOU_LABEL,
     MODEL_TERCEIRIZADA,
+    MODULO_GESTAO_PRODUTO,
     RELATED_NAME_RASTRO_DRE,
     RELATED_NAME_RASTRO_LOTE,
     RELATED_NAME_RASTRO_TERCEIRIZADA,
@@ -1733,11 +1734,11 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         )
 
         usuarios_terceirizada = self.rastro_terceirizada.todos_emails_por_modulo(
-            "Gestão de Produto"
+            MODULO_GESTAO_PRODUTO
         )
         if self.status == self.workflow_class.CODAE_NAO_HOMOLOGADO:
             usuarios_terceirizada = self.rastro_terceirizada.emails_por_modulo(
-                "Gestão de Produto"
+                MODULO_GESTAO_PRODUTO
             )
 
         return list(usuarios_escolas_selecionadas) + usuarios_terceirizada
@@ -1778,7 +1779,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
 
     def _partes_interessadas_codae_questiona(self):
         emails = [self.produto.criado_por.email]
-        emails += self.rastro_terceirizada.emails_por_modulo("Gestão de Produto")
+        emails += self.rastro_terceirizada.emails_por_modulo(MODULO_GESTAO_PRODUTO)
         return list(set(emails))
 
     def _envia_email_codae_questiona(self, log_transicao, link_pdf):
@@ -1824,7 +1825,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         )
 
     def _partes_interessadas_codae_pede_analise_sensorial(self):
-        return self.rastro_terceirizada.emails_por_modulo("Gestão de Produto")
+        return self.rastro_terceirizada.emails_por_modulo(MODULO_GESTAO_PRODUTO)
 
     def _envia_email_codae_pede_analise_sensorial(self, log_transicao, link_pdf):
         html = render_to_string(
@@ -1845,7 +1846,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         )
 
     def _partes_interessadas_codae_ativa_ou_suspende(self):
-        return self.rastro_terceirizada.todos_emails_por_modulo("Gestão de Produto")
+        return self.rastro_terceirizada.todos_emails_por_modulo(MODULO_GESTAO_PRODUTO)
 
     def _envia_email_codae_ativa_ou_suspende(
         self, log_transicao, template_name, assunto
@@ -2046,7 +2047,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
             )
         if reclamacao:
             emails = reclamacao.escola.lote.terceirizada.emails_por_modulo(
-                "Gestão de Produto"
+                MODULO_GESTAO_PRODUTO
             )
             self._envia_email_codae_questiona_produto(
                 reclamacao, log_transicao, emails, link
@@ -3707,7 +3708,7 @@ class FluxoReclamacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         )
         emails_terceirizadas = (
             self.homologacao_produto.rastro_terceirizada.todos_emails_por_modulo(
-                "Gestão de Produto"
+                MODULO_GESTAO_PRODUTO
             )
         )
         return [usuario.email for usuario in queryset] + emails_terceirizadas
