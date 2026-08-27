@@ -42,6 +42,7 @@ from .constants import (
     RELATED_NAME_RASTRO_LOTE,
     RELATED_NAME_RASTRO_TERCEIRIZADA,
     TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
+    TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
 from .services import EmailENotificacaoService, PartesInteressadasService
@@ -2462,7 +2463,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         self, assunto, titulo, id_externo, criado_em, partes_interessadas
     ):
         url = f'{env("REACT_APP_URL")}/{self.path}'
-        template = "fluxo_codae_autoriza_ou_nega.html"
+        template = TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA
         dados_template = {
             "titulo": titulo,
             "tipo_solicitacao": self.DESCRICAO,
@@ -2479,7 +2480,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_codae_autoriza_ou_nega.html",
+            template=TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
             dados_template=dados_template,
             html=html,
         )
@@ -3047,7 +3048,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_codae_autoriza_ou_nega.html",
+            template=TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
             dados_template=dados_template,
             html=html,
         )
