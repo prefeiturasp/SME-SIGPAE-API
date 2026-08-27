@@ -33,6 +33,7 @@ from .constants import (
     RELATED_NAME_RASTRO_DRE,
     RELATED_NAME_RASTRO_LOTE,
     RELATED_NAME_RASTRO_TERCEIRIZADA,
+    TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
 from .services import EmailENotificacaoService, PartesInteressadasService
@@ -1691,7 +1692,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
     def _preenche_template_e_envia_email(
         self, assunto, titulo, user, partes_interessadas
     ):
-        template = "fluxo_autorizar_negar_cancelar.html"
+        template = TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
         dados_template = {
             "titulo": titulo,
             "tipo_solicitacao": self.DESCRICAO,
@@ -1703,7 +1704,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_autorizar_negar_cancelar.html",
+            template=TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
             dados_template={
                 "titulo": titulo,
                 "tipo_solicitacao": self.DESCRICAO,
@@ -2794,7 +2795,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
     def _preenche_template_e_envia_email(
         self, assunto, titulo, user, partes_interessadas
     ):
-        template = "fluxo_autorizar_negar_cancelar.html"
+        template = TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
         dados_template = {
             "titulo": titulo,
             "tipo_solicitacao": self.DESCRICAO,
@@ -2806,7 +2807,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_autorizar_negar_cancelar.html",
+            template=TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
             dados_template={
                 "titulo": titulo,
                 "tipo_solicitacao": self.DESCRICAO,
@@ -3336,7 +3337,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         elif transicao == "cancelar_pedido":
             template = "fluxo_dieta_alta_medica.html"
         else:
-            template = "fluxo_autorizar_negar_cancelar.html"
+            template = TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
 
         html = render_to_string(template, dados_template)
         envia_email_em_massa_task.delay(
