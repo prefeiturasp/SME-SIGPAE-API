@@ -115,8 +115,12 @@
               <tr>
                 <td>{{etapa.numero_empenho}}</td>
                 <td>
-                  {{etapa.qtd_total_empenho|agrupador_milhar_com_decimal}}
-                  {{cronograma.unidade_medida.abreviacao}}
+                  {% if etapa.qtd_total_empenho %}
+                    {{ etapa.qtd_total_empenho|agrupador_milhar_com_decimal }}
+                    {{ cronograma.unidade_medida.abreviacao }}
+                  {% else %}
+                    ---
+                  {% endif %}
                 </td>
                 <td>Etapa {{etapa.etapa}}</td>
                 <td>{% if etapa.parte %}Parte {{etapa.parte}}{% endif %}</td>
@@ -165,8 +169,12 @@
               <tr class="{% if item.linha_diferente %}fundo-laranja{% endif %}">
                 <td class="{{ item.classes.numero_empenho }}">{{ item.etapa.numero_empenho }}</td>
                 <td class="{{ item.classes.qtd_total_empenho }}">
-                  {{ item.etapa.qtd_total_empenho|agrupador_milhar_com_decimal }}
-                  {{ cronograma.unidade_medida.abreviacao }}
+                  {% if item.etapa.qtd_total_empenho %}
+                    {{ item.etapa.qtd_total_empenho|agrupador_milhar_com_decimal }}
+                    {{ cronograma.unidade_medida.abreviacao }}
+                  {% else %}
+                    ---
+                  {% endif %}
                 </td>
                 <td class="{{ item.classes.etapa }}">Etapa {{ item.etapa.etapa }}</td>
                 <td class="{{ item.classes.parte }}">{% if item.etapa.parte %}Parte {{ item.etapa.parte }}{% endif %}</td>
@@ -192,12 +200,10 @@
           <div class="area-texto">{{ solicitacao_cronograma.justificativa|linebreaksbr }}</div>
         </div>
 
-        {% if justificativa_cronograma %}
         <div class="bloco-justificativa">
           <h5 class="title titulo-secao">Análise Cronograma</h5>
           <div class="area-texto">{{ justificativa_cronograma }}</div>
         </div>
-        {% endif %}
 
         {% if not eh_fornecedor_ciente %}
         <div class="bloco-justificativa">
