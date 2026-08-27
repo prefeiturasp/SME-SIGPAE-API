@@ -16,7 +16,9 @@ from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
 from django.utils import timezone
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from unidecode import unidecode
+from django.db import transaction
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
@@ -7798,3 +7800,67 @@ def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
         )
 
     return total_pagamento.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario):
+    tipos_unidades = set(
+        relatorio_financeiro
+        .grupo_unidade_escolar
+        .tipos_unidades
+        .values_list("uuid", flat=True)
+    )
+
+    solicitacoes_grupo = [
+        solicitacao
+        for solicitacao in solicitacoes_periodo
+        if solicitacao.escola.tipo_unidade.uuid in tipos_unidades
+    ]
+
+    total_solicitacoes_relatorio = len(solicitacoes_grupo)
+
+    if unidades_educacionais:
+        solicitacoes = [
+            solicitacao
+            for solicitacao in solicitacoes_grupo
+            if str(solicitacao.escola.uuid) in unidades_educacionais
+        ]
+    else:
+        solicitacoes = solicitacoes_grupo
+        relatorio_financeiro.status = "RELATORIO_FINANCEIRO_GERADO"
+        relatorio_financeiro.save()
+
+    total_solicitacoes = len(solicitacoes)
+
+    with transaction.atomic():
+        for solicitacao in solicitacoes:
+            solicitacao.status = (
+                SolicitacaoMedicaoInicial
+                .workflow_class
+                .MEDICAO_APROVADA_PELA_DRE
+            )
+            solicitacao.salvar_log_transicao(
+                status_evento=(
+                    LogSolicitacoesUsuario
+                    .MEDICAO_APROVADA_PELA_DRE
+                ),
+                usuario=usuario,
+            )
+            solicitacao.save()
+
+            for medicao in solicitacao.medicoes.all():
+                medicao.status = (
+                    SolicitacaoMedicaoInicial
+                    .workflow_class
+                    .MEDICAO_APROVADA_PELA_DRE
+                )
+                medicao.salvar_log_transicao(
+                    status_evento=(
+                        LogSolicitacoesUsuario
+                        .MEDICAO_APROVADA_PELA_DRE
+                    ),
+                    usuario=usuario,
+                )
+                medicao.save()
+
+        if total_solicitacoes == total_solicitacoes_relatorio:
+            relatorio_financeiro.delete()
