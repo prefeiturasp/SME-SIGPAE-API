@@ -15,6 +15,10 @@ from src.cardapio.suspensao_alimentacao.models import (
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
+from src.dados_comuns.constants import (
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_ESCOLA,
+)
 from src.paineis_consolidados.api import constants as consts_pc
 from src.paineis_consolidados.api.serializers import (
     SolicitacoesExportXLSXSerializer,
@@ -660,9 +664,9 @@ def solicitacoes_ano_dre(
 def client_autenticado_painel_consolidados(client_autenticado, django_user_model):
     user = django_user_model.objects.get(email="test@test.com")
     diretoria_regional = baker.make(
-        "escola.DiretoriaRegional", usuarios=[user], make_m2m=True
+        MODEL_DIRETORIA_REGIONAL, usuarios=[user], make_m2m=True
     )
-    escola = baker.make("escola.Escola", diretoria_regional=diretoria_regional)
+    escola = baker.make(MODEL_ESCOLA, diretoria_regional=diretoria_regional)
     baker.make(
         AlteracaoCardapio,
         escola=escola,

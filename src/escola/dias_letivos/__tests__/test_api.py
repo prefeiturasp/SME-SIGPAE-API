@@ -1,13 +1,14 @@
 import json
 from datetime import date, timedelta
-from django.utils import timezone
 from typing import Any
 
 import pytest
 from django.test import Client
+from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
 
+from src.dados_comuns.constants import MODEL_ESCOLA
 from src.escola.dias_letivos.fixtures.factories.dias_letivos_factory import (
     DiaLetivoSIGPAEFactory,
 )
@@ -46,7 +47,7 @@ def test_create_dias_letivos_success(
     periodo = baker.make("escola.PeriodoEscolar")
     lote = baker.make("escola.Lote")
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
-    escola = baker.make("escola.Escola", lote=lote)
+    escola = baker.make(MODEL_ESCOLA, lote=lote)
 
     payload = _build_payload([periodo], [lote], [tipo_unidade], [escola])
 
@@ -88,7 +89,7 @@ def test_create_dias_letivos_duplicate(
     periodo = baker.make("escola.PeriodoEscolar")
     lote = baker.make("escola.Lote")
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
-    escola = baker.make("escola.Escola", lote=lote)
+    escola = baker.make(MODEL_ESCOLA, lote=lote)
 
     payload = _build_payload([periodo], [lote], [tipo_unidade], [escola])
 
@@ -436,13 +437,13 @@ def test_update_dia_letivo_success(
         "lotes": [str(novo_lote.uuid)],
         "tipos_unidades": [str(tipo.uuid)],
         "unidades_educacionais": [],
-        "periodos_escolares": [str(periodo.uuid)]
+        "periodos_escolares": [str(periodo.uuid)],
     }
 
     response = client.put(
         f"/dias-letivos/{dia.uuid}/",
         data=json.dumps(payload),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == status.HTTP_200_OK

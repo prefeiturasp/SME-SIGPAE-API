@@ -31,6 +31,8 @@ from ..dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_RECREIO_NAS_FERIAS,
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_ESCOLA,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoRelatorioFinanceiroMedicaoInicial,
@@ -100,7 +102,7 @@ class SolicitacaoMedicaoInicial(
     """Solicitação de Medição Inicial."""
 
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="solicitacoes_medicao_inicial",
     )
@@ -780,7 +782,7 @@ class PermissaoLancamentoEspecial(
     CriadoPor, CriadoEm, TemAlteradoEm, TemChaveExterna, TemIdentificadorExternoAmigavel
 ):
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="permissoes_lancamento_especial",
     )
@@ -791,7 +793,7 @@ class PermissaoLancamentoEspecial(
         AlimentacaoLancamentoEspecial
     )
     diretoria_regional = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         related_name="permissoes_lancamento_especial",
         on_delete=models.DO_NOTHING,
     )
@@ -823,7 +825,7 @@ class LancheEmergencialDiario(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
     criado_em = models.DateTimeField("Criado em", auto_now_add=True, null=True)
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="lanches_emergenciais_diarios",
     )

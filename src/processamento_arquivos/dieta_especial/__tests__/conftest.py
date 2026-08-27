@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from openpyxl import Workbook
 
+from src.dados_comuns.constants import MODEL_ESCOLA
 from src.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
@@ -44,7 +45,7 @@ def perfil():
 @pytest.fixture
 def escola():
     return baker.make(
-        "escola.Escola",
+        MODEL_ESCOLA,
         codigo_codae="12345678",
         codigo_eol="654321",
         lote=baker.make("Lote", terceirizada=baker.make("Terceirizada")),

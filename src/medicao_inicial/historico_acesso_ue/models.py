@@ -10,6 +10,7 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from src.dados_comuns.constants import MODEL_ESCOLA
 
 
 class HistoricoAcessoMedicaoInicialUEQuerySet(models.QuerySet):
@@ -38,7 +39,7 @@ class HistoricoAcessoMedicaoInicialUE(
     objects = HistoricoAcessoMedicaoInicialUEQuerySet.as_manager()
 
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )

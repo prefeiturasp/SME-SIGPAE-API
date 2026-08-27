@@ -30,9 +30,12 @@ from .constants import (
     ERRO_SALVAR_LOG_TRANSICAO,
     ESCOLA_CANCELOU_LABEL,
     FORMATO_DATA_HORA_BRASILEIRO,
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_ESCOLA,
     MODEL_TERCEIRIZADA,
     MODULO_GESTAO_PRODUTO,
     RELATED_NAME_RASTRO_DRE,
+    RELATED_NAME_RASTRO_ESCOLA,
     RELATED_NAME_RASTRO_LOTE,
     RELATED_NAME_RASTRO_TERCEIRIZADA,
     TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
@@ -2221,15 +2224,15 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_escola",
+        related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -2658,13 +2661,13 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escolas = models.ManyToManyField(
-        "escola.Escola",
+        MODEL_ESCOLA,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_escola",
+        related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -2957,15 +2960,15 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_escola",
+        related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -3125,15 +3128,15 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     status = xwf_models.StateField(workflow_class)
 
     rastro_escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_escola",
+        related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,

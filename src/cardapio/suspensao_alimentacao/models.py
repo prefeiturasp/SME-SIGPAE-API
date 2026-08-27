@@ -20,6 +20,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
+from src.dados_comuns.constants import MODEL_ESCOLA
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -157,7 +158,7 @@ class GrupoSuspensaoAlimentacao(
     """
 
     DESCRICAO = "Suspensão de Alimentação"
-    escola = models.ForeignKey("escola.Escola", on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
     objects = models.Manager()  # Manager Padrão
     desta_semana = GrupoSuspensaoAlimentacaoDestaSemanaManager()
     deste_mes = GrupoSuspensaoAlimentacaoDesteMesManager()

@@ -13,7 +13,10 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI
+from src.dados_comuns.constants import (
+    DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI,
+    MODEL_ESCOLA,
+)
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -43,7 +46,7 @@ class SuspensaoAlimentacaoDaCEI(
     """
 
     DESCRICAO = DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI
-    escola = models.ForeignKey("escola.Escola", on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
     motivo = models.ForeignKey(MotivoSuspensao, on_delete=models.DO_NOTHING)
     outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
     periodos_escolares = models.ManyToManyField(

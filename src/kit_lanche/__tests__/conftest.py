@@ -8,6 +8,8 @@ from ...dados_comuns.behaviors import TempoPasseio
 from ...dados_comuns.constants import (
     COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
     DJANGO_ADMIN_PASSWORD,
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_ESCOLA,
 )
 from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
@@ -412,7 +414,7 @@ def solicitacao_unificada_lotes_diferentes():
         tempo_passeio=models.SolicitacaoKitLanche.OITO_OU_MAIS,
         kits=kits,
     )
-    dre = baker.make("escola.DiretoriaRegional", nome=fake.name())
+    dre = baker.make(MODEL_DIRETORIA_REGIONAL, nome=fake.name())
     solicitacao_unificada = baker.make(
         models.SolicitacaoKitLancheUnificada,
         local=fake.text()[:160],
@@ -422,9 +424,9 @@ def solicitacao_unificada_lotes_diferentes():
         diretoria_regional=dre,
     )
     lote_um = baker.make("escola.Lote")
-    escola_um = baker.make("escola.Escola", lote=lote_um)
-    escola_dois = baker.make("escola.Escola", lote=lote_um)
-    escola_tres = baker.make("escola.Escola", lote=lote_um)
+    escola_um = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_dois = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_tres = baker.make(MODEL_ESCOLA, lote=lote_um)
     baker.make(
         models.EscolaQuantidade,
         escola=escola_um,
@@ -441,8 +443,8 @@ def solicitacao_unificada_lotes_diferentes():
         solicitacao_unificada=solicitacao_unificada,
     )
     lote_dois = baker.make("escola.Lote")
-    escola_quatro = baker.make("escola.Escola", lote=lote_dois)
-    escola_cinco = baker.make("escola.Escola", lote=lote_dois)
+    escola_quatro = baker.make(MODEL_ESCOLA, lote=lote_dois)
+    escola_cinco = baker.make(MODEL_ESCOLA, lote=lote_dois)
     baker.make(
         models.EscolaQuantidade,
         escola=escola_quatro,
@@ -464,7 +466,7 @@ def solicitacao_unificada_lotes_iguais():
         tempo_passeio=models.SolicitacaoKitLanche.OITO_OU_MAIS,
         kits=kits,
     )
-    dre = baker.make("escola.DiretoriaRegional", nome=fake.name())
+    dre = baker.make(MODEL_DIRETORIA_REGIONAL, nome=fake.name())
     solicitacao_unificada = baker.make(
         models.SolicitacaoKitLancheUnificada,
         local=fake.text()[:160],
@@ -474,11 +476,11 @@ def solicitacao_unificada_lotes_iguais():
         diretoria_regional=dre,
     )
     lote_um = baker.make("escola.Lote")
-    escola_um = baker.make("escola.Escola", lote=lote_um)
-    escola_dois = baker.make("escola.Escola", lote=lote_um)
-    escola_tres = baker.make("escola.Escola", lote=lote_um)
-    escola_quatro = baker.make("escola.Escola", lote=lote_um)
-    escola_cinco = baker.make("escola.Escola", lote=lote_um)
+    escola_um = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_dois = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_tres = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_quatro = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_cinco = baker.make(MODEL_ESCOLA, lote=lote_um)
     baker.make(
         models.EscolaQuantidade,
         escola=escola_um,

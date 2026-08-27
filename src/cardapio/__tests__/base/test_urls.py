@@ -9,6 +9,7 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.dados_comuns import constants as dados_comuns_constants
+from src.dados_comuns.constants import MODEL_ESCOLA
 from src.escola.models import PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     DiasMotivosInclusaoDeAlimentacaoCEMEI,
@@ -277,7 +278,7 @@ def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(
     tipo_unidade_cemei = baker.make("escola.TipoUnidadeEscolar", iniciais="CEMEI")
     diretoria_regional = baker.make("DiretoriaRegional")
     escola_cemei = baker.make(
-        "escola.Escola",
+        MODEL_ESCOLA,
         lote=lote,
         nome="CEMEI JOAO MENDES",
         codigo_eol="000546",

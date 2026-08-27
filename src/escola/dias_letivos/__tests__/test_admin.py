@@ -5,6 +5,7 @@ import pytest
 from django.contrib.admin.sites import AdminSite
 from model_bakery import baker
 
+from src.dados_comuns.constants import MODEL_ESCOLA
 from src.escola.dias_letivos.admin import (
     DIAS_SEMANA,
     DiaLetivoSIGPAEAdmin,
@@ -203,8 +204,8 @@ def test_get_tipos_unidade_empty() -> None:
 
 def test_get_escolas() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
-    escola1 = baker.make("escola.Escola", nome="EMEF A")
-    escola2 = baker.make("escola.Escola", nome="EMEF B")
+    escola1 = baker.make(MODEL_ESCOLA, nome="EMEF A")
+    escola2 = baker.make(MODEL_ESCOLA, nome="EMEF B")
 
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     dia.escolas.set([escola1, escola2])

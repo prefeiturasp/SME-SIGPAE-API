@@ -19,7 +19,7 @@ from ..dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
-from ..dados_comuns.constants import MODEL_TERCEIRIZADA
+from ..dados_comuns.constants import MODEL_ESCOLA, MODEL_TERCEIRIZADA
 from ..dados_comuns.fluxo_status import (
     FluxoHomologacaoProduto,
     FluxoReclamacaoProduto,
@@ -1008,7 +1008,7 @@ class SolicitacaoCadastroProdutoDieta(
         null=True,
     )
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,

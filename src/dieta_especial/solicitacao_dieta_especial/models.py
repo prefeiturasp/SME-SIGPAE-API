@@ -32,6 +32,7 @@ from src.dados_comuns.behaviors import (
     TemIdentificadorExternoAmigavel,
     TemPrioridade,
 )
+from src.dados_comuns.constants import MODEL_ESCOLA
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import convert_base64_to_contentfile
@@ -270,7 +271,7 @@ class SolicitacaoDietaEspecial(
     )
 
     escola_destino = models.ForeignKey(
-        "escola.Escola", blank=True, null=True, on_delete=models.CASCADE
+        MODEL_ESCOLA, blank=True, null=True, on_delete=models.CASCADE
     )
 
     dieta_alterada = models.ForeignKey(

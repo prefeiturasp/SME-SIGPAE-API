@@ -53,6 +53,7 @@ from ..dados_comuns.constants import (
     DIRETOR_UE,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MODEL_DIRETORIA_REGIONAL,
     MODEL_TERCEIRIZADA,
     obter_dias_uteis_apos_hoje,
 )
@@ -1810,7 +1811,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         blank=True,
     )
     diretoria_regional = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         related_name="lotes",
         null=True,
