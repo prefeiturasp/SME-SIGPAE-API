@@ -386,3 +386,54 @@ def test_termo_list_negado_para_perfil_fora_da_codae(
     response = client_autenticado_distribuidor.get("/pos-recebimento/termos/")
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_termo_retrieve_retorna_detalhe_do_termo(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+    empresa,
+    contrato,
+    tres_fiscais,
+):
+    response = client_autenticado_dilog_cronograma.get(
+        f"/pos-recebimento/termos/{termo_listagem.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    detalhe = response.json()
+    assert detalhe["uuid"] == str(termo_listagem.uuid)
+    assert detalhe["empresa"]["uuid"] == str(empresa.uuid)
+    assert detalhe["contrato"]["uuid"] == str(contrato.uuid)
+    assert detalhe["texto_termo"] == termo_listagem.texto_termo
+    assert detalhe["status"] == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    assert [detalhe[f"fiscal_{i}"]["uuid"] for i in (1, 2, 3)] == [
+        str(fiscal.uuid) for fiscal in tres_fiscais
+    ]
+
+
+def test_termo_retrieve_retorna_cronogramas_com_valores_do_vinculo(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+):
+    response = client_autenticado_dilog_cronograma.get(
+        f"/pos-recebimento/termos/{termo_listagem.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    cronogramas = response.json()["cronogramas"]
+    assert sorted(item["cronograma"]["numero"] for item in cronogramas) == [
+        "111/2026",
+        "222/2026",
+    ]
+    assert all(item["valor_contrato"] == "150000.00" for item in cronogramas)
+    assert all(item["quantidade_total_recebida"] == "1234.56" for item in cronogramas)
+
+
+def test_termo_retrieve_uuid_inexistente_retorna_404(
+    client_autenticado_dilog_cronograma,
+):
+    response = client_autenticado_dilog_cronograma.get(
+        "/pos-recebimento/termos/11111111-1111-1111-1111-111111111111/"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
