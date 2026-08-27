@@ -23,6 +23,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MODEL_LOTE,
     MODEL_TERCEIRIZADA,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
@@ -2937,7 +2938,7 @@ def edital():
 @pytest.fixture
 def contrato(edital):
     terceirizada = baker.make(MODEL_TERCEIRIZADA)
-    lote = baker.make("escola.Lote", terceirizada=terceirizada)
+    lote = baker.make(MODEL_LOTE, terceirizada=terceirizada)
     contrato = baker.make(
         "terceirizada.Contrato",
         lotes=[lote],
@@ -3474,7 +3475,7 @@ def relatorio_financeiro():
     return baker.make(
         "RelatorioFinanceiro",
         grupo_unidade_escolar=baker.make("GrupoUnidadeEscolar"),
-        lote=baker.make("escola.Lote"),
+        lote=baker.make(MODEL_LOTE),
         mes="10",
         ano="2025",
     )

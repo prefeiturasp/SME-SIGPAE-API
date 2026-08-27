@@ -10,7 +10,7 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE
 
 
 class HistoricoAcessoMedicaoInicialUEQuerySet(models.QuerySet):
@@ -44,7 +44,7 @@ class HistoricoAcessoMedicaoInicialUE(
         related_name="historicos_acesso_medicao_inicial_ue",
     )
     lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )

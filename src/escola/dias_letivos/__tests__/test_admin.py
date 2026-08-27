@@ -5,7 +5,7 @@ import pytest
 from django.contrib.admin.sites import AdminSite
 from model_bakery import baker
 
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE
 from src.escola.dias_letivos.admin import (
     DIAS_SEMANA,
     DiaLetivoSIGPAEAdmin,
@@ -168,8 +168,8 @@ def test_get_periodos_escolares_empty() -> None:
 
 def test_get_lotes() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
-    lote1 = baker.make("escola.Lote", nome="Lote A")
-    lote2 = baker.make("escola.Lote", nome="Lote B")
+    lote1 = baker.make(MODEL_LOTE, nome="Lote A")
+    lote2 = baker.make(MODEL_LOTE, nome="Lote B")
 
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     dia.lotes.set([lote1, lote2])

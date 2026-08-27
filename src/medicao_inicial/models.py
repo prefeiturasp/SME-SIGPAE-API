@@ -33,6 +33,7 @@ from ..dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
+    MODEL_LOTE,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoRelatorioFinanceiroMedicaoInicial,
@@ -952,7 +953,7 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
         on_delete=models.PROTECT,
     )
     lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
@@ -1055,7 +1056,7 @@ class RelatorioFinanceiro(
         related_name="relatorios_financeiros",
     )
     lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         related_name="relatorios_financeiros",
         on_delete=models.PROTECT,
     )

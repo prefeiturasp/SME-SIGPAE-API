@@ -32,6 +32,7 @@ from .constants import (
     FORMATO_DATA_HORA_BRASILEIRO,
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
+    MODEL_LOTE,
     MODEL_TERCEIRIZADA,
     MODULO_GESTAO_PRODUTO,
     RELATED_NAME_RASTRO_DRE,
@@ -2240,7 +2241,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2675,7 +2676,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2976,7 +2977,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -3144,7 +3145,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -4075,7 +4076,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,

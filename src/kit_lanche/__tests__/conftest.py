@@ -10,6 +10,7 @@ from ...dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
+    MODEL_LOTE,
 )
 from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
@@ -423,7 +424,7 @@ def solicitacao_unificada_lotes_diferentes():
         outro_motivo=fake.text(),
         diretoria_regional=dre,
     )
-    lote_um = baker.make("escola.Lote")
+    lote_um = baker.make(MODEL_LOTE)
     escola_um = baker.make(MODEL_ESCOLA, lote=lote_um)
     escola_dois = baker.make(MODEL_ESCOLA, lote=lote_um)
     escola_tres = baker.make(MODEL_ESCOLA, lote=lote_um)
@@ -442,7 +443,7 @@ def solicitacao_unificada_lotes_diferentes():
         escola=escola_tres,
         solicitacao_unificada=solicitacao_unificada,
     )
-    lote_dois = baker.make("escola.Lote")
+    lote_dois = baker.make(MODEL_LOTE)
     escola_quatro = baker.make(MODEL_ESCOLA, lote=lote_dois)
     escola_cinco = baker.make(MODEL_ESCOLA, lote=lote_dois)
     baker.make(
@@ -475,7 +476,7 @@ def solicitacao_unificada_lotes_iguais():
         outro_motivo=fake.text(),
         diretoria_regional=dre,
     )
-    lote_um = baker.make("escola.Lote")
+    lote_um = baker.make(MODEL_LOTE)
     escola_um = baker.make(MODEL_ESCOLA, lote=lote_um)
     escola_dois = baker.make(MODEL_ESCOLA, lote=lote_um)
     escola_tres = baker.make(MODEL_ESCOLA, lote=lote_um)
