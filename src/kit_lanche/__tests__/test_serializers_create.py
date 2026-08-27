@@ -5,11 +5,11 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework.exceptions import ValidationError
 
+from ...dados_comuns.constants import MODEL_USUARIO
 from ..api.serializers.serializers_create import (
     SolicitacaoKitLancheAvulsaCreationSerializer,
     SolicitacaoKitLancheUnificadaCreationSerializer,
 )
-from ..dados_comuns.constants import MODEL_USUARIO
 from ..models import (
     SolicitacaoKitLanche,
     SolicitacaoKitLancheAvulsa,

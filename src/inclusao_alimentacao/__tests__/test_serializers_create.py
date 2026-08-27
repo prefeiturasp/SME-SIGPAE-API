@@ -2,12 +2,12 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from ...dados_comuns.constants import MODEL_USUARIO
 from ..api.serializers.serializers_create import (
     GrupoInclusaoAlimentacaoNormalCreationSerializer,
     InclusaoAlimentacaoContinuaCreationSerializer,
     InclusaoAlimentacaoDaCEICreateSerializer,
 )
-from ..dados_comuns.constants import MODEL_USUARIO
 from ..models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,
