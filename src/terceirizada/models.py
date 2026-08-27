@@ -18,7 +18,7 @@ from ..dados_comuns.behaviors import (
     TemIdentificadorExternoAmigavel,
     TemVinculos,
 )
-from ..dados_comuns.constants import ADMINISTRADOR_EMPRESA
+from ..dados_comuns.constants import ADMINISTRADOR_EMPRESA, FORMATO_DATA_HORA_BRASILEIRO
 from ..dados_comuns.utils import queryset_por_data
 from ..escola.models import DiretoriaRegional, Escola, Lote
 from ..inclusao_alimentacao.models import (
@@ -651,7 +651,7 @@ class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
         dados_encerramento = {
             "encerrado": contrato.encerrado,
             "data_hora_encerramento": contrato.data_hora_encerramento.strftime(
-                "%d/%m/%Y - %H:%M"
+                FORMATO_DATA_HORA_BRASILEIRO
             ),
         }
 

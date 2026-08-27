@@ -29,6 +29,7 @@ from .constants import (
     EM_ANALISE_LABEL,
     ERRO_SALVAR_LOG_TRANSICAO,
     ESCOLA_CANCELOU_LABEL,
+    FORMATO_DATA_HORA_BRASILEIRO,
     MODEL_TERCEIRIZADA,
     MODULO_GESTAO_PRODUTO,
     RELATED_NAME_RASTRO_DRE,
@@ -1872,7 +1873,9 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
                 "produto": self.produto,
                 "reclamacao": reclamacao,
                 "marca": self.produto.marca,
-                "criado_em": log_transicao.criado_em.strftime("%d/%m/%Y - %H:%M"),
+                "criado_em": log_transicao.criado_em.strftime(
+                    FORMATO_DATA_HORA_BRASILEIRO
+                ),
                 "log_transicao": log_transicao,
                 "link_questionamento": link,
             },
@@ -2315,7 +2318,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         assunto = "[SIGPAE] Status de solicitação - " + id_externo
         titulo = f"Solicitação de {self.tipo} Cancelada"
         log_criado = self.logs.last().criado_em
-        criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+        criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
         self._preenche_template_e_envia_email_ue_cancela(
             assunto, titulo, id_externo, criado_em, self._partes_interessadas_ue_cancela
         )
@@ -2516,7 +2519,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             self._preenche_template_e_envia_email_dre_nega(
                 assunto,
                 titulo,
@@ -2586,7 +2589,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
                 justificativa=justificativa,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             self._preenche_template_e_envia_email_codae_autoriza_ou_nega(
                 assunto,
                 titulo,
@@ -2612,7 +2615,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
                 justificativa=justificativa,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             self._preenche_template_e_envia_email_codae_autoriza_ou_nega(
                 assunto,
                 titulo,
@@ -2870,7 +2873,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
                 justificativa=justificativa,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             escolas = [eq.escola for eq in self.escolas_quantidades.all()]
             for escola in escolas:
                 self._preenche_template_e_envia_email_codae_autoriza_ou_nega(
@@ -2931,7 +2934,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
                 justificativa=justificativa,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             escolas = [eq.escola for eq in self.escolas_quantidades.all()]
             for escola in escolas:
                 self._preenche_template_e_envia_email_codae_autoriza_ou_nega(
@@ -3081,7 +3084,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
                 status_evento=LogSolicitacoesUsuario.INICIO_FLUXO, usuario=user
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             self._preenche_template_e_envia_email(
                 assunto,
                 titulo,
@@ -3327,7 +3330,9 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
                 self.escola.lote.nome if self.escola.lote else "Sem Lote (Parceira)"
             ),
             "url": url,
-            "data_log": self.log_mais_recente.criado_em.strftime("%d/%m/%Y - %H:%M"),
+            "data_log": self.log_mais_recente.criado_em.strftime(
+                FORMATO_DATA_HORA_BRASILEIRO
+            ),
         }
         if transicao == "codae_autoriza":
             template = "fluxo_codae_autoriza_dieta.html"

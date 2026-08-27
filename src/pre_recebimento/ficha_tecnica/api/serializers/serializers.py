@@ -5,6 +5,7 @@ from rest_framework import serializers
 from src.dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSerializer,
 )
+from src.dados_comuns.constants import FORMATO_DATA_HORA_BRASILEIRO
 from src.pre_recebimento.base.api.serializers.serializers import (
     UnidadeMedidaSimplesSerializer,
 )
@@ -242,11 +243,13 @@ class FichaTecnicaComAnaliseDetalharSerializer(FichaTecnicaDetalharSerializer):
 
         if log_mais_recente:
             return datetime.datetime.strftime(
-                log_mais_recente.criado_em, "%d/%m/%Y - %H:%M"
+                log_mais_recente.criado_em, FORMATO_DATA_HORA_BRASILEIRO
             )
 
         else:
-            return datetime.datetime.strftime(obj.alterado_em, "%d/%m/%Y - %H:%M")
+            return datetime.datetime.strftime(
+                obj.alterado_em, FORMATO_DATA_HORA_BRASILEIRO
+            )
 
     class Meta(FichaTecnicaDetalharSerializer.Meta):
         fields = FichaTecnicaDetalharSerializer.Meta.fields + (
