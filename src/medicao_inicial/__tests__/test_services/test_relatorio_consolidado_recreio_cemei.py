@@ -5,6 +5,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS,
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cemei import (
     _define_filtro,
@@ -337,7 +338,7 @@ def test_get_valores_tabela(
     monkeypatch.setattr(
         "src.medicao_inicial.services.relatorio_consolidado_recreio_cemei.get_valores_iniciais",
         lambda _solicitacao: [
-            "CEMEI",
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "123456",
             "CEMEI TESTE",
         ],
@@ -373,7 +374,7 @@ def test_get_valores_tabela(
 
     assert resultado == [
         [
-            "CEMEI",
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "123456",
             "CEMEI TESTE",
             100,

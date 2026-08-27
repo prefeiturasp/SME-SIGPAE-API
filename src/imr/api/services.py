@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from openpyxl import Workbook, styles
 from openpyxl.worksheet.datavalidation import DataValidation
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.helper_planilha_modelo import (
     cria_validacao_lista_em_sheet_oculto,
 )
@@ -216,7 +217,7 @@ class RelatorioNotificacaoService:
                 self.formulario_supervisao.formulario_base.data
             ),
             "data_visita": self.formulario_supervisao.formulario_base.data.strftime(
-                "%d/%m/%Y"
+                FORMATO_DATA_BRASILEIRO
             ),
             "usuario": self.formulario_supervisao.formulario_base.usuario,
             "lote": self.formulario_supervisao.escola.lote.nome,
@@ -227,7 +228,7 @@ class RelatorioNotificacaoService:
                 else "-"
             ),
             "respostas": self.get_lista_respostas(categoria),
-            "data_geracao": datetime.now().strftime("%d/%m/%Y"),
+            "data_geracao": datetime.now().strftime(FORMATO_DATA_BRASILEIRO),
             "hora_geracao": datetime.now().strftime("%H:%M:%S"),
         }
         return dados

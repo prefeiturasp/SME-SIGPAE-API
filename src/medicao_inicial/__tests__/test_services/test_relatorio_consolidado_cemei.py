@@ -14,6 +14,8 @@ from src.dados_comuns.constants import (
     GRUPO_INFANTIL_TARDE,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.models import GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_cemei import (
@@ -314,7 +316,7 @@ def test_get_valores_tabela(relatorio_consolidado_xlsx_cemei, mock_colunas_cemei
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 76
     assert linhas[0] == [
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         5.0,
@@ -432,7 +434,12 @@ def test_processa_periodo_campo(
     )
     assert isinstance(integral_cei, list)
     assert len(integral_cei) == 4
-    assert integral_cei == ["CEMEI", "543210", "CEMEI TESTE", 100.0]
+    assert integral_cei == [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        "543210",
+        "CEMEI TESTE",
+        100.0,
+    ]
 
     dieta_a_integral = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cemei,
@@ -444,7 +451,13 @@ def test_processa_periodo_campo(
     )
     assert isinstance(dieta_a_integral, list)
     assert len(dieta_a_integral) == 5
-    assert dieta_a_integral == ["CEMEI", "543210", "CEMEI TESTE", 100.0, 10.0]
+    assert dieta_a_integral == [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        "543210",
+        "CEMEI TESTE",
+        100.0,
+        10.0,
+    ]
 
     integral_emei = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cemei,
@@ -456,7 +469,14 @@ def test_processa_periodo_campo(
     )
     assert isinstance(integral_emei, list)
     assert len(integral_emei) == 6
-    assert integral_emei == ["CEMEI", "543210", "CEMEI TESTE", 100.0, 10.0, 150.0]
+    assert integral_emei == [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        "543210",
+        "CEMEI TESTE",
+        100.0,
+        10.0,
+        150.0,
+    ]
 
     dieta_a_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cemei,
@@ -469,7 +489,7 @@ def test_processa_periodo_campo(
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 7
     assert dieta_a_lanche == [
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         100.0,
@@ -683,16 +703,28 @@ def test_insere_tabela_periodos_na_planilha(
     )
     assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 4
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 4
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 3
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 3
+    )
     assert (
         sum(
             1
@@ -703,7 +735,7 @@ def test_insere_tabela_periodos_na_planilha(
     )
 
     assert df.iloc[0].tolist() == [
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         5.0,

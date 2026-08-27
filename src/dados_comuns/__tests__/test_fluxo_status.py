@@ -6,6 +6,10 @@ import xworkflows
 from django.core.files.base import ContentFile
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
+from src.dados_comuns.constants import (
+    EMAIL_ASSUNTO_STATUS_SOLICITACAO,
+    MENSAGEM_PERMISSAO_NEGADA,
+)
 from src.dados_comuns.fluxo_status import (
     ReclamacaoProdutoWorkflow,
     SolicitacaoMedicaoInicialWorkflow,
@@ -70,9 +74,7 @@ def test_ue_envia_sem_lancamentos_usuario_sem_permissao(
         "user": user_codae_produto,
         "justificativa_sem_lancamentos": "Não houve aulas no período devido a reformas na escola.",
     }
-    with pytest.raises(
-        PermissionDenied, match="Você não tem permissão para executar essa ação."
-    ):
+    with pytest.raises(PermissionDenied, match=MENSAGEM_PERMISSAO_NEGADA):
         solicitacao_sem_lancamento.ue_envia_sem_lancamentos(**kwargs)
 
 
@@ -123,9 +125,7 @@ def test_medicao_sem_lancamentos_usuario_sem_permissao(
         "user": user_codae_produto,
         "justificativa_sem_lancamentos": "Não houve aulas no período devido a reformas na escola.",
     }
-    with pytest.raises(
-        PermissionDenied, match="Você não tem permissão para executar essa ação."
-    ):
+    with pytest.raises(PermissionDenied, match=MENSAGEM_PERMISSAO_NEGADA):
         medicao_sem_lancamento.medicao_sem_lancamentos(**kwargs)
 
 
@@ -181,9 +181,7 @@ def test_codae_pede_correcao_sem_lancamentos_solicitacao_usuario_sem_permissao(
         "user": usuario,
         "justificativa": justificativa,
     }
-    with pytest.raises(
-        PermissionDenied, match="Você não tem permissão para executar essa ação."
-    ):
+    with pytest.raises(PermissionDenied, match=MENSAGEM_PERMISSAO_NEGADA):
         solicitacao_para_corecao.codae_pede_correcao_sem_lancamentos(**kwargs)
 
 
@@ -230,9 +228,7 @@ def test_codae_pede_correcao_sem_lancamentos_medicao_usuario_sem_permissao(
     }
 
     medicao = solicitacao_para_corecao.medicoes.first()
-    with pytest.raises(
-        PermissionDenied, match="Você não tem permissão para executar essa ação."
-    ):
+    with pytest.raises(PermissionDenied, match=MENSAGEM_PERMISSAO_NEGADA):
         medicao.codae_pede_correcao_sem_lancamentos(**kwargs)
 
 
@@ -352,7 +348,7 @@ def test_envia_email_de_cancelamento(
         pendente_autorizacao=False,
     )
     assunto = (
-        "[SIGPAE] Status de solicitação - #" + solicitacao_dieta_especial.id_externo
+        EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + solicitacao_dieta_especial.id_externo
     )
     titulo = f'Status de solicitação - "{solicitacao_dieta_especial.aluno.codigo_eol} - {solicitacao_dieta_especial.aluno.nome}"'
     mock_envia_email.assert_called_once_with(
@@ -378,7 +374,7 @@ def test_envia_email_de_cancelamento_por_alta_medica(
         pendente_autorizacao=False,
     )
     assunto = (
-        "[SIGPAE] Status de solicitação - #" + solicitacao_dieta_especial.id_externo
+        EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + solicitacao_dieta_especial.id_externo
     )
     titulo = solicitacao_dieta_especial.str_dre_lote_escola
     mock_envia_email.assert_called_once_with(

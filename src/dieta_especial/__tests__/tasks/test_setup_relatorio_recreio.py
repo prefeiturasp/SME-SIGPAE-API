@@ -1,5 +1,6 @@
 import datetime
 
+from src.dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     SolicitacaoDietaEspecialFactory,
@@ -35,19 +36,23 @@ class BaseSetupRecreioNasFerias:
         )
 
     def setup_escolas(self):
-        self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         self.escola_emef = EscolaFactory.create(
             nome="EMEF PERICLES",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_emef,
             lote=self.lote,
             diretoria_regional=self.dre,
         )
 
-        self.tipo_unidade_emebs = TipoUnidadeEscolarFactory.create(iniciais="EMEBS")
+        self.tipo_unidade_emebs = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+        )
         self.escola_emebs = EscolaFactory.create(
             nome="EMEBS HELEN KELLER",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_emebs,
             lote=self.lote,
             diretoria_regional=self.dre,

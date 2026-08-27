@@ -7,6 +7,8 @@ from src.dados_comuns.constants import (
     PEDIDOS_CODAE,
     PEDIDOS_DRE,
     SEM_FILTRO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import Lote, TipoUnidadeEscolar
 
@@ -45,9 +47,11 @@ def test_list_escola_cemei(
     edital_factory,
     tipo_unidade_escolar_factory,
 ):
-    escola.tipo_unidade.iniciais = "CEMEI"
+    escola.tipo_unidade.iniciais = TIPOS_UNIDADE_ESCOLAR.CEMEI.value
     escola.tipo_unidade.save()
-    tipo_unidade_cei_diret = tipo_unidade_escolar_factory.create(iniciais="CEI DIRET")
+    tipo_unidade_cei_diret = tipo_unidade_escolar_factory.create(
+        iniciais=TIPO_UNIDADE_CEI_DIRET
+    )
 
     edital = edital_factory.create(numero="78/SME/2016")
     edital_2 = edital_factory.create(numero="31/SME/2022")

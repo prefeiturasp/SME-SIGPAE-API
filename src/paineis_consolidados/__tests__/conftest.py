@@ -15,6 +15,11 @@ from src.cardapio.suspensao_alimentacao.models import (
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
+from src.dados_comuns.constants import (
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_ESCOLA,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.paineis_consolidados.api import constants as consts_pc
 from src.paineis_consolidados.api.serializers import (
     SolicitacoesExportXLSXSerializer,
@@ -63,8 +68,10 @@ def escola(diretoria_regional):
         diretoria_regional=diretoria_regional,
         terceirizada=terceirizada,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+    )
     return baker.make(
         "Escola",
         diretoria_regional=diretoria_regional,
@@ -84,8 +91,10 @@ def escola_outro_lote(diretoria_regional):
         diretoria_regional=diretoria_regional,
         terceirizada=terceirizada,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+    )
     return baker.make(
         "Escola",
         diretoria_regional=diretoria_regional,
@@ -660,9 +669,9 @@ def solicitacoes_ano_dre(
 def client_autenticado_painel_consolidados(client_autenticado, django_user_model):
     user = django_user_model.objects.get(email="test@test.com")
     diretoria_regional = baker.make(
-        "escola.DiretoriaRegional", usuarios=[user], make_m2m=True
+        MODEL_DIRETORIA_REGIONAL, usuarios=[user], make_m2m=True
     )
-    escola = baker.make("escola.Escola", diretoria_regional=diretoria_regional)
+    escola = baker.make(MODEL_ESCOLA, diretoria_regional=diretoria_regional)
     baker.make(
         AlteracaoCardapio,
         escola=escola,
@@ -774,12 +783,14 @@ def periodo_escolar_manha():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make("TipoAlimentacao", nome="Refeição")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make("TipoAlimentacao", nome="Lanche")
+    return baker.make("TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.LANCHE.value)
 
 
 @pytest.fixture
@@ -1297,7 +1308,9 @@ def vinculo_periodo_alimentacao(
     periodo_escolar_noite,
     periodo_escolar_tarde,
 ):
-    tipo_alimentacao_refeicao = baker.make("TipoAlimentacao", nome="Refeição")
+    tipo_alimentacao_refeicao = baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
     for pe in [
         periodo_escolar_manha,
         periodo_escolar_integral,
@@ -1434,8 +1447,10 @@ def escola_cemei():
         nome="DIRETORIA REGIONAL GUAIANASES",
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CEMEI PARQUE DO LAGO",

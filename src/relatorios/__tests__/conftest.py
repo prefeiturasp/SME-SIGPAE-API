@@ -19,6 +19,9 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MODEL_TERCEIRIZADA,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -593,14 +596,14 @@ def cronograma(
     )
 
     empresa = baker.make(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         nome_fantasia="Alimentos LTDA",
         cnpj="12345678000190",
         endereco="Rua das Flores, 123 - São Paulo/SP",
     )
 
     armazem = baker.make(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         nome_fantasia="Armazém Central",
         cnpj="98765432000110",
         endereco="Avenida Industrial, 456 - São Paulo/SP",
@@ -973,7 +976,9 @@ def escola_cemei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome="TERC_TOTAL")
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@gmail.com")
     diretoria_regional = baker.make(
         "DiretoriaRegional",
@@ -999,7 +1004,7 @@ def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome="TERC_TOTAL")
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais=TIPO_UNIDADE_CEI_DIRET)
     contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
     diretoria_regional = baker.make(
         "DiretoriaRegional",
@@ -1036,7 +1041,7 @@ def recreio_nas_ferias_cei(escola_cei):
         num_inscritos=100,
         num_colaboradores=50,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     return recreio
 
@@ -1058,7 +1063,7 @@ def recreio_nas_ferias_cemei(escola_cemei):
         num_inscritos=100,
         num_colaboradores=50,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
 
     baker.make(
@@ -1069,7 +1074,7 @@ def recreio_nas_ferias_cemei(escola_cemei):
         num_inscritos=100,
         num_colaboradores=50,
         liberar_medicao=True,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
 
     return recreio

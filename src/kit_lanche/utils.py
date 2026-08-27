@@ -2,15 +2,17 @@ import datetime
 
 from rest_framework.pagination import PageNumberPagination
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 
 def date_to_string(date: datetime.date) -> str:
     assert isinstance(date, datetime.date), "date precisa ser `datetime.date`"  # nosec
-    return date.strftime("%d/%m/%Y")
+    return date.strftime(FORMATO_DATA_BRASILEIRO)
 
 
 def string_to_date(date_string: str) -> datetime.date:
     assert isinstance(date_string, str), "date_string precisa ser `string`"  # nosec
-    return datetime.datetime.strptime(date_string, "%d/%m/%Y").date()
+    return datetime.datetime.strptime(date_string, FORMATO_DATA_BRASILEIRO).date()
 
 
 class KitLanchePagination(PageNumberPagination):

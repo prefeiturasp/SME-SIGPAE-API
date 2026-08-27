@@ -23,6 +23,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -132,7 +133,7 @@ class AlteracaoCardapioCEMEI(
         """
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.datas_intervalo.values_list("data", flat=True)
             ]
         )

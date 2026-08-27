@@ -10,6 +10,8 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
@@ -64,7 +66,7 @@ def test_get_valores_tabela_unidade_cieja(
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 25
     assert linhas[0] == [
-        "CIEJA",
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
         "111329",
         "CIEJA TESTE",
         5.0,
@@ -117,16 +119,28 @@ def test_insere_tabela_periodos_na_planilha_unidade_cieja(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 4
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 3
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 4
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 3
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 3
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 2
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 2
+    )
     assert (
         sum(
             1
@@ -137,7 +151,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_cieja(
     )
 
     assert df.iloc[0].tolist() == [
-        "CIEJA",
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
         "111329",
         "CIEJA TESTE",
         5.0,
@@ -354,7 +368,12 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
     )
     assert isinstance(manha_refeicao, list)
     assert len(manha_refeicao) == 4
-    assert manha_refeicao == ["CIEJA", "111329", "CIEJA TESTE", 150.0]
+    assert manha_refeicao == [
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        "111329",
+        "CIEJA TESTE",
+        150.0,
+    ]
 
     solicitacao_kit_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cieja,
@@ -367,7 +386,13 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
     )
     assert isinstance(solicitacao_kit_lanche, list)
     assert len(solicitacao_kit_lanche) == 5
-    assert solicitacao_kit_lanche == ["CIEJA", "111329", "CIEJA TESTE", 150.0, 5.0]
+    assert solicitacao_kit_lanche == [
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        "111329",
+        "CIEJA TESTE",
+        150.0,
+        5.0,
+    ]
 
     dieta_a_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cieja,
@@ -380,7 +405,14 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
     )
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 6
-    assert dieta_a_lanche == ["CIEJA", "111329", "CIEJA TESTE", 150.0, 5.0, 80.0]
+    assert dieta_a_lanche == [
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        "111329",
+        "CIEJA TESTE",
+        150.0,
+        5.0,
+        80.0,
+    ]
 
     pp_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cieja,
@@ -393,7 +425,15 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
     )
     assert isinstance(pp_lanche, list)
     assert len(pp_lanche) == 7
-    assert pp_lanche == ["CIEJA", "111329", "CIEJA TESTE", 150.0, 5.0, 80.0, 20.0]
+    assert pp_lanche == [
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        "111329",
+        "CIEJA TESTE",
+        150.0,
+        5.0,
+        80.0,
+        20.0,
+    ]
 
 
 def test_define_filtro(relatorio_consolidado_xlsx_cieja):

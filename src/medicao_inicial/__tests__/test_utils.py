@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     GRUPO_INFANTIL_INTEGRAL,
     GRUPO_INFANTIL_MANHA,
     GRUPO_INFANTIL_TARDE,
+    TIPOS_ALIMENTACAO,
 )
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
@@ -621,7 +622,7 @@ def test_utils_tratar_valores(solicitacao_medicao_inicial, escola, escola_emei):
 
 
 def test_utils_get_nome_campo():
-    assert get_nome_campo("lanche_4h") == "Lanche 4h"
+    assert get_nome_campo("lanche_4h") == TIPOS_ALIMENTACAO.LANCHE_4H.value
     assert get_nome_campo("repeticao_sobremesa") == "Repetição de Sobremesa"
 
 
@@ -885,11 +886,11 @@ def test_utils_build_tabela_somatorio_body(
     )
 
     assert primeira_tabela_somatorio["body"] == [
-        ["Lanche", 50, 50, 50, 50, 50, 250],
-        ["Refeição", 100, 100, 100, 100, 50, 450],
+        [TIPOS_ALIMENTACAO.LANCHE.value, 50, 50, 50, 50, 50, 250],
+        [TIPOS_ALIMENTACAO.REFEICAO.value, 100, 100, 100, 100, 50, 450],
         ["Kit Lanche", 50, 50, 50, 50, 50, 250],
-        ["Sobremesa", 100, 100, 100, 100, 50, 450],
-        ["Lanche Emergencial", 50, 50, 50, 50, 50, 250],
+        [TIPOS_ALIMENTACAO.SOBREMESA.value, 100, 100, 100, 100, 50, 450],
+        [TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value, 50, 50, 50, 50, 50, 250],
     ]
 
     assert segunda_tabela_somatorio["body"] == [
@@ -909,15 +910,15 @@ def test_utils_build_tabela_somatorio_dietas_body(
     )
 
     assert primeira_tabela_tipo_a["body"] == [
-        ["Lanche", 0, 20, 20, 20, 60],
-        ["Lanche 4h", 0, 20, 20, 20, 60],
-        ["Refeição", 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.LANCHE.value, 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.LANCHE_4H.value, 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.REFEICAO.value, 0, 20, 20, 20, 60],
     ]
 
     assert segunda_tabela_tipo_a["body"] == [
-        ["Lanche", 20, 20],
-        ["Lanche 4h", 20, 20],
-        ["Refeição", 20, 20],
+        [TIPOS_ALIMENTACAO.LANCHE.value, 20, 20],
+        [TIPOS_ALIMENTACAO.LANCHE_4H.value, 20, 20],
+        [TIPOS_ALIMENTACAO.REFEICAO.value, 20, 20],
     ]
 
     primeira_tabela_tipo_b, segunda_tabela_tipo_b = build_tabela_somatorio_dietas_body(
@@ -925,10 +926,13 @@ def test_utils_build_tabela_somatorio_dietas_body(
     )
 
     assert primeira_tabela_tipo_b["body"] == [
-        ["Lanche", 0, 20, 20, 20, 60],
-        ["Lanche 4h", 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.LANCHE.value, 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.LANCHE_4H.value, 0, 20, 20, 20, 60],
     ]
-    assert segunda_tabela_tipo_b["body"] == [["Lanche", 20, 20], ["Lanche 4h", 20, 20]]
+    assert segunda_tabela_tipo_b["body"] == [
+        [TIPOS_ALIMENTACAO.LANCHE.value, 20, 20],
+        [TIPOS_ALIMENTACAO.LANCHE_4H.value, 20, 20],
+    ]
 
 
 def test_build_row_primeira_tabela(solicitacao_medicao_inicial_com_valores_repeticao):

@@ -4,6 +4,7 @@ import unicodedata
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
 from src.dados_comuns.utils import get_ultimo_dia_mes
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
@@ -113,14 +114,21 @@ def tratar_periodo_parcial_cemei(nome_periodo_escolar, suspensao):
     if (
         nome_periodo_escolar == "PARCIAL"
         and suspensao.quantidades_por_periodo.filter(
-            alunos_cei_ou_emei__in=["CEI", "Todos"], periodo_escolar__nome="INTEGRAL"
+            alunos_cei_ou_emei__in=[
+                TIPOS_UNIDADE_ESCOLAR.CEI.value,
+                "Todos",
+            ],
+            periodo_escolar__nome="INTEGRAL",
         ).exists()
     ):
         nome_periodo_escolar = "INTEGRAL"
     elif (
         "Infantil" in nome_periodo_escolar
         and suspensao.quantidades_por_periodo.filter(
-            alunos_cei_ou_emei__in=["EMEI", "Todos"],
+            alunos_cei_ou_emei__in=[
+                TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                "Todos",
+            ],
             periodo_escolar__nome=nome_periodo_escolar.split(" ")[1],
         ).exists()
     ):
@@ -135,7 +143,7 @@ def tratar_append_return_dict(dia, mes, ano, periodo, inclusao, return_dict, esc
         or (escola.ultimo_dia_letivo and dia == escola.ultimo_dia_letivo.day)
     ):
         queryset_tipos_alimentacao = periodo.tipos_alimentacao.exclude(
-            nome="Lanche Emergencial"
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
         alimentacoes = ", ".join(
             [

@@ -19,6 +19,12 @@ from ..dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from ..dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MODEL_ESCOLA,
+    MODEL_TERCEIRIZADA,
+    MODEL_USUARIO,
+)
 from ..dados_comuns.fluxo_status import (
     FluxoHomologacaoProduto,
     FluxoReclamacaoProduto,
@@ -288,7 +294,7 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
     )
     suspenso_em = models.DateTimeField("Suspenso em", null=True, blank=True)
     suspenso_por = models.ForeignKey(
-        "perfil.Usuario", on_delete=models.DO_NOTHING, null=True, blank=True
+        MODEL_USUARIO, on_delete=models.DO_NOTHING, null=True, blank=True
     )
 
     def criar_data_hora_vinculo(self, suspenso=False):
@@ -325,7 +331,7 @@ class DataHoraVinculoProdutoEdital(TemChaveExterna, CriadoEm):
     def __str__(self):
         return (
             f"{self.produto_edital.produto.nome} - {self.produto_edital.edital.numero} - "
-            f'{"Suspenso" if self.suspenso else "Ativo"} - {self.criado_em.strftime("%d/%m/%Y")}'
+            f'{"Suspenso" if self.suspenso else "Ativo"} - {self.criado_em.strftime(FORMATO_DATA_BRASILEIRO)}'
         )
 
     class Meta:
@@ -1007,13 +1013,13 @@ class SolicitacaoCadastroProdutoDieta(
         null=True,
     )
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
     )
     terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
@@ -1054,7 +1060,7 @@ class AnaliseSensorial(TemChaveExterna, TemIdentificadorExternoAmigavel, CriadoE
 
     # Terceirizada que irá responder a análise
     terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.CASCADE,
         related_name="analises_sensoriais",
         null=True,

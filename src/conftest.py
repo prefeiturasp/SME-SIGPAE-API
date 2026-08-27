@@ -425,7 +425,7 @@ def client_autenticado_vinculo_escola(client, django_user_model):
         iniciais=f.name()[:10],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     escola = baker.make(
         "Escola",
         nome="EMEI NOE AZEVEDO, PROF",

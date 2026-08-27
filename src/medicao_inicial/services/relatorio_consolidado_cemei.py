@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     ORDEM_CAMPOS,
     ORDEM_HEADERS_CEMEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
@@ -327,7 +328,7 @@ def _processa_periodo_regular(
             campo,
             periodo,
             query_params=query_params,
-            tipo_unidade="EMEI",
+            tipo_unidade=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         )
     return soma
 

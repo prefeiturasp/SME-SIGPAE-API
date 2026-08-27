@@ -4,6 +4,7 @@ from typing import List
 
 import pandas as pd
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.escola.models import DiretoriaRegional, Escola, Lote
 
@@ -108,7 +109,7 @@ def _preenche_data_do_relatorio(workbook, worksheet, colunas):
         0,
         2,
         len(colunas) - 1,
-        "Data: " + datetime.now().date().strftime("%d/%m/%Y"),
+        "Data: " + datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO),
     )
     worksheet.set_row(2, 25, workbook.add_format({"align": "vcenter"}))
 

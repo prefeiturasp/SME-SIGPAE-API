@@ -4,6 +4,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
@@ -66,8 +67,8 @@ def cria_valores_medicao_participantes_cemei(
             unidade_educacional=instance.escola
         )
     }
-    participantes_cei = participantes.get("CEI")
-    participantes_emei = participantes.get("EMEI")
+    participantes_cei = participantes.get(TIPOS_UNIDADE_ESCOLAR.CEI.value)
+    participantes_emei = participantes.get(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     informacoes_participantes = {}
     grupos = [
         (
@@ -238,8 +239,8 @@ def validate_lancamento_alimentacoes_medicao_recreio_cemei(
         participantes[participante.cei_ou_emei] = participante
 
     tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
-    participantes_cei = participantes.get("CEI")
-    participantes_emei = participantes.get("EMEI")
+    participantes_cei = participantes.get(TIPOS_UNIDADE_ESCOLAR.CEI.value)
+    participantes_emei = participantes.get(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     if existe_colaborador_cemei(participantes_cei, participantes_emei):
         informacoes_alimentacao[GRUPO_COLABORADORES] = tipos_alimentacao_map.get(
             "Colaboradores", []

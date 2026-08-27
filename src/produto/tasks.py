@@ -3,6 +3,7 @@ import logging
 
 from celery import shared_task
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
@@ -12,11 +13,11 @@ from src.dados_comuns.utils import (
 from src.produto.models import HomologacaoProduto, Produto
 from src.relatorios.relatorios import (
     produtos_suspensos_por_edital,
+    relatorio_historico_produto,
     relatorio_marcas_por_produto_homologacao,
     relatorio_produtos_agrupado_terceirizada,
     relatorio_reclamacao_produtos,
     relatorio_reclamacao_produtos_excel,
-    relatorio_historico_produto,
 )
 
 logger = logging.getLogger(__name__)
@@ -204,10 +205,12 @@ def gera_xls_relatorio_produtos_suspensos_async(
         for produto in produtos:
             produto_edital = produto.vinculos.get(edital__numero=nome_edital)
             data_suspensao = (
-                produto_edital.datas_horas_vinculo.last().criado_em.strftime("%d/%m/%Y")
+                produto_edital.datas_horas_vinculo.last().criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                )
             )
             data_cadastro = produto.homologacao.logs.first().criado_em.strftime(
-                "%d/%m/%Y"
+                FORMATO_DATA_BRASILEIRO
             )
             lista_produtos.append(
                 {
@@ -294,9 +297,7 @@ def gera_pdf_relatorio_historico_produto_async(
     nome_arquivo: str,
     uuid_produto: str,
 ) -> None:
-    logger.info(
-        f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x"
-    )
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
 
     obj_central_download = gera_objeto_na_central_download(
         user=user,
@@ -317,6 +318,4 @@ def gera_pdf_relatorio_historico_produto_async(
         atualiza_central_download_com_erro(obj_central_download, str(e))
         logger.error(f"Erro ao gerar relatório de histórico do produto: {e}")
 
-    logger.info(
-        f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x"
-    )
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")

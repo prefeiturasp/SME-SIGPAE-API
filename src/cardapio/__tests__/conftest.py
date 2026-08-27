@@ -18,7 +18,7 @@ from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 fake = Faker("pt_BR")
 Faker.seed(420)
 FAKE_EMAIL = "fake@email.com"
-TERC_TOTAL = "TERC TOTAL"
+TERC_TOTAL = constants.TIPOS_GESTAO.TERC_TOTAL.value
 DIRETORIA_REGIONAL_IPIRANGA = "DIRETORIA REGIONAL IPIRANGA"
 DADOS_COMUNS_CONTATO = "dados_comuns.Contato"
 
@@ -30,17 +30,24 @@ def codae():
 
 @pytest.fixture
 def tipo_alimentacao():
-    return baker.make(constants.TIPO_ALIMENTACAO, nome="Refeição")
+    return baker.make(
+        constants.TIPO_ALIMENTACAO, nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make(constants.TIPO_ALIMENTACAO, nome="Lanche")
+    return baker.make(
+        constants.TIPO_ALIMENTACAO, nome=constants.TIPOS_ALIMENTACAO.LANCHE.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make(constants.TIPO_ALIMENTACAO, nome="Lanche Emergencial")
+    return baker.make(
+        constants.TIPO_ALIMENTACAO,
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
+    )
 
 
 @pytest.fixture
@@ -77,7 +84,9 @@ def escola():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     contato = baker.make(DADOS_COMUNS_CONTATO, nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
@@ -161,7 +170,9 @@ def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET
+    )
     contato = baker.make(DADOS_COMUNS_CONTATO, nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
@@ -187,7 +198,10 @@ def escola_cemei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+    )
     contato = baker.make(DADOS_COMUNS_CONTATO, nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
@@ -272,7 +286,7 @@ def motivo_alteracao_cardapio():
 def motivo_alteracao_cardapio_lanche_emergencial():
     return baker.make(
         MotivoAlteracaoCardapio,
-        nome="Lanche Emergencial",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         uuid="19d0bca9-3cfe-4542-869e-185d580fef06",
     )
 
@@ -462,19 +476,25 @@ def client_autenticado_vinculo_terceirizada_cardapio(
 @pytest.fixture
 def vinculos_alimentacao():
     baker.make(
-        "TipoUnidadeEscolar", iniciais="CEI DIRET", tem_somente_integral_e_parcial=False
-    )
-    baker.make(
-        "TipoUnidadeEscolar", iniciais="EMEF", tem_somente_integral_e_parcial=False
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPO_UNIDADE_CEI_DIRET,
+        tem_somente_integral_e_parcial=False,
     )
     baker.make(
         "TipoUnidadeEscolar",
-        iniciais="EMEF P FOM",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        tem_somente_integral_e_parcial=False,
+    )
+    baker.make(
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF_P_FOM.value,
         tem_somente_integral_e_parcial=False,
     )
 
     tipo_unidade = baker.make(
-        "TipoUnidadeEscolar", iniciais="CEMEI", tem_somente_integral_e_parcial=True
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        tem_somente_integral_e_parcial=True,
     )
     escola = baker.make("Escola", tipo_unidade=tipo_unidade)
     periodo_escolar = baker.make(
@@ -524,7 +544,9 @@ def escola_emei():
         "Escola",
         nome="EMEI JOAO MENDES",
         codigo_eol="001546",
-        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
+        tipo_unidade=baker.make(
+            "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value
+        ),
     )
     return escola
 
@@ -535,7 +557,10 @@ def escola_ceu_gestao():
         "Escola",
         nome="CEU GESTAO JOAO MENDES",
         codigo_eol="011546",
-        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO"),
+        tipo_unidade=baker.make(
+            "TipoUnidadeEscolar",
+            iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
+        ),
     )
     return escola
 
@@ -546,7 +571,9 @@ def escola_cieja():
         "Escola",
         nome="CIEJA JOAO MENDES",
         codigo_eol="111546",
-        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="CIEJA"),
+        tipo_unidade=baker.make(
+            "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value
+        ),
     )
     return escola
 
@@ -557,7 +584,9 @@ def escola_emebs():
         "Escola",
         nome="EMEBS JOAO MENDES",
         codigo_eol="211546",
-        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="EMEBS"),
+        tipo_unidade=baker.make(
+            "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+        ),
     )
     return escola
 

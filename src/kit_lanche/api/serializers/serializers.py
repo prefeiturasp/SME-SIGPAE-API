@@ -3,6 +3,7 @@ import datetime
 from rest_framework import serializers
 
 from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
+from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ....dados_comuns.utils import update_instance_from_dict
 from ....escola.api.serializers import (
     AlunoSerializer,
@@ -186,7 +187,7 @@ class EscolaQuantidadeSerializerSimples(serializers.ModelSerializer):
         if obj.cancelado:
             if obj.cancelado_em and obj.cancelado_em.date() == datetime.date.today():
                 return obj.cancelado_em.strftime("%d/%m/%Y %H:%M:%S")
-            return obj.cancelado_em.strftime("%d/%m/%Y")
+            return obj.cancelado_em.strftime(FORMATO_DATA_BRASILEIRO)
         return None
 
     def get_cancelado_em_com_hora(self, obj):

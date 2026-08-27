@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.perfil.api.serializers import UsuarioSimplesSerializer
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaSerializer,
@@ -52,7 +53,7 @@ class TermoRecebimentoDefinitivoListagemSerializer(serializers.ModelSerializer):
     data_cadastro = serializers.SerializerMethodField()
 
     def get_data_cadastro(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_numeros_cronogramas(self, obj):
         """Números dos cronogramas vinculados ao termo."""

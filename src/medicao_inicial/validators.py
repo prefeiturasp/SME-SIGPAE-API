@@ -9,6 +9,8 @@ from workalendar.america import BrazilSaoPauloCity
 from src.dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.utils import filtrar_dias_letivos, get_ultimo_dia_mes
 from src.dieta_especial.logs_models.models import (
@@ -297,7 +299,7 @@ def validate_lancamento_alimentacoes_medicao(solicitacao, lista_erros):
             )
         )
         alimentacoes_vinculadas = vinculo.tipos_alimentacao.exclude(
-            nome="Lanche Emergencial"
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
         alimentacoes_vinculadas = list(
             set(alimentacoes_vinculadas.values_list("nome", flat=True))
@@ -327,12 +329,12 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei(
             )
             vinculo = (
                 VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
-                    tipo_unidade_escolar__iniciais="EMEI",
+                    tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
                     periodo_escolar=periodo_escolar,
                 )
             )
             alimentacoes_vinculadas = vinculo.tipos_alimentacao.exclude(
-                nome="Lanche Emergencial"
+                nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             )
             alimentacoes_vinculadas = list(
                 set(alimentacoes_vinculadas.values_list("nome", flat=True))
@@ -519,11 +521,14 @@ def build_nomes_campos_dietas_emef(escola, categoria, medicao):
     )
 
     nomes_campos = ["frequencia"]
-    if "Lanche" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.LANCHE.value in tipos_alimentacao:
         nomes_campos.append("lanche")
-    if "Lanche 4h" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.LANCHE_4H.value in tipos_alimentacao:
         nomes_campos.append("lanche_4h")
-    if "Refeição" in tipos_alimentacao and "ENTERAL" in categoria.nome:
+    if (
+        TIPOS_ALIMENTACAO.REFEICAO.value in tipos_alimentacao
+        and "ENTERAL" in categoria.nome
+    ):
         nomes_campos.append("refeicao")
     return nomes_campos
 
@@ -543,27 +548,27 @@ def build_nomes_campos_inclusoes_dietas_emef(escola, categoria, inclusoes, medic
 
     nomes_campos = ["frequencia"]
     if (
-        "Lanche" in tipos_alimentacao
+        TIPOS_ALIMENTACAO.LANCHE.value in tipos_alimentacao
         and inclusoes.filter(
             quantidades_por_periodo__periodo_escolar=medicao.periodo_escolar,
-            quantidades_por_periodo__tipos_alimentacao__nome="Lanche",
+            quantidades_por_periodo__tipos_alimentacao__nome=TIPOS_ALIMENTACAO.LANCHE.value,
         ).exists()
     ):
         nomes_campos.append("lanche")
     if (
-        "Lanche 4h" in tipos_alimentacao
+        TIPOS_ALIMENTACAO.LANCHE_4H.value in tipos_alimentacao
         and inclusoes.filter(
             quantidades_por_periodo__periodo_escolar=medicao.periodo_escolar,
-            quantidades_por_periodo__tipos_alimentacao__nome="Lanche 4h",
+            quantidades_por_periodo__tipos_alimentacao__nome=TIPOS_ALIMENTACAO.LANCHE_4H.value,
         ).exists()
     ):
         nomes_campos.append("lanche_4h")
     if (
-        "Refeição" in tipos_alimentacao
+        TIPOS_ALIMENTACAO.REFEICAO.value in tipos_alimentacao
         and "ENTERAL" in categoria.nome
         and inclusoes.filter(
             quantidades_por_periodo__periodo_escolar=medicao.periodo_escolar,
-            quantidades_por_periodo__tipos_alimentacao__nome="Refeição",
+            quantidades_por_periodo__tipos_alimentacao__nome=TIPOS_ALIMENTACAO.REFEICAO.value,
         ).exists()
     ):
         nomes_campos.append("refeicao")
@@ -573,16 +578,19 @@ def build_nomes_campos_inclusoes_dietas_emef(escola, categoria, inclusoes, medic
 def build_nomes_campos_dietas_emei_cemei(medicao, categoria):
     tipos_alimentacao = (
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
-            tipo_unidade_escolar__iniciais="EMEI",
+            tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             periodo_escolar__nome__in=medicao.nome_periodo_grupo.upper().split(),
         ).values_list("tipos_alimentacao__nome", flat=True)
     )
     nomes_campos = ["frequencia"]
-    if "Lanche" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.LANCHE.value in tipos_alimentacao:
         nomes_campos.append("lanche")
-    if "Lanche 4h" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.LANCHE_4H.value in tipos_alimentacao:
         nomes_campos.append("lanche_4h")
-    if "Refeição" in tipos_alimentacao and "ENTERAL" in categoria.nome:
+    if (
+        TIPOS_ALIMENTACAO.REFEICAO.value in tipos_alimentacao
+        and "ENTERAL" in categoria.nome
+    ):
         nomes_campos.append("refeicao")
     return nomes_campos
 
@@ -1247,7 +1255,7 @@ def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
                 solicitacao, escola, periodo.periodo_escolar
             )
             tipos_alimentacao = periodo.tipos_alimentacao.exclude(
-                nome="Lanche Emergencial"
+                nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             )
             tipos_alimentacao = list(
                 set(tipos_alimentacao.values_list("nome", flat=True))
@@ -1290,10 +1298,11 @@ def validate_lancamento_inclusoes_emei_cemei(
                     solicitacao, escola, periodo
                 )
                 vinculo = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
-                    tipo_unidade_escolar__iniciais="EMEI", periodo_escolar=periodo
+                    tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                    periodo_escolar=periodo,
                 )
                 alimentacoes_vinculadas = vinculo.tipos_alimentacao.exclude(
-                    nome="Lanche Emergencial"
+                    nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
                 )
                 alimentacoes_vinculadas = list(
                     set(alimentacoes_vinculadas.values_list("nome", flat=True))
@@ -2632,9 +2641,9 @@ def get_inclusoes_continuas_filtradas(
 
 
 def append_lanches_nomes_campos(nomes_campos, tipos_alimentacao):
-    if "Lanche" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.LANCHE.value in tipos_alimentacao:
         nomes_campos.append("lanche")
-    if "Lanche 4h" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.LANCHE_4H.value in tipos_alimentacao:
         nomes_campos.append("lanche_4h")
     return nomes_campos
 
@@ -2659,10 +2668,10 @@ def get_tipos_alimentacao(inclusoes, dia_semana, data):
 
 def build_nomes_campos_alimentacoes_programas_e_projetos(inclusoes, dia_semana, data):
     tipos_alimentacao, nomes_campos = get_tipos_alimentacao(inclusoes, dia_semana, data)
-    if "Refeição" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.REFEICAO.value in tipos_alimentacao:
         nomes_campos.append("refeicao")
         nomes_campos.append("repeticao_refeicao")
-    if "Sobremesa" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.SOBREMESA.value in tipos_alimentacao:
         nomes_campos.append("sobremesa")
         nomes_campos.append("repeticao_sobremesa")
     return nomes_campos
@@ -2840,7 +2849,7 @@ def inclusoes_tem_lanche_4h(inclusoes_filtradas, dia_semana, data):
                 tipos_alimentacao.append(tipo_alimentacao.nome)
                 for tipo_alimentacao in qp.tipos_alimentacao.all()
             ]
-    return "Lanche 4h" in tipos_alimentacao
+    return TIPOS_ALIMENTACAO.LANCHE_4H.value in tipos_alimentacao
 
 
 def tratar_nomes_campos_periodo_com_erro(
@@ -2913,9 +2922,15 @@ def incluir_lanche_e_ou_lanche_4h_sol_continuas(nomes_campos, escola, medicao):
         .values_list("tipos_alimentacao__nome", flat=True)
         .distinct()
     )
-    if "Lanche 4h" in tipos_alimentacao and "lanche_4h" not in nomes_campos:
+    if (
+        TIPOS_ALIMENTACAO.LANCHE_4H.value in tipos_alimentacao
+        and "lanche_4h" not in nomes_campos
+    ):
         nomes_campos.append("lanche_4h")
-    if "Lanche" in tipos_alimentacao and "lanche_4h" not in nomes_campos:
+    if (
+        TIPOS_ALIMENTACAO.LANCHE.value in tipos_alimentacao
+        and "lanche_4h" not in nomes_campos
+    ):
         nomes_campos.append("lanche")
 
     return nomes_campos
@@ -3344,10 +3359,10 @@ def _valida_uma_inclusao_cemei_evento_especifico(
 def _build_nomes_campos_cemei_evento(tipos_alimentacao):
     nomes_campos = ["frequencia"]
     nomes_campos = append_lanches_nomes_campos(nomes_campos, tipos_alimentacao)
-    if "Refeição" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.REFEICAO.value in tipos_alimentacao:
         nomes_campos.append("refeicao")
         nomes_campos.append("repeticao_refeicao")
-    if "Sobremesa" in tipos_alimentacao:
+    if TIPOS_ALIMENTACAO.SOBREMESA.value in tipos_alimentacao:
         nomes_campos.append("sobremesa")
         nomes_campos.append("repeticao_sobremesa")
     return nomes_campos
@@ -3638,7 +3653,10 @@ def _validate_medicao_emei_cemei(
 ):
     categorias_dieta = CategoriaMedicao.objects.exclude(nome__icontains="ALIMENTAÇÃO")
     logs_dietas_autorizadas = LogQuantidadeDietasAutorizadas.objects.filter(
-        escola=escola, data__month=mes, data__year=ano, cei_ou_emei="EMEI"
+        escola=escola,
+        data__month=mes,
+        data__year=ano,
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
     logs_dietas_autorizadas_dict = list(
         set(
@@ -3798,7 +3816,7 @@ def validate_lancamento_alimentacoes_medicao_emebs(solicitacao, lista_erros):
             )
         )
         alimentacoes_vinculadas = vinculo.tipos_alimentacao.exclude(
-            nome="Lanche Emergencial"
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
         alimentacoes_vinculadas = list(
             set(alimentacoes_vinculadas.values_list("nome", flat=True))

@@ -68,7 +68,10 @@ class KitLancheViewSet(ModelViewSet):
                 queryset = queryset.filter(tipos_unidades=instituicao.tipo_unidade)
             elif user.tipo_usuario == "escola" and instituicao.eh_cemei:
                 queryset = queryset.filter(
-                    tipos_unidades__iniciais__in=["CEI DIRET", "EMEI"]
+                    tipos_unidades__iniciais__in=[
+                        constants.TIPO_UNIDADE_CEI_DIRET,
+                        constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                    ]
                 ).distinct()
         return queryset
 

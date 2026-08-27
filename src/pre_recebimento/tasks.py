@@ -8,7 +8,7 @@ from celery import shared_task
 from django.template.loader import render_to_string
 from workalendar.america import BrazilSaoPauloCity
 
-from src.dados_comuns.constants import TRADUCOES_FERIADOS
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TRADUCOES_FERIADOS
 from src.dados_comuns.services import PartesInteressadasService
 from src.dados_comuns.tasks import envia_email_em_massa_task
 from src.dados_comuns.utils import (
@@ -47,7 +47,7 @@ def _preparar_dataframe_cronogramas(dados):
 
     if "data_programada" in df.columns:
         df["data_programada"] = pd.to_datetime(
-            df["data_programada"], format="%d/%m/%Y", errors="coerce"
+            df["data_programada"], format=FORMATO_DATA_BRASILEIRO, errors="coerce"
         ).dt.normalize()
 
     indices_leve_leite = df.index[df["programa_leve_leite"]].tolist()

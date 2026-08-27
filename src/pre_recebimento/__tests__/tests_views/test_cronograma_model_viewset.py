@@ -158,10 +158,9 @@ def test_fornecedor_ciente_finaliza_cronograma_legado_em_alteracao_codae(
     assert list(cronograma.etapas.values_list("id", flat=True)) == list(
         solicitacao.etapas_novas.values_list("id", flat=True)
     )
-    assert (
-        list(cronograma.programacoes_de_recebimento.values_list("id", flat=True))
-        == list(solicitacao.programacoes_novas.values_list("id", flat=True))
-    )
+    assert list(
+        cronograma.programacoes_de_recebimento.values_list("id", flat=True)
+    ) == list(solicitacao.programacoes_novas.values_list("id", flat=True))
 
 
 def test_analise_dilog_aprova_migra_etapas_e_programacoes(
@@ -217,7 +216,9 @@ def test_dilog_cria_alteracao_e_aplica_no_cronograma(
 
     client, _ = client_autenticado_vinculo_dilog_cronograma
 
-    cronograma = cronograma_factory.create(status=Cronograma.workflow_class.ASSINADO_CODAE)
+    cronograma = cronograma_factory.create(
+        status=Cronograma.workflow_class.ASSINADO_CODAE
+    )
     etapa_antiga = etapas_do_cronograma_factory.create(cronograma=cronograma)
     cronograma.etapas.set([etapa_antiga])
 
@@ -257,9 +258,7 @@ def test_dilog_cria_alteracao_e_aplica_no_cronograma(
 
     assert response.status_code == status.HTTP_201_CREATED, response.data
 
-    solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
-        uuid=response.data["uuid"]
-    )
+    solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=response.data["uuid"])
     cronograma.refresh_from_db()
 
     assert (
@@ -267,7 +266,7 @@ def test_dilog_cria_alteracao_e_aplica_no_cronograma(
         == SolicitacaoAlteracaoCronograma.workflow_class.ALTERACAO_ENVIADA_FORNECEDOR
     )
     assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
-    assert cronograma.qtd_total_programada == 999.0
+    assert cronograma.qtd_total_programada == pytest.approx(999.0)
 
     assert list(cronograma.etapas.values_list("id", flat=True)) == list(
         solicitacao.etapas_novas.values_list("id", flat=True)

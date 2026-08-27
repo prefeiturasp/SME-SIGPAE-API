@@ -9,6 +9,7 @@ from src.cardapio.alteracao_tipo_alimentacao_cemei.models import (
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 
 
 def precisa_pertencer_a_um_tipo_de_alimentacao(
@@ -113,7 +114,7 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs, eh_cemei=False):
     """
     motivo = attrs["motivo"]
 
-    if motivo.nome != "Lanche Emergencial":
+    if motivo.nome != TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value:
         return
 
     escola, periodos_e_tipos, datas, modelo = _get_parametros_queryset(attrs, eh_cemei)

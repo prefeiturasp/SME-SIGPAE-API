@@ -13,6 +13,7 @@ from ....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioComVinculoSerializer,
     LogSolicitacoesUsuarioSerializer,
 )
+from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ....dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from ....dados_comuns.validators import objeto_nao_deve_ter_duplicidade
 from ....dieta_especial.protocolo_padrao.models import Alimento
@@ -360,7 +361,7 @@ class CadastroProdutosEditalSerializer(serializers.ModelSerializer):
     criado_em = serializers.SerializerMethodField()
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_nome(self, obj):
         return obj.nome
@@ -498,7 +499,9 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
     def get_log_mais_recente(self, obj):
         data = obj.log_mais_recente.criado_em if obj.log_mais_recente else obj.criado_em
         format_str = (
-            "%d/%m/%Y %H:%M" if data.date() == datetime.date.today() else "%d/%m/%Y"
+            "%d/%m/%Y %H:%M"
+            if data.date() == datetime.date.today()
+            else FORMATO_DATA_BRASILEIRO
         )
         return data.strftime(format_str)
 
@@ -538,7 +541,7 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
         ):
             if data.date() == datetime.date.today():
                 return datetime.datetime.strftime(data, "%d/%m/%Y %H:%M")
-            return datetime.datetime.strftime(data, "%d/%m/%Y")
+            return datetime.datetime.strftime(data, FORMATO_DATA_BRASILEIRO)
         return None
 
     def get_editais(self, obj):
@@ -1138,12 +1141,12 @@ class RelatorioProdutosSuspensosSerializer(serializers.ModelSerializer):
             "nome": produto_edital.edital.numero,
             "tipo": produto_edital.tipo_produto,
             "data_suspensao": produto_edital.datas_horas_vinculo.last().criado_em.strftime(
-                "%d/%m/%Y"
+                FORMATO_DATA_BRASILEIRO
             ),
         }
 
     def get_data_cadastro(self, obj):
-        return obj.homologacao.logs.first().criado_em.strftime("%d/%m/%Y")
+        return obj.homologacao.logs.first().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = Produto

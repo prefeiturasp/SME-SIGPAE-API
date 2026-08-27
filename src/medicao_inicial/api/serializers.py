@@ -10,6 +10,7 @@ from src.dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioComAnexosSerializer,
     LogSolicitacoesUsuarioSerializer,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
@@ -63,7 +64,7 @@ from ..utils import (
     calcular_total_pagamento,
 )
 
-FORMATO_DATA_BR = "%d/%m/%Y"
+FORMATO_DATA_BR = FORMATO_DATA_BRASILEIRO
 
 
 class TipoSobremesaDoceSerializer(serializers.ModelSerializer):

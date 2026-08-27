@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
+from src.dados_comuns.constants import MENSAGEM_PERMISSAO_NEGADA
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
@@ -81,6 +82,8 @@ from ...dados_comuns.constants import (
     DIRETOR_UE,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
 from ..recreio_nas_ferias.models import (
@@ -972,7 +975,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             cancelado=False,
         )
         lanches_emergenciais = escola.alteracaocardapio_set.filter(
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
             status="CODAE_AUTORIZADO",
             datas_intervalo__data__month=instance.mes,
             datas_intervalo__data__year=instance.ano,
@@ -1085,7 +1088,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             and escola_possui_alunos_regulares
             and not escola_p_fom
         ):
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
 
     def _update_instance_fields(self, instance, validated_data):
         if "dre_ciencia_correcao_data" in validated_data:
@@ -2054,7 +2057,7 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
                 {"cei_ou_emei": "Campo obrigatório para o grupo."}
             )
 
-        if cei_ou_emei == "CEI":
+        if cei_ou_emei == TIPOS_UNIDADE_ESCOLAR.CEI.value:
             self._validar_grupo_cei(attrs, False)
         else:
             self._validar_grupo_emei(attrs, False)

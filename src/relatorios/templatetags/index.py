@@ -16,6 +16,7 @@ from ...cardapio.suspensao_alimentacao.models import (
     SuspensaoAlimentacao,
 )
 from ...dados_comuns import constants
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...escola.models import Escola
@@ -114,7 +115,7 @@ def class_css(log):
     ]:
         classe_css = "active"
     elif log.status_evento_explicacao in [
-        "Escola cancelou",
+        constants.ESCOLA_CANCELOU_LABEL,
         "DRE cancelou",
         "Terceirizada cancelou homologação",
         "CODAE suspendeu o produto",
@@ -467,7 +468,7 @@ def inclusoes_canceladas(solicitacao):
 @register.filter
 def formatar_data_solicitacoes_alimentacao(data):
     try:
-        return data.strftime("%d/%m/%Y")
+        return data.strftime(FORMATO_DATA_BRASILEIRO)
     except Exception:
         return data
 
@@ -586,12 +587,12 @@ def get_nome_campo(campo):
         "frequencia": "Frequência",
         "solicitado": "Solicitado",
         "consumido": "Consumido",
-        "desjejum": "Desjejum",
-        "lanche": "Lanche",
-        "lanche_4h": "Lanche 4h",
+        "desjejum": constants.TIPOS_ALIMENTACAO.DESJEJUM.value,
+        "lanche": constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        "lanche_4h": constants.TIPOS_ALIMENTACAO.LANCHE_4H.value,
         "refeicao": "Refeição 1ª Oferta",
         "repeticao_refeicao": "Repetição de Refeição",
-        "lanche_emergencial": "Lanche Emergencial",
+        "lanche_emergencial": constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         "kit_lanche": "Kit Lanche",
         "total_refeicoes_pagamento": "Total de Refeições para Pagamento",
         "sobremesa": "Sobremesa 1ª Oferta",
@@ -634,9 +635,9 @@ def formatar_observacoes(observacoes, tipo_unidade=None):
     observacoes_tuple = [format_observacao(observacao) for observacao in observacoes]
 
     order_key = None
-    if tipo_unidade == "CEI":
+    if tipo_unidade == constants.TIPOS_UNIDADE_ESCOLAR.CEI.value:
         order_key = constants.ORDEM_PERIODOS_GRUPOS_CEI
-    elif tipo_unidade == "CEMEI":
+    elif tipo_unidade == constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value:
         order_key = constants.ORDEM_PERIODOS_GRUPOS_CEMEI
     else:
         order_key = constants.ORDEM_PERIODOS_GRUPOS

@@ -1,3 +1,8 @@
+from src.dados_comuns.constants import (
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
 )
@@ -37,10 +42,12 @@ class BaseSetupHistoricoDietas:
         self.classificacao_tipo_b = ClassificacaoDietaFactory.create(nome="Tipo B")
 
     def setup_escola_emef(self):
-        self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         self.escola_emef = EscolaFactory.create(
             nome="EMEF PERICLES",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_emef,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -73,10 +80,12 @@ class BaseSetupHistoricoDietas:
         FaixaEtariaFactory.create(inicio=48, fim=73)
 
     def setup_escola_cei(self):
-        self.tipo_unidade_cei = TipoUnidadeEscolarFactory.create(iniciais="CEI DIRET")
+        self.tipo_unidade_cei = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPO_UNIDADE_CEI_DIRET
+        )
         self.escola_cei = EscolaFactory.create(
             nome="CEI DIRET HAROLDO",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_cei,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -108,11 +117,11 @@ class BaseSetupHistoricoDietas:
 
     def setup_escola_ceu_gestao(self):
         self.tipo_unidade_ceu_gestao = TipoUnidadeEscolarFactory.create(
-            iniciais="CEU GESTAO"
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
         )
         self.escola_ceu_gestao = EscolaFactory.create(
             nome="CEU GESTAO 9 DE JULHO",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_ceu_gestao,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -129,10 +138,12 @@ class BaseSetupHistoricoDietas:
             )
 
     def setup_escola_emebs(self):
-        self.tipo_unidade_emebs = TipoUnidadeEscolarFactory.create(iniciais="EMEBS")
+        self.tipo_unidade_emebs = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+        )
         self.escola_emebs = EscolaFactory.create(
             nome="EMEBS HELEN KELLER",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_emebs,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -158,10 +169,12 @@ class BaseSetupHistoricoDietas:
                     )
 
     def setup_escola_cemei(self):
-        self.tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(iniciais="CEMEI")
+        self.tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+        )
         self.escola_cemei = EscolaFactory.create(
             nome="CEMEI ALZIRA",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_cemei,
             lote=self.lote,
             diretoria_regional=self.dre,
