@@ -12,6 +12,7 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
 from src.cardapio.base.models import TipoAlimentacao
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import (
     deve_pedir_com_antecedencia,
@@ -266,7 +267,7 @@ class AlteracaoCardapioSerializerCreate(AlteracaoCardapioSerializerCreateBase):
             )
         valida_datas_alteracao_cardapio(attrs)
         nao_pode_ser_no_passado(attrs["data_inicial"])
-        if attrs["motivo"].nome != "Lanche Emergencial":
+        if attrs["motivo"].nome != TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value:
             deve_pedir_com_antecedencia(attrs["data_inicial"])
         if attrs["motivo"].nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes(attrs)

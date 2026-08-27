@@ -5,6 +5,13 @@ import environ
 from django.template.loader import render_to_string
 
 from ..perfil.models import Usuario
+from .constants import (
+    EMAIL_ASSUNTO_STATUS_SOLICITACAO,
+    FORMATO_DATA_HORA_BRASILEIRO,
+    MODULO_DIETA_ESPECIAL,
+    MODULO_GESTAO_ALIMENTACAO,
+    STATUS_ENVIADO_PARA_ANALISE,
+)
 from .models import LogSolicitacoesUsuario, Notificacao
 from .tasks import envia_email_em_massa_task
 
@@ -15,7 +22,7 @@ base_url = f'{env("REACT_APP_URL")}'
 def _partes_interessadas_ue_cancela(obj):
     email_query_set_terceirizada = (
         obj.escola.lote.terceirizada.emails_terceirizadas.filter(
-            modulo__nome="Gestão de Alimentação"
+            modulo__nome=MODULO_GESTAO_ALIMENTACAO
         ).values_list("email", flat=True)
     )
     return list(email_query_set_terceirizada)
@@ -50,10 +57,10 @@ def _preenche_template_e_envia_email_ue_cancela_parcialmente(
 def enviar_email_ue_cancelar_pedido_parcialmente(obj):
     # envia email para partes interessadas
     id_externo = "#" + obj.id_externo
-    assunto = "[SIGPAE] Status de solicitação - " + id_externo
+    assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
     titulo = f"Solicitação de {obj.tipo} Parcialmente Cancelada"
     momento_cancelamento = datetime.datetime.now()
-    criado_em = momento_cancelamento.strftime("%d/%m/%Y - %H:%M")
+    criado_em = momento_cancelamento.strftime(FORMATO_DATA_HORA_BRASILEIRO)
     _preenche_template_e_envia_email_ue_cancela_parcialmente(
         obj,
         assunto,
@@ -67,7 +74,7 @@ def enviar_email_ue_cancelar_pedido_parcialmente(obj):
 def _partes_interessadas_codae_atualiza_protocolo(obj):
     email_query_set_terceirizada = (
         obj.aluno.escola.lote.terceirizada.emails_terceirizadas.filter(
-            modulo__nome="Dieta Especial"
+            modulo__nome=MODULO_DIETA_ESPECIAL
         ).values_list("email", flat=True)
     )
     email_contato_ecola = obj.aluno.escola.contato.email
@@ -100,7 +107,7 @@ def enviar_email_codae_atualiza_protocolo(obj):
     assunto = "Protocolo Padrão de Dieta Atualizado"
     titulo = "Protocolo Padrão de Dieta Atualizado"
     momento_atualização = datetime.datetime.now()
-    criado_em = momento_atualização.strftime("%d/%m/%Y - %H:%M")
+    criado_em = momento_atualização.strftime(FORMATO_DATA_HORA_BRASILEIRO)
     _preenche_template_e_envia_email_codae_atualiza_protocolo(
         obj,
         assunto,
@@ -201,16 +208,16 @@ class EmailENotificacaoService:
 class ServiceMapeamentoLogsLinhaDoTempo:
     STATUS_POR_TIPO_SOLICITACAO = {
         LogSolicitacoesUsuario.DOCUMENTO_DE_RECEBIMENTO: {
-            "Documento enviado para análise": "Enviado para Análise",
-            "Documento correção realizada": "Enviado para Análise",
+            "Documento enviado para análise": STATUS_ENVIADO_PARA_ANALISE,
+            "Documento correção realizada": STATUS_ENVIADO_PARA_ANALISE,
             "Documento enviado para correção": "Enviado para Correção",
             "Documento aprovado": "Aprovado",
         },
         LogSolicitacoesUsuario.LAYOUT_DE_EMBALAGEM: {
-            "Layout enviado para análise": "Enviado para Análise",
+            "Layout enviado para análise": STATUS_ENVIADO_PARA_ANALISE,
             "Layout solicitado correção": "Solicitado Correção",
-            "Layout correção realizada": "Enviado para Análise",
-            "Layout atualizado": "Enviado para Análise",
+            "Layout correção realizada": STATUS_ENVIADO_PARA_ANALISE,
+            "Layout atualizado": STATUS_ENVIADO_PARA_ANALISE,
             "Layout aprovado": "Aprovado",
         },
     }

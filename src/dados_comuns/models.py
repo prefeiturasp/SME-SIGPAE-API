@@ -5,6 +5,13 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 
+from .constants import (
+    CRIADO_EM,
+    ESCOLA_CANCELOU_LABEL,
+    MODEL_USUARIO,
+    MODULO_DIETA_ESPECIAL,
+)
+
 
 class LogSolicitacoesUsuario(
     ExportModelOperationsMixin("log_solicitacoes"), models.Model
@@ -156,7 +163,7 @@ class LogSolicitacoesUsuario(
         (DRE_PEDIU_REVISAO, "DRE pediu revisão"),
         (DRE_NAO_VALIDOU, "DRE não validou"),
         (ESCOLA_REVISOU, "Escola revisou"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
         (CODAE_NEGOU_CANCELAMENTO, "CODAE negou cancelamento"),
         (DRE_CANCELOU, "DRE cancelou"),
         (CODAE_QUESTIONOU, "Questionamento pela CODAE"),
@@ -372,7 +379,7 @@ class LogSolicitacoesUsuario(
         (INCLUSAO_ALIMENTACAO_CEI, "Inclusão de alimentação da CEI"),
         (SUSPENSAO_ALIMENTACAO_CEI, "Suspensão de alimentação da CEI"),
         (INCLUSAO_ALIMENTACAO_CONTINUA, "Inclusão de alimentação contínua"),
-        (DIETA_ESPECIAL, "Dieta Especial"),
+        (DIETA_ESPECIAL, MODULO_DIETA_ESPECIAL),
         (SOLICITACAO_KIT_LANCHE_UNIFICADA, "Solicitação de kit lanche unificada"),
         (HOMOLOGACAO_PRODUTO, "Homologação de Produto"),
         (RECLAMACAO_PRODUTO, "Reclamação de Produto"),
@@ -393,14 +400,14 @@ class LogSolicitacoesUsuario(
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     descricao = models.TextField("Descricao", blank=True)
     justificativa = models.TextField("Justificativa", blank=True)
     resposta_sim_nao = models.BooleanField("Resposta - Sim ou Não", default=False)
     status_evento = models.PositiveSmallIntegerField(choices=STATUS_POSSIVEIS)
     solicitacao_tipo = models.PositiveSmallIntegerField(choices=TIPOS_SOLICITACOES)
     uuid_original = models.UUIDField()
-    usuario = models.ForeignKey("perfil.Usuario", on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
 
     class Meta:
         ordering = ("-criado_em",)
@@ -489,7 +496,7 @@ class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
     todos_os_perfis = models.BooleanField(default=False)
     pergunta = models.TextField("Pergunta")
     resposta = models.TextField("Resposta")
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
@@ -619,10 +626,10 @@ class Notificacao(models.Model):
     resolvido = models.BooleanField("Foi resolvido?", default=False)
 
     usuario = models.ForeignKey(
-        "perfil.Usuario", on_delete=models.CASCADE, default="", null=True, blank=True
+        MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
     )
 
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
     link = models.CharField("Link", max_length=200, default="", blank=True)
 
@@ -772,9 +779,9 @@ class CentralDeDownload(models.Model):
     msg_erro = models.CharField("Mensagem erro", max_length=300, blank=True)
     visto = models.BooleanField("Foi visto?", default=False)
     usuario = models.ForeignKey(
-        "perfil.Usuario", on_delete=models.CASCADE, default="", null=True, blank=True
+        MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
     )
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
     class Meta:
         verbose_name = "Central de Download"
@@ -791,7 +798,7 @@ class CentralDeDownload(models.Model):
 
 class SolicitacaoAberta(models.Model):
     uuid_solicitacao = models.CharField(max_length=50)
-    usuario = models.ForeignKey("perfil.Usuario", on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
     datetime_ultimo_acesso = models.DateTimeField()
 
     def __str__(self):

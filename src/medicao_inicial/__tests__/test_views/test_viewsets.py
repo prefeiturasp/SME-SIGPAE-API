@@ -7,6 +7,7 @@ from rest_framework import status
 from src.dados_comuns.constants import (
     GRUPO_INFANTIL_INTEGRAL,
     GRUPO_INFANTIL_TARDE,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.escola.models import LogAlunosMatriculadosPeriodoEscola, TipoTurma
@@ -182,7 +183,7 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
         tipo_turma=TipoTurma.REGULAR.name,
         criado_em="2025-10-10",
         quantidade_alunos=10,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
 
     baker.make(
@@ -192,7 +193,7 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
         tipo_turma=TipoTurma.REGULAR.name,
         criado_em="2025-10-11",
         quantidade_alunos=8,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
 
     response = view.periodos_escola_cemei_com_alunos_emei(mock_request)
@@ -209,7 +210,7 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
         tipo_turma=TipoTurma.REGULAR.name,
         criado_em="2025-10-12",
         quantidade_alunos=10,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
 
     baker.make(
@@ -219,7 +220,7 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
         tipo_turma=TipoTurma.REGULAR.name,
         criado_em="2025-10-13",
         quantidade_alunos=0,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
 
     response = view.periodos_escola_cemei_com_alunos_emei(mock_request)
@@ -234,7 +235,7 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
         tipo_turma=TipoTurma.REGULAR.name,
         criado_em="2025-10-14",
         quantidade_alunos=15,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
 
     response = view.periodos_escola_cemei_com_alunos_emei(mock_request)

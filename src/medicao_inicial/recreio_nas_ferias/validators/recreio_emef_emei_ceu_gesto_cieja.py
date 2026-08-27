@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from django.db.models import QuerySet
 
-from src.dados_comuns.constants import GRUPO_RECREIO_NAS_FERIAS
+from src.dados_comuns.constants import GRUPO_RECREIO_NAS_FERIAS, TIPOS_ALIMENTACAO
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.models import Escola
 from src.medicao_inicial.models import (
@@ -434,11 +434,11 @@ def get_linhas_da_tabela_dieta_recreio(
             para lançamento das dietas.
     """
     nomes_campos = ["frequencia"]
-    if "Lanche" in alimentacoes:
+    if TIPOS_ALIMENTACAO.LANCHE.value in alimentacoes:
         nomes_campos.append("lanche")
-    if "Lanche 4h" in alimentacoes:
+    if TIPOS_ALIMENTACAO.LANCHE_4H.value in alimentacoes:
         nomes_campos.append("lanche_4h")
-    if "Refeição" in alimentacoes and "ENTERAL" in categoria.nome:
+    if TIPOS_ALIMENTACAO.REFEICAO.value in alimentacoes and "ENTERAL" in categoria.nome:
         nomes_campos.append("refeicao")
     return nomes_campos
 

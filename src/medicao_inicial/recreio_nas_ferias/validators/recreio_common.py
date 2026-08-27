@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.db.models import QuerySet
 from rest_framework.serializers import ValidationError
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,
@@ -259,9 +260,9 @@ def get_classificacoes_dietas_recreio(
     """
 
     dicionario_alimentacao_dietas = {
-        "Lanche": "lanche",
-        "Lanche 4h": "lanche_4h",
-        "Refeição": "refeicao",
+        TIPOS_ALIMENTACAO.LANCHE.value: "lanche",
+        TIPOS_ALIMENTACAO.LANCHE_4H.value: "lanche_4h",
+        TIPOS_ALIMENTACAO.REFEICAO.value: "refeicao",
     }
     alimentacoes = {
         dicionario_alimentacao_dietas[alimentacao]

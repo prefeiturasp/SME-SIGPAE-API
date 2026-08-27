@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from openpyxl import Workbook
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
@@ -53,7 +54,7 @@ class Command(BaseCommand):
                 por_eol[codigo_eol].append(s)
         return por_eol
 
-    def _formatar_data(self, obj, campo, formato="%d/%m/%Y"):
+    def _formatar_data(self, obj, campo, formato=FORMATO_DATA_BRASILEIRO):
         """Formata uma data do objeto ou retorna '-' se não existir."""
         valor = getattr(obj, campo, None)
         if valor and hasattr(valor, "strftime"):

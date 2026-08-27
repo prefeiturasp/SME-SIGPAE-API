@@ -9,6 +9,9 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_RECREIO_NAS_FERIAS,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _calcula_soma_medicao,
@@ -148,7 +151,7 @@ def test_sort_and_merge(faixas_etarias_ativas):
 
 
 def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
-    tipos_unidade = ["CEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     linhas = get_valores_tabela(
         [solicitacao_recreio_cei], mock_colunas_recreio_cei, tipos_unidade
     )
@@ -157,7 +160,7 @@ def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 25
     assert linhas[0] == [
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "765432",
         "CEI DIRET TESTE",
         168.0,
@@ -200,7 +203,7 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     )
     assert isinstance(recreio, list)
     assert len(recreio) == 4
-    assert recreio == ["CEI DIRET", "765432", "CEI DIRET TESTE", 168.0]
+    assert recreio == [TIPO_UNIDADE_CEI_DIRET, "765432", "CEI DIRET TESTE", 168.0]
 
     colaboradores = _processa_periodo_campo(
         solicitacao_recreio_cei,
@@ -210,7 +213,13 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     )
     assert isinstance(colaboradores, list)
     assert len(colaboradores) == 5
-    assert colaboradores == ["CEI DIRET", "765432", "CEI DIRET TESTE", 168.0, 280.0]
+    assert colaboradores == [
+        TIPO_UNIDADE_CEI_DIRET,
+        "765432",
+        "CEI DIRET TESTE",
+        168.0,
+        280.0,
+    ]
 
 
 def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas):
@@ -314,16 +323,28 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 0
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 0
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 0
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 1
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 1
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 1
+    )
     assert (
         sum(
             1
@@ -349,7 +370,7 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
 
     assert df.iloc[0].tolist() == [
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "765432",
         "CEI DIRET TESTE",
         168.0,

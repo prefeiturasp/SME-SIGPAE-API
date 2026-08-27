@@ -5,6 +5,8 @@ import pdfplumber
 from django.core.management.base import BaseCommand
 from openpyxl import load_workbook
 
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+
 
 class Command(BaseCommand):
     help = "Lê relatórios e cruza usuários com dados de diretores."
@@ -102,7 +104,7 @@ class Command(BaseCommand):
                     print("nao achou: ", row[index_cpf])
 
     def normaliza_unidade(self, unidade):
-        if unidade.startswith("CEI"):
+        if unidade.startswith(TIPOS_UNIDADE_ESCOLAR.CEI.value):
             unidade = unidade.replace("CEI ", "")
         elif unidade.startswith("Cei"):
             unidade = unidade.replace("Cei ", "")

@@ -4,6 +4,11 @@ from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http import QueryDict
 
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.escola.models import Escola
 from src.medicao_inicial.models import Medicao, ValorMedicao
 
@@ -48,15 +53,15 @@ def _obtem_medicoes(mes: str, ano: str, filtros: dict) -> QuerySet:
         )
         .exclude(
             solicitacao_medicao_inicial__escola__tipo_unidade__iniciais__in=[
-                "CEI",
-                "CEI DIRET",
+                TIPOS_UNIDADE_ESCOLAR.CEI.value,
+                TIPO_UNIDADE_CEI_DIRET,
                 "CEI INDIR",
-                "CEI CEU",
-                "CCI",
-                "CCI/CIPS",
-                "CEU CEI",
-                "CEU CEMEI",
-                "CEMEI",
+                TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+                TIPOS_UNIDADE_ESCOLAR.CCI.value,
+                TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+                TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+                TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+                TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             ]
         )
     )
@@ -571,7 +576,7 @@ def _parse_data(valor: str, campo: str) -> datetime:
         datetime:  objeto date convertido.
     """
     try:
-        return datetime.strptime(valor, "%d/%m/%Y").date()
+        return datetime.strptime(valor, FORMATO_DATA_BRASILEIRO).date()
     except ValueError:
         raise ValidationError(
             f"Formato de data inválido para '{campo}'. Use o formato dd/mm/yyyy"

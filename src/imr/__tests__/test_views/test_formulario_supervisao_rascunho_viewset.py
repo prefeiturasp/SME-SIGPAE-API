@@ -4,6 +4,7 @@ import uuid
 import pytest
 from rest_framework import status
 
+from src.dados_comuns.constants import MENSAGEM_PERMISSAO_NEGADA
 from src.imr.models import FormularioOcorrenciasBase, FormularioSupervisao
 
 pytestmark = pytest.mark.django_db
@@ -472,6 +473,4 @@ def test_delete_formulario_supervisao_403_object_permission(
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}

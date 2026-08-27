@@ -3,7 +3,10 @@ import datetime
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import GRUPO_RECREIO_NAS_FERIAS
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
+)
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips import (
     _categoria_tem_logs_dieta_autorizada_cei,
@@ -105,14 +108,23 @@ def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_cei):
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
     assert "Colaboradores" in resultado
-    colaboradores = ["Refeição", "Sobremesa"]
+    colaboradores = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
     for esperado in colaboradores:
         assert (
             esperado in resultado["Colaboradores"]
         ), f"Elemento {esperado} não encontrado"
 
     assert "Inscritos" in resultado
-    inscritos = ["Refeição", "Sobremesa", "Lanche", "Lanche 4h", "Almoço"]
+    inscritos = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.ALMOCO.value,
+    ]
     for esperado in inscritos:
         assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
 

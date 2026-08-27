@@ -1,5 +1,6 @@
 from collections import Counter
 
+from src.dados_comuns.constants import TIPOS_GESTAO
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
@@ -312,9 +313,9 @@ def totalizador_unidade_educacional(
         map_filtros["escola_destino_tipo_unidade_uuid__in"] = tipos_unidade
         map_filtros["classificacao_id__in"] = classificacoes
     queryset = filtro_geral_totalizadores(request, model, queryset, map_filtros)
-    nomes_escolas = Escola.objects.filter(tipo_gestao__nome="TERC TOTAL").values_list(
-        "uuid", "nome"
-    )
+    nomes_escolas = Escola.objects.filter(
+        tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value
+    ).values_list("uuid", "nome")
 
     for unidade_educacional_uuid in unidades_educacionais:
         if eh_relatorio_dietas_autorizadas:

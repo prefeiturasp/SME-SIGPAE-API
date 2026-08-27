@@ -6,6 +6,8 @@ from freezegun import freeze_time
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_PROGRAMAS_E_PROJETOS,
+    TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -26,12 +28,14 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         self.periodo_noite = periodo_escolar_factory.create(nome="NOITE")
 
     def _setup_tipos_alimentacao(self, tipo_alimentacao_factory):
-        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
         self.tipo_alimentacao_refeicao = tipo_alimentacao_factory.create(
-            nome="Refeição"
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
         )
         self.tipo_alimentacao_sobremesa = tipo_alimentacao_factory.create(
-            nome="Sobremesa"
+            nome=TIPOS_ALIMENTACAO.SOBREMESA.value
         )
 
     def _setup_classificacoes_dieta_especial(self, classificacao_dieta_factory):
@@ -75,7 +79,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_cmct = escola_factory.create(
             nome="CMCT VALDYR",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
         )
@@ -398,7 +402,10 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
                 GRUPO_PROGRAMAS_E_PROJETOS,
                 "TOTAL",
             ],
-            "body": [["Refeição", 100, 0, 100], ["Sobremesa", 0, 300, 300]],
+            "body": [
+                [TIPOS_ALIMENTACAO.REFEICAO.value, 100, 0, 100],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, 0, 300, 300],
+            ],
         }
         assert segunda_tabela_somatorio == {
             "header": ["NOITE", "TOTAL"],

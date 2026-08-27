@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.api.serializers import ContatoSerializer, EnderecoSerializer
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.mixins.serializer_context import EscolaNomeHistoricoSerializerMixin
 from ...paineis_consolidados import models
 from ...perfil.api.serializers import PerfilSimplesSerializer
@@ -631,7 +632,7 @@ class VinculoInstituicaoSerializer(serializers.ModelSerializer):
         instituicao_dict["eh_emebs"] = self.get_eh_emebs(obj)
         instituicao_dict["modulo_gestao"] = self.get_modulo_gestao(obj)
         instituicao_dict["acesso_desde"] = (
-            obj.instituicao.acesso_desde.strftime("%d/%m/%Y")
+            obj.instituicao.acesso_desde.strftime(FORMATO_DATA_BRASILEIRO)
             if obj.instituicao.acesso_desde
             else None
         )

@@ -7,6 +7,7 @@ from src.cardapio.suspensao_alimentacao.api.serializers_create import (
 from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
+from src.dados_comuns.constants import MODEL_USUARIO
 
 pytestmark = pytest.mark.django_db
 
@@ -17,7 +18,7 @@ def test_suspensao_alimentacao_serializer(suspensao_alimentacao_serializer):
 
 def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_params):
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     serializer_obj = GrupoSuspensaoAlimentacaoCreateSerializer(
         context={"request": FakeObject}
