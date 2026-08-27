@@ -2488,10 +2488,6 @@ def _busca_log_justificativa_cronograma(logs, autor_justificativa):
 
 
 def _pinta_tabela(campo, etapa_nova, etapa_antiga):
-    """
-    Réplica da lógica de pintaTabela do React.
-    Ajustar conforme a lógica real de paintCell/paintRow.
-    """
     valor_novo = getattr(etapa_nova, campo, None)
     valor_antigo = getattr(etapa_antiga, campo, None) if etapa_antiga else None
     return valor_novo != valor_antigo
