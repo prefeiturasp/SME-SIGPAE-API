@@ -5,7 +5,11 @@ import environ
 from django.template.loader import render_to_string
 
 from ..perfil.models import Usuario
-from .constants import EMAIL_ASSUNTO_STATUS_SOLICITACAO, FORMATO_DATA_HORA_BRASILEIRO
+from .constants import (
+    EMAIL_ASSUNTO_STATUS_SOLICITACAO,
+    FORMATO_DATA_HORA_BRASILEIRO,
+    MODULO_GESTAO_ALIMENTACAO,
+)
 from .models import LogSolicitacoesUsuario, Notificacao
 from .tasks import envia_email_em_massa_task
 
@@ -16,7 +20,7 @@ base_url = f'{env("REACT_APP_URL")}'
 def _partes_interessadas_ue_cancela(obj):
     email_query_set_terceirizada = (
         obj.escola.lote.terceirizada.emails_terceirizadas.filter(
-            modulo__nome="Gestão de Alimentação"
+            modulo__nome=MODULO_GESTAO_ALIMENTACAO
         ).values_list("email", flat=True)
     )
     return list(email_query_set_terceirizada)

@@ -35,6 +35,7 @@ from .constants import (
     MODEL_ESCOLA,
     MODEL_LOTE,
     MODEL_TERCEIRIZADA,
+    MODULO_GESTAO_ALIMENTACAO,
     MODULO_GESTAO_PRODUTO,
     RELATED_NAME_RASTRO_DRE,
     RELATED_NAME_RASTRO_ESCOLA,
@@ -2366,7 +2367,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     def _partes_interessadas_ue_cancela(self):
         email_query_set_terceirizada = (
             self.escola.lote.terceirizada.emails_terceirizadas.filter(
-                modulo__nome="Gestão de Alimentação"
+                modulo__nome=MODULO_GESTAO_ALIMENTACAO
             ).values_list("email", flat=True)
         )
         return list(email_query_set_terceirizada)
@@ -2386,7 +2387,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         email_escola_lista = [self.rastro_escola.contato.email]
         email_query_set_terceirizada = (
             self.rastro_escola.lote.terceirizada.emails_terceirizadas.filter(
-                modulo__nome="Gestão de Alimentação"
+                modulo__nome=MODULO_GESTAO_ALIMENTACAO
             ).values_list("email", flat=True)
         )
         return email_escola_lista + list(email_query_set_terceirizada)
@@ -2783,7 +2784,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         email_escola = [escola.contato.email]
         email_query_set_terceirizada = (
             escola.lote.terceirizada.emails_terceirizadas.filter(
-                modulo__nome="Gestão de Alimentação"
+                modulo__nome=MODULO_GESTAO_ALIMENTACAO
             ).values_list("email", flat=True)
         )
         return email_escola + list(email_query_set_terceirizada)
@@ -3009,7 +3010,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
     def partes_interessadas_informacao(self):
         email_query_set_terceirizada = (
             self.escola.lote.terceirizada.emails_terceirizadas.filter(
-                modulo__nome="Gestão de Alimentação"
+                modulo__nome=MODULO_GESTAO_ALIMENTACAO
             ).values_list("email", flat=True)
         )
         return list(email_query_set_terceirizada)

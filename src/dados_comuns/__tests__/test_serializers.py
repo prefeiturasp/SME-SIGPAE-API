@@ -6,6 +6,7 @@ from ..api.serializers import (
     PerguntaFrequenteCreateSerializer,
     PerguntaFrequenteSerializer,
 )
+from ..constants import MODULO_GESTAO_ALIMENTACAO
 from ..models import CategoriaPerguntaFrequente, PerguntaFrequente
 
 
@@ -29,9 +30,7 @@ def test_nao_permite_cadastrar_categoria_com_nome_equivalente(
         nome="Alimentação e Nutrição",
     )
 
-    serializer = CategoriaPerguntaFrequenteSerializer(
-        data={"nome": nome_informado}
-    )
+    serializer = CategoriaPerguntaFrequenteSerializer(data={"nome": nome_informado})
 
     assert serializer.is_valid() is False
     assert serializer.errors["nome"][0] == (
@@ -50,15 +49,11 @@ def test_permite_cadastrar_categoria_com_nome_novo():
     categoria = serializer.save()
 
     assert categoria.nome == "Gestão de Produtos"
-    assert CategoriaPerguntaFrequente.objects.filter(
-        nome="Gestão de Produtos"
-    ).exists()
+    assert CategoriaPerguntaFrequente.objects.filter(nome="Gestão de Produtos").exists()
 
 
 def test_nao_permite_cadastrar_categoria_com_nome_vazio():
-    serializer = CategoriaPerguntaFrequenteSerializer(
-        data={"nome": ""}
-    )
+    serializer = CategoriaPerguntaFrequenteSerializer(data={"nome": ""})
 
     assert serializer.is_valid() is False
     assert "nome" in serializer.errors
@@ -66,9 +61,7 @@ def test_nao_permite_cadastrar_categoria_com_nome_vazio():
 
 
 def test_nao_permite_cadastrar_categoria_com_nome_maior_que_100_caracteres():
-    serializer = CategoriaPerguntaFrequenteSerializer(
-        data={"nome": "A" * 101}
-    )
+    serializer = CategoriaPerguntaFrequenteSerializer(data={"nome": "A" * 101})
 
     assert serializer.is_valid() is False
     assert "nome" in serializer.errors
@@ -114,6 +107,7 @@ def test_nao_permite_atualizar_categoria_com_nome_de_outra_categoria():
         "com esse nome. Altere o nome informado e tente novamente."
     )
 
+
 @pytest.mark.django_db
 def test_nao_permite_associar_duvida_frequente_a_perfil_inativo():
     categoria = baker.make(
@@ -143,7 +137,7 @@ def test_nao_permite_associar_duvida_frequente_a_perfil_inativo():
 def test_serializa_categoria_perfis_e_opcao_todos_da_duvida_frequente():
     categoria = baker.make(
         CategoriaPerguntaFrequente,
-        nome="Gestão de Alimentação",
+        nome=MODULO_GESTAO_ALIMENTACAO,
         uuid="d84f29c4-6e6e-4d86-b9db-060f4e47458f",
     )
     perfil = baker.make(
