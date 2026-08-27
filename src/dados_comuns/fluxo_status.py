@@ -29,6 +29,10 @@ from .constants import (
     EM_ANALISE_LABEL,
     ERRO_SALVAR_LOG_TRANSICAO,
     ESCOLA_CANCELOU_LABEL,
+    MODEL_TERCEIRIZADA,
+    RELATED_NAME_RASTRO_DRE,
+    RELATED_NAME_RASTRO_LOTE,
+    RELATED_NAME_RASTRO_TERCEIRIZADA,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
 from .services import EmailENotificacaoService, PartesInteressadasService
@@ -1655,11 +1659,11 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
     DIAS_PARA_CANCELAR = 2
 
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -2223,7 +2227,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         "escola.DiretoriaRegional",
         on_delete=models.DO_NOTHING,
         null=True,
-        related_name="%(app_label)s_%(class)s_rastro_dre",
+        related_name=RELATED_NAME_RASTRO_DRE,
         blank=True,
         editable=False,
     )
@@ -2232,15 +2236,15 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -2658,7 +2662,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         "escola.DiretoriaRegional",
         on_delete=models.DO_NOTHING,
         null=True,
-        related_name="%(app_label)s_%(class)s_rastro_dre",
+        related_name=RELATED_NAME_RASTRO_DRE,
         blank=True,
         editable=False,
     )
@@ -2667,15 +2671,15 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -2959,7 +2963,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         "escola.DiretoriaRegional",
         on_delete=models.DO_NOTHING,
         null=True,
-        related_name="%(app_label)s_%(class)s_rastro_dre",
+        related_name=RELATED_NAME_RASTRO_DRE,
         blank=True,
         editable=False,
     )
@@ -2968,15 +2972,15 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -3127,7 +3131,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         "escola.DiretoriaRegional",
         on_delete=models.DO_NOTHING,
         null=True,
-        related_name="%(app_label)s_%(class)s_rastro_dre",
+        related_name=RELATED_NAME_RASTRO_DRE,
         blank=True,
         editable=False,
     )
@@ -3136,15 +3140,15 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -4065,15 +4069,15 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 

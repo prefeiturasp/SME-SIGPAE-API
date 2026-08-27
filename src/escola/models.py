@@ -53,6 +53,7 @@ from ..dados_comuns.constants import (
     DIRETOR_UE,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MODEL_TERCEIRIZADA,
     obter_dias_uteis_apos_hoje,
 )
 from ..dados_comuns.fluxo_status import (
@@ -1816,7 +1817,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         blank=True,
     )
     terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         related_name="lotes",
         null=True,

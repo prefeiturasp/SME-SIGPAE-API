@@ -19,6 +19,7 @@ from ..dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from ..dados_comuns.constants import MODEL_TERCEIRIZADA
 from ..dados_comuns.fluxo_status import (
     FluxoHomologacaoProduto,
     FluxoReclamacaoProduto,
@@ -1013,7 +1014,7 @@ class SolicitacaoCadastroProdutoDieta(
         null=True,
     )
     terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
@@ -1054,7 +1055,7 @@ class AnaliseSensorial(TemChaveExterna, TemIdentificadorExternoAmigavel, CriadoE
 
     # Terceirizada que irá responder a análise
     terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.CASCADE,
         related_name="analises_sensoriais",
         null=True,

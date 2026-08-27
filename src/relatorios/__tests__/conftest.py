@@ -19,6 +19,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MODEL_TERCEIRIZADA,
 )
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -593,14 +594,14 @@ def cronograma(
     )
 
     empresa = baker.make(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         nome_fantasia="Alimentos LTDA",
         cnpj="12345678000190",
         endereco="Rua das Flores, 123 - São Paulo/SP",
     )
 
     armazem = baker.make(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         nome_fantasia="Armazém Central",
         cnpj="98765432000110",
         endereco="Avenida Industrial, 456 - São Paulo/SP",

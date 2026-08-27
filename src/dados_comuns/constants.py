@@ -613,6 +613,10 @@ TRADUCOES_FERIADOS = {
 
 TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
 PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+MODEL_TERCEIRIZADA = "terceirizada.Terceirizada"
 DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
 FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
 EMAIL_ADMIN = "admin@admin.com"
+RELATED_NAME_RASTRO_TERCEIRIZADA = "%(app_label)s_%(class)s_rastro_terceirizada"
+RELATED_NAME_RASTRO_LOTE = "%(app_label)s_%(class)s_rastro_lote"
+RELATED_NAME_RASTRO_DRE = "%(app_label)s_%(class)s_rastro_dre"
