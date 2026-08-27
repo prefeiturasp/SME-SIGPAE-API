@@ -10,6 +10,7 @@ from .constants import (
     FORMATO_DATA_HORA_BRASILEIRO,
     MODULO_DIETA_ESPECIAL,
     MODULO_GESTAO_ALIMENTACAO,
+    STATUS_ENVIADO_PARA_ANALISE,
 )
 from .models import LogSolicitacoesUsuario, Notificacao
 from .tasks import envia_email_em_massa_task
@@ -207,16 +208,16 @@ class EmailENotificacaoService:
 class ServiceMapeamentoLogsLinhaDoTempo:
     STATUS_POR_TIPO_SOLICITACAO = {
         LogSolicitacoesUsuario.DOCUMENTO_DE_RECEBIMENTO: {
-            "Documento enviado para análise": "Enviado para Análise",
-            "Documento correção realizada": "Enviado para Análise",
+            "Documento enviado para análise": STATUS_ENVIADO_PARA_ANALISE,
+            "Documento correção realizada": STATUS_ENVIADO_PARA_ANALISE,
             "Documento enviado para correção": "Enviado para Correção",
             "Documento aprovado": "Aprovado",
         },
         LogSolicitacoesUsuario.LAYOUT_DE_EMBALAGEM: {
-            "Layout enviado para análise": "Enviado para Análise",
+            "Layout enviado para análise": STATUS_ENVIADO_PARA_ANALISE,
             "Layout solicitado correção": "Solicitado Correção",
-            "Layout correção realizada": "Enviado para Análise",
-            "Layout atualizado": "Enviado para Análise",
+            "Layout correção realizada": STATUS_ENVIADO_PARA_ANALISE,
+            "Layout atualizado": STATUS_ENVIADO_PARA_ANALISE,
             "Layout aprovado": "Aprovado",
         },
     }

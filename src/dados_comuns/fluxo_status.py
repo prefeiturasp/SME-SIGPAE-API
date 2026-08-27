@@ -44,6 +44,7 @@ from .constants import (
     RELATED_NAME_RASTRO_ESCOLA,
     RELATED_NAME_RASTRO_LOTE,
     RELATED_NAME_RASTRO_TERCEIRIZADA,
+    STATUS_ENVIADO_PARA_ANALISE,
     TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
     TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
 )
@@ -5455,7 +5456,7 @@ class LayoutDeEmbalagemWorkflow(xwf_models.Workflow):
 
     states = (
         (LAYOUT_CRIADO, "Layout Criado"),
-        (ENVIADO_PARA_ANALISE, "Enviado para Análise"),
+        (ENVIADO_PARA_ANALISE, STATUS_ENVIADO_PARA_ANALISE),
         (APROVADO, "Aprovado"),
         (SOLICITADO_CORRECAO, "Solicitado Correção"),
     )
@@ -5659,7 +5660,7 @@ class DocumentoDeRecebimentoWorkflow(xwf_models.Workflow):
 
     states = (
         (DOCUMENTO_CRIADO, "Documento Criado"),
-        (ENVIADO_PARA_ANALISE, "Enviado para Análise"),
+        (ENVIADO_PARA_ANALISE, STATUS_ENVIADO_PARA_ANALISE),
         (ENVIADO_PARA_CORRECAO, "Enviado para Correção"),
         (APROVADO, "Aprovado"),
     )
