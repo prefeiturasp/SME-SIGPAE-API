@@ -20,7 +20,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -260,7 +260,7 @@ class GrupoSuspensaoAlimentacao(
         """
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.suspensoes_alimentacao.order_by("data").values_list(
                     "data", flat=True
                 )
@@ -296,7 +296,7 @@ class GrupoSuspensaoAlimentacao(
         datas = list(
             self.suspensoes_alimentacao.order_by("data").values_list("data", flat=True)
         )
-        datas = [d.strftime("%d/%m/%Y") for d in datas]
+        datas = [d.strftime(FORMATO_DATA_BRASILEIRO) for d in datas]
         datas = " ".join(datas)
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",

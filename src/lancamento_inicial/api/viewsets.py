@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from ...escola.models import EscolaPeriodoEscolar
 from ..models import LancamentoDiario
@@ -109,7 +110,9 @@ class LancamentoDiarioViewSet(ModelViewSet):
 
     @action(detail=False, url_path="dados-dia-periodo", methods=["get"])
     def dados_dia_periodo(self, request):
-        data = datetime.strptime(self.request.GET["data"], "%d/%m/%Y").date()
+        data = datetime.strptime(
+            self.request.GET["data"], FORMATO_DATA_BRASILEIRO
+        ).date()
         escola_periodo_escolar = EscolaPeriodoEscolar.objects.get(
             uuid=self.request.GET["escola_periodo_escolar"]
         )

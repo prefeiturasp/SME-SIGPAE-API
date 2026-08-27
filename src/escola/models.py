@@ -51,6 +51,7 @@ from ..dados_comuns.constants import (
     COORDENADOR_DIETA_ESPECIAL,
     COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
     DIRETOR_UE,
+    FORMATO_DATA_BRASILEIRO,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MODEL_DIRETORIA_REGIONAL,
@@ -3190,7 +3191,7 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
         )
 
     def __str__(self) -> str:
-        return f"""Dia {self.data.strftime("%d/%m/%Y")}
+        return f"""Dia {self.data.strftime(FORMATO_DATA_BRASILEIRO)}
         {"é dia letivo" if self.dia_letivo else "não é dia letivo"} para escola {self.escola}"""
 
     class Meta:
@@ -3337,7 +3338,7 @@ class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         ).exists()
 
     def __str__(self):
-        return f'{self.data.strftime("%d/%m/%Y")} - {self.tipo_unidade.iniciais} - Edital {self.edital}'
+        return f"{self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.tipo_unidade.iniciais} - Edital {self.edital}"
 
     class Meta:
         verbose_name = "Dia de suspensão de atividades"
@@ -3411,7 +3412,7 @@ class HistoricoEscola(Nomeavel, TemChaveExterna, CriadoEm, TemAlteradoEm):
     data_final = models.DateField(null=True)
 
     def __str__(self) -> str:
-        return f"{self.escola.codigo_eol} - {self.escola.nome} -> era {self.nome} - até {self.data_final.strftime("%d/%m/%Y")}"
+        return f"{self.escola.codigo_eol} - {self.escola.nome} -> era {self.nome} - até {self.data_final.strftime(FORMATO_DATA_BRASILEIRO)}"
 
     @property
     def nome_escola_normalizado(self):

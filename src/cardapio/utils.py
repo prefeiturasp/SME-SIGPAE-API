@@ -1,5 +1,6 @@
 import datetime
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.escola.models import Escola
 
 
@@ -9,7 +10,7 @@ def converter_data(formato: str) -> str:
     """
     try:
         data_obj = datetime.datetime.strptime(formato, "%Y-%m-%d")
-        return data_obj.strftime("%d/%m/%Y")
+        return data_obj.strftime(FORMATO_DATA_BRASILEIRO)
     except ValueError:
         raise ValueError(f"Data inválida: {formato}. Esperado no formato YYYY-MM-DD.")
 

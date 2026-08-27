@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.http import QueryDict
 from model_bakery import baker
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.medicao_inicial.services.relatorio_adesao import (
     _parse_data,
     _valida_ano_mes,
@@ -622,7 +623,7 @@ def test_validar_mes_ano_data():
     mes = "03"
     ano = "2024"
     data = f"01/{mes}/{ano}"
-    periodo_lancamento_de = datetime.strptime(data, "%d/%m/%Y").date()
+    periodo_lancamento_de = datetime.strptime(data, FORMATO_DATA_BRASILEIRO).date()
     assert (
         _validar_mes_ano_data(
             periodo_lancamento_de, int(mes), int(ano), "periodo_lancamento_de"
@@ -635,7 +636,7 @@ def test_validar_mes_ano_data_incorreto():
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/05/{ano}"
-    data = datetime.strptime(periodo_lancamento_de, "%d/%m/%Y").date()
+    data = datetime.strptime(periodo_lancamento_de, FORMATO_DATA_BRASILEIRO).date()
     with pytest.raises(
         ValidationError,
         match="[\"O mês/ano de 'periodo_lancamento_de' (05/2024) não coincide com 'mes_ano' (03_2024).\"]",

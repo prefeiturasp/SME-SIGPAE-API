@@ -2,7 +2,10 @@ import datetime
 
 from rest_framework import serializers
 
-from src.dados_comuns.constants import FORMATO_DATA_HORA_BRASILEIRO
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    FORMATO_DATA_HORA_BRASILEIRO,
+)
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from src.pre_recebimento.layout_embalagem.models import (
     ImagemDoTipoDeEmbalagem,
@@ -180,10 +183,10 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
                 )
 
             return datetime.datetime.strftime(
-                obj.log_mais_recente.criado_em, "%d/%m/%Y"
+                obj.log_mais_recente.criado_em, FORMATO_DATA_BRASILEIRO
             )
 
-        return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+        return datetime.datetime.strftime(obj.criado_em, FORMATO_DATA_BRASILEIRO)
 
     def get_programa_leve_leite(self, obj):
         try:

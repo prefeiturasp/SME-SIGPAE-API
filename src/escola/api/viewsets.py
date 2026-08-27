@@ -25,7 +25,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 
-from src.dados_comuns.constants import TEMPO_CACHE_6H
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TEMPO_CACHE_6H
 from src.medicao_inicial.tasks import (
     exporta_relatorio_controle_frequencia_para_pdf,
 )
@@ -1272,7 +1272,7 @@ class DiaSuspensaoAtividadesViewSet(ViewSetActionPermissionMixin, ModelViewSet):
 
         resultado = [
             {
-                "data": d["data"].strftime("%d/%m/%Y"),
+                "data": d["data"].strftime(FORMATO_DATA_BRASILEIRO),
                 "editais": d["editais"],
             }
             for d in dias

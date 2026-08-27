@@ -19,7 +19,11 @@ from ..dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
-from ..dados_comuns.constants import MODEL_ESCOLA, MODEL_TERCEIRIZADA
+from ..dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MODEL_ESCOLA,
+    MODEL_TERCEIRIZADA,
+)
 from ..dados_comuns.fluxo_status import (
     FluxoHomologacaoProduto,
     FluxoReclamacaoProduto,
@@ -326,7 +330,7 @@ class DataHoraVinculoProdutoEdital(TemChaveExterna, CriadoEm):
     def __str__(self):
         return (
             f"{self.produto_edital.produto.nome} - {self.produto_edital.edital.numero} - "
-            f'{"Suspenso" if self.suspenso else "Ativo"} - {self.criado_em.strftime("%d/%m/%Y")}'
+            f'{"Suspenso" if self.suspenso else "Ativo"} - {self.criado_em.strftime(FORMATO_DATA_BRASILEIRO)}'
         )
 
     class Meta:

@@ -25,6 +25,7 @@ from ..dados_comuns.behaviors import (
     TemSemana,
 )
 from ..dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
     GRUPO_INFANTIL_INTEGRAL,
     GRUPO_INFANTIL_MANHA,
     GRUPO_INFANTIL_TARDE,
@@ -76,7 +77,7 @@ class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         return None
 
     def __str__(self):
-        return f'{self.data.strftime("%d/%m/%Y")} - {self.tipo_unidade.iniciais} - Edital {self.edital}'
+        return f"{self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.tipo_unidade.iniciais} - Edital {self.edital}"
 
     class Meta:
         verbose_name = "Dia de sobremesa doce"

@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http import QueryDict
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.escola.models import Escola
 from src.medicao_inicial.models import Medicao, ValorMedicao
 
@@ -571,7 +572,7 @@ def _parse_data(valor: str, campo: str) -> datetime:
         datetime:  objeto date convertido.
     """
     try:
-        return datetime.strptime(valor, "%d/%m/%Y").date()
+        return datetime.strptime(valor, FORMATO_DATA_BRASILEIRO).date()
     except ValueError:
         raise ValidationError(
             f"Formato de data inválido para '{campo}'. Use o formato dd/mm/yyyy"

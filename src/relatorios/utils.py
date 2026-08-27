@@ -11,6 +11,7 @@ from pikepdf import Pdf
 from pypdf import PdfReader, PdfWriter
 from weasyprint import CSS, HTML
 
+from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ..dados_comuns.models import LogSolicitacoesUsuario
 
 
@@ -251,7 +252,9 @@ def get_config_cabecario_relatorio_analise(  # noqa C901
         if "data_analise_inicial" in filtros:
             config["cabecario_tipo"] = tipos_cabecario[0]
             config["data_analise_inicial"] = filtros.get("data_analise_inicial")
-            config["data_analise_final"] = date.today().strftime("%d/%m/%Y")
+            config["data_analise_final"] = date.today().strftime(
+                FORMATO_DATA_BRASILEIRO
+            )
 
         if "data_analise_final" in filtros:
             config["cabecario_tipo"] = tipos_cabecario[0]
@@ -293,7 +296,7 @@ def formata_motivos_inclusao(motivos_inclusao):
         datas = []
         for motivo_inclusao in motivos_inclusao:
             if motivo_inclusao.motivo.nome == motivo:
-                datas.append(motivo_inclusao.data.strftime("%d/%m/%Y"))
+                datas.append(motivo_inclusao.data.strftime(FORMATO_DATA_BRASILEIRO))
         motivos_formatados.append(
             {
                 "nome": motivo,
@@ -425,9 +428,7 @@ def imagem_para_pdf(imagem_bytes: bytes, nome_arquivo: str = "imagem.pdf") -> by
     img_base64 = base64.b64encode(imagem_bytes).decode("utf-8")
     data_uri = f"data:{mime_type};base64,{img_base64}"
 
-    css_string = (
-        f"@page {{ size: {largura}px {altura}px; margin: 0; }}"
-    )
+    css_string = f"@page {{ size: {largura}px {altura}px; margin: 0; }}"
     stylesheets = [CSS(string=css_string)]
 
     html_string = (
@@ -436,9 +437,9 @@ def imagem_para_pdf(imagem_bytes: bytes, nome_arquivo: str = "imagem.pdf") -> by
         "</body></html>"
     )
 
-    return HTML(
-        string=html_string, base_url=staticfiles_storage.location
-    ).write_pdf(stylesheets=stylesheets)
+    return HTML(string=html_string, base_url=staticfiles_storage.location).write_pdf(
+        stylesheets=stylesheets
+    )
 
 
 class PDFMergeService:

@@ -21,6 +21,7 @@ from unidecode import unidecode
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
+    FORMATO_DATA_BRASILEIRO,
     GRUPO_INFANTIL_INTEGRAL,
     GRUPO_INFANTIL_MANHA,
     GRUPO_INFANTIL_TARDE,
@@ -6238,7 +6239,9 @@ def get_data_relatorio(query_params):
         ano, mes, dia = query_params.get("data_inicial").split("-")
         data_relatorio = f"{dia}/{mes}/{ano}"
     else:
-        data_relatorio = datetime.datetime.now().date().strftime("%d/%m/%Y")
+        data_relatorio = (
+            datetime.datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO)
+        )
     return data_relatorio
 
 

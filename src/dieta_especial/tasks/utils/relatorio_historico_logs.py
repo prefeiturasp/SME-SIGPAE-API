@@ -6,6 +6,7 @@ import numpy as np
 from django.http import QueryDict
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.escola.models import DiretoriaRegional, PeriodoEscolar
 from src.escola.utils import faixa_to_string
 from src.relatorios.utils import html_to_pdf_file
@@ -62,7 +63,7 @@ def formata_logs_para_titulo(logs_dietas: list[dict]) -> list[dict]:
             "periodo": log["nome_periodo_escolar"],
             "faixa_etaria": get_faixa_etaria(log),
             "dietas_autorizadas": log["quantidade_total"],
-            "data_de_referencia": log["data"].strftime("%d/%m/%Y"),
+            "data_de_referencia": log["data"].strftime(FORMATO_DATA_BRASILEIRO),
         }
         for log in logs_dietas
     ]
@@ -128,7 +129,7 @@ def build_titulo(
         titulo += f" | {bold('Períodos:')} {nomes_periodos}"
 
     total_dietas = sum(log["dietas_autorizadas"] for log in logs_dietas_formatados)
-    data_extraido = datetime.date.today().strftime("%d/%m/%Y")
+    data_extraido = datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO)
 
     titulo += f": {bold(total_dietas)}"
     titulo += f" | Data de extração do relatório: {bold(data_extraido)}"
@@ -166,7 +167,7 @@ def build_xlsx_relatorio_historico_dietas(
                 "periodo": log["nome_periodo_escolar"],
                 "faixa_etaria": get_faixa_etaria(log),
                 "dietas_autorizadas": log["quantidade_total"],
-                "data_de_referencia": log["data"].strftime("%d/%m/%Y"),
+                "data_de_referencia": log["data"].strftime(FORMATO_DATA_BRASILEIRO),
             }
             for log in logs_dietas
         ]

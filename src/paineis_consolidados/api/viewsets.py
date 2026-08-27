@@ -10,6 +10,7 @@ from rest_framework.status import HTTP_200_OK
 
 from ...dados_comuns.constants import (
     FILTRO_PADRAO_PEDIDOS,
+    FORMATO_DATA_BRASILEIRO,
     MODULO_DIETA_ESPECIAL,
     SEM_FILTRO,
 )
@@ -617,7 +618,7 @@ class NutrisupervisaoSolicitacoesViewSet(SolicitacoesViewSet):
 
         dia = request.query_params.get("dia")
         if dia:
-            data = datetime.datetime.strptime(dia, "%d/%m/%Y").date()
+            data = datetime.datetime.strptime(dia, FORMATO_DATA_BRASILEIRO).date()
             queryset = queryset.filter(criado_em__date=data)
         else:
             anos = request.query_params.get("anos")

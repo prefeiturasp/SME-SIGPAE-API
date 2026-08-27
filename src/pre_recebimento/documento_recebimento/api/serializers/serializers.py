@@ -21,6 +21,7 @@ from src.recebimento.models import DocumentoFichaDeRecebimento
 from .....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSimplesSerializer,
 )
+from .....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 
 
 def calcular_saldo_laudo(documento_recebimento):
@@ -72,7 +73,7 @@ class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
         try:
             return ", ".join(
                 [
-                    d.strftime("%d/%m/%Y")
+                    d.strftime(FORMATO_DATA_BRASILEIRO)
                     for d in obj.datas_fabricacao_e_prazos.values_list(
                         "data_fabricacao", flat=True
                     )
@@ -86,7 +87,7 @@ class DocRecebimentoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
         try:
             return ", ".join(
                 [
-                    d.strftime("%d/%m/%Y")
+                    d.strftime(FORMATO_DATA_BRASILEIRO)
                     for d in obj.datas_fabricacao_e_prazos.values_list(
                         "data_validade", flat=True
                     )
@@ -147,7 +148,7 @@ class DocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
             None
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_programa_leve_leite(self, obj):
         try:
@@ -196,10 +197,10 @@ class PainelDocumentoDeRecebimentoSerializer(serializers.ModelSerializer):
                     obj.log_mais_recente.criado_em, "%d/%m/%Y %H:%M"
                 )
             return datetime.datetime.strftime(
-                obj.log_mais_recente.criado_em, "%d/%m/%Y"
+                obj.log_mais_recente.criado_em, FORMATO_DATA_BRASILEIRO
             )
         else:
-            return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+            return datetime.datetime.strftime(obj.criado_em, FORMATO_DATA_BRASILEIRO)
 
     def get_programa_leve_leite(self, obj):
         try:
@@ -261,7 +262,7 @@ class DocRecebimentoDetalharSerializer(serializers.ModelSerializer):
             return None
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_programa_leve_leite(self, obj):
         try:

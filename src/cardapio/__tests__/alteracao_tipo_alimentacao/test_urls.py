@@ -13,6 +13,7 @@ from src.cardapio.__tests__.utils import (
 from src.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from src.dados_comuns import constants
 from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
     PEDIDOS_CODAE,
     PEDIDOS_DRE,
     SEM_FILTRO,
@@ -107,7 +108,7 @@ def test_url_endpoint_alt_card_criar_update(
 
     dia_alteracao_formatada = datetime.datetime.strptime(
         alteracao_substituicoes_params["alterar_dia"], "%Y-%m-%d"
-    ).strftime("%d/%m/%Y")
+    ).strftime(FORMATO_DATA_BRASILEIRO)
     assert resp_json["data_inicial"] == dia_alteracao_formatada
     assert resp_json["data_final"] == dia_alteracao_formatada
 
@@ -1046,7 +1047,9 @@ def _payload_rpl(
     tipo_alimentacao_lanche,
     data_iso="2023-11-18",
 ):
-    data_br = datetime.datetime.strptime(data_iso, "%Y-%m-%d").strftime("%d/%m/%Y")
+    data_br = datetime.datetime.strptime(data_iso, "%Y-%m-%d").strftime(
+        FORMATO_DATA_BRASILEIRO
+    )
     return {
         "motivo": str(motivo_rpl.uuid),
         "data_inicial": data_br,

@@ -23,7 +23,7 @@ from ..dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from ..dados_comuns.constants import MODEL_ESCOLA
+from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..escola.constants import (
@@ -401,7 +401,7 @@ class GrupoInclusaoAlimentacaoNormal(
     def datas(self):
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.inclusoes_normais.order_by("data").values_list(
                     "data", flat=True
                 )
@@ -639,7 +639,7 @@ class InclusaoAlimentacaoDaCEI(
     def datas(self):
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.dias_motivos_da_inclusao_cei.order_by(
                     "data"
                 ).values_list("data", flat=True)
@@ -923,7 +923,7 @@ class InclusaoDeAlimentacaoCEMEI(
     def datas(self):
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.dias_motivos_da_inclusao_cemei.order_by(
                     "data"
                 ).values_list("data", flat=True)

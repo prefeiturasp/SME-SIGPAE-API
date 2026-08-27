@@ -6,6 +6,7 @@ from django.utils import timezone
 from faker import Faker
 from model_bakery import baker
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import CronogramaAlteracaoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
@@ -307,7 +308,7 @@ def test_data_de_fabricacao_e_prazo_srt_model_com_data(
     obj = data_de_fabricao_e_prazo_factory.create()
     expected = (
         f"{obj.documento_recebimento.cronograma.numero} - "
-        f'{obj.data_fabricacao.strftime("%d/%m/%Y")}'
+        f"{obj.data_fabricacao.strftime(FORMATO_DATA_BRASILEIRO)}"
     )
     assert obj.__str__() == expected
 

@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from rest_framework import status
 
 from ...dados_comuns import constants
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Terceirizada
 from ..protocolo_padrao.constants import ENDPOINT_ALIMENTOS
@@ -157,8 +158,10 @@ def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
         "codigo_eol_escola": dieta_aprovada.rastro_escola.codigo_eol,
         "nome_escola": dieta_aprovada.rastro_escola.nome,
         "observacoes_alteracao": "<p>teste11</p>",
-        "data_inicio": date.today().strftime("%d/%m/%Y"),
-        "data_termino": (date.today() + timedelta(days=10)).strftime("%d/%m/%Y"),
+        "data_inicio": date.today().strftime(FORMATO_DATA_BRASILEIRO),
+        "data_termino": (date.today() + timedelta(days=10)).strftime(
+            FORMATO_DATA_BRASILEIRO
+        ),
         "dieta_alterada": dieta_aprovada.dieta_alterada.uuid,
         "escola_destino": dieta_aprovada.escola_destino.codigo_eol,
     }

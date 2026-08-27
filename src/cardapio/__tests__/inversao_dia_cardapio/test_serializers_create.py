@@ -8,7 +8,7 @@ from src.cardapio.inversao_dia_cardapio.api.serializers_create import (
     InversaoCardapioSerializerCreate,
 )
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
 
 pytestmark = pytest.mark.django_db
 
@@ -94,6 +94,7 @@ def test_inversao_serializer_falha_em_final_de_semana_nao_letivo(tipo_alimentaca
     from rest_framework.exceptions import ValidationError
 
     with pytest.raises(
-        ValidationError, match=f'Dia {data_de.strftime("%d/%m/%Y")} não é um dia letivo'
+        ValidationError,
+        match=f"Dia {data_de.strftime(FORMATO_DATA_BRASILEIRO)} não é um dia letivo",
     ):
         serializer_obj.validate(attrs=attrs)

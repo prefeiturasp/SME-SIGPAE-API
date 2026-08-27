@@ -16,6 +16,7 @@ from ...cardapio.suspensao_alimentacao.models import (
     SuspensaoAlimentacao,
 )
 from ...dados_comuns import constants
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...escola.models import Escola
@@ -467,7 +468,7 @@ def inclusoes_canceladas(solicitacao):
 @register.filter
 def formatar_data_solicitacoes_alimentacao(data):
     try:
-        return data.strftime("%d/%m/%Y")
+        return data.strftime(FORMATO_DATA_BRASILEIRO)
     except Exception:
         return data
 

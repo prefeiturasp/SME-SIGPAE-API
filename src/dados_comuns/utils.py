@@ -40,7 +40,12 @@ from src.dados_comuns.docs import (
     DOCS_FLUXO_PARTINDO_ESCOLA_GESTAO_ALIMENTACAO_DJANGO_WORKFLOW,
 )
 
-from .constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, DOMINIOS_DEV
+from .constants import (
+    DAQUI_A_SETE_DIAS,
+    DAQUI_A_TRINTA_DIAS,
+    DOMINIOS_DEV,
+    FORMATO_DATA_BRASILEIRO,
+)
 from .models import CentralDeDownload, LogSolicitacoesUsuario, Notificacao
 
 calendar = BrazilSaoPauloCity()
@@ -202,7 +207,7 @@ def parse_date(value: str) -> datetime.date:
         ValidationError: Se a string não estiver no formato esperado.
     """
     try:
-        return datetime.datetime.strptime(value, "%d/%m/%Y").date()
+        return datetime.datetime.strptime(value, FORMATO_DATA_BRASILEIRO).date()
     except ValueError:
         raise ValidationError(f"Formato de data inválido: {value}. Use DD/MM/YYYY")
 

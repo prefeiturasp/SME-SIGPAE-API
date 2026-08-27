@@ -14,6 +14,7 @@ from ...inclusao_alimentacao.models import (
     InclusaoAlimentacaoDaCEI,
     InclusaoDeAlimentacaoCEMEI,
 )
+from ..constants import FORMATO_DATA_BRASILEIRO
 from ..validators import (
     campo_deve_ser_deste_tipo,
     campo_nao_pode_ser_nulo,
@@ -145,7 +146,8 @@ def test_deve_ser_dia_letivo_e_dia_da_semana_sabado_nao_letivo_falha(escola):
     data = datetime.date(2025, 1, 4)
     baker.make("escola.DiaCalendario", escola=escola, data=data, dia_letivo=False)
     with pytest.raises(
-        ValidationError, match=f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+        ValidationError,
+        match=f"Dia {data.strftime(FORMATO_DATA_BRASILEIRO)} não é um dia letivo",
     ):
         deve_ser_dia_letivo_e_dia_da_semana(escola, data)
 
@@ -155,7 +157,8 @@ def test_deve_ser_dia_letivo_e_dia_da_semana_sabado_sem_registro_falha(escola):
     data = datetime.date(2025, 1, 11)
     # Sem registro no DiaCalendario
     with pytest.raises(
-        ValidationError, match=f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+        ValidationError,
+        match=f"Dia {data.strftime(FORMATO_DATA_BRASILEIRO)} não é um dia letivo",
     ):
         deve_ser_dia_letivo_e_dia_da_semana(escola, data)
 
@@ -172,7 +175,8 @@ def test_deve_ser_dia_letivo_e_dia_da_semana_feriado_sem_registro_falha(escola):
     data = datetime.date(2025, 1, 1)
     # Sem registro no DiaCalendario
     with pytest.raises(
-        ValidationError, match=f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+        ValidationError,
+        match=f"Dia {data.strftime(FORMATO_DATA_BRASILEIRO)} não é um dia letivo",
     ):
         deve_ser_dia_letivo_e_dia_da_semana(escola, data)
 

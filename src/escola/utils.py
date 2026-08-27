@@ -11,6 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from src.eol_servico.utils import EOLServicoSGP
 
+from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ..dados_comuns.utils import get_ultimo_dia_mes
 from ..escola import models
 
@@ -497,7 +498,9 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
     data_final = query_params.get("data_final")
     alunos_com_dietas_autorizadas = []
     for dieta in dietas_autorizadas:
-        datetime_autorizacao = datetime.strptime(dieta.data_autorizacao, "%d/%m/%Y")
+        datetime_autorizacao = datetime.strptime(
+            dieta.data_autorizacao, FORMATO_DATA_BRASILEIRO
+        )
         if data_inicial and data_final:
             if (
                 datetime_autorizacao >= datetime.strptime(data_inicial, "%Y-%m-%d")
@@ -519,11 +522,12 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
             )
             if (
                 datetime_autorizacao
-                >= datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
+                >= datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
                 and datetime_autorizacao
-                <= datetime.strptime(f"{num_dias}/{mes}/{ano}", "%d/%m/%Y")
+                <= datetime.strptime(f"{num_dias}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
             ) or (
-                datetime_autorizacao < datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
+                datetime_autorizacao
+                < datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
             ):
                 alunos_com_dietas_autorizadas.append(
                     {

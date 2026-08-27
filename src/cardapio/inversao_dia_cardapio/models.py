@@ -18,12 +18,12 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
 
-FORMATO_DATA_BR = "%d/%m/%Y"
+FORMATO_DATA_BR = FORMATO_DATA_BRASILEIRO
 
 
 class InversaoCardapio(

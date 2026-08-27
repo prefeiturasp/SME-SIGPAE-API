@@ -16,7 +16,7 @@ from ..cardapio.alteracao_tipo_alimentacao_cei.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
 )
 from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
-from .constants import obter_dias_uteis_apos_hoje
+from .constants import FORMATO_DATA_BRASILEIRO, obter_dias_uteis_apos_hoje
 from .utils import datetime_range, eh_dia_util, eh_fim_de_semana
 
 calendario = BrazilSaoPauloCity()
@@ -565,7 +565,7 @@ def deve_ser_dia_letivo_e_dia_da_semana(escola, data: datetime.date):
         ).exists()
         if not dia_letivo and not escola.esta_em_dia_letivo_sigpae(data):
             raise serializers.ValidationError(
-                f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+                f"Dia {data.strftime(FORMATO_DATA_BRASILEIRO)} não é um dia letivo"
             )
     return True
 

@@ -13,6 +13,7 @@ from faker import Faker
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.paineis_consolidados.api import constants
 from src.paineis_consolidados.api.serializers import SolicitacoesExportXLSXSerializer
@@ -510,7 +511,7 @@ def test_build_pdf():
     texto = extrair_texto_de_pdf(pdf_cancelados).lower()
     assert "Total de Solicitações Cancelados: 0".lower() in texto
     assert "SIGPAE - RELATÓRIO DE solicitações de alimentação".lower() in texto
-    assert datetime.now().strftime("%d/%m/%Y") in texto
+    assert datetime.now().strftime(FORMATO_DATA_BRASILEIRO) in texto
     assert texto.count("cancelados") == 2
 
     pdf_autorizados = build_pdf([], "AUTORIZADOS")
@@ -519,7 +520,7 @@ def test_build_pdf():
     texto = extrair_texto_de_pdf(pdf_autorizados).lower()
     assert "Total de Solicitações autorizados: 0".lower() in texto
     assert "SIGPAE - RELATÓRIO DE solicitações de alimentação".lower() in texto
-    assert datetime.now().strftime("%d/%m/%Y") in texto
+    assert datetime.now().strftime(FORMATO_DATA_BRASILEIRO) in texto
     assert texto.count("autorizados") == 2
 
 

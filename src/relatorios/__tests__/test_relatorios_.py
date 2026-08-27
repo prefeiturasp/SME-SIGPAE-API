@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from freezegun import freeze_time
 from model_bakery import baker
 
-from src.dados_comuns.constants import GRUPO_INFANTIL_INTEGRAL
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, GRUPO_INFANTIL_INTEGRAL
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -83,7 +83,7 @@ def test_relatorio_suspensao_de_alimentacao(grupo_suspensao_alimentacao):
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.data.strftime(FORMATO_DATA_BRASILEIRO) in texto
         assert sustentacao_alimentacao.motivo.nome in texto
         assert sustentacao_alimentacao.cancelado_justificativa == ""
 
@@ -115,7 +115,7 @@ def test_relatorio_suspensao_de_alimentacao_parcialmente_cancelado(
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao_cancelamento_parcial.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.data.strftime(FORMATO_DATA_BRASILEIRO) in texto
         assert sustentacao_alimentacao.motivo.nome in texto
         if sustentacao_alimentacao.cancelado:
             assert sustentacao_alimentacao.cancelado_justificativa in texto
@@ -150,7 +150,7 @@ def test_relatorio_suspensao_de_alimentacao_totalmente_cancelado(
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao_cancelamento_total.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.data.strftime(FORMATO_DATA_BRASILEIRO) in texto
         assert sustentacao_alimentacao.motivo.nome in texto
         assert sustentacao_alimentacao.cancelado_justificativa in texto
         assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2
@@ -337,7 +337,7 @@ def test_obter_justificativa_dieta_cancelada(
     justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_cancelada)
     assert (
         justificativa
-        == f'Dieta cancelada em: {log_recente.criado_em.strftime("%d/%m/%Y")} | Justificativa: Escola cancelou'
+        == f"Dieta cancelada em: {log_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)} | Justificativa: Escola cancelou"
     )
 
 
@@ -676,7 +676,10 @@ def test_relatorio_ficha_recebimento(
         in texto
     )
     assert ficha_recebimento_com_ocorrencia.observacao in texto
-    assert ficha_recebimento_com_ocorrencia.data_entrega.strftime("%d/%m/%Y") in texto
+    assert (
+        ficha_recebimento_com_ocorrencia.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
+        in texto
+    )
     assert "HOUVE OCORRÊNCIA(S) NO RECEBIMENTO: SIM" in texto
     assert "Faltaram 5 unidades do produto" in texto
 
@@ -716,7 +719,8 @@ def test_relatorio_ficha_recebimento(
         in texto_reposicao
     )
     assert (
-        ficha_recebimento_reposicao.data_entrega.strftime("%d/%m/%Y") in texto_reposicao
+        ficha_recebimento_reposicao.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
+        in texto_reposicao
     )
 
     # Teste para caso de Carta de Crédito
@@ -731,7 +735,7 @@ def test_relatorio_ficha_recebimento(
 
     assert "FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO" in texto_carta_credito
     assert (
-        ficha_recebimento_carta_credito.data_entrega.strftime("%d/%m/%Y")
+        ficha_recebimento_carta_credito.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
         in texto_carta_credito
     )
 

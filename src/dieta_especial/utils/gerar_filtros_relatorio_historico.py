@@ -3,6 +3,8 @@ from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 
 def gerar_filtros_relatorio_historico(query_params: QueryDict) -> tuple:
     map_filtros = {
@@ -27,7 +29,7 @@ def gerar_filtros_relatorio_historico(query_params: QueryDict) -> tuple:
     if not data_dieta:
         raise ValidationError("`data` é um parâmetro obrigatório.")
     try:
-        formato = "%d/%m/%Y"
+        formato = FORMATO_DATA_BRASILEIRO
         data = datetime.strptime(data_dieta, formato)
     except ValueError:
         raise ValidationError(

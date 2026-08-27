@@ -9,6 +9,7 @@ from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
 from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
     GRUPO_RECREIO_NAS_FERIAS,
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     ORDEM_UNIDADES_GRUPO_CEI,
@@ -449,7 +450,7 @@ def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
             periodos_emei.append(periodo)
     data_final = None
     if solicitacao.data_final:
-        data_final = solicitacao.data_final.strftime("%d/%m/%Y")
+        data_final = solicitacao.data_final.strftime(FORMATO_DATA_BRASILEIRO)
     html_string = render_to_string(
         "solicitacao_alteracao_cardapio_cemei.html",
         {
@@ -462,7 +463,7 @@ def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
             "periodos_emei": periodos_emei,
             "periodos_escolares_emei": periodos_escolares_emei,
             "motivo": solicitacao.motivo,
-            "data_de": solicitacao.data.strftime("%d/%m/%Y"),
+            "data_de": solicitacao.data.strftime(FORMATO_DATA_BRASILEIRO),
             "data_ate": data_final,
         },
     )
@@ -538,12 +539,12 @@ def relatorio_dieta_especial_historico_conteudo(solicitacao, request=None):
     logs = solicitacao.logs
 
     data_inicio = (
-        solicitacao.data_inicio.strftime("%d/%m/%Y")
+        solicitacao.data_inicio.strftime(FORMATO_DATA_BRASILEIRO)
         if solicitacao.data_inicio
         else None
     )
     data_termino = (
-        solicitacao.data_termino.strftime("%d/%m/%Y")
+        solicitacao.data_termino.strftime(FORMATO_DATA_BRASILEIRO)
         if solicitacao.data_termino
         else None
     )
@@ -1319,9 +1320,11 @@ def produtos_suspensos_por_edital(produtos, data_final, nome_edital, filtros):
         {
             "produtos": produtos,
             "total": len(produtos),
-            "hoje": datetime.date.today().strftime("%d/%m/%Y"),
+            "hoje": datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO),
             "data_final": (
-                data_final if data_final else datetime.date.today().strftime("%d/%m/%Y")
+                data_final
+                if data_final
+                else datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO)
             ),
             "nome_edital": nome_edital,
             "filtros": filtros,
@@ -1342,7 +1345,9 @@ def relatorio_produtos_suspensos(produtos, filtros):
             ultimo_log = produto.ultima_homologacao.ultimo_log
             if ultimo_log.criado_em < data_suspensao_inicial:
                 data_suspensao_inicial = ultimo_log.criado_em
-        filtros["data_suspensao_inicial"] = data_suspensao_inicial.strftime("%d/%m/%Y")
+        filtros["data_suspensao_inicial"] = data_suspensao_inicial.strftime(
+            FORMATO_DATA_BRASILEIRO
+        )
 
     html_string = render_to_string(
         "relatorio_suspensoes_produto.html", {"produtos": produtos, "config": filtros}
@@ -2401,7 +2406,7 @@ def get_pdf_guia_distribuidor(data=None, many=False):
     html_string = render_to_string(
         "logistica/guia_distribuidor/guia_distribuidor_v2.html", {"pages": pages}
     )
-    data_arquivo = datetime.date.today().strftime("%d/%m/%Y")
+    data_arquivo = datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO)
 
     return html_to_pdf_response(
         html_string.replace("dt_file", data_arquivo), "guia_de_remessa.pdf"
@@ -2609,7 +2614,11 @@ def obter_justificativa_dieta(solicitacao):
 
     elif cancelamento_padrao or cancelado_pela_escola:
         log_recente = solicitacao.logs.last()
-        data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
+        data = (
+            log_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
+            if log_recente
+            else ""
+        )
         mensagem = formata_justificativa(
             solicitacao, log_recente.status_evento_explicacao
         )
@@ -2698,7 +2707,9 @@ def cabecalho_reclamacao_produto(filtros: dict) -> dict:
     data_inicial = filtros.get("data_inicial_reclamacao")
     data_final = filtros.get("data_final_reclamacao")
     lotes = filtros.get("lotes")
-    cabecalho["data_extracao"] = datetime.datetime.now().date().strftime("%d/%m/%Y")
+    cabecalho["data_extracao"] = (
+        datetime.datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO)
+    )
     cabecalho["editais"] = ", ".join(sorted(filtros["editais"]))
     if lotes:
         lotes = Lote.objects.filter(uuid__in=lotes).order_by(
@@ -2794,7 +2805,7 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
         status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU
     ).last()
     if log_inativado:
-        return log_inativado.criado_em.strftime("%d/%m/%Y")
+        return log_inativado.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     data = "Data não encontrada"
     solicitacoes_canceladas_e_autorizadas = (
@@ -2819,7 +2830,7 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
             ).last()
             if log_autorizado:
-                data = log_autorizado.criado_em.strftime("%d/%m/%Y")
+                data = log_autorizado.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     return data
 

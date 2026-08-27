@@ -23,6 +23,7 @@ from ..dados_comuns.behaviors import (
     StatusAtivoInativo,
     TemNomeMaior,
 )
+from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ..dados_comuns.fluxo_status import FluxoFormularioSupervisao
 from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..dados_comuns.validators import validate_file_size_10mb
@@ -669,7 +670,9 @@ class RespostaDatas(ModeloBase, Grupo):
         return self.__str__()
 
     def __str__(self):
-        return ", ".join([data.strftime("%d/%m/%Y") for data in self.resposta])
+        return ", ".join(
+            [data.strftime(FORMATO_DATA_BRASILEIRO) for data in self.resposta]
+        )
 
     class Meta:
         verbose_name = "Resposta Datas"

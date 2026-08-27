@@ -1859,7 +1859,7 @@ def test_relatorio_produtos_suspensos(
         "/produtos/filtro-relatorio-produto-suspenso/"
         "?nome_edital=Edital de Pregão nº 41/sme/2017"
         "&status=CODAE_SUSPENDEU&status=CODAE_AUTORIZOU_RECLAMACAO&page=1&page_size=10"
-        f'&data_suspensao_final={hoje.strftime("%d/%m/%Y")}'
+        f"&data_suspensao_final={hoje.strftime(constants.FORMATO_DATA_BRASILEIRO)}"
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 1
@@ -1868,7 +1868,7 @@ def test_relatorio_produtos_suspensos(
         "/produtos/filtro-relatorio-produto-suspenso/"
         "?nome_edital=Edital de Pregão nº 41/sme/2017"
         "&status=CODAE_SUSPENDEU&status=CODAE_AUTORIZOU_RECLAMACAO&page=1&page_size=10"
-        f'&data_suspensao_final={ontem.strftime("%d/%m/%Y")}'
+        f"&data_suspensao_final={ontem.strftime(constants.FORMATO_DATA_BRASILEIRO)}"
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 0

@@ -41,6 +41,7 @@ from src.produto.utils.genericos import (
 
 from ...dados_comuns import constants
 from ...dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
     TIPO_USUARIO_CODAE_GABINETE,
     TIPO_USUARIO_DIRETORIA_REGIONAL,
     TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -277,12 +278,14 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                     "edital": nome_edital,
                     "tipo": produto_edital.tipo_produto,
                     "tem_aditivos_alergenicos": hom_produto.produto.tem_aditivos_alergenicos,
-                    "cadastro": hom_produto.produto.criado_em.strftime("%d/%m/%Y"),
+                    "cadastro": hom_produto.produto.criado_em.strftime(
+                        FORMATO_DATA_BRASILEIRO
+                    ),
                     "homologacao": produto_edital.datas_horas_vinculo.filter(
                         suspenso=False
                     )
                     .first()
-                    .criado_em.strftime("%d/%m/%Y"),
+                    .criado_em.strftime(FORMATO_DATA_BRASILEIRO),
                 }
             )
         return produtos_agrupados
@@ -725,7 +728,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         query_set = query_set.filter(**filtros).filter(**filtros_params).distinct()
         if request_data.get("data_homologacao"):
             data_homologacao = datetime.strptime(
-                request_data.get("data_homologacao"), "%d/%m/%Y"
+                request_data.get("data_homologacao"), FORMATO_DATA_BRASILEIRO
             ).date()
             query_set = query_set | query_set_nao_homologados
             query_set = query_set.filter(
@@ -1402,7 +1405,7 @@ class HomologacaoProdutoViewSet(
         return Response(protocolo)
 
     def retorna_datetime(self, data):
-        data = datetime.strptime(data, "%d/%m/%Y")
+        data = datetime.strptime(data, FORMATO_DATA_BRASILEIRO)
         return data
 
     @action(
@@ -2225,7 +2228,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             data_final = query_params.get("data_suspensao_final", None)
 
         if data_final:
-            data_final = datetime.strptime(data_final, "%d/%m/%Y").date()
+            data_final = datetime.strptime(data_final, FORMATO_DATA_BRASILEIRO).date()
             homologacoes = homologacoes.filter(
                 produto__vinculos__edital__numero=nome_edital,
                 produto__vinculos__datas_horas_vinculo__suspenso=True,

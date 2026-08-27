@@ -1,6 +1,7 @@
 import io
 from datetime import datetime
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     calcular_saldo_laudo,
 )
@@ -32,7 +33,7 @@ COLUNAS = [
 def _formata_data(data):
     """Retorna data formatada como dd/mm/yyyy ou string vazia."""
     if data:
-        return data.strftime("%d/%m/%Y")
+        return data.strftime(FORMATO_DATA_BRASILEIRO)
     return ""
 
 
@@ -103,7 +104,7 @@ def _escreve_cabecalho(workbook, worksheet, totalizadores):
                 "y_scale": 0.08,
             },
         )
-    except Exception:
+    except Exception:  # nosec
         pass  # Segue sem a imagem se o arquivo não for encontrado
 
     # Subtítulo (linha 1) - totalizadores + data/hora
@@ -231,9 +232,11 @@ def _prepara_valores_linha(cronograma, doc, data_item):
 
     valores = [
         cronograma.numero or "",
-        cronograma.ficha_tecnica.produto.nome
-        if cronograma.ficha_tecnica and cronograma.ficha_tecnica.produto
-        else "",
+        (
+            cronograma.ficha_tecnica.produto.nome
+            if cronograma.ficha_tecnica and cronograma.ficha_tecnica.produto
+            else ""
+        ),
         cronograma.empresa.razao_social if cronograma.empresa else "",
         num_pregao_chamada,
         numero_processo_sei,
@@ -262,7 +265,9 @@ def _prepara_valores_linha(cronograma, doc, data_item):
     }
 
 
-def _escreve_linha(worksheet, linha, cronograma, doc, data_item, fmt, fmt_numero, max_lengths=None):
+def _escreve_linha(
+    worksheet, linha, cronograma, doc, data_item, fmt, fmt_numero, max_lengths=None
+):
     """Escreve uma única linha de dados na planilha."""
     dados = _prepara_valores_linha(cronograma, doc, data_item)
     valores = dados["valores"]
@@ -294,7 +299,9 @@ def _ajusta_max_length(max_lengths, col_idx, valor):
         max_lengths[col_idx] = tamanho
 
 
-def _atualiza_max_lengths(max_lengths, valores, valores_numericos, cronograma, correcao):
+def _atualiza_max_lengths(
+    max_lengths, valores, valores_numericos, cronograma, correcao
+):
     """Atualiza as larguras máximas das colunas baseado no conteúdo escrito."""
     if max_lengths is None:
         return

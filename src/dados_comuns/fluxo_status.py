@@ -30,6 +30,7 @@ from .constants import (
     EMAIL_ASSUNTO_STATUS_SOLICITACAO,
     ERRO_SALVAR_LOG_TRANSICAO,
     ESCOLA_CANCELOU_LABEL,
+    FORMATO_DATA_BRASILEIRO,
     FORMATO_DATA_HORA_BRASILEIRO,
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
@@ -3296,8 +3297,8 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         dados_template = {
             "nome_aluno": self.aluno.nome,
             "codigo_eol_aluno": self.aluno.codigo_eol,
-            "data_inicio": self.data_inicio.strftime("%d/%m/%Y"),
-            "data_termino": self.data_termino.strftime("%d/%m/%Y"),
+            "data_inicio": self.data_inicio.strftime(FORMATO_DATA_BRASILEIRO),
+            "data_termino": self.data_termino.strftime(FORMATO_DATA_BRASILEIRO),
             "unidade_destino": self.escola_destino.nome,
         }
 
@@ -4704,7 +4705,9 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "nome_empresa": self.empresa.nome_fantasia,
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
-                "data_evento": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_evento": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "url_detalhe_cronograma": base_url + url_detalhe_cronograma,
             }
 
@@ -4807,7 +4810,9 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "nome_produto": self.ficha_tecnica.produto.nome,
                 "nome_usuario": user.nome,
                 "registro_funcional": user.registro_funcional,
-                "data_evento": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_evento": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "url_detalhe_cronograma": base_url + url_detalhe_cronograma,
             }
 
@@ -5144,7 +5149,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
 
             numero_cronograma = self.cronograma.numero
             data_envio = (
-                self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+                self.log_mais_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
                 if self.log_mais_recente
                 else "(Não há data de envio)"
             )
@@ -5509,7 +5514,9 @@ class FluxoLayoutDeEmbalagem(xwf_models.WorkflowEnabled, models.Model):
             )
 
             nome_empresa = self.ficha_tecnica.empresa.nome_fantasia
-            data_envio = self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+            data_envio = self.log_mais_recente.criado_em.strftime(
+                FORMATO_DATA_BRASILEIRO
+            )
             numero_ficha = self.ficha_tecnica.numero
             url_layout_embalagens = (
                 f"/pre-recebimento/analise-layout-embalagem?uuid={self.uuid}"
@@ -5601,7 +5608,7 @@ class FluxoLayoutDeEmbalagem(xwf_models.WorkflowEnabled, models.Model):
                 contexto_template={
                     "numero_ficha": numero_ficha,
                     "data_solicitacao": self.log_mais_recente.criado_em.strftime(
-                        "%d/%m/%Y"
+                        FORMATO_DATA_BRASILEIRO
                     ),
                     "url_layout_embalagens": base_url + url_corrigir_layout_embalagens,
                 },
@@ -5630,7 +5637,7 @@ class FluxoLayoutDeEmbalagem(xwf_models.WorkflowEnabled, models.Model):
             self._notificar_correcao_ou_atualizacao(user)
 
     def _notificar_correcao_ou_atualizacao(self, usuario):
-        data_envio = self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+        data_envio = self.log_mais_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         nome_empresa = self.ficha_tecnica.empresa
         perfis_interessados = [
             constants.DILOG_QUALIDADE,
@@ -5714,7 +5721,9 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "nome_empresa": self.cronograma.empresa.nome_fantasia,
                 "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
-                "data_envio": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_envio": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
                 "url_documento_recebimento": base_url + url_documento_recebimento,
@@ -5768,7 +5777,7 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
                 "data_solicitacao": self.log_mais_recente.criado_em.strftime(
-                    "%d/%m/%Y"
+                    FORMATO_DATA_BRASILEIRO
                 ),
                 "url_documento_recebimento": base_url + url_documento_recebimento,
             }
@@ -5822,7 +5831,9 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
-                "data_envio": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_envio": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "url_documento_recebimento": base_url + url_documento_recebimento,
             }
 
@@ -5875,7 +5886,9 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 ),
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
-                "data_envio": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_envio": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "url_documento_recebimento": base_url + url_documento_recebimento,
             }
 
@@ -5965,7 +5978,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
             )
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
-            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+            data_envio = log_transicao.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
@@ -6005,7 +6018,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
 
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
-            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+            data_envio = log_transicao.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
@@ -6040,7 +6053,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
 
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
-            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+            data_envio = log_transicao.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
@@ -6079,7 +6092,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
             )
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
-            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+            data_envio = log_transicao.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
@@ -6318,7 +6331,7 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             f"{base_url}/pre-recebimento/detalhe-cronograma-semanal?uuid={self.uuid}"
         )
         numero_cronograma = self.numero
-        data_evento = self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+        data_evento = self.log_mais_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         nome_produto = self.cronograma_mensal.ficha_tecnica.produto.nome
         destinatarios = (
             PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(

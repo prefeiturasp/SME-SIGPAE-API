@@ -75,13 +75,17 @@ def _montar_valores_dados(ficha):
         _sim_nao(ficha.lactose),
         _sim_nao(ficha.produto_eh_liquido),
         ficha.peso_liquido_embalagem_primaria,
-        _sanitiza_texto(ficha.unidade_medida_primaria.abreviacao)
-        if ficha.unidade_medida_primaria
-        else "",
+        (
+            _sanitiza_texto(ficha.unidade_medida_primaria.abreviacao)
+            if ficha.unidade_medida_primaria
+            else ""
+        ),
         ficha.peso_liquido_embalagem_secundaria,
-        _sanitiza_texto(ficha.unidade_medida_secundaria.abreviacao)
-        if ficha.unidade_medida_secundaria
-        else "",
+        (
+            _sanitiza_texto(ficha.unidade_medida_secundaria.abreviacao)
+            if ficha.unidade_medida_secundaria
+            else ""
+        ),
         _sanitiza_texto(ficha.get_status_display()),
     ]
 
@@ -122,9 +126,7 @@ def _escreve_cabecalho(workbook, worksheet):
     )
 
     # Logo + Título (linha 0)
-    worksheet.merge_range(
-        0, 0, 0, len(COLUNAS) - 1, TITULO_RELATORIO, formato_titulo
-    )
+    worksheet.merge_range(0, 0, 0, len(COLUNAS) - 1, TITULO_RELATORIO, formato_titulo)
     worksheet.set_row(0, 50)
 
     try:
@@ -139,7 +141,7 @@ def _escreve_cabecalho(workbook, worksheet):
                 "y_scale": 0.08,
             },
         )
-    except Exception:
+    except Exception:  # nosec
         pass  # Segue sem a imagem se o arquivo não for encontrado
 
     # Subtítulo (linha 1) - data de extração

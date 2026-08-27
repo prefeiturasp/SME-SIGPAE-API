@@ -32,7 +32,11 @@ from src.dados_comuns.behaviors import (
     TemIdentificadorExternoAmigavel,
     TemPrioridade,
 )
-from src.dados_comuns.constants import MODEL_ESCOLA, MODULO_DIETA_ESPECIAL
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MODEL_ESCOLA,
+    MODULO_DIETA_ESPECIAL,
+)
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import convert_base64_to_contentfile
@@ -637,7 +641,9 @@ class SolicitacaoDietaEspecial(
             ``None`` se não houver logs.
         """
         return (
-            datetime.datetime.strftime(self.logs.last().criado_em, "%d/%m/%Y")
+            datetime.datetime.strftime(
+                self.logs.last().criado_em, FORMATO_DATA_BRASILEIRO
+            )
             if self.logs
             else None
         )
