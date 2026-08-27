@@ -6,6 +6,7 @@ import xworkflows
 from django.core.files.base import ContentFile
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
+from src.dados_comuns.constants import EMAIL_ASSUNTO_STATUS_SOLICITACAO
 from src.dados_comuns.fluxo_status import (
     ReclamacaoProdutoWorkflow,
     SolicitacaoMedicaoInicialWorkflow,
@@ -352,7 +353,7 @@ def test_envia_email_de_cancelamento(
         pendente_autorizacao=False,
     )
     assunto = (
-        "[SIGPAE] Status de solicitação - #" + solicitacao_dieta_especial.id_externo
+        EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + solicitacao_dieta_especial.id_externo
     )
     titulo = f'Status de solicitação - "{solicitacao_dieta_especial.aluno.codigo_eol} - {solicitacao_dieta_especial.aluno.nome}"'
     mock_envia_email.assert_called_once_with(
@@ -378,7 +379,7 @@ def test_envia_email_de_cancelamento_por_alta_medica(
         pendente_autorizacao=False,
     )
     assunto = (
-        "[SIGPAE] Status de solicitação - #" + solicitacao_dieta_especial.id_externo
+        EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + solicitacao_dieta_especial.id_externo
     )
     titulo = solicitacao_dieta_especial.str_dre_lote_escola
     mock_envia_email.assert_called_once_with(
