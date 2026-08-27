@@ -35,6 +35,7 @@ from ..relatorios import (
     relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias,
     relatorio_suspensao_de_alimentacao,
+    get_pdf_relatorio_solicitacao_alteracao_cronograma,
 )
 
 pytestmark = pytest.mark.django_db
@@ -1169,3 +1170,63 @@ def test_render_homologacao_produto_com_aditivos_alergenicos():
     assert produto.nome in html_string
     assert "SIM" in html_string
     assert produto.aditivos in html_string
+
+
+def test_get_pdf_relatorio_solicitacao_alteracao_cronograma_gera_pdf_com_dados_corretos():
+    marca = baker.make("produto.Marca", nome="Marca Teste")
+    produto_edital = baker.make(
+        "produto.NomeDeProdutoEdital", nome="Produto Teste"
+    )
+    ficha_tecnica = baker.make(
+        "pre_recebimento.FichaTecnicaDoProduto",
+        produto=produto_edital,
+        marca=marca,
+    )
+    empresa = baker.make(
+        "terceirizada.Terceirizada",
+        nome_fantasia="Fornecedor Teste",
+        razao_social="Fornecedor Teste LTDA",
+    )
+    cronograma = baker.make(
+        "pre_recebimento.Cronograma",
+        numero="CRONO-001",
+        empresa=empresa,
+        ficha_tecnica=ficha_tecnica,
+    )
+    solicitacao_cronograma = baker.make(
+        "pre_recebimento.SolicitacaoAlteracaoCronograma",
+        cronograma=cronograma,
+        justificativa="Justificativa de teste da solicitação",
+        status="FORNECEDOR_CIENTE",
+    )
+    solicitacao_cronograma.refresh_from_db()
+
+    baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=cronograma,
+        etapa=1,
+        numero_empenho="EMP-123",
+    )
+
+    baker.make(
+        "dados_comuns.LogSolicitacoesUsuario",
+        solicitacao_tipo=LogSolicitacoesUsuario.SOLICITACAO_DE_ALTERACAO_CRONOGRAMA,
+        uuid_original=solicitacao_cronograma.uuid,
+        justificativa="Justificativa análise cronograma",
+    )
+
+    relatorio = get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao_cronograma)
+    texto = extrair_texto_de_pdf(relatorio.content)
+
+    def padrao_tolerante_a_espacos(valor):
+        return r"\s*".join(re.escape(c) for c in valor)
+
+    assert produto_edital.nome in texto
+    assert marca.nome in texto
+    assert empresa.nome_fantasia in texto
+    assert re.search(
+        padrao_tolerante_a_espacos(solicitacao_cronograma.numero_solicitacao), texto
+    )
+    assert re.search(padrao_tolerante_a_espacos(cronograma.numero), texto)
+    assert "Justificativa de teste da solicitação" in texto
+    assert "Documento gerado em" in texto
