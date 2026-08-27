@@ -27,6 +27,7 @@ from .constants import (
     DILOG_DIRETORIA,
     DIRETOR_UE,
     EM_ANALISE_LABEL,
+    EMAIL_ASSUNTO_STATUS_SOLICITACAO,
     ERRO_SALVAR_LOG_TRANSICAO,
     ESCOLA_CANCELOU_LABEL,
     FORMATO_DATA_HORA_BRASILEIRO,
@@ -2319,7 +2320,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         self.save()
         # envia email para partes interessadas
         id_externo = "#" + self.id_externo
-        assunto = "[SIGPAE] Status de solicitação - " + id_externo
+        assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
         titulo = f"Solicitação de {self.tipo} Cancelada"
         log_criado = self.logs.last().criado_em
         criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
@@ -2515,7 +2516,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         # validada
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - " + id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
             titulo = f"Solicitação de {self.tipo} Não Validada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.DRE_NAO_VALIDOU,
@@ -2585,7 +2586,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         justificativa = kwargs.get("justificativa", "")
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - " + id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
             titulo = f"Solicitação de {self.tipo} Autorizada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
@@ -2611,7 +2612,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         # a solicitacao NAO foi autorizada
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - " + id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
             titulo = f"Solicitação de {self.tipo} Negada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_NEGOU,
@@ -2744,7 +2745,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         )
         self.save()
         # envia email para partes interessadas
-        assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+        assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
         titulo = "Status de solicitação - #" + self.id_externo
         self._preenche_template_e_envia_email(
             assunto, titulo, user, self._partes_interessadas_cancelamento
@@ -2869,7 +2870,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         user = kwargs["user"]
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
             titulo = f"Solicitação de {self.tipo} Autorizada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
@@ -2930,7 +2931,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         justificativa = kwargs.get("justificativa", "")
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
             titulo = f"Solicitação de {self.tipo} Negada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_NEGOU,
@@ -3082,7 +3083,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
 
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - " + id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
             titulo = f"Solicitação de {self.tipo}"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.INICIO_FLUXO, usuario=user
@@ -3375,7 +3376,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         alta_medica = kwargs.get("alta_medica", False)
         pendente_autorizacao = kwargs.get("pendente_autorizacao", False)
 
-        assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+        assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
         titulo = (
             f'Status de solicitação - "{self.aluno.codigo_eol} - {self.aluno.nome}"'
         )
@@ -3479,7 +3480,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
                     self._partes_interessadas_codae_autoriza,
                 )
             else:
-                assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+                assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
                 titulo = self.str_dre_lote_escola
                 self._preenche_template_e_envia_email(
                     assunto,

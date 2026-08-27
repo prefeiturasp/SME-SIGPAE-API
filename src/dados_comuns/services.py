@@ -5,7 +5,7 @@ import environ
 from django.template.loader import render_to_string
 
 from ..perfil.models import Usuario
-from .constants import FORMATO_DATA_HORA_BRASILEIRO
+from .constants import EMAIL_ASSUNTO_STATUS_SOLICITACAO, FORMATO_DATA_HORA_BRASILEIRO
 from .models import LogSolicitacoesUsuario, Notificacao
 from .tasks import envia_email_em_massa_task
 
@@ -51,7 +51,7 @@ def _preenche_template_e_envia_email_ue_cancela_parcialmente(
 def enviar_email_ue_cancelar_pedido_parcialmente(obj):
     # envia email para partes interessadas
     id_externo = "#" + obj.id_externo
-    assunto = "[SIGPAE] Status de solicitação - " + id_externo
+    assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
     titulo = f"Solicitação de {obj.tipo} Parcialmente Cancelada"
     momento_cancelamento = datetime.datetime.now()
     criado_em = momento_cancelamento.strftime(FORMATO_DATA_HORA_BRASILEIRO)
