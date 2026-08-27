@@ -19,6 +19,7 @@ from src.terceirizada.models import Edital, Terceirizada
 from ...dados_comuns.constants import (
     ADMINISTRADOR_SUPERVISAO_NUTRICAO,
     TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from ...dados_comuns.fluxo_status import FormularioSupervisaoWorkflow
 from ...escola.models import DiretoriaRegional, Escola
@@ -158,23 +159,23 @@ class FormularioSupervisaoModelViewSet(
         categorias_excluir = []
 
         if tipo_escola not in [
-            "CEI",
+            TIPOS_UNIDADE_ESCOLAR.CEI.value,
             TIPO_UNIDADE_CEI_DIRET,
-            "CEI CEU",
-            "CEU CEI",
-            "CCI/CIPS",
-            "CCI",
-            "CEMEI",
-            "CEU CEMEI",
+            TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
         ]:
             categorias_excluir.append("LACTÁRIO")
         if tipo_escola in [
-            "CEI",
+            TIPOS_UNIDADE_ESCOLAR.CEI.value,
             TIPO_UNIDADE_CEI_DIRET,
-            "CEI CEU",
-            "CEU CEI",
-            "CCI/CIPS",
-            "CCI",
+            TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI.value,
         ]:
             categorias_excluir.append("RESÍDUO DE ÓLEO UTILIZADO NA FRITURA")
 

@@ -5,6 +5,7 @@ from unittest import TestCase, mock
 import pytest
 from django.core.management import call_command
 
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 from src.escola.fixtures.factories.dia_suspensao_atividades_factory import (
     DiaSuspensaoAtividadesFactory,
 )
@@ -26,7 +27,9 @@ class VinculaEditaisDiasSuspensaoCommandTest(TestCase):
         )
 
     def setUp(self) -> None:
-        tipo_unidade_escolar = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        tipo_unidade_escolar = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
 
         self.lista_editais = [
             "Edital de Pregão n° 74/SME/2022",
@@ -61,7 +64,7 @@ class VinculaEditaisDiasSuspensaoCommandTest(TestCase):
         self.call_command()
         for dia in self.dias:
             assert DiaSuspensaoAtividades.objects.filter(
-                data__day=dia, tipo_unidade__iniciais="EMEF"
+                data__day=dia, tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
             ).count() == len(self.lista_editais)
 
     @mock.patch.dict(os.environ, {"DJANGO_ENV": "production"})
@@ -70,7 +73,7 @@ class VinculaEditaisDiasSuspensaoCommandTest(TestCase):
         self.call_command()
         for dia in self.dias:
             assert DiaSuspensaoAtividades.objects.filter(
-                data__day=dia, tipo_unidade__iniciais="EMEF"
+                data__day=dia, tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
             ).count() == len(self.lista_editais)
 
     @mock.patch.dict(os.environ, {"DJANGO_ENV": "development"})
@@ -83,7 +86,8 @@ class VinculaEditaisDiasSuspensaoCommandTest(TestCase):
         for dia in self.dias:
             assert (
                 DiaSuspensaoAtividades.objects.filter(
-                    data__day=dia, tipo_unidade__iniciais="EMEF"
+                    data__day=dia,
+                    tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value,
                 ).count()
                 == 1
             )

@@ -19,6 +19,7 @@ from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapio
 from .constants import (
     FORMATO_DATA_BRASILEIRO,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
     obter_dias_uteis_apos_hoje,
 )
 from .utils import datetime_range, eh_dia_util, eh_fim_de_semana
@@ -134,12 +135,16 @@ def valida_duplicidade_solicitacoes_cemei(attrs):
     maior_data = datetime.datetime(ano, mes, ultimo_dia_do_mes)
     solicitacoes_tipo = []
 
-    if attrs["alunos_cei_e_ou_emei"] == "CEI":
-        solicitacoes_tipo.append("CEI")
-    elif attrs["alunos_cei_e_ou_emei"] == "EMEI":
-        solicitacoes_tipo.append("EMEI")
+    if attrs["alunos_cei_e_ou_emei"] == TIPOS_UNIDADE_ESCOLAR.CEI.value:
+        solicitacoes_tipo.append(TIPOS_UNIDADE_ESCOLAR.CEI.value)
+    elif attrs["alunos_cei_e_ou_emei"] == TIPOS_UNIDADE_ESCOLAR.EMEI.value:
+        solicitacoes_tipo.append(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     else:
-        solicitacoes_tipo = ["TODOS", "CEI", "EMEI"]
+        solicitacoes_tipo = [
+            "TODOS",
+            TIPOS_UNIDADE_ESCOLAR.CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        ]
 
     solicitacoes = AlteracaoCardapioCEMEI.objects.filter(
         motivo__uuid=motivo,
@@ -428,11 +433,11 @@ def _partes_inclusao_cemei_autorizadas(escola, data, modelo):
     inclusoes = _inclusoes_alimentacao_autorizadas_base(escola, data, modelo)
     partes = set()
     if inclusoes.filter(quantidade_alunos_cei_da_inclusao_cemei__isnull=False).exists():
-        partes.add("CEI")
+        partes.add(TIPOS_UNIDADE_ESCOLAR.CEI.value)
     if inclusoes.filter(
         quantidade_alunos_emei_da_inclusao_cemei__isnull=False
     ).exists():
-        partes.add("EMEI")
+        partes.add(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     return partes
 
 
@@ -486,11 +491,15 @@ def _valida_inclusao_alimentacao_cemei_rpl(
             "inclusão de alimentação para a data"
         )
     alunos_cei_e_ou_emei = alunos_cei_e_ou_emei or "TODOS"
-    if alunos_cei_e_ou_emei in ("CEI", "TODOS"):
-        _valida_parte_cemei_autorizada(data, "CEI", partes_autorizadas)
-    if alunos_cei_e_ou_emei in ("EMEI", "TODOS"):
-        _valida_parte_cemei_autorizada(data, "EMEI", partes_autorizadas)
-    if alunos_cei_e_ou_emei in ("EMEI", "TODOS"):
+    if alunos_cei_e_ou_emei in (TIPOS_UNIDADE_ESCOLAR.CEI.value, "TODOS"):
+        _valida_parte_cemei_autorizada(
+            data, TIPOS_UNIDADE_ESCOLAR.CEI.value, partes_autorizadas
+        )
+    if alunos_cei_e_ou_emei in (TIPOS_UNIDADE_ESCOLAR.EMEI.value, "TODOS"):
+        _valida_parte_cemei_autorizada(
+            data, TIPOS_UNIDADE_ESCOLAR.EMEI.value, partes_autorizadas
+        )
+    if alunos_cei_e_ou_emei in (TIPOS_UNIDADE_ESCOLAR.EMEI.value, "TODOS"):
         _valida_inclusao_alimentacao_rpl(escola, data, modelo, periodos_lanches_emei)
     return True
 

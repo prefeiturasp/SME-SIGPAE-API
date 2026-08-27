@@ -39,6 +39,7 @@ from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
@@ -93,7 +94,9 @@ class TestUseCaseTransferenciaLotes:
         )
 
     def _setup_escola(self):
-        self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         self.escola_emef = EscolaFactory.create(
             nome="EMEF PERICLES",
             tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
@@ -115,7 +118,9 @@ class TestUseCaseTransferenciaLotes:
         )
 
     def _setup_escola_cemei(self):
-        self.tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(iniciais="CEMEI")
+        self.tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+        )
         self.escola_cemei = EscolaFactory.create(
             nome="CEMEI PELEGRINI",
             tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,

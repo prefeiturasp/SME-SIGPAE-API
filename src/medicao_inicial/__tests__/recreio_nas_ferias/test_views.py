@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from src.cardapio.base.models import TipoAlimentacao
-from src.dados_comuns.constants import TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
 from src.escola.models import (
     DiretoriaRegional,
     Escola,
@@ -38,7 +38,9 @@ def setup_data():
     )
     cat_infantil, _ = CategoriaAlimentacao.objects.get_or_create(nome="Infantil")
 
-    tipo_unidade = TipoUnidadeEscolar.objects.create(iniciais="CEI")
+    tipo_unidade = TipoUnidadeEscolar.objects.create(
+        iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
 
     diretoria_regional = DiretoriaRegional.objects.create(nome="DRE Teste")
 
@@ -87,7 +89,7 @@ def test_criar_recreio_sucesso(client_autenticado_coordenador_codae, setup_data)
                 "num_inscritos": 50,
                 "num_colaboradores": 10,
                 "liberar_medicao": True,
-                "cei_ou_emei": "CEI",
+                "cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.CEI.value,
                 "tipos_alimentacao_inscritos": [str(setup_data["tipo_alim_1"].uuid)],
                 "tipos_alimentacao_colaboradores": [
                     str(setup_data["tipo_alim_2"].uuid)
@@ -156,7 +158,7 @@ def test_criar_recreio_com_multiplas_unidades(
                 "num_inscritos": 50,
                 "num_colaboradores": 10,
                 "liberar_medicao": True,
-                "cei_ou_emei": "CEI",
+                "cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.CEI.value,
                 "tipos_alimentacao_inscritos": [str(setup_data["tipo_alim_1"].uuid)],
                 "tipos_alimentacao_colaboradores": [],
                 "tipos_alimentacao_infantil": [],
@@ -167,7 +169,7 @@ def test_criar_recreio_com_multiplas_unidades(
                 "num_inscritos": 30,
                 "num_colaboradores": 5,
                 "liberar_medicao": False,
-                "cei_ou_emei": "EMEI",
+                "cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.EMEI.value,
                 "tipos_alimentacao_inscritos": [str(setup_data["tipo_alim_2"].uuid)],
                 "tipos_alimentacao_colaboradores": [],
                 "tipos_alimentacao_infantil": [],
@@ -219,7 +221,7 @@ def test_criar_recreio_com_uuid_invalido(
                 "num_inscritos": 50,
                 "num_colaboradores": 10,
                 "liberar_medicao": True,
-                "cei_ou_emei": "CEI",
+                "cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.CEI.value,
                 "tipos_alimentacao_inscritos": [str(setup_data["tipo_alim_1"].uuid)],
                 "tipos_alimentacao_colaboradores": [],
                 "tipos_alimentacao_infantil": [],
@@ -250,7 +252,7 @@ def test_listar_recreios(client_autenticado_coordenador_codae, setup_data):
         num_inscritos=30,
         num_colaboradores=5,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
         recreio_ferias_unidade=unidade1,
@@ -265,7 +267,7 @@ def test_listar_recreios(client_autenticado_coordenador_codae, setup_data):
         num_inscritos=40,
         num_colaboradores=8,
         liberar_medicao=False,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
     RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
         recreio_ferias_unidade=unidade2,
@@ -357,7 +359,7 @@ def test_total_por_dre_conta_apenas_escolas_liberadas_da_dre_no_recreio(
         num_inscritos=10,
         num_colaboradores=2,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     RecreioNasFeriasUnidadeParticipante.objects.create(
         recreio_nas_ferias=recreio,
@@ -366,7 +368,7 @@ def test_total_por_dre_conta_apenas_escolas_liberadas_da_dre_no_recreio(
         num_inscritos=12,
         num_colaboradores=3,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     RecreioNasFeriasUnidadeParticipante.objects.create(
         recreio_nas_ferias=recreio,
@@ -375,7 +377,7 @@ def test_total_por_dre_conta_apenas_escolas_liberadas_da_dre_no_recreio(
         num_inscritos=8,
         num_colaboradores=1,
         liberar_medicao=False,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     RecreioNasFeriasUnidadeParticipante.objects.create(
         recreio_nas_ferias=recreio,
@@ -384,7 +386,7 @@ def test_total_por_dre_conta_apenas_escolas_liberadas_da_dre_no_recreio(
         num_inscritos=15,
         num_colaboradores=2,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     RecreioNasFeriasUnidadeParticipante.objects.create(
         recreio_nas_ferias=outro_recreio,
@@ -393,7 +395,7 @@ def test_total_por_dre_conta_apenas_escolas_liberadas_da_dre_no_recreio(
         num_inscritos=20,
         num_colaboradores=4,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
 
     response = client_autenticado_coordenador_codae.get(
@@ -424,7 +426,7 @@ def test_atualizar_recreio_completo(client_autenticado_coordenador_codae, setup_
         num_inscritos=20,
         num_colaboradores=3,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
         recreio_ferias_unidade=unidade_antiga,
@@ -450,7 +452,7 @@ def test_atualizar_recreio_completo(client_autenticado_coordenador_codae, setup_
                 "num_inscritos": 60,
                 "num_colaboradores": 12,
                 "liberar_medicao": False,
-                "cei_ou_emei": "EMEI",
+                "cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.EMEI.value,
                 "tipos_alimentacao_inscritos": [str(setup_data["tipo_alim_2"].uuid)],
                 "tipos_alimentacao_colaboradores": [],
                 "tipos_alimentacao_infantil": [],
@@ -475,7 +477,7 @@ def test_atualizar_recreio_completo(client_autenticado_coordenador_codae, setup_
     assert unidade_atualizada.unidade_educacional == nova_escola
     assert unidade_atualizada.num_inscritos == 60
     assert unidade_atualizada.liberar_medicao is False
-    assert unidade_atualizada.cei_ou_emei == "EMEI"
+    assert unidade_atualizada.cei_ou_emei == TIPOS_UNIDADE_ESCOLAR.EMEI.value
 
     exists = RecreioNasFeriasUnidadeTipoAlimentacao.objects.filter(
         recreio_ferias_unidade=unidade_atualizada,
@@ -503,7 +505,7 @@ def test_atualizar_recreio_parcial_mantem_unidades(
         num_inscritos=25,
         num_colaboradores=4,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     RecreioNasFeriasUnidadeTipoAlimentacao.objects.create(
         recreio_ferias_unidade=unidade,
@@ -531,7 +533,7 @@ def test_atualizar_recreio_parcial_mantem_unidades(
     assert unidade_atual.num_inscritos == 25
     assert unidade_atual.num_colaboradores == 4
     assert unidade_atual.liberar_medicao is True
-    assert unidade_atual.cei_ou_emei == "CEI"
+    assert unidade_atual.cei_ou_emei == TIPOS_UNIDADE_ESCOLAR.CEI.value
 
     # A relação de tipos de alimentação também deve permanecer
     relacoes = RecreioNasFeriasUnidadeTipoAlimentacao.objects.filter(

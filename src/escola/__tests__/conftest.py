@@ -16,6 +16,7 @@ from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
     StatusProcessamentoArquivo,
 )
 from src.dados_comuns.fluxo_status import (
@@ -61,7 +62,9 @@ def periodo_escolar_noite():
 
 @pytest.fixture
 def tipo_unidade_escolar():
-    return baker.make(models.TipoUnidadeEscolar, iniciais="EMEF")
+    return baker.make(
+        models.TipoUnidadeEscolar, iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
 
 
 @pytest.fixture
@@ -159,7 +162,9 @@ def escola_cemei(periodo_escolar):
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     escola = baker.make(
         "Escola",
         nome="CEMEI TESTE",
@@ -193,7 +198,9 @@ def escola_cemei_sem_alunos(periodo_escolar):
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     escola = baker.make(
         "Escola",
         nome="CEMEI TESTE SEM ALUNOS",
@@ -213,7 +220,9 @@ def escola_emebs(periodo_escolar):
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
     escola = baker.make(
         "Escola",
         nome="EMEBS TESTE",
@@ -323,17 +332,17 @@ def usuario_coordenador_codae(django_user_model):
 
     baker.make(
         "TipoUnidadeEscolar",
-        iniciais="EMEF",
+        iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         uuid="1cc3253b-e297-42b3-8e57-ebfd115a1aba",
     )
     baker.make(
         "TipoUnidadeEscolar",
-        iniciais="CEU GESTAO",
+        iniciais=TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
         uuid="40ee89a7-dc70-4abb-ae21-369c67f2b9e3",
     )
     baker.make(
         "TipoUnidadeEscolar",
-        iniciais="CIEJA",
+        iniciais=TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
         uuid="ac4858ff-1c11-41f3-b539-7a02696d6d1b",
     )
 
@@ -1329,7 +1338,9 @@ def tipo_alimentacao_lanche_emergencial():
 def escola_cmct(tipo_alimentacao, tipo_alimentacao_lanche_emergencial):
     noite = baker.make(models.PeriodoEscolar, nome="NOITE", tipo_turno=2)
     manha = baker.make(models.PeriodoEscolar, nome="MANHA", tipo_turno=1)
-    tipo_unidade_escolar = baker.make(models.TipoUnidadeEscolar, iniciais="CMCT")
+    tipo_unidade_escolar = baker.make(
+        models.TipoUnidadeEscolar, iniciais=TIPOS_UNIDADE_ESCOLAR.CMCT.value
+    )
     baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         periodo_escolar=manha,

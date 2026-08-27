@@ -27,6 +27,7 @@ from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     MODEL_ESCOLA,
     TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -1036,14 +1037,20 @@ class InclusaoDeAlimentacaoCEMEI(
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-                tipo_unidade_escolar__iniciais__in=[TIPO_UNIDADE_CEI_DIRET, "EMEI"],
+                tipo_unidade_escolar__iniciais__in=[
+                    TIPO_UNIDADE_CEI_DIRET,
+                    TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                ],
             )
         )
 
         if eh_evento_especifico:
             vinculos = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 periodo_escolar__nome__in=PERIODOS_CEMEI_EVENTO_ESPECIFICO,
-                tipo_unidade_escolar__iniciais__in=[TIPO_UNIDADE_CEI_DIRET, "EMEI"],
+                tipo_unidade_escolar__iniciais__in=[
+                    TIPO_UNIDADE_CEI_DIRET,
+                    TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                ],
             )
 
         for periodo in periodos:
@@ -1059,14 +1066,15 @@ class InclusaoDeAlimentacaoCEMEI(
             tipos_alimentacao_cei = ", ".join(tipos_alimentacao_cei)
 
             tipos_alimentacao_emei = vinculos.filter(
-                periodo_escolar__nome=periodo, tipo_unidade_escolar__iniciais="EMEI"
+                periodo_escolar__nome=periodo,
+                tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             )
             if eh_evento_especifico and not self.escola.periodos_escolares().filter(
                 nome=periodo
             ):
                 tipos_alimentacao_emei = vinculos.filter(
                     periodo_escolar__nome="INTEGRAL",
-                    tipo_unidade_escolar__iniciais="EMEI",
+                    tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
                 )
 
             tipos_alimentacao_emei = tipos_alimentacao_emei.values_list(

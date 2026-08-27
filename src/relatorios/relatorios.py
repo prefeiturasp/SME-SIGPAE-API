@@ -20,6 +20,7 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEI,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from src.dados_comuns.utils import convert_image_to_base64
@@ -376,7 +377,7 @@ def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
     vinculos_cei = vinculos_cei.order_by("periodo_escolar__posicao")
     vinculos_emei = vinculos_class.objects.filter(
         periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-        tipo_unidade_escolar__iniciais__in=["EMEI"],
+        tipo_unidade_escolar__iniciais__in=[TIPOS_UNIDADE_ESCOLAR.EMEI.value],
     )
     vinculos_emei = vinculos_emei.order_by("periodo_escolar__posicao")
 
@@ -977,7 +978,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
     vinculos_cei = vinculos_cei.order_by("periodo_escolar__posicao")
     vinculos_emei = vinculos_class.objects.filter(
         periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-        tipo_unidade_escolar__iniciais__in=["EMEI"],
+        tipo_unidade_escolar__iniciais__in=[TIPOS_UNIDADE_ESCOLAR.EMEI.value],
     )
 
     if solicitacao.dias_motivos_da_inclusao_cemei.filter(
@@ -986,7 +987,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
         eh_evento_especifico = True
         vinculos_emei = vinculos_class.objects.filter(
             periodo_escolar__nome__in=PERIODOS_CEMEI_EVENTO_ESPECIFICO,
-            tipo_unidade_escolar__iniciais__in=["EMEI"],
+            tipo_unidade_escolar__iniciais__in=[TIPOS_UNIDADE_ESCOLAR.EMEI.value],
         )
     vinculos_emei = vinculos_emei.order_by("periodo_escolar__posicao")
     for vinculo in vinculos_cei:

@@ -195,72 +195,100 @@ def classificacao_dieta_tipo_a_enteral():
 
 @pytest.fixture
 def tipo_unidade_escolar():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_emef():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEU EMEF")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_EMEF.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_emei():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_emei():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_emefm():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEFM")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEFM.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cieja():
-    return baker.make("TipoUnidadeEscolar", iniciais="CIEJA")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cmct():
-    return baker.make("TipoUnidadeEscolar", iniciais="CMCT")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CMCT.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_gestao():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cei():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cci():
-    return baker.make("TipoUnidadeEscolar", iniciais="CCI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cei_ceu():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEI CEU")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_cemei():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cemei():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_emebs():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
 
 
 @pytest.fixture
@@ -313,18 +341,18 @@ def client_autenticado_coordenador_codae(client, django_user_model):
     )
     emef = baker.make(
         "TipoUnidadeEscolar",
-        iniciais="EMEF",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         uuid="1cc3253b-e297-42b3-8e57-ebfd115a1aba",
     )
     baker.make("Escola", tipo_unidade=emef, uuid="95ad02fb-d746-4e0c-95f4-0181a99bc192")
     baker.make(
         "TipoUnidadeEscolar",
-        iniciais="CEU GESTAO",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
         uuid="40ee89a7-dc70-4abb-ae21-369c67f2b9e3",
     )
     baker.make(
         "TipoUnidadeEscolar",
-        iniciais="CIEJA",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
         uuid="ac4858ff-1c11-41f3-b539-7a02696d6d1b",
     )
     edital = baker.make(
@@ -387,7 +415,9 @@ def escola_emefm(diretoria_regional):
         diretoria_regional=diretoria_regional,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEFM")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEFM.value
+    )
     return baker.make(
         "Escola",
         nome="EMEFM TESTE",
@@ -412,7 +442,9 @@ def escola_emei():
         diretoria_regional=diretoria_regional,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEI")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
     return baker.make(
         "Escola",
         nome="EMEI TESTE",
@@ -473,7 +505,9 @@ def escola_cci():
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CCI")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
+    )
     return baker.make(
         "Escola",
         nome="CCI TESTE",
@@ -521,7 +555,9 @@ def escola_cemei():
         diretoria_regional=diretoria_regional,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     return baker.make(
         "Escola",
         nome="CEMEI TESTE",
@@ -541,7 +577,9 @@ def escola_ceu_cemei():
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value
+    )
     return baker.make(
         "Escola",
         nome="CEU CEMEI TESTE",
@@ -564,7 +602,9 @@ def escola_emebs():
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
     return baker.make(
         "Escola",
         nome="EMEBS TESTE",
@@ -586,7 +626,9 @@ def escola_ceu_gestao():
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+    )
     return baker.make(
         "Escola",
         nome="CEMEI TESTE",
@@ -607,7 +649,9 @@ def escola_cmct():
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CMCT")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CMCT.value
+    )
     return baker.make(
         "Escola",
         nome="CMCT TESTE",
@@ -2907,7 +2951,7 @@ def logs_alunos_matriculados_periodo_escola_cemei(escola_cemei):
         periodo_escolar=periodo_integral,
         quantidade_alunos=50,
         tipo_turma=TipoTurma.REGULAR.name,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
     return LogAlunosMatriculadosPeriodoEscola.objects.all()
 
@@ -3359,9 +3403,18 @@ def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
         nome="Grupo 3",
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="EMEI P FOM"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI_P_FOM.value,
+            ),
         ],
     )
     return {
@@ -3398,7 +3451,7 @@ def mock_colunas():
 def mock_linhas_emef():
     return [
         [
-            "EMEF",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
             "123456",
             "EMEF TESTE",
             10.0,
@@ -3422,7 +3475,7 @@ def mock_linhas_emef():
 def mock_linhas_emei():
     return [
         [
-            "EMEI",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             "987654",
             "EMEI TESTE",
             5.0,
@@ -3659,11 +3712,24 @@ def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
             baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CCI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CCI/CIPS"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEI CEU"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI.value
+            ),
+            baker.make(
+                "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            ),
         ],
     )
     return {
@@ -3987,8 +4053,14 @@ def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei)
         nome="Grupo 2",
         uuid="012dc7a2-eb11-4000-96b9-e3c5130dc64c",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="CEMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+            ),
         ],
     )
     return {
@@ -4045,7 +4117,7 @@ def mock_colunas_cemei(faixas_etarias_ativas):
 def mock_linhas_cemei():
     return [
         [
-            "CEMEI",
+            constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "543210",
             "CEMEI TESTE",
             5.0,
@@ -4313,7 +4385,10 @@ def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs)
         nome="Grupo 5",
         uuid="172a2ae6-c417-49d3-91d3-a2dae3d8a56b",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="EMEBS"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
+            ),
         ],
     )
     return {
@@ -4369,7 +4444,7 @@ def mock_colunas_emebs():
 def mock_linhas_emebs():
     return [
         [
-            "EMEBS",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
             "000329",
             "EMEBS TESTE",
             5.0,
@@ -4764,8 +4839,14 @@ def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_
         nome="Grupo 6",
         uuid="ee9abe61-e1c4-48fb-8b53-ffd2cef00458",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="CIEJA"),
-            baker.make("TipoUnidadeEscolar", iniciais="CMCT"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CMCT.value,
+            ),
         ],
     )
     return {
@@ -4816,7 +4897,7 @@ def mock_colunas_cieja():
 def mock_linhas_cieja():
     return [
         [
-            "CIEJA",
+            constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
             "111329",
             "CIEJA TESTE",
             5,
@@ -5428,7 +5509,9 @@ def medicoes_frequencia_zerada_emebs(
     categoria_medicao_dieta_a,
     classificacao_dieta_tipo_a,
 ):
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
     escola.tipo_unidade = tipo_unidade
     escola.save()
 
@@ -7213,7 +7296,7 @@ def solicitacao_recreio_cemei(
         lote=solicitacao_recreio_nas_ferias.escola.lote,
         num_inscritos=90,
         num_colaboradores=9,
-        cei_ou_emei="CEI",
+        cei_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     participante_emei = baker.make(
         "RecreioNasFeriasUnidadeParticipante",
@@ -7222,7 +7305,7 @@ def solicitacao_recreio_cemei(
         lote=solicitacao_recreio_nas_ferias.escola.lote,
         num_inscritos=100,
         num_colaboradores=10,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
 
     for alimentacao in [
@@ -7440,7 +7523,7 @@ def mock_colunas_recreio_emei():
 def mock_linhas_recreio_emei():
     return [
         [
-            "EMEI",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             "987654",
             "EMEI TESTE",
             1260.0,
@@ -7487,9 +7570,18 @@ def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
         nome="Grupo 3",
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="EMEI P FOM"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI_P_FOM.value,
+            ),
         ],
     )
     return {
@@ -7583,11 +7675,24 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
             baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CCI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CCI/CIPS"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEI CEU"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI.value
+            ),
+            baker.make(
+                "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            ),
         ],
     )
     return {
@@ -7624,7 +7729,7 @@ def mock_colunas_recreio_emef():
 def mock_linhas_recreio_emef():
     return [
         [
-            "EMEF",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
             "123456",
             "EMEF TESTE",
             1260.0,
@@ -7723,7 +7828,7 @@ def mock_colunas_recreio_cemei(faixas_etarias_ativas):
 def mock_linhas_recreio_cemei():
     return [
         [
-            "CEMEI",
+            constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "765432",
             "CEMEI TESTE",
             220.0,
@@ -7811,7 +7916,9 @@ def informacoes_excel_writer_sem_lancamentos(solicitacao_sem_lancamento):
         ("MANHA", "total_refeicoes_pagamento"),
         ("MANHA", "total_sobremesas_pagamento"),
     ]
-    linhas = [["EMEF", "123456", "EMEF TESTE", "SL", "SL"]]
+    linhas = [
+        [constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value, "123456", "EMEF TESTE", "SL", "SL"]
+    ]
     arquivo = BytesIO()
     aba = f"Relatório Consolidado {solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")

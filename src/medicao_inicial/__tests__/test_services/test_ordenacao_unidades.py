@@ -9,6 +9,7 @@ from src.dados_comuns.constants import (
     DJANGO_ADMIN_TREINAMENTO_PASSWORD,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -169,10 +170,18 @@ def test_solicitacoes_ordenacao_unidades(
 
     # Grupo 4 - EMEF (duas escolas para teste alfabético)
     emef_1 = cria_escola(
-        "EMEF JOAO CARLOS DA SILVA BORGES, PROF.", "EMEF", dre, "100001", tipo_gestao
+        "EMEF JOAO CARLOS DA SILVA BORGES, PROF.",
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        dre,
+        "100001",
+        tipo_gestao,
     )
     emef_2 = cria_escola(
-        "EMEF PERICLES EUGENIO DA SILVA RAMOS", "EMEF", dre, "100002", tipo_gestao
+        "EMEF PERICLES EUGENIO DA SILVA RAMOS",
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        dre,
+        "100002",
+        tipo_gestao,
     )
 
     # Grupo 1 - CEI (inclui mais itens para validar alfabético)
@@ -183,40 +192,96 @@ def test_solicitacoes_ordenacao_unidades(
         "CEI DIRET ANA", TIPO_UNIDADE_CEI_DIRET, dre, "200004", tipo_gestao
     )
 
-    ceu_cei_1 = cria_escola("CEU CEI PAULO", "CEU CEI", dre, "200002", tipo_gestao)
-    ceu_cei_2 = cria_escola("CEU CEI ANA", "CEU CEI", dre, "200005", tipo_gestao)
+    ceu_cei_1 = cria_escola(
+        "CEU CEI PAULO", TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value, dre, "200002", tipo_gestao
+    )
+    ceu_cei_2 = cria_escola(
+        "CEU CEI ANA", TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value, dre, "200005", tipo_gestao
+    )
 
-    cci_cips_1 = cria_escola("CCI/CIPS TESTE", "CCI/CIPS", dre, "200003", tipo_gestao)
-    cci_cips_2 = cria_escola("CCI/CIPS ABC", "CCI/CIPS", dre, "200006", tipo_gestao)
+    cci_cips_1 = cria_escola(
+        "CCI/CIPS TESTE",
+        TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+        dre,
+        "200003",
+        tipo_gestao,
+    )
+    cci_cips_2 = cria_escola(
+        "CCI/CIPS ABC", TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value, dre, "200006", tipo_gestao
+    )
 
     # Grupo 2 - CEMEI
-    cemei_1 = cria_escola("CEMEI CENTRAL", "CEMEI", dre, "300001", tipo_gestao)
-    ceu_cemei_1 = cria_escola("CEU CEMEI SUL", "CEU CEMEI", dre, "300002", tipo_gestao)
+    cemei_1 = cria_escola(
+        "CEMEI CENTRAL", TIPOS_UNIDADE_ESCOLAR.CEMEI.value, dre, "300001", tipo_gestao
+    )
+    ceu_cemei_1 = cria_escola(
+        "CEU CEMEI SUL",
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+        dre,
+        "300002",
+        tipo_gestao,
+    )
 
     # Grupo 3 - EMEI
-    emei_1 = cria_escola("EMEI JARDIM", "EMEI", dre, "400001", tipo_gestao)
-    ceu_emei_1 = cria_escola("CEU EMEI NORTE", "CEU EMEI", dre, "400002", tipo_gestao)
+    emei_1 = cria_escola(
+        "EMEI JARDIM", TIPOS_UNIDADE_ESCOLAR.EMEI.value, dre, "400001", tipo_gestao
+    )
+    ceu_emei_1 = cria_escola(
+        "CEU EMEI NORTE",
+        TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value,
+        dre,
+        "400002",
+        tipo_gestao,
+    )
 
     # Grupo 4 - adicionais
-    emefm_1 = cria_escola("EMEFM TESTE ALPHA", "EMEFM", dre, "500001", tipo_gestao)
+    emefm_1 = cria_escola(
+        "EMEFM TESTE ALPHA",
+        TIPOS_UNIDADE_ESCOLAR.EMEFM.value,
+        dre,
+        "500001",
+        tipo_gestao,
+    )
 
     # Incluímos CEU GESTAO (duas escolas para validar alfabético) ANTES de CEU EMEF (por constants)
     ceu_gestao_1 = cria_escola(
-        "CEU GESTAO LESTE", "CEU GESTAO", dre, "500004", tipo_gestao
+        "CEU GESTAO LESTE",
+        TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
+        dre,
+        "500004",
+        tipo_gestao,
     )
     ceu_gestao_2 = cria_escola(
-        "CEU GESTAO CENTRO", "CEU GESTAO", dre, "500005", tipo_gestao
+        "CEU GESTAO CENTRO",
+        TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
+        dre,
+        "500005",
+        tipo_gestao,
     )
     ceu_emef_1 = cria_escola(
-        "CEU EMEF ROSA PARKS", "CEU EMEF", dre, "500003", tipo_gestao
+        "CEU EMEF ROSA PARKS",
+        TIPOS_UNIDADE_ESCOLAR.CEU_EMEF.value,
+        dre,
+        "500003",
+        tipo_gestao,
     )
 
     # Grupo 5 - EMEBS
-    emebs_1 = cria_escola("EMEBS ESPECIAL", "EMEBS", dre, "600001", tipo_gestao)
+    emebs_1 = cria_escola(
+        "EMEBS ESPECIAL", TIPOS_UNIDADE_ESCOLAR.EMEBS.value, dre, "600001", tipo_gestao
+    )
 
     # Grupo 6 -  CIEJA e CMCT
-    cieja_1 = cria_escola("CIEJA CAMPO LIMPO", "CIEJA", dre, "700001", tipo_gestao)
-    cmct_1 = cria_escola("CMCT CAMPO BELO", "CMCT", dre, "700002", tipo_gestao)
+    cieja_1 = cria_escola(
+        "CIEJA CAMPO LIMPO",
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        dre,
+        "700001",
+        tipo_gestao,
+    )
+    cmct_1 = cria_escola(
+        "CMCT CAMPO BELO", TIPOS_UNIDADE_ESCOLAR.CMCT.value, dre, "700002", tipo_gestao
+    )
 
     escolas = [
         emef_1,
@@ -258,28 +323,28 @@ def test_solicitacoes_ordenacao_unidades(
         # Grupo 1
         (TIPO_UNIDADE_CEI_DIRET, "CEI DIRET ANA"),
         (TIPO_UNIDADE_CEI_DIRET, "CEI DIRET MARIA"),
-        ("CEU CEI", "CEU CEI ANA"),
-        ("CEU CEI", "CEU CEI PAULO"),
-        ("CCI/CIPS", "CCI/CIPS ABC"),
-        ("CCI/CIPS", "CCI/CIPS TESTE"),
+        (TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value, "CEU CEI ANA"),
+        (TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value, "CEU CEI PAULO"),
+        (TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value, "CCI/CIPS ABC"),
+        (TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value, "CCI/CIPS TESTE"),
         # Grupo 2
-        ("CEMEI", "CEMEI CENTRAL"),
-        ("CEU CEMEI", "CEU CEMEI SUL"),
+        (TIPOS_UNIDADE_ESCOLAR.CEMEI.value, "CEMEI CENTRAL"),
+        (TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value, "CEU CEMEI SUL"),
         # Grupo 3
-        ("EMEI", "EMEI JARDIM"),
-        ("CEU EMEI", "CEU EMEI NORTE"),
+        (TIPOS_UNIDADE_ESCOLAR.EMEI.value, "EMEI JARDIM"),
+        (TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value, "CEU EMEI NORTE"),
         # Grupo 4 (EMEF=1, CEU EMEF=2, EMEFM=3, EMEF P FOM=4, CIEJA=5, CEU GESTAO=6)
-        ("EMEF", "EMEF JOAO CARLOS DA SILVA BORGES, PROF."),
-        ("EMEF", "EMEF PERICLES EUGENIO DA SILVA RAMOS"),
-        ("CEU EMEF", "CEU EMEF ROSA PARKS"),
-        ("EMEFM", "EMEFM TESTE ALPHA"),
-        ("CEU GESTAO", "CEU GESTAO CENTRO"),
-        ("CEU GESTAO", "CEU GESTAO LESTE"),
+        (TIPOS_UNIDADE_ESCOLAR.EMEF.value, "EMEF JOAO CARLOS DA SILVA BORGES, PROF."),
+        (TIPOS_UNIDADE_ESCOLAR.EMEF.value, "EMEF PERICLES EUGENIO DA SILVA RAMOS"),
+        (TIPOS_UNIDADE_ESCOLAR.CEU_EMEF.value, "CEU EMEF ROSA PARKS"),
+        (TIPOS_UNIDADE_ESCOLAR.EMEFM.value, "EMEFM TESTE ALPHA"),
+        (TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value, "CEU GESTAO CENTRO"),
+        (TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value, "CEU GESTAO LESTE"),
         # Grupo 5
-        ("EMEBS", "EMEBS ESPECIAL"),
+        (TIPOS_UNIDADE_ESCOLAR.EMEBS.value, "EMEBS ESPECIAL"),
         # Grupo 6
-        ("CIEJA", "CIEJA CAMPO LIMPO"),
-        ("CMCT", "CMCT CAMPO BELO"),
+        (TIPOS_UNIDADE_ESCOLAR.CIEJA.value, "CIEJA CAMPO LIMPO"),
+        (TIPOS_UNIDADE_ESCOLAR.CMCT.value, "CMCT CAMPO BELO"),
     ]
 
     for i, (tipo_esp, nome_esp) in enumerate(ordem_esperada):

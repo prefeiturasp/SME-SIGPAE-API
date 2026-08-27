@@ -35,12 +35,16 @@ def test_get_categorias_nao_permitidas():
     view_instance = FormularioSupervisaoModelViewSet()
 
     # Teste para CEMEI
-    categorias = view_instance._get_categorias_nao_permitidas("CEMEI")
+    categorias = view_instance._get_categorias_nao_permitidas(
+        constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     assert "LACTÁRIO" not in categorias
     assert "RESÍDUO DE ÓLEO UTILIZADO NA FRITURA" not in categorias
 
     # Teste para outro tipo de escola
-    categorias = view_instance._get_categorias_nao_permitidas("EMEF")
+    categorias = view_instance._get_categorias_nao_permitidas(
+        constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     assert "LACTÁRIO" in categorias
     assert "RESÍDUO DE ÓLEO UTILIZADO NA FRITURA" not in categorias
 
@@ -69,9 +73,13 @@ def test_tipos_ocorrencias(
     categoria_lactario = categoria_ocorrencia_factory.create(
         nome="LACTÁRIO", perfis=[PerfilDiretorSupervisao.SUPERVISAO], posicao=2
     )
-    tipo_unidade_emef = tipo_unidade_escolar_factory.create(iniciais="EMEF")
+    tipo_unidade_emef = tipo_unidade_escolar_factory.create(
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     escola_emef = escola_factory.create(tipo_unidade=tipo_unidade_emef)
-    tipo_unidade_cemei = tipo_unidade_escolar_factory.create(iniciais="CEMEI")
+    tipo_unidade_cemei = tipo_unidade_escolar_factory.create(
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     escola_cemei = escola_factory.create(tipo_unidade=tipo_unidade_cemei)
 
     tipo_ocorrencia_factory.create(

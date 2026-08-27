@@ -13,6 +13,7 @@ from src.dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.services.utils import (
     generate_columns,
@@ -526,7 +527,7 @@ def test_gera_colunas_alimentacao_cemei(
     )
 
     assert df.iloc[0].tolist() == [
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         5.0,
@@ -764,7 +765,7 @@ def test_gera_colunas_alimentacao_emebs(
     )
 
     assert df.iloc[0].tolist() == [
-        "EMEBS",
+        TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
         "000329",
         "EMEBS TESTE",
         5.0,

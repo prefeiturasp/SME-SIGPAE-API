@@ -11,6 +11,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _calcula_soma_medicao,
@@ -150,7 +151,7 @@ def test_sort_and_merge(faixas_etarias_ativas):
 
 
 def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
-    tipos_unidade = ["CEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     linhas = get_valores_tabela(
         [solicitacao_recreio_cei], mock_colunas_recreio_cei, tipos_unidade
     )

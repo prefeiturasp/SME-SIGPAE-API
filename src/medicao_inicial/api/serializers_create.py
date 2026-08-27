@@ -83,6 +83,7 @@ from ...dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
 from ..recreio_nas_ferias.models import (
@@ -2056,7 +2057,7 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
                 {"cei_ou_emei": "Campo obrigatório para o grupo."}
             )
 
-        if cei_ou_emei == "CEI":
+        if cei_ou_emei == TIPOS_UNIDADE_ESCOLAR.CEI.value:
             self._validar_grupo_cei(attrs, False)
         else:
             self._validar_grupo_emei(attrs, False)

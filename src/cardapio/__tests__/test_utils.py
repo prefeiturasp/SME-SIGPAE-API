@@ -1,7 +1,7 @@
 import pytest
 
 from src.cardapio.utils import converter_data, ordem_periodos
-from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET
+from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET, TIPOS_UNIDADE_ESCOLAR
 
 pytestmark = pytest.mark.django_db
 
@@ -57,7 +57,7 @@ def test_ordem_periodos_ceu_gestao(escola_ceu_gestao):
 def test_ordem_periodos_cemei(escola_cemei):
     esperado = {
         TIPO_UNIDADE_CEI_DIRET: {"INTEGRAL": 1, "PARCIAL": 2},
-        "EMEI": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3},
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value: {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3},
     }
     periodos = ordem_periodos(escola_cemei)
     assert periodos == esperado

@@ -21,6 +21,7 @@ from src.dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MODEL_TERCEIRIZADA,
     TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -975,7 +976,9 @@ def escola_cemei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome="TERC_TOTAL")
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@gmail.com")
     diretoria_regional = baker.make(
         "DiretoriaRegional",
@@ -1038,7 +1041,7 @@ def recreio_nas_ferias_cei(escola_cei):
         num_inscritos=100,
         num_colaboradores=50,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     return recreio
 
@@ -1060,7 +1063,7 @@ def recreio_nas_ferias_cemei(escola_cemei):
         num_inscritos=100,
         num_colaboradores=50,
         liberar_medicao=True,
-        cei_ou_emei="CEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
 
     baker.make(
@@ -1071,7 +1074,7 @@ def recreio_nas_ferias_cemei(escola_cemei):
         num_inscritos=100,
         num_colaboradores=50,
         liberar_medicao=True,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
 
     return recreio

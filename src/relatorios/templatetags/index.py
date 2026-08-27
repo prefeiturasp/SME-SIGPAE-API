@@ -635,9 +635,9 @@ def formatar_observacoes(observacoes, tipo_unidade=None):
     observacoes_tuple = [format_observacao(observacao) for observacao in observacoes]
 
     order_key = None
-    if tipo_unidade == "CEI":
+    if tipo_unidade == constants.TIPOS_UNIDADE_ESCOLAR.CEI.value:
         order_key = constants.ORDEM_PERIODOS_GRUPOS_CEI
-    elif tipo_unidade == "CEMEI":
+    elif tipo_unidade == constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value:
         order_key = constants.ORDEM_PERIODOS_GRUPOS_CEMEI
     else:
         order_key = constants.ORDEM_PERIODOS_GRUPOS

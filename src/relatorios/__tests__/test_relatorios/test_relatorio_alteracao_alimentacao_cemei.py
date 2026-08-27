@@ -3,7 +3,11 @@ import datetime
 import pytest
 from django.test import RequestFactory
 
-from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET, TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import (
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.relatorios import relatorios
 
 pytestmark = pytest.mark.django_db
@@ -24,7 +28,9 @@ def test_relatorio_alteracao_alimentacao_cemei_aplica_nome_historico_escola(
     vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar_factory,
     monkeypatch,
 ):
-    tipo_unidade_cemei = tipo_unidade_escolar_factory.create(iniciais="CEMEI")
+    tipo_unidade_cemei = tipo_unidade_escolar_factory.create(
+        iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     escola = escola_factory.create(
         nome="CEMEI ATUAL",
         codigo_eol="123456",
@@ -65,7 +71,9 @@ def test_relatorio_alteracao_alimentacao_cemei_aplica_nome_historico_escola(
     tipo_unidade_cei = tipo_unidade_escolar_factory.create(
         iniciais=TIPO_UNIDADE_CEI_DIRET
     )
-    tipo_unidade_emei = tipo_unidade_escolar_factory.create(iniciais="EMEI")
+    tipo_unidade_emei = tipo_unidade_escolar_factory.create(
+        iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
 
     vinculo_tipo_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar_factory.create(
         periodo_escolar=periodo,

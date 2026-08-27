@@ -44,6 +44,7 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEI,
     TIPOS_ALIMENTACAO,
     TIPOS_TURMAS_EMEBS,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
@@ -302,7 +303,10 @@ def _get_total_colunas_periodo(tabela, periodo, tipo_unidade=None):
     recreio = tabela.get("recreio", False)
     categorias = tabela["categorias_dos_periodos"][periodo]
 
-    if tipo_unidade == "CEMEI" and periodo in ["INTEGRAL", "PARCIAL"]:
+    if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value and periodo in [
+        "INTEGRAL",
+        "PARCIAL",
+    ]:
         return sum((x["numero_campos"] * 2) + 1 for x in categorias)
 
     if recreio and _nome_periodo_tem_faixas_etarias_cemei(periodo):
@@ -380,7 +384,7 @@ def append_tabela(
 ):
     tabelas[indice_atual]["periodos"] += [nome_periodo]
     tabelas[indice_atual]["categorias"] += [categoria]
-    if tipo_unidade == "CEMEI":
+    if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value:
         tabelas[indice_atual]["periodo_por_categoria"] += [nome_periodo]
         if not segunda_tabela:
             faixas_etarias = tabelas[indice_atual]["faixas_etarias"]
@@ -402,7 +406,10 @@ def append_tabela(
             limite_campos,
         )
     else:
-        if tipo_unidade == "CEMEI" and nome_periodo in ["INTEGRAL", "PARCIAL"]:
+        if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value and nome_periodo in [
+            "INTEGRAL",
+            "PARCIAL",
+        ]:
             tabelas[indice_atual]["faixas_etarias"] += [
                 faixa for faixa in dict_categorias_campos[categoria]
             ][:limite_campos]
@@ -435,7 +442,10 @@ def append_segunda_tabela(
     categoria,
     limite_campos,
 ):
-    if tipo_unidade == "CEMEI" and nome_periodo in ["INTEGRAL", "PARCIAL"]:
+    if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value and nome_periodo in [
+        "INTEGRAL",
+        "PARCIAL",
+    ]:
         tabelas[indice_atual]["faixas_etarias"] += [
             faixa for faixa in dict_categorias_campos[categoria]
         ][limite_campos:]
@@ -1360,7 +1370,7 @@ def build_headers_tabelas_cemei(solicitacao):
                         categoria,
                         dict_categorias_campos,
                         False,
-                        "CEMEI",
+                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
                         limite_campos,
                     )
                     indice_atual += 1
@@ -1373,7 +1383,7 @@ def build_headers_tabelas_cemei(solicitacao):
                         categoria,
                         dict_categorias_campos,
                         True,
-                        "CEMEI",
+                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
                         limite_campos,
                     )
                 else:
@@ -1386,7 +1396,7 @@ def build_headers_tabelas_cemei(solicitacao):
                         dict_categorias_campos,
                         indice_atual,
                         categoria,
-                        "CEMEI",
+                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
                         recreio=recreio,
                     )
                     get_categorias_dos_periodos(
@@ -1403,7 +1413,7 @@ def build_headers_tabelas_cemei(solicitacao):
                     dict_categorias_campos,
                     indice_atual,
                     categoria,
-                    "CEMEI",
+                    TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
                     recreio=recreio,
                 )
                 get_categorias_dos_periodos(
@@ -1415,7 +1425,9 @@ def build_headers_tabelas_cemei(solicitacao):
                 )
             adiciona_campo_total_faixa_etaria(tabelas, nome_periodo, indice_atual)
 
-    get_tamanho_colunas_periodos(tabelas, ORDEM_PERIODOS_GRUPOS_CEMEI, "CEMEI")
+    get_tamanho_colunas_periodos(
+        tabelas, ORDEM_PERIODOS_GRUPOS_CEMEI, TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     return tabelas
 
 
@@ -1434,7 +1446,10 @@ def adiciona_valores_header(
 ):
     if nome_periodo not in tabelas[indice_atual]["periodos"]:
         tabelas[indice_atual]["periodos"] += [nome_periodo]
-    if _nome_periodo_tem_faixas_etarias_cemei(nome_periodo) and tipo_unidade == "CEMEI":
+    if (
+        _nome_periodo_tem_faixas_etarias_cemei(nome_periodo)
+        and tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    ):
         faixas_categoria = [faixa for faixa in dict_categorias_campos[categoria]]
         tabelas[indice_atual]["faixas_etarias"] += faixas_categoria
         n = len(dict_categorias_campos[categoria])
@@ -1444,7 +1459,7 @@ def adiciona_valores_header(
             len(dict_categorias_campos[categoria])
         ]
     tabelas[indice_atual]["categorias"] += [categoria]
-    if tipo_unidade == "CEMEI":
+    if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value:
         tabelas[indice_atual]["periodo_por_categoria"] += [nome_periodo]
     tabelas[indice_atual]["nomes_campos"] += [
         campo for campo in ORDEM_CAMPOS if campo in dict_categorias_campos[categoria]
@@ -1547,9 +1562,9 @@ def _get_unidade_participantes_recreio(
         return unidades.first(), False
 
     if "4 a 14" in periodo_corrente:
-        unidade = unidades.filter(cei_ou_emei="EMEI").first()
+        unidade = unidades.filter(cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value).first()
     else:
-        unidade = unidades.filter(cei_ou_emei="CEI").first()
+        unidade = unidades.filter(cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value).first()
 
     if unidade is None:
         unidade = unidades.first()
@@ -7317,7 +7332,7 @@ def _verifica_dietas_consumidas(
         if (
             escola_cemei
             and item["periodo_escolar__nome"] == "INTEGRAL"
-            and item["cei_ou_emei"] == "CEI"
+            and item["cei_ou_emei"] == TIPOS_UNIDADE_ESCOLAR.CEI.value
         ):
             continue
 

@@ -22,7 +22,7 @@ from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
-from src.dados_comuns.constants import TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -579,12 +579,12 @@ class TestEndpointInclusoesAutorizadas:
         periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
         refeicao = TipoAlimentacaoFactory.create(nome=TIPOS_ALIMENTACAO.REFEICAO.value)
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory.create(
-            tipo_unidade_escolar__iniciais="EMEI",
+            tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             periodo_escolar=periodo_manha,
             tipos_alimentacao=[refeicao],
         )
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory.create(
-            tipo_unidade_escolar__iniciais="EMEI",
+            tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             periodo_escolar=periodo_integral,
             tipos_alimentacao=[refeicao],
         )

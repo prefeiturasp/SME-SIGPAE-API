@@ -18,6 +18,7 @@ from src.cardapio.suspensao_alimentacao.models import (
 from src.dados_comuns.constants import (
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.paineis_consolidados.api import constants as consts_pc
 from src.paineis_consolidados.api.serializers import (
@@ -68,7 +69,9 @@ def escola(diretoria_regional):
         terceirizada=terceirizada,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+    )
     return baker.make(
         "Escola",
         diretoria_regional=diretoria_regional,
@@ -89,7 +92,9 @@ def escola_outro_lote(diretoria_regional):
         terceirizada=terceirizada,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+    )
     return baker.make(
         "Escola",
         diretoria_regional=diretoria_regional,
@@ -1442,7 +1447,9 @@ def escola_cemei():
         nome="DIRETORIA REGIONAL GUAIANASES",
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",

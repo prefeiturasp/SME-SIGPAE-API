@@ -9,6 +9,7 @@ from src.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
 )
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 from src.escola.models import EscolaPeriodoEscolar
 
 
@@ -73,9 +74,11 @@ class Command(BaseCommand):
             for faixa in substituicoes_faixas:
                 for periodo_matriculas in faixa_alunos:
                     if periodo_matriculas["nome"] == faixa.periodo_escolar.nome:
-                        faixa.matriculados_quando_criado = periodo_matriculas["EMEI"]
+                        faixa.matriculados_quando_criado = periodo_matriculas[
+                            TIPOS_UNIDADE_ESCOLAR.EMEI.value
+                        ]
                         uuid = faixa.uuid
-                        qtd = periodo_matriculas["EMEI"]
+                        qtd = periodo_matriculas[TIPOS_UNIDADE_ESCOLAR.EMEI.value]
                         self.stdout.write(
                             f"Substituicao CEMEI EMEI uuid: {uuid} - matriculados quando criado: {qtd}"
                         )
@@ -127,7 +130,9 @@ class Command(BaseCommand):
             ):
                 continue
 
-            for faixa_matriculados in periodo_matriculas["CEI"]:
+            for faixa_matriculados in periodo_matriculas[
+                TIPOS_UNIDADE_ESCOLAR.CEI.value
+            ]:
                 if faixa_matriculados["uuid"] != str(faixa.faixa_etaria.uuid):
                     continue
 

@@ -1,6 +1,10 @@
 import datetime
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPO_UNIDADE_CEI_DIRET
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.escola.models import Escola
 
 
@@ -37,7 +41,7 @@ def ordem_periodos(
                 "INTEGRAL": 1,
                 "PARCIAL": 2,
             },
-            "EMEI": {
+            TIPOS_UNIDADE_ESCOLAR.EMEI.value: {
                 "MANHA": 1,
                 "TARDE": 2,
                 "INTEGRAL": 3,

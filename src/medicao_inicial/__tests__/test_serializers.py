@@ -5,7 +5,11 @@ import pytest
 from model_bakery import baker
 from rest_framework import serializers
 
-from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO, TIPOS_GESTAO
+from src.dados_comuns.constants import (
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
@@ -539,7 +543,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
     """
 
     def _setup_escola_emef(self):
-        tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+        tipo_unidade = baker.make(
+            "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         terceirizada = baker.make("Terceirizada")
         diretoria_regional = baker.make("DiretoriaRegional")
         lote = baker.make(

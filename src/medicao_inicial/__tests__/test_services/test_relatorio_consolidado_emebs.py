@@ -11,6 +11,7 @@ from src.dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
@@ -402,7 +403,7 @@ def test_get_valores_tabela(relatorio_consolidado_xlsx_emebs, mock_colunas_emebs
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 67
     assert linhas[0] == [
-        "EMEBS",
+        TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
         "000329",
         "EMEBS TESTE",
         5.0,
@@ -513,7 +514,12 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_emebs):
 
     assert isinstance(integral, list)
     assert len(integral) == 4
-    assert integral == ["EMEBS", "000329", "EMEBS TESTE", 350.0]
+    assert integral == [
+        TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
+        "000329",
+        "EMEBS TESTE",
+        350.0,
+    ]
 
 
 def test_define_filtro(relatorio_consolidado_xlsx_emebs):
@@ -747,7 +753,7 @@ def test_insere_tabela_periodos_na_planilha(
     )
 
     assert df.iloc[0].tolist() == [
-        "EMEBS",
+        TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
         "000329",
         "EMEBS TESTE",
         5.0,

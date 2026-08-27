@@ -14,6 +14,7 @@ from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import PeriodoEscolar
 from src.inclusao_alimentacao.models import (
@@ -220,13 +221,19 @@ def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_cemei(
     assert json[0]["tipo_unidade_escolar"]["iniciais"] == TIPO_UNIDADE_CEI_DIRET
     assert json[0]["periodo_escolar"]["nome"] == "INTEGRAL"
 
-    assert json[1]["tipo_unidade_escolar"]["iniciais"] == "EMEI"
+    assert (
+        json[1]["tipo_unidade_escolar"]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
     assert json[1]["periodo_escolar"]["nome"] == "MANHA"
 
-    assert json[1]["tipo_unidade_escolar"]["iniciais"] == "EMEI"
+    assert (
+        json[1]["tipo_unidade_escolar"]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
     assert json[2]["periodo_escolar"]["nome"] == "TARDE"
 
-    assert json[1]["tipo_unidade_escolar"]["iniciais"] == "EMEI"
+    assert (
+        json[1]["tipo_unidade_escolar"]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
     assert json[3]["periodo_escolar"]["nome"] == "INTEGRAL"
 
 
@@ -280,7 +287,9 @@ def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_cemei = baker.make("escola.TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade_cemei = baker.make(
+        "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     diretoria_regional = baker.make("DiretoriaRegional")
     escola_cemei = baker.make(
         MODEL_ESCOLA,
@@ -337,7 +346,9 @@ def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(
         tipos_alimentacao=[refeicao],
     )
 
-    tipo_unidade_emei = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEI")
+    tipo_unidade_emei = baker.make(
+        "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
     baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         tipo_unidade_escolar=tipo_unidade_emei,

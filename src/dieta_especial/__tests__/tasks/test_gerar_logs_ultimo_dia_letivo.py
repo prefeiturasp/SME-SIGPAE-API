@@ -3,7 +3,7 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
-from src.dados_comuns.constants import TIPOS_GESTAO
+from src.dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
@@ -37,7 +37,9 @@ class TestUseCaseCriacaoLogsUltimoDiaLetivo:
         )
 
     def _setup_escola_emef(self, tipo_unidade_escolar_factory, escola_factory):
-        self.tipo_unidade_emef = tipo_unidade_escolar_factory.create(iniciais="EMEF")
+        self.tipo_unidade_emef = tipo_unidade_escolar_factory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         self.escola_emef = escola_factory.create(
             nome="EMEF PERICLES",
             tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,

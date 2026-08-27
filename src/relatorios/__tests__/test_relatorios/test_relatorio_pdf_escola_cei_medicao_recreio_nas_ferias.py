@@ -9,6 +9,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_RECREIO_NAS_FERIAS,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cei_recreio_nas_ferias,
@@ -36,7 +37,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
             num_inscritos=10,
             num_colaboradores=5,
             liberar_medicao=True,
-            cei_ou_emei="CEI",
+            cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
         )
 
     def _setup_solicitacao(self, solicitacao_medicao_inicial_factory, escola_cei):

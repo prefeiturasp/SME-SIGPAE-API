@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
     _formata_filtros,
@@ -29,7 +30,7 @@ def test_gera_relatorio_consolidado_xlsx_emef(
     relatorio_consolidado_xlsx_emef, mock_query_params_excel_emef
 ):
     solicitacoes = [relatorio_consolidado_xlsx_emef.uuid]
-    tipos_unidade = ["EMEF"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes, tipos_unidade, mock_query_params_excel_emef, contem_recreio=False
     )
@@ -132,7 +133,7 @@ def test_gera_relatorio_consolidado_xlsx_emef(
         None,
     )
     assert rows[5] == (
-        "EMEF",
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
         "EMEF TESTE",
         10,
@@ -173,7 +174,7 @@ def test_gera_relatorio_consolidado_xlsx_emef_com_filtro_de_datas(
     relatorio_consolidado_xlsx_emef, mock_query_params_excel_emef
 ):
     solicitacoes = [relatorio_consolidado_xlsx_emef.uuid]
-    tipos_unidade = ["EMEF"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     query_params = {
         **mock_query_params_excel_emef,
         "data_inicial": "2025-04-03",
@@ -209,7 +210,7 @@ def test_gera_relatorio_consolidado_xlsx_emef_com_filtro_de_datas(
         None,
     )
     assert rows[5] == (
-        "EMEF",
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
         "EMEF TESTE",
         10,
@@ -232,7 +233,7 @@ def test_gera_relatorio_consolidado_xlsx_emei(
     relatorio_consolidado_xlsx_emei, mock_query_params_excel_emei
 ):
     solicitacoes = [relatorio_consolidado_xlsx_emei.uuid]
-    tipos_unidade = ["EMEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes, tipos_unidade, mock_query_params_excel_emei, contem_recreio=False
     )
@@ -335,7 +336,7 @@ def test_gera_relatorio_consolidado_xlsx_emei(
         None,
     )
     assert rows[5] == (
-        "EMEI",
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
         "EMEI TESTE",
         5,
@@ -807,7 +808,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
     relatorio_consolidado_xlsx_cemei, mock_query_params_excel_cemei
 ):
     solicitacoes = [relatorio_consolidado_xlsx_cemei.uuid]
-    tipos_unidade = ["CEMEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes, tipos_unidade, mock_query_params_excel_cemei, contem_recreio=False
     )
@@ -1261,7 +1262,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
         None,
     )
     assert rows[5] == (
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         5,
@@ -1369,7 +1370,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei_unifica_dieta_enteral_programas_e
 
     arquivo = gera_relatorio_consolidado_xlsx(
         [relatorio_consolidado_xlsx_cemei.uuid],
-        ["CEMEI"],
+        [TIPOS_UNIDADE_ESCOLAR.CEMEI.value],
         mock_query_params_excel_cemei,
         contem_recreio=False,
     )
@@ -1393,7 +1394,7 @@ def test_gera_relatorio_consolidado_xlsx_emebs(
     relatorio_consolidado_xlsx_emebs, mock_query_params_excel_emebs
 ):
     solicitacoes = [relatorio_consolidado_xlsx_emebs.uuid]
-    tipos_unidade = ["EMEBS"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEBS.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes, tipos_unidade, mock_query_params_excel_emebs, contem_recreio=False
     )
@@ -1833,7 +1834,7 @@ def test_gera_relatorio_consolidado_xlsx_emebs(
         None,
     )
     assert rows[6] == (
-        "EMEBS",
+        TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
         "000329",
         "EMEBS TESTE",
         5,
@@ -1980,7 +1981,7 @@ def test_gera_relatorio_consolidado_xlsx_cieja_cmct(
     relatorio_consolidado_xlsx_cieja, mock_query_params_excel_cieja_cmct
 ):
     solicitacoes = [relatorio_consolidado_xlsx_cieja.uuid]
-    tipos_unidade = ["CIEJA"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CIEJA.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes,
         tipos_unidade,
@@ -2132,7 +2133,7 @@ def test_gera_relatorio_consolidado_xlsx_cieja_cmct(
         None,
     )
     assert rows[5] == (
-        "CIEJA",
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
         "111329",
         "CIEJA TESTE",
         5,
@@ -2214,7 +2215,7 @@ def test_preenche_titulo(informacoes_excel_writer_emef):
 def test_preenche_linha_dos_filtros_selecionados_unidade_emef(
     mock_query_params_excel_emef, informacoes_excel_writer_emef
 ):
-    tipos_unidades = ["EMEF"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emef
     _preenche_linha_dos_filtros_selecionados(
         workbook,
@@ -2248,7 +2249,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emef(
 def test_preenche_linha_dos_filtros_selecionados_unidade_emei(
     mock_query_params_excel_emei, informacoes_excel_writer_emei
 ):
-    tipos_unidades = ["EMEI"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emei
     _preenche_linha_dos_filtros_selecionados(
         workbook,
@@ -2282,7 +2283,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emei(
 def test_preenche_linha_dos_filtros_selecionados_unidade_cei(
     mock_query_params_excel_cei, informacoes_excel_writer_cei
 ):
-    tipos_unidades = ["CEI"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_cei
     _preenche_linha_dos_filtros_selecionados(
         workbook,
@@ -2325,7 +2326,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_cei(
 def test_preenche_linha_dos_filtros_selecionados_unidade_cemei(
     mock_query_params_excel_cemei, informacoes_excel_writer_cemei
 ):
-    tipos_unidades = ["CEMEI"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_cemei
     _preenche_linha_dos_filtros_selecionados(
         workbook,
@@ -2371,7 +2372,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_cemei(
 def test_preenche_linha_dos_filtros_selecionados_unidade_emebs(
     mock_query_params_excel_emebs, informacoes_excel_writer_emebs
 ):
-    tipos_unidades = ["EMEBS"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEBS.value]
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_emebs
     _preenche_linha_dos_filtros_selecionados(
         workbook,
@@ -2422,7 +2423,7 @@ def test_preenche_linha_dos_filtros_selecionados_unidade_emebs(
 def test_preenche_linha_dos_filtros_selecionados_unidade_cieja_cmct(
     mock_query_params_excel_cieja_cmct, informacoes_excel_writer_cieja_cmct
 ):
-    tipos_unidades = ["CIEJA"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.CIEJA.value]
     aba, writer, workbook, worksheet, df, arquivo = informacoes_excel_writer_cieja_cmct
     _preenche_linha_dos_filtros_selecionados(
         workbook,
@@ -2478,7 +2479,7 @@ def test_formata_total_geral(informacoes_excel_writer_emef):
 
 
 def test_formata_filtros_unidade_emef(mock_query_params_excel_emef):
-    tipos_unidades = ["EMEF"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     filtros = _formata_filtros(
         mock_query_params_excel_emef, tipos_unidades, contem_recreio=False
     )
@@ -2487,7 +2488,7 @@ def test_formata_filtros_unidade_emef(mock_query_params_excel_emef):
 
 
 def test_formata_filtros_unidade_emei(mock_query_params_excel_emei):
-    tipos_unidades = ["EMEI"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
     filtros = _formata_filtros(
         mock_query_params_excel_emei, tipos_unidades, contem_recreio=False
     )
@@ -2496,7 +2497,7 @@ def test_formata_filtros_unidade_emei(mock_query_params_excel_emei):
 
 
 def test_formata_filtros_unidade_cei(mock_query_params_excel_cei):
-    tipos_unidades = ["CEI"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     filtros = _formata_filtros(
         mock_query_params_excel_cei, tipos_unidades, contem_recreio=False
     )
@@ -2505,7 +2506,7 @@ def test_formata_filtros_unidade_cei(mock_query_params_excel_cei):
 
 
 def test_formata_filtros_unidade_cemei(mock_query_params_excel_cemei):
-    tipos_unidades = ["CEMEI"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
     filtros = _formata_filtros(
         mock_query_params_excel_cemei, tipos_unidades, contem_recreio=False
     )
@@ -2514,7 +2515,7 @@ def test_formata_filtros_unidade_cemei(mock_query_params_excel_cemei):
 
 
 def test_formata_filtros_unidade_emebs(mock_query_params_excel_emebs):
-    tipos_unidades = ["EMEBS"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEBS.value]
     filtros = _formata_filtros(
         mock_query_params_excel_emebs, tipos_unidades, contem_recreio=False
     )
@@ -2523,7 +2524,10 @@ def test_formata_filtros_unidade_emebs(mock_query_params_excel_emebs):
 
 
 def test_formata_filtros_unidade_cieja_cmct(mock_query_params_excel_cieja_cmct):
-    tipos_unidades = ["CIEJA", "CMCT"]
+    tipos_unidades = [
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        TIPOS_UNIDADE_ESCOLAR.CMCT.value,
+    ]
     filtros = _formata_filtros(
         mock_query_params_excel_cieja_cmct, tipos_unidades, contem_recreio=False
     )
@@ -2538,7 +2542,7 @@ def test_gera_relatorio_consolidado_xlsx_tipo_unidade_invalida():
 
 
 def test_gera_relatorio_consolidado_xlsx_retorna_exception():
-    tipos_de_unidade = ["CEI"]
+    tipos_de_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     with pytest.raises(Exception):
         gera_relatorio_consolidado_xlsx([], tipos_de_unidade, {}, contem_recreio=False)
 
@@ -2547,7 +2551,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emei(
     solicitacao_recreio_emei, mock_query_params_excel_recreio_emei
 ):
     solicitacoes = [solicitacao_recreio_emei.uuid]
-    tipos_unidade = ["EMEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes,
         tipos_unidade,
@@ -2653,7 +2657,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emei(
         None,
     )
     assert rows[5] == (
-        "EMEI",
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
         "EMEI TESTE",
         1260,
@@ -2691,7 +2695,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emei(
 
 
 def test_formata_filtros_unidade_recreio_emei(mock_query_params_excel_recreio_emei):
-    tipos_unidades = ["EMEI"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
     filtros = _formata_filtros(
         mock_query_params_excel_recreio_emei, tipos_unidades, contem_recreio=True
     )
@@ -2709,7 +2713,7 @@ def test_gera_relatorio_consolidado_recreio_xlsx_tipo_unidade_invalida():
 
 
 def test_gera_relatorio_consolidado_recreio_xlsx_retorna_exception():
-    tipos_de_unidade = ["CEI"]
+    tipos_de_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     with pytest.raises(Exception):
         gera_relatorio_consolidado_xlsx([], tipos_de_unidade, {}, contem_recreio=True)
 
@@ -2718,7 +2722,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cei(
     solicitacao_recreio_cei, mock_query_params_excel_recreio_cei
 ):
     solicitacoes = [solicitacao_recreio_cei.uuid]
-    tipos_unidade = ["CEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes,
         tipos_unidade,
@@ -2925,7 +2929,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cei(
 
 
 def test_formata_filtros_unidade_recreio_cei(mock_query_params_excel_recreio_cei):
-    tipos_unidades = ["CEI"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     filtros = _formata_filtros(
         mock_query_params_excel_recreio_cei, tipos_unidades, contem_recreio=True
     )
@@ -2940,7 +2944,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emef(
     solicitacao_recreio_emef, mock_query_params_excel_recreio_emef
 ):
     solicitacoes = [solicitacao_recreio_emef.uuid]
-    tipos_unidade = ["EMEF"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes,
         tipos_unidade,
@@ -3046,7 +3050,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emef(
         None,
     )
     assert rows[5] == (
-        "EMEF",
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
         "EMEF TESTE",
         1260,
@@ -3084,7 +3088,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emef(
 
 
 def test_formata_filtros_unidade_recreio_emef(mock_query_params_excel_recreio_emef):
-    tipos_unidades = ["EMEF"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     filtros = _formata_filtros(
         mock_query_params_excel_recreio_emef, tipos_unidades, contem_recreio=True
     )
@@ -3100,7 +3104,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cemei(
     mock_query_params_excel_recreio_cemei,
 ):
     solicitacoes = [solicitacao_recreio_cemei.uuid]
-    tipos_unidade = ["CEMEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
 
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes,
@@ -3242,7 +3246,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cemei(
     )
 
     assert rows[5] == (
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         154,
@@ -3313,7 +3317,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cemei(
 
 
 def test_formata_unidades_sem_lancamento(informacoes_excel_writer_sem_lancamentos):
-    tipos_unidades = ["EMEF"]
+    tipos_unidades = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     aba, writer, workbook, worksheet, df, arquivo = (
         informacoes_excel_writer_sem_lancamentos
     )
@@ -3342,7 +3346,7 @@ def test_gera_relatorio_consolidado_xlsx_unidades_sem_lançamento(
     mock_query_params_excel_recreio_emei["ano"] = solicitacao_sem_lancamento.ano
 
     solicitacoes = [solicitacao_sem_lancamento.uuid]
-    tipos_unidade = ["EMEF"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes,
         tipos_unidade,
@@ -3380,5 +3384,11 @@ def test_gera_relatorio_consolidado_xlsx_unidades_sem_lançamento(
         "Total de Sobremesas para Pagamento",
     )
     assert rows[4] == (None, None, None, None, None)
-    assert rows[5] == ("EMEF", "123456", "EMEF TESTE", "UNIDADE SEM LANÇAMENTOS", None)
+    assert rows[5] == (
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        "123456",
+        "EMEF TESTE",
+        "UNIDADE SEM LANÇAMENTOS",
+        None,
+    )
     assert rows[6] == ("TOTAL", None, None, 0, 0)

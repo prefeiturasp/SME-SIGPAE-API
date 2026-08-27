@@ -5,7 +5,7 @@ import pytest
 from django.contrib.admin.sites import AdminSite
 from model_bakery import baker
 
-from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE
+from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE, TIPOS_UNIDADE_ESCOLAR
 from src.escola.dias_letivos.admin import (
     DIAS_SEMANA,
     DiaLetivoSIGPAEAdmin,
@@ -186,13 +186,20 @@ def test_get_lotes_empty() -> None:
 
 def test_get_tipos_unidade() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
-    tipo1 = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
-    tipo2 = baker.make("escola.TipoUnidadeEscolar", iniciais="CEI")
+    tipo1 = baker.make(
+        "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
+    tipo2 = baker.make(
+        "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
 
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     dia.tipos_unidade_escolar.set([tipo1, tipo2])
 
-    assert set(admin_instance.get_tipos_unidade(dia).split(", ")) == {"EMEF", "CEI"}
+    assert set(admin_instance.get_tipos_unidade(dia).split(", ")) == {
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI.value,
+    }
     assert admin_instance.get_tipos_unidade.short_description == "Tipos de unidade"
 
 

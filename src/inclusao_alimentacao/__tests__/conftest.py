@@ -98,7 +98,10 @@ def escola_cemei():
         nome="DIRETORIA REGIONAL GUAIANASES",
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+    )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",

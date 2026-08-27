@@ -194,7 +194,9 @@ def validators_valor_str():
 
 @pytest.fixture
 def tipo_unidade():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
 
 
 @pytest.fixture
@@ -631,7 +633,10 @@ def escola_cemei():
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+    )
     return baker.make(
         "Escola",
         nome="CEMEI TESTE",
@@ -1061,7 +1066,7 @@ def alteracao_cemei(
     alteracao_cemei = baker.make(
         "AlteracaoCardapioCEMEI",
         escola=escola_cemei_1,
-        alunos_cei_e_ou_emei="EMEI",
+        alunos_cei_e_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         alterar_dia="2025-04-28",
         motivo=motivo_alteracao_cardapio_lanche_emergencial,
         status="CODAE_AUTORIZADO",

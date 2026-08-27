@@ -4,7 +4,7 @@ import environ
 import redis
 from django.core.management.base import BaseCommand
 
-from ....dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET
+from ....dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET, TIPOS_UNIDADE_ESCOLAR
 from ....eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
 from ...models import (
     Aluno,
@@ -39,13 +39,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         iniciais = [
             TIPO_UNIDADE_CEI_DIRET,
-            "CEU CEI",
-            "CEI",
-            "CCI",
-            "CCI/CIPS",
-            "CEI CEU",
-            "CEU CEMEI",
-            "CEMEI",
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         ]
         escolas = Escola.objects.filter(tipo_unidade__iniciais__in=iniciais)
         for escola in escolas:

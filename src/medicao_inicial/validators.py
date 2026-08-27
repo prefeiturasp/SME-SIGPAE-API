@@ -10,6 +10,7 @@ from src.dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.utils import filtrar_dias_letivos, get_ultimo_dia_mes
 from src.dieta_especial.logs_models.models import (
@@ -328,7 +329,7 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei(
             )
             vinculo = (
                 VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
-                    tipo_unidade_escolar__iniciais="EMEI",
+                    tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
                     periodo_escolar=periodo_escolar,
                 )
             )
@@ -577,7 +578,7 @@ def build_nomes_campos_inclusoes_dietas_emef(escola, categoria, inclusoes, medic
 def build_nomes_campos_dietas_emei_cemei(medicao, categoria):
     tipos_alimentacao = (
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
-            tipo_unidade_escolar__iniciais="EMEI",
+            tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             periodo_escolar__nome__in=medicao.nome_periodo_grupo.upper().split(),
         ).values_list("tipos_alimentacao__nome", flat=True)
     )
@@ -1297,7 +1298,8 @@ def validate_lancamento_inclusoes_emei_cemei(
                     solicitacao, escola, periodo
                 )
                 vinculo = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
-                    tipo_unidade_escolar__iniciais="EMEI", periodo_escolar=periodo
+                    tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                    periodo_escolar=periodo,
                 )
                 alimentacoes_vinculadas = vinculo.tipos_alimentacao.exclude(
                     nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
@@ -3651,7 +3653,10 @@ def _validate_medicao_emei_cemei(
 ):
     categorias_dieta = CategoriaMedicao.objects.exclude(nome__icontains="ALIMENTAÇÃO")
     logs_dietas_autorizadas = LogQuantidadeDietasAutorizadas.objects.filter(
-        escola=escola, data__month=mes, data__year=ano, cei_ou_emei="EMEI"
+        escola=escola,
+        data__month=mes,
+        data__year=ano,
+        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
     logs_dietas_autorizadas_dict = list(
         set(

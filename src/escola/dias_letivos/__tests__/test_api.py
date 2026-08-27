@@ -8,7 +8,7 @@ from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
 
-from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE
+from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE, TIPOS_UNIDADE_ESCOLAR
 from src.escola.dias_letivos.fixtures.factories.dias_letivos_factory import (
     DiaLetivoSIGPAEFactory,
 )
@@ -321,7 +321,7 @@ def test_list_dias_letivos_com_unidades(
     lote = baker.make(Lote, nome="Lote A", iniciais="LA")
     lote.contratos_do_lote.add(contrato)
     periodo = baker.make(PeriodoEscolar, nome="Manhã")
-    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais="EMEF")
+    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value)
     escola = baker.make(Escola, nome="EMEF Teste", lote=lote)
 
     DiaLetivoSIGPAEFactory(
@@ -344,7 +344,9 @@ def test_list_dias_letivos_com_unidades(
     assert item["lotes"][0]["nome"] == lote.nome
     assert item["lotes"][0]["iniciais"] == lote.iniciais
     assert len(item["tipos_unidade_escolar"]) == 1
-    assert item["tipos_unidade_escolar"][0]["iniciais"] == "EMEF"
+    assert (
+        item["tipos_unidade_escolar"][0]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     assert len(item["periodos_escolares"]) == 1
     assert item["periodos_escolares"][0]["nome"] == "Manhã"
     assert item["unidades_escolares"] == "EMEF Teste"
@@ -360,7 +362,7 @@ def test_list_dias_letivos_sem_unidades(
     lote = baker.make(Lote, nome="Lote B", iniciais="LB")
     lote.contratos_do_lote.add(contrato)
     periodo = baker.make(PeriodoEscolar, nome="Tarde")
-    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais="CEI")
+    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value)
 
     DiaLetivoSIGPAEFactory(
         data=date(2026, 6, 23),
@@ -381,7 +383,9 @@ def test_list_dias_letivos_sem_unidades(
     assert item["lotes"][0]["nome"] == lote.nome
     assert item["lotes"][0]["iniciais"] == lote.iniciais
     assert len(item["tipos_unidade_escolar"]) == 1
-    assert item["tipos_unidade_escolar"][0]["iniciais"] == "CEI"
+    assert (
+        item["tipos_unidade_escolar"][0]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
     assert len(item["periodos_escolares"]) == 1
     assert item["periodos_escolares"][0]["nome"] == "Tarde"
     assert item["unidades_escolares"] is None

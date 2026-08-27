@@ -18,6 +18,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MENSAGEM_PERMISSAO_NEGADA,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
@@ -35,7 +36,10 @@ from src.medicao_inicial.services.relatorio_adesao import (
     obtem_resultados_para_escola,
 )
 
-TIPOS_UNIDADE_PFOM = ["EMEF P FOM", "EMEI P FOM"]
+TIPOS_UNIDADE_PFOM = [
+    TIPOS_UNIDADE_ESCOLAR.EMEF_P_FOM.value,
+    TIPOS_UNIDADE_ESCOLAR.EMEI_P_FOM.value,
+]
 
 
 def _configura_escola_pfom(escola, tipo_unidade_pfom):

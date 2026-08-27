@@ -6,7 +6,11 @@ from django.template.loader import render_to_string
 from freezegun import freeze_time
 from model_bakery import baker
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, GRUPO_INFANTIL_INTEGRAL
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    GRUPO_INFANTIL_INTEGRAL,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -824,15 +828,18 @@ def test_relatorio_cronograma_pdf_modalidade_pregao_eletronico(cronograma, usuar
 def test_obter_relatorio_da_unidade_emef():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
     ) as mock_modulo_emef:
 
-        tipos_unidade = ["EMEF"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emef
@@ -841,15 +848,18 @@ def test_obter_relatorio_da_unidade_emef():
 def test_obter_relatorio_da_unidade_emei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
     ) as mock_modulo_emei:
 
-        tipos_unidade = ["EMEI"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emei
@@ -858,15 +868,18 @@ def test_obter_relatorio_da_unidade_emei():
 def test_obter_relatorio_da_unidade_cei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cei"
     ) as mock_modulo_cei:
 
-        tipos_unidade = ["CEI"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_cei
@@ -875,10 +888,13 @@ def test_obter_relatorio_da_unidade_cei():
 def test_obter_relatorio_da_unidade_pertencem_a_nenhum_grupo():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ):
 
         tipos_unidade = ["TIPO_INEXISTENTE", "OUTRO_TIPO"]
@@ -928,18 +944,21 @@ def test_relatorio_solicitacao_medicao_mostra_cpf_quando_responsavel_tem_11_digi
 def test_obter_relatorio_da_unidade_cemei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
-        {"CEMEI", "CEU CEMEI"},
+        {TIPOS_UNIDADE_ESCOLAR.CEMEI.value, TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei"
     ) as mock_modulo_cemei:
 
-        tipos_unidade = ["CEMEI"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_cemei
@@ -948,21 +967,24 @@ def test_obter_relatorio_da_unidade_cemei():
 def test_obter_relatorio_da_unidade_emebs():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
-        {"CEMEI", "CEU CEMEI"},
+        {TIPOS_UNIDADE_ESCOLAR.CEMEI.value, TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEBS",
-        {"EMEBS"},
+        {TIPOS_UNIDADE_ESCOLAR.EMEBS.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_emebs"
     ) as mock_modulo_emebs:
 
-        tipos_unidade = ["EMEBS"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEBS.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emebs
@@ -971,24 +993,30 @@ def test_obter_relatorio_da_unidade_emebs():
 def test_obter_relatorio_da_unidade_cieja_cmct():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
-        {"CEMEI", "CEU CEMEI"},
+        {TIPOS_UNIDADE_ESCOLAR.CEMEI.value, TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEBS",
-        {"EMEBS"},
+        {TIPOS_UNIDADE_ESCOLAR.EMEBS.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CIEJA_CMCT",
-        {"CIEJA", "CMCT"},
+        {TIPOS_UNIDADE_ESCOLAR.CIEJA.value, TIPOS_UNIDADE_ESCOLAR.CMCT.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
     ) as mock_modulo_emebs:
 
-        tipos_unidade = ["CIEJA", "CMCT"]
+        tipos_unidade = [
+            TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+            TIPOS_UNIDADE_ESCOLAR.CMCT.value,
+        ]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emebs

@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from src.cardapio.base.models import TipoAlimentacao
-from src.dados_comuns.constants import TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
 from src.escola.models import (
     DiretoriaRegional,
     Escola,
@@ -37,7 +37,9 @@ def setup_data():
     )
     cat_infantil, _ = CategoriaAlimentacao.objects.get_or_create(nome="Infantil")
 
-    tipo_unidade = TipoUnidadeEscolar.objects.create(iniciais="CEI")
+    tipo_unidade = TipoUnidadeEscolar.objects.create(
+        iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
     diretoria_regional = DiretoriaRegional.objects.create(nome="DRE Teste")
     lote = Lote.objects.create(nome="Lote 01")
     escola = Escola.objects.create(
@@ -82,7 +84,7 @@ def test_criar_recreio_data_fim_anterior_data_inicio(
                 "num_inscritos": 50,
                 "num_colaboradores": 10,
                 "liberar_medicao": True,
-                "cei_ou_emei": "CEI",
+                "cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.CEI.value,
                 "tipos_alimentacao_inscritos": [str(setup_data["tipo_alim_1"].uuid)],
                 "tipos_alimentacao_colaboradores": [],
                 "tipos_alimentacao_infantil": [],
@@ -115,7 +117,7 @@ def test_criar_recreio_datas_iguais(client_autenticado_coordenador_codae, setup_
                 "num_inscritos": 50,
                 "num_colaboradores": 10,
                 "liberar_medicao": True,
-                "cei_ou_emei": "CEI",
+                "cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.CEI.value,
                 "tipos_alimentacao_inscritos": [str(setup_data["tipo_alim_1"].uuid)],
                 "tipos_alimentacao_colaboradores": [],
                 "tipos_alimentacao_infantil": [],

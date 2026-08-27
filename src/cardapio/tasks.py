@@ -7,6 +7,7 @@ from django.db.models import Q
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 from src.escola.constants import (
     PERIODOS_CEMEI_EVENTO_ESPECIFICO,
     PERIODOS_ESPECIAIS_CEI_CEU_CCI,
@@ -56,7 +57,11 @@ def ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escol
 
     # SGP não tem informações de CEU GESTAO, estamos colocando manualmente até o momento 22/07/2022
     for tipo_unidade in TipoUnidadeEscolar.objects.all().exclude(
-        iniciais__in=["CEU GESTAO", "CEU POLO", "CEU POLO UAB"]
+        iniciais__in=[
+            TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
+            "CEU POLO",
+            "CEU POLO UAB",
+        ]
     ):
         # atualiza com base nos dados da api do EOL
         for periodo_escolar in PeriodoEscolar.objects.all():
@@ -73,7 +78,10 @@ def ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escol
             ).exists()
             vinculo.ativo = tem_alunos_neste_periodo_e_tipo_ue
             vinculo.save()
-            if tipo_unidade.iniciais in ["EMEF P FOM", "EMEI P FOM"]:
+            if tipo_unidade.iniciais in [
+                TIPOS_UNIDADE_ESCOLAR.EMEF_P_FOM.value,
+                TIPOS_UNIDADE_ESCOLAR.EMEI_P_FOM.value,
+            ]:
                 tem_alunos_neste_periodo_e_eh_p_fom = (
                     AlunosMatriculadosPeriodoEscola.objects.filter(
                         periodo_escolar=periodo_escolar,
@@ -92,5 +100,5 @@ def _bypass_vinculos_por_tipo_unidade(tipo_unidade):
         bypass_ativa_vinculos(tipo_unidade, PERIODOS_ESPECIAIS_CEI_CEU_CCI)
     if tipo_unidade.eh_cei:
         bypass_ativa_vinculos(tipo_unidade, PERIODOS_ESPECIAIS_CEI_DIRET)
-    if tipo_unidade.iniciais == "EMEI":
+    if tipo_unidade.iniciais == TIPOS_UNIDADE_ESCOLAR.EMEI.value:
         bypass_ativa_vinculos(tipo_unidade, PERIODOS_CEMEI_EVENTO_ESPECIFICO)

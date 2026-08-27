@@ -70,7 +70,7 @@ class KitLancheViewSet(ModelViewSet):
                 queryset = queryset.filter(
                     tipos_unidades__iniciais__in=[
                         constants.TIPO_UNIDADE_CEI_DIRET,
-                        "EMEI",
+                        constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
                     ]
                 ).distinct()
         return queryset

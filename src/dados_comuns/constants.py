@@ -614,7 +614,33 @@ class TIPOS_GESTAO(Enum):
         return [(key.value, key.name) for key in cls]
 
 
-TIPO_UNIDADE_CEI_DIRET = "CEI DIRET"
+class TIPOS_UNIDADE_ESCOLAR(Enum):
+    EMEF = "EMEF"
+    CEU_EMEF = "CEU EMEF"
+    EMEFM = "EMEFM"
+    EMEF_P_FOM = "EMEF P FOM"
+    CEU_GESTAO = "CEU GESTAO"
+    EMEI = "EMEI"
+    CEU_EMEI = "CEU EMEI"
+    EMEI_P_FOM = "EMEI P FOM"
+    CEI_DIRET = "CEI DIRET"
+    CEI_CEU = "CEI CEU"
+    CEU_CEI = "CEU CEI"
+    CCI = "CCI"
+    CCI_CIPS = "CCI/CIPS"
+    CEI = "CEI"
+    CEMEI = "CEMEI"
+    CEU_CEMEI = "CEU CEMEI"
+    EMEBS = "EMEBS"
+    CIEJA = "CIEJA"
+    CMCT = "CMCT"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+TIPO_UNIDADE_CEI_DIRET = TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value
 
 
 PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO = ["MANHA", "TARDE", "NOITE", "INTEGRAL"]

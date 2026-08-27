@@ -10,6 +10,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
@@ -196,7 +197,7 @@ def test_sort_and_merge(faixas_etarias_ativas):
 
 
 def test_get_valores_tabela(relatorio_consolidado_xlsx_cei, mock_colunas_cei):
-    tipos_unidade = ["CEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     linhas = get_valores_tabela(
         [relatorio_consolidado_xlsx_cei], mock_colunas_cei, tipos_unidade
     )
@@ -269,7 +270,7 @@ def test_get_solicitacoes_ordenadas(
     solicitacao_escola_cci,
     solicitacao_relatorio_consolidado_grupo_cei,
 ):
-    tipos_de_unidade = ["CEI"]
+    tipos_de_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     solicitacoes = [
         solicitacao_relatorio_consolidado_grupo_cei,
         solicitacao_escola_cci,

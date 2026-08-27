@@ -9,6 +9,7 @@ from src.dados_comuns.constants import (
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_recreio_nas_ferias,
@@ -467,7 +468,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_emei = escola_factory.create(
             nome="EMEI TESTE",
-            tipo_unidade__iniciais="EMEI",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,

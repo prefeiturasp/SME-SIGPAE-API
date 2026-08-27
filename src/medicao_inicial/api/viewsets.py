@@ -1053,7 +1053,8 @@ class SolicitacaoMedicaoInicialViewSet(
                 quantidade_alunos__gt=0,
             )
             existe_emei = logs.filter(
-                cei_ou_emei="EMEI", periodo_escolar__nome="INTEGRAL"
+                cei_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                periodo_escolar__nome="INTEGRAL",
             ).exists()
             lista_periodos = list(
                 set(logs.values_list("periodo_escolar__nome", flat=True))
@@ -1062,7 +1063,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 lista_periodos.remove("INTEGRAL")
             lista_periodos = sorted(f"Infantil {periodo}" for periodo in lista_periodos)
             ordem_personalizada = ordem_periodos(escola, data_referencia).get(
-                "EMEI", {}
+                constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value, {}
             )
             retorno = sorted(
                 lista_periodos,

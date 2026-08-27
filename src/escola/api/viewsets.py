@@ -29,6 +29,7 @@ from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     TEMPO_CACHE_6H,
     TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.tasks import (
     exporta_relatorio_controle_frequencia_para_pdf,
@@ -656,7 +657,9 @@ class LogAlunosMatriculadosPeriodoEscolaViewSet(ModelViewSet):
                 periodo = periodo_escolar.replace("Infantil ", "")
                 queryset = queryset.filter(periodo_escolar__nome=periodo)
                 if "INTEGRAL" in periodo_escolar:
-                    queryset = queryset.filter(cei_ou_emei="EMEI")
+                    queryset = queryset.filter(
+                        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+                    )
                 else:
                     queryset = queryset.filter(cei_ou_emei="N/A")
             else:

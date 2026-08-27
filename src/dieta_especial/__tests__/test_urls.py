@@ -1095,8 +1095,8 @@ def test_relatorio_historico_dieta_especial(
         },
         {
             "lote": "",
-            "unidade_educacional": "CEMEI",
-            "tipo_unidade": "CEMEI",
+            "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "classificacao": "Tipo A",
             "total": 25,
             "data": "20/03/2024",
@@ -1117,8 +1117,8 @@ def test_relatorio_historico_dieta_especial(
         },
         {
             "lote": "",
-            "unidade_educacional": "CEMEI",
-            "tipo_unidade": "CEMEI",
+            "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "classificacao": "Tipo B",
             "total": 15,
             "data": "20/03/2024",
@@ -1131,8 +1131,8 @@ def test_relatorio_historico_dieta_especial(
         },
         {
             "lote": "",
-            "unidade_educacional": "EMEBS",
-            "tipo_unidade": "EMEBS",
+            "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
+            "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
             "classificacao": "Tipo A",
             "total": 11,
             "data": "20/03/2024",
@@ -1192,7 +1192,10 @@ def test_relatorio_recreio_nas_ferias(
 
     assert resultado[0]["aluno"]["nome"] == "Maria"
     assert resultado[0]["escola"]["nome"] == "Escola Guaianases"
-    assert resultado[0]["escola_destino"]["nome"] == "CEMEI"
+    assert (
+        resultado[0]["escola_destino"]["nome"]
+        == constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     assert (
         resultado[0]["alergias_intolerancias"][0]["descricao"]
         == "Alergia a derivados do trigo"
@@ -1201,7 +1204,10 @@ def test_relatorio_recreio_nas_ferias(
 
     assert resultado[1]["aluno"]["nome"] == "Carla"
     assert resultado[1]["escola"]["nome"] == "PARCEIRA"
-    assert resultado[1]["escola_destino"]["nome"] == "EMEBS"
+    assert (
+        resultado[1]["escola_destino"]["nome"]
+        == constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
     assert (
         resultado[1]["alergias_intolerancias"][0]["descricao"]
         == "Alergia a derivados do trigo"
@@ -1217,7 +1223,7 @@ def test_relatorio_recreio_nas_ferias(
     assert resultado[2]["classificacao"]["nome"] == "Tipo A"
 
     assert resultado[3]["aluno"]["nome"] == "Carlos"
-    assert resultado[3]["escola"]["nome"] == "CEMEI"
+    assert resultado[3]["escola"]["nome"] == constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
     assert resultado[3]["escola_destino"]["nome"] == "PARCEIRA"
     assert (
         resultado[3]["alergias_intolerancias"][0]["descricao"] == "Alergia a chocolate"

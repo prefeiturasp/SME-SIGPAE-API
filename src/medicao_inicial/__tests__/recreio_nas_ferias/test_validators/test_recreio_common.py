@@ -7,6 +7,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
@@ -265,8 +266,8 @@ def test_valida_campo_participantes_recreio_cemei(solicitacao_recreio_cemei):
     ):
         participantes[participante.cei_ou_emei] = participante
 
-    participantes_cei = participantes.get("CEI")
-    participantes_emei = participantes.get("EMEI")
+    participantes_cei = participantes.get(TIPOS_UNIDADE_ESCOLAR.CEI.value)
+    participantes_emei = participantes.get(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     informacoes_participantes = informacoes_participantes = {
         GRUPO_CEI: participantes_cei.num_inscritos,
         GRUPO_EMEI: participantes_emei.num_colaboradores,

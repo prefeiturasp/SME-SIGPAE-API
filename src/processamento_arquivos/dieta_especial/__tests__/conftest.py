@@ -6,7 +6,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from openpyxl import Workbook
 
-from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_USUARIO
+from src.dados_comuns.constants import (
+    MODEL_ESCOLA,
+    MODEL_USUARIO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
@@ -157,7 +161,7 @@ def mock_cabecalho_e_informacoes_excel(
     informacoes = [
         "DRE XYZ",  # dre
         "TERCEIRIZADA",  # tipo_gestao
-        "EMEF",  # tipo_unidade
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,  # tipo_unidade
         escola.codigo_codae,  # codigo_escola
         "Escola Teste",  # nome_unidade
         aluno.codigo_eol,  # codigo_eol_aluno (obrigatório)
