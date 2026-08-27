@@ -6309,7 +6309,7 @@ def cria_relatorios_financeiros_por_grupo_unidade_escolar(data):
             )
             if todas_solicitacoes_aprovadas_codae:
                 try:
-                    relatorio_financeiro = RelatorioFinanceiro.objects.create(
+                    relatorio_financeiro, _ = RelatorioFinanceiro.objects.get_or_create(
                         grupo_unidade_escolar=grupo,
                         lote=Lote.objects.get(uuid=lote_uuid),
                         mes=f"{data.month:02d}",
