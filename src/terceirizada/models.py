@@ -18,7 +18,11 @@ from ..dados_comuns.behaviors import (
     TemIdentificadorExternoAmigavel,
     TemVinculos,
 )
-from ..dados_comuns.constants import ADMINISTRADOR_EMPRESA
+from ..dados_comuns.constants import (
+    ADMINISTRADOR_EMPRESA,
+    CRIADO_EM,
+    FORMATO_DATA_HORA_BRASILEIRO,
+)
 from ..dados_comuns.utils import queryset_por_data
 from ..escola.models import DiretoriaRegional, Escola, Lote
 from ..inclusao_alimentacao.models import (
@@ -182,7 +186,7 @@ class Terceirizada(
     tipo_alimento = models.CharField(
         choices=TIPO_ALIMENTO_CHOICES, max_length=25, default=TIPO_ALIMENTO_TERCEIRIZADA
     )
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
     # TODO: criar uma tabela central (Instituição) para agregar Escola, DRE, Terc e CODAE???
     # e a partir dai a instituição que tem contatos e endereço?
@@ -651,7 +655,7 @@ class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
         dados_encerramento = {
             "encerrado": contrato.encerrado,
             "data_hora_encerramento": contrato.data_hora_encerramento.strftime(
-                "%d/%m/%Y - %H:%M"
+                FORMATO_DATA_HORA_BRASILEIRO
             ),
         }
 
@@ -725,7 +729,7 @@ class EmailTerceirizadaPorModulo(
     modulo = models.ForeignKey(
         Modulo, on_delete=models.CASCADE, related_name="emails_terceirizadas"
     )
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     criado_por = models.ForeignKey(
         Usuario, on_delete=models.PROTECT, related_name="emails_terceirizadas"
     )

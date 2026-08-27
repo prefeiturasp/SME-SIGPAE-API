@@ -1859,7 +1859,7 @@ def test_relatorio_produtos_suspensos(
         "/produtos/filtro-relatorio-produto-suspenso/"
         "?nome_edital=Edital de Pregão nº 41/sme/2017"
         "&status=CODAE_SUSPENDEU&status=CODAE_AUTORIZOU_RECLAMACAO&page=1&page_size=10"
-        f'&data_suspensao_final={hoje.strftime("%d/%m/%Y")}'
+        f"&data_suspensao_final={hoje.strftime(constants.FORMATO_DATA_BRASILEIRO)}"
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 1
@@ -1868,7 +1868,7 @@ def test_relatorio_produtos_suspensos(
         "/produtos/filtro-relatorio-produto-suspenso/"
         "?nome_edital=Edital de Pregão nº 41/sme/2017"
         "&status=CODAE_SUSPENDEU&status=CODAE_AUTORIZOU_RECLAMACAO&page=1&page_size=10"
-        f'&data_suspensao_final={ontem.strftime("%d/%m/%Y")}'
+        f"&data_suspensao_final={ontem.strftime(constants.FORMATO_DATA_BRASILEIRO)}"
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 0
@@ -2234,9 +2234,7 @@ def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_perfil(
         f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
@@ -2248,6 +2246,4 @@ def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
         f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}

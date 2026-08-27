@@ -4,6 +4,7 @@ import pytest
 from django.http import QueryDict
 from model_bakery import baker
 
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 from src.escola.api.filters import (
     AlunoFilter,
     DiretoriaRegionalFilter,
@@ -23,8 +24,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def escolas_para_filtros(tipo_gestao):
     dre = baker.make("DiretoriaRegional", nome="DRE FILTROS")
-    tipo_emef = baker.make(TipoUnidadeEscolar, iniciais="EMEF")
-    tipo_cei = baker.make(TipoUnidadeEscolar, iniciais="CEI")
+    tipo_emef = baker.make(
+        TipoUnidadeEscolar, iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
+    tipo_cei = baker.make(TipoUnidadeEscolar, iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value)
     lote_a = baker.make("Lote", nome="LOTE A")
     lote_b = baker.make("Lote", nome="LOTE B")
 

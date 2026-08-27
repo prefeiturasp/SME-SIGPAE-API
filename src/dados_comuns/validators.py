@@ -16,7 +16,12 @@ from ..cardapio.alteracao_tipo_alimentacao_cei.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
 )
 from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
-from .constants import obter_dias_uteis_apos_hoje
+from .constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+    obter_dias_uteis_apos_hoje,
+)
 from .utils import datetime_range, eh_dia_util, eh_fim_de_semana
 
 calendario = BrazilSaoPauloCity()
@@ -130,12 +135,16 @@ def valida_duplicidade_solicitacoes_cemei(attrs):
     maior_data = datetime.datetime(ano, mes, ultimo_dia_do_mes)
     solicitacoes_tipo = []
 
-    if attrs["alunos_cei_e_ou_emei"] == "CEI":
-        solicitacoes_tipo.append("CEI")
-    elif attrs["alunos_cei_e_ou_emei"] == "EMEI":
-        solicitacoes_tipo.append("EMEI")
+    if attrs["alunos_cei_e_ou_emei"] == TIPOS_UNIDADE_ESCOLAR.CEI.value:
+        solicitacoes_tipo.append(TIPOS_UNIDADE_ESCOLAR.CEI.value)
+    elif attrs["alunos_cei_e_ou_emei"] == TIPOS_UNIDADE_ESCOLAR.EMEI.value:
+        solicitacoes_tipo.append(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     else:
-        solicitacoes_tipo = ["TODOS", "CEI", "EMEI"]
+        solicitacoes_tipo = [
+            "TODOS",
+            TIPOS_UNIDADE_ESCOLAR.CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        ]
 
     solicitacoes = AlteracaoCardapioCEMEI.objects.filter(
         motivo__uuid=motivo,
@@ -291,7 +300,7 @@ def _inclusao_tem_refeicao_e_lanche_para_periodo(
         return (
             inclusoes.filter(
                 quantidades_por_periodo__periodo_escolar__nome=periodo_nome,
-                quantidades_por_periodo__tipos_alimentacao__nome="Refeição",
+                quantidades_por_periodo__tipos_alimentacao__nome=TIPOS_ALIMENTACAO.REFEICAO.value,
             )
             .filter(quantidades_por_periodo__tipos_alimentacao__nome=lanche_nome)
             .exists()
@@ -301,7 +310,7 @@ def _inclusao_tem_refeicao_e_lanche_para_periodo(
         return (
             inclusoes.filter(
                 quantidade_alunos_da_inclusao__periodo_externo__nome=periodo_nome,
-                tipos_alimentacao__nome="Refeição",
+                tipos_alimentacao__nome=TIPOS_ALIMENTACAO.REFEICAO.value,
             )
             .filter(tipos_alimentacao__nome=lanche_nome)
             .exists()
@@ -311,7 +320,7 @@ def _inclusao_tem_refeicao_e_lanche_para_periodo(
         return (
             inclusoes.filter(
                 quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome=periodo_nome,
-                quantidade_alunos_emei_da_inclusao_cemei__tipos_alimentacao__nome="Refeição",
+                quantidade_alunos_emei_da_inclusao_cemei__tipos_alimentacao__nome=TIPOS_ALIMENTACAO.REFEICAO.value,
             )
             .filter(
                 quantidade_alunos_emei_da_inclusao_cemei__tipos_alimentacao__nome=lanche_nome
@@ -424,11 +433,11 @@ def _partes_inclusao_cemei_autorizadas(escola, data, modelo):
     inclusoes = _inclusoes_alimentacao_autorizadas_base(escola, data, modelo)
     partes = set()
     if inclusoes.filter(quantidade_alunos_cei_da_inclusao_cemei__isnull=False).exists():
-        partes.add("CEI")
+        partes.add(TIPOS_UNIDADE_ESCOLAR.CEI.value)
     if inclusoes.filter(
         quantidade_alunos_emei_da_inclusao_cemei__isnull=False
     ).exists():
-        partes.add("EMEI")
+        partes.add(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     return partes
 
 
@@ -482,11 +491,15 @@ def _valida_inclusao_alimentacao_cemei_rpl(
             "inclusão de alimentação para a data"
         )
     alunos_cei_e_ou_emei = alunos_cei_e_ou_emei or "TODOS"
-    if alunos_cei_e_ou_emei in ("CEI", "TODOS"):
-        _valida_parte_cemei_autorizada(data, "CEI", partes_autorizadas)
-    if alunos_cei_e_ou_emei in ("EMEI", "TODOS"):
-        _valida_parte_cemei_autorizada(data, "EMEI", partes_autorizadas)
-    if alunos_cei_e_ou_emei in ("EMEI", "TODOS"):
+    if alunos_cei_e_ou_emei in (TIPOS_UNIDADE_ESCOLAR.CEI.value, "TODOS"):
+        _valida_parte_cemei_autorizada(
+            data, TIPOS_UNIDADE_ESCOLAR.CEI.value, partes_autorizadas
+        )
+    if alunos_cei_e_ou_emei in (TIPOS_UNIDADE_ESCOLAR.EMEI.value, "TODOS"):
+        _valida_parte_cemei_autorizada(
+            data, TIPOS_UNIDADE_ESCOLAR.EMEI.value, partes_autorizadas
+        )
+    if alunos_cei_e_ou_emei in (TIPOS_UNIDADE_ESCOLAR.EMEI.value, "TODOS"):
         _valida_inclusao_alimentacao_rpl(escola, data, modelo, periodos_lanches_emei)
     return True
 
@@ -565,7 +578,7 @@ def deve_ser_dia_letivo_e_dia_da_semana(escola, data: datetime.date):
         ).exists()
         if not dia_letivo and not escola.esta_em_dia_letivo_sigpae(data):
             raise serializers.ValidationError(
-                f'Dia {data.strftime("%d/%m/%Y")} não é um dia letivo'
+                f"Dia {data.strftime(FORMATO_DATA_BRASILEIRO)} não é um dia letivo"
             )
     return True
 
@@ -652,7 +665,7 @@ def valida_datas_alteracao_cardapio(attrs):
                     AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO,
                 ],
                 alteracao_cardapio__escola=attrs["escola"],
-                alteracao_cardapio__motivo__nome="Lanche Emergencial",
+                alteracao_cardapio__motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                 alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar=substituicao[
                     "periodo_escolar"
                 ],

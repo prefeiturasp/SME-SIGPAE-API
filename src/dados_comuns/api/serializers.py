@@ -10,6 +10,7 @@ from ...perfil.api.serializers import (
     UsuarioSimplesSerializer,
 )
 from ...perfil.models import Perfil
+from ..constants import FORMATO_DATA_BRASILEIRO
 from ..models import (
     AnexoLogSolicitacoesUsuario,
     CategoriaPerguntaFrequente,
@@ -285,7 +286,7 @@ class NotificacaoSerializer(serializers.ModelSerializer):
         return obj.hora.strftime("%H:%M")
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = Notificacao

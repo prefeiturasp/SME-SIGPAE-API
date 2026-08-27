@@ -5,6 +5,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from xworkflows import InvalidTransitionError
 
+from src.dados_comuns.constants import MODEL_USUARIO
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.escola.models import Escola
 
@@ -36,7 +37,7 @@ def test_inversao_dia_cardapio_fluxo_codae_em_cima_da_hora_error(inversao_dia_ca
 
 
 def test_inversao_dia_cardapio_fluxo(inversao_dia_cardapio):
-    fake_user = baker.make("perfil.Usuario")
+    fake_user = baker.make(MODEL_USUARIO)
     inversao_dia_cardapio.inicia_fluxo(user=fake_user)
     assert (
         str(inversao_dia_cardapio.status) == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
@@ -50,7 +51,7 @@ def test_inversao_dia_cardapio_fluxo(inversao_dia_cardapio):
 @freeze_time("2012-01-14")
 def test_inversao_dia_cardapio_fluxo_cancelamento(inversao_dia_cardapio):
     justificativa = "este e um cancelamento"
-    fake_user = baker.make("perfil.Usuario")
+    fake_user = baker.make(MODEL_USUARIO)
     inversao_dia_cardapio.inicia_fluxo(user=fake_user)
     assert (
         str(inversao_dia_cardapio.status) == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
@@ -64,7 +65,7 @@ def test_inversao_dia_cardapio_fluxo_cancelamento(inversao_dia_cardapio):
 
 def test_inversao_dia_cardapio_fluxo_cancelamento_erro(inversao_dia_cardapio2):
     justificativa = "este e um cancelamento"
-    fake_user = baker.make("perfil.Usuario")
+    fake_user = baker.make(MODEL_USUARIO)
     with pytest.raises(
         InvalidTransitionError,
         match=r".*Só pode cancelar com no mínimo 2 dia\(s\) úteis de antecedência.*",

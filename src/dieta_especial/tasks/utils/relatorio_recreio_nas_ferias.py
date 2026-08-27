@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.escola.models import Lote
 from src.relatorios.utils import html_to_pdf_file
 
@@ -25,12 +26,12 @@ def gera_dicionario_relatorio_recreio(solicitacoes):
                 solicitacao.escola_destino.nome if solicitacao.escola_destino else "-"
             ),
             "data_inicio": (
-                solicitacao.data_inicio.strftime("%d/%m/%Y")
+                solicitacao.data_inicio.strftime(FORMATO_DATA_BRASILEIRO)
                 if solicitacao.data_inicio
                 else "-"
             ),
             "data_fim": (
-                solicitacao.data_termino.strftime("%d/%m/%Y")
+                solicitacao.data_termino.strftime(FORMATO_DATA_BRASILEIRO)
                 if solicitacao.data_termino
                 else "-"
             ),
@@ -51,7 +52,7 @@ def gera_pdf_relatorio_recreio_nas_ferias(dados, user, lote):
             "dados": dados,
             "user": user,
             "total_dados": len(dados),
-            "data_extracao": datetime.now().strftime("%d/%m/%Y"),
+            "data_extracao": datetime.now().strftime(FORMATO_DATA_BRASILEIRO),
             "data_hora_geracao": datetime.now().strftime("%d/%m/%Y às %H:%M:%S"),
             "dre_lote": f"{dre_lote.diretoria_regional.iniciais} - {dre_lote.nome}",
         },

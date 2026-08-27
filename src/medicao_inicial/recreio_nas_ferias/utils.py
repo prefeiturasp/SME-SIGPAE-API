@@ -1,5 +1,6 @@
 import datetime
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import filtrar_dias_letivos
 
 
@@ -61,7 +62,7 @@ def gerar_calendario_recreio(
         calendario.append(
             {
                 "dia": f"{dia_numero:02d}",
-                "data": data_atual.strftime("%d/%m/%Y"),
+                "data": data_atual.strftime(FORMATO_DATA_BRASILEIRO),
                 "dia_letivo": dia_letivo,
             }
         )

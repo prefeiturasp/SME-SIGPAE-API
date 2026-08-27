@@ -33,6 +33,7 @@ from src.terceirizada.api.serializers.serializers import (
 from .....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSerializer,
 )
+from .....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 
 
 class ProgramacaoDoRecebimentoDoCronogramaSerializer(serializers.ModelSerializer):
@@ -56,7 +57,7 @@ class EtapasDoCronogramaSerializer(serializers.ModelSerializer):
             return None
         if obj.cronograma and obj.cronograma.ponto_a_ponto:
             return obj.data_programada.strftime("%m/%Y")
-        return obj.data_programada.strftime("%d/%m/%Y")
+        return obj.data_programada.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -120,7 +121,7 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
             return None
         if obj.cronograma and obj.cronograma.ponto_a_ponto:
             return obj.data_programada.strftime("%m/%Y")
-        return obj.data_programada.strftime("%d/%m/%Y")
+        return obj.data_programada.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_status(self, obj):
         return obj.cronograma.get_status_display() if obj.cronograma else None
@@ -394,7 +395,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             return None
         if obj.cronograma and obj.cronograma.ponto_a_ponto:
             return obj.data_programada.strftime("%m/%Y")
-        return obj.data_programada.strftime("%d/%m/%Y")
+        return obj.data_programada.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_desvinculada_recebimento(self, obj):
         return not obj.ficha_recebimento.exists()
@@ -603,7 +604,7 @@ class EtapaCronogramaRelatorioSerializer(serializers.ModelSerializer):
             return None
         if obj.cronograma and obj.cronograma.ponto_a_ponto:
             return obj.data_programada.strftime("%m/%Y")
-        return obj.data_programada.strftime("%d/%m/%Y")
+        return obj.data_programada.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -816,10 +817,10 @@ class PainelCronogramaSerializer(serializers.ModelSerializer):
                     obj.log_mais_recente.criado_em, "%d/%m/%Y %H:%M"
                 )
             return datetime.datetime.strftime(
-                obj.log_mais_recente.criado_em, "%d/%m/%Y"
+                obj.log_mais_recente.criado_em, FORMATO_DATA_BRASILEIRO
             )
         else:
-            return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+            return datetime.datetime.strftime(obj.criado_em, FORMATO_DATA_BRASILEIRO)
 
     def get_programa_leve_leite(self, obj):
         try:
@@ -860,9 +861,13 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
         if obj.log_criado_em:
             if obj.log_criado_em.date() == datetime.date.today():
                 return datetime.datetime.strftime(obj.log_criado_em, "%d/%m/%Y %H:%M")
-            return datetime.datetime.strftime(obj.log_criado_em, "%d/%m/%Y")
+            return datetime.datetime.strftime(
+                obj.log_criado_em, FORMATO_DATA_BRASILEIRO
+            )
         else:
-            return datetime.datetime.strftime(obj.log_criado_em, "%d/%m/%Y")
+            return datetime.datetime.strftime(
+                obj.log_criado_em, FORMATO_DATA_BRASILEIRO
+            )
 
     def get_programa_leve_leite(self, obj):
         try:

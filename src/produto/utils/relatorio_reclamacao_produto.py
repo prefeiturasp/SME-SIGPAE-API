@@ -4,6 +4,8 @@ import io
 import numpy as np
 import pandas as pd
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 
 def gerar_relatorio_reclamacao_produto_excel(
     reclamacoes: list[dict], quantidade_reclamacoes: int, filtros: dict
@@ -116,7 +118,7 @@ def _gerar_subtitulo(filtros: dict, quantidade_reclamacoes: int) -> str:
     subtitulo = f"Total de Reclamações de produtos para os editais selecionados: {quantidade_reclamacoes} | "
     if periodo:
         subtitulo += f"Período das Reclamações: {periodo} | "
-    subtitulo += f"Data de Extração do Relatório: {datetime.datetime.now().date().strftime("%d/%m/%Y")}"
+    subtitulo += f"Data de Extração do Relatório: {datetime.datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO)}"
 
     return subtitulo
 

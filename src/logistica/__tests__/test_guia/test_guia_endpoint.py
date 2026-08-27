@@ -4,7 +4,7 @@ import json
 import pytest
 from rest_framework import status
 
-from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD, FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import NotificacaoOcorrenciaWorkflow
 from src.logistica.models import ConferenciaGuia, Guia
 from src.logistica.models.guia import (
@@ -240,7 +240,8 @@ def test_url_editar_conferencia_com_ocorrencia(
     assert conferencia.nome_motorista == "Fabio"
     assert conferencia.placa_veiculo == "AAABV44"
     assert (
-        datetime.date.strftime(conferencia.data_recebimento, "%d/%m/%Y") == "04/04/2021"
+        datetime.date.strftime(conferencia.data_recebimento, FORMATO_DATA_BRASILEIRO)
+        == "04/04/2021"
     )
     assert datetime.time.strftime(conferencia.hora_recebimento, "%H:%M") == "03:04"
 

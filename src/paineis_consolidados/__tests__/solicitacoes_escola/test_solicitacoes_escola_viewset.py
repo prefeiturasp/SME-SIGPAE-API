@@ -22,6 +22,7 @@ from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -576,14 +577,14 @@ class TestEndpointInclusoesAutorizadas:
         self.faixa_etaria = FaixaEtariaFactory.create(inicio=0, fim=1)
         periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
         periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
-        refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
+        refeicao = TipoAlimentacaoFactory.create(nome=TIPOS_ALIMENTACAO.REFEICAO.value)
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory.create(
-            tipo_unidade_escolar__iniciais="EMEI",
+            tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             periodo_escolar=periodo_manha,
             tipos_alimentacao=[refeicao],
         )
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory.create(
-            tipo_unidade_escolar__iniciais="EMEI",
+            tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             periodo_escolar=periodo_integral,
             tipos_alimentacao=[refeicao],
         )
@@ -891,7 +892,7 @@ class TestEndpointInclusoesETecAutorizadas:
     ):
         client, usuario = client_autenticado_escola_paineis_consolidados
         periodo_noite = PeriodoEscolarFactory.create(nome="NOITE")
-        refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
+        refeicao = TipoAlimentacaoFactory.create(nome=TIPOS_ALIMENTACAO.REFEICAO.value)
         motivo_etec = MotivoInclusaoContinuaFactory.create(nome="ETEC")
 
         inclusao = InclusaoAlimentacaoContinuaFactory.create(
@@ -936,21 +937,21 @@ class TestEndpointInclusoesETecAutorizadas:
                 "dia": "01",
                 "periodo": "NOITE",
                 "alimentacoes": "refeicao",
-                "tipos_alimentacao": ["Refeição"],
+                "tipos_alimentacao": [TIPOS_ALIMENTACAO.REFEICAO.value],
                 "numero_alunos": 10,
             },
             {
                 "dia": "02",
                 "periodo": "NOITE",
                 "alimentacoes": "refeicao",
-                "tipos_alimentacao": ["Refeição"],
+                "tipos_alimentacao": [TIPOS_ALIMENTACAO.REFEICAO.value],
                 "numero_alunos": 10,
             },
             {
                 "dia": "03",
                 "periodo": "NOITE",
                 "alimentacoes": "refeicao",
-                "tipos_alimentacao": ["Refeição"],
+                "tipos_alimentacao": [TIPOS_ALIMENTACAO.REFEICAO.value],
                 "numero_alunos": 10,
             },
         ]
@@ -970,12 +971,14 @@ class TestEndpointAlteracoesAutorizadas:
             nome="RPL - Refeição por Lanche"
         )
         motivo_lanche_emergencial = MotivoAlteracaoCardapioFactory.create(
-            nome="Lanche Emergencial"
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
         periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
-        refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
-        lanche = TipoAlimentacaoFactory.create(nome="Lanche")
-        lanche_emergencial = TipoAlimentacaoFactory.create(nome="Lanche Emergencial")
+        refeicao = TipoAlimentacaoFactory.create(nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+        lanche = TipoAlimentacaoFactory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
+        lanche_emergencial = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+        )
 
         self.alteracao_tipo_alimentacao_rpl = AlteracaoCardapioFactory.create(
             escola=escola,
@@ -1095,25 +1098,34 @@ class TestEndpointAlteracoesAutorizadas:
                     "dia": "01",
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
-                    "motivo": "Lanche Emergencial",
+                    "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                     "periodos_escolares": ["MANHA"],
-                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                    "tipos_alimentacao_de": [
+                        TIPOS_ALIMENTACAO.REFEICAO.value,
+                        TIPOS_ALIMENTACAO.LANCHE.value,
+                    ],
                 },
                 {
                     "dia": "02",
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
-                    "motivo": "Lanche Emergencial",
+                    "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                     "periodos_escolares": ["MANHA"],
-                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                    "tipos_alimentacao_de": [
+                        TIPOS_ALIMENTACAO.REFEICAO.value,
+                        TIPOS_ALIMENTACAO.LANCHE.value,
+                    ],
                 },
                 {
                     "dia": "03",
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
-                    "motivo": "Lanche Emergencial",
+                    "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                     "periodos_escolares": ["MANHA"],
-                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                    "tipos_alimentacao_de": [
+                        TIPOS_ALIMENTACAO.REFEICAO.value,
+                        TIPOS_ALIMENTACAO.LANCHE.value,
+                    ],
                 },
             ]
         }
@@ -1161,9 +1173,12 @@ class TestEndpointAlteracoesAutorizadas:
                 "dia": "02",
                 "numero_alunos": 0,
                 "inclusao_id_externo": "C76CF",
-                "motivo": "Lanche Emergencial",
+                "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                 "periodos_escolares": ["MANHA"],
-                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                "tipos_alimentacao_de": [
+                    TIPOS_ALIMENTACAO.REFEICAO.value,
+                    TIPOS_ALIMENTACAO.LANCHE.value,
+                ],
             }
         ]
 
@@ -1245,9 +1260,12 @@ class TestEndpointAlteracoesAutorizadas:
                 "dia": "01",
                 "numero_alunos": 0,
                 "inclusao_id_externo": "C76CF",
-                "motivo": "Lanche Emergencial",
+                "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                 "periodos_escolares": ["MANHA"],
-                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                "tipos_alimentacao_de": [
+                    TIPOS_ALIMENTACAO.REFEICAO.value,
+                    TIPOS_ALIMENTACAO.LANCHE.value,
+                ],
             }
         ]
 
@@ -1299,12 +1317,14 @@ class TestEndpointAlteracoesAutorizadasCEMEI:
         status_evento,
     ):
         motivo_lanche_emergencial = MotivoAlteracaoCardapioFactory.create(
-            nome="Lanche Emergencial"
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
         periodo_manha = PeriodoEscolarFactory.create(nome="MANHA")
-        refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
-        lanche = TipoAlimentacaoFactory.create(nome="Lanche")
-        lanche_emergencial = TipoAlimentacaoFactory.create(nome="Lanche Emergencial")
+        refeicao = TipoAlimentacaoFactory.create(nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+        lanche = TipoAlimentacaoFactory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
+        lanche_emergencial = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+        )
 
         alteracao_tipo_alimentacao_lanche_emergencial = (
             AlteracaoCardapioCEMEIFactory.create(
@@ -1368,25 +1388,34 @@ class TestEndpointAlteracoesAutorizadasCEMEI:
                     "dia": "01",
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
-                    "motivo": "Lanche Emergencial",
+                    "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                     "periodos_escolares": ["MANHA"],
-                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                    "tipos_alimentacao_de": [
+                        TIPOS_ALIMENTACAO.REFEICAO.value,
+                        TIPOS_ALIMENTACAO.LANCHE.value,
+                    ],
                 },
                 {
                     "dia": "02",
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
-                    "motivo": "Lanche Emergencial",
+                    "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                     "periodos_escolares": ["MANHA"],
-                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                    "tipos_alimentacao_de": [
+                        TIPOS_ALIMENTACAO.REFEICAO.value,
+                        TIPOS_ALIMENTACAO.LANCHE.value,
+                    ],
                 },
                 {
                     "dia": "03",
                     "numero_alunos": 0,
                     "inclusao_id_externo": "C76CF",
-                    "motivo": "Lanche Emergencial",
+                    "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                     "periodos_escolares": ["MANHA"],
-                    "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                    "tipos_alimentacao_de": [
+                        TIPOS_ALIMENTACAO.REFEICAO.value,
+                        TIPOS_ALIMENTACAO.LANCHE.value,
+                    ],
                 },
             ]
         }
@@ -1434,9 +1463,12 @@ class TestEndpointAlteracoesAutorizadasCEMEI:
                 "dia": "02",
                 "numero_alunos": 0,
                 "inclusao_id_externo": "C76CF",
-                "motivo": "Lanche Emergencial",
+                "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                 "periodos_escolares": ["MANHA"],
-                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                "tipos_alimentacao_de": [
+                    TIPOS_ALIMENTACAO.REFEICAO.value,
+                    TIPOS_ALIMENTACAO.LANCHE.value,
+                ],
             }
         ]
 
@@ -1485,9 +1517,12 @@ class TestEndpointAlteracoesAutorizadasCEMEI:
                 "dia": "01",
                 "numero_alunos": 0,
                 "inclusao_id_externo": "C76CF",
-                "motivo": "Lanche Emergencial",
+                "motivo": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                 "periodos_escolares": ["MANHA"],
-                "tipos_alimentacao_de": ["Refeição", "Lanche"],
+                "tipos_alimentacao_de": [
+                    TIPOS_ALIMENTACAO.REFEICAO.value,
+                    TIPOS_ALIMENTACAO.LANCHE.value,
+                ],
             }
         ]
 

@@ -38,6 +38,7 @@ from ..constants import (
     COORDENADOR_LOGISTICA,
     DJANGO_ADMIN_PASSWORD,
     TIPO_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
 )
 from ..models import (
     CentralDeDownload,
@@ -47,7 +48,7 @@ from ..models import (
 
 fake = Faker("pt_BR")
 Faker.seed(420)
-TERC_TOTAL = "TERC TOTAL"
+TERC_TOTAL = constants.TIPOS_GESTAO.TERC_TOTAL.value
 
 
 @pytest.fixture(
@@ -193,7 +194,9 @@ def validators_valor_str():
 
 @pytest.fixture
 def tipo_unidade():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
 
 
 @pytest.fixture
@@ -549,7 +552,9 @@ def escola_cei():
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET
+    )
     return baker.make(
         "Escola",
         nome="CEI DIRET TESTE",
@@ -628,7 +633,10 @@ def escola_cemei():
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+    )
     return baker.make(
         "Escola",
         nome="CEMEI TESTE",
@@ -997,7 +1005,7 @@ def solicitacao_substituicao_cardapio_cei(escola):
 def motivo_alteracao_cardapio_lanche_emergencial():
     return baker.make(
         "MotivoAlteracaoCardapio",
-        nome="Lanche Emergencial",
+        nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         uuid="1ddec320-cd24-4cf4-9666-3e7b3a2b903c",
     )
 
@@ -1013,17 +1021,20 @@ def escola_cemei_1():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make(TIPO_ALIMENTACAO, nome="Refeição")
+    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.REFEICAO.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make(TIPO_ALIMENTACAO, nome="Lanche")
+    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.LANCHE.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make(TIPO_ALIMENTACAO, nome="Lanche Emergencial")
+    return baker.make(
+        TIPO_ALIMENTACAO,
+        nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
+    )
 
 
 @pytest.fixture
@@ -1055,7 +1066,7 @@ def alteracao_cemei(
     alteracao_cemei = baker.make(
         "AlteracaoCardapioCEMEI",
         escola=escola_cemei_1,
-        alunos_cei_e_ou_emei="EMEI",
+        alunos_cei_e_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         alterar_dia="2025-04-28",
         motivo=motivo_alteracao_cardapio_lanche_emergencial,
         status="CODAE_AUTORIZADO",

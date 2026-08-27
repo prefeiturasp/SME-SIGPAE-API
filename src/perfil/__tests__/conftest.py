@@ -14,6 +14,9 @@ from ...dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     DILOG_ABASTECIMENTO,
     DJANGO_ADMIN_PASSWORD,
+    EMAIL_ADMIN,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from .. import models
 from ..api.serializers import UsuarioSerializer, UsuarioUpdateSerializer
@@ -238,7 +241,7 @@ def usuario_update_serializer(usuario_2):
 
 @pytest.fixture
 def tipo_gestao():
-    return baker.make("TipoGestao", nome="TERC TOTAL")
+    return baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
 
 @pytest.fixture(
@@ -352,7 +355,7 @@ def users_diretor_escola(client, django_user_model, request, usuario_2, tipo_ges
     )
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
-        iniciais="EMEF",
+        iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
     escola = baker.make(
@@ -722,7 +725,7 @@ def usuarios_pendentes_confirmacao(request, perfil, tipo_gestao):
     )
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar",
-        iniciais="EMEF",
+        iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
     escola = baker.make(
@@ -827,7 +830,7 @@ def email_list_invalidos(request):
 
 @pytest.fixture
 def fake_user(client):
-    email = "admin@admin.com"
+    email = EMAIL_ADMIN
     password = DJANGO_ADMIN_PASSWORD
     user = models.Usuario.objects.create_user(
         email=email,
@@ -841,7 +844,7 @@ def fake_user(client):
 
 @pytest.fixture
 def usuario_autenticado(client):
-    email = "admin@admin.com"
+    email = EMAIL_ADMIN
     password = DJANGO_ADMIN_PASSWORD
     client.login(username=email, password=password)
     return client

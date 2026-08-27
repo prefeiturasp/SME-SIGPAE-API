@@ -10,6 +10,8 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
@@ -58,7 +60,7 @@ def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emef):
 
 
 def test_get_valores_tabela_unidade_emef(relatorio_consolidado_xlsx_emef, mock_colunas):
-    tipos_unidade = ["EMEF"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     linhas = get_valores_tabela(
         [relatorio_consolidado_xlsx_emef], mock_colunas, tipos_unidade
     )
@@ -67,7 +69,7 @@ def test_get_valores_tabela_unidade_emef(relatorio_consolidado_xlsx_emef, mock_c
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 16
     assert linhas[0] == [
-        "EMEF",
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
         "EMEF TESTE",
         10.0,
@@ -87,7 +89,7 @@ def test_get_valores_tabela_unidade_emef(relatorio_consolidado_xlsx_emef, mock_c
 
 
 def test_get_valores_tabela_unidade_emei(relatorio_consolidado_xlsx_emei, mock_colunas):
-    tipos_unidade = ["EMEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
     linhas = get_valores_tabela(
         [relatorio_consolidado_xlsx_emei], mock_colunas, tipos_unidade
     )
@@ -96,7 +98,7 @@ def test_get_valores_tabela_unidade_emei(relatorio_consolidado_xlsx_emei, mock_c
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 16
     assert linhas[0] == [
-        "EMEI",
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
         "EMEI TESTE",
         5.0,
@@ -136,16 +138,28 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 3
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 3
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 2
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 1
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 1
+    )
     assert (
         sum(
             1
@@ -156,7 +170,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     )
 
     assert df.iloc[0].tolist() == [
-        "EMEF",
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
         "EMEF TESTE",
         10.0,
@@ -212,16 +226,28 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 3
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 3
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 2
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 1
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 1
+    )
     assert (
         sum(
             1
@@ -232,7 +258,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     )
 
     assert df.iloc[0].tolist() == [
-        "EMEI",
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
         "EMEI TESTE",
         5.0,
@@ -398,7 +424,7 @@ def test_get_solicitacoes_ordenadas_unidade_emef(
     solicitacao_medicao_inicial_varios_valores_ceu_gestao,
     solicitacao_relatorio_consolidado_grupo_emef,
 ):
-    tipos_de_unidade = ["EMEF"]
+    tipos_de_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     solicitacoes = [
         solicitacao_medicao_inicial_varios_valores_ceu_gestao,
         solicitacao_relatorio_consolidado_grupo_emef,
@@ -419,7 +445,7 @@ def test_get_solicitacoes_ordenadas_unidade_emei(
     solicitacao_escola_ceuemei,
     relatorio_consolidado_xlsx_emei,
 ):
-    tipos_de_unidade = ["EMEI"]
+    tipos_de_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
     solicitacoes = [
         solicitacao_escola_ceuemei,
         relatorio_consolidado_xlsx_emei,
@@ -452,7 +478,12 @@ def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):
     )
     assert isinstance(manha_refeicao, list)
     assert len(manha_refeicao) == 4
-    assert manha_refeicao == ["EMEF", "123456", "EMEF TESTE", 125.0]
+    assert manha_refeicao == [
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        "123456",
+        "EMEF TESTE",
+        125.0,
+    ]
 
     solicitacao_kit_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_emef,
@@ -465,7 +496,13 @@ def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):
     )
     assert isinstance(solicitacao_kit_lanche, list)
     assert len(solicitacao_kit_lanche) == 5
-    assert solicitacao_kit_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10]
+    assert solicitacao_kit_lanche == [
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        "123456",
+        "EMEF TESTE",
+        125.0,
+        10,
+    ]
 
     dieta_a_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_emef,
@@ -478,7 +515,14 @@ def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):
     )
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 6
-    assert dieta_a_lanche == ["EMEF", "123456", "EMEF TESTE", 125.0, 10.0, 20.0]
+    assert dieta_a_lanche == [
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        "123456",
+        "EMEF TESTE",
+        125.0,
+        10.0,
+        20.0,
+    ]
 
 
 def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
@@ -503,7 +547,12 @@ def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
     )
     assert isinstance(manha_refeicao, list)
     assert len(manha_refeicao) == 4
-    assert manha_refeicao == ["EMEI", "987654", "EMEI TESTE", 150.0]
+    assert manha_refeicao == [
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        "987654",
+        "EMEI TESTE",
+        150.0,
+    ]
 
     solicitacao_kit_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_emei,
@@ -516,7 +565,13 @@ def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
     )
     assert isinstance(solicitacao_kit_lanche, list)
     assert len(solicitacao_kit_lanche) == 5
-    assert solicitacao_kit_lanche == ["EMEI", "987654", "EMEI TESTE", 150.0, 5.0]
+    assert solicitacao_kit_lanche == [
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        "987654",
+        "EMEI TESTE",
+        150.0,
+        5.0,
+    ]
 
     dieta_a_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_emei,
@@ -529,7 +584,14 @@ def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
     )
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 6
-    assert dieta_a_lanche == ["EMEI", "987654", "EMEI TESTE", 150.0, 5.0, 40.0]
+    assert dieta_a_lanche == [
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        "987654",
+        "EMEI TESTE",
+        150.0,
+        5.0,
+        40.0,
+    ]
 
 
 def test_define_filtro(relatorio_consolidado_xlsx_emef):
@@ -568,7 +630,7 @@ def test_get_total_pagamento_unidade_emef(relatorio_consolidado_xlsx_emef):
         "periodo_escolar__nome"
     )
     medicao_manha = medicoes[0]
-    tipos_unidades = "EMEF"
+    tipos_unidades = TIPOS_UNIDADE_ESCOLAR.EMEF.value
     total_refeicao = _get_total_pagamento(
         medicao_manha, "total_refeicoes_pagamento", tipos_unidades
     )
@@ -584,7 +646,7 @@ def test_get_total_pagamento_unidade_emei(relatorio_consolidado_xlsx_emei):
         "periodo_escolar__nome"
     )
     medicao_manha = medicoes[0]
-    tipos_unidades = "EMEI"
+    tipos_unidades = TIPOS_UNIDADE_ESCOLAR.EMEI.value
     total_refeicao = _get_total_pagamento(
         medicao_manha, "total_refeicoes_pagamento", tipos_unidades
     )

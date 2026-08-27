@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from rest_framework import status
 
 from ...dados_comuns import constants
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...terceirizada.models import Terceirizada
 from ..protocolo_padrao.constants import ENDPOINT_ALIMENTOS
@@ -157,8 +158,10 @@ def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
         "codigo_eol_escola": dieta_aprovada.rastro_escola.codigo_eol,
         "nome_escola": dieta_aprovada.rastro_escola.nome,
         "observacoes_alteracao": "<p>teste11</p>",
-        "data_inicio": date.today().strftime("%d/%m/%Y"),
-        "data_termino": (date.today() + timedelta(days=10)).strftime("%d/%m/%Y"),
+        "data_inicio": date.today().strftime(FORMATO_DATA_BRASILEIRO),
+        "data_termino": (date.today() + timedelta(days=10)).strftime(
+            FORMATO_DATA_BRASILEIRO
+        ),
         "dieta_alterada": dieta_aprovada.dieta_alterada.uuid,
         "escola_destino": dieta_aprovada.escola_destino.codigo_eol,
     }
@@ -1020,7 +1023,10 @@ def test_filtros_relatorio_dieta_especial_success(
             {"nome": "ALERGIA - OVO", "uuid": "5d7f80b8-7b62-441b-89da-4d5dd5c1e7e8"}
         ],
         "tipos_gestao": [
-            {"nome": "TERC TOTAL", "uuid": "8bd3931b-8636-44ba-9d8e-81b29067eed1"}
+            {
+                "nome": constants.TIPOS_GESTAO.TERC_TOTAL.value,
+                "uuid": "8bd3931b-8636-44ba-9d8e-81b29067eed1",
+            }
         ],
         "tipos_unidades": [],
     }
@@ -1070,7 +1076,7 @@ def test_relatorio_historico_dieta_especial(
         {
             "lote": "",
             "unidade_educacional": "CEI DIRET JOAO MENDES",
-            "tipo_unidade": "CEI DIRET",
+            "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
             "classificacao": "Tipo B",
             "total": 32,
             "data": "20/03/2024",
@@ -1089,8 +1095,8 @@ def test_relatorio_historico_dieta_especial(
         },
         {
             "lote": "",
-            "unidade_educacional": "CEMEI",
-            "tipo_unidade": "CEMEI",
+            "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "classificacao": "Tipo A",
             "total": 25,
             "data": "20/03/2024",
@@ -1111,8 +1117,8 @@ def test_relatorio_historico_dieta_especial(
         },
         {
             "lote": "",
-            "unidade_educacional": "CEMEI",
-            "tipo_unidade": "CEMEI",
+            "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "classificacao": "Tipo B",
             "total": 15,
             "data": "20/03/2024",
@@ -1125,8 +1131,8 @@ def test_relatorio_historico_dieta_especial(
         },
         {
             "lote": "",
-            "unidade_educacional": "EMEBS",
-            "tipo_unidade": "EMEBS",
+            "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
+            "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
             "classificacao": "Tipo A",
             "total": 11,
             "data": "20/03/2024",
@@ -1169,9 +1175,7 @@ def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
         "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_relatorio_recreio_nas_ferias(
@@ -1188,7 +1192,10 @@ def test_relatorio_recreio_nas_ferias(
 
     assert resultado[0]["aluno"]["nome"] == "Maria"
     assert resultado[0]["escola"]["nome"] == "Escola Guaianases"
-    assert resultado[0]["escola_destino"]["nome"] == "CEMEI"
+    assert (
+        resultado[0]["escola_destino"]["nome"]
+        == constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     assert (
         resultado[0]["alergias_intolerancias"][0]["descricao"]
         == "Alergia a derivados do trigo"
@@ -1197,7 +1204,10 @@ def test_relatorio_recreio_nas_ferias(
 
     assert resultado[1]["aluno"]["nome"] == "Carla"
     assert resultado[1]["escola"]["nome"] == "PARCEIRA"
-    assert resultado[1]["escola_destino"]["nome"] == "EMEBS"
+    assert (
+        resultado[1]["escola_destino"]["nome"]
+        == constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
     assert (
         resultado[1]["alergias_intolerancias"][0]["descricao"]
         == "Alergia a derivados do trigo"
@@ -1213,7 +1223,7 @@ def test_relatorio_recreio_nas_ferias(
     assert resultado[2]["classificacao"]["nome"] == "Tipo A"
 
     assert resultado[3]["aluno"]["nome"] == "Carlos"
-    assert resultado[3]["escola"]["nome"] == "CEMEI"
+    assert resultado[3]["escola"]["nome"] == constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
     assert resultado[3]["escola_destino"]["nome"] == "PARCEIRA"
     assert (
         resultado[3]["alergias_intolerancias"][0]["descricao"] == "Alergia a chocolate"
@@ -1226,9 +1236,7 @@ def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_codae_atualiza_protocolo(

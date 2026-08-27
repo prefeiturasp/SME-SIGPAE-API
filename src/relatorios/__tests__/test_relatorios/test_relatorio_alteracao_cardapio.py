@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.test import RequestFactory
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.relatorios import relatorios
 
 pytestmark = pytest.mark.django_db
@@ -49,8 +50,8 @@ def test_relatorio_alteracao_cardapio_aplica_nome_historico_escola(
     )
 
     periodo = periodo_escolar_factory.create(nome="MANHA")
-    tipo_de = tipo_alimentacao_factory.create(nome="Lanche")
-    tipo_para = tipo_alimentacao_factory.create(nome="Refeição")
+    tipo_de = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    tipo_para = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.REFEICAO.value)
 
     substituicao_alimentacao_no_periodo_escolar_factory.create(
         alteracao_cardapio=alteracao_cardapio,

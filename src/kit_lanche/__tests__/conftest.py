@@ -8,6 +8,11 @@ from ...dados_comuns.behaviors import TempoPasseio
 from ...dados_comuns.constants import (
     COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
     DJANGO_ADMIN_PASSWORD,
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_ESCOLA,
+    MODEL_LOTE,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
@@ -43,13 +48,13 @@ def diretoria_regional():
 
 @pytest.fixture
 def tipo_unidade():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+    return baker.make("TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value)
 
 
 @pytest.fixture
 def escola(diretoria_regional, lote, tipo_unidade):
     contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="EMEF TESTE",
@@ -64,14 +69,16 @@ def escola(diretoria_regional, lote, tipo_unidade):
 
 @pytest.fixture
 def escola_cmct(diretoria_regional, lote):
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CMCT TESTE",
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
-        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="CMCT"),
+        tipo_unidade=baker.make(
+            "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CMCT.value
+        ),
         uuid="798b90e7-cd37-4031-a4cd-fccb236419f9",
     )
 
@@ -412,7 +419,7 @@ def solicitacao_unificada_lotes_diferentes():
         tempo_passeio=models.SolicitacaoKitLanche.OITO_OU_MAIS,
         kits=kits,
     )
-    dre = baker.make("escola.DiretoriaRegional", nome=fake.name())
+    dre = baker.make(MODEL_DIRETORIA_REGIONAL, nome=fake.name())
     solicitacao_unificada = baker.make(
         models.SolicitacaoKitLancheUnificada,
         local=fake.text()[:160],
@@ -421,10 +428,10 @@ def solicitacao_unificada_lotes_diferentes():
         outro_motivo=fake.text(),
         diretoria_regional=dre,
     )
-    lote_um = baker.make("escola.Lote")
-    escola_um = baker.make("escola.Escola", lote=lote_um)
-    escola_dois = baker.make("escola.Escola", lote=lote_um)
-    escola_tres = baker.make("escola.Escola", lote=lote_um)
+    lote_um = baker.make(MODEL_LOTE)
+    escola_um = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_dois = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_tres = baker.make(MODEL_ESCOLA, lote=lote_um)
     baker.make(
         models.EscolaQuantidade,
         escola=escola_um,
@@ -440,9 +447,9 @@ def solicitacao_unificada_lotes_diferentes():
         escola=escola_tres,
         solicitacao_unificada=solicitacao_unificada,
     )
-    lote_dois = baker.make("escola.Lote")
-    escola_quatro = baker.make("escola.Escola", lote=lote_dois)
-    escola_cinco = baker.make("escola.Escola", lote=lote_dois)
+    lote_dois = baker.make(MODEL_LOTE)
+    escola_quatro = baker.make(MODEL_ESCOLA, lote=lote_dois)
+    escola_cinco = baker.make(MODEL_ESCOLA, lote=lote_dois)
     baker.make(
         models.EscolaQuantidade,
         escola=escola_quatro,
@@ -464,7 +471,7 @@ def solicitacao_unificada_lotes_iguais():
         tempo_passeio=models.SolicitacaoKitLanche.OITO_OU_MAIS,
         kits=kits,
     )
-    dre = baker.make("escola.DiretoriaRegional", nome=fake.name())
+    dre = baker.make(MODEL_DIRETORIA_REGIONAL, nome=fake.name())
     solicitacao_unificada = baker.make(
         models.SolicitacaoKitLancheUnificada,
         local=fake.text()[:160],
@@ -473,12 +480,12 @@ def solicitacao_unificada_lotes_iguais():
         outro_motivo=fake.text(),
         diretoria_regional=dre,
     )
-    lote_um = baker.make("escola.Lote")
-    escola_um = baker.make("escola.Escola", lote=lote_um)
-    escola_dois = baker.make("escola.Escola", lote=lote_um)
-    escola_tres = baker.make("escola.Escola", lote=lote_um)
-    escola_quatro = baker.make("escola.Escola", lote=lote_um)
-    escola_cinco = baker.make("escola.Escola", lote=lote_um)
+    lote_um = baker.make(MODEL_LOTE)
+    escola_um = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_dois = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_tres = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_quatro = baker.make(MODEL_ESCOLA, lote=lote_um)
+    escola_cinco = baker.make(MODEL_ESCOLA, lote=lote_um)
     baker.make(
         models.EscolaQuantidade,
         escola=escola_um,

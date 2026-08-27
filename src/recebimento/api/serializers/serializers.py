@@ -1,6 +1,7 @@
 import environ
 from rest_framework import serializers
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     EtapasDoCronogramaFichaDeRecebimentoSerializer,
 )
@@ -162,7 +163,7 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
 
     def get_data_recebimento(self, obj):
         try:
-            return obj.data_entrega.strftime("%d/%m/%Y")
+            return obj.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
         except AttributeError:
             None
 
@@ -262,7 +263,11 @@ class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
 
     def get_data_recebimento(self, obj):
         try:
-            return obj.data_entrega.strftime("%d/%m/%Y") if obj.data_entrega else None
+            return (
+                obj.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
+                if obj.data_entrega
+                else None
+            )
         except AttributeError:
             return None
 

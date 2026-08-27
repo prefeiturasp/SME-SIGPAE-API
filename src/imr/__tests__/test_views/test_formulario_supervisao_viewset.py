@@ -35,17 +35,23 @@ def test_get_categorias_nao_permitidas():
     view_instance = FormularioSupervisaoModelViewSet()
 
     # Teste para CEMEI
-    categorias = view_instance._get_categorias_nao_permitidas("CEMEI")
+    categorias = view_instance._get_categorias_nao_permitidas(
+        constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     assert "LACTÁRIO" not in categorias
     assert "RESÍDUO DE ÓLEO UTILIZADO NA FRITURA" not in categorias
 
     # Teste para outro tipo de escola
-    categorias = view_instance._get_categorias_nao_permitidas("EMEF")
+    categorias = view_instance._get_categorias_nao_permitidas(
+        constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     assert "LACTÁRIO" in categorias
     assert "RESÍDUO DE ÓLEO UTILIZADO NA FRITURA" not in categorias
 
     # Teste para CEI
-    categorias = view_instance._get_categorias_nao_permitidas("CEI DIRET")
+    categorias = view_instance._get_categorias_nao_permitidas(
+        constants.TIPO_UNIDADE_CEI_DIRET
+    )
     assert "LACTÁRIO" not in categorias
     assert "RESÍDUO DE ÓLEO UTILIZADO NA FRITURA" in categorias
 
@@ -67,9 +73,13 @@ def test_tipos_ocorrencias(
     categoria_lactario = categoria_ocorrencia_factory.create(
         nome="LACTÁRIO", perfis=[PerfilDiretorSupervisao.SUPERVISAO], posicao=2
     )
-    tipo_unidade_emef = tipo_unidade_escolar_factory.create(iniciais="EMEF")
+    tipo_unidade_emef = tipo_unidade_escolar_factory.create(
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     escola_emef = escola_factory.create(tipo_unidade=tipo_unidade_emef)
-    tipo_unidade_cemei = tipo_unidade_escolar_factory.create(iniciais="CEMEI")
+    tipo_unidade_cemei = tipo_unidade_escolar_factory.create(
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     escola_cemei = escola_factory.create(tipo_unidade=tipo_unidade_cemei)
 
     tipo_ocorrencia_factory.create(
@@ -245,9 +255,7 @@ def test_administrador_supervisao_nao_gera_pdf_de_outra_nutricionista(
     client, _ = client_autenticado_administrador_supervisao_nutricao
     relatorio = formulario_supervisao_factory.create()
 
-    response = client.get(
-        f"/imr/formulario-supervisao/{relatorio.uuid}/relatorio-pdf/"
-    )
+    response = client.get(f"/imr/formulario-supervisao/{relatorio.uuid}/relatorio-pdf/")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -262,9 +270,7 @@ def test_administrador_supervisao_lista_apenas_seu_nome(
         formulario_base__usuario__nome="Outra nutricionista"
     )
 
-    response = client.get(
-        "/imr/formulario-supervisao/lista_nomes_nutricionistas/"
-    )
+    response = client.get("/imr/formulario-supervisao/lista_nomes_nutricionistas/")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["results"] == [usuario.nome]
@@ -332,9 +338,7 @@ def test_terceirizada_lista_apenas_relatorios_dos_proprios_lotes(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 1
-    assert response.json()["results"][0]["uuid"] == str(
-        relatorio_da_terceirizada.uuid
-    )
+    assert response.json()["results"][0]["uuid"] == str(relatorio_da_terceirizada.uuid)
 
 
 @pytest.mark.parametrize(

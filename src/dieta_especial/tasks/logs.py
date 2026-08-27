@@ -5,6 +5,7 @@ import environ
 from celery import shared_task
 from django.db.models import Q
 
+from src.dados_comuns.constants import TIPOS_GESTAO
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -16,15 +17,15 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
 )
 from src.dieta_especial.tasks.utils.logs import (
     cria_logs_totais_cei_por_faixa_etaria,
+    filtrar_logs_cei_ja_existentes,
+    filtrar_logs_comuns_ja_existentes,
+    filtrar_logs_recreio_ferias_cei_ja_existentes,
+    filtrar_logs_recreio_ferias_ja_existentes,
     gera_logs_dietas_escolas_cei,
     gera_logs_dietas_escolas_comuns,
     gera_logs_dietas_recreio_ferias_escolas_cei,
     gera_logs_dietas_recreio_ferias_escolas_comuns,
     gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei,
-    filtrar_logs_comuns_ja_existentes,
-    filtrar_logs_cei_ja_existentes,
-    filtrar_logs_recreio_ferias_ja_existentes,
-    filtrar_logs_recreio_ferias_cei_ja_existentes,
 )
 from src.escola.models import Escola
 from src.escola.utils import datas_para_gerar_logs
@@ -53,7 +54,7 @@ def gera_logs_dietas_especiais_diariamente():
     )
     logs_a_criar_escolas_comuns = []
     logs_a_criar_escolas_cei = []
-    escolas = Escola.objects.filter(tipo_gestao__nome="TERC TOTAL")
+    escolas = Escola.objects.filter(tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value)
     for index, escola in enumerate(escolas):
         datas = datas_para_gerar_logs(escola)
         for data_ref in datas:
@@ -89,17 +90,11 @@ def gera_logs_dietas_especiais_diariamente():
         logs_a_criar_escolas_comuns
     )
 
-    logs_filtrados_cei = filtrar_logs_cei_ja_existentes(
-        logs_a_criar_escolas_cei
-    )
+    logs_filtrados_cei = filtrar_logs_cei_ja_existentes(logs_a_criar_escolas_cei)
 
-    LogQuantidadeDietasAutorizadas.objects.bulk_create(
-        logs_filtrados_comuns
-    )
+    LogQuantidadeDietasAutorizadas.objects.bulk_create(logs_filtrados_comuns)
 
-    LogQuantidadeDietasAutorizadasCEI.objects.bulk_create(
-        logs_filtrados_cei
-    )
+    LogQuantidadeDietasAutorizadasCEI.objects.bulk_create(logs_filtrados_cei)
 
 
 @shared_task(
@@ -130,8 +125,8 @@ def gera_logs_dietas_recreio_ferias_diariamente():
             ativo=True,
             status__in=[
                 SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
-                "TERMINADA_AUTOMATICAMENTE_SISTEMA"
-            ]
+                "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+            ],
         )
         | Q(
             tipo_solicitacao="ALUNO_NAO_MATRICULADO",
@@ -139,8 +134,8 @@ def gera_logs_dietas_recreio_ferias_diariamente():
             dieta_para_recreio_ferias=True,
             status__in=[
                 SolicitacaoDietaEspecial.workflow_class.CODAE_AUTORIZADO,
-                "TERMINADA_AUTOMATICAMENTE_SISTEMA"
-            ]
+                "TERMINADA_AUTOMATICAMENTE_SISTEMA",
+            ],
         )
     )
 
@@ -159,7 +154,7 @@ def gera_logs_dietas_recreio_ferias_diariamente():
 
     # 4) Busca escolas participantes (que têm solicitações válidas para ontem)
     escolas_participantes = (
-        Escola.objects.filter(tipo_gestao__nome="TERC TOTAL")
+        Escola.objects.filter(tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value)
         .filter(
             id__in=solicitacoes_validas_para_ontem.values_list(
                 "escola_destino_id", flat=True
@@ -203,13 +198,9 @@ def gera_logs_dietas_recreio_ferias_diariamente():
             )
             logs_a_criar_comuns += logs_comuns
 
-    logs_a_criar_comuns = filtrar_logs_recreio_ferias_ja_existentes(
-        logs_a_criar_comuns
-    )
+    logs_a_criar_comuns = filtrar_logs_recreio_ferias_ja_existentes(logs_a_criar_comuns)
 
-    logs_a_criar_cei = filtrar_logs_recreio_ferias_cei_ja_existentes(
-        logs_a_criar_cei
-    )
+    logs_a_criar_cei = filtrar_logs_recreio_ferias_cei_ja_existentes(logs_a_criar_cei)
 
     LogQuantidadeDietasAutorizadasRecreioNasFerias.objects.bulk_create(
         logs_a_criar_comuns

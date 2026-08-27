@@ -21,6 +21,7 @@ from unidecode import unidecode
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
+    FORMATO_DATA_BRASILEIRO,
     GRUPO_INFANTIL_INTEGRAL,
     GRUPO_INFANTIL_MANHA,
     GRUPO_INFANTIL_TARDE,
@@ -41,7 +42,9 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
+    TIPOS_ALIMENTACAO,
     TIPOS_TURMAS_EMEBS,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
@@ -300,7 +303,10 @@ def _get_total_colunas_periodo(tabela, periodo, tipo_unidade=None):
     recreio = tabela.get("recreio", False)
     categorias = tabela["categorias_dos_periodos"][periodo]
 
-    if tipo_unidade == "CEMEI" and periodo in ["INTEGRAL", "PARCIAL"]:
+    if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value and periodo in [
+        "INTEGRAL",
+        "PARCIAL",
+    ]:
         return sum((x["numero_campos"] * 2) + 1 for x in categorias)
 
     if recreio and _nome_periodo_tem_faixas_etarias_cemei(periodo):
@@ -378,7 +384,7 @@ def append_tabela(
 ):
     tabelas[indice_atual]["periodos"] += [nome_periodo]
     tabelas[indice_atual]["categorias"] += [categoria]
-    if tipo_unidade == "CEMEI":
+    if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value:
         tabelas[indice_atual]["periodo_por_categoria"] += [nome_periodo]
         if not segunda_tabela:
             faixas_etarias = tabelas[indice_atual]["faixas_etarias"]
@@ -400,7 +406,10 @@ def append_tabela(
             limite_campos,
         )
     else:
-        if tipo_unidade == "CEMEI" and nome_periodo in ["INTEGRAL", "PARCIAL"]:
+        if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value and nome_periodo in [
+            "INTEGRAL",
+            "PARCIAL",
+        ]:
             tabelas[indice_atual]["faixas_etarias"] += [
                 faixa for faixa in dict_categorias_campos[categoria]
             ][:limite_campos]
@@ -433,7 +442,10 @@ def append_segunda_tabela(
     categoria,
     limite_campos,
 ):
-    if tipo_unidade == "CEMEI" and nome_periodo in ["INTEGRAL", "PARCIAL"]:
+    if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value and nome_periodo in [
+        "INTEGRAL",
+        "PARCIAL",
+    ]:
         tabelas[indice_atual]["faixas_etarias"] += [
             faixa for faixa in dict_categorias_campos[categoria]
         ][limite_campos:]
@@ -1358,7 +1370,7 @@ def build_headers_tabelas_cemei(solicitacao):
                         categoria,
                         dict_categorias_campos,
                         False,
-                        "CEMEI",
+                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
                         limite_campos,
                     )
                     indice_atual += 1
@@ -1371,7 +1383,7 @@ def build_headers_tabelas_cemei(solicitacao):
                         categoria,
                         dict_categorias_campos,
                         True,
-                        "CEMEI",
+                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
                         limite_campos,
                     )
                 else:
@@ -1384,7 +1396,7 @@ def build_headers_tabelas_cemei(solicitacao):
                         dict_categorias_campos,
                         indice_atual,
                         categoria,
-                        "CEMEI",
+                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
                         recreio=recreio,
                     )
                     get_categorias_dos_periodos(
@@ -1401,7 +1413,7 @@ def build_headers_tabelas_cemei(solicitacao):
                     dict_categorias_campos,
                     indice_atual,
                     categoria,
-                    "CEMEI",
+                    TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
                     recreio=recreio,
                 )
                 get_categorias_dos_periodos(
@@ -1413,7 +1425,9 @@ def build_headers_tabelas_cemei(solicitacao):
                 )
             adiciona_campo_total_faixa_etaria(tabelas, nome_periodo, indice_atual)
 
-    get_tamanho_colunas_periodos(tabelas, ORDEM_PERIODOS_GRUPOS_CEMEI, "CEMEI")
+    get_tamanho_colunas_periodos(
+        tabelas, ORDEM_PERIODOS_GRUPOS_CEMEI, TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     return tabelas
 
 
@@ -1432,7 +1446,10 @@ def adiciona_valores_header(
 ):
     if nome_periodo not in tabelas[indice_atual]["periodos"]:
         tabelas[indice_atual]["periodos"] += [nome_periodo]
-    if _nome_periodo_tem_faixas_etarias_cemei(nome_periodo) and tipo_unidade == "CEMEI":
+    if (
+        _nome_periodo_tem_faixas_etarias_cemei(nome_periodo)
+        and tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    ):
         faixas_categoria = [faixa for faixa in dict_categorias_campos[categoria]]
         tabelas[indice_atual]["faixas_etarias"] += faixas_categoria
         n = len(dict_categorias_campos[categoria])
@@ -1442,7 +1459,7 @@ def adiciona_valores_header(
             len(dict_categorias_campos[categoria])
         ]
     tabelas[indice_atual]["categorias"] += [categoria]
-    if tipo_unidade == "CEMEI":
+    if tipo_unidade == TIPOS_UNIDADE_ESCOLAR.CEMEI.value:
         tabelas[indice_atual]["periodo_por_categoria"] += [nome_periodo]
     tabelas[indice_atual]["nomes_campos"] += [
         campo for campo in ORDEM_CAMPOS if campo in dict_categorias_campos[categoria]
@@ -1545,9 +1562,9 @@ def _get_unidade_participantes_recreio(
         return unidades.first(), False
 
     if "4 a 14" in periodo_corrente:
-        unidade = unidades.filter(cei_ou_emei="EMEI").first()
+        unidade = unidades.filter(cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value).first()
     else:
-        unidade = unidades.filter(cei_ou_emei="CEI").first()
+        unidade = unidades.filter(cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value).first()
 
     if unidade is None:
         unidade = unidades.first()
@@ -3703,18 +3720,18 @@ def tratar_valores(solicitacao, escola, total_por_nome_campo: dict):
 
 def get_nome_campo(campo):
     campos = {
-        "desjejum": "Desjejum",
-        "colacao": "Colação",
+        "desjejum": TIPOS_ALIMENTACAO.DESJEJUM.value,
+        "colacao": TIPOS_ALIMENTACAO.COLACAO.value,
         "refeicao_tarde": "Refeição da tarde",
         "almoco": "Almoco",
-        "lanche": "Lanche",
-        "lanche_4h": "Lanche 4h",
+        "lanche": TIPOS_ALIMENTACAO.LANCHE.value,
+        "lanche_4h": TIPOS_ALIMENTACAO.LANCHE_4H.value,
         "lanche_extra": "Lanche Extra",
-        "refeicao": "Refeição",
+        "refeicao": TIPOS_ALIMENTACAO.REFEICAO.value,
         "repeticao_refeicao": "Repetição de Refeição",
-        "lanche_emergencial": "Lanche Emergencial",
+        "lanche_emergencial": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         "kit_lanche": "Kit Lanche",
-        "sobremesa": "Sobremesa",
+        "sobremesa": TIPOS_ALIMENTACAO.SOBREMESA.value,
         "repeticao_sobremesa": "Repetição de Sobremesa",
     }
     return campos.get(campo, campo)
@@ -4911,10 +4928,20 @@ def _build_linhas_colab_somatorio(medicao_colaboradores):
     )
 
     if any(c in ["refeicao", "repeticao_refeicao"] for c in campos_colab):
-        linhas.append([NOMES_CAMPOS.get("refeicao", "Refeição"), str(total_ref)])
+        linhas.append(
+            [
+                NOMES_CAMPOS.get("refeicao", TIPOS_ALIMENTACAO.REFEICAO.value),
+                str(total_ref),
+            ]
+        )
 
     if any(c in ["sobremesa", "repeticao_sobremesa"] for c in campos_colab):
-        linhas.append([NOMES_CAMPOS.get("sobremesa", "Sobremesa"), str(total_sob)])
+        linhas.append(
+            [
+                NOMES_CAMPOS.get("sobremesa", TIPOS_ALIMENTACAO.SOBREMESA.value),
+                str(total_sob),
+            ]
+        )
 
     return linhas
 
@@ -6089,15 +6116,15 @@ def get_name_campo(campo):
         "Matriculados": "matriculados",
         "Frequência": "frequencia",
         "Solicitado": "solicitado",
-        "Desjejum": "desjejum",
-        "Lanche": "lanche",
-        "Lanche 4h": "lanche_4h",
-        "Refeição": "refeicao",
+        TIPOS_ALIMENTACAO.DESJEJUM.value: "desjejum",
+        TIPOS_ALIMENTACAO.LANCHE.value: "lanche",
+        TIPOS_ALIMENTACAO.LANCHE_4H.value: "lanche_4h",
+        TIPOS_ALIMENTACAO.REFEICAO.value: "refeicao",
         "Repetição de Refeição": "repeticao_refeicao",
-        "Sobremesa": "sobremesa",
+        TIPOS_ALIMENTACAO.SOBREMESA.value: "sobremesa",
         "Repetição de Sobremesa": "repeticao_sobremesa",
-        "Colação": "colacao",
-        "Almoço": "almoco",
+        TIPOS_ALIMENTACAO.COLACAO.value: "colacao",
+        TIPOS_ALIMENTACAO.ALMOCO.value: "almoco",
         "Refeição da tarde": "refeicao_tarde",
         "2º Lanche 4h": "2_lanche_4h",
         "2º Lanche 5h": "2_lanche_5h",
@@ -6173,7 +6200,7 @@ def get_lista_dias_inclusoes_escola_sem_alunos_regulares(solicitacao):
         grupo = inclusao.grupo_inclusao
         for periodo in grupo.quantidades_periodo.all():
             tipos_alimentacao = periodo.tipos_alimentacao.exclude(
-                nome="Lanche Emergencial"
+                nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             )
             alimentacoes = list(set(tipos_alimentacao.values_list("nome", flat=True)))
             linhas_da_tabela = get_linhas_da_tabela(alimentacoes, True)
@@ -6238,7 +6265,9 @@ def get_data_relatorio(query_params):
         ano, mes, dia = query_params.get("data_inicial").split("-")
         data_relatorio = f"{dia}/{mes}/{ano}"
     else:
-        data_relatorio = datetime.datetime.now().date().strftime("%d/%m/%Y")
+        data_relatorio = (
+            datetime.datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO)
+        )
     return data_relatorio
 
 
@@ -7303,7 +7332,7 @@ def _verifica_dietas_consumidas(
         if (
             escola_cemei
             and item["periodo_escolar__nome"] == "INTEGRAL"
-            and item["cei_ou_emei"] == "CEI"
+            and item["cei_ou_emei"] == TIPOS_UNIDADE_ESCOLAR.CEI.value
         ):
             continue
 

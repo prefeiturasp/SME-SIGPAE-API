@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.core.management import call_command
 
+from src.dados_comuns.constants import EMAIL_ADMIN
 from src.perfil.models import Usuario
 from src.perfil.models.perfil import Perfil, Vinculo
 
@@ -17,7 +18,7 @@ def test_atualiza_username_com_rf_atualiza_usuarios_corretamente(
     usuario4 = setup_usuarios_command[3]
 
     usuario_admin = Usuario.objects.create(
-        email="admin@admin.com", registro_funcional="9876544", username="admin_user"
+        email=EMAIL_ADMIN, registro_funcional="9876544", username="admin_user"
     )
 
     call_command("atualiza_username_servidores")

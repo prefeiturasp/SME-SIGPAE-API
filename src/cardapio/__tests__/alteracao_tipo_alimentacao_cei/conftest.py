@@ -34,7 +34,7 @@ def client_autenticado_vinculo_escola_cei_cardapio(
     user = django_user_model.objects.create_user(
         username=rf, password=password, email=email, registro_funcional="8888888"
     )
-    assert escola_cei.tipo_gestao.nome == "TERC TOTAL"
+    assert escola_cei.tipo_gestao.nome == constants.TIPOS_GESTAO.TERC_TOTAL.value
     perfil_diretor = baker.make("Perfil", nome="DIRETOR_UE", ativo=True)
     hoje = datetime.date.today()
     baker.make(

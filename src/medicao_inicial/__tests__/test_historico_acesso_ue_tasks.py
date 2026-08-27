@@ -5,6 +5,7 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.dados_comuns.constants import MODEL_USUARIO, TIPOS_GESTAO
 from src.medicao_inicial.historico_acesso_ue.models import (
     HistoricoAcessoMedicaoInicialUE,
 )
@@ -30,8 +31,10 @@ def _cria_escola_elegivel(codigo_eol, lote, tipo_gestao):
 @freeze_time("2026-04-15")
 def test_cria_historico_acesso_ue_cria_apenas_historicos_para_escolas_elegiveis():
     hoje = datetime.date.today()
-    usuario_sistema = baker.make("perfil.Usuario", id=1)
-    tipo_gestao_terc_total = baker.make("TipoGestao", nome="TERC TOTAL")
+    usuario_sistema = baker.make(MODEL_USUARIO, id=1)
+    tipo_gestao_terc_total = baker.make(
+        "TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value
+    )
     tipo_gestao_parceira = baker.make("TipoGestao", nome="PARCEIRA")
     lote = baker.make("Lote", nome="Lote 01", tipo_gestao=tipo_gestao_terc_total)
 
@@ -124,8 +127,10 @@ def test_cria_historico_acesso_ue_cria_apenas_historicos_para_escolas_elegiveis(
 @freeze_time("2026-04-15")
 def test_finaliza_historico_acesso_ue_inativa_apenas_historicos_com_lote_diferente():
     hoje = datetime.date.today()
-    usuario_sistema = baker.make("perfil.Usuario", id=1)
-    tipo_gestao_terc_total = baker.make("TipoGestao", nome="TERC TOTAL")
+    usuario_sistema = baker.make(MODEL_USUARIO, id=1)
+    tipo_gestao_terc_total = baker.make(
+        "TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value
+    )
     lote_atual = baker.make(
         "Lote", nome="Lote Atual", tipo_gestao=tipo_gestao_terc_total
     )

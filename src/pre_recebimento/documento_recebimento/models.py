@@ -19,6 +19,7 @@ from ...dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import (
     FluxoDocumentoDeRecebimento,
 )
@@ -228,7 +229,9 @@ class DataDeFabricaoEPrazo(TemChaveExterna):
 
     def __str__(self):
         data_fabricacao = (
-            self.data_fabricacao.strftime("%d/%m/%Y") if self.data_fabricacao else "-"
+            self.data_fabricacao.strftime(FORMATO_DATA_BRASILEIRO)
+            if self.data_fabricacao
+            else "-"
         )
         return f"{self.documento_recebimento.cronograma.numero} - {data_fabricacao}"
 

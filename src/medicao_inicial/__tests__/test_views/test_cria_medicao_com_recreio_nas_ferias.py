@@ -2,6 +2,7 @@ import pytest
 from freezegun import freeze_time
 from rest_framework import status
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 
 
@@ -34,9 +35,15 @@ def setup_medicao_com_recreio(
     contexto.tipo_contagem = tipo_contagem_alimentacao_factory.create(nome="Catraca")
 
     # Tipos alimentação
-    contexto.refeicao = tipo_alimentacao_factory.create(nome="Refeição")
-    contexto.lanche = tipo_alimentacao_factory.create(nome="Lanche")
-    contexto.sobremesa = tipo_alimentacao_factory.create(nome="Sobremesa")
+    contexto.refeicao = tipo_alimentacao_factory.create(
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value
+    )
+    contexto.lanche = tipo_alimentacao_factory.create(
+        nome=TIPOS_ALIMENTACAO.LANCHE.value
+    )
+    contexto.sobremesa = tipo_alimentacao_factory.create(
+        nome=TIPOS_ALIMENTACAO.SOBREMESA.value
+    )
 
     # Categorias
     contexto.inscritos = categoria_alimentacao_factory.create(nome="Inscritos")

@@ -9,6 +9,7 @@ from src.cardapio.base.api.serializers import (
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.utils import (
@@ -186,7 +187,7 @@ def _montar_cabecalho(relatorio_financeiro, tipos_unidades):
     )
 
     return {
-        "data_geracao": datetime.now().strftime("%d/%m/%Y"),
+        "data_geracao": datetime.now().strftime(FORMATO_DATA_BRASILEIRO),
         "hora_geracao": datetime.now().strftime("%H:%M"),
         "data_referencia": data_referencia,
         "grupo_unidade_escolar": grupo_com_unidades,

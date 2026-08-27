@@ -7,6 +7,7 @@ from model_bakery import baker
 from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cemei_recreio_nas_ferias,
@@ -227,9 +228,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
                 "DIETA TIPO B",
             ],
             "valores_campos": [
-                ["Lanche", "320", "20", "12"],
-                ["Refeição", "200", "0", "0"],
-                ["Sobremesa", "160", "0", "0"],
+                [TIPOS_ALIMENTACAO.LANCHE.value, "320", "20", "12"],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, "200", "0", "0"],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, "160", "0", "0"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os alunos em Recreio nas Férias - 01/2026",
         }
@@ -241,9 +242,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
                 "Total de Alimentações para Colaboradores",
             ],
             "valores_campos": [
-                ["Lanche", "20"],
-                ["Refeição", "28"],
-                ["Sobremesa", "28"],
+                [TIPOS_ALIMENTACAO.LANCHE.value, "20"],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, "28"],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, "28"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - 01/2026",
         }

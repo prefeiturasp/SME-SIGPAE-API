@@ -32,6 +32,11 @@ from src.dados_comuns.behaviors import (
     TemIdentificadorExternoAmigavel,
     TemPrioridade,
 )
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MODEL_ESCOLA,
+    MODULO_DIETA_ESPECIAL,
+)
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import convert_base64_to_contentfile
@@ -270,7 +275,7 @@ class SolicitacaoDietaEspecial(
     )
 
     escola_destino = models.ForeignKey(
-        "escola.Escola", blank=True, null=True, on_delete=models.CASCADE
+        MODEL_ESCOLA, blank=True, null=True, on_delete=models.CASCADE
     )
 
     dieta_alterada = models.ForeignKey(
@@ -494,7 +499,7 @@ class SolicitacaoDietaEspecial(
             ``"Dieta Especial"`` quando não há descrição mapeada.
         """
         descricao = self.DESCRICAO_SOLICITACAO.get(self.status)
-        return f"Dieta Especial - {descricao}" if descricao else "Dieta Especial"
+        return f"Dieta Especial - {descricao}" if descricao else MODULO_DIETA_ESPECIAL
 
     # Property necessária para retornar dados no serializer de criação de
     # Dieta Especial
@@ -636,7 +641,9 @@ class SolicitacaoDietaEspecial(
             ``None`` se não houver logs.
         """
         return (
-            datetime.datetime.strftime(self.logs.last().criado_em, "%d/%m/%Y")
+            datetime.datetime.strftime(
+                self.logs.last().criado_em, FORMATO_DATA_BRASILEIRO
+            )
             if self.logs
             else None
         )

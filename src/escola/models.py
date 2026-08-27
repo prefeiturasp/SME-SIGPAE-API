@@ -50,9 +50,17 @@ from ..dados_comuns.behaviors import (
 from ..dados_comuns.constants import (
     COORDENADOR_DIETA_ESPECIAL,
     COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+    CRIADO_EM,
     DIRETOR_UE,
+    FORMATO_DATA_BRASILEIRO,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_TERCEIRIZADA,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
     obter_dias_uteis_apos_hoje,
 )
 from ..dados_comuns.fluxo_status import (
@@ -111,24 +119,24 @@ redis_conn = redis.StrictRedis(
 )
 
 
-ESCOLA_TIPO_GESTAO_NOME = "TERC TOTAL"
+ESCOLA_TIPO_GESTAO_NOME = TIPOS_GESTAO.TERC_TOTAL.value
 
-EMEI = "EMEI"
-EMEI_P_FOM = "EMEI P FOM"
-EMEF = "EMEF"
-EMEFM = "EMEFM"
-CIEJA = "CIEJA"
-CEU_EMEI = "CEU EMEI"
-CEU_EMEF = "CEU EMEF"
-EMEF_P_FOM = "EMEF P FOM"
+EMEI = TIPOS_UNIDADE_ESCOLAR.EMEI.value
+EMEI_P_FOM = TIPOS_UNIDADE_ESCOLAR.EMEI_P_FOM.value
+EMEF = TIPOS_UNIDADE_ESCOLAR.EMEF.value
+EMEFM = TIPOS_UNIDADE_ESCOLAR.EMEFM.value
+CIEJA = TIPOS_UNIDADE_ESCOLAR.CIEJA.value
+CEU_EMEI = TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value
+CEU_EMEF = TIPOS_UNIDADE_ESCOLAR.CEU_EMEF.value
+EMEF_P_FOM = TIPOS_UNIDADE_ESCOLAR.EMEF_P_FOM.value
 
 LISTA_TIPOS_UNIDADES = [
-    "CEI DIRET",
-    "CEU CEI",
-    "CEI",
-    "CCI",
-    "CCI/CIPS",
-    "CEI CEU",
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+    TIPOS_UNIDADE_ESCOLAR.CEI.value,
+    TIPOS_UNIDADE_ESCOLAR.CCI.value,
+    TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+    TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
 ]
 
 
@@ -804,8 +812,8 @@ class Escola(
     @property
     def eh_cemei(self) -> bool:
         return self.tipo_unidade and self.tipo_unidade.iniciais in [
-            "CEU CEMEI",
-            "CEMEI",
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         ]
 
     @property
@@ -818,11 +826,15 @@ class Escola(
 
     @property
     def eh_emebs(self) -> bool:
-        return self.tipo_unidade and self.tipo_unidade.iniciais in ["EMEBS"]
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [
+            TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+        ]
 
     @property
     def eh_ceu_gestao(self) -> bool:
-        return self.tipo_unidade and self.tipo_unidade.iniciais in ["CEU GESTAO"]
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [
+            TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+        ]
 
     @property
     def eh_emef_emei_cieja(self) -> bool:
@@ -852,7 +864,9 @@ class Escola(
 
     @property
     def eh_cmct(self) -> bool:
-        return self.tipo_unidade and self.tipo_unidade.iniciais in ["CMCT"]
+        return self.tipo_unidade and self.tipo_unidade.iniciais in [
+            TIPOS_UNIDADE_ESCOLAR.CMCT.value
+        ]
 
     @property
     def eh_p_fom(self) -> bool:
@@ -879,7 +893,10 @@ class Escola(
         """Verifica se a escola é CEMEI na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={"CEU CEMEI", "CEMEI"},
+            iniciais_validas={
+                TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+                TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            },
             fallback=self.eh_cemei,
         )
 
@@ -896,12 +913,12 @@ class Escola(
         return self._eh_tipo_unidade_data(
             data,
             iniciais_validas={
-                "CEI DIRET",
-                "CEU CEI",
-                "CEI",
-                "CCI",
-                "CCI/CIPS",
-                "CEI CEU",
+                TIPO_UNIDADE_CEI_DIRET,
+                TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+                TIPOS_UNIDADE_ESCOLAR.CEI.value,
+                TIPOS_UNIDADE_ESCOLAR.CCI.value,
+                TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+                TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
             },
             fallback=self.eh_cei,
         )
@@ -910,7 +927,7 @@ class Escola(
         """Verifica se a escola é EMEBS na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={"EMEBS"},
+            iniciais_validas={TIPOS_UNIDADE_ESCOLAR.EMEBS.value},
             fallback=self.eh_emebs,
         )
 
@@ -918,7 +935,7 @@ class Escola(
         """Verifica se a escola é CEU GESTAO na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={"CEU GESTAO"},
+            iniciais_validas={TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value},
             fallback=self.eh_ceu_gestao,
         )
 
@@ -959,7 +976,7 @@ class Escola(
         """Verifica se a escola é CMCT na data passada, considerando o histórico da escola. Se não houver histórico para a data, considera o tipo atual da escola."""
         return self._eh_tipo_unidade_data(
             data,
-            iniciais_validas={"CMCT"},
+            iniciais_validas={TIPOS_UNIDADE_ESCOLAR.CMCT.value},
             fallback=self.eh_cmct,
         )
 
@@ -1015,9 +1032,11 @@ class Escola(
             return_dict[periodo] = {}
             try:
                 periodo_cei = lista_faixas.get(periodo, [])
-                return_dict[periodo]["CEI"] = periodo_cei
+                return_dict[periodo][TIPOS_UNIDADE_ESCOLAR.CEI.value] = periodo_cei
             except KeyError:
-                return_dict[periodo]["CEI"] = lista_faixas.get("INTEGRAL")
+                return_dict[periodo][TIPOS_UNIDADE_ESCOLAR.CEI.value] = (
+                    lista_faixas.get("INTEGRAL")
+                )
             return_dict[periodo][EMEI] = self.quantidade_alunos_emei_por_periodo(
                 periodo
             )
@@ -1040,8 +1059,8 @@ class Escola(
 
         for periodo in self.periodos_escolares_com_alunos:
             return_dict[periodo] = {}
-            return_dict[periodo]["CEI"] = self.quantidade_alunos_cei_por_periodo(
-                periodo
+            return_dict[periodo][TIPOS_UNIDADE_ESCOLAR.CEI.value] = (
+                self.quantidade_alunos_cei_por_periodo(periodo)
             )
             return_dict[periodo][EMEI] = self.quantidade_alunos_emei_por_periodo(
                 periodo
@@ -1295,7 +1314,7 @@ class Escola(
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         ).exists():
             lista_medicoes.append(GRUPO_SOLICITACOES_ALIMENTACAO)
         return lista_medicoes
@@ -1310,7 +1329,7 @@ class Escola(
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-        ).exclude(motivo__nome="Lanche Emergencial")
+        ).exclude(motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value)
         if queryset.exists():
             periodos_escolares_nomes = list(
                 queryset.values_list(
@@ -1349,7 +1368,7 @@ class Escola(
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         )
         if queryset.exists():
             lista_medicoes.append(GRUPO_SOLICITACOES_ALIMENTACAO)
@@ -1365,7 +1384,7 @@ class Escola(
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-        ).exclude(motivo__nome="Lanche Emergencial")
+        ).exclude(motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value)
         if queryset.exists():
             periodos_escolares_nomes = list(
                 queryset.values_list(
@@ -1809,14 +1828,14 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         blank=True,
     )
     diretoria_regional = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         related_name="lotes",
         null=True,
         blank=True,
     )
     terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         related_name="lotes",
         null=True,
@@ -3032,7 +3051,7 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
             criado_em__month=self.criado_em.month,
             criado_em__day=self.criado_em.day,
             tipo_turma=self.tipo_turma,
-            cei_ou_emei="CEI",
+            cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
         ).exists():
             log = LogAlunosMatriculadosPeriodoEscola.objects.create(
                 escola=self.escola,
@@ -3041,7 +3060,7 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
                     "INTEGRAL"
                 ),
                 tipo_turma=self.tipo_turma,
-                cei_ou_emei="CEI",
+                cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
             )
             log.criado_em = self.criado_em
             log.save()
@@ -3188,7 +3207,7 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
         )
 
     def __str__(self) -> str:
-        return f"""Dia {self.data.strftime("%d/%m/%Y")}
+        return f"""Dia {self.data.strftime(FORMATO_DATA_BRASILEIRO)}
         {"é dia letivo" if self.dia_letivo else "não é dia letivo"} para escola {self.escola}"""
 
     class Meta:
@@ -3198,7 +3217,7 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
 
 
 class LogAtualizaDadosAluno(models.Model):
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     codigo_eol = models.CharField("Codigo EOL da escola", max_length=50)
     status = models.PositiveSmallIntegerField("Status da requisição", default=0)
     msg_erro = models.TextField("Mensagem erro", blank=True)
@@ -3335,7 +3354,7 @@ class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         ).exists()
 
     def __str__(self):
-        return f'{self.data.strftime("%d/%m/%Y")} - {self.tipo_unidade.iniciais} - Edital {self.edital}'
+        return f"{self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.tipo_unidade.iniciais} - Edital {self.edital}"
 
     class Meta:
         verbose_name = "Dia de suspensão de atividades"
@@ -3409,7 +3428,7 @@ class HistoricoEscola(Nomeavel, TemChaveExterna, CriadoEm, TemAlteradoEm):
     data_final = models.DateField(null=True)
 
     def __str__(self) -> str:
-        return f"{self.escola.codigo_eol} - {self.escola.nome} -> era {self.nome} - até {self.data_final.strftime("%d/%m/%Y")}"
+        return f"{self.escola.codigo_eol} - {self.escola.nome} -> era {self.nome} - até {self.data_final.strftime(FORMATO_DATA_BRASILEIRO)}"
 
     @property
     def nome_escola_normalizado(self):

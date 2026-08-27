@@ -254,6 +254,9 @@ CODAE_QUESTIONOU_UE = "CODAE questionou U.E. sobre reclamação"
 CODAE_RESPONDEU_RECLAMACAO = "CODAE respondeu ao reclamante da reclamação"
 TERCEIRIZADA_RESPONDEU_RECLAMACAO = "Terceirizada respondeu a reclamação"
 UE_RESPONDEU_RECLAMACAO = "U.E. respondeu a reclamação"
+ESCOLA_CANCELOU_LABEL = "Escola cancelou"
+EM_ANALISE_LABEL = "Em análise"
+ERRO_SALVAR_LOG_TRANSICAO = "Deve criar um método salvar_log_transicao"
 
 TIPO_SOLICITACAO_DIETA = {
     "COMUM": "COMUM",
@@ -583,6 +586,63 @@ class StatusProcessamentoArquivo(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class TIPOS_ALIMENTACAO(Enum):
+    DESJEJUM = "Desjejum"
+    COLACAO = "Colação"
+    ALMOCO = "Almoço"
+    REFEICAO = "Refeição"
+    REFEICAO_DA_TARDE = "Refeição da Tarde"
+    MERENDA_SECA = "Merenda seca"
+    SOBREMESA = "Sobremesa"
+    LANCHE = "Lanche"
+    LANCHE_4H = "Lanche 4h"
+    LANCHE_EMERGENCIAL = "Lanche Emergencial"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class TIPOS_GESTAO(Enum):
+    TERC_TOTAL = "TERC TOTAL"
+    MISTA = "MISTA"
+    PARCEIRA = "PARCEIRA"
+    DIRETA = "DIRETA"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class TIPOS_UNIDADE_ESCOLAR(Enum):
+    EMEF = "EMEF"
+    CEU_EMEF = "CEU EMEF"
+    EMEFM = "EMEFM"
+    EMEF_P_FOM = "EMEF P FOM"
+    CEU_GESTAO = "CEU GESTAO"
+    EMEI = "EMEI"
+    CEU_EMEI = "CEU EMEI"
+    EMEI_P_FOM = "EMEI P FOM"
+    CEI_DIRET = "CEI DIRET"
+    CEI_CEU = "CEI CEU"
+    CEU_CEI = "CEU CEI"
+    CCI = "CCI"
+    CCI_CIPS = "CCI/CIPS"
+    CEI = "CEI"
+    CEMEI = "CEMEI"
+    CEU_CEMEI = "CEU CEMEI"
+    EMEBS = "EMEBS"
+    CIEJA = "CIEJA"
+    CMCT = "CMCT"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+TIPO_UNIDADE_CEI_DIRET = TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value
+
+
 PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO = ["MANHA", "TARDE", "NOITE", "INTEGRAL"]
 
 
@@ -610,5 +670,25 @@ TRADUCOES_FERIADOS = {
 
 TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
 PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+MODEL_TERCEIRIZADA = "terceirizada.Terceirizada"
+MODEL_ESCOLA = "escola.Escola"
+MODEL_DIRETORIA_REGIONAL = "escola.DiretoriaRegional"
+MODEL_LOTE = "escola.Lote"
 DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
 FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
+FORMATO_DATA_HORA_BRASILEIRO = "%d/%m/%Y - %H:%M"
+EMAIL_ADMIN = "admin@admin.com"
+TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR = "fluxo_autorizar_negar_cancelar.html"
+TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA = "fluxo_codae_autoriza_ou_nega.html"
+MODULO_GESTAO_PRODUTO = "Gestão de Produto"
+MODULO_GESTAO_ALIMENTACAO = "Gestão de Alimentação"
+MODULO_DIETA_ESPECIAL = "Dieta Especial"
+MENSAGEM_PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
+CRIADO_EM = "Criado em"
+MODEL_USUARIO = "perfil.Usuario"
+STATUS_ENVIADO_PARA_ANALISE = "Enviado para Análise"
+EMAIL_ASSUNTO_STATUS_SOLICITACAO = "[SIGPAE] Status de solicitação - "
+RELATED_NAME_RASTRO_TERCEIRIZADA = "%(app_label)s_%(class)s_rastro_terceirizada"
+RELATED_NAME_RASTRO_LOTE = "%(app_label)s_%(class)s_rastro_lote"
+RELATED_NAME_RASTRO_DRE = "%(app_label)s_%(class)s_rastro_dre"
+RELATED_NAME_RASTRO_ESCOLA = "%(app_label)s_%(class)s_rastro_escola"

@@ -8,6 +8,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from xworkflows import InvalidTransitionError
 
 from src.dados_comuns import constants, services
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.mixins.serializer_context import DataSolicitacaoContextMixin
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.permissions import (
@@ -580,7 +581,7 @@ class InclusaoAlimentacaoContinuaViewSet(
             ]
             if encerrado_a_partir_de_str:
                 encerrado_a_partir_de = datetime.datetime.strptime(
-                    encerrado_a_partir_de_str, "%d/%m/%Y"
+                    encerrado_a_partir_de_str, FORMATO_DATA_BRASILEIRO
                 ).date()
                 obj.quantidades_periodo.filter(uuid__in=uuids_selecionados).update(
                     encerrado_a_partir_de=encerrado_a_partir_de,
