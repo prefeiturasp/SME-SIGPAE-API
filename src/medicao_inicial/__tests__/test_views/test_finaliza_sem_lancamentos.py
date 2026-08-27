@@ -11,6 +11,7 @@ from src.cardapio.base.fixtures.factories.base_factory import (
 from src.dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MENSAGEM_PERMISSAO_NEGADA,
 )
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
@@ -259,6 +260,4 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
             data=json.dumps(data_update),
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.json() == {
-            "detail": "Você não tem permissão para executar essa ação."
-        }
+        assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}

@@ -1172,9 +1172,7 @@ def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
         "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_relatorio_recreio_nas_ferias(
@@ -1229,9 +1227,7 @@ def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_codae_atualiza_protocolo(

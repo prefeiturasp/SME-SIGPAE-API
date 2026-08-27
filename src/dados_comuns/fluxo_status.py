@@ -32,6 +32,7 @@ from .constants import (
     ESCOLA_CANCELOU_LABEL,
     FORMATO_DATA_BRASILEIRO,
     FORMATO_DATA_HORA_BRASILEIRO,
+    MENSAGEM_PERMISSAO_NEGADA,
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
     MODEL_LOTE,
@@ -4133,9 +4134,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             eh_diretor = user.vinculo_atual.perfil.nome == DIRETOR_UE
             escola_p_fom = user.vinculo_atual.instituicao.eh_p_fom
             if not eh_diretor and escola_possui_alunos_regulares and not escola_p_fom:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             log_transicao = self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
                 usuario=user,
@@ -4162,9 +4161,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [COGESTOR_DRE]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             if isinstance(self, OcorrenciaMedicaoInicial) or isinstance(self, Medicao):
                 self.deletar_log_correcao(
                     status_evento=[
@@ -4215,9 +4212,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         justificativa = kwargs.get("justificativa", "")
         if user:
             if user.vinculo_atual.perfil.nome not in [COGESTOR_DRE]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             if isinstance(self, OcorrenciaMedicaoInicial) or isinstance(self, Medicao):
                 self.deletar_log_correcao(
                     status_evento=[
@@ -4264,9 +4259,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 ADMINISTRADOR_MEDICAO,
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
             ]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4287,9 +4280,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 ADMINISTRADOR_MEDICAO,
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
             ]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4307,9 +4298,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         justificativa = kwargs.get("justificativa", "")
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4327,9 +4316,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4348,9 +4335,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
                 usuario=user,
@@ -4382,9 +4367,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
                 usuario=user,
@@ -4425,9 +4408,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
         if user:
             if nao_possui_permissao:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
 
             status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE
 
@@ -4462,9 +4443,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
         if user and isinstance(self, OcorrenciaMedicaoInicial):
             if nao_possui_permissao:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
 
             status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE
 
@@ -4487,9 +4466,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
                 usuario=user,
@@ -4505,9 +4482,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
                 usuario=user,
@@ -4529,7 +4504,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
 
         if not user or nao_possui_permissao:
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
         if isinstance(self, Medicao):
             raise ValidationError(
                 "`Medicao` não possui fluxo `ue_envia_sem_lancamentos`"
@@ -4556,7 +4531,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
 
         if not user or nao_possui_permissao:
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
         if isinstance(self, SolicitacaoMedicaoInicial):
             raise ValidationError(
                 "`SolicitacaoMedicaoInicial` não possui fluxo `medicao_sem_lancamentos`"
@@ -4575,7 +4550,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa = kwargs["justificativa"]
         if not user or user.vinculo_atual.perfil.nome != ADMINISTRADOR_MEDICAO:
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             usuario=user,

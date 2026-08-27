@@ -17,6 +17,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MENSAGEM_PERMISSAO_NEGADA,
 )
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
@@ -419,7 +420,7 @@ def test_url_endpoint_nao_tem_permissao_para_encerrar_medicao(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     json = response.json()
-    assert json == {"detail": "Você não tem permissão para executar essa ação."}
+    assert json == {"detail": MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_valores_medicao_com_grupo(
@@ -2784,9 +2785,7 @@ def test_codae_solicita_correcao_sem_lancamento_usuario_sem_permissao(
         data=json.dumps(solicita_correcao),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_codae_solicita_correcao_sem_lancamento_solicitacao_nao_existe(
@@ -2887,9 +2886,7 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_usuario_nao_autrizado
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_atualiza_informacoes_basicas(
@@ -3078,32 +3075,32 @@ def test_url_endpoint_atualiza_informacoes_basicas_aluno_parcial_sincroniza_logs
         (
             "client_autenticado_da_escola",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_da_escola_cei",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_da_escola_cemei",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_da_escola_ceu_gestao",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_da_escola_emebs",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_adm_da_escola",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_codae_medicao",

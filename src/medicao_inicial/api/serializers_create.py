@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
+from src.dados_comuns.constants import MENSAGEM_PERMISSAO_NEGADA
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
@@ -1085,7 +1086,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             and escola_possui_alunos_regulares
             and not escola_p_fom
         ):
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
 
     def _update_instance_fields(self, instance, validated_data):
         if "dre_ciencia_correcao_data" in validated_data:

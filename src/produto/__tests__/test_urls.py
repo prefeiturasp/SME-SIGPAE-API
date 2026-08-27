@@ -2234,9 +2234,7 @@ def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_perfil(
         f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
@@ -2248,6 +2246,4 @@ def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
         f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}

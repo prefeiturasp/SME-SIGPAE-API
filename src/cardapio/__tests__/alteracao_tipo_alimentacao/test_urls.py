@@ -82,9 +82,7 @@ def test_url_endpoint_alt_card_inicio_403(
         f"/{ENDPOINT_ALTERACAO_CARD}/{alteracao_cardapio.uuid}/{constants.ESCOLA_INICIO_PEDIDO}/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_alt_card_criar_update(
