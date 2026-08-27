@@ -10,6 +10,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from pypdf import PdfWriter
 
+from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET
 from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
 from src.escola.models import (
     AlunoPeriodoParcial,
@@ -508,7 +509,7 @@ def test_gera_pdf_relatorio_unificado_async_cei(
     solicitacoes_cei_relatorio_unificado, usuario
 ):
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", "CEI DIRET", "CEU CEI"]
+    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", TIPO_UNIDADE_CEI_DIRET, "CEU CEI"]
 
     nome_arquivo = "relatorio_teste.pdf"
     usuario = usuario.get_username()
@@ -556,7 +557,7 @@ def test_processa_relatorio_lancamentos(
     central = baker.make(CentralDeDownload)
 
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", "CEI DIRET", "CEU CEI"]
+    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", TIPO_UNIDADE_CEI_DIRET, "CEU CEI"]
 
     processa_relatorio_lançamentos(ids, tipos, merger, central)
 

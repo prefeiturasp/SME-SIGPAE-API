@@ -7,6 +7,7 @@ from celery import shared_task
 from django.db.models import Q
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import TIPOS_GESTAO
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     MotivoAlteracaoUEFactory,
@@ -62,7 +63,9 @@ class TestLogsRecreioNasFerias:
         ClassificacaoDieta.objects.all().delete()
         TipoGestao.objects.all().delete()
 
-        self.tipo_gestao_terc = TipoGestaoFactory.create(nome="TERC TOTAL")
+        self.tipo_gestao_terc = TipoGestaoFactory.create(
+            nome=TIPOS_GESTAO.TERC_TOTAL.value
+        )
 
         self.dre = DiretoriaRegionalFactory.create(nome="IPIRANGA", iniciais="IP")
         self.terceirizada = EmpresaFactory.create(nome_fantasia="EMPRESA LTDA")

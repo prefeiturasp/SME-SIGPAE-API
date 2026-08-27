@@ -9,7 +9,12 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.dados_comuns import constants as dados_comuns_constants
-from src.dados_comuns.constants import MODEL_ESCOLA, TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import (
+    MODEL_ESCOLA,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
+)
 from src.escola.models import PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     DiasMotivosInclusaoDeAlimentacaoCEMEI,
@@ -212,7 +217,7 @@ def test_url_endpoint_get_vinculos_tipo_alimentacao_escola_cemei(
     json = response.json()["results"]
     assert len(json) == 4
 
-    assert json[0]["tipo_unidade_escolar"]["iniciais"] == "CEI DIRET"
+    assert json[0]["tipo_unidade_escolar"]["iniciais"] == TIPO_UNIDADE_CEI_DIRET
     assert json[0]["periodo_escolar"]["nome"] == "INTEGRAL"
 
     assert json[1]["tipo_unidade_escolar"]["iniciais"] == "EMEI"
@@ -274,7 +279,7 @@ def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(
 ):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_cemei = baker.make("escola.TipoUnidadeEscolar", iniciais="CEMEI")
     diretoria_regional = baker.make("DiretoriaRegional")
     escola_cemei = baker.make(

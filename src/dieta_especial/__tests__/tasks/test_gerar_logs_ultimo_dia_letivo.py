@@ -3,6 +3,7 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import TIPOS_GESTAO
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
@@ -39,7 +40,7 @@ class TestUseCaseCriacaoLogsUltimoDiaLetivo:
         self.tipo_unidade_emef = tipo_unidade_escolar_factory.create(iniciais="EMEF")
         self.escola_emef = escola_factory.create(
             nome="EMEF PERICLES",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             codigo_eol="000099",
             tipo_unidade=self.tipo_unidade_emef,
             lote=self.lote,

@@ -4,6 +4,7 @@ import environ
 import redis
 from django.core.management.base import BaseCommand
 
+from ....dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET
 from ....eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
 from ...models import (
     Aluno,
@@ -37,7 +38,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         iniciais = [
-            "CEI DIRET",
+            TIPO_UNIDADE_CEI_DIRET,
             "CEU CEI",
             "CEI",
             "CCI",

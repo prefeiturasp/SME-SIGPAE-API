@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import TIPOS_GESTAO
 from src.escola.models import LogAlunosMatriculadosPeriodoEscola, TipoTurma
 from src.escola.tasks import matriculados_por_escola_e_periodo_regulares
 
@@ -48,7 +49,7 @@ class TestUseCaseCriacaoLogsMatriculadosProgramas:
         self.tipo_unidade_emef = tipo_unidade_escolar_factory.create(iniciais="EMEF")
         self.escola_emef = escola_factory.create(
             nome="EMEF PERICLES",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             codigo_eol="000099",
             tipo_unidade=self.tipo_unidade_emef,
             lote=self.lote,

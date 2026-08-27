@@ -20,6 +20,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MODEL_TERCEIRIZADA,
+    TIPO_UNIDADE_CEI_DIRET,
 )
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -1000,7 +1001,7 @@ def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome="TERC_TOTAL")
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais=TIPO_UNIDADE_CEI_DIRET)
     contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
     diretoria_regional = baker.make(
         "DiretoriaRegional",

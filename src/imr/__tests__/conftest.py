@@ -16,7 +16,7 @@ def codae():
 def escola():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
     contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
     diretoria_regional = baker.make(

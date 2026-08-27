@@ -7,6 +7,7 @@ from django.http import QueryDict
 from freezegun.api import freeze_time
 from model_bakery import baker
 
+from ...dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...escola.models import Aluno, FaixaEtaria
 from ...terceirizada.models import Edital
@@ -808,7 +809,7 @@ def test__formatar_periodos_cei(escolas_tipo_cei):
     informacao = {
         "data": datetime.date(2024, 2, 12),
         "unidade_educacional": "Escola CEI DIRET",
-        "tipo_unidade": "CEI DIRET",
+        "tipo_unidade": TIPO_UNIDADE_CEI_DIRET,
         "lote": "LOTE CEI DIRET",
         "classificacao": "Tipo A",
         "total": 1,

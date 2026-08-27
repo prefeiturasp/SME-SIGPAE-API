@@ -51,7 +51,7 @@ def escola():
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
         lote=lote,
         diretoria_regional=diretoria_regional,
-        tipo_gestao__nome="TERC TOTAL",
+        tipo_gestao__nome=constants.TIPOS_GESTAO.TERC_TOTAL.value,
         contato=contato,
     )
 
@@ -615,7 +615,7 @@ def client_autenticado_da_terceirizada(client, django_user_model, terceirizada):
 
 @pytest.fixture
 def tipo_gestao():
-    return baker.make(TipoGestao, nome="TERC TOTAL")
+    return baker.make(TipoGestao, nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
 
 
 @pytest.fixture

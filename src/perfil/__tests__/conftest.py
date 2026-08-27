@@ -15,6 +15,7 @@ from ...dados_comuns.constants import (
     DILOG_ABASTECIMENTO,
     DJANGO_ADMIN_PASSWORD,
     EMAIL_ADMIN,
+    TIPOS_GESTAO,
 )
 from .. import models
 from ..api.serializers import UsuarioSerializer, UsuarioUpdateSerializer
@@ -239,7 +240,7 @@ def usuario_update_serializer(usuario_2):
 
 @pytest.fixture
 def tipo_gestao():
-    return baker.make("TipoGestao", nome="TERC TOTAL")
+    return baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
 
 @pytest.fixture(

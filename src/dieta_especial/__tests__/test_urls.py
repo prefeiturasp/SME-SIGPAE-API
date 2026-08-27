@@ -1023,7 +1023,10 @@ def test_filtros_relatorio_dieta_especial_success(
             {"nome": "ALERGIA - OVO", "uuid": "5d7f80b8-7b62-441b-89da-4d5dd5c1e7e8"}
         ],
         "tipos_gestao": [
-            {"nome": "TERC TOTAL", "uuid": "8bd3931b-8636-44ba-9d8e-81b29067eed1"}
+            {
+                "nome": constants.TIPOS_GESTAO.TERC_TOTAL.value,
+                "uuid": "8bd3931b-8636-44ba-9d8e-81b29067eed1",
+            }
         ],
         "tipos_unidades": [],
     }
@@ -1073,7 +1076,7 @@ def test_relatorio_historico_dieta_especial(
         {
             "lote": "",
             "unidade_educacional": "CEI DIRET JOAO MENDES",
-            "tipo_unidade": "CEI DIRET",
+            "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
             "classificacao": "Tipo B",
             "total": 32,
             "data": "20/03/2024",

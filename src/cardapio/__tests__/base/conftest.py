@@ -4,7 +4,11 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
-from src.dados_comuns.constants import TIPO_ALIMENTACAO, TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import (
+    TIPO_ALIMENTACAO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+)
 from src.escola.models import (
     Escola,
     LogAlunosMatriculadosPeriodoEscola,
@@ -161,7 +165,7 @@ def escolas():
         "EMEI",
         "EMEF",
         "CEI",
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "CEMEI",
         "CIEJA",
         "CEU GESTAO",
@@ -218,7 +222,7 @@ def vinculo_alimentacao_periodo_escolar_cei(escolas, periodos_escolares):
 
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_cemei(escolas, periodos_escolares):
-    _cria_vinculos("CEI DIRET", ["PARCIAL", "INTEGRAL"])
+    _cria_vinculos(TIPO_UNIDADE_CEI_DIRET, ["PARCIAL", "INTEGRAL"])
     _cria_vinculos("EMEI", ["INTEGRAL", "TARDE", "MANHA"])
     return _cria_vinculos("CEMEI", [])
 

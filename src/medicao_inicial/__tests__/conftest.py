@@ -354,7 +354,7 @@ def escola(tipo_unidade_escolar, diretoria_regional):
         terceirizada=terceirizada,
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="EMEF TESTE",
@@ -386,7 +386,7 @@ def escola_emefm(diretoria_regional):
         terceirizada=terceirizada,
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEFM")
     return baker.make(
         "Escola",
@@ -411,7 +411,7 @@ def escola_emei():
         terceirizada=terceirizada,
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEI")
     return baker.make(
         "Escola",
@@ -431,7 +431,7 @@ def escola_ceu_emei(tipo_unidade_escolar_ceu_emei):
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CEU EMEI TESTE",
@@ -450,8 +450,10 @@ def escola_cei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET
+    )
     return baker.make(
         "Escola",
         nome="CEI DIRET TESTE",
@@ -470,7 +472,7 @@ def escola_cci():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CCI")
     return baker.make(
         "Escola",
@@ -518,7 +520,7 @@ def escola_cemei():
         nome="LOTE 2",
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
     return baker.make(
         "Escola",
@@ -538,7 +540,7 @@ def escola_ceu_cemei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI")
     return baker.make(
         "Escola",
@@ -561,7 +563,7 @@ def escola_emebs():
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
     return baker.make(
         "Escola",
@@ -583,7 +585,7 @@ def escola_ceu_gestao():
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
     return baker.make(
         "Escola",
@@ -604,7 +606,7 @@ def escola_cmct():
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CMCT")
     return baker.make(
         "Escola",
@@ -625,7 +627,7 @@ def escola_cieja(tipo_unidade_escolar_cieja):
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CIEJA TESTE",
@@ -3656,7 +3658,7 @@ def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
         nome="Grupo 1",
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET"),
+            baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
             baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
             baker.make("TipoUnidadeEscolar", iniciais="CEI"),
             baker.make("TipoUnidadeEscolar", iniciais="CCI"),
@@ -3704,7 +3706,7 @@ def mock_colunas_cei(faixas_etarias_ativas):
 def mock_linhas_cei():
     return [
         [
-            "CEI DIRET",
+            constants.TIPO_UNIDADE_CEI_DIRET,
             "765432",
             "CEI DIRET TESTE",
             80.0,
@@ -7524,7 +7526,7 @@ def mock_colunas_recreio_cei(faixas_etarias_ativas):
 def mock_linhas_recreio_cei():
     return [
         [
-            "CEI DIRET",
+            constants.TIPO_UNIDADE_CEI_DIRET,
             "765432",
             "CEI DIRET TESTE",
             168.0,
@@ -7580,7 +7582,7 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
         nome="Grupo 1",
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET"),
+            baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
             baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
             baker.make("TipoUnidadeEscolar", iniciais="CEI"),
             baker.make("TipoUnidadeEscolar", iniciais="CCI"),

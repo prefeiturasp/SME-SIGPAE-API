@@ -57,7 +57,9 @@ from ..dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MODEL_DIRETORIA_REGIONAL,
     MODEL_TERCEIRIZADA,
+    TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
     obter_dias_uteis_apos_hoje,
 )
 from ..dados_comuns.fluxo_status import (
@@ -116,7 +118,7 @@ redis_conn = redis.StrictRedis(
 )
 
 
-ESCOLA_TIPO_GESTAO_NOME = "TERC TOTAL"
+ESCOLA_TIPO_GESTAO_NOME = TIPOS_GESTAO.TERC_TOTAL.value
 
 EMEI = "EMEI"
 EMEI_P_FOM = "EMEI P FOM"
@@ -128,7 +130,7 @@ CEU_EMEF = "CEU EMEF"
 EMEF_P_FOM = "EMEF P FOM"
 
 LISTA_TIPOS_UNIDADES = [
-    "CEI DIRET",
+    TIPO_UNIDADE_CEI_DIRET,
     "CEU CEI",
     "CEI",
     "CCI",
@@ -901,7 +903,7 @@ class Escola(
         return self._eh_tipo_unidade_data(
             data,
             iniciais_validas={
-                "CEI DIRET",
+                TIPO_UNIDADE_CEI_DIRET,
                 "CEU CEI",
                 "CEI",
                 "CCI",

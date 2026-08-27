@@ -17,6 +17,7 @@ from ..constants import (
     DAQUI_A_SETE_DIAS,
     DAQUI_A_TRINTA_DIAS,
     SEM_FILTRO,
+    TIPO_UNIDADE_CEI_DIRET,
     obter_dias_uteis_apos_hoje,
 )
 from ..models import CentralDeDownload
@@ -159,7 +160,7 @@ def test_analisa_logs_quantidade_dietas_autorizadas(
     logs_dietas_cei = [
         log
         for log in LogQuantidadeDietasAutorizadasCEI.objects.all()
-        if log.escola.tipo_unidade.iniciais == "CEI DIRET"
+        if log.escola.tipo_unidade.iniciais == TIPO_UNIDADE_CEI_DIRET
     ]
     assert len(logs_dietas_cei) == 4
     logs_dietas_cemei = [

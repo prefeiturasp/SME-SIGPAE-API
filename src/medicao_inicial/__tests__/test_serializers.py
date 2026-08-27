@@ -5,7 +5,7 @@ import pytest
 from model_bakery import baker
 from rest_framework import serializers
 
-from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
+from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO, TIPOS_GESTAO
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
@@ -548,7 +548,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             terceirizada=terceirizada,
             diretoria_regional=diretoria_regional,
         )
-        tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+        tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
         return baker.make(
             "Escola",
             nome="EMEF TESTE KIT",

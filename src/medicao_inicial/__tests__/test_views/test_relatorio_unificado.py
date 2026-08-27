@@ -7,7 +7,11 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework.test import APIClient
 
-from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD, GRUPO_RECREIO_NAS_FERIAS
+from src.dados_comuns.constants import (
+    DJANGO_ADMIN_PASSWORD,
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_GESTAO,
+)
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import CentralDeDownload
 from src.escola.fixtures.factories.escola_factory import (
@@ -56,7 +60,7 @@ class TestGeraRelatorioUnificado:
             terceirizada=terceirizada,
             diretoria_regional=diretoria_regional,
         )
-        tipo_gestao = TipoGestaoFactory.create(nome="TERC TOTAL")
+        tipo_gestao = TipoGestaoFactory.create(nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
         return diretoria_regional, lote, tipo_gestao
 

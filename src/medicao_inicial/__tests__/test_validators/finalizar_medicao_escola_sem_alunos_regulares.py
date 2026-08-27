@@ -7,6 +7,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     GRUPO_PROGRAMAS_E_PROJETOS,
     TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -52,7 +53,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_cmct = escola_factory.create(
             nome="CMCT VALDYR",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
         )

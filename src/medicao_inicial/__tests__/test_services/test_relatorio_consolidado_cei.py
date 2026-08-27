@@ -9,6 +9,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPO_UNIDADE_CEI_DIRET,
 )
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
@@ -204,7 +205,7 @@ def test_get_valores_tabela(relatorio_consolidado_xlsx_cei, mock_colunas_cei):
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 57
     assert linhas[0] == [
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "765432",
         "CEI DIRET TESTE",
         80.0,
@@ -298,7 +299,7 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_a
     )
     assert isinstance(integral, list)
     assert len(integral) == 4
-    assert integral == ["CEI DIRET", "765432", "CEI DIRET TESTE", 80]
+    assert integral == [TIPO_UNIDADE_CEI_DIRET, "765432", "CEI DIRET TESTE", 80]
 
     manha = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cei,
@@ -309,7 +310,7 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_cei, faixas_etarias_a
     )
     assert isinstance(manha, list)
     assert len(manha) == 5
-    assert manha == ["CEI DIRET", "765432", "CEI DIRET TESTE", 80.0, "-"]
+    assert manha == [TIPO_UNIDADE_CEI_DIRET, "765432", "CEI DIRET TESTE", 80.0, "-"]
 
 
 def test_define_filtro(relatorio_consolidado_xlsx_cei):
@@ -509,7 +510,7 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
 
     assert df.iloc[0].tolist() == [
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "765432",
         "CEI DIRET TESTE",
         80.0,

@@ -34,7 +34,12 @@ from src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao
 from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
-from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS, TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import (
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -91,7 +96,7 @@ class TestUseCaseTransferenciaLotes:
         self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
         self.escola_emef = EscolaFactory.create(
             nome="EMEF PERICLES",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_emef,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -99,11 +104,11 @@ class TestUseCaseTransferenciaLotes:
 
     def _setup_escola_cei(self):
         self.tipo_unidade_cei_diret = TipoUnidadeEscolarFactory.create(
-            iniciais="CEI DIRET"
+            iniciais=TIPO_UNIDADE_CEI_DIRET
         )
         self.escola_cei = EscolaFactory.create(
             nome="CEI DIRET GERALDA",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_cei_diret,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -113,7 +118,7 @@ class TestUseCaseTransferenciaLotes:
         self.tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(iniciais="CEMEI")
         self.escola_cemei = EscolaFactory.create(
             nome="CEMEI PELEGRINI",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_cemei,
             lote=self.lote,
             diretoria_regional=self.dre,

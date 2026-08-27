@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 import pytest
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import TIPOS_GESTAO
 from src.escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
@@ -51,7 +52,7 @@ class TestGeraRelatorioMedicaoComHistoricoEscola:
             terceirizada=terceirizada,
             diretoria_regional=diretoria_regional,
         )
-        tipo_gestao = TipoGestaoFactory.create(nome="TERC TOTAL")
+        tipo_gestao = TipoGestaoFactory.create(nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
         # Escola atual é CEMEI
         escola = EscolaFactory.create(

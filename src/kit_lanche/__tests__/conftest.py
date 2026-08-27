@@ -11,6 +11,7 @@ from ...dados_comuns.constants import (
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
     MODEL_LOTE,
+    TIPOS_GESTAO,
 )
 from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
@@ -52,7 +53,7 @@ def tipo_unidade():
 @pytest.fixture
 def escola(diretoria_regional, lote, tipo_unidade):
     contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="EMEF TESTE",
@@ -67,7 +68,7 @@ def escola(diretoria_regional, lote, tipo_unidade):
 
 @pytest.fixture
 def escola_cmct(diretoria_regional, lote):
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CMCT TESTE",

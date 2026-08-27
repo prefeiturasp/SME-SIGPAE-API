@@ -6,7 +6,7 @@ import numpy as np
 from django.http import QueryDict
 from django.template.loader import render_to_string
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPO_UNIDADE_CEI_DIRET
 from src.escola.models import DiretoriaRegional, PeriodoEscolar
 from src.escola.utils import faixa_to_string
 from src.relatorios.utils import html_to_pdf_file
@@ -14,7 +14,7 @@ from src.relatorios.utils import html_to_pdf_file
 
 def get_faixa_etaria_cei(log: dict, faixa_etaria: str) -> str:
     if log["tipo_unidade"] not in [
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "CEU CEI",
         "CEI",
         "CCI",
@@ -320,7 +320,14 @@ def reestruturar_resultados(objeto):
 
 
 def gera_pdf_relatorio_historico_dieta_especial(dados, user, titulo, iniciais_dre):
-    unidades_cei = ["CEI DIRET", "CEU CEI", "CEI", "CCI", "CCI/CIPS", "CEI CEU"]
+    unidades_cei = [
+        TIPO_UNIDADE_CEI_DIRET,
+        "CEU CEI",
+        "CEI",
+        "CCI",
+        "CCI/CIPS",
+        "CEI CEU",
+    ]
     unidades_cemei = ["CEMEI", "CEU CEMEI"]
     unidades_emei_emef = [
         "EMEI",

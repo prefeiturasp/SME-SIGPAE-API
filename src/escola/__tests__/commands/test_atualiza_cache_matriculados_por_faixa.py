@@ -6,6 +6,7 @@ import pytest
 from django.core.management import call_command
 from freezegun.api import freeze_time
 
+from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET
 from src.escola.fixtures.factories.escola_factory import (
     DiaCalendarioFactory,
     DiretoriaRegionalFactory,
@@ -30,7 +31,7 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
         self.cei_diret = EscolaFactory.create(
             nome="CEI DIRET CABREUVAS",
             codigo_eol="400020",
-            tipo_unidade__iniciais="CEI DIRET",
+            tipo_unidade__iniciais=TIPO_UNIDADE_CEI_DIRET,
             diretoria_regional=dre,
         )
         self.cci = EscolaFactory.create(

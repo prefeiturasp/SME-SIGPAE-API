@@ -8,6 +8,7 @@ from src.dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
 )
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_recreio_nas_ferias,
@@ -54,7 +55,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_emef = escola_factory.create(
             nome="EMEF TESTE",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
         )
@@ -467,7 +468,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         self.escola_emei = escola_factory.create(
             nome="EMEI TESTE",
             tipo_unidade__iniciais="EMEI",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
         )

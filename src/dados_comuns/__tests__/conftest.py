@@ -48,7 +48,7 @@ from ..models import (
 
 fake = Faker("pt_BR")
 Faker.seed(420)
-TERC_TOTAL = "TERC TOTAL"
+TERC_TOTAL = constants.TIPOS_GESTAO.TERC_TOTAL.value
 
 
 @pytest.fixture(
@@ -550,7 +550,9 @@ def escola_cei():
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET
+    )
     return baker.make(
         "Escola",
         nome="CEI DIRET TESTE",

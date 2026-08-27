@@ -25,7 +25,11 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TEMPO_CACHE_6H
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TEMPO_CACHE_6H,
+    TIPOS_GESTAO,
+)
 from src.medicao_inicial.tasks import (
     exporta_relatorio_controle_frequencia_para_pdf,
 )
@@ -232,7 +236,9 @@ class EscolaSimplissimaComEolViewSet(ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["POST"], url_path="terc-total")
     def terc_total(self, request):
-        escolas = self.get_queryset().filter(tipo_gestao__nome="TERC TOTAL")
+        escolas = self.get_queryset().filter(
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value
+        )
         lotes = request.data.get("lotes", None)
         if lotes:
             escolas = escolas.filter(lote__uuid__in=lotes)
@@ -253,7 +259,9 @@ class EscolaSimplissimaComDREUnpaginatedViewSet(EscolaSimplissimaComDREViewSet):
     @method_decorator(cache_page(TEMPO_CACHE_6H))
     @action(detail=False, methods=["GET"], url_path="terc-total")
     def terc_total(self, request):
-        escolas = self.get_queryset().filter(tipo_gestao__nome="TERC TOTAL")
+        escolas = self.get_queryset().filter(
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value
+        )
         escola = request.query_params.get("escola", None)
         dre = request.query_params.get("dre", None)
         tipo_unidade = request.query_params.get("tipo_unidade", None)
@@ -609,7 +617,7 @@ class TipoUnidadeEscolarViewSet(ReadOnlyModelViewSet):
                         "escola",
                         filter=Q(
                             escola__diretoria_regional__uuid=dre,
-                            escola__tipo_gestao__nome="TERC TOTAL",
+                            escola__tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
                         ),
                     )
                 )
@@ -1071,7 +1079,8 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
             )
         escolas_uuids = lotes.values_list("escolas__uuid", flat=True).distinct()
         alunos_matriculados = AlunosMatriculadosPeriodoEscola.objects.filter(
-            escola__uuid__in=escolas_uuids, escola__tipo_gestao__nome="TERC TOTAL"
+            escola__uuid__in=escolas_uuids,
+            escola__tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
         )
         alunos_matriculados = self.filtra_alunos_matriculados(
             alunos_matriculados, query_params
@@ -1115,7 +1124,7 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
             )
         escolas_uuids = lotes.values_list("escolas__uuid", flat=True).distinct()
         escolas = Escola.objects.filter(
-            uuid__in=escolas_uuids, tipo_gestao__nome="TERC TOTAL"
+            uuid__in=escolas_uuids, tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value
         )
         tipos_unidade_uuids = escolas.values_list(
             "tipo_unidade__uuid", flat=True

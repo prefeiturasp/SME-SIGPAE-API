@@ -50,7 +50,7 @@ def dre_guaianases():
 @pytest.fixture
 def escola_dre_guaianases(dre_guaianases):
     lote = baker.make("Lote")
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         lote=lote,
@@ -410,7 +410,9 @@ def escola():
         diretoria_regional=diretoria_regional,
     )
     tipo_gestao = baker.make(
-        "TipoGestao", nome="TERC TOTAL", uuid="8bd3931b-8636-44ba-9d8e-81b29067eed1"
+        "TipoGestao",
+        nome=constants.TIPOS_GESTAO.TERC_TOTAL.value,
+        uuid="8bd3931b-8636-44ba-9d8e-81b29067eed1",
     )
     escola = baker.make(
         "Escola",
@@ -441,7 +443,7 @@ def escola_cemei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL CEMEI"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
     escola_cemei = baker.make(
         "Escola",
@@ -461,7 +463,7 @@ def escola_emebs():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL EMEBS"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
     escola_emebs = baker.make(
         "Escola",
@@ -957,8 +959,10 @@ def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae)
 def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET
+    )
     contato = baker.make("dados_comuns.Contato", nome="FULANO", email="fake@email.com")
     diretoria_regional = baker.make(
         "DiretoriaRegional",
@@ -1573,7 +1577,7 @@ def escolas_tipos_cmct_ceugestao():
 def escolas_tipo_cei():
     classificacao = {
         "Escola CEI DIRET": {
-            "tipo_unidade": "CEI DIRET",
+            "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
             "lote": "LOTE CEI DIRET",
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
@@ -1598,7 +1602,7 @@ def escolas_tipo_cei():
         "data": datetime.date(2023, 12, 1),
         "nome_escola": "Escola CEI DIRET",
         "nome_periodo_escolar": "INTEGRAL",
-        "tipo_unidade": "CEI DIRET",
+        "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
         "lote": "LOTE CEI DIRET",
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
@@ -1611,7 +1615,7 @@ def escolas_tipo_cei():
         "data": datetime.date(2023, 12, 1),
         "nome_escola": "Escola CEI DIRET",
         "nome_periodo_escolar": "INTEGRAL",
-        "tipo_unidade": "CEI DIRET",
+        "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
         "lote": "LOTE CEI DIRET",
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,

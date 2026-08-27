@@ -1,5 +1,6 @@
 from django.core.management import BaseCommand
 
+from ....dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET
 from ....eol_servico.utils import EOLServicoSGP
 from ...models import Aluno, Escola, LogAlunoPorDia, LogAlunosMatriculadosFaixaEtariaDia
 from .atualiza_cache_matriculados_por_faixa import Command as c
@@ -15,7 +16,7 @@ class Command(BaseCommand):
             )
         )
         iniciais = [
-            "CEI DIRET",
+            TIPO_UNIDADE_CEI_DIRET,
             "CEU CEI",
             "CEI",
             "CCI",

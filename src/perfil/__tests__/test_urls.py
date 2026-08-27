@@ -7,6 +7,7 @@ from rest_framework import status
 
 from src.escola.__tests__.conftest import mocked_response
 
+from ...dados_comuns.constants import TIPOS_GESTAO
 from ...eol_servico.utils import EOLServicoSGP
 from ..api.helpers import ofuscar_email
 from ..models import (
@@ -229,7 +230,7 @@ def test_confirmar_email(client, usuarios_pendentes_confirmacao, tipo_gestao):
                 "modulo_gestao": "TERCEIRIZADA",
                 "tipo_unidade_escolar": "56725de5-89d3-4edf-8633-3e0b5c99e9d4",
                 "tipo_unidade_escolar_iniciais": "EMEF",
-                "tipo_gestao": "TERC TOTAL",
+                "tipo_gestao": TIPOS_GESTAO.TERC_TOTAL.value,
                 "tipo_gestao_uuid": str(tipo_gestao.uuid),
                 "endereco": {
                     "logradouro": "",

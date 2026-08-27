@@ -603,6 +603,20 @@ class TIPOS_ALIMENTACAO(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class TIPOS_GESTAO(Enum):
+    TERC_TOTAL = "TERC TOTAL"
+    MISTA = "MISTA"
+    PARCEIRA = "PARCEIRA"
+    DIRETA = "DIRETA"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+TIPO_UNIDADE_CEI_DIRET = "CEI DIRET"
+
+
 PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO = ["MANHA", "TARDE", "NOITE", "INTEGRAL"]
 
 

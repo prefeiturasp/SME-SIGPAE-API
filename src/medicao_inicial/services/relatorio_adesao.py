@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http import QueryDict
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPO_UNIDADE_CEI_DIRET
 from src.escola.models import Escola
 from src.medicao_inicial.models import Medicao, ValorMedicao
 
@@ -50,7 +50,7 @@ def _obtem_medicoes(mes: str, ano: str, filtros: dict) -> QuerySet:
         .exclude(
             solicitacao_medicao_inicial__escola__tipo_unidade__iniciais__in=[
                 "CEI",
-                "CEI DIRET",
+                TIPO_UNIDADE_CEI_DIRET,
                 "CEI INDIR",
                 "CEI CEU",
                 "CCI",

@@ -67,7 +67,7 @@ def escola(diretoria_regional):
         diretoria_regional=diretoria_regional,
         terceirizada=terceirizada,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
     return baker.make(
         "Escola",
@@ -88,7 +88,7 @@ def escola_outro_lote(diretoria_regional):
         diretoria_regional=diretoria_regional,
         terceirizada=terceirizada,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
     return baker.make(
         "Escola",
@@ -1443,7 +1443,7 @@ def escola_cemei():
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
     tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CEMEI PARQUE DO LAGO",

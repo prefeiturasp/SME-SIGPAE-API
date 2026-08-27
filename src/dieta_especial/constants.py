@@ -1,9 +1,11 @@
+from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET
+
 ETAPA_INFANTIL = 10
 
 
 # Relatório do Historico de Dietas Autorizadas
 UNIDADES_CEI = [
-    "CEI DIRET",
+    TIPO_UNIDADE_CEI_DIRET,
     "CEU CEI",
     "CEI",
     "CCI",

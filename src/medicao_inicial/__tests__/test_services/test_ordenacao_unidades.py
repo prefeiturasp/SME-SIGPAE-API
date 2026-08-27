@@ -5,7 +5,11 @@ from django.utils import timezone
 from model_bakery import baker
 from rest_framework.test import APIClient
 
-from src.dados_comuns.constants import DJANGO_ADMIN_TREINAMENTO_PASSWORD
+from src.dados_comuns.constants import (
+    DJANGO_ADMIN_TREINAMENTO_PASSWORD,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_GESTAO,
+)
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import (
@@ -62,7 +66,7 @@ def api_client_usuario_codae(django_user_model, dre):
 
 @pytest.fixture
 def tipo_gestao():
-    return TipoGestao.objects.create(nome="TERC TOTAL")
+    return TipoGestao.objects.create(nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
 
 def cria_tipo(iniciais: str) -> TipoUnidadeEscolar:
@@ -173,9 +177,11 @@ def test_solicitacoes_ordenacao_unidades(
 
     # Grupo 1 - CEI (inclui mais itens para validar alfabético)
     cei_diret_1 = cria_escola(
-        "CEI DIRET MARIA", "CEI DIRET", dre, "200001", tipo_gestao
+        "CEI DIRET MARIA", TIPO_UNIDADE_CEI_DIRET, dre, "200001", tipo_gestao
     )
-    cei_diret_0 = cria_escola("CEI DIRET ANA", "CEI DIRET", dre, "200004", tipo_gestao)
+    cei_diret_0 = cria_escola(
+        "CEI DIRET ANA", TIPO_UNIDADE_CEI_DIRET, dre, "200004", tipo_gestao
+    )
 
     ceu_cei_1 = cria_escola("CEU CEI PAULO", "CEU CEI", dre, "200002", tipo_gestao)
     ceu_cei_2 = cria_escola("CEU CEI ANA", "CEU CEI", dre, "200005", tipo_gestao)
@@ -250,8 +256,8 @@ def test_solicitacoes_ordenacao_unidades(
     # - CCI/CIPS: alfabético
     ordem_esperada = [
         # Grupo 1
-        ("CEI DIRET", "CEI DIRET ANA"),
-        ("CEI DIRET", "CEI DIRET MARIA"),
+        (TIPO_UNIDADE_CEI_DIRET, "CEI DIRET ANA"),
+        (TIPO_UNIDADE_CEI_DIRET, "CEI DIRET MARIA"),
         ("CEU CEI", "CEU CEI ANA"),
         ("CEU CEI", "CEU CEI PAULO"),
         ("CCI/CIPS", "CCI/CIPS ABC"),

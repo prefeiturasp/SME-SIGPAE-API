@@ -23,7 +23,11 @@ from ..dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
+from ..dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MODEL_ESCOLA,
+    TIPO_UNIDADE_CEI_DIRET,
+)
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..escola.constants import (
@@ -1032,20 +1036,20 @@ class InclusaoDeAlimentacaoCEMEI(
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-                tipo_unidade_escolar__iniciais__in=["CEI DIRET", "EMEI"],
+                tipo_unidade_escolar__iniciais__in=[TIPO_UNIDADE_CEI_DIRET, "EMEI"],
             )
         )
 
         if eh_evento_especifico:
             vinculos = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 periodo_escolar__nome__in=PERIODOS_CEMEI_EVENTO_ESPECIFICO,
-                tipo_unidade_escolar__iniciais__in=["CEI DIRET", "EMEI"],
+                tipo_unidade_escolar__iniciais__in=[TIPO_UNIDADE_CEI_DIRET, "EMEI"],
             )
 
         for periodo in periodos:
             tipos_alimentacao_cei = vinculos.filter(
                 periodo_escolar__nome=periodo,
-                tipo_unidade_escolar__iniciais="CEI DIRET",
+                tipo_unidade_escolar__iniciais=TIPO_UNIDADE_CEI_DIRET,
             )
 
             tipos_alimentacao_cei = tipos_alimentacao_cei.values_list(

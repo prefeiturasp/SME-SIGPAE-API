@@ -316,7 +316,7 @@ class VinculoTipoAlimentacaoViewSet(
         ordem_personalizada = ordem_periodos(escola, data_referencia)
 
         if escola.eh_cemei_data(data_referencia):
-            ordem_das_unidades = {"CEI DIRET": 1, "EMEI": 2}
+            ordem_das_unidades = {constants.TIPO_UNIDADE_CEI_DIRET: 1, "EMEI": 2}
             unidades = [
                 When(tipo_unidade_escolar__iniciais=key, then=Value(val))
                 for key, val in ordem_das_unidades.items()

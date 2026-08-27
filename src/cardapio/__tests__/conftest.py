@@ -18,7 +18,7 @@ from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 fake = Faker("pt_BR")
 Faker.seed(420)
 FAKE_EMAIL = "fake@email.com"
-TERC_TOTAL = "TERC TOTAL"
+TERC_TOTAL = constants.TIPOS_GESTAO.TERC_TOTAL.value
 DIRETORIA_REGIONAL_IPIRANGA = "DIRETORIA REGIONAL IPIRANGA"
 DADOS_COMUNS_CONTATO = "dados_comuns.Contato"
 
@@ -168,7 +168,9 @@ def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET
+    )
     contato = baker.make(DADOS_COMUNS_CONTATO, nome="FULANO", email=FAKE_EMAIL)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
@@ -469,7 +471,9 @@ def client_autenticado_vinculo_terceirizada_cardapio(
 @pytest.fixture
 def vinculos_alimentacao():
     baker.make(
-        "TipoUnidadeEscolar", iniciais="CEI DIRET", tem_somente_integral_e_parcial=False
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPO_UNIDADE_CEI_DIRET,
+        tem_somente_integral_e_parcial=False,
     )
     baker.make(
         "TipoUnidadeEscolar", iniciais="EMEF", tem_somente_integral_e_parcial=False

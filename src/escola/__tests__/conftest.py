@@ -13,7 +13,9 @@ from model_bakery import baker
 from src.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
+    TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
     StatusProcessamentoArquivo,
 )
 from src.dados_comuns.fluxo_status import (
@@ -64,7 +66,7 @@ def tipo_unidade_escolar():
 
 @pytest.fixture
 def tipo_gestao():
-    return baker.make(models.TipoGestao, nome="TERC TOTAL")
+    return baker.make(models.TipoGestao, nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
 
 @pytest.fixture
@@ -112,8 +114,10 @@ def escola_cei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPO_UNIDADE_CEI_DIRET
+    )
     return baker.make(
         "Escola",
         nome="CEI DIRET TESTE",
@@ -154,7 +158,7 @@ def escola_cemei(periodo_escolar):
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
     escola = baker.make(
         "Escola",
@@ -188,7 +192,7 @@ def escola_cemei_sem_alunos(periodo_escolar):
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
     escola = baker.make(
         "Escola",
@@ -208,7 +212,7 @@ def escola_emebs(periodo_escolar):
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
     escola = baker.make(
         "Escola",
@@ -875,7 +879,7 @@ def tipo_gestao_das_escolas():
     parceira = baker.make("TipoGestao", nome="PARCEIRA")
     direta = baker.make("TipoGestao", nome="DIRETA")
     baker.make("TipoGestao", nome="MISTA")
-    baker.make("TipoGestao", nome="TERC TOTAL")
+    baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
     escola1 = baker.make("Escola", codigo_eol="123456", tipo_gestao=None)
     escola2 = baker.make("Escola", codigo_eol="789012", tipo_gestao=None)
@@ -1344,7 +1348,7 @@ def escola_cmct(tipo_alimentacao, tipo_alimentacao_lanche_emergencial):
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     escola = baker.make(
         "Escola",
         nome="CMCT TESTE",

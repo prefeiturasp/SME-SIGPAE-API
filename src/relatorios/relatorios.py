@@ -18,6 +18,7 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
+    TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
 )
 from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
@@ -370,7 +371,7 @@ def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
     vinculos_class = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
     vinculos_cei = vinculos_class.objects.filter(
         periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-        tipo_unidade_escolar__iniciais__in=["CEI DIRET"],
+        tipo_unidade_escolar__iniciais__in=[TIPO_UNIDADE_CEI_DIRET],
     )
     vinculos_cei = vinculos_cei.order_by("periodo_escolar__posicao")
     vinculos_emei = vinculos_class.objects.filter(
@@ -971,7 +972,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
     vinculos_class = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
     vinculos_cei = vinculos_class.objects.filter(
         periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-        tipo_unidade_escolar__iniciais__in=["CEI DIRET"],
+        tipo_unidade_escolar__iniciais__in=[TIPO_UNIDADE_CEI_DIRET],
     )
     vinculos_cei = vinculos_cei.order_by("periodo_escolar__posicao")
     vinculos_emei = vinculos_class.objects.filter(

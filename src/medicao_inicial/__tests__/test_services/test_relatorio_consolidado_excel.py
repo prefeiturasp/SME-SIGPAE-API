@@ -10,6 +10,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_PROGRAMAS_E_PROJETOS,
+    TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
@@ -375,7 +376,7 @@ def test_gera_relatorio_consolidado_xlsx_cei(
     relatorio_consolidado_xlsx_cei, mock_query_params_excel_cei
 ):
     solicitacoes = [relatorio_consolidado_xlsx_cei.uuid]
-    tipos_unidade = ["CEI DIRET"]
+    tipos_unidade = [TIPO_UNIDADE_CEI_DIRET]
     arquivo = gera_relatorio_consolidado_xlsx(
         solicitacoes, tipos_unidade, mock_query_params_excel_cei, contem_recreio=False
     )
@@ -683,7 +684,7 @@ def test_gera_relatorio_consolidado_xlsx_cei(
         None,
     )
     assert rows[5] == (
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "765432",
         "CEI DIRET TESTE",
         80,
@@ -2868,7 +2869,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cei(
         None,
     )
     assert rows[5] == (
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "765432",
         "CEI DIRET TESTE",
         168,
