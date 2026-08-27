@@ -5,7 +5,7 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 
-from .constants import ESCOLA_CANCELOU_LABEL
+from .constants import ESCOLA_CANCELOU_LABEL, MODULO_DIETA_ESPECIAL
 
 
 class LogSolicitacoesUsuario(
@@ -374,7 +374,7 @@ class LogSolicitacoesUsuario(
         (INCLUSAO_ALIMENTACAO_CEI, "Inclusão de alimentação da CEI"),
         (SUSPENSAO_ALIMENTACAO_CEI, "Suspensão de alimentação da CEI"),
         (INCLUSAO_ALIMENTACAO_CONTINUA, "Inclusão de alimentação contínua"),
-        (DIETA_ESPECIAL, "Dieta Especial"),
+        (DIETA_ESPECIAL, MODULO_DIETA_ESPECIAL),
         (SOLICITACAO_KIT_LANCHE_UNIFICADA, "Solicitação de kit lanche unificada"),
         (HOMOLOGACAO_PRODUTO, "Homologação de Produto"),
         (RECLAMACAO_PRODUTO, "Reclamação de Produto"),

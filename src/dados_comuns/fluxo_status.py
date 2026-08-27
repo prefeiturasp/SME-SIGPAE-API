@@ -35,6 +35,7 @@ from .constants import (
     MODEL_ESCOLA,
     MODEL_LOTE,
     MODEL_TERCEIRIZADA,
+    MODULO_DIETA_ESPECIAL,
     MODULO_GESTAO_ALIMENTACAO,
     MODULO_GESTAO_PRODUTO,
     RELATED_NAME_RASTRO_DRE,
@@ -3234,7 +3235,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         escola = self.rastro_escola
         try:
             emails_terceirizada = self.rastro_terceirizada.emails_por_modulo(
-                "Dieta Especial"
+                MODULO_DIETA_ESPECIAL
             )
             email_escola_eol = [escola.contato.email]
             email_lista = emails_terceirizada + email_escola_eol
@@ -3250,7 +3251,9 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         except AttributeError:
             email_lista = []
         if self.rastro_terceirizada:
-            email_lista += self.rastro_terceirizada.emails_por_modulo("Dieta Especial")
+            email_lista += self.rastro_terceirizada.emails_por_modulo(
+                MODULO_DIETA_ESPECIAL
+            )
         return email_lista
 
     @property
@@ -3267,7 +3270,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             email_escola_destino_eol = []
         try:
             emails_terceirizadas = self.rastro_terceirizada.emails_por_modulo(
-                "Dieta Especial"
+                MODULO_DIETA_ESPECIAL
             )
         except AttributeError:
             emails_terceirizadas = []
@@ -3278,7 +3281,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         escola = self.escola_destino
         try:
             emails_terceirizadas = self.rastro_terceirizada.emails_por_modulo(
-                "Dieta Especial"
+                MODULO_DIETA_ESPECIAL
             )
             email_escola_eol = [escola.contato.email]
             email_lista = emails_terceirizadas + email_escola_eol

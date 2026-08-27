@@ -8,6 +8,7 @@ from ..perfil.models import Usuario
 from .constants import (
     EMAIL_ASSUNTO_STATUS_SOLICITACAO,
     FORMATO_DATA_HORA_BRASILEIRO,
+    MODULO_DIETA_ESPECIAL,
     MODULO_GESTAO_ALIMENTACAO,
 )
 from .models import LogSolicitacoesUsuario, Notificacao
@@ -72,7 +73,7 @@ def enviar_email_ue_cancelar_pedido_parcialmente(obj):
 def _partes_interessadas_codae_atualiza_protocolo(obj):
     email_query_set_terceirizada = (
         obj.aluno.escola.lote.terceirizada.emails_terceirizadas.filter(
-            modulo__nome="Dieta Especial"
+            modulo__nome=MODULO_DIETA_ESPECIAL
         ).values_list("email", flat=True)
     )
     email_contato_ecola = obj.aluno.escola.contato.email

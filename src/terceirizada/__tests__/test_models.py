@@ -1,5 +1,6 @@
 import pytest
 
+from src.dados_comuns.constants import MODULO_DIETA_ESPECIAL
 from src.terceirizada.models import Contrato
 
 pytestmark = pytest.mark.django_db
@@ -118,7 +119,7 @@ def test_nutricionista(nutricionista):
 
 
 def test_modelo_modulo(modulo):
-    assert modulo.__str__() == "Dieta Especial"
+    assert modulo.__str__() == MODULO_DIETA_ESPECIAL
     assert modulo.uuid is not None
     assert modulo.nome is not None
 
