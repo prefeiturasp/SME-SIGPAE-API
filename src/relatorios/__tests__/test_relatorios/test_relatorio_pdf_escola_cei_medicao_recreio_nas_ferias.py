@@ -8,6 +8,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cei_recreio_nas_ferias,
@@ -205,9 +206,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
                 "Total de Alimentações para Colaboradores",
             ],
             "valores_campos": [
-                ["Lanche", "20"],
-                ["Refeição", "28"],
-                ["Sobremesa", "28"],
+                [TIPOS_ALIMENTACAO.LANCHE.value, "20"],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, "28"],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, "28"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - 01/2026",
         }

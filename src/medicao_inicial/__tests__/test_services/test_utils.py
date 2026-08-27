@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
+    TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.services.utils import (
     generate_columns,
@@ -493,16 +494,28 @@ def test_gera_colunas_alimentacao_cemei(
     )
     assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 4
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 4
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 3
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 3
+    )
     assert (
         sum(
             1
@@ -719,10 +732,22 @@ def test_gera_colunas_alimentacao_emebs(
     assert sum(1 for tupla in colunas_df if tupla[2] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche Emerg.") == 1
 
-    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche") == 13
-    assert sum(1 for tupla in colunas_df if tupla[2] == "Lanche 4h") == 13
-    assert sum(1 for tupla in colunas_df if tupla[2] == "Refeição") == 11
-    assert sum(1 for tupla in colunas_df if tupla[2] == "Sobremesa") == 7
+    assert (
+        sum(1 for tupla in colunas_df if tupla[2] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 13
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[2] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 13
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[2] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 11
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[2] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 7
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[2] == "Total de Refeições para Pagamento"

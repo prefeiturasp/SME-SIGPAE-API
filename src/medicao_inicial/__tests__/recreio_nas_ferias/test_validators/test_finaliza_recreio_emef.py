@@ -3,7 +3,10 @@ import datetime
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import GRUPO_RECREIO_NAS_FERIAS
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
+)
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
@@ -103,7 +106,10 @@ def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_emef):
 
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
-    alimentacoes = ["Refeição", "Sobremesa"]
+    alimentacoes = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
     assert "Colaboradores" in resultado
     for esperado in alimentacoes:
         assert (
@@ -415,7 +421,11 @@ def test_get_linhas_da_tabela_dieta_recreio_com_todas_alimentacoes(
     categoria_medicao_dieta_a_enteral_aminoacidos,
 ):
     resultado = get_linhas_da_tabela_dieta_recreio(
-        ["Lanche", "Lanche 4h", "Refeição"],
+        [
+            TIPOS_ALIMENTACAO.LANCHE.value,
+            TIPOS_ALIMENTACAO.LANCHE_4H.value,
+            TIPOS_ALIMENTACAO.REFEICAO.value,
+        ],
         categoria_medicao_dieta_a_enteral_aminoacidos,
     )
 

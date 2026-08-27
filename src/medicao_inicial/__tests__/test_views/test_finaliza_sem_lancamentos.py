@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MENSAGEM_PERMISSAO_NEGADA,
+    TIPOS_ALIMENTACAO,
 )
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
@@ -77,8 +78,12 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
         assert escola.periodos_escolares(2025).count() == 2
 
     def setup_tipos_alimentacao(self):
-        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
-        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
+        )
+        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
 
     def setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(

@@ -38,6 +38,7 @@ from ..constants import (
     COORDENADOR_LOGISTICA,
     DJANGO_ADMIN_PASSWORD,
     TIPO_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
 )
 from ..models import (
     CentralDeDownload,
@@ -997,7 +998,7 @@ def solicitacao_substituicao_cardapio_cei(escola):
 def motivo_alteracao_cardapio_lanche_emergencial():
     return baker.make(
         "MotivoAlteracaoCardapio",
-        nome="Lanche Emergencial",
+        nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         uuid="1ddec320-cd24-4cf4-9666-3e7b3a2b903c",
     )
 
@@ -1013,17 +1014,20 @@ def escola_cemei_1():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make(TIPO_ALIMENTACAO, nome="Refeição")
+    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.REFEICAO.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make(TIPO_ALIMENTACAO, nome="Lanche")
+    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.LANCHE.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make(TIPO_ALIMENTACAO, nome="Lanche Emergencial")
+    return baker.make(
+        TIPO_ALIMENTACAO,
+        nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
+    )
 
 
 @pytest.fixture

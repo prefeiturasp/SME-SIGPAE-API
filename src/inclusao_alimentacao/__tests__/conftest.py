@@ -649,7 +649,9 @@ def faixa_etaria():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make("TipoAlimentacao", nome="Refeição")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
 
 
 @pytest.fixture

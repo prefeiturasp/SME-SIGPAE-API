@@ -6,6 +6,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS,
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
@@ -33,7 +34,10 @@ def test_agrupar_tipos_alimentacao_por_categoria_recreio_emef(solicitacao_recrei
 
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
-    alimentacoes = ["Refeição", "Sobremesa"]
+    alimentacoes = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
     assert "Colaboradores" in resultado
     for esperado in alimentacoes:
         assert (
@@ -92,7 +96,10 @@ def test_existe_colaborador_recreio_emef(
 def test_get_tipos_alimentacao_recreio_emef(solicitacao_recreio_emef):
 
     resultado = get_tipos_alimentacao_recreio(solicitacao_recreio_emef)
-    alimentacoes = ["Refeição", "Sobremesa"]
+    alimentacoes = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
 
     assert len(resultado) == 2
     for esperado in alimentacoes:
@@ -110,7 +117,10 @@ def test_agrupar_tipos_alimentacao_por_categoria_recreio_cei(solicitacao_recreio
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
     assert "Colaboradores" in resultado
-    colaboradores = ["Refeição", "Sobremesa"]
+    colaboradores = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
     assert len(resultado["Colaboradores"]) == 2
     for esperado in colaboradores:
         assert (
@@ -118,7 +128,13 @@ def test_agrupar_tipos_alimentacao_por_categoria_recreio_cei(solicitacao_recreio
         ), f"Elemento {esperado} não encontrado"
 
     assert "Inscritos" in resultado
-    inscritos = ["Refeição", "Sobremesa", "Lanche", "Lanche 4h", "Almoço"]
+    inscritos = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.ALMOCO.value,
+    ]
     assert len(resultado["Inscritos"]) == 5
     for esperado in inscritos:
         assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
@@ -171,7 +187,13 @@ def test_existe_colaborador_recreio_cei(
 def test_get_tipos_alimentacao_recreio_cei(solicitacao_recreio_cei):
 
     resultado = get_tipos_alimentacao_recreio(solicitacao_recreio_cei)
-    alimentacoes = ["Refeição", "Sobremesa", "Lanche", "Lanche 4h", "Almoço"]
+    alimentacoes = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.ALMOCO.value,
+    ]
 
     assert len(resultado) == 5
     for esperado in alimentacoes:
@@ -195,7 +217,10 @@ def test_agrupar_tipos_alimentacao_por_categoria_recreio_cemei(
 
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
-    alimentacoes = ["Refeição", "Sobremesa"]
+    alimentacoes = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
     assert "Colaboradores" in resultado
     assert len(resultado["Colaboradores"]) == 2
     for esperado in alimentacoes:
@@ -209,7 +234,12 @@ def test_agrupar_tipos_alimentacao_por_categoria_recreio_cemei(
         assert esperado in resultado["Infantil"], f"Elemento {esperado} não encontrado"
 
     assert "Inscritos" in resultado
-    inscritos = ["Refeição", "Sobremesa", "Lanche", "Almoço"]
+    inscritos = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.ALMOCO.value,
+    ]
     assert len(resultado["Inscritos"]) == 4
     for esperado in inscritos:
         assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
@@ -272,7 +302,11 @@ def test_existe_colaborador_recreio_cemei(
 
 def test_get_linhas_da_tabela_alimentacoes_recreio():
     resultado = get_linhas_da_tabela_alimentacoes_recreio(
-        ["Refeição", "Sobremesa", "Lanche"]
+        [
+            TIPOS_ALIMENTACAO.REFEICAO.value,
+            TIPOS_ALIMENTACAO.SOBREMESA.value,
+            TIPOS_ALIMENTACAO.LANCHE.value,
+        ]
     )
 
     alimentacoes = [
@@ -290,7 +324,9 @@ def test_get_linhas_da_tabela_alimentacoes_recreio():
 
 
 def test_get_linhas_sem_refeicao_nao_adiciona_repeticao():
-    resultado = get_linhas_da_tabela_alimentacoes_recreio(["Lanche"])
+    resultado = get_linhas_da_tabela_alimentacoes_recreio(
+        [TIPOS_ALIMENTACAO.LANCHE.value]
+    )
 
     campos = [
         "participantes",
@@ -303,7 +339,9 @@ def test_get_linhas_sem_refeicao_nao_adiciona_repeticao():
 
 
 def test_get_linhas_adiciona_repeticao_sobremesa():
-    resultado = get_linhas_da_tabela_alimentacoes_recreio(["Sobremesa"])
+    resultado = get_linhas_da_tabela_alimentacoes_recreio(
+        [TIPOS_ALIMENTACAO.SOBREMESA.value]
+    )
 
     campos = [
         "participantes",
@@ -329,7 +367,10 @@ def test_get_classificacoes_dietas_recreio(
 
     resultado = get_classificacoes_dietas_recreio(
         categorias,
-        ["Lanche", "Refeição"],
+        [
+            TIPOS_ALIMENTACAO.LANCHE.value,
+            TIPOS_ALIMENTACAO.REFEICAO.value,
+        ],
     )
 
     assert categoria_medicao_dieta_a_enteral_aminoacidos in resultado
@@ -350,7 +391,7 @@ def test_get_classificacoes_dietas_recreio_sem_lanche(
 
     resultado = get_classificacoes_dietas_recreio(
         categorias,
-        ["Refeição"],
+        [TIPOS_ALIMENTACAO.REFEICAO.value],
     )
 
     assert categoria_medicao_dieta_a_enteral_aminoacidos in resultado

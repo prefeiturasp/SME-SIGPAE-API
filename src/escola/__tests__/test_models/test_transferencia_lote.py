@@ -34,7 +34,7 @@ from src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao
 from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
-from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS
+from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS, TIPOS_ALIMENTACAO
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -150,10 +150,14 @@ class TestUseCaseTransferenciaLotes:
         assert self.escola_emef.periodos_escolares(2025).count() == 2
 
     def _setup_tipos_alimentacao(self):
-        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
-        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
+        )
+        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
         self.tipo_alimentacao_lanche_emergencial = TipoAlimentacaoFactory.create(
-            nome="Lanche Emergencial"
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
 
     def _setup_motivos_inclusao_continua(self):
@@ -370,7 +374,7 @@ class TestUseCaseTransferenciaLotes:
             rastro_dre=self.escola_emef.diretoria_regional,
             rastro_lote=self.escola_emef.lote,
             rastro_terceirizada=self.terceirizada,
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
             data_inicial="2025-05-10",
             data_final="2025-05-17",
             status=AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO,
@@ -412,7 +416,7 @@ class TestUseCaseTransferenciaLotes:
             rastro_dre=self.escola_cemei.diretoria_regional,
             rastro_lote=self.escola_cemei.lote,
             rastro_terceirizada=self.terceirizada,
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
             data_inicial="2025-05-10",
             data_final="2025-05-17",
             status=AlteracaoCardapioCEMEI.workflow_class.CODAE_AUTORIZADO,

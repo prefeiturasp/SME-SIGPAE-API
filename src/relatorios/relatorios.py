@@ -18,6 +18,7 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
+    TIPOS_ALIMENTACAO,
 )
 from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from src.dados_comuns.utils import convert_image_to_base64
@@ -1023,7 +1024,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
             periodo["nome"] = vinculo.periodo_escolar.nome
             tipos_alimentacao = ", ".join(
                 vinculo.tipos_alimentacao.exclude(
-                    nome__icontains="Lanche Emergencial"
+                    nome__icontains=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
                 ).values_list("nome", flat=True)
             )
             if (
@@ -1035,7 +1036,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
                 vinculo_integral = vinculos_emei.get(periodo_escolar__nome="INTEGRAL")
                 tipos_alimentacao = ", ".join(
                     vinculo_integral.tipos_alimentacao.exclude(
-                        nome__icontains="Lanche Emergencial"
+                        nome__icontains=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
                     ).values_list("nome", flat=True)
                 )
             qtd_solicitacao = (

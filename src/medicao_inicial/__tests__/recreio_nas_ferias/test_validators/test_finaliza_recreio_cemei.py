@@ -3,6 +3,7 @@ import pytest
 from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
@@ -235,7 +236,10 @@ def test_buscar_alimentacoes_recreio_cemei(solicitacao_recreio_cemei):
     resultado = buscar_alimentacoes_recreio_cemei(solicitacao_recreio_cemei)
     assert len(resultado) == 3
 
-    alimentacoes = ["Refeição", "Sobremesa"]
+    alimentacoes = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
     assert GRUPO_COLABORADORES in resultado
     assert len(resultado[GRUPO_COLABORADORES]) == 2
     for esperado in alimentacoes:
@@ -248,7 +252,12 @@ def test_buscar_alimentacoes_recreio_cemei(solicitacao_recreio_cemei):
     for esperado in alimentacoes:
         assert esperado in resultado["Infantil"], f"Elemento {esperado} não encontrado"
 
-    alimentacoes_inscritos = ["Refeição", "Sobremesa", "Lanche", "Almoço"]
+    alimentacoes_inscritos = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.ALMOCO.value,
+    ]
     assert "Inscritos" in resultado
     assert len(resultado["Inscritos"]) == 4
     for esperado in alimentacoes_inscritos:

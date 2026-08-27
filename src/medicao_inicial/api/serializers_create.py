@@ -82,6 +82,7 @@ from ...dados_comuns.constants import (
     DIRETOR_UE,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
 )
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
 from ..recreio_nas_ferias.models import (
@@ -973,7 +974,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             cancelado=False,
         )
         lanches_emergenciais = escola.alteracaocardapio_set.filter(
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
             status="CODAE_AUTORIZADO",
             datas_intervalo__data__month=instance.mes,
             datas_intervalo__data__year=instance.ano,

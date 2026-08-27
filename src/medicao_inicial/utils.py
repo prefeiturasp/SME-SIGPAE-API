@@ -42,6 +42,7 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
+    TIPOS_ALIMENTACAO,
     TIPOS_TURMAS_EMEBS,
 )
 from src.dados_comuns.utils import (
@@ -3704,18 +3705,18 @@ def tratar_valores(solicitacao, escola, total_por_nome_campo: dict):
 
 def get_nome_campo(campo):
     campos = {
-        "desjejum": "Desjejum",
-        "colacao": "Colação",
+        "desjejum": TIPOS_ALIMENTACAO.DESJEJUM.value,
+        "colacao": TIPOS_ALIMENTACAO.COLACAO.value,
         "refeicao_tarde": "Refeição da tarde",
         "almoco": "Almoco",
-        "lanche": "Lanche",
-        "lanche_4h": "Lanche 4h",
+        "lanche": TIPOS_ALIMENTACAO.LANCHE.value,
+        "lanche_4h": TIPOS_ALIMENTACAO.LANCHE_4H.value,
         "lanche_extra": "Lanche Extra",
-        "refeicao": "Refeição",
+        "refeicao": TIPOS_ALIMENTACAO.REFEICAO.value,
         "repeticao_refeicao": "Repetição de Refeição",
-        "lanche_emergencial": "Lanche Emergencial",
+        "lanche_emergencial": TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         "kit_lanche": "Kit Lanche",
-        "sobremesa": "Sobremesa",
+        "sobremesa": TIPOS_ALIMENTACAO.SOBREMESA.value,
         "repeticao_sobremesa": "Repetição de Sobremesa",
     }
     return campos.get(campo, campo)
@@ -4912,10 +4913,20 @@ def _build_linhas_colab_somatorio(medicao_colaboradores):
     )
 
     if any(c in ["refeicao", "repeticao_refeicao"] for c in campos_colab):
-        linhas.append([NOMES_CAMPOS.get("refeicao", "Refeição"), str(total_ref)])
+        linhas.append(
+            [
+                NOMES_CAMPOS.get("refeicao", TIPOS_ALIMENTACAO.REFEICAO.value),
+                str(total_ref),
+            ]
+        )
 
     if any(c in ["sobremesa", "repeticao_sobremesa"] for c in campos_colab):
-        linhas.append([NOMES_CAMPOS.get("sobremesa", "Sobremesa"), str(total_sob)])
+        linhas.append(
+            [
+                NOMES_CAMPOS.get("sobremesa", TIPOS_ALIMENTACAO.SOBREMESA.value),
+                str(total_sob),
+            ]
+        )
 
     return linhas
 
@@ -6090,15 +6101,15 @@ def get_name_campo(campo):
         "Matriculados": "matriculados",
         "Frequência": "frequencia",
         "Solicitado": "solicitado",
-        "Desjejum": "desjejum",
-        "Lanche": "lanche",
-        "Lanche 4h": "lanche_4h",
-        "Refeição": "refeicao",
+        TIPOS_ALIMENTACAO.DESJEJUM.value: "desjejum",
+        TIPOS_ALIMENTACAO.LANCHE.value: "lanche",
+        TIPOS_ALIMENTACAO.LANCHE_4H.value: "lanche_4h",
+        TIPOS_ALIMENTACAO.REFEICAO.value: "refeicao",
         "Repetição de Refeição": "repeticao_refeicao",
-        "Sobremesa": "sobremesa",
+        TIPOS_ALIMENTACAO.SOBREMESA.value: "sobremesa",
         "Repetição de Sobremesa": "repeticao_sobremesa",
-        "Colação": "colacao",
-        "Almoço": "almoco",
+        TIPOS_ALIMENTACAO.COLACAO.value: "colacao",
+        TIPOS_ALIMENTACAO.ALMOCO.value: "almoco",
         "Refeição da tarde": "refeicao_tarde",
         "2º Lanche 4h": "2_lanche_4h",
         "2º Lanche 5h": "2_lanche_5h",
@@ -6174,7 +6185,7 @@ def get_lista_dias_inclusoes_escola_sem_alunos_regulares(solicitacao):
         grupo = inclusao.grupo_inclusao
         for periodo in grupo.quantidades_periodo.all():
             tipos_alimentacao = periodo.tipos_alimentacao.exclude(
-                nome="Lanche Emergencial"
+                nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             )
             alimentacoes = list(set(tipos_alimentacao.values_list("nome", flat=True)))
             linhas_da_tabela = get_linhas_da_tabela(alimentacoes, True)

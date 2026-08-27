@@ -30,17 +30,24 @@ def codae():
 
 @pytest.fixture
 def tipo_alimentacao():
-    return baker.make(constants.TIPO_ALIMENTACAO, nome="Refeição")
+    return baker.make(
+        constants.TIPO_ALIMENTACAO, nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make(constants.TIPO_ALIMENTACAO, nome="Lanche")
+    return baker.make(
+        constants.TIPO_ALIMENTACAO, nome=constants.TIPOS_ALIMENTACAO.LANCHE.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make(constants.TIPO_ALIMENTACAO, nome="Lanche Emergencial")
+    return baker.make(
+        constants.TIPO_ALIMENTACAO,
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
+    )
 
 
 @pytest.fixture
@@ -272,7 +279,7 @@ def motivo_alteracao_cardapio():
 def motivo_alteracao_cardapio_lanche_emergencial():
     return baker.make(
         MotivoAlteracaoCardapio,
-        nome="Lanche Emergencial",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         uuid="19d0bca9-3cfe-4542-869e-185d580fef06",
     )
 

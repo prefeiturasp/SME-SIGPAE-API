@@ -7,7 +7,7 @@ from src.dados_comuns.behaviors import (
     Posicao,
     TemChaveExterna,
 )
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import MODEL_ESCOLA, TIPOS_ALIMENTACAO
 
 
 class TipoAlimentacao(
@@ -43,8 +43,8 @@ class TipoAlimentacao(
         - Lanche Emergencial
     """
 
-    LANCHE_EMERGENCIAL = "Lanche Emergencial"
-    LANCHE_4H = "Lanche 4h"
+    LANCHE_EMERGENCIAL = TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    LANCHE_4H = TIPOS_ALIMENTACAO.LANCHE_4H.value
 
     @property
     def substituicoes_periodo_escolar(self):

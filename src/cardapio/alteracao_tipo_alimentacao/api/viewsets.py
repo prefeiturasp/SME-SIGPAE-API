@@ -712,5 +712,7 @@ class MotivosAlteracaoCardapioViewSet(viewsets.ReadOnlyModelViewSet):
             isinstance(user.vinculo_atual.instituicao, Escola)
             and user.vinculo_atual.instituicao.eh_cei
         ):
-            return queryset.exclude(nome__icontains="Lanche Emergencial")
+            return queryset.exclude(
+                nome__icontains=constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+            )
         return queryset

@@ -14,6 +14,7 @@ from src.dados_comuns.constants import (
     GRUPO_INFANTIL_TARDE,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.models import GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_cemei import (
@@ -683,16 +684,28 @@ def test_insere_tabela_periodos_na_planilha(
     )
     assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 4
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 4
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 3
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 3
+    )
     assert (
         sum(
             1

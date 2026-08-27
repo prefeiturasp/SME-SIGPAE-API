@@ -10,6 +10,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
 )
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
@@ -136,16 +137,28 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 3
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 3
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 2
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 1
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 1
+    )
     assert (
         sum(
             1
@@ -212,16 +225,28 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 3
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 2
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 3
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 3
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 2
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 1
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 1
+    )
     assert (
         sum(
             1

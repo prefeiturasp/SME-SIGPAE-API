@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.test import RequestFactory
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.relatorios import relatorios
 
 pytestmark = pytest.mark.django_db
@@ -58,8 +59,8 @@ def test_relatorio_alteracao_alimentacao_cemei_aplica_nome_historico_escola(
     )
 
     periodo = periodo_escolar_factory.create(nome="MANHA")
-    tipo_de = tipo_alimentacao_factory.create(nome="Lanche")
-    tipo_para = tipo_alimentacao_factory.create(nome="Refeição")
+    tipo_de = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    tipo_para = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.REFEICAO.value)
 
     tipo_unidade_cei = tipo_unidade_escolar_factory.create(iniciais="CEI DIRET")
     tipo_unidade_emei = tipo_unidade_escolar_factory.create(iniciais="EMEI")

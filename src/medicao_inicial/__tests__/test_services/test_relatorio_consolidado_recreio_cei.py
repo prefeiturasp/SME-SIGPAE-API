@@ -9,6 +9,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _calcula_soma_medicao,
@@ -314,16 +315,28 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 0
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 0
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 0
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 1
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 1
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 1
+    )
     assert (
         sum(
             1

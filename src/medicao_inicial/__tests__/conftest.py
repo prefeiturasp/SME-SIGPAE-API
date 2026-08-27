@@ -147,32 +147,40 @@ def motivo_inclusao_continua_etec():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make("TipoAlimentacao", nome="Refeição")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make("TipoAlimentacao", nome="Lanche")
+    return baker.make("TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.LANCHE.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_4h():
-    return baker.make("TipoAlimentacao", nome="Lanche 4h")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.LANCHE_4H.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_sobremesa():
-    return baker.make("TipoAlimentacao", nome="Sobremesa")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.SOBREMESA.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_almoco():
-    return baker.make("TipoAlimentacao", nome="Almoço")
+    return baker.make("TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.ALMOCO.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make("TipoAlimentacao", nome="Lanche Emergencial")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    )
 
 
 @pytest.fixture
@@ -2446,7 +2454,9 @@ def medicao_status_inicial(solicitacao_medicao_inicial, categoria_medicao):
     valor = 10
     nome_campo = "observacoes"
     tipo_alimentacao = baker.make(
-        "TipoAlimentacao", nome="Lanche", uuid="0367af8d-26bd-40b5-83d2-9e337622ba50"
+        "TipoAlimentacao",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        uuid="0367af8d-26bd-40b5-83d2-9e337622ba50",
     )
     baker.make(
         "ValorMedicao",
@@ -2474,7 +2484,9 @@ def medicao_status_enviada_pela_ue(solicitacao_medicao_inicial, categoria_medica
     valor = 10
     nome_campo = "observacoes"
     tipo_alimentacao = baker.make(
-        "TipoAlimentacao", nome="Lanche", uuid="837ed21a-d535-4df2-aa37-f186e4e51392"
+        "TipoAlimentacao",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        uuid="837ed21a-d535-4df2-aa37-f186e4e51392",
     )
     baker.make(
         "ValorMedicao",
@@ -2502,7 +2514,9 @@ def medicao_aprovada_pela_dre(solicitacao_medicao_inicial, categoria_medicao):
     valor = 20
     nome_campo = "observacoes"
     tipo_alimentacao = baker.make(
-        "TipoAlimentacao", nome="Lanche", uuid="a5ea11b6-a043-47cd-ba69-d6b207312cbd"
+        "TipoAlimentacao",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        uuid="a5ea11b6-a043-47cd-ba69-d6b207312cbd",
     )
     baker.make(
         "ValorMedicao",
@@ -2550,7 +2564,9 @@ def valor_medicao(medicao, categoria_medicao):
     valor = 13
     nome_campo = "observacoes"
     tipo_alimentacao = baker.make(
-        "TipoAlimentacao", nome="Lanche", uuid="b58b7946-67c4-416c-82cf-f26a470fb93e"
+        "TipoAlimentacao",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        uuid="b58b7946-67c4-416c-82cf-f26a470fb93e",
     )
     return baker.make(
         "ValorMedicao",

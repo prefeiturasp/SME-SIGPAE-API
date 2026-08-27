@@ -13,6 +13,7 @@ from model_bakery import baker
 from src.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
+    TIPOS_ALIMENTACAO,
     StatusProcessamentoArquivo,
 )
 from src.dados_comuns.fluxo_status import (
@@ -1310,12 +1311,14 @@ def escola_edital_41(escola):
 
 @pytest.fixture
 def tipo_alimentacao():
-    return baker.make("cardapio.TipoAlimentacao", nome="Refeição")
+    return baker.make("cardapio.TipoAlimentacao", nome=TIPOS_ALIMENTACAO.REFEICAO.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make("cardapio.TipoAlimentacao", nome="Sobremesa")
+    return baker.make(
+        "cardapio.TipoAlimentacao", nome=TIPOS_ALIMENTACAO.SOBREMESA.value
+    )
 
 
 @pytest.fixture

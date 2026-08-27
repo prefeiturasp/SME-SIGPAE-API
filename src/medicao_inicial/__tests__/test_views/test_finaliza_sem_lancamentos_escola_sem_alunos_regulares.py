@@ -11,6 +11,7 @@ from src.cardapio.base.fixtures.factories.base_factory import (
 from src.dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
 )
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
@@ -55,8 +56,12 @@ class TestUseCaseFinalizaMedicaoSemLancamentosEscolaSemAlunosRegulares:
         assert escola_cmct.periodos_escolares().count() == 0
 
     def setup_tipos_alimentacao(self):
-        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
-        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
+        )
+        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
 
     def setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(

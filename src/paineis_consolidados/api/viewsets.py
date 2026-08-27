@@ -13,6 +13,7 @@ from ...dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     MODULO_DIETA_ESPECIAL,
     SEM_FILTRO,
+    TIPOS_ALIMENTACAO,
 )
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarDietaEspecial,
@@ -173,7 +174,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         """Solicitações de Lanche Emergencial vencidas são tratadas como PRIORITARIO."""
         if (
             solicitacao.prioridade == "VENCIDO"
-            and solicitacao.motivo == "Lanche Emergencial"
+            and solicitacao.motivo == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         ):
             return "PRIORITARIO"
         return solicitacao.prioridade
@@ -184,21 +185,21 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
                 (solicitacao.desc_doc, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
-                or solicitacao.motivo == "Lanche Emergencial"
+                or solicitacao.motivo == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             ]
         elif tipo_visao == TIPO_VISAO_LOTE:
             descricao_prioridade = [
                 (solicitacao.lote_nome, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
-                or solicitacao.motivo == "Lanche Emergencial"
+                or solicitacao.motivo == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             ]
         else:
             descricao_prioridade = [
                 (solicitacao.dre_nome, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
-                or solicitacao.motivo == "Lanche Emergencial"
+                or solicitacao.motivo == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             ]
         return descricao_prioridade
 

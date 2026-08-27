@@ -7,7 +7,10 @@ from rest_framework import status
 from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
-from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
+from src.dados_comuns.constants import (
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -43,8 +46,12 @@ class TestUseCaseFinalizaMedicaoSemLancamentosCEI:
         self.periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
 
     def setup_tipos_alimentacao(self):
-        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
-        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
+        )
+        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
 
     def setup_medicao_inicial(self, escola_cei):
         self.solicitacao_medicao_inicial = SolicitacaoMedicaoInicialFactory.create(

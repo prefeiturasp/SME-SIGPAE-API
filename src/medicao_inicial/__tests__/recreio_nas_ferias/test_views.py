@@ -5,6 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from src.cardapio.base.models import TipoAlimentacao
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.escola.models import (
     DiretoriaRegional,
     Escola,
@@ -50,8 +51,8 @@ def setup_data():
         tipo_unidade=tipo_unidade,
     )
 
-    tipo_alim_1 = TipoAlimentacao.objects.create(nome="Lanche")
-    tipo_alim_2 = TipoAlimentacao.objects.create(nome="Almoço")
+    tipo_alim_1 = TipoAlimentacao.objects.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    tipo_alim_2 = TipoAlimentacao.objects.create(nome=TIPOS_ALIMENTACAO.ALMOCO.value)
 
     list_url = reverse("recreio-nas-ferias-list")
 

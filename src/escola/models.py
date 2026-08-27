@@ -57,6 +57,7 @@ from ..dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MODEL_DIRETORIA_REGIONAL,
     MODEL_TERCEIRIZADA,
+    TIPOS_ALIMENTACAO,
     obter_dias_uteis_apos_hoje,
 )
 from ..dados_comuns.fluxo_status import (
@@ -1299,7 +1300,7 @@ class Escola(
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         ).exists():
             lista_medicoes.append(GRUPO_SOLICITACOES_ALIMENTACAO)
         return lista_medicoes
@@ -1314,7 +1315,7 @@ class Escola(
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-        ).exclude(motivo__nome="Lanche Emergencial")
+        ).exclude(motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value)
         if queryset.exists():
             periodos_escolares_nomes = list(
                 queryset.values_list(
@@ -1353,7 +1354,7 @@ class Escola(
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         )
         if queryset.exists():
             lista_medicoes.append(GRUPO_SOLICITACOES_ALIMENTACAO)
@@ -1369,7 +1370,7 @@ class Escola(
             datas_intervalo__data__month=mes,
             datas_intervalo__data__year=ano,
             datas_intervalo__cancelado=False,
-        ).exclude(motivo__nome="Lanche Emergencial")
+        ).exclude(motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value)
         if queryset.exists():
             periodos_escolares_nomes = list(
                 queryset.values_list(

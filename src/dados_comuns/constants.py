@@ -586,6 +586,23 @@ class StatusProcessamentoArquivo(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class TIPOS_ALIMENTACAO(Enum):
+    DESJEJUM = "Desjejum"
+    COLACAO = "Colação"
+    ALMOCO = "Almoço"
+    REFEICAO = "Refeição"
+    REFEICAO_DA_TARDE = "Refeição da Tarde"
+    MERENDA_SECA = "Merenda seca"
+    SOBREMESA = "Sobremesa"
+    LANCHE = "Lanche"
+    LANCHE_4H = "Lanche 4h"
+    LANCHE_EMERGENCIAL = "Lanche Emergencial"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO = ["MANHA", "TARDE", "NOITE", "INTEGRAL"]
 
 

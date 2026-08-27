@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.http import QueryDict
 from model_bakery import baker
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPOS_ALIMENTACAO
 from src.medicao_inicial.services.relatorio_adesao import (
     _parse_data,
     _valida_ano_mes,
@@ -490,9 +490,11 @@ def test_obtem_resultados_ordem_deterministica_de_periodos_e_alimentacoes(
         mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
     )
 
-    tipo_lanche = baker.make("TipoAlimentacao", nome="Lanche")
-    tipo_refeicao = baker.make("TipoAlimentacao", nome="Refeição")
-    tipo_sobremesa = baker.make("TipoAlimentacao", nome="Sobremesa")
+    tipo_lanche = baker.make("TipoAlimentacao", nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    tipo_refeicao = baker.make("TipoAlimentacao", nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+    tipo_sobremesa = baker.make(
+        "TipoAlimentacao", nome=TIPOS_ALIMENTACAO.SOBREMESA.value
+    )
 
     # insere o período TARDE antes do MANHA para validar a ordenação dos períodos
     periodo_tarde = make_periodo_escolar("TARDE")

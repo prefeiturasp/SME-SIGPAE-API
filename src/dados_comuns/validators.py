@@ -16,7 +16,11 @@ from ..cardapio.alteracao_tipo_alimentacao_cei.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
 )
 from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
-from .constants import FORMATO_DATA_BRASILEIRO, obter_dias_uteis_apos_hoje
+from .constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPOS_ALIMENTACAO,
+    obter_dias_uteis_apos_hoje,
+)
 from .utils import datetime_range, eh_dia_util, eh_fim_de_semana
 
 calendario = BrazilSaoPauloCity()
@@ -291,7 +295,7 @@ def _inclusao_tem_refeicao_e_lanche_para_periodo(
         return (
             inclusoes.filter(
                 quantidades_por_periodo__periodo_escolar__nome=periodo_nome,
-                quantidades_por_periodo__tipos_alimentacao__nome="Refeição",
+                quantidades_por_periodo__tipos_alimentacao__nome=TIPOS_ALIMENTACAO.REFEICAO.value,
             )
             .filter(quantidades_por_periodo__tipos_alimentacao__nome=lanche_nome)
             .exists()
@@ -301,7 +305,7 @@ def _inclusao_tem_refeicao_e_lanche_para_periodo(
         return (
             inclusoes.filter(
                 quantidade_alunos_da_inclusao__periodo_externo__nome=periodo_nome,
-                tipos_alimentacao__nome="Refeição",
+                tipos_alimentacao__nome=TIPOS_ALIMENTACAO.REFEICAO.value,
             )
             .filter(tipos_alimentacao__nome=lanche_nome)
             .exists()
@@ -311,7 +315,7 @@ def _inclusao_tem_refeicao_e_lanche_para_periodo(
         return (
             inclusoes.filter(
                 quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome=periodo_nome,
-                quantidade_alunos_emei_da_inclusao_cemei__tipos_alimentacao__nome="Refeição",
+                quantidade_alunos_emei_da_inclusao_cemei__tipos_alimentacao__nome=TIPOS_ALIMENTACAO.REFEICAO.value,
             )
             .filter(
                 quantidade_alunos_emei_da_inclusao_cemei__tipos_alimentacao__nome=lanche_nome
@@ -652,7 +656,7 @@ def valida_datas_alteracao_cardapio(attrs):
                     AlteracaoCardapio.workflow_class.CODAE_AUTORIZADO,
                 ],
                 alteracao_cardapio__escola=attrs["escola"],
-                alteracao_cardapio__motivo__nome="Lanche Emergencial",
+                alteracao_cardapio__motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
                 alteracao_cardapio__substituicoes_periodo_escolar__periodo_escolar=substituicao[
                     "periodo_escolar"
                 ],

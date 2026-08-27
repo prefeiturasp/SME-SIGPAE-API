@@ -9,7 +9,7 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.dados_comuns import constants as dados_comuns_constants
-from src.dados_comuns.constants import MODEL_ESCOLA
+from src.dados_comuns.constants import MODEL_ESCOLA, TIPOS_ALIMENTACAO
 from src.escola.models import PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     DiasMotivosInclusaoDeAlimentacaoCEMEI,
@@ -95,7 +95,7 @@ def test_endpoint_horario_do_combo_tipo_alimentacao_unidade_escolar(
     assert json[0]["tipo_alimentacao"] == {
         "uuid": "c42a24bb-14f8-4871-9ee8-05bc42cf3061",
         "posicao": 2,
-        "nome": "Lanche",
+        "nome": TIPOS_ALIMENTACAO.LANCHE.value,
     }
     assert json[0]["periodo_escolar"] == {
         "uuid": "22596464-271e-448d-bcb3-adaba43fffc8",

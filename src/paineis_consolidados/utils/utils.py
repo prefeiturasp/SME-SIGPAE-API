@@ -4,6 +4,7 @@ import unicodedata
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dados_comuns.utils import get_ultimo_dia_mes
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
@@ -135,7 +136,7 @@ def tratar_append_return_dict(dia, mes, ano, periodo, inclusao, return_dict, esc
         or (escola.ultimo_dia_letivo and dia == escola.ultimo_dia_letivo.day)
     ):
         queryset_tipos_alimentacao = periodo.tipos_alimentacao.exclude(
-            nome="Lanche Emergencial"
+            nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
         alimentacoes = ", ".join(
             [

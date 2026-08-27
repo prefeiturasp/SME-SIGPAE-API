@@ -778,12 +778,14 @@ def periodo_escolar_manha():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make("TipoAlimentacao", nome="Refeição")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make("TipoAlimentacao", nome="Lanche")
+    return baker.make("TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.LANCHE.value)
 
 
 @pytest.fixture
@@ -1301,7 +1303,9 @@ def vinculo_periodo_alimentacao(
     periodo_escolar_noite,
     periodo_escolar_tarde,
 ):
-    tipo_alimentacao_refeicao = baker.make("TipoAlimentacao", nome="Refeição")
+    tipo_alimentacao_refeicao = baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
     for pe in [
         periodo_escolar_manha,
         periodo_escolar_integral,

@@ -47,6 +47,7 @@ from .constants import (
     STATUS_ENVIADO_PARA_ANALISE,
     TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
     TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
+    TIPOS_ALIMENTACAO,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
 from .services import EmailENotificacaoService, PartesInteressadasService
@@ -2280,7 +2281,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         return (
             (isinstance(self, (AlteracaoCardapio, AlteracaoCardapioCEMEI)))
             and self.motivo
-            and self.motivo.nome == "Lanche Emergencial"
+            and self.motivo.nome == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
 
     def get_dias_suspensao(self):
@@ -2575,7 +2576,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         ):
             if (
                 isinstance(self, (AlteracaoCardapio, AlteracaoCardapioCEMEI))
-                and self.motivo.nome == "Lanche Emergencial"
+                and self.motivo.nome == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             ):
                 return
             raise xworkflows.InvalidTransitionError(

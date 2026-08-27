@@ -4,7 +4,7 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
-from src.dados_comuns.constants import TIPO_ALIMENTACAO
+from src.dados_comuns.constants import TIPO_ALIMENTACAO, TIPOS_ALIMENTACAO
 from src.escola.models import (
     Escola,
     LogAlunosMatriculadosPeriodoEscola,
@@ -123,7 +123,7 @@ def horario_tipo_alimentacao(
     escola = escola_com_periodos_e_horarios_combos
     tipo_alimentacao = baker.make(
         "TipoAlimentacao",
-        nome="Lanche",
+        nome=TIPOS_ALIMENTACAO.LANCHE.value,
         posicao=2,
         uuid="c42a24bb-14f8-4871-9ee8-05bc42cf3061",
     )

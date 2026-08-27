@@ -7,6 +7,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
 )
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_recreio_nas_ferias,
@@ -20,15 +21,17 @@ pytestmark = pytest.mark.django_db
 @freeze_time("2026-01-10")
 class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
     def _setup_tipos_alimentacao(self, tipo_alimentacao_factory):
-        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
         self.tipo_alimentacao_lanche_4h = tipo_alimentacao_factory.create(
-            nome="Lanche 4h"
+            nome=TIPOS_ALIMENTACAO.LANCHE_4H.value
         )
         self.tipo_alimentacao_refeicao = tipo_alimentacao_factory.create(
-            nome="Refeição"
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
         )
         self.tipo_alimentacao_sobremesa = tipo_alimentacao_factory.create(
-            nome="Sobremesa"
+            nome=TIPOS_ALIMENTACAO.SOBREMESA.value
         )
 
     def _setup_categorias_medicao(self, categoria_medicao_factory):
@@ -272,10 +275,10 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
                 "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
             ],
             "body": [
-                ["Lanche", 40],
-                ["Lanche 4h", 40],
-                ["Refeição", 40],
-                ["Sobremesa", 40],
+                [TIPOS_ALIMENTACAO.LANCHE.value, 40],
+                [TIPOS_ALIMENTACAO.LANCHE_4H.value, 40],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, 40],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, 40],
             ],
         }
 
@@ -288,10 +291,10 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
                 "TOTAL DE ALIMENTAÇÕES PARA COLABORADORES",
             ],
             "body": [
-                ["Lanche", 20],
-                ["Lanche 4h", 20],
-                ["Refeição", 40],
-                ["Sobremesa", 44],
+                [TIPOS_ALIMENTACAO.LANCHE.value, 20],
+                [TIPOS_ALIMENTACAO.LANCHE_4H.value, 20],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, 40],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, 44],
             ],
         }
 
@@ -378,7 +381,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             row[0] == "Kit Lanche" for row in body
         ), "Kit Lanche deve aparecer no somatório"
         assert any(
-            row[0] == "Lanche Emergencial" for row in body
+            row[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value for row in body
         ), "Lanche Emergencial deve aparecer no somatório"
 
         # Kit Lanche: valor 0 na coluna ALIMENTAÇÕES, 60 na coluna SOLICITAÇÕES
@@ -392,7 +395,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
 
         # Lanche Emergencial: valor 0 na coluna ALIMENTAÇÕES, 40 na coluna SOLICITAÇÕES
         lanche_emergencial_row = next(
-            row for row in body if row[0] == "Lanche Emergencial"
+            row for row in body if row[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
         assert (
             lanche_emergencial_row[1] == 0
@@ -402,7 +405,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         ), f"Lanche Emergencial deve ser 40 na coluna SOLICITAÇÕES, mas foi {lanche_emergencial_row[2]}"
 
         # Alimentos regulares: valor >0 na coluna ALIMENTAÇÕES, 0 na coluna SOLICITAÇÕES
-        lanche_row = next(row for row in body if row[0] == "Lanche")
+        lanche_row = next(
+            row for row in body if row[0] == TIPOS_ALIMENTACAO.LANCHE.value
+        )
         assert (
             lanche_row[1] == 40
         ), f"Lanche deve ser 40 na ALIMENTAÇÕES, mas foi {lanche_row[1]}"
@@ -416,7 +421,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             row[0] == "Kit Lanche" for row in colab_body
         ), "Kit Lanche não deve aparecer no somatório de colaboradores"
         assert not any(
-            row[0] == "Lanche Emergencial" for row in colab_body
+            row[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value for row in colab_body
         ), "Lanche Emergencial não deve aparecer no somatório de colaboradores"
 
 
@@ -436,15 +441,17 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
     """
 
     def _setup_tipos_alimentacao(self, tipo_alimentacao_factory):
-        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
         self.tipo_alimentacao_lanche_4h = tipo_alimentacao_factory.create(
-            nome="Lanche 4h"
+            nome=TIPOS_ALIMENTACAO.LANCHE_4H.value
         )
         self.tipo_alimentacao_refeicao = tipo_alimentacao_factory.create(
-            nome="Refeição"
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
         )
         self.tipo_alimentacao_sobremesa = tipo_alimentacao_factory.create(
-            nome="Sobremesa"
+            nome=TIPOS_ALIMENTACAO.SOBREMESA.value
         )
 
     def _setup_categorias_medicao(self, categoria_medicao_factory):

@@ -6,6 +6,7 @@ from freezegun import freeze_time
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     GRUPO_PROGRAMAS_E_PROJETOS,
+    TIPOS_ALIMENTACAO,
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -40,7 +41,9 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         self.categoria_alimentacao = categoria_medicao_factory.create(
             nome="ALIMENTAÇÃO"
         )
-        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
 
     def _setup_escola_cmct(
         self, diretoria_regional_factory, lote_factory, escola_factory
