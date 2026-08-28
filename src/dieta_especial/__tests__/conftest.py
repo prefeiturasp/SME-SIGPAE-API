@@ -1636,9 +1636,9 @@ def escolas_tipo_cei():
 @pytest.fixture
 def escolas_tipo_cemei_por_faixa_etaria():
     classificacao = {
-        "Escola CEMEI": {
+        constants.NOME_ESCOLA_CEMEI: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-            "lote": "LOTE CEMEI",
+            "lote": constants.NOME_LOTE_CEMEI,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1659,10 +1659,10 @@ def escolas_tipo_cemei_por_faixa_etaria():
     }
     item = {
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEMEI",
+        "nome_escola": constants.NOME_ESCOLA_CEMEI,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": constants.NOME_LOTE_CEMEI,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": 7,
@@ -1672,10 +1672,10 @@ def escolas_tipo_cemei_por_faixa_etaria():
     }
     item_somatorio = {
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEMEI",
+        "nome_escola": constants.NOME_ESCOLA_CEMEI,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": constants.NOME_LOTE_CEMEI,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,
@@ -1689,9 +1689,9 @@ def escolas_tipo_cemei_por_faixa_etaria():
 @pytest.fixture
 def escolas_tipo_cemei_por_periodo():
     classificacao = {
-        "Escola CEMEI": {
+        constants.NOME_ESCOLA_CEMEI: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-            "lote": "LOTE CEMEI",
+            "lote": constants.NOME_LOTE_CEMEI,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1711,10 +1711,10 @@ def escolas_tipo_cemei_por_periodo():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEMEI",
+        "nome_escola": constants.NOME_ESCOLA_CEMEI,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": constants.NOME_LOTE_CEMEI,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": None,
@@ -1725,10 +1725,10 @@ def escolas_tipo_cemei_por_periodo():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEMEI",
+        "nome_escola": constants.NOME_ESCOLA_CEMEI,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": constants.NOME_LOTE_CEMEI,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,

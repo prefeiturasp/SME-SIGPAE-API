@@ -9,10 +9,12 @@ from model_bakery import baker
 
 from ...dados_comuns.constants import (
     NOME_ESCOLA_CEI_DIRET,
+    NOME_ESCOLA_CEMEI,
     NOME_ESCOLA_CEU_GESTAO,
     NOME_ESCOLA_EMEBS,
     NOME_ESCOLA_EMEF,
     NOME_LOTE_CEI_DIRET,
+    NOME_LOTE_CEMEI,
     NOME_LOTE_EMEBS,
     NOME_LOTE_EMEF,
     TIPO_UNIDADE_CEI_DIRET,
@@ -489,7 +491,9 @@ def test__unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etar
 
     dietas = _unidades_tipo_cemei(item, classificacao)
     assert dietas == 0
-    informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
+    informacao_classificacao = classificacao[NOME_ESCOLA_CEMEI]["classificacoes"][
+        "Tipo A"
+    ]
     total_dietas += dietas
     assert "por_idade" in informacao_classificacao
     assert informacao_classificacao["total"] == total_dietas
@@ -500,7 +504,9 @@ def test__unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etar
 
     dietas = _unidades_tipo_cemei(item_somatorio, classificacao)
     assert dietas == 4
-    informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
+    informacao_classificacao = classificacao[NOME_ESCOLA_CEMEI]["classificacoes"][
+        "Tipo A"
+    ]
     total_dietas += dietas
     assert "por_idade" in informacao_classificacao
     assert informacao_classificacao["total"] == total_dietas
@@ -516,7 +522,9 @@ def test__unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
 
     dietas = _unidades_tipo_cemei(item, classificacao)
     assert dietas == 0
-    informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
+    informacao_classificacao = classificacao[NOME_ESCOLA_CEMEI]["classificacoes"][
+        "Tipo A"
+    ]
     total_dietas += dietas
     assert "turma_infantil" in informacao_classificacao
     assert informacao_classificacao["total"] == total_dietas
@@ -528,7 +536,9 @@ def test__unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
 
     dietas = _unidades_tipo_cemei(item_somatorio, classificacao)
     assert dietas == 4
-    informacao_classificacao = classificacao["Escola CEMEI"]["classificacoes"]["Tipo A"]
+    informacao_classificacao = classificacao[NOME_ESCOLA_CEMEI]["classificacoes"][
+        "Tipo A"
+    ]
     total_dietas += dietas
     assert "turma_infantil" in informacao_classificacao
     assert informacao_classificacao["total"] == total_dietas
@@ -784,9 +794,9 @@ def test__formatar_periodos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
 def test__formatar_periodos_cemei():
     informacao = {
         "data": datetime.date(2024, 2, 12),
-        "unidade_educacional": "Escola CEMEI",
+        "unidade_educacional": NOME_ESCOLA_CEMEI,
         "tipo_unidade": TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": NOME_LOTE_CEMEI,
         "classificacao": "Tipo A",
         "total": 2,
     }
@@ -876,7 +886,7 @@ def test_formatar_informacoes_historioco_dietas(
     assert resultado["resultados"][1]["unidade_educacional"] == NOME_ESCOLA_EMEF
     assert resultado["resultados"][2]["unidade_educacional"] == NOME_ESCOLA_CEU_GESTAO
     assert resultado["resultados"][3]["unidade_educacional"] == NOME_ESCOLA_CEI_DIRET
-    assert resultado["resultados"][4]["unidade_educacional"] == "Escola CEMEI"
+    assert resultado["resultados"][4]["unidade_educacional"] == NOME_ESCOLA_CEMEI
 
 
 def test_parse_data():
