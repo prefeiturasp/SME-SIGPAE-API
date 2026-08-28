@@ -22,6 +22,7 @@ from src.escola.fixtures.factories.escola_factory import (
 )
 from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     GrupoInclusaoAlimentacaoNormalFactory,
+    InclusaoAlimentacaoContinuaFactory,
     InclusaoAlimentacaoNormalFactory,
     QuantidadePorPeriodoFactory,
 )
@@ -542,3 +543,46 @@ class TestPrioridadeEfetiva:
 
         mock = self._make_mock("VENCIDO", None)
         assert SolicitacoesViewSet._prioridade_efetiva(mock) == "VENCIDO"
+
+
+@pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados", "escola")
+class TestRelatorioSolicitacoesAlimentacaoNumeroAlunos:
+    def test_inclusao_continua_numero_alunos_no_relatorio(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        inclusao_continua = InclusaoAlimentacaoContinuaFactory.create(
+            escola=escola,
+            rastro_escola=escola,
+            rastro_dre=escola.diretoria_regional,
+            rastro_lote=escola.lote,
+            rastro_terceirizada=escola.lote.terceirizada,
+            status="CODAE_AUTORIZADO",
+        )
+        QuantidadePorPeriodoFactory.create(
+            numero_alunos=15,
+            inclusao_alimentacao_continua=inclusao_continua,
+            grupo_inclusao_normal=None,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=inclusao_continua.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            solicitacao_tipo=LogSolicitacoesUsuario.INCLUSAO_ALIMENTACAO_CONTINUA,
+            usuario=usuario,
+        )
+
+        response = client.post(
+            "/codae-solicitacoes/filtrar-solicitacoes-ga/",
+            content_type="application/json",
+            data={"status": "AUTORIZADOS"},
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        items = response.json()["results"]
+        inclusao_continua_item = next(
+            item for item in items if item.get("tipo_doc") == "INC_ALIMENTA_CONTINUA"
+        )
+        assert inclusao_continua_item["numero_alunos"] == 15
