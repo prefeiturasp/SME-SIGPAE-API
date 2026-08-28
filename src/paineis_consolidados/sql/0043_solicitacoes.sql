@@ -314,7 +314,7 @@ from inclusao_alimentacao_inclusaoalimentacaocontinua as inc_aliment_continua
          left join escola_escola as escola on escola.id = inc_aliment_continua.rastro_escola_id
          LEFT JOIN escola_tipounidadeescolar AS tipo_unidade ON tipo_unidade.id = escola.tipo_unidade_id
          left join inclusao_alimentacao_quantidadeporperiodo as quantidade_periodo
-                   on quantidade_periodo.grupo_inclusao_normal_id = inc_aliment_continua.id
+                   on quantidade_periodo.inclusao_alimentacao_continua_id = inc_aliment_continua.id
          left join terceirizada_terceirizada as terceirizada
                    on terceirizada.id = inc_aliment_continua.rastro_terceirizada_id
          left join inclusao_alimentacao_motivoinclusaocontinua as motivo
