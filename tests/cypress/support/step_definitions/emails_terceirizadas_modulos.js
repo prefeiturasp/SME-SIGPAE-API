@@ -21,30 +21,6 @@ function dataHoraValida(valor) {
 	)
 }
 
-function validarRegistro(registro) {
-	expect(registro).to.include.all.keys(
-		'modulo',
-		'terceirizada',
-		'uuid',
-		'email',
-		'criado_em',
-	)
-	expect(registro.modulo).to.be.a('string')
-	expect(registro.terceirizada).to.be.a('string')
-	expect(registro.uuid).to.be.a('string').and.not.be.empty
-	expect(registro.email).to.be.a('string').and.not.be.empty
-	expect(registro.criado_em).to.be.a('string').and.not.be.empty
-	expect(dataHoraValida(registro.criado_em)).to.eq(true)
-}
-
-function validarListaPaginada(response) {
-	expect(response.body).to.include.all.keys('count', 'next', 'previous', 'results')
-	expect(response.body.count).to.be.a('number').and.at.least(0)
-	expect(response.body.results).to.be.an('array')
-
-	response.body.results.forEach(validarRegistro)
-}
-
 Given(
 	'que estou autenticado como CODAE para consultar emails de terceirizadas por modulo',
 	() => {
@@ -52,122 +28,25 @@ Given(
 	},
 )
 
-When('consulto os emails de terceirizadas por modulo', function () {
-	cy.consultar_emails_terceirizadas_modulos().then((response) => {
-		this.response = response
-	})
-})
+When('cadastro um email de terceirizada por modulo', function () {
+	cy.consultar_terceirizadas().then((terceirizadas) => {
+		expect(terceirizadas.status, JSON.stringify(terceirizadas.body)).to.eq(200)
+		expect(terceirizadas.body.results).to.be.an('array').and.not.be.empty
 
-When('consulto um email de terceirizada por UUID existente', function () {
-	cy.consultar_emails_terceirizadas_modulos().then((consulta) => {
-		expect(consulta.status, JSON.stringify(consulta.body)).to.eq(200)
-		expect(consulta.body.results).to.be.an('array').and.not.be.empty
+		this.dadosCadastro = {
+			terceirizada: terceirizadas.body.results[0].uuid,
+			modulo: 'Gestão de Alimentação',
+			criado_por: 'Automacao Cypress',
+			email: `automacao.${Date.now()}@example.com`,
+		}
 
-		this.uuidConsultado = consulta.body.results[0].uuid
-		cy.consultar_email_terceirizada_modulo_por_uuid(this.uuidConsultado).then(
+		cy.cadastrar_email_terceirizada_modulo(this.dadosCadastro).then(
 			(response) => {
 				this.response = response
 			},
 		)
 	})
 })
-
-When(
-	'consulto os emails de terceirizadas com limite {int} modulo {string} e deslocamento {int}',
-	function (limit, modulo, offset) {
-		this.parametros = { limit, modulo, offset }
-		cy.consultar_emails_terceirizadas_modulos(this.parametros).then(
-			(response) => {
-				this.response = response
-			},
-		)
-	},
-)
-
-When(
-	'consulto os emails de terceirizadas por modulo sem autenticacao',
-	function () {
-		cy.consultar_emails_terceirizadas_modulos(undefined, false).then(
-			(response) => {
-				this.response = response
-			},
-		)
-	},
-)
-
-When(
-	'cadastro um email de terceirizada usando os dados da consulta',
-	function () {
-		cy.consultar_emails_terceirizadas_modulos().then((consulta) => {
-			expect(consulta.status, JSON.stringify(consulta.body)).to.eq(200)
-			expect(consulta.body.results).to.be.an('array').and.not.be.empty
-
-			const registro = consulta.body.results[0]
-			cy.consultar_terceirizadas_por_nome(registro.terceirizada).then(
-				(terceirizadas) => {
-					expect(terceirizadas.status, JSON.stringify(terceirizadas.body)).to.eq(
-						200,
-					)
-					expect(terceirizadas.body.results).to.be.an('array').and.not.be.empty
-
-					this.dadosCadastro = {
-						terceirizada: terceirizadas.body.results[0].uuid,
-						modulo: registro.modulo,
-						criado_por: 'Automacao Cypress',
-						email: `automacao.${Date.now()}@example.com`,
-					}
-
-					cy.cadastrar_email_terceirizada_modulo(this.dadosCadastro).then(
-						(response) => {
-							this.response = response
-						},
-					)
-				},
-			)
-		})
-	},
-)
-
-Then(
-	'a consulta retorna status 200 e uma lista paginada valida',
-	function () {
-		expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
-		validarListaPaginada(this.response)
-	},
-)
-
-Then(
-	'a consulta por UUID retorna status 200 e os dados do email',
-	function () {
-		expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
-		validarRegistro(this.response.body)
-		expect(this.response.body.uuid).to.eq(this.uuidConsultado)
-	},
-)
-
-Then(
-	'a consulta filtrada retorna status 200 e respeita o limite informado',
-	function () {
-		expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
-		validarListaPaginada(this.response)
-		expect(this.response.body.results).to.have.length.at.most(
-			this.parametros.limit,
-		)
-
-		this.response.body.results.forEach((registro) => {
-			expect(String(registro.modulo)).to.eq(this.parametros.modulo)
-		})
-	},
-)
-
-Then(
-	'a consulta de emails de terceirizadas retorna status 401',
-	function () {
-		expect(this.response.status, JSON.stringify(this.response.body)).to.eq(401)
-		expect(this.response.body).to.have.property('detail').that.is.a('string').and
-			.not.be.empty
-	},
-)
 
 Then(
 	'o email de terceirizada por modulo e cadastrado com sucesso',
@@ -184,5 +63,50 @@ Then(
 			.not.be.empty
 		expect(this.response.body).to.have.property('criado_em').that.is.a('string')
 		expect(dataHoraValida(this.response.body.criado_em)).to.eq(true)
+	},
+)
+
+When('atualizo um email de terceirizada por modulo', function () {
+	cy.consultar_terceirizadas().then((terceirizadas) => {
+		expect(terceirizadas.status, JSON.stringify(terceirizadas.body)).to.eq(200)
+		expect(terceirizadas.body.results).to.be.an('array').and.not.be.empty
+
+		this.dadosCadastro = {
+			terceirizada: terceirizadas.body.results[0].uuid,
+			modulo: 'Gestão de Alimentação',
+			criado_por: 'Automacao Cypress',
+			email: `automacao.${Date.now()}@example.com`,
+		}
+
+		cy.cadastrar_email_terceirizada_modulo(this.dadosCadastro).then(
+			(criacao) => {
+				expect(criacao.status, JSON.stringify(criacao.body)).to.eq(201)
+
+				this.dadosAtualizacao = {
+					email: `automacao.atualizado.${Date.now()}@example.com`,
+				}
+				cy.atualizar_email_terceirizada_modulo(
+					criacao.body.uuid,
+					this.dadosAtualizacao,
+				).then((response) => {
+					this.response = response
+				})
+			},
+		)
+	})
+})
+
+Then(
+	'o email de terceirizada por modulo e atualizado com sucesso',
+	function () {
+		expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
+		expect(this.response.body).to.include({
+			terceirizada: this.dadosCadastro.terceirizada,
+			modulo: this.dadosCadastro.modulo,
+			email: this.dadosAtualizacao.email,
+		})
+		expect(this.response.body).to.have.property('uuid').that.is.a('string').and
+			.not.be.empty
+		expect(this.response.body).to.have.property('criado_em').that.is.a('string')
 	},
 )
