@@ -4,7 +4,7 @@ from calendar import monthrange
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import Count, F, Max, Q, Sum
+from django.db.models import Count, F, Max, OuterRef, Q, Subquery, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -204,7 +204,11 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
 
 class EscolaSimplissimaComEolViewSet(ReadOnlyModelViewSet):
     lookup_field = "uuid"
-    queryset = Escola.objects.all()
+    queryset = (
+        Escola.objects.select_related("diretoria_regional", "lote", "tipo_unidade")
+        .all()
+        .order_by()
+    )
     serializer_class = EscolaEolSimplesSerializer
 
     @action(detail=False, methods=["POST"], url_path="escolas-com-cod-eol")
@@ -249,7 +253,24 @@ class EscolaSimplissimaComEolViewSet(ReadOnlyModelViewSet):
 
 class EscolaSimplissimaComDREViewSet(ReadOnlyModelViewSet):
     lookup_field = "uuid"
-    queryset = Escola.objects.all().prefetch_related("diretoria_regional")
+    queryset = (
+        Escola.objects.select_related(
+            "diretoria_regional", "lote", "lote__terceirizada", "tipo_unidade"
+        )
+        .annotate(
+            quantidade_alunos_regular=Subquery(
+                AlunosMatriculadosPeriodoEscola.objects.filter(
+                    escola=OuterRef("pk"),
+                    tipo_turma=TipoTurma.REGULAR.name,
+                )
+                .order_by()
+                .values("escola")
+                .annotate(total=Sum("quantidade_alunos"))
+                .values("total")
+            )
+        )
+        .prefetch_related("lote__contratos_do_lote__edital")
+    )
     serializer_class = EscolaListagemSimplissimaComDRESelializer
 
 
