@@ -111,6 +111,7 @@ from ..utils import (
     log_alteracoes_escola_corrige_periodo,
     mapear_dados_existentes,
     obter_instancia_dados,
+    processa_reabrir_lancamentos,
     tratar_valores,
 )
 from .constants import (
@@ -2616,6 +2617,60 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
             status=status.HTTP_200_OK,
         )
+
+    @action(
+        detail=False,
+        methods=["PUT"],
+        url_path="reabrir-lancamentos/(?P<uuid_relatorio_financeiro>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    def reabrir_lancamentos(self, request, uuid_relatorio_financeiro):
+        try:
+            usuario = request.user
+
+            relatorio_financeiro = RelatorioFinanceiro.objects.filter(
+                uuid=uuid_relatorio_financeiro
+            ).first()
+
+            if not relatorio_financeiro:
+                return Response(
+                    {"Erro": "Relatório financeiro não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            unidades_educacionais = request.data.get(
+                "unidades_educacionais", []
+            )
+
+            filtros_relatorio = {
+                "mes": relatorio_financeiro.mes,
+                "ano": relatorio_financeiro.ano,
+                "status": SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+            }
+
+            solicitacoes_periodo = list(
+                SolicitacaoMedicaoInicial.objects.filter(
+                    **filtros_relatorio
+                )
+            )
+
+            processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario)
+
+            return Response(
+                {
+                    "detail": (
+                        "As solicitações das unidades selecionadas "
+                        "foram reabertas para lançamento."
+                    )
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:
+            return Response(
+                {"Erro": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class DadosLiquidacaoViewSet(ModelViewSet):

@@ -257,6 +257,13 @@ def tipo_unidade_escolar_cei():
 
 
 @pytest.fixture
+def tipo_unidade_escolar_cei_diret():
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value
+    )
+
+
+@pytest.fixture
 def tipo_unidade_escolar_cci():
     return baker.make(
         "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
@@ -476,23 +483,20 @@ def escola_ceu_emei(tipo_unidade_escolar_ceu_emei):
 
 
 @pytest.fixture
-def escola_cei():
+def escola_cei(tipo_unidade_escolar_cei_diret):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
-    tipo_unidade_escolar = baker.make(
-        "TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET
-    )
     return baker.make(
         "Escola",
         nome="CEI DIRET TESTE",
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
-        tipo_unidade=tipo_unidade_escolar,
+        tipo_unidade=tipo_unidade_escolar_cei_diret,
         codigo_eol="765432",
     )
 
@@ -6207,6 +6211,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
 @pytest.fixture
 def grupo_unidade_escolar_cei(
     tipo_unidade_escolar_cei,
+    tipo_unidade_escolar_cei_diret,
     tipo_unidade_escolar_cci,
     tipo_unidade_escolar_cei_ceu,
 ):
@@ -6218,6 +6223,7 @@ def grupo_unidade_escolar_cei(
             tipo_unidade_escolar_cei,
             tipo_unidade_escolar_cci,
             tipo_unidade_escolar_cei_ceu,
+            tipo_unidade_escolar_cei_diret,
         ],
     )
 

@@ -4016,3 +4016,28 @@ def test_url_endpoint_desconto_financeiro_sem_permissao(
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_url_endpoint_relatorio_reabrir_lancamentos(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_emei,
+    escola_emefm,
+):
+    url = (
+        f"/medicao-inicial/relatorio-financeiro/reabrir-lancamentos/"
+        f"{relatorio_financeiro_emei.uuid}/"
+    )
+
+    response = client_autenticado_codae_medicao.put(
+        url,
+        content_type="application/json",
+        data={
+            "unidades_educacionais": [str(escola_emefm.uuid)]
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "detail": "As solicitações das unidades selecionadas foram reabertas para lançamento."
+    }
