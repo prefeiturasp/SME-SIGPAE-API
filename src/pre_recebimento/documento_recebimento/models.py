@@ -19,6 +19,7 @@ from ...dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import (
     FluxoDocumentoDeRecebimento,
 )
@@ -227,7 +228,12 @@ class DataDeFabricaoEPrazo(TemChaveExterna):
     justificativa = models.TextField("Justificativa", blank=True)
 
     def __str__(self):
-        return f'{self.documento_recebimento.cronograma.numero} - {self.data_fabricacao.strftime("%d/%m/%Y")}'
+        data_fabricacao = (
+            self.data_fabricacao.strftime(FORMATO_DATA_BRASILEIRO)
+            if self.data_fabricacao
+            else "-"
+        )
+        return f"{self.documento_recebimento.cronograma.numero} - {data_fabricacao}"
 
     class Meta:
         verbose_name = "Data de Fabricação e Prazo"

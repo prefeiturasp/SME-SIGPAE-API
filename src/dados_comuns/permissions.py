@@ -259,22 +259,9 @@ class UsuarioCODAENutriManifestacao(BasePermission):
 class UsuarioCODAENutriSupervisao(BasePermission):
     """Permite acesso a usuários com vinculo a CODAE - Nutri Supervisão."""
 
-    def has_permission(self, request, view):
-        usuario = request.user
-        return (
-            not usuario.is_anonymous
-            and usuario.vinculo_atual
-            and isinstance(usuario.vinculo_atual.instituicao, Codae)
-            and usuario.vinculo_atual.perfil.nome in [COORDENADOR_SUPERVISAO_NUTRICAO]
-        )
-
-
-class PermissaoParaVisualizarRelatorioFiscalizacaoNutri(BasePermission):
     PERFIS_PERMITIDOS = [
+        ADMINISTRADOR_SUPERVISAO_NUTRICAO,
         COORDENADOR_SUPERVISAO_NUTRICAO,
-        COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
-        COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
-        ADMINISTRADOR_MEDICAO,
     ]
 
     def has_permission(self, request, view):
@@ -282,13 +269,37 @@ class PermissaoParaVisualizarRelatorioFiscalizacaoNutri(BasePermission):
         return (
             not usuario.is_anonymous
             and usuario.vinculo_atual
-            and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
-            )
+            and isinstance(usuario.vinculo_atual.instituicao, Codae)
+            and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
         )
+
+
+class PermissaoParaVisualizarRelatorioFiscalizacaoNutri(BasePermission):
+    PERFIS_PERMITIDOS = [
+        ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+        COORDENADOR_SUPERVISAO_NUTRICAO,
+        COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+        COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        ADMINISTRADOR_MEDICAO,
+        ADMINISTRADOR_CODAE_GABINETE,
+        DINUTRE_DIRETORIA,
+    ]
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        if usuario.is_anonymous or not usuario.vinculo_atual:
+            return False
+
+        instituicao = usuario.vinculo_atual.instituicao
+        perfil = usuario.vinculo_atual.perfil.nome
+
+        if isinstance(instituicao, DiretoriaRegional):
+            return perfil == COGESTOR_DRE
+
+        if isinstance(instituicao, Terceirizada):
+            return instituicao.tipo_servico == Terceirizada.TERCEIRIZADA
+
+        return isinstance(instituicao, Codae) and perfil in self.PERFIS_PERMITIDOS
 
 
 class UsuarioCODAEDietaEspecial(BasePermission):

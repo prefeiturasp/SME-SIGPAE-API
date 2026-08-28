@@ -7,6 +7,7 @@ from src.dados_comuns.behaviors import (
     Posicao,
     TemChaveExterna,
 )
+from src.dados_comuns.constants import MODEL_ESCOLA, TIPOS_ALIMENTACAO
 
 
 class TipoAlimentacao(
@@ -42,8 +43,8 @@ class TipoAlimentacao(
         - Lanche Emergencial
     """
 
-    LANCHE_EMERGENCIAL = "Lanche Emergencial"
-    LANCHE_4H = "Lanche 4h"
+    LANCHE_EMERGENCIAL = TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    LANCHE_4H = TIPOS_ALIMENTACAO.LANCHE_4H.value
 
     @property
     def substituicoes_periodo_escolar(self):
@@ -69,7 +70,7 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
     hora_inicial = models.TimeField(auto_now=False, auto_now_add=False)
     hora_final = models.TimeField(auto_now=False, auto_now_add=False)
     escola = models.ForeignKey(
-        "escola.Escola", blank=True, null=True, on_delete=models.DO_NOTHING
+        MODEL_ESCOLA, blank=True, null=True, on_delete=models.DO_NOTHING
     )
     tipo_alimentacao = models.ForeignKey(
         "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING

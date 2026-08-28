@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from openpyxl import Workbook, styles
 from openpyxl.worksheet.datavalidation import DataValidation
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.helper_planilha_modelo import (
     cria_validacao_lista_em_sheet_oculto,
 )
@@ -175,14 +176,19 @@ def exportar_planilha_importacao_tipos_ocorrencia(request, **kwargs):
 
 
 class RelatorioNotificacaoService:
+    CATEGORIA_QUANTIDADE_QUALIDADE = (
+        "QUANTIDADE/QUALIDADE DE UTENSÍLIOS/MOBILIÁRIOS/EQUIPAMENTOS"
+    )
+
     def __init__(self, formulario_supervisao):
-        categoria_quantidade_qualidade = (
-            "QUANTIDADE/QUALIDADE DE UTENSÍLIOS/MOBILIÁRIOS/EQUIPAMENTOS"
-        )
         categoria_reparo_e_adaptacao = "MANUTENÇÃO DE EQUIPAMENTOS/REPARO E ADAPTAÇÃO"
         self.categoria_template_map = {
-            categoria_quantidade_qualidade: "IMR/relatorio_de_notificacao/quantidade_qualidade/pdf.html",
-            categoria_reparo_e_adaptacao: "IMR/relatorio_de_notificacao/reparo_e_adaptacao/pdf.html",
+            self.CATEGORIA_QUANTIDADE_QUALIDADE: (
+                "IMR/relatorio_de_notificacao/quantidade_qualidade/pdf.html"
+            ),
+            categoria_reparo_e_adaptacao: (
+                "IMR/relatorio_de_notificacao/reparo_e_adaptacao/pdf.html"
+            ),
         }
         self.formulario_supervisao = formulario_supervisao
 
@@ -207,16 +213,34 @@ class RelatorioNotificacaoService:
             lista_respostas.append(_respostas_sorted)
         return lista_respostas
 
+    def formatar_respostas(self, categoria):
+        lista_respostas = self.get_lista_respostas(categoria)
+
+        if categoria != self.CATEGORIA_QUANTIDADE_QUALIDADE:
+            return lista_respostas
+
+        respostas_formatadas = []
+        for respostas in lista_respostas:
+            grupo_formatado = list(respostas)
+            for indice in range(2, min(5, len(grupo_formatado))):
+                grupo_formatado[indice] = int(grupo_formatado[indice].resposta)
+            respostas_formatadas.append(grupo_formatado)
+
+        return respostas_formatadas
+
     def retornar_dados_formatados(self, categoria):
         dados = {
             "diretoria_regional": self.formulario_supervisao.escola.diretoria_regional.nome,
-            "unidade": self.formulario_supervisao.escola.nome,
+            "unidade": (
+                f"{self.formulario_supervisao.escola.codigo_eol} - "
+                f"{self.formulario_supervisao.escola.nome}"
+            ),
             "maior_frequencia_no_periodo": self.formulario_supervisao.maior_frequencia_no_periodo,
             "total_matriculados_por_data": self.formulario_supervisao.escola.quantidade_alunos_matriculados_por_data(
                 self.formulario_supervisao.formulario_base.data
             ),
             "data_visita": self.formulario_supervisao.formulario_base.data.strftime(
-                "%d/%m/%Y"
+                FORMATO_DATA_BRASILEIRO
             ),
             "usuario": self.formulario_supervisao.formulario_base.usuario,
             "lote": self.formulario_supervisao.escola.lote.nome,
@@ -226,8 +250,7 @@ class RelatorioNotificacaoService:
                 if self.formulario_supervisao.escola.edital
                 else "-"
             ),
-            "respostas": self.get_lista_respostas(categoria),
-            "data_geracao": datetime.now().strftime("%d/%m/%Y"),
-            "hora_geracao": datetime.now().strftime("%H:%M:%S"),
+            "respostas": self.formatar_respostas(categoria),
+            "data_geracao": datetime.now().strftime(FORMATO_DATA_BRASILEIRO),
         }
         return dados

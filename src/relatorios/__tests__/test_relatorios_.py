@@ -6,8 +6,11 @@ from django.template.loader import render_to_string
 from freezegun import freeze_time
 from model_bakery import baker
 
-from src.produto.models import Produto, Marca, Fabricante, HomologacaoProduto
-from src.terceirizada.models import Terceirizada
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    GRUPO_INFANTIL_INTEGRAL,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -18,7 +21,9 @@ from src.pre_recebimento.ficha_tecnica.api.helpers import (
 )
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from src.pre_recebimento.tasks import gerar_relatorio_cronogramas_pdf_async
+from src.produto.models import Fabricante, HomologacaoProduto, Marca, Produto
 from src.relatorios.utils import extrair_texto_de_pdf
+from src.terceirizada.models import Terceirizada
 
 from ..relatorios import (
     cabecalho_reclamacao_produto,
@@ -32,9 +37,10 @@ from ..relatorios import (
     relatorio_dieta_especial_protocolo,
     relatorio_reclamacao_produtos,
     relatorio_solicitacao_medicao_por_escola,
-    relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias,
+    relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
     relatorio_suspensao_de_alimentacao,
+    get_pdf_relatorio_solicitacao_alteracao_cronograma,
 )
 
 pytestmark = pytest.mark.django_db
@@ -82,7 +88,7 @@ def test_relatorio_suspensao_de_alimentacao(grupo_suspensao_alimentacao):
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.data.strftime(FORMATO_DATA_BRASILEIRO) in texto
         assert sustentacao_alimentacao.motivo.nome in texto
         assert sustentacao_alimentacao.cancelado_justificativa == ""
 
@@ -114,7 +120,7 @@ def test_relatorio_suspensao_de_alimentacao_parcialmente_cancelado(
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao_cancelamento_parcial.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.data.strftime(FORMATO_DATA_BRASILEIRO) in texto
         assert sustentacao_alimentacao.motivo.nome in texto
         if sustentacao_alimentacao.cancelado:
             assert sustentacao_alimentacao.cancelado_justificativa in texto
@@ -149,7 +155,7 @@ def test_relatorio_suspensao_de_alimentacao_totalmente_cancelado(
     for (
         sustentacao_alimentacao
     ) in grupo_suspensao_alimentacao_cancelamento_total.suspensoes_alimentacao.all():
-        assert sustentacao_alimentacao.data.strftime("%d/%m/%Y") in texto
+        assert sustentacao_alimentacao.data.strftime(FORMATO_DATA_BRASILEIRO) in texto
         assert sustentacao_alimentacao.motivo.nome in texto
         assert sustentacao_alimentacao.cancelado_justificativa in texto
         assert texto.count(sustentacao_alimentacao.cancelado_justificativa) == 2
@@ -181,7 +187,7 @@ def test_relatorio_dieta_especial_protocolo_cancelada(
 def test_get_total_por_periodo_unico_periodo():
     tabelas = [
         {
-            "periodos": ["Infantil INTEGRAL"],
+            "periodos": [GRUPO_INFANTIL_INTEGRAL],
             "nomes_campos": [
                 "matriculados",
                 "frequencia",
@@ -213,16 +219,16 @@ def test_get_total_por_periodo_unico_periodo():
         }
     ]
     total_refeicao = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
-    assert total_refeicao == {"Infantil INTEGRAL": 80}
+    assert total_refeicao == {GRUPO_INFANTIL_INTEGRAL: 80}
 
     total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
-    assert total_sobremesa == {"Infantil INTEGRAL": 110}
+    assert total_sobremesa == {GRUPO_INFANTIL_INTEGRAL: 110}
 
 
 def test_get_total_por_periodo_multiplos_periodos():
     tabelas = [
         {
-            "periodos": ["PARCIAL", "Infantil INTEGRAL"],
+            "periodos": ["PARCIAL", GRUPO_INFANTIL_INTEGRAL],
             "nomes_campos": [
                 "matriculados",
                 "frequencia",
@@ -259,10 +265,10 @@ def test_get_total_por_periodo_multiplos_periodos():
         }
     ]
     total_refeicao = get_total_por_periodo(tabelas, "total_refeicoes_pagamento", True)
-    assert total_refeicao == {"Infantil INTEGRAL": 80}
+    assert total_refeicao == {GRUPO_INFANTIL_INTEGRAL: 80}
 
     total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento", True)
-    assert total_sobremesa == {"Infantil INTEGRAL": 110}
+    assert total_sobremesa == {GRUPO_INFANTIL_INTEGRAL: 110}
 
 
 def test_relatorio_dieta_especial_protocolo_alteracao_ue(
@@ -336,7 +342,7 @@ def test_obter_justificativa_dieta_cancelada(
     justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_cancelada)
     assert (
         justificativa
-        == f'Dieta cancelada em: {log_recente.criado_em.strftime("%d/%m/%Y")} | Justificativa: Escola cancelou'
+        == f"Dieta cancelada em: {log_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)} | Justificativa: Escola cancelou"
     )
 
 
@@ -675,7 +681,10 @@ def test_relatorio_ficha_recebimento(
         in texto
     )
     assert ficha_recebimento_com_ocorrencia.observacao in texto
-    assert ficha_recebimento_com_ocorrencia.data_entrega.strftime("%d/%m/%Y") in texto
+    assert (
+        ficha_recebimento_com_ocorrencia.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
+        in texto
+    )
     assert "HOUVE OCORRÊNCIA(S) NO RECEBIMENTO: SIM" in texto
     assert "Faltaram 5 unidades do produto" in texto
 
@@ -715,7 +724,8 @@ def test_relatorio_ficha_recebimento(
         in texto_reposicao
     )
     assert (
-        ficha_recebimento_reposicao.data_entrega.strftime("%d/%m/%Y") in texto_reposicao
+        ficha_recebimento_reposicao.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
+        in texto_reposicao
     )
 
     # Teste para caso de Carta de Crédito
@@ -730,7 +740,7 @@ def test_relatorio_ficha_recebimento(
 
     assert "FAZER UMA CARTA DE CRÉDITO DO VALOR PAGO" in texto_carta_credito
     assert (
-        ficha_recebimento_carta_credito.data_entrega.strftime("%d/%m/%Y")
+        ficha_recebimento_carta_credito.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
         in texto_carta_credito
     )
 
@@ -819,15 +829,18 @@ def test_relatorio_cronograma_pdf_modalidade_pregao_eletronico(cronograma, usuar
 def test_obter_relatorio_da_unidade_emef():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
     ) as mock_modulo_emef:
 
-        tipos_unidade = ["EMEF"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emef
@@ -836,15 +849,18 @@ def test_obter_relatorio_da_unidade_emef():
 def test_obter_relatorio_da_unidade_emei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
     ) as mock_modulo_emei:
 
-        tipos_unidade = ["EMEI"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emei
@@ -853,15 +869,18 @@ def test_obter_relatorio_da_unidade_emei():
 def test_obter_relatorio_da_unidade_cei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cei"
     ) as mock_modulo_cei:
 
-        tipos_unidade = ["CEI"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_cei
@@ -870,10 +889,13 @@ def test_obter_relatorio_da_unidade_cei():
 def test_obter_relatorio_da_unidade_pertencem_a_nenhum_grupo():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ):
 
         tipos_unidade = ["TIPO_INEXISTENTE", "OUTRO_TIPO"]
@@ -923,18 +945,21 @@ def test_relatorio_solicitacao_medicao_mostra_cpf_quando_responsavel_tem_11_digi
 def test_obter_relatorio_da_unidade_cemei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
-        {"CEMEI", "CEU CEMEI"},
+        {TIPOS_UNIDADE_ESCOLAR.CEMEI.value, TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei"
     ) as mock_modulo_cemei:
 
-        tipos_unidade = ["CEMEI"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_cemei
@@ -943,21 +968,24 @@ def test_obter_relatorio_da_unidade_cemei():
 def test_obter_relatorio_da_unidade_emebs():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
-        {"CEMEI", "CEU CEMEI"},
+        {TIPOS_UNIDADE_ESCOLAR.CEMEI.value, TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEBS",
-        {"EMEBS"},
+        {TIPOS_UNIDADE_ESCOLAR.EMEBS.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_emebs"
     ) as mock_modulo_emebs:
 
-        tipos_unidade = ["EMEBS"]
+        tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEBS.value]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emebs
@@ -966,24 +994,30 @@ def test_obter_relatorio_da_unidade_emebs():
 def test_obter_relatorio_da_unidade_cieja_cmct():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
-        {"EMEF", "EMEFM"},
-    ), patch("src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI", {"EMEI"}), patch(
+        {TIPOS_UNIDADE_ESCOLAR.EMEF.value, TIPOS_UNIDADE_ESCOLAR.EMEFM.value},
+    ), patch(
+        "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEI",
+        {TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+    ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEI",
-        {"CEI", "CEI CEU"},
+        {TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CEMEI",
-        {"CEMEI", "CEU CEMEI"},
+        {TIPOS_UNIDADE_ESCOLAR.CEMEI.value, TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEBS",
-        {"EMEBS"},
+        {TIPOS_UNIDADE_ESCOLAR.EMEBS.value},
     ), patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_CIEJA_CMCT",
-        {"CIEJA", "CMCT"},
+        {TIPOS_UNIDADE_ESCOLAR.CIEJA.value, TIPOS_UNIDADE_ESCOLAR.CMCT.value},
     ), patch(
         "src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola"
     ) as mock_modulo_emebs:
 
-        tipos_unidade = ["CIEJA", "CMCT"]
+        tipos_unidade = [
+            TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+            TIPOS_UNIDADE_ESCOLAR.CMCT.value,
+        ]
         resultado = obter_relatorio_da_unidade(tipos_unidade)
 
         assert resultado == mock_modulo_emebs
@@ -1169,3 +1203,91 @@ def test_render_homologacao_produto_com_aditivos_alergenicos():
     assert produto.nome in html_string
     assert "SIM" in html_string
     assert produto.aditivos in html_string
+
+
+def test_get_pdf_relatorio_solicitacao_alteracao_cronograma_dados_basicos(
+    solicitacao_alteracao_cronograma_base,
+):
+    solicitacao = solicitacao_alteracao_cronograma_base
+    etapa = baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=solicitacao.cronograma,
+        numero_empenho="EMP-123",
+        etapa=1,
+    )
+    solicitacao.etapas_antigas.add(etapa)
+    solicitacao.etapas_novas.add(etapa)
+
+    relatorio = get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao)
+    texto_normalizado = re.sub(r"\s+", "", extrair_texto_de_pdf(relatorio.content))
+
+    assert "ALTERAÇÃODECRONOGRAMA" in texto_normalizado
+    assert "ProdutoTeste" in texto_normalizado
+    assert "MarcaTeste" in texto_normalizado
+    assert "FornecedorTeste" in texto_normalizado
+    assert re.sub(r"\s+", "", solicitacao.numero_solicitacao) in texto_normalizado
+    assert re.sub(r"\s+", "", solicitacao.cronograma.numero) in texto_normalizado
+    assert "Justificativadetestedasolicitação" in texto_normalizado
+    assert "Documentogeradoem" in texto_normalizado
+    assert "AprovadoDILOG" not in texto_normalizado
+
+
+def test_get_pdf_relatorio_solicitacao_alteracao_cronograma_exibe_etapas_antigas_e_novas_com_diferenca(
+    solicitacao_alteracao_cronograma_base,
+):
+    solicitacao = solicitacao_alteracao_cronograma_base
+    etapa_antiga = baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=solicitacao.cronograma,
+        numero_empenho="EMP-123",
+        qtd_total_empenho=3000,
+        etapa=1,
+        parte=1,
+        quantidade=1000,
+        total_embalagens=100,
+    )
+    etapa_nova = baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=solicitacao.cronograma,
+        numero_empenho="EMP-123",
+        qtd_total_empenho=3000,
+        etapa=1,
+        parte=1,
+        quantidade=2000,
+        total_embalagens=200,
+    )
+    solicitacao.etapas_antigas.add(etapa_antiga)
+    solicitacao.etapas_novas.add(etapa_nova)
+
+    relatorio = get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao)
+    texto_normalizado = re.sub(r"\s+", "", extrair_texto_de_pdf(relatorio.content))
+
+    assert "1.000" in texto_normalizado
+    assert "2.000" in texto_normalizado
+
+
+def test_get_pdf_relatorio_solicitacao_alteracao_cronograma_exibe_aprovado_dilog_quando_nao_fornecedor_ciente(
+    solicitacao_alteracao_cronograma_base,
+):
+    solicitacao = solicitacao_alteracao_cronograma_base
+    etapa = baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=solicitacao.cronograma,
+        numero_empenho="EMP-123",
+        etapa=1,
+    )
+    solicitacao.etapas_antigas.add(etapa)
+    solicitacao.etapas_novas.add(etapa)
+
+    status_field = solicitacao._meta.get_field("status")
+    status_nao_fornecedor_ciente = next(
+        valor
+        for valor, descricao in status_field.flatchoices
+        if descricao != "Fornecedor Ciente"
+    )
+    solicitacao.status = status_nao_fornecedor_ciente
+
+    relatorio = get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao)
+    texto_normalizado = re.sub(r"\s+", "", extrair_texto_de_pdf(relatorio.content))
+
+    assert "AprovadoDILOG" in texto_normalizado

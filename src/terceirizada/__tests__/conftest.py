@@ -6,7 +6,10 @@ from faker import Faker
 from model_bakery import baker
 from rest_framework.test import APIClient
 
-from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA
+from src.dados_comuns.constants import (
+    ADMINISTRADOR_EMPRESA,
+    MODULO_DIETA_ESPECIAL,
+)
 
 from ...perfil.models import Perfil, Usuario
 from ..api.serializers.serializers import (
@@ -246,7 +249,7 @@ def edital():
 
 @pytest.fixture
 def modulo():
-    return baker.make(Modulo, nome="Dieta Especial")
+    return baker.make(Modulo, nome=MODULO_DIETA_ESPECIAL)
 
 
 @pytest.fixture

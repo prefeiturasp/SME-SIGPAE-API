@@ -92,6 +92,7 @@ from src.pre_recebimento.tasks import (
 from src.relatorios.relatorios import (
     get_pdf_cronograma,
     get_pdf_cronograma_ponto_a_ponto_flv,
+    get_pdf_relatorio_solicitacao_alteracao_cronograma,
 )
 
 from ....dados_comuns.models import LogSolicitacoesUsuario
@@ -850,6 +851,27 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
         return dados_dashboard
 
     @action(
+        detail=True,
+        permission_classes=(PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,),
+        methods=["GET"],
+        url_path="relatorio",
+    )
+    def relatorio(self, request, uuid):
+        """Gera o relatório da solicitação de alteração de cronograma."""
+        try:
+            solicitacao_cronograma = SolicitacaoAlteracaoCronograma.objects.get(
+                uuid=uuid
+            )
+            return get_pdf_relatorio_solicitacao_alteracao_cronograma(
+                solicitacao_cronograma=solicitacao_cronograma
+            )
+        except ObjectDoesNotExist as e:
+            return Response(
+                dict(detail=f"Solicitação Cronograma informado não é valido: {e}"),
+                status=HTTP_406_NOT_ACCEPTABLE,
+            )
+
+    @action(
         detail=False,
         methods=["GET"],
         url_path="dashboard",
@@ -1001,18 +1023,19 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
             )
             if aprovado is True:
                 solicitacao_cronograma.dilog_aprova(user=usuario)
+                solicitacao_cronograma.save()
+                solicitacao_cronograma.cronograma.finaliza_solicitacao_alteracao(
+                    user=usuario,
+                    justificativa=str(solicitacao_cronograma.uuid),
+                )
             elif aprovado is False:
                 justificativa = request.data.get("justificativa_dilog")
                 solicitacao_cronograma.dilog_reprova(
                     user=usuario, justificativa=justificativa
                 )
+                solicitacao_cronograma.save()
             else:
                 raise ValidationError("Parametro aprovado deve ser true ou false.")
-            solicitacao_cronograma.save()
-            solicitacao_cronograma.cronograma.finaliza_solicitacao_alteracao(
-                user=usuario,
-                justificativa=str(solicitacao_cronograma.uuid),
-            )
             serializer = SolicitacaoAlteracaoCronogramaSerializer(
                 solicitacao_cronograma
             )
@@ -1053,10 +1076,11 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
 
             solicitacao_cronograma.save()
 
+            # Fallback para cronogramas legados que ainda não foram finalizados
+            # (criados antes da aplicação da alteração na criação pelo fluxo CODAE/DILOG).
             if cronograma.status != Cronograma.workflow_class.ASSINADO_CODAE:
-                usuario_codae = cronograma.logs[len(cronograma.logs) - 2].usuario
                 cronograma.finaliza_solicitacao_alteracao(
-                    user=usuario_codae,
+                    user=usuario,
                     justificativa=str(solicitacao_cronograma.uuid),
                 )
             serializer = SolicitacaoAlteracaoCronogramaSerializer(

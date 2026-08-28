@@ -10,6 +10,7 @@ from ...perfil.api.serializers import (
     UsuarioSimplesSerializer,
 )
 from ...perfil.models import Perfil
+from ..constants import FORMATO_DATA_BRASILEIRO
 from ..models import (
     AnexoLogSolicitacoesUsuario,
     CategoriaPerguntaFrequente,
@@ -218,16 +219,10 @@ class CategoriaPerguntaFrequenteSerializer(serializers.ModelSerializer):
         )
 
         if categoria_duplicada:
-            if self.instance:
-                mensagem = (
-                    "Não é possível cadastrar a categoria, pois já existe uma "
-                    "categoria com esse nome. Altere o nome informado e tente novamente."
-                )
-            else:
-                mensagem = (
-                    "Não é possível cadastrar a categoria, pois já existe uma "
-                    "categoria com esse nome. Altere o nome informado e tente novamente."
-                )
+            mensagem = (
+                "Não é possível cadastrar a categoria, pois já existe uma "
+                "categoria com esse nome. Altere o nome informado e tente novamente."
+            )
 
             raise serializers.ValidationError(mensagem)
 
@@ -291,7 +286,7 @@ class NotificacaoSerializer(serializers.ModelSerializer):
         return obj.hora.strftime("%H:%M")
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = Notificacao

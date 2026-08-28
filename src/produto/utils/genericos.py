@@ -127,7 +127,7 @@ def cria_filtro_aditivos(aditivos):
 
 def converte_para_datetime(data):
     if data:
-        return datetime.strptime(data, "%d/%m/%Y")
+        return datetime.strptime(data, constants.FORMATO_DATA_BRASILEIRO)
     return None
 
 

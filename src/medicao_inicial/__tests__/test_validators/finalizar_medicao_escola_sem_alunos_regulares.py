@@ -3,6 +3,12 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
+)
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.medicao_inicial.validators import (
@@ -13,7 +19,7 @@ from src.medicao_inicial.validators import (
 pytestmark = pytest.mark.django_db
 
 
-PROGRAMAS_E_PROJETOS = "Programas e Projetos"
+PROGRAMAS_E_PROJETOS = GRUPO_PROGRAMAS_E_PROJETOS
 
 
 @freeze_time("2025-09-01")
@@ -28,7 +34,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         self.periodo_manha = periodo_escolar_factory.create(nome="MANHA")
         self.classificacao_tipo_a = classificacao_dieta_factory.create(nome="Tipo A")
         self.categoria_medicao_dieta_tipo_a = categoria_medicao_factory.create(
-            nome="DIETA ESPECIAL - TIPO A"
+            nome=DIETA_ESPECIAL_TIPO_A
         )
         self.categoria_solicitacoes_alimentacao = categoria_medicao_factory.create(
             nome="SOLICITAÇÕES DE ALIMENTAÇÃO"
@@ -36,7 +42,9 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         self.categoria_alimentacao = categoria_medicao_factory.create(
             nome="ALIMENTAÇÃO"
         )
-        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
 
     def _setup_escola_cmct(
         self, diretoria_regional_factory, lote_factory, escola_factory
@@ -45,7 +53,7 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_cmct = escola_factory.create(
             nome="CMCT VALDYR",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
         )

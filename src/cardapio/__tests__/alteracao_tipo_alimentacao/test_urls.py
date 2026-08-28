@@ -4,6 +4,7 @@ import json
 
 import pytest
 from freezegun import freeze_time
+from model_bakery import baker
 from rest_framework import status
 
 from src.cardapio.__tests__.utils import (
@@ -12,11 +13,13 @@ from src.cardapio.__tests__.utils import (
 from src.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from src.dados_comuns import constants
 from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
     PEDIDOS_CODAE,
     PEDIDOS_DRE,
     SEM_FILTRO,
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
+from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 
 pytestmark = pytest.mark.django_db
 
@@ -79,9 +82,7 @@ def test_url_endpoint_alt_card_inicio_403(
         f"/{ENDPOINT_ALTERACAO_CARD}/{alteracao_cardapio.uuid}/{constants.ESCOLA_INICIO_PEDIDO}/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_alt_card_criar_update(
@@ -105,7 +106,7 @@ def test_url_endpoint_alt_card_criar_update(
 
     dia_alteracao_formatada = datetime.datetime.strptime(
         alteracao_substituicoes_params["alterar_dia"], "%Y-%m-%d"
-    ).strftime("%d/%m/%Y")
+    ).strftime(FORMATO_DATA_BRASILEIRO)
     assert resp_json["data_inicial"] == dia_alteracao_formatada
     assert resp_json["data_final"] == dia_alteracao_formatada
 
@@ -1034,3 +1035,258 @@ def test_mesmo_periodo_mesma_data_escola_cadastra_rascunho_deve_permitir_novo_ca
     )
 
     assert response.status_code == status.HTTP_201_CREATED
+
+
+def _payload_rpl(
+    escola,
+    motivo_rpl,
+    periodo_manha,
+    tipo_alimentacao_refeicao,
+    tipo_alimentacao_lanche,
+    data_iso="2023-11-18",
+):
+    data_br = datetime.datetime.strptime(data_iso, "%Y-%m-%d").strftime(
+        FORMATO_DATA_BRASILEIRO
+    )
+    return {
+        "motivo": str(motivo_rpl.uuid),
+        "data_inicial": data_br,
+        "data_final": data_br,
+        "observacao": "<p>dia do aniversariante</p>",
+        "escola": str(escola.uuid),
+        "substituicoes": [
+            {
+                "periodo_escolar": str(periodo_manha.uuid),
+                "tipos_alimentacao_de": [str(tipo_alimentacao_refeicao.uuid)],
+                "tipos_alimentacao_para": [str(tipo_alimentacao_lanche.uuid)],
+                "qtd_alunos": "100",
+            }
+        ],
+        "datas_intervalo": [{"data": data_iso}],
+    }
+
+
+@freeze_time("2023-11-09")
+def test_url_endpoint_alt_card_rpl_sem_dia_letivo_ou_inclusao_deve_bloquear(
+    client_autenticado_vinculo_escola_cardapio,
+    motivo_alteracao_cardapio_rpl,
+    escola_com_vinculo_alimentacao,
+    periodo_manha,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    data = _payload_rpl(
+        escola_com_vinculo_alimentacao,
+        motivo_alteracao_cardapio_rpl,
+        periodo_manha,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+    )
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "non_field_errors": [
+            "Dia 18/11 não é um dia letivo ou não existe uma inclusão de "
+            "alimentação para a data"
+        ]
+    }
+
+
+@freeze_time("2023-11-09")
+def test_url_endpoint_alt_card_rpl_com_dia_letivo_sigpae(
+    client_autenticado_vinculo_escola_cardapio,
+    motivo_alteracao_cardapio_rpl,
+    escola_com_vinculo_alimentacao,
+    periodo_manha,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    dia_letivo = baker.make(DiaLetivoSIGPAE, data=datetime.date(2023, 11, 18))
+    dia_letivo.escolas.add(escola_com_vinculo_alimentacao)
+    data = _payload_rpl(
+        escola_com_vinculo_alimentacao,
+        motivo_alteracao_cardapio_rpl,
+        periodo_manha,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+    )
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@freeze_time("2023-11-09")
+def test_url_endpoint_alt_card_rpl_com_dia_calendario_letivo(
+    client_autenticado_vinculo_escola_cardapio,
+    motivo_alteracao_cardapio_rpl,
+    escola_com_vinculo_alimentacao,
+    periodo_manha,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    baker.make(
+        "DiaCalendario",
+        escola=escola_com_vinculo_alimentacao,
+        data=datetime.date(2023, 11, 15),
+        dia_letivo=True,
+    )
+    data = _payload_rpl(
+        escola_com_vinculo_alimentacao,
+        motivo_alteracao_cardapio_rpl,
+        periodo_manha,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+        "2023-11-15",
+    )
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@freeze_time("2023-11-09")
+def test_url_endpoint_alt_card_rpl_inclusao_periodo_nao_autorizado(
+    client_autenticado_vinculo_escola_cardapio,
+    motivo_alteracao_cardapio_rpl,
+    escola_com_vinculo_alimentacao,
+    periodo_manha,
+    periodo_tarde,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    grupo = baker.make(
+        "GrupoInclusaoAlimentacaoNormal",
+        escola=escola_com_vinculo_alimentacao,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "InclusaoAlimentacaoNormal",
+        grupo_inclusao=grupo,
+        data=datetime.date(2023, 11, 18),
+    )
+    quantidade = baker.make(
+        "QuantidadePorPeriodo",
+        grupo_inclusao_normal=grupo,
+        numero_alunos=100,
+        periodo_escolar=periodo_manha,
+    )
+    quantidade.tipos_alimentacao.set([tipo_alimentacao, tipo_alimentacao_lanche])
+
+    data = _payload_rpl(
+        escola_com_vinculo_alimentacao,
+        motivo_alteracao_cardapio_rpl,
+        periodo_tarde,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+    )
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "non_field_errors": [
+            "Para o dia 18/11, a inclusão está autorizada somente nos "
+            "períodos MANHA."
+        ]
+    }
+
+
+@freeze_time("2023-11-09")
+def test_url_endpoint_alt_card_rpl_com_inclusao_normal_autorizada(
+    client_autenticado_vinculo_escola_cardapio,
+    motivo_alteracao_cardapio_rpl,
+    escola_com_vinculo_alimentacao,
+    periodo_manha,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    grupo = baker.make(
+        "GrupoInclusaoAlimentacaoNormal",
+        escola=escola_com_vinculo_alimentacao,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "InclusaoAlimentacaoNormal",
+        grupo_inclusao=grupo,
+        data=datetime.date(2023, 11, 18),
+    )
+    quantidade = baker.make(
+        "QuantidadePorPeriodo",
+        grupo_inclusao_normal=grupo,
+        numero_alunos=100,
+        periodo_escolar=periodo_manha,
+    )
+    quantidade.tipos_alimentacao.set([tipo_alimentacao, tipo_alimentacao_lanche])
+
+    data = _payload_rpl(
+        escola_com_vinculo_alimentacao,
+        motivo_alteracao_cardapio_rpl,
+        periodo_manha,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+    )
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@freeze_time("2023-11-09")
+def test_url_endpoint_alt_card_rpl_inclusao_sem_lanche_para_periodo(
+    client_autenticado_vinculo_escola_cardapio,
+    motivo_alteracao_cardapio_rpl,
+    escola_com_vinculo_alimentacao,
+    periodo_manha,
+    tipo_alimentacao,
+    tipo_alimentacao_lanche,
+):
+    grupo = baker.make(
+        "GrupoInclusaoAlimentacaoNormal",
+        escola=escola_com_vinculo_alimentacao,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "InclusaoAlimentacaoNormal",
+        grupo_inclusao=grupo,
+        data=datetime.date(2023, 11, 18),
+    )
+    quantidade = baker.make(
+        "QuantidadePorPeriodo",
+        grupo_inclusao_normal=grupo,
+        numero_alunos=100,
+        periodo_escolar=periodo_manha,
+    )
+    quantidade.tipos_alimentacao.set([tipo_alimentacao])
+
+    data = _payload_rpl(
+        escola_com_vinculo_alimentacao,
+        motivo_alteracao_cardapio_rpl,
+        periodo_manha,
+        tipo_alimentacao,
+        tipo_alimentacao_lanche,
+    )
+    response = client_autenticado_vinculo_escola_cardapio.post(
+        f"/{ENDPOINT_ALTERACAO_CARD}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "non_field_errors": [
+            "Para o dia 18/11, a inclusão autorizada não possui Refeição e "
+            "Lanche autorizado para o periodo MANHA."
+        ]
+    }

@@ -6,6 +6,7 @@ from src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao
     AlteracoesCardapioDoMesCorrenteManager,
     AlteracoesCardapioVencidaManager,
 )
+from src.dados_comuns.constants import MODEL_ESCOLA
 
 
 class EhAlteracaoCardapio(models.Model):
@@ -34,7 +35,7 @@ class EhAlteracaoCardapio(models.Model):
     do_mes_corrente = AlteracoesCardapioDoMesCorrenteManager()
 
     escola = models.ForeignKey(
-        "escola.Escola", on_delete=models.DO_NOTHING, blank=True, null=True
+        MODEL_ESCOLA, on_delete=models.DO_NOTHING, blank=True, null=True
     )
     motivo = models.ForeignKey(
         "MotivoAlteracaoCardapio", on_delete=models.PROTECT, blank=True, null=True

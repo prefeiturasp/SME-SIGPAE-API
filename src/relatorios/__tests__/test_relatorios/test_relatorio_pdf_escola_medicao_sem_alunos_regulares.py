@@ -3,14 +3,20 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
+)
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body,
     build_tabelas_relatorio_medicao,
 )
 from src.relatorios.relatorios import get_total_por_periodo
-from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 
 pytestmark = pytest.mark.django_db
 
@@ -22,12 +28,14 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         self.periodo_noite = periodo_escolar_factory.create(nome="NOITE")
 
     def _setup_tipos_alimentacao(self, tipo_alimentacao_factory):
-        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
         self.tipo_alimentacao_refeicao = tipo_alimentacao_factory.create(
-            nome="Refeição"
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
         )
         self.tipo_alimentacao_sobremesa = tipo_alimentacao_factory.create(
-            nome="Sobremesa"
+            nome=TIPOS_ALIMENTACAO.SOBREMESA.value
         )
 
     def _setup_classificacoes_dieta_especial(self, classificacao_dieta_factory):
@@ -43,7 +51,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
             )
         )
         self.categoria_medicao_dieta_tipo_b = categoria_medicao_factory.create(
-            nome="DIETA ESPECIAL - TIPO B"
+            nome=DIETA_ESPECIAL_TIPO_B
         )
         self.categoria_solicitacoes_alimentacao = categoria_medicao_factory.create(
             nome="SOLICITAÇÕES DE ALIMENTAÇÃO"
@@ -71,7 +79,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_cmct = escola_factory.create(
             nome="CMCT VALDYR",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
         )
@@ -136,7 +144,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         log_solicitacoes_usuario_factory,
     ):
         self.motivo_inclusao_continua = motivo_inclusao_continua_factory.create(
-            nome="Programas e Projetos"
+            nome=GRUPO_PROGRAMAS_E_PROJETOS
         )
         self.inclusao_continua = inclusao_alimentacao_continua_factory.create(
             escola=self.escola_cmct,
@@ -246,7 +254,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         self.medicao_programas_projetos = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao_medicao_inicial,
             periodo_escolar=None,
-            grupo__nome="Programas e Projetos",
+            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS,
         )
 
     def _setup_logs_medicao_inclusao_continua(
@@ -344,9 +352,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         )
 
         tabela_tarde = next(
-            tabela
-            for tabela in build_tabelas
-            if tabela.get("periodos") == ["TARDE"]
+            tabela for tabela in build_tabelas if tabela.get("periodos") == ["TARDE"]
         )
 
         indice_dia_06 = 6 - 1
@@ -360,7 +366,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
             item.get("periodos") == ["NOITE"] for item in build_tabelas
         ), "Nenhum item com periodos=['NOITE'] encontrado"
         assert any(
-            item.get("periodos") == ["Programas e Projetos"] for item in build_tabelas
+            item.get("periodos") == [GRUPO_PROGRAMAS_E_PROJETOS]
+            for item in build_tabelas
         ), "Nenhum item com periodos=['Programas e Projetos'] encontrado"
 
         dict_total_refeicoes = get_total_por_periodo(
@@ -368,7 +375,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         )
         assert dict_total_refeicoes == {
             "NOITE": 0,
-            "Programas e Projetos": 0,
+            GRUPO_PROGRAMAS_E_PROJETOS: 0,
             "TARDE": 100,
         }
 
@@ -378,7 +385,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         assert dict_total_sobremesas == {
             "TARDE": 0,
             "NOITE": 100,
-            "Programas e Projetos": 300,
+            GRUPO_PROGRAMAS_E_PROJETOS: 300,
         }
 
         primeira_tabela_somatorio, segunda_tabela_somatorio = (
@@ -392,10 +399,13 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
             "header": [
                 "TIPOS DE ALIMENTAÇÃO",
                 "TARDE",
-                "Programas e Projetos",
+                GRUPO_PROGRAMAS_E_PROJETOS,
                 "TOTAL",
             ],
-            "body": [["Refeição", 100, 0, 100], ["Sobremesa", 0, 300, 300]],
+            "body": [
+                [TIPOS_ALIMENTACAO.REFEICAO.value, 100, 0, 100],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, 0, 300, 300],
+            ],
         }
         assert segunda_tabela_somatorio == {
             "header": ["NOITE", "TOTAL"],

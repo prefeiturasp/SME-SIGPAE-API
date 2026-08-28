@@ -15,7 +15,12 @@ from workalendar.america import BrazilSaoPauloCity
 
 from ...escola.models import DiaSuspensaoAtividades, Escola
 from ..behaviors import DiasSemana, TempoPasseio
-from ..constants import TEMPO_CACHE_1H, TEMPO_CACHE_6H, obter_dias_uteis_apos_hoje
+from ..constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TEMPO_CACHE_1H,
+    TEMPO_CACHE_6H,
+    obter_dias_uteis_apos_hoje,
+)
 from ..models import (
     CategoriaPerguntaFrequente,
     CentralDeDownload,
@@ -118,7 +123,8 @@ class DiasUteisViewSet(ViewSet):
         data = request.query_params.get("data")
         if data:
             data_apos_quatro_dias_uteis = obter_dias_uteis_apos(
-                datetime.datetime.strptime(data, "%d/%m/%Y"), quantidade_dias=4
+                datetime.datetime.strptime(data, FORMATO_DATA_BRASILEIRO),
+                quantidade_dias=4,
             )
             return Response(
                 {"data_apos_quatro_dias_uteis": data_apos_quatro_dias_uteis}
@@ -183,7 +189,7 @@ class FeriadosAnoViewSet(ViewSet):
         calendario.holidays()
 
         def formatar_data(data):
-            return datetime.date.strftime(data, "%d/%m/%Y")
+            return datetime.date.strftime(data, FORMATO_DATA_BRASILEIRO)
 
         retorno = [formatar_data(h[0]) for h in calendario.holidays()]
 
@@ -264,7 +270,8 @@ class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
 
 class PerguntaFrequenteViewSet(ModelViewSet):
     lookup_field = "uuid"
-    queryset = PerguntaFrequente.objects.all()
+    queryset = PerguntaFrequente.objects.all().order_by("-criado_em")
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = (

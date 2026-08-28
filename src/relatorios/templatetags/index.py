@@ -16,6 +16,7 @@ from ...cardapio.suspensao_alimentacao.models import (
     SuspensaoAlimentacao,
 )
 from ...dados_comuns import constants
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...escola.models import Escola
@@ -114,7 +115,7 @@ def class_css(log):
     ]:
         classe_css = "active"
     elif log.status_evento_explicacao in [
-        "Escola cancelou",
+        constants.ESCOLA_CANCELOU_LABEL,
         "DRE cancelou",
         "Terceirizada cancelou homologação",
         "CODAE suspendeu o produto",
@@ -467,7 +468,7 @@ def inclusoes_canceladas(solicitacao):
 @register.filter
 def formatar_data_solicitacoes_alimentacao(data):
     try:
-        return data.strftime("%d/%m/%Y")
+        return data.strftime(FORMATO_DATA_BRASILEIRO)
     except Exception:
         return data
 
@@ -586,12 +587,12 @@ def get_nome_campo(campo):
         "frequencia": "Frequência",
         "solicitado": "Solicitado",
         "consumido": "Consumido",
-        "desjejum": "Desjejum",
-        "lanche": "Lanche",
-        "lanche_4h": "Lanche 4h",
+        "desjejum": constants.TIPOS_ALIMENTACAO.DESJEJUM.value,
+        "lanche": constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        "lanche_4h": constants.TIPOS_ALIMENTACAO.LANCHE_4H.value,
         "refeicao": "Refeição 1ª Oferta",
         "repeticao_refeicao": "Repetição de Refeição",
-        "lanche_emergencial": "Lanche Emergencial",
+        "lanche_emergencial": constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
         "kit_lanche": "Kit Lanche",
         "total_refeicoes_pagamento": "Total de Refeições para Pagamento",
         "sobremesa": "Sobremesa 1ª Oferta",
@@ -634,9 +635,9 @@ def formatar_observacoes(observacoes, tipo_unidade=None):
     observacoes_tuple = [format_observacao(observacao) for observacao in observacoes]
 
     order_key = None
-    if tipo_unidade == "CEI":
+    if tipo_unidade == constants.TIPOS_UNIDADE_ESCOLAR.CEI.value:
         order_key = constants.ORDEM_PERIODOS_GRUPOS_CEI
-    elif tipo_unidade == "CEMEI":
+    elif tipo_unidade == constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value:
         order_key = constants.ORDEM_PERIODOS_GRUPOS_CEMEI
     else:
         order_key = constants.ORDEM_PERIODOS_GRUPOS
@@ -722,9 +723,13 @@ def build_rows_faixas_etarias(tabela):
     for _, campos_list in tabela["categorias_dos_periodos"].items():
         for campos in campos_list:
             numero_campos = campos["numero_campos"] + 1
-            faixas_limite = faixas_etarias[index_inicial:index_inicial + numero_campos]
+            faixas_limite = faixas_etarias[
+                index_inicial : index_inicial + numero_campos
+            ]
             if faixas_limite:
-                html_output += _build_ths_categoria(faixas_limite, recreio, campos["categoria"])
+                html_output += _build_ths_categoria(
+                    faixas_limite, recreio, campos["categoria"]
+                )
             index_inicial += numero_campos
 
     return "".join(html_output)
@@ -761,9 +766,13 @@ def build_headers_faixas_etarias(tabela):
     for _, campos_list in tabela["categorias_dos_periodos"].items():
         for campos in campos_list:
             numero_campos = campos["numero_campos"] + 1
-            faixas_limite = faixas_etarias[index_inicial:index_inicial + numero_campos]
+            faixas_limite = faixas_etarias[
+                index_inicial : index_inicial + numero_campos
+            ]
             if faixas_limite:
-                html_output += _build_ths_header_categoria(faixas_limite, recreio, campos["categoria"])
+                html_output += _build_ths_header_categoria(
+                    faixas_limite, recreio, campos["categoria"]
+                )
             index_inicial += numero_campos
 
     for _ in tabela["nomes_campos"]:
@@ -865,9 +874,9 @@ def get_colspan(periodo):
         "TOTAL": 1,
         "NOITE": 1,
         "ETEC": 1,
-        "Infantil INTEGRAL": 1,
-        "Infantil MANHA": 1,
-        "Infantil TARDE": 1,
+        constants.GRUPO_INFANTIL_INTEGRAL: 1,
+        constants.GRUPO_INFANTIL_MANHA: 1,
+        constants.GRUPO_INFANTIL_TARDE: 1,
         "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES": 1,
         "DIETA TIPO A": 1,
         "DIETA ENTERAL / REST. DE AMINOÁCIDOS": 1,
@@ -885,9 +894,9 @@ def get_nome_header(nome):
         "NOITE": "NOITE/EJA",
         "TIPO A": "DIETAS TIPO A / ENTERAL / REST. DE AMINOÁCIDOS",
         "TIPO B": "DIETAS TIPO B",
-        "Infantil INTEGRAL": "INTEGRAL",
-        "Infantil MANHA": "MANHÃ",
-        "Infantil TARDE": "TARDE",
+        constants.GRUPO_INFANTIL_INTEGRAL: "INTEGRAL",
+        constants.GRUPO_INFANTIL_MANHA: "MANHÃ",
+        constants.GRUPO_INFANTIL_TARDE: "TARDE",
     }
 
     return nomes.get(nome, nome.upper())
@@ -896,8 +905,8 @@ def get_nome_header(nome):
 @register.filter
 def get_nome_categoria(nome):
     nomes = {
-        "DIETA ESPECIAL - TIPO A": "DIETA TIPO A",
-        "DIETA ESPECIAL - TIPO B": "DIETA TIPO B",
+        constants.DIETA_ESPECIAL_TIPO_A: "DIETA TIPO A",
+        constants.DIETA_ESPECIAL_TIPO_B: "DIETA TIPO B",
     }
 
     return nomes.get(nome, nome.upper())
@@ -1147,12 +1156,12 @@ def remove_style(value):
 def nomes_relatorio_correcao_medicao(nome):
     nomes = {
         "MANHA": "Manhã",
-        "Infantil MANHA": "Infantil Manhã",
+        constants.GRUPO_INFANTIL_MANHA: "Infantil Manhã",
         "NOITE": "Noturno - EJA",
         "INTERMEDIARIO": "Intermediário",
         "ETEC": "ETEC",
-        "DIETA ESPECIAL - TIPO A": "Dieta Tipo A",
-        "DIETA ESPECIAL - TIPO B": "Dieta Tipo B",
+        constants.DIETA_ESPECIAL_TIPO_A: "Dieta Tipo A",
+        constants.DIETA_ESPECIAL_TIPO_B: "Dieta Tipo B",
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": "Dieta Tipo A Enteral/Restrição de Aminoácidos",
     }
 

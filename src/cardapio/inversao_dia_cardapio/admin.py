@@ -2,6 +2,7 @@ from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 
 
 @admin.register(InversaoCardapio)
@@ -75,7 +76,7 @@ class InversaoCardapioModelAdmin(admin.ModelAdmin):
         Returns:
                 str: Data no formato ``dd/mm/YYYY`` ou ``"-"`` quando ausente.
         """
-        return date_value.strftime("%d/%m/%Y") if date_value else "-"
+        return date_value.strftime(FORMATO_DATA_BRASILEIRO) if date_value else "-"
 
     @admin.display(description="Data de", ordering="data_de_inversao")
     def get_data_de(self, obj):

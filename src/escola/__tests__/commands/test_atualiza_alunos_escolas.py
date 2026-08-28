@@ -9,6 +9,7 @@ from freezegun.api import freeze_time
 from requests.models import Response
 from rest_framework import status
 
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 from src.escola.__tests__.conftest import mocked_response
 from src.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
@@ -464,7 +465,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         mock_coleta_dados,
     ):
         escola_publica = EscolaFactory.create(
-            codigo_eol="000111", tipo_unidade__iniciais="CEMEI"
+            codigo_eol="000111",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         )
 
         escola_particular = EscolaFactory.create(
@@ -497,7 +499,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
     ):
 
         escola_publica = EscolaFactory.create(
-            codigo_eol="000111", tipo_unidade__iniciais="EMEF"
+            codigo_eol="000111",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         )
 
         escola_particular = EscolaFactory.create(
@@ -526,7 +529,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
     ):
 
         escola_publica = EscolaFactory.create(
-            codigo_eol="000112", tipo_unidade__iniciais="EMEBS"
+            codigo_eol="000112",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
         )
         aluno_publica = AlunoFactory.create(
             codigo_eol="9999988",

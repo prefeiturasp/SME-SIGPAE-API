@@ -41,6 +41,7 @@ from src.produto.utils.genericos import (
 
 from ...dados_comuns import constants
 from ...dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
     TIPO_USUARIO_CODAE_GABINETE,
     TIPO_USUARIO_DIRETORIA_REGIONAL,
     TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -108,6 +109,7 @@ from ..models import (
 )
 from ..tasks import (
     gera_excel_relatorio_reclamacao_produtos_async,
+    gera_pdf_relatorio_historico_produto_async,
     gera_pdf_relatorio_produtos_homologados_async,
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
@@ -276,12 +278,14 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                     "edital": nome_edital,
                     "tipo": produto_edital.tipo_produto,
                     "tem_aditivos_alergenicos": hom_produto.produto.tem_aditivos_alergenicos,
-                    "cadastro": hom_produto.produto.criado_em.strftime("%d/%m/%Y"),
+                    "cadastro": hom_produto.produto.criado_em.strftime(
+                        FORMATO_DATA_BRASILEIRO
+                    ),
                     "homologacao": produto_edital.datas_horas_vinculo.filter(
                         suspenso=False
                     )
                     .first()
-                    .criado_em.strftime("%d/%m/%Y"),
+                    .criado_em.strftime(FORMATO_DATA_BRASILEIRO),
                 }
             )
         return produtos_agrupados
@@ -724,7 +728,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         query_set = query_set.filter(**filtros).filter(**filtros_params).distinct()
         if request_data.get("data_homologacao"):
             data_homologacao = datetime.strptime(
-                request_data.get("data_homologacao"), "%d/%m/%Y"
+                request_data.get("data_homologacao"), FORMATO_DATA_BRASILEIRO
             ).date()
             query_set = query_set | query_set_nao_homologados
             query_set = query_set.filter(
@@ -1401,7 +1405,7 @@ class HomologacaoProdutoViewSet(
         return Response(protocolo)
 
     def retorna_datetime(self, data):
-        data = datetime.strptime(data, "%d/%m/%Y")
+        data = datetime.strptime(data, FORMATO_DATA_BRASILEIRO)
         return data
 
     @action(
@@ -1871,6 +1875,28 @@ class ProdutoViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
+        url_path=constants.RELATORIO_HISTORICO,
+        methods=["get"],
+        permission_classes=(AllowAny,),
+    )
+    def relatorio_historico(self, request, uuid=None):
+        user = request.user.get_username()
+        produto = self.get_object()
+        nome_arquivo = f"relatorio_historico_produto_{produto.id_externo}.pdf"
+
+        gera_pdf_relatorio_historico_produto_async.delay(
+            user=user,
+            nome_arquivo=nome_arquivo,
+            uuid_produto=str(produto.uuid),
+        )
+
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
+
+    @action(
+        detail=True,
         url_path=constants.RELATORIO_ANALISE,
         methods=["get"],
         permission_classes=(IsAuthenticated,),
@@ -2202,7 +2228,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             data_final = query_params.get("data_suspensao_final", None)
 
         if data_final:
-            data_final = datetime.strptime(data_final, "%d/%m/%Y").date()
+            data_final = datetime.strptime(data_final, FORMATO_DATA_BRASILEIRO).date()
             homologacoes = homologacoes.filter(
                 produto__vinculos__edital__numero=nome_edital,
                 produto__vinculos__datas_horas_vinculo__suspenso=True,
@@ -2691,14 +2717,14 @@ class ProdutosEditaisViewSet(viewsets.ModelViewSet):
             queryset = self.get_queryset().filter(edital__uuid__in=editais_uuid)
             if (
                 tipo_produto_edital_origem.lower()
-                == ProdutoEdital.TIPO_PRODUTO["Comum"].lower()
+                == ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"].lower()
             ):
                 queryset = queryset.filter(
-                    tipo_produto__icontains=ProdutoEdital.TIPO_PRODUTO["Comum"]
+                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"]
                 )
             else:
                 queryset = queryset.exclude(
-                    tipo_produto__icontains=ProdutoEdital.TIPO_PRODUTO["Comum"]
+                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"]
                 )
             queryset = queryset.order_by("produto__nome", "produto__marca__nome")
             data = self.get_serializer(queryset, many=True).data

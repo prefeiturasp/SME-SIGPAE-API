@@ -9,6 +9,8 @@ from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 from ...escola.models import TipoUnidadeEscolar
 from ...perfil.models import Usuario
 from ..models import (
@@ -107,7 +109,7 @@ def test_get_notificacoes(usuario_teste_notificacao_autenticado, notificacao):
                 "uuid": str(notificacao.uuid),
                 "titulo": notificacao.titulo,
                 "descricao": notificacao.descricao,
-                "criado_em": notificacao.criado_em.strftime("%d/%m/%Y"),
+                "criado_em": notificacao.criado_em.strftime(FORMATO_DATA_BRASILEIRO),
                 "hora": notificacao.hora.strftime("%H:%M"),
                 "tipo": Notificacao.TIPO_NOTIFICACAO_NOMES[notificacao.tipo],
                 "categoria": Notificacao.CATEGORIA_NOTIFICACAO_NOMES[
@@ -137,7 +139,7 @@ def test_get_notificacoes_gerais(usuario_teste_notificacao_autenticado, notifica
                 "uuid": str(notificacao.uuid),
                 "titulo": notificacao.titulo,
                 "descricao": notificacao.descricao,
-                "criado_em": notificacao.criado_em.strftime("%d/%m/%Y"),
+                "criado_em": notificacao.criado_em.strftime(FORMATO_DATA_BRASILEIRO),
                 "hora": notificacao.hora.strftime("%H:%M"),
                 "tipo": Notificacao.TIPO_NOTIFICACAO_NOMES[notificacao.tipo],
                 "categoria": Notificacao.CATEGORIA_NOTIFICACAO_NOMES[
@@ -171,7 +173,9 @@ def test_get_pendencias_nao_resolvidas(
                 "uuid": str(notificacao_de_pendencia.uuid),
                 "titulo": notificacao_de_pendencia.titulo,
                 "descricao": notificacao_de_pendencia.descricao,
-                "criado_em": notificacao_de_pendencia.criado_em.strftime("%d/%m/%Y"),
+                "criado_em": notificacao_de_pendencia.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "hora": notificacao_de_pendencia.hora.strftime("%H:%M"),
                 "tipo": Notificacao.TIPO_NOTIFICACAO_NOMES[
                     notificacao_de_pendencia.tipo
@@ -203,7 +207,7 @@ def test_filtro_notificacoes_lidas(usuario_teste_notificacao_autenticado, notifi
                 "uuid": str(notificacao.uuid),
                 "titulo": notificacao.titulo,
                 "descricao": notificacao.descricao,
-                "criado_em": notificacao.criado_em.strftime("%d/%m/%Y"),
+                "criado_em": notificacao.criado_em.strftime(FORMATO_DATA_BRASILEIRO),
                 "hora": notificacao.hora.strftime("%H:%M"),
                 "tipo": Notificacao.TIPO_NOTIFICACAO_NOMES[notificacao.tipo],
                 "categoria": Notificacao.CATEGORIA_NOTIFICACAO_NOMES[
@@ -238,7 +242,9 @@ def test_filtro_notificacoes_por_tipo(
                 "uuid": str(notificacao_de_pendencia.uuid),
                 "titulo": notificacao_de_pendencia.titulo,
                 "descricao": notificacao_de_pendencia.descricao,
-                "criado_em": notificacao_de_pendencia.criado_em.strftime("%d/%m/%Y"),
+                "criado_em": notificacao_de_pendencia.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "hora": notificacao_de_pendencia.hora.strftime("%H:%M"),
                 "tipo": Notificacao.TIPO_NOTIFICACAO_NOMES[
                     notificacao_de_pendencia.tipo
@@ -334,7 +340,7 @@ def test_get_download_filters(usuario_teste_notificacao_autenticado, download):
     rota = f"""/downloads/?uuid={str(download.uuid)}
            &identificador={download.identificador}
            &status={CentralDeDownload.STATUS_CONCLUIDO}
-           &data_geracao={download.criado_em.strftime("%d/%m/%Y")}
+           &data_geracao={download.criado_em.strftime(FORMATO_DATA_BRASILEIRO)}
            &visto={str(download.visto).lower()}'"""
     url = rota.replace("\n", "").replace(" ", "")
     response = client.get(url, content_type="application/json")
@@ -712,7 +718,6 @@ def test_url_api_version_versao_vazia(client):
     }
 
 
-
 def test_url_atualiza_categoria_pergunta_frequente(
     client_autenticado_coordenador_codae,
 ):
@@ -800,15 +805,10 @@ def test_url_exclui_categoria_e_perguntas_vinculadas(
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    assert not CategoriaPerguntaFrequente.objects.filter(
-        uuid=categoria_uuid
-    ).exists()
-    assert not PerguntaFrequente.objects.filter(
-        uuid=pergunta_1_uuid
-    ).exists()
-    assert not PerguntaFrequente.objects.filter(
-        uuid=pergunta_2_uuid
-    ).exists()
+    assert not CategoriaPerguntaFrequente.objects.filter(uuid=categoria_uuid).exists()
+    assert not PerguntaFrequente.objects.filter(uuid=pergunta_1_uuid).exists()
+    assert not PerguntaFrequente.objects.filter(uuid=pergunta_2_uuid).exists()
+
 
 def test_url_exclui_apenas_perguntas_da_categoria_excluida(
     client_autenticado_coordenador_codae,
@@ -842,16 +842,13 @@ def test_url_exclui_apenas_perguntas_da_categoria_excluida(
     assert not CategoriaPerguntaFrequente.objects.filter(
         uuid=categoria_excluida.uuid
     ).exists()
-    assert not PerguntaFrequente.objects.filter(
-        uuid=pergunta_excluida.uuid
-    ).exists()
+    assert not PerguntaFrequente.objects.filter(uuid=pergunta_excluida.uuid).exists()
 
     assert CategoriaPerguntaFrequente.objects.filter(
         uuid=categoria_mantida.uuid
     ).exists()
-    assert PerguntaFrequente.objects.filter(
-        uuid=pergunta_mantida.uuid
-    ).exists()
+    assert PerguntaFrequente.objects.filter(uuid=pergunta_mantida.uuid).exists()
+
 
 def test_url_lista_categorias_ordenadas_da_mais_antiga_para_mais_recente(
     client_autenticado_coordenador_codae,
@@ -879,12 +876,8 @@ def test_url_lista_categorias_ordenadas_da_mais_antiga_para_mais_recente(
 
     uuids = [categoria["uuid"] for categoria in categorias]
 
-    assert uuids.index(str(categoria_1.uuid)) < uuids.index(
-        str(categoria_2.uuid)
-    )
-    assert uuids.index(str(categoria_2.uuid)) < uuids.index(
-        str(categoria_3.uuid)
-    )
+    assert uuids.index(str(categoria_1.uuid)) < uuids.index(str(categoria_2.uuid))
+    assert uuids.index(str(categoria_2.uuid)) < uuids.index(str(categoria_3.uuid))
 
 
 def test_url_cadastra_duvida_frequente_com_perfil_autorizado(
@@ -948,6 +941,44 @@ def test_url_nao_cadastra_duvida_frequente_com_perfil_nao_autorizado(
     assert not PerguntaFrequente.objects.filter(
         pergunta="Dúvida sem permissão"
     ).exists()
+
+
+def test_url_lista_duvidas_ordenadas_e_paginadas(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="b41e9df6-bf6d-467b-a438-cffe80c1fa13",
+    )
+    datas = [
+        "2026-08-01",
+        "2026-08-02",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+    ]
+    perguntas = []
+
+    for data in datas:
+        with freeze_time(data):
+            perguntas.append(
+                baker.make(
+                    PerguntaFrequente,
+                    categoria=categoria,
+                    todos_os_perfis=True,
+                )
+            )
+
+    response = client_autenticado_coordenador_codae.get("/perguntas-frequentes/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 6
+    assert response.json()["page_size"] == 5
+    assert len(response.json()["results"]) == 5
+    assert [item["uuid"] for item in response.json()["results"]] == [
+        str(pergunta.uuid) for pergunta in reversed(perguntas)
+    ][:5]
 
 
 def test_url_perfil_gerenciador_lista_todas_as_duvidas(

@@ -3,6 +3,8 @@ from datetime import datetime
 from openpyxl import Workbook, drawing
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 
 def style_range(ws, cell_range):
     thin = Side(border_style="thin", color="000000")
@@ -130,7 +132,7 @@ def build_xlsx_alunos_matriculados(dados, nome_arquivo, output):
     celula.alignment = Alignment(horizontal="left", vertical="center")
     celula.fill = PatternFill("solid", start_color="ffffff")
     celula.border = Border(top=thin, left=thin, right=thin, bottom=thin)
-    celula.value = f'Solicitado por {dados["usuario"]}, impresso em {datetime.today().strftime("%d/%m/%Y")}'
+    celula.value = f'Solicitado por {dados["usuario"]}, impresso em {datetime.today().strftime(FORMATO_DATA_BRASILEIRO)}'
 
     montar_cabecalho_padrao(5, ws)
 

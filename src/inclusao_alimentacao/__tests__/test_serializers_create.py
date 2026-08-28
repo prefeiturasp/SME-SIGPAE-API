@@ -2,6 +2,7 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from ...dados_comuns.constants import MODEL_USUARIO
 from ..api.serializers.serializers_create import (
     GrupoInclusaoAlimentacaoNormalCreationSerializer,
     InclusaoAlimentacaoContinuaCreationSerializer,
@@ -21,7 +22,7 @@ def test_inclusao_continua_serializer_validators(
     inclusao_alimentacao_continua_parametros,
 ):
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     data_inicial, data_final = inclusao_alimentacao_continua_parametros
     attrs = dict(data_inicial=data_inicial, data_final=data_final)
@@ -57,7 +58,7 @@ def test_inclusao_continua_serializer_creators(
     inclusao_alimentacao_continua_parametros, escola
 ):
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     motivo = baker.make("MotivoInclusaoContinua")
     data_inicial, data_final = inclusao_alimentacao_continua_parametros
@@ -111,7 +112,7 @@ def test_grupo_inclusao_normal_serializer_creators(
     inclusao_alimentacao_continua_parametros, escola
 ):
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     data, _ = inclusao_alimentacao_continua_parametros
     quantidades_por_periodo = []
@@ -166,7 +167,7 @@ def test_grupo_inclusao_alimentacao_cei(
     inclusao_alimentacao_continua_parametros, escola
 ):
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     data, _ = inclusao_alimentacao_continua_parametros
     quantidade_alunos_por_faixas_etarias = []

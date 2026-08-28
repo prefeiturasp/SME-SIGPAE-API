@@ -4,6 +4,8 @@ from tempfile import NamedTemporaryFile
 from openpyxl import Workbook
 from openpyxl.styles import Border, Font, PatternFill, Side
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 from ..helpers import (
     retorna_motivo_insucesso,
     retorna_ocorrencias_alimento,
@@ -106,7 +108,9 @@ class RequisicoesExcelService(object):
             ws.cell(
                 row=ind,
                 column=3,
-                value=requisicao["guias__data_entrega"].strftime("%d/%m/%Y"),
+                value=requisicao["guias__data_entrega"].strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
             )
             ws.cell(
                 row=ind, column=4, value=requisicao["guias__alimentos__nome_alimento"]
@@ -224,7 +228,9 @@ class RequisicoesExcelService(object):
             ws.cell(
                 row=ind,
                 column=6,
-                value=requisicao["guias__data_entrega"].strftime("%d/%m/%Y"),
+                value=requisicao["guias__data_entrega"].strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
             )
             ws.cell(row=ind, column=7, value=requisicao["codigo_eol_unidade"])
             ws.cell(row=ind, column=8, value=requisicao["guias__codigo_unidade"])
@@ -388,7 +394,7 @@ class RequisicoesExcelService(object):
                     row=ind,
                     column=offset + 7,
                     value=requisicao["guias__insucessos__criado_em"].strftime(
-                        "%d/%m/%Y"
+                        FORMATO_DATA_BRASILEIRO
                     ),
                 )
                 ws.cell(
@@ -868,7 +874,7 @@ class RequisicoesExcelService(object):
                 ws.cell(
                     row=ind,
                     column=offset + 8,
-                    value=f'{requisicao["primeira_conferencia"].criado_em.strftime("%d/%m/%Y")} '
+                    value=f'{requisicao["primeira_conferencia"].criado_em.strftime(FORMATO_DATA_BRASILEIRO)} '
                     f'{requisicao["primeira_conferencia"].criado_em.strftime("%H:%M:%S")}',
                 )
             if "primeira_reposicao" in requisicao:
@@ -881,7 +887,7 @@ class RequisicoesExcelService(object):
                 ws.cell(
                     row=ind,
                     column=offset + 10,
-                    value=f'{requisicao["primeira_reposicao"].criado_em.strftime("%d/%m/%Y")} '
+                    value=f'{requisicao["primeira_reposicao"].criado_em.strftime(FORMATO_DATA_BRASILEIRO)} '
                     f'{requisicao["primeira_reposicao"].criado_em.strftime("%H:%M:%S")}',
                 )
             ws.cell(
@@ -1173,7 +1179,7 @@ class RequisicoesExcelService(object):
                 ws.cell(
                     row=ind,
                     column=offset + 30,
-                    value=f'{requisicao["primeira_reposicao"].criado_em.strftime("%d/%m/%Y")} '
+                    value=f'{requisicao["primeira_reposicao"].criado_em.strftime(FORMATO_DATA_BRASILEIRO)} '
                     f'{requisicao["primeira_reposicao"].criado_em.strftime("%H:%M:%S")}',
                 )
             if "primeira_reposicao" in requisicao:

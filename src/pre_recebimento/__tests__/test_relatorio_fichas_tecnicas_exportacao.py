@@ -29,9 +29,7 @@ from src.produto.models import NomeDeProdutoEdital
 URL_EXPORTAR_EXCEL = "/ficha-tecnica/exportar-excel/"
 URL_LISTAGEM_RELATORIO = "/ficha-tecnica/listagem-relatorio/"
 DETAIL_SUCESSO = "Solicitação de geração de arquivo recebida com sucesso."
-REGEX_NOME_ARQUIVO = (
-    r"Relatorio_Fichas_Tecnicas_\d{4}-\d{2}-\d{2}_\d{6}\.xlsx"
-)
+REGEX_NOME_ARQUIVO = r"Relatorio_Fichas_Tecnicas_\d{4}-\d{2}-\d{2}_\d{6}\.xlsx"
 
 
 def _cria_usuario_com_perfil_codae(django_user_model, email, nome_perfil):
@@ -206,9 +204,7 @@ FIXTURES_PERFIS_PERMITIDOS = [
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("client_fixture", FIXTURES_PERFIS_PERMITIDOS)
-def test_exportar_excel_perfis_permitidos_200(
-    request, client_fixture, monkeypatch
-):
+def test_exportar_excel_perfis_permitidos_200(request, client_fixture, monkeypatch):
     client = request.getfixturevalue(client_fixture)
     if isinstance(client, tuple):
         client = client[0]
@@ -247,7 +243,7 @@ def test_listagem_relatorio_perfis_permitidos_200(request, client_fixture):
 
 @pytest.mark.django_db
 def test_listagem_relatorio_perfil_nao_permitido_403(
-    client_autenticado_dilog_diretoria
+    client_autenticado_dilog_diretoria,
 ):
     response = client_autenticado_dilog_diretoria.get(URL_LISTAGEM_RELATORIO)
 
@@ -280,9 +276,7 @@ def test_listagem_relatorio_fornecedor_403(client_autenticado_fornecedor):
 
 
 @pytest.mark.django_db
-def test_exporta_relatorio_fichas_tecnicas_xlsx_task(
-    usuario, ficha_tecnica_factory
-):
+def test_exporta_relatorio_fichas_tecnicas_xlsx_task(usuario, ficha_tecnica_factory):
     ficha = ficha_tecnica_factory(
         categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
         status=FichaTecnicaDoProdutoWorkflow.APROVADA,
@@ -304,23 +298,13 @@ def test_exporta_relatorio_fichas_tecnicas_xlsx_task(
 
 
 @pytest.mark.django_db
-def test_gera_relatorio_fichas_tecnicas_xlsx_conteudo(
-    empresa, ficha_tecnica_factory
-):
-    unidade_primaria = baker.make(
-        UnidadeMedida, nome="Quilograma", abreviacao="kg"
-    )
-    unidade_secundaria = baker.make(
-        UnidadeMedida, nome="Litro", abreviacao="l"
-    )
+def test_gera_relatorio_fichas_tecnicas_xlsx_conteudo(empresa, ficha_tecnica_factory):
+    unidade_primaria = baker.make(UnidadeMedida, nome="Quilograma", abreviacao="kg")
+    unidade_secundaria = baker.make(UnidadeMedida, nome="Litro", abreviacao="l")
     fabricante = baker.make("Fabricante", nome="FABRICANTE A")
     envasador = baker.make("Fabricante", nome="ENVASADOR B")
-    fabricante_fft = baker.make(
-        "FabricanteFichaTecnica", fabricante=fabricante
-    )
-    envasador_fft = baker.make(
-        "FabricanteFichaTecnica", fabricante=envasador
-    )
+    fabricante_fft = baker.make("FabricanteFichaTecnica", fabricante=fabricante)
+    envasador_fft = baker.make("FabricanteFichaTecnica", fabricante=envasador)
     produto = baker.make(
         "NomeDeProdutoEdital",
         nome="ARROZ",
@@ -357,17 +341,15 @@ def test_gera_relatorio_fichas_tecnicas_xlsx_conteudo(
 
     # Linha 0 (row 1): título
     assert sheet.cell(row=1, column=1).value == TITULO_RELATORIO
-    assert sheet.cell(row=1, column=1).fill.start_color.rgb.endswith(
-        "A9D18E"
-    )
+    assert sheet.cell(row=1, column=1).fill.start_color.rgb.endswith("A9D18E")
 
     # Linha 1 (row 2): subtítulo com data de extração
     assert sheet.cell(row=2, column=1).value.startswith("Data de extração: ")
 
     # Linha 2 (row 3): cabeçalho com as 18 colunas na ordem exata
-    assert tuple(
-        sheet.iter_rows(min_row=3, max_row=3, values_only=True)
-    )[0] == tuple(COLUNAS)
+    assert tuple(sheet.iter_rows(min_row=3, max_row=3, values_only=True))[0] == tuple(
+        COLUNAS
+    )
 
     # Linha 3 (row 4): primeira ficha
     linha_dados = [sheet.cell(row=4, column=col).value for col in range(1, 19)]
@@ -384,9 +366,9 @@ def test_gera_relatorio_fichas_tecnicas_xlsx_conteudo(
     assert linha_dados[10] == "Não"  # gluten=None
     assert linha_dados[11] == "Sim"
     assert linha_dados[12] == "Não"
-    assert linha_dados[13] == 1.5
+    assert linha_dados[13] == pytest.approx(1.5)
     assert linha_dados[14] == "kg"
-    assert linha_dados[15] == 20.0
+    assert linha_dados[15] == pytest.approx(20.0)
     assert linha_dados[16] == "l"
     assert linha_dados[17] == "Aprovada"
 
@@ -404,9 +386,9 @@ def test_gera_relatorio_fichas_tecnicas_xlsx_sem_dados():
     sheet = workbook["Fichas Técnicas"]
 
     # Cabeçalho presente + linha única "Nenhum registro encontrado"
-    assert tuple(
-        sheet.iter_rows(min_row=3, max_row=3, values_only=True)
-    )[0] == tuple(COLUNAS)
+    assert tuple(sheet.iter_rows(min_row=3, max_row=3, values_only=True))[0] == tuple(
+        COLUNAS
+    )
     assert sheet.cell(row=4, column=1).value == MENSAGEM_SEM_REGISTROS
 
 

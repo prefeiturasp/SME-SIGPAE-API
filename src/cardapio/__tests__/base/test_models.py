@@ -1,10 +1,12 @@
 import pytest
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
+
 pytestmark = pytest.mark.django_db
 
 
 def test_tipo_alimentacao(tipo_alimentacao):
-    assert tipo_alimentacao.__str__() == "Refeição"
+    assert tipo_alimentacao.__str__() == TIPOS_ALIMENTACAO.REFEICAO.value
 
 
 def test_vinculo_tipo_alimentacao(vinculo_tipo_alimentacao):

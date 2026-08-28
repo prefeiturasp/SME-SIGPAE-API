@@ -6,10 +6,18 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_INFANTIL_INTEGRAL,
+    GRUPO_INFANTIL_MANHA,
+    GRUPO_INFANTIL_TARDE,
+    TIPOS_ALIMENTACAO,
+)
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
-from src.medicao_inicial.models import DescontoFinanceiro
+from src.medicao_inicial.models import DescontoFinanceiro, SolicitacaoMedicaoInicial
 from src.medicao_inicial.utils import (
     atualiza_alunos_periodo_parcial,
     avalia_soma_total_com_dados_tabela_anterior,
@@ -26,6 +34,7 @@ from src.medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
     busca_dias_zerados,
+    get_eh_dia_letivo,
     get_lista_categorias_campos,
     get_lista_categorias_campos_cei,
     get_nome_campo,
@@ -42,7 +51,7 @@ from src.medicao_inicial.utils import (
     obter_instancia_dados,
     substitui_criador_system_por_usuario_real,
     tratar_valores,
-    get_eh_dia_letivo,
+    processa_reabrir_lancamentos,
 )
 
 from .data import (
@@ -79,7 +88,7 @@ def test_utils_build_dict_relacao_categorias_e_campos(
             "refeicao",
             "sobremesa",
         ],
-        "DIETA ESPECIAL - TIPO B": [
+        DIETA_ESPECIAL_TIPO_B: [
             "aprovadas",
             "lanche",
             "lanche_emergencial",
@@ -125,7 +134,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
         },
         {
             "periodos": ["MANHA", "TARDE"],
-            "categorias": ["DIETA ESPECIAL - TIPO B", "ALIMENTAÇÃO"],
+            "categorias": [DIETA_ESPECIAL_TIPO_B, "ALIMENTAÇÃO"],
             "nomes_campos": [
                 "aprovadas",
                 "lanche",
@@ -146,7 +155,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "ordem_periodos_grupos": [1, 2],
             "dias_letivos": [],
             "categorias_dos_periodos": {
-                "MANHA": [{"categoria": "DIETA ESPECIAL - TIPO B", "numero_campos": 5}],
+                "MANHA": [{"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5}],
                 "TARDE": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 7}],
             },
         },
@@ -154,7 +163,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "periodos": ["TARDE"],
             "categorias": [
                 "DIETA ESPECIAL - TIPO A ENTERAL",
-                "DIETA ESPECIAL - TIPO B",
+                DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
                 "aprovadas",
@@ -179,7 +188,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
                         "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
                         "numero_campos": 5,
                     },
-                    {"categoria": "DIETA ESPECIAL - TIPO B", "numero_campos": 5},
+                    {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
                 ]
             },
         },
@@ -222,9 +231,9 @@ def test_build_headers_tabelas_emebs(solicitacao_medicao_inicial_varios_valores_
 
 
 def test_get_nome_periodo():
-    assert get_nome_periodo("Infantil INTEGRAL") == "INTEGRAL"
-    assert get_nome_periodo("Infantil MANHA") == "MANHA"
-    assert get_nome_periodo("Infantil TARDE") == "TARDE"
+    assert get_nome_periodo(GRUPO_INFANTIL_INTEGRAL) == "INTEGRAL"
+    assert get_nome_periodo(GRUPO_INFANTIL_MANHA) == "MANHA"
+    assert get_nome_periodo(GRUPO_INFANTIL_TARDE) == "TARDE"
     assert get_nome_periodo("Fundamental MANHA") == "Fundamental MANHA"
     assert get_nome_periodo("EJA NOITE") == "EJA NOITE"
 
@@ -333,7 +342,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
         },
         {
             "periodos": ["MANHA", "TARDE"],
-            "categorias": ["DIETA ESPECIAL - TIPO B", "ALIMENTAÇÃO"],
+            "categorias": [DIETA_ESPECIAL_TIPO_B, "ALIMENTAÇÃO"],
             "nomes_campos": [
                 "aprovadas",
                 "lanche",
@@ -420,7 +429,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
                 False,
             ],
             "categorias_dos_periodos": {
-                "MANHA": [{"categoria": "DIETA ESPECIAL - TIPO B", "numero_campos": 5}],
+                "MANHA": [{"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5}],
                 "TARDE": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 7}],
             },
         },
@@ -428,7 +437,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             "periodos": ["TARDE"],
             "categorias": [
                 "DIETA ESPECIAL - TIPO A ENTERAL",
-                "DIETA ESPECIAL - TIPO B",
+                DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
                 "aprovadas",
@@ -519,7 +528,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
                         "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
                         "numero_campos": 5,
                     },
-                    {"categoria": "DIETA ESPECIAL - TIPO B", "numero_campos": 5},
+                    {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
                 ]
             },
         },
@@ -614,7 +623,7 @@ def test_utils_tratar_valores(solicitacao_medicao_inicial, escola, escola_emei):
 
 
 def test_utils_get_nome_campo():
-    assert get_nome_campo("lanche_4h") == "Lanche 4h"
+    assert get_nome_campo("lanche_4h") == TIPOS_ALIMENTACAO.LANCHE_4H.value
     assert get_nome_campo("repeticao_sobremesa") == "Repetição de Sobremesa"
 
 
@@ -878,11 +887,11 @@ def test_utils_build_tabela_somatorio_body(
     )
 
     assert primeira_tabela_somatorio["body"] == [
-        ["Lanche", 50, 50, 50, 50, 50, 250],
-        ["Refeição", 100, 100, 100, 100, 50, 450],
+        [TIPOS_ALIMENTACAO.LANCHE.value, 50, 50, 50, 50, 50, 250],
+        [TIPOS_ALIMENTACAO.REFEICAO.value, 100, 100, 100, 100, 50, 450],
         ["Kit Lanche", 50, 50, 50, 50, 50, 250],
-        ["Sobremesa", 100, 100, 100, 100, 50, 450],
-        ["Lanche Emergencial", 50, 50, 50, 50, 50, 250],
+        [TIPOS_ALIMENTACAO.SOBREMESA.value, 100, 100, 100, 100, 50, 450],
+        [TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value, 50, 50, 50, 50, 50, 250],
     ]
 
     assert segunda_tabela_somatorio["body"] == [
@@ -902,15 +911,15 @@ def test_utils_build_tabela_somatorio_dietas_body(
     )
 
     assert primeira_tabela_tipo_a["body"] == [
-        ["Lanche", 0, 20, 20, 20, 60],
-        ["Lanche 4h", 0, 20, 20, 20, 60],
-        ["Refeição", 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.LANCHE.value, 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.LANCHE_4H.value, 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.REFEICAO.value, 0, 20, 20, 20, 60],
     ]
 
     assert segunda_tabela_tipo_a["body"] == [
-        ["Lanche", 20, 20],
-        ["Lanche 4h", 20, 20],
-        ["Refeição", 20, 20],
+        [TIPOS_ALIMENTACAO.LANCHE.value, 20, 20],
+        [TIPOS_ALIMENTACAO.LANCHE_4H.value, 20, 20],
+        [TIPOS_ALIMENTACAO.REFEICAO.value, 20, 20],
     ]
 
     primeira_tabela_tipo_b, segunda_tabela_tipo_b = build_tabela_somatorio_dietas_body(
@@ -918,10 +927,13 @@ def test_utils_build_tabela_somatorio_dietas_body(
     )
 
     assert primeira_tabela_tipo_b["body"] == [
-        ["Lanche", 0, 20, 20, 20, 60],
-        ["Lanche 4h", 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.LANCHE.value, 0, 20, 20, 20, 60],
+        [TIPOS_ALIMENTACAO.LANCHE_4H.value, 0, 20, 20, 20, 60],
     ]
-    assert segunda_tabela_tipo_b["body"] == [["Lanche", 20, 20], ["Lanche 4h", 20, 20]]
+    assert segunda_tabela_tipo_b["body"] == [
+        [TIPOS_ALIMENTACAO.LANCHE.value, 20, 20],
+        [TIPOS_ALIMENTACAO.LANCHE_4H.value, 20, 20],
+    ]
 
 
 def test_build_row_primeira_tabela(solicitacao_medicao_inicial_com_valores_repeticao):
@@ -994,7 +1006,7 @@ def test_avalia_soma_total_com_dados_tabela_anterior():
                 "periodo": "INTEGRAL",
             },
             {
-                "categoria": "DIETA ESPECIAL - TIPO B",
+                "categoria": DIETA_ESPECIAL_TIPO_B,
                 "faixas_etarias": ["04 a 05 meses", "06 meses"],
                 "periodo": "INTEGRAL",
             },
@@ -1599,9 +1611,9 @@ def test_busca_dias_zerados_emef(medicoes_frequencia_zerada_emef):
     assert "13" in resultado["alimentacoes"]
     assert "20" not in resultado["alimentacoes"]
 
-    assert "05" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
-    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
-    assert "20" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]
+    assert "05" in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]
+    assert "13" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]
+    assert "20" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]
 
 
 def test_busca_dias_zerados_emebs(medicoes_frequencia_zerada_emebs):
@@ -1616,14 +1628,14 @@ def test_busca_dias_zerados_emebs(medicoes_frequencia_zerada_emebs):
     assert "24" not in resultado["alimentacoes"]["INFANTIL"]
     assert "24" not in resultado["alimentacoes"]["FUNDAMENTAL"]
 
-    assert "10" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
-    assert "10" in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+    assert "10" in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["INFANTIL"]
+    assert "10" in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["FUNDAMENTAL"]
 
-    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
-    assert "13" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+    assert "13" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["INFANTIL"]
+    assert "13" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["FUNDAMENTAL"]
 
-    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["INFANTIL"]
-    assert "24" not in resultado["dietas"]["DIETA ESPECIAL - TIPO A"]["FUNDAMENTAL"]
+    assert "24" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["INFANTIL"]
+    assert "24" not in resultado["dietas"][DIETA_ESPECIAL_TIPO_A]["FUNDAMENTAL"]
 
 
 def set_up_faixas_etarias(faixa_etaria_factory):
@@ -1986,3 +1998,100 @@ def test_get_eh_dia_letivo_nao_considera_dia_letivo_sigpae_de_outra_data(
         )
         is False
     )
+
+
+@pytest.mark.django_db
+class TestProcessaReabrirLancamentos:
+    def test_deve_reabrir_todas_as_solicitacoes_e_excluir_relatorio(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        usuario,
+    ):
+        solicitacao_medicao_inicial_cei.status = (
+            SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+        )
+        solicitacao_medicao_inicial_cei.save()
+
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[solicitacao_medicao_inicial_cei],
+            usuario=usuario,
+        )
+
+        solicitacao_medicao_inicial_cei.refresh_from_db()
+
+        assert (
+            solicitacao_medicao_inicial_cei.status
+            == SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+        )
+
+        assert not type(relatorio_financeiro_cei).objects.filter(
+            pk=relatorio_financeiro_cei.pk
+        ).exists()
+
+    def test_nao_deve_reabrir_solicitacao_de_tipo_de_unidade_fora_do_grupo(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        solicitacao_escola_emebs,
+        usuario,
+    ):
+        status_original = solicitacao_escola_emebs.status
+
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[
+                solicitacao_medicao_inicial_cei,
+                solicitacao_escola_emebs,
+            ],
+            usuario=usuario,
+        )
+
+        solicitacao_escola_emebs.refresh_from_db()
+
+        assert solicitacao_escola_emebs.status == status_original
+
+    def test_deve_atualizar_status_das_medicoes(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        usuario,
+    ):
+        medicoes = list(solicitacao_medicao_inicial_cei.medicoes.all())
+
+        assert medicoes
+
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[solicitacao_medicao_inicial_cei],
+            usuario=usuario,
+        )
+
+        status_esperado = (
+            SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+        )
+
+        for medicao in medicoes:
+            medicao.refresh_from_db()
+            assert medicao.status == status_esperado
+
+    def test_deve_alterar_status_do_relatorio_quando_nao_informa_unidades(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        usuario,
+    ):
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[solicitacao_medicao_inicial_cei],
+            usuario=usuario,
+        )
+
+        assert not type(relatorio_financeiro_cei).objects.filter(
+            pk=relatorio_financeiro_cei.pk
+        ).exists()

@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from django.db.models import QuerySet
 
+from src.dados_comuns.constants import GRUPO_RECREIO_NAS_FERIAS, TIPOS_ALIMENTACAO
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.models import Escola
 from src.medicao_inicial.models import (
@@ -32,7 +33,6 @@ CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
 CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME = (
     "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
 )
-GRUPO_RECREIO = "Recreio nas Férias"
 
 
 def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
@@ -55,7 +55,7 @@ def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
     ).first()
 
     informacoes_participantes = {
-        GRUPO_RECREIO: participantes.num_inscritos,
+        GRUPO_RECREIO_NAS_FERIAS: participantes.num_inscritos,
     }
     if existe_colaborador(participantes):
         informacoes_participantes["Colaboradores"] = participantes.num_colaboradores
@@ -87,7 +87,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceuges
         data__range=[inicio_recreio, fim_recreio],
     )
     cria_valores_medicao_dietas_autorizadas_do_recreio(
-        instance, logs_do_recreio, GRUPO_RECREIO
+        instance, logs_do_recreio, GRUPO_RECREIO_NAS_FERIAS
     )
 
 
@@ -224,7 +224,7 @@ def validate_lancamento_alimentacoes_medicao_recreio(
     )
     tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
     informacoes_alimentacao = {
-        GRUPO_RECREIO: tipos_alimentacao_map.get("Inscritos", [])
+        GRUPO_RECREIO_NAS_FERIAS: tipos_alimentacao_map.get("Inscritos", [])
     }
     if existe_colaborador(participantes):
         informacoes_alimentacao["Colaboradores"] = tipos_alimentacao_map.get(
@@ -276,7 +276,9 @@ def validate_lancamento_dietas_medicao_recreio(
     """
     recreio = solicitacao.recreio_nas_ferias
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
-    medicao_recreio = solicitacao.medicoes.filter(grupo__nome=GRUPO_RECREIO).first()
+    medicao_recreio = solicitacao.medicoes.filter(
+        grupo__nome=GRUPO_RECREIO_NAS_FERIAS
+    ).first()
 
     dias_letivos = [
         f"{dia:02d}"
@@ -432,11 +434,11 @@ def get_linhas_da_tabela_dieta_recreio(
             para lançamento das dietas.
     """
     nomes_campos = ["frequencia"]
-    if "Lanche" in alimentacoes:
+    if TIPOS_ALIMENTACAO.LANCHE.value in alimentacoes:
         nomes_campos.append("lanche")
-    if "Lanche 4h" in alimentacoes:
+    if TIPOS_ALIMENTACAO.LANCHE_4H.value in alimentacoes:
         nomes_campos.append("lanche_4h")
-    if "Refeição" in alimentacoes and "ENTERAL" in categoria.nome:
+    if TIPOS_ALIMENTACAO.REFEICAO.value in alimentacoes and "ENTERAL" in categoria.nome:
         nomes_campos.append("refeicao")
     return nomes_campos
 
