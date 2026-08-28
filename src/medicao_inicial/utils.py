@@ -7841,7 +7841,7 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
             solicitacao.salvar_log_transicao(
                 status_evento=(
                     LogSolicitacoesUsuario
-                    .MEDICAO_APROVADA_PELA_DRE
+                    .MEDICAO_CODAE_REABRIU_LANCAMENTO
                 ),
                 usuario=usuario,
             )
@@ -7856,7 +7856,7 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
                 medicao.salvar_log_transicao(
                     status_evento=(
                         LogSolicitacoesUsuario
-                        .MEDICAO_APROVADA_PELA_DRE
+                        .MEDICAO_CODAE_REABRIU_LANCAMENTO
                     ),
                     usuario=usuario,
                 )
