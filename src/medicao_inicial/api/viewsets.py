@@ -2645,6 +2645,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             filtros_relatorio = {
                 "mes": relatorio_financeiro.mes,
                 "ano": relatorio_financeiro.ano,
+                "status": SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
             }
 
             solicitacoes_periodo = list(
