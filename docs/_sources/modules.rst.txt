@@ -9,5 +9,6 @@ Módulos principais do sistema.
    cardapio
    dieta_especial
    pre_recebimento
+   recebimento
    pos_recebimento
 

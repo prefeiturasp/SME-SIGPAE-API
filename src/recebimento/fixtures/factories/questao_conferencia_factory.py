@@ -1,3 +1,5 @@
+"""Factory de questão de conferência para testes."""
+
 from factory import LazyFunction, Sequence
 from factory.django import DjangoModelFactory
 from faker import Faker
@@ -8,6 +10,8 @@ fake = Faker("pt_BR")
 
 
 class QuestaoConferenciaFactory(DjangoModelFactory):
+    """Cria uma ``QuestaoConferencia`` com texto e posição sequenciais."""
+
     class Meta:
         model = QuestaoConferencia
 

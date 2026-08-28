@@ -1,3 +1,12 @@
+"""Modelos do módulo de recebimento.
+
+Formaliza o recebimento físico dos produtos entregues contra as etapas
+dos cronogramas: a ficha de recebimento registra a conformidade da
+entrega (lotes, datas, pesos, vedações), os veículos e notas fiscais, as
+respostas às questões de conferência, as ocorrências (falta/recusa) e os
+anexos.
+"""
+
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -21,6 +30,12 @@ from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 
 class QuestaoConferencia(ModeloBase):
+    """Questão de conferência utilizada nas fichas de recebimento.
+
+    Compõe o catálogo de perguntas de inspeção (embalagem primária e/ou
+    secundária) respondidas durante o recebimento. Pode ser marcada como
+    obrigatória, exigindo então uma ``posicao`` para ordenação.
+    """
     # Tipo Questão Choice
     TIPO_QUESTAO_PRIMARIA = "PRIMARIA"
     TIPO_QUESTAO_SECUNDARIA = "SECUNDARIA"
@@ -51,6 +66,7 @@ class QuestaoConferencia(ModeloBase):
     status = models.CharField(choices=STATUS_CHOICES, max_length=10, default=ATIVO)
 
     def __str__(self):
+        """Retorna o texto da questão."""
         return f"{self.questao}"
 
     class Meta:
@@ -58,6 +74,12 @@ class QuestaoConferencia(ModeloBase):
         verbose_name_plural = "Questões para Conferência"
 
     def clean(self):
+        """Valida que a posição é informada quando a pergunta é obrigatória.
+
+        Raises:
+            ValidationError: Se ``pergunta_obrigatoria`` for ``True`` e
+                ``posicao`` não estiver preenchida.
+        """
         super().clean()
         if self.pergunta_obrigatoria and not self.posicao:
             raise ValidationError(
@@ -66,6 +88,12 @@ class QuestaoConferencia(ModeloBase):
 
 
 class QuestoesPorProduto(ModeloBase):
+    """Vínculo entre a ficha técnica do produto e as questões de conferência.
+
+    Define, para cada ficha técnica, quais questões de embalagem primária e
+    secundária devem ser respondidas na ficha de recebimento do produto.
+    """
+
     ficha_tecnica = models.OneToOneField(
         FichaTecnicaDoProduto,
         on_delete=models.CASCADE,
@@ -83,6 +111,7 @@ class QuestoesPorProduto(ModeloBase):
     )
 
     def __str__(self):
+        """Retorna a representação textual das questões da ficha técnica."""
         return f"Questões da Ficha: {self.ficha_tecnica}"
 
     class Meta:
@@ -91,6 +120,13 @@ class QuestoesPorProduto(ModeloBase):
 
 
 class ReposicaoCronogramaFichaRecebimento(ModeloBase):
+    """Tipo de reposição de cronograma escolhido na ficha de recebimento.
+
+    Define a forma de compensação quando há produtos faltantes ou recusados
+    no recebimento: repor os produtos, fazer carta de crédito do valor pago
+    ou outros.
+    """
+
     TIPO_CHOICES = (
         ("Repor", "Repor os produtos faltantes/recusados"),
         ("Credito", "Fazer uma carta de crédito do valor pago"),
@@ -109,6 +145,7 @@ class ReposicaoCronogramaFichaRecebimento(ModeloBase):
     )
 
     def __str__(self):
+        """Retorna o tipo e a descrição da reposição."""
         return f"{self.tipo} - {self.descricao}"
 
     class Meta:
@@ -120,6 +157,22 @@ class ReposicaoCronogramaFichaRecebimento(ModeloBase):
 class FichaDeRecebimento(
     ModeloBase, FluxoFichaDeRecebimento, TemIdentificadorExternoAmigavel, Logs
 ):
+    """Ficha de recebimento: registro central do recebimento físico.
+
+    Confirma a entrega dos produtos contra uma etapa do cronograma,
+    registrando a conformidade dos lotes do fabricante, datas de fabricação
+    e validade, número do lote de armazenagem, paletes, pesos das
+    embalagens primárias, sistema de vedação da embalagem secundária, as
+    respostas às questões de conferência, os veículos e notas fiscais, as
+    ocorrências (falta/recusa/outros), os anexos e a reposição de
+    cronograma.
+
+    O status é gerenciado pelo ``FluxoFichaDeRecebimento``: a ficha inicia
+    como ``RASCUNHO`` e é assinada (``ASSINADA``) pela transição
+    ``inicia_fluxo``; uma ficha assinada pode voltar para ``RASCUNHO``
+    (``volta_para_rascunho``) ao ser editada.
+    """
+
     etapa = models.ForeignKey(
         EtapasDoCronograma,
         on_delete=models.PROTECT,
@@ -232,6 +285,7 @@ class FichaDeRecebimento(
     )
 
     def __str__(self) -> str:
+        """Retorna a representação textual da ficha de recebimento."""
         try:
             return f"Ficha de Recebimento - {str(self.etapa)}"
 
@@ -239,6 +293,19 @@ class FichaDeRecebimento(
             return f"Ficha de Recebimento {self.id}"
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra o log de transição de status da ficha.
+
+        Cria um ``LogSolicitacoesUsuario`` com o tipo
+        ``FICHA_RECEBIMENTO``, incluindo a justificativa quando houver.
+
+        Args:
+            status_evento: Evento de status a registrar.
+            usuario: Usuário que executou a transição.
+            **kwargs: Pode conter ``justificativa``.
+
+        Returns:
+            O registro de log criado.
+        """
         justificativa = kwargs.get("justificativa", "")
         log_transicao = LogSolicitacoesUsuario.objects.create(
             descricao=str(self),
@@ -256,6 +323,14 @@ class FichaDeRecebimento(
 
 
 class VeiculoFichaDeRecebimento(models.Model):
+    """Veículo e nota fiscal de uma ficha de recebimento.
+
+    Registra, por veículo entregue, as temperaturas de recebimento e do
+    produto, placa, lacre, número SIF/SISBI/SISP, número da nota fiscal,
+    quantidades e embalagens da nota versus recebidas, estado higiênico-
+    sanitário e uso de termógrafo.
+    """
+
     ficha_recebimento = models.ForeignKey(
         FichaDeRecebimento,
         on_delete=models.CASCADE,
@@ -331,6 +406,7 @@ class VeiculoFichaDeRecebimento(models.Model):
     )
 
     def __str__(self) -> str:
+        """Retorna o número do veículo e a ficha de recebimento."""
         return f"{self.numero} - {self.ficha_recebimento}"
 
     class Meta:
@@ -339,6 +415,15 @@ class VeiculoFichaDeRecebimento(models.Model):
 
 
 class ArquivoFichaRecebimento(TemChaveExterna, TemArquivosDeletaveis):
+    """Arquivo anexado a uma ficha de recebimento.
+
+    Aceita arquivos ``PDF``, ``PNG``, ``JPG`` e ``JPEG``, com tamanho
+    máximo de 10MB (``validate_file_size_10mb``). Os arquivos são enviados
+    como base64 pela API e convertidos para ``ContentFile`` no helper de
+    criação. A exclusão do registro também remove o arquivo físico do
+    armazenamento (``TemArquivosDeletaveis``).
+    """
+
     ficha_recebimento = models.ForeignKey(
         FichaDeRecebimento,
         on_delete=models.CASCADE,
@@ -358,6 +443,7 @@ class ArquivoFichaRecebimento(TemChaveExterna, TemArquivosDeletaveis):
     )
 
     def __str__(self):
+        """Retorna o nome do arquivo e a ficha de recebimento."""
         return (
             f"{self.nome} - {self.ficha_recebimento}"
             if self.nome
@@ -370,6 +456,12 @@ class ArquivoFichaRecebimento(TemChaveExterna, TemArquivosDeletaveis):
 
 
 class QuestaoFichaRecebimento(ModeloBase):
+    """Resposta a uma questão de conferência em uma ficha de recebimento.
+
+    Registra a resposta (Sim/Não) dada a cada questão de conferência na
+    ficha, com o tipo de embalagem (primária ou secundária). A combinação
+    de ficha, questão e tipo é única (``unique_together``).
+    """
     TIPO_QUESTAO_PRIMARIA = "PRIMARIA"
     TIPO_QUESTAO_SECUNDARIA = "SECUNDARIA"
 
@@ -403,10 +495,19 @@ class QuestaoFichaRecebimento(ModeloBase):
         unique_together = ("ficha_recebimento", "questao_conferencia", "tipo_questao")
 
     def __str__(self):
+        """Retorna a questão e a ficha de recebimento."""
         return f"{self.questao_conferencia.questao} - {self.ficha_recebimento}"
 
 
 class DocumentoFichaDeRecebimento(ModeloBase):
+    """Vínculo entre a ficha de recebimento e o documento de recebimento.
+
+    Modelo intermediário (through) da relação M:N entre fichas e documentos
+    de recebimento, registrando a ``quantidade_recebida`` de cada documento
+    na ficha. A combinação ficha + documento é única
+    (``unique_together``).
+    """
+
     ficha_recebimento = models.ForeignKey(
         FichaDeRecebimento,
         on_delete=models.CASCADE,
@@ -429,6 +530,7 @@ class DocumentoFichaDeRecebimento(ModeloBase):
     )
 
     def __str__(self):
+        """Retorna o documento, a ficha e a quantidade recebida."""
         return f"{self.documento_recebimento} - {self.ficha_recebimento} ({self.quantidade_recebida})"
 
     class Meta:
@@ -438,6 +540,14 @@ class DocumentoFichaDeRecebimento(ModeloBase):
 
 
 class OcorrenciaFichaRecebimento(ModeloBase):
+    """Ocorrência registrada durante o recebimento.
+
+    Registra faltas (``FALTA``), recusas (``RECUSA``) ou outros motivos
+    (``OUTROS_MOTIVOS``), com a relação (cronograma, nota fiscal, total ou
+    parcial), número da nota, quantidade e descrição. Apenas uma ocorrência
+    do tipo ``RECUSA`` é permitida por ficha (validado no helper de
+    criação).
+    """
     TIPO_FALTA = "FALTA"
     TIPO_RECUSA = "RECUSA"
     TIPO_OUTROS = "OUTROS_MOTIVOS"
@@ -497,6 +607,7 @@ class OcorrenciaFichaRecebimento(ModeloBase):
     )
 
     def __str__(self):
+        """Retorna a ficha e o tipo da ocorrência."""
         return f"{self.ficha_recebimento} - {self.get_tipo_display()}"
 
     class Meta:

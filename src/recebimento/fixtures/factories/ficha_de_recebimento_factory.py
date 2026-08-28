@@ -1,3 +1,5 @@
+"""Factories de ficha de recebimento para testes."""
+
 import base64
 from datetime import date, timedelta
 
@@ -19,6 +21,12 @@ fake = Faker("pt_BR")
 
 
 class FichaDeRecebimentoFactory(DjangoModelFactory):
+    """Cria uma ``FichaDeRecebimento`` vinculada a uma etapa.
+
+    A ``data_entrega`` é gerada no futuro, com ``numero_paletes`` e pesos
+    das embalagens primárias aleatórios.
+    """
+
     class Meta:
         model = FichaDeRecebimento
 
@@ -36,6 +44,7 @@ class FichaDeRecebimentoFactory(DjangoModelFactory):
 
 
 class VeiculoFichaDeRecebimentoFactory(DjangoModelFactory):
+    """Cria um ``VeiculoFichaDeRecebimento`` com número sequencial."""
     class Meta:
         model = VeiculoFichaDeRecebimento
 
@@ -44,6 +53,7 @@ class VeiculoFichaDeRecebimentoFactory(DjangoModelFactory):
 
 
 class ArquivoFichaDeRecebimentoFactory(DjangoModelFactory):
+    """Cria um ``ArquivoFichaDeRecebimento`` com um PDF de teste."""
     class Meta:
         model = ArquivoFichaRecebimento
 

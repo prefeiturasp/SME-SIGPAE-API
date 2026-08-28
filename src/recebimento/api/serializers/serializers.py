@@ -1,3 +1,5 @@
+"""Serializers de leitura do módulo de recebimento."""
+
 import environ
 from rest_framework import serializers
 
@@ -25,6 +27,12 @@ from ...models import (
 
 
 class QuestaoConferenciaSerializer(serializers.ModelSerializer):
+    """Serializer da questão de conferência.
+
+    Expõe ``uuid``, ``questao``, ``tipo_questao``, ``pergunta_obrigatoria``
+    e ``posicao``.
+    """
+
     class Meta:
         model = QuestaoConferencia
         fields = (
@@ -37,6 +45,11 @@ class QuestaoConferenciaSerializer(serializers.ModelSerializer):
 
 
 class QuestaoConferenciaSimplesSerializer(serializers.ModelSerializer):
+    """Serializer simples da questão de conferência.
+
+    Expõe apenas ``uuid`` e ``questao``, para uso em seletores.
+    """
+
     class Meta:
         model = QuestaoConferencia
         fields = (
@@ -46,6 +59,12 @@ class QuestaoConferenciaSimplesSerializer(serializers.ModelSerializer):
 
 
 class QuestoesPorProdutoSerializer(serializers.ModelSerializer):
+    """Serializer de listagem das questões por produto.
+
+    Expõe o número da ficha técnica, o nome do produto e as questões
+    primárias/secundárias (textos ordenados por posição).
+    """
+
     numero_ficha = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
     questoes_primarias = serializers.SerializerMethodField()
@@ -87,6 +106,12 @@ class QuestoesPorProdutoSerializer(serializers.ModelSerializer):
 
 
 class QuestoesPorProdutoSimplesSerializer(serializers.ModelSerializer):
+    """Serializer simples das questões por produto.
+
+    Expõe ``uuid``, a ficha técnica (``FichaTecnicaSimplesSerializer``) e
+    os uuids das questões primárias/secundárias.
+    """
+
     ficha_tecnica = FichaTecnicaSimplesSerializer()
     questoes_primarias = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -110,6 +135,13 @@ class QuestoesPorProdutoSimplesSerializer(serializers.ModelSerializer):
 
 
 class QuestoesPorProdutoDetalheSerializer(serializers.ModelSerializer):
+    """Serializer de detalhe das questões por produto.
+
+    Expõe ``uuid`` e as questões primárias/secundárias completas
+    (``QuestaoConferenciaSimplesSerializer``). Usado no endpoint
+    ``busca-questoes-cronograma``.
+    """
+
     questoes_primarias = QuestaoConferenciaSimplesSerializer(many=True)
     questoes_secundarias = QuestaoConferenciaSimplesSerializer(many=True)
 
@@ -123,12 +155,21 @@ class QuestoesPorProdutoDetalheSerializer(serializers.ModelSerializer):
 
 
 class QuestaoFichaRecebimentoSerializer(serializers.ModelSerializer):
+    """Serializer da resposta a uma questão na ficha de recebimento."""
+
     class Meta:
         model = QuestaoFichaRecebimento
         exclude = ("id",)
 
 
 class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
+    """Serializer de listagem da ficha de recebimento.
+
+    Expõe dados resumidos da ficha: número do cronograma, nome do produto,
+    fornecedor, pregão/chamada pública, data de recebimento, status (texto)
+    e indicador de programa ``LEVE_LEITE``.
+    """
+
     numero_cronograma = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
     fornecedor = serializers.SerializerMethodField()
@@ -188,12 +229,23 @@ class FichaDeRecebimentoSerializer(serializers.ModelSerializer):
 
 
 class VeiculoFichaDeRecebimentoSerializer(serializers.ModelSerializer):
+    """Serializer do veículo da ficha de recebimento.
+
+    Expõe todos os campos do veículo, exceto ``id`` e
+    ``ficha_recebimento``.
+    """
+
     class Meta:
         model = VeiculoFichaDeRecebimento
         exclude = ("id", "ficha_recebimento")
 
 
 class QuestaoFichaRecebimentoDetailSerializer(serializers.ModelSerializer):
+    """Serializer de detalhe da resposta a uma questão na ficha.
+
+    Inclui a questão de conferência serializada (``QuestaoConferenciaSimplesSerializer``).
+    """
+
     questao_conferencia = QuestaoConferenciaSimplesSerializer(read_only=True)
 
     class Meta:
@@ -202,12 +254,24 @@ class QuestaoFichaRecebimentoDetailSerializer(serializers.ModelSerializer):
 
 
 class OcorrenciaFichaRecebimentoSerializer(serializers.ModelSerializer):
+    """Serializer da ocorrência da ficha de recebimento.
+
+    Expõe todos os campos da ocorrência, exceto ``id`` e
+    ``ficha_recebimento``.
+    """
+
     class Meta:
         model = OcorrenciaFichaRecebimento
         exclude = ("id", "ficha_recebimento")
 
 
 class ArquivoFichaRecebimentoSerializer(serializers.ModelSerializer):
+    """Serializer do arquivo da ficha de recebimento.
+
+    Expõe ``nome`` e a URL completa do arquivo (prefixo da variável de
+    ambiente ``URL_ANEXO``).
+    """
+
     nome = serializers.CharField()
     arquivo = serializers.SerializerMethodField()
 
@@ -222,6 +286,13 @@ class ArquivoFichaRecebimentoSerializer(serializers.ModelSerializer):
 
 
 class DadosCronogramaSerializer(serializers.Serializer):
+    """Serializer com os dados do cronograma para a ficha de recebimento.
+
+    Deriva do ``etapa.cronograma`` os dados exibidos no detalhe da ficha:
+    uuid, número, embalagens, pesos líquidos e sistema de vedação da ficha
+    técnica.
+    """
+
     uuid = serializers.CharField(source="cronograma.uuid")
     numero = serializers.CharField(source="cronograma.numero")
     embalagem_primaria = serializers.CharField(
@@ -242,12 +313,25 @@ class DadosCronogramaSerializer(serializers.Serializer):
 
 
 class ReposicaoCronogramaFichaRecebimentoSerializer(serializers.ModelSerializer):
+    """Serializer do tipo de reposição de cronograma.
+
+    Expõe todos os campos do tipo de reposição, exceto ``id``.
+    """
+
     class Meta:
         model = ReposicaoCronogramaFichaRecebimento
         exclude = ("id",)
 
 
 class FichaDeRecebimentoDetalharSerializer(serializers.ModelSerializer):
+    """Serializer de detalhe da ficha de recebimento.
+
+    Expõe todos os dados da ficha: dados do cronograma, etapa, documentos
+    de recebimento (com quantidade recebida), conformidades e divergências,
+    veículos, questões respondidas, ocorrências, arquivos, observações e
+    reposição de cronograma.
+    """
+
     data_recebimento = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     etapa = EtapasDoCronogramaFichaDeRecebimentoSerializer(read_only=True)

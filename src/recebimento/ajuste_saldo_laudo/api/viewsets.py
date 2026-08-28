@@ -1,3 +1,5 @@
+"""Viewsets da API do submódulo de ajuste de saldo do laudo."""
+
 from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -33,6 +35,13 @@ from ....dados_comuns.api.paginations import DefaultPagination
 
 
 class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet):
+    """Viewset dos ajustes de saldo do laudo.
+
+    Exposto em ``/ajuste-saldo-laudo/``, restrito ao perfil
+    ``DILOG_QUALIDADE`` (``UsuarioEhDilogQualidade``). Gerencia os descontos
+    de quantidade contra o saldo dos laudos dos documentos de recebimento.
+    """
+
     lookup_field = "uuid"
     queryset = AjusteSaldo.objects.all()
     serializer_class = AjusteSaldoListagemSerializer
@@ -46,6 +55,11 @@ class AjusteSaldoModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSe
     }
 
     def get_queryset(self):
+        """Retorna os ajustes com os relacionamentos otimizados.
+
+        Usa ``select_related`` para documento de recebimento, cronograma,
+        empresa e ficha técnica/produto, ordenado por ``-criado_em``.
+        """
         return AjusteSaldo.objects.select_related(
             "documento_recebimento",
             "documento_recebimento__cronograma",
