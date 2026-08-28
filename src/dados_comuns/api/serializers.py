@@ -1,7 +1,6 @@
 from datetime import datetime
 
 import environ
-from des.models import DynamicEmailConfiguration
 from rest_framework import serializers
 
 from ...perfil.api.serializers import (
@@ -164,21 +163,6 @@ class LogSolicitacoesUsuarioComVinculoSerializer(LogSolicitacoesUsuarioSerialize
             "justificativa",
             "resposta_sim_nao",
             "nome_instituicao",
-        )
-
-
-class ConfiguracaoEmailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DynamicEmailConfiguration
-        fields = (
-            "host",
-            "port",
-            "username",
-            "password",
-            "from_email",
-            "use_tls",
-            "use_ssl",
-            "timeout",
         )
 
 
