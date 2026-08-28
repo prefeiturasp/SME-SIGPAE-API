@@ -835,6 +835,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             constants.CODAE_QUESTIONADO: produtos_correcao_de_produto,
             constants.CODAE_PEDIU_ANALISE_SENSORIAL: produtos_aguardando_amostra_analise_sensorial,
             constants.CODAE_PEDIU_ANALISE_RECLAMACAO: produtos_questionamento_da_codae,
+            constants.RESPONDER_QUESTIONAMENTO_DA_CODAE: produtos_questionamento_da_codae,
         }
 
         funcao = filtros_funcao.get(filtro_aplicado)
