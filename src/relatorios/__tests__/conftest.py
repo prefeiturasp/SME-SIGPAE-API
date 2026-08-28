@@ -19,7 +19,10 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    MODEL_PERFIL,
     MODEL_TERCEIRIZADA,
+    MODEL_VINCULO,
+    NOME_ALUNO_PADRAO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
 )
@@ -187,9 +190,9 @@ def usuario_escola(escola):
     user = Usuario.objects.create_user(
         username=email, password=password, email=email, registro_funcional=rf
     )
-    perfil_professor = baker.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
+    perfil_professor = baker.make(MODEL_PERFIL, nome="ADMINISTRADOR_UE", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        MODEL_VINCULO,
         usuario=user,
         instituicao=escola,
         perfil=perfil_professor,
@@ -203,7 +206,7 @@ def usuario_escola(escola):
 def aluno():
     return baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -248,9 +251,9 @@ def solicitacao_dieta_especial_autorizada(
         )
         client.login(username=email, password=password)
 
-        perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+        perfil = baker.make(MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
         baker.make(
-            "perfil.Vinculo",
+            MODEL_VINCULO,
             usuario=user,
             instituicao=escola.lote.terceirizada,
             perfil=perfil,
@@ -315,9 +318,9 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,

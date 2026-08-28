@@ -371,7 +371,7 @@ register(GrupoUnidadeEscolarFactory)
 register(LancheEmergencialDiarioFactory)
 register(DiaLetivoSIGPAEFactory)
 
-EMAIL_TEST = "test@test.com"
+EMAIL_TEST = constants.EMAIL_TESTE
 
 
 @pytest.fixture
@@ -832,9 +832,7 @@ def eolservicosgp_get_lista_alunos(monkeypatch):
 @pytest.fixture
 def solicitacao_alteracao_cronograma_base():
     marca = baker.make("produto.Marca", nome="Marca Teste")
-    produto_edital = baker.make(
-        "produto.NomeDeProdutoEdital", nome="Produto Teste"
-    )
+    produto_edital = baker.make("produto.NomeDeProdutoEdital", nome="Produto Teste")
     ficha_tecnica = baker.make(
         "pre_recebimento.FichaTecnicaDoProduto",
         produto=produto_edital,

@@ -69,7 +69,7 @@ def arquivo_docx_base64():
 def aluno():
     return baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -219,9 +219,11 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
     client.login(username=email, password=password)
 
     baker.make("AlergiaIntolerancia", descricao="Alergia teste fixture")
-    perfil_professor = baker.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
+    perfil_professor = baker.make(
+        constants.MODEL_PERFIL, nome="ADMINISTRADOR_UE", ativo=False
+    )
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola,
         perfil=perfil_professor,
@@ -231,7 +233,7 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 
     aluno = baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -260,9 +262,9 @@ def solicitacao_dieta_especial_autorizada(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -293,9 +295,9 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="DIRETOR_UE", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="DIRETOR_UE", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola,
         perfil=perfil,
@@ -350,9 +352,9 @@ def solicitacao_dieta_especial_escola_solicitou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -377,9 +379,9 @@ def solicitacao_dieta_especial_codae_autorizou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -523,7 +525,7 @@ def client_autenticado_vinculo_escola_dieta(client, usuario_escola_dieta):
 
 @pytest.fixture
 def client_autenticado_vinculo_dre_dieta(client, django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -544,7 +546,7 @@ def client_autenticado_vinculo_dre_dieta(client, django_user_model, escola):
 
 @pytest.fixture
 def usuario_vinculo_codae_dieta(django_user_model, escola, codae):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -576,7 +578,7 @@ def client_autenticado_vinculo_codae_dieta(client, usuario_vinculo_codae_dieta):
 def client_autenticado_vinculo_codae_gestao_alimentacao_dieta(
     client, django_user_model, escola, codae
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -603,7 +605,7 @@ def client_autenticado_vinculo_codae_gestao_alimentacao_dieta(
 def client_autenticado_vinculo_terceirizada_dieta(
     client, django_user_model, escola, codae
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -720,9 +722,9 @@ def solicitacao_dieta_especial_cancelada_automaticamente(client, escola):
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -929,7 +931,7 @@ def substituicao_padrao_dieta_especial_2(
 
 @pytest.fixture
 def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -1025,7 +1027,7 @@ def solicitacoes_dieta_especial_ativas(escola, classificacoes_dietas):
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola,
@@ -1056,7 +1058,7 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
@@ -1097,7 +1099,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
     baker.make(FaixaEtaria, inicio=32, fim=88)
     aluno_a = baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cemei,
@@ -1174,7 +1176,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_emebs,
@@ -1269,7 +1271,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
     baker.make(ClassificacaoDieta, nome="Tipo C")
     aluno = baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
@@ -1312,7 +1314,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
 
 @pytest.fixture
 def usuario_com_pk():
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = Usuario.objects.create_user(
         nome="Antonio Jose",
@@ -1330,7 +1332,7 @@ def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
     with freeze_time("2025-1-10"):
         aluno = baker.make(
             Aluno,
-            nome="Roberto Alves da Silva",
+            nome=constants.NOME_ALUNO_PADRAO,
             codigo_eol="123456",
             data_nascimento="2022-01-01",
             escola=escola_cei,
@@ -1428,9 +1430,9 @@ def filtro_historico_relatorio_dietas(
 @pytest.fixture
 def escolas_tipo_emebs():
     classificacao = {
-        "Escola EMEBS": {
+        constants.NOME_ESCOLA_EMEBS: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
-            "lote": "Lote EMEBS",
+            "lote": constants.NOME_LOTE_EMEBS,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1450,10 +1452,10 @@ def escolas_tipo_emebs():
         "infantil_ou_fundamental": "FUNDAMENTAL",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola EMEBS",
+        "nome_escola": constants.NOME_ESCOLA_EMEBS,
         "nome_periodo_escolar": "TARDE",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
-        "lote": "Lote EMEBS",
+        "lote": constants.NOME_LOTE_EMEBS,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
@@ -1463,10 +1465,10 @@ def escolas_tipo_emebs():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola EMEBS",
+        "nome_escola": constants.NOME_ESCOLA_EMEBS,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
-        "lote": "Lote EMEBS",
+        "lote": constants.NOME_LOTE_EMEBS,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 6,
         "inicio": None,
@@ -1478,9 +1480,9 @@ def escolas_tipo_emebs():
 @pytest.fixture
 def escolas_tipo_emei_emef_cieja():
     classificacao = {
-        "Escola EMEF": {
+        constants.NOME_ESCOLA_EMEF: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
-            "lote": "LOTE EMEF",
+            "lote": constants.NOME_LOTE_EMEF,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1500,10 +1502,10 @@ def escolas_tipo_emei_emef_cieja():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola EMEF",
+        "nome_escola": constants.NOME_ESCOLA_EMEF,
         "nome_periodo_escolar": "TARDE",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
-        "lote": "LOTE EMEF",
+        "lote": constants.NOME_LOTE_EMEF,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
@@ -1514,10 +1516,10 @@ def escolas_tipo_emei_emef_cieja():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola EMEF",
+        "nome_escola": constants.NOME_ESCOLA_EMEF,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
-        "lote": "LOTE EMEF",
+        "lote": constants.NOME_LOTE_EMEF,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 6,
         "inicio": None,
@@ -1529,9 +1531,9 @@ def escolas_tipo_emei_emef_cieja():
 @pytest.fixture
 def escolas_tipos_cmct_ceugestao():
     classificacao = {
-        "Escola CEU GESTAO": {
+        constants.NOME_ESCOLA_CEU_GESTAO: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
-            "lote": "LOTE CEU GESTAO",
+            "lote": constants.NOME_LOTE_CEU_GESTAO,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1551,10 +1553,10 @@ def escolas_tipos_cmct_ceugestao():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEU GESTAO",
+        "nome_escola": constants.NOME_ESCOLA_CEU_GESTAO,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
-        "lote": "LOTE CEU GESTAO",
+        "lote": constants.NOME_LOTE_CEU_GESTAO,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 10,
         "inicio": None,
@@ -1565,10 +1567,10 @@ def escolas_tipos_cmct_ceugestao():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEU GESTAO",
+        "nome_escola": constants.NOME_ESCOLA_CEU_GESTAO,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
-        "lote": "LOTE CEU GESTAO",
+        "lote": constants.NOME_LOTE_CEU_GESTAO,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
@@ -1580,9 +1582,9 @@ def escolas_tipos_cmct_ceugestao():
 @pytest.fixture
 def escolas_tipo_cei():
     classificacao = {
-        "Escola CEI DIRET": {
+        constants.NOME_ESCOLA_CEI_DIRET: {
             "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
-            "lote": "LOTE CEI DIRET",
+            "lote": constants.NOME_LOTE_CEI_DIRET,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1604,10 +1606,10 @@ def escolas_tipo_cei():
 
     item = {
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEI DIRET",
+        "nome_escola": constants.NOME_ESCOLA_CEI_DIRET,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
-        "lote": "LOTE CEI DIRET",
+        "lote": constants.NOME_LOTE_CEI_DIRET,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": 7,
@@ -1617,10 +1619,10 @@ def escolas_tipo_cei():
     }
     item_somatorio = {
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEI DIRET",
+        "nome_escola": constants.NOME_ESCOLA_CEI_DIRET,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
-        "lote": "LOTE CEI DIRET",
+        "lote": constants.NOME_LOTE_CEI_DIRET,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,
@@ -1634,9 +1636,9 @@ def escolas_tipo_cei():
 @pytest.fixture
 def escolas_tipo_cemei_por_faixa_etaria():
     classificacao = {
-        "Escola CEMEI": {
+        constants.NOME_ESCOLA_CEMEI: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-            "lote": "LOTE CEMEI",
+            "lote": constants.NOME_LOTE_CEMEI,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1657,10 +1659,10 @@ def escolas_tipo_cemei_por_faixa_etaria():
     }
     item = {
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEMEI",
+        "nome_escola": constants.NOME_ESCOLA_CEMEI,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": constants.NOME_LOTE_CEMEI,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": 7,
@@ -1670,10 +1672,10 @@ def escolas_tipo_cemei_por_faixa_etaria():
     }
     item_somatorio = {
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEMEI",
+        "nome_escola": constants.NOME_ESCOLA_CEMEI,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": constants.NOME_LOTE_CEMEI,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,
@@ -1687,9 +1689,9 @@ def escolas_tipo_cemei_por_faixa_etaria():
 @pytest.fixture
 def escolas_tipo_cemei_por_periodo():
     classificacao = {
-        "Escola CEMEI": {
+        constants.NOME_ESCOLA_CEMEI: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-            "lote": "LOTE CEMEI",
+            "lote": constants.NOME_LOTE_CEMEI,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1709,10 +1711,10 @@ def escolas_tipo_cemei_por_periodo():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEMEI",
+        "nome_escola": constants.NOME_ESCOLA_CEMEI,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": constants.NOME_LOTE_CEMEI,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": None,
@@ -1723,10 +1725,10 @@ def escolas_tipo_cemei_por_periodo():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEMEI",
+        "nome_escola": constants.NOME_ESCOLA_CEMEI,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-        "lote": "LOTE CEMEI",
+        "lote": constants.NOME_LOTE_CEMEI,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,

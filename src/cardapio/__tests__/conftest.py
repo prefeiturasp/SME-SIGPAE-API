@@ -303,7 +303,7 @@ def motivo_alteracao_cardapio_inativo():
 
 @pytest.fixture
 def usuario_vinculo_escola_cardapio(django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     rf = "1888888"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(

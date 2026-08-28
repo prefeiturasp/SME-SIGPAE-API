@@ -16,6 +16,7 @@ from src.cardapio.suspensao_alimentacao.models import (
     SuspensaoAlimentacao,
 )
 from src.dados_comuns.constants import (
+    EMAIL_TESTE,
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
     TIPOS_UNIDADE_ESCOLAR,
@@ -667,7 +668,7 @@ def solicitacoes_ano_dre(
 
 @pytest.fixture
 def client_autenticado_painel_consolidados(client_autenticado, django_user_model):
-    user = django_user_model.objects.get(email="test@test.com")
+    user = django_user_model.objects.get(email=EMAIL_TESTE)
     diretoria_regional = baker.make(
         MODEL_DIRETORIA_REGIONAL, usuarios=[user], make_m2m=True
     )
@@ -714,7 +715,7 @@ def client_autenticado_dre_paineis_consolidados(
     templates,
     alteracoes_cardapio_dre_atual,
 ):
-    email = "test@test.com"
+    email = EMAIL_TESTE
     email2 = "user@escola.com"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -747,7 +748,7 @@ def client_autenticado_dre_paineis_consolidados(
 
 @pytest.fixture
 def client_autenticado_codae_paineis_consolidados(client, django_user_model):
-    email = "test@test.com"
+    email = EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -906,7 +907,7 @@ def client_autenticado_escola_paineis_consolidados(
     inclusoes_normais,
     solicitacao_medicao_inicial,
 ):
-    email = "test@test.com"
+    email = EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

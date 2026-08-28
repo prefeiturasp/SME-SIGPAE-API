@@ -412,6 +412,12 @@ class EscolaListagemSimplissimaComDRESelializer(
     terceirizada = serializers.CharField(
         source="lote.terceirizada.nome_fantasia", required=False
     )
+    quantidade_alunos = serializers.SerializerMethodField()
+
+    def get_quantidade_alunos(self, obj):
+        if hasattr(obj, "quantidade_alunos_regular"):
+            return obj.quantidade_alunos_regular or 0
+        return obj.quantidade_alunos
 
     class Meta:
         model = Escola

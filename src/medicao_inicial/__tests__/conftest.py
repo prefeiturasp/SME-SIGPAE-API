@@ -691,7 +691,7 @@ def escola_cieja(tipo_unidade_escolar_cieja):
 def aluno():
     return baker.make(
         "Aluno",
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
         uuid="2d20157a-4e52-4d25-a4c7-9c0e6b67ee18",
@@ -2632,7 +2632,7 @@ def valor_medicao(medicao, categoria_medicao):
 
 @pytest.fixture()
 def usuario_diretoria_regional(django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

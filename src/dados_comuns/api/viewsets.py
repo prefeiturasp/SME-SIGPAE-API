@@ -1,7 +1,5 @@
 import datetime
 
-from des.models import DynamicEmailConfiguration
-from django.db import IntegrityError
 from django.db.models import Prefetch, Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -39,7 +37,6 @@ from .paginations import CustomPagination, DownloadPagination
 from .serializers import (
     CategoriaPerguntaFrequenteSerializer,
     CentralDeDownloadSerializer,
-    ConfiguracaoEmailSerializer,
     ConsultaPerguntasFrequentesSerializer,
     NotificacaoSerializer,
     PerguntaFrequenteCreateSerializer,
@@ -210,23 +207,6 @@ class FeriadosAnoViewSet(ViewSet):
         retorno = [h[0] for h in feriados_atual] + [h[0] for h in feriados_proximo]
 
         return Response({"results": retorno}, status=status.HTTP_200_OK)
-
-
-class ConfiguracaoEmailViewSet(ModelViewSet):
-    queryset = DynamicEmailConfiguration.objects.all()
-    serializer_class = ConfiguracaoEmailSerializer
-
-    def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except IntegrityError as e:
-            return Response(
-                data={
-                    "error": "A configuração já existe, tente usar o método PUT",
-                    "detail": f"{e}",
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
 
 
 class CategoriaPerguntaFrequenteViewSet(ModelViewSet):

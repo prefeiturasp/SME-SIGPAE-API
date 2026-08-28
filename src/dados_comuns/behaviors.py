@@ -14,6 +14,7 @@ from .constants import (
     LIMITE_INFERIOR,
     LIMITE_SUPERIOR,
     MODEL_USUARIO,
+    MODEL_VINCULO,
     PRIORITARIO,
     StatusProcessamentoArquivo,
 )
@@ -437,7 +438,7 @@ class Logs(object):
 
 
 class TemVinculos(models.Model):
-    vinculos = GenericRelation("perfil.Vinculo")
+    vinculos = GenericRelation(MODEL_VINCULO)
 
     class Meta:
         abstract = True

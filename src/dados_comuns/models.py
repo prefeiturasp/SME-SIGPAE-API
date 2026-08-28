@@ -8,6 +8,7 @@ from django_prometheus.models import ExportModelOperationsMixin
 from .constants import (
     CRIADO_EM,
     ESCOLA_CANCELOU_LABEL,
+    MODEL_PERFIL,
     MODEL_USUARIO,
     MODULO_DIETA_ESPECIAL,
 )
@@ -491,7 +492,7 @@ class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
         "CategoriaPerguntaFrequente", on_delete=models.CASCADE
     )
     perfis = models.ManyToManyField(
-        "perfil.Perfil",
+        MODEL_PERFIL,
         related_name="perguntas_frequentes",
         blank=True,
     )
