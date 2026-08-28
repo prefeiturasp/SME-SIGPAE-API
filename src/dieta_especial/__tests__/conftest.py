@@ -219,9 +219,11 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
     client.login(username=email, password=password)
 
     baker.make("AlergiaIntolerancia", descricao="Alergia teste fixture")
-    perfil_professor = baker.make("perfil.Perfil", nome="ADMINISTRADOR_UE", ativo=False)
+    perfil_professor = baker.make(
+        constants.MODEL_PERFIL, nome="ADMINISTRADOR_UE", ativo=False
+    )
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola,
         perfil=perfil_professor,
@@ -260,9 +262,9 @@ def solicitacao_dieta_especial_autorizada(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -293,9 +295,9 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="DIRETOR_UE", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="DIRETOR_UE", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola,
         perfil=perfil,
@@ -350,9 +352,9 @@ def solicitacao_dieta_especial_escola_solicitou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -377,9 +379,9 @@ def solicitacao_dieta_especial_codae_autorizou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -720,9 +722,9 @@ def solicitacao_dieta_especial_cancelada_automaticamente(client, escola):
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make("perfil.Perfil", nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
     baker.make(
-        "perfil.Vinculo",
+        constants.MODEL_VINCULO,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
