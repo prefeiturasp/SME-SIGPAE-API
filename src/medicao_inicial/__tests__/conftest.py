@@ -691,7 +691,7 @@ def escola_cieja(tipo_unidade_escolar_cieja):
 def aluno():
     return baker.make(
         "Aluno",
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
         uuid="2d20157a-4e52-4d25-a4c7-9c0e6b67ee18",

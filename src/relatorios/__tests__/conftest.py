@@ -20,6 +20,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MODEL_TERCEIRIZADA,
+    NOME_ALUNO_PADRAO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
 )
@@ -203,7 +204,7 @@ def usuario_escola(escola):
 def aluno():
     return baker.make(
         Aluno,
-        nome="Roberto Alves da Silva",
+        nome=NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
