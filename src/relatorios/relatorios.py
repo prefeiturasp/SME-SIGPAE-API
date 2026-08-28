@@ -2476,6 +2476,107 @@ def get_pdf_cronograma_semanal(request, cronograma):
     )
 
 
+def _busca_log_justificativa_cronograma(logs, autor_justificativa):
+    dict_logs = {
+        "cronograma": ["Cronograma Ciente"],
+        "abastecimento": ["Aprovado Abastecimento", "Reprovado Abastecimento"],
+        "dilog": ["Aprovado DILOG", "Reprovado DILOG"],
+    }
+    log_correto = next(
+        (
+            log
+            for log in logs
+            if log.status_evento_explicacao in dict_logs[autor_justificativa]
+        ),
+        None,
+    )
+    return {
+        "justificativa": log_correto.justificativa if log_correto else "",
+        "titulo": log_correto.status_evento_explicacao if log_correto else dict_logs[autor_justificativa][0],
+    }
+
+
+def _pinta_tabela(campo, etapa_nova, etapa_antiga):
+    valor_novo = getattr(etapa_nova, campo, None)
+    valor_antigo = getattr(etapa_antiga, campo, None) if etapa_antiga else None
+    return valor_novo != valor_antigo
+
+
+def _monta_etapas_com_diff(etapas_novas, etapas_antigas):
+    campos = [
+        "numero_empenho",
+        "qtd_total_empenho",
+        "etapa",
+        "parte",
+        "data_programada",
+        "quantidade",
+        "total_embalagens",
+    ]
+
+    etapas_antigas_list = list(etapas_antigas.all())
+    resultado = []
+
+    for etapa in etapas_novas.all():
+        etapa_antiga = next(
+            (
+                e
+                for e in etapas_antigas_list
+                if e.etapa == etapa.etapa and e.parte == etapa.parte
+            ),
+            None,
+        )
+        linha_diferente = etapa_antiga is None
+
+        classes = {
+            campo: (
+                "fundo-laranja"
+                if not linha_diferente and _pinta_tabela(campo, etapa, etapa_antiga)
+                else ""
+            )
+            for campo in campos
+        }
+
+        resultado.append(
+            {
+                "etapa": etapa,
+                "linha_diferente": linha_diferente,
+                "classes": classes,
+            }
+        )
+
+    return resultado
+
+
+def get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao_cronograma):
+    logs = solicitacao_cronograma.logs
+    etapas_com_diff = _monta_etapas_com_diff(
+        solicitacao_cronograma.etapas_novas,
+        solicitacao_cronograma.etapas_antigas,
+    )
+
+    log_cronograma = _busca_log_justificativa_cronograma(logs, "cronograma")
+    log_abastecimento = _busca_log_justificativa_cronograma(logs, "abastecimento")
+
+    eh_fornecedor_ciente = solicitacao_cronograma.get_status_display() == "Fornecedor Ciente"
+
+    html_string = render_to_string(
+        "pre_recebimento/cronogramas/relatorio_solicitacao_alteracao_cronograma.html",
+        {
+            "solicitacao_cronograma": solicitacao_cronograma,
+            "cronograma": solicitacao_cronograma.cronograma,
+            "empresa": solicitacao_cronograma.cronograma.empresa,
+            "etapas_com_diff": etapas_com_diff,
+            "justificativa_cronograma": log_cronograma["justificativa"],
+            "justificativa_abastecimento": log_abastecimento["justificativa"],
+            "titulo_abastecimento": log_abastecimento["titulo"],
+            "eh_fornecedor_ciente": eh_fornecedor_ciente,
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
+    return html_to_pdf_response(html_string, "alteracao_cronograma.pdf")
+
+
 def get_pdf_ficha_tecnica(request, ficha):
     informacoes_nutricionais = InformacoesNutricionaisFichaTecnica.objects.filter(
         ficha_tecnica=ficha

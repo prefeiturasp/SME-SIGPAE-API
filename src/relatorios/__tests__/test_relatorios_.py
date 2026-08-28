@@ -40,6 +40,7 @@ from ..relatorios import (
     relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
     relatorio_suspensao_de_alimentacao,
+    get_pdf_relatorio_solicitacao_alteracao_cronograma,
 )
 
 pytestmark = pytest.mark.django_db
@@ -1202,3 +1203,91 @@ def test_render_homologacao_produto_com_aditivos_alergenicos():
     assert produto.nome in html_string
     assert "SIM" in html_string
     assert produto.aditivos in html_string
+
+
+def test_get_pdf_relatorio_solicitacao_alteracao_cronograma_dados_basicos(
+    solicitacao_alteracao_cronograma_base,
+):
+    solicitacao = solicitacao_alteracao_cronograma_base
+    etapa = baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=solicitacao.cronograma,
+        numero_empenho="EMP-123",
+        etapa=1,
+    )
+    solicitacao.etapas_antigas.add(etapa)
+    solicitacao.etapas_novas.add(etapa)
+
+    relatorio = get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao)
+    texto_normalizado = re.sub(r"\s+", "", extrair_texto_de_pdf(relatorio.content))
+
+    assert "ALTERAÇÃODECRONOGRAMA" in texto_normalizado
+    assert "ProdutoTeste" in texto_normalizado
+    assert "MarcaTeste" in texto_normalizado
+    assert "FornecedorTeste" in texto_normalizado
+    assert re.sub(r"\s+", "", solicitacao.numero_solicitacao) in texto_normalizado
+    assert re.sub(r"\s+", "", solicitacao.cronograma.numero) in texto_normalizado
+    assert "Justificativadetestedasolicitação" in texto_normalizado
+    assert "Documentogeradoem" in texto_normalizado
+    assert "AprovadoDILOG" not in texto_normalizado
+
+
+def test_get_pdf_relatorio_solicitacao_alteracao_cronograma_exibe_etapas_antigas_e_novas_com_diferenca(
+    solicitacao_alteracao_cronograma_base,
+):
+    solicitacao = solicitacao_alteracao_cronograma_base
+    etapa_antiga = baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=solicitacao.cronograma,
+        numero_empenho="EMP-123",
+        qtd_total_empenho=3000,
+        etapa=1,
+        parte=1,
+        quantidade=1000,
+        total_embalagens=100,
+    )
+    etapa_nova = baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=solicitacao.cronograma,
+        numero_empenho="EMP-123",
+        qtd_total_empenho=3000,
+        etapa=1,
+        parte=1,
+        quantidade=2000,
+        total_embalagens=200,
+    )
+    solicitacao.etapas_antigas.add(etapa_antiga)
+    solicitacao.etapas_novas.add(etapa_nova)
+
+    relatorio = get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao)
+    texto_normalizado = re.sub(r"\s+", "", extrair_texto_de_pdf(relatorio.content))
+
+    assert "1.000" in texto_normalizado
+    assert "2.000" in texto_normalizado
+
+
+def test_get_pdf_relatorio_solicitacao_alteracao_cronograma_exibe_aprovado_dilog_quando_nao_fornecedor_ciente(
+    solicitacao_alteracao_cronograma_base,
+):
+    solicitacao = solicitacao_alteracao_cronograma_base
+    etapa = baker.make(
+        "pre_recebimento.EtapasDoCronograma",
+        cronograma=solicitacao.cronograma,
+        numero_empenho="EMP-123",
+        etapa=1,
+    )
+    solicitacao.etapas_antigas.add(etapa)
+    solicitacao.etapas_novas.add(etapa)
+
+    status_field = solicitacao._meta.get_field("status")
+    status_nao_fornecedor_ciente = next(
+        valor
+        for valor, descricao in status_field.flatchoices
+        if descricao != "Fornecedor Ciente"
+    )
+    solicitacao.status = status_nao_fornecedor_ciente
+
+    relatorio = get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao)
+    texto_normalizado = re.sub(r"\s+", "", extrair_texto_de_pdf(relatorio.content))
+
+    assert "AprovadoDILOG" in texto_normalizado

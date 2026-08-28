@@ -92,6 +92,7 @@ from src.pre_recebimento.tasks import (
 from src.relatorios.relatorios import (
     get_pdf_cronograma,
     get_pdf_cronograma_ponto_a_ponto_flv,
+    get_pdf_relatorio_solicitacao_alteracao_cronograma,
 )
 
 from ....dados_comuns.models import LogSolicitacoesUsuario
@@ -840,6 +841,27 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
             )
 
         return dados_dashboard
+
+    @action(
+        detail=True,
+        permission_classes=(PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,),
+        methods=["GET"],
+        url_path="relatorio",
+    )
+    def relatorio(self, request, uuid):
+        """Gera o relatório da solicitação de alteração de cronograma."""
+        try:
+            solicitacao_cronograma = SolicitacaoAlteracaoCronograma.objects.get(
+                uuid=uuid
+            )
+            return get_pdf_relatorio_solicitacao_alteracao_cronograma(
+                solicitacao_cronograma=solicitacao_cronograma
+            )
+        except ObjectDoesNotExist as e:
+            return Response(
+                dict(detail=f"Solicitação Cronograma informado não é valido: {e}"),
+                status=HTTP_406_NOT_ACCEPTABLE,
+            )
 
     @action(
         detail=False,
