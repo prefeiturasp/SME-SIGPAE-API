@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 
-from src.dados_comuns.constants import NOME_PROTOCOLO_PLANILHA
+from src.dados_comuns.constants import CHAVE_NOME_PROTOCOLO_DB, NOME_PROTOCOLO_PLANILHA
 from src.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
 )
@@ -74,7 +74,7 @@ class Command(BaseCommand):
                 protocolos_uuids = editais.values_list(
                     "protocolos_padroes_dieta_especial__uuid"
                 )
-                nome_protocolo = dado["NOME PROTOCOLO NO DB"]
+                nome_protocolo = dado[CHAVE_NOME_PROTOCOLO_DB]
                 if nome_protocolo == "ALERGIA - CORANTES":
                     nome_protocolo = "ALERGIA - CORANTE"
 
