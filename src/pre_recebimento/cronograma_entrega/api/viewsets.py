@@ -609,16 +609,24 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
     )
     def lista_cronogramas_pos_recebimento(self, request):
-        """Cronogramas vinculados ao contrato selecionado (query param
-        ``contrato_id``) para o cadastro do Termo de Recebimento Definitivo
-        (Pós-Recebimento)."""
+        """Cronogramas do contrato e da empresa selecionados (query params
+        ``contrato_id`` e ``empresa_id``) para o cadastro do Termo de
+        Recebimento Definitivo (Pós-Recebimento).
+
+        Os dois filtros são obrigatórios porque ``Cronograma.empresa`` e
+        ``Cronograma.contrato`` são independentes: filtrar só pelo contrato
+        ofereceria cronogramas que a validação do cadastro do termo rejeita
+        por não pertencerem à empresa selecionada.
+        """
         contrato_uuid = request.query_params.get("contrato_id")
-        if not _uuid_valido(contrato_uuid):
+        empresa_uuid = request.query_params.get("empresa_id")
+        if not _uuid_valido(contrato_uuid) or not _uuid_valido(empresa_uuid):
             queryset = Cronograma.objects.none()
         else:
-            queryset = Cronograma.objects.filter(contrato__uuid=contrato_uuid).order_by(
-                "numero"
-            )
+            queryset = Cronograma.objects.filter(
+                contrato__uuid=contrato_uuid,
+                empresa__uuid=empresa_uuid,
+            ).order_by("numero")
         return Response(
             {"results": CronogramaSimplesSerializer(queryset, many=True).data}
         )
