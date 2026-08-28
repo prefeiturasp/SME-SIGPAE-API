@@ -13,6 +13,7 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
 from src.dados_comuns.constants import (
+    EMAIL_TESTE,
     MODEL_ESCOLA,
     TIPO_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
@@ -349,7 +350,7 @@ def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano)
 
 @pytest.fixture
 def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola, codae):
-    email = "test@test.com"
+    email = EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

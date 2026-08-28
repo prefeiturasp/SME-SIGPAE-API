@@ -203,7 +203,7 @@ def produtos_edital_41(escola):
 
 @pytest.fixture
 def client_autenticado_vinculo_terceirizada(client, django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     tecerizada = escola.lote.terceirizada
     user = django_user_model.objects.create_user(
@@ -241,7 +241,7 @@ def user(django_user_model):
 def client_autenticado_vinculo_terceirizada_homologacao(
     client, django_user_model, escola
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     tecerizada = escola.lote.terceirizada
     user = django_user_model.objects.create_user(
@@ -797,7 +797,7 @@ def imagem_produto2(produto, arquivo):
 
 @pytest.fixture
 def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

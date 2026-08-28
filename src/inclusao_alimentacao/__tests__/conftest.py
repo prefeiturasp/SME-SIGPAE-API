@@ -668,7 +668,7 @@ def client_autenticado_vinculo_escola_inclusao(
     periodo_escolar,
     faixa_etaria,
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -733,7 +733,7 @@ def client_autenticado_vinculo_dre_inclusao(client, django_user_model, escola):
 
 @pytest.fixture
 def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola, codae):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -761,7 +761,7 @@ def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola,
 def client_autenticado_vinculo_terceirizada_inclusao(
     client, django_user_model, escola, codae
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

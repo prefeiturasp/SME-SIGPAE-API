@@ -2632,7 +2632,7 @@ def valor_medicao(medicao, categoria_medicao):
 
 @pytest.fixture()
 def usuario_diretoria_regional(django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

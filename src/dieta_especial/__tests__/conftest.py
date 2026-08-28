@@ -525,7 +525,7 @@ def client_autenticado_vinculo_escola_dieta(client, usuario_escola_dieta):
 
 @pytest.fixture
 def client_autenticado_vinculo_dre_dieta(client, django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -546,7 +546,7 @@ def client_autenticado_vinculo_dre_dieta(client, django_user_model, escola):
 
 @pytest.fixture
 def usuario_vinculo_codae_dieta(django_user_model, escola, codae):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -578,7 +578,7 @@ def client_autenticado_vinculo_codae_dieta(client, usuario_vinculo_codae_dieta):
 def client_autenticado_vinculo_codae_gestao_alimentacao_dieta(
     client, django_user_model, escola, codae
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -605,7 +605,7 @@ def client_autenticado_vinculo_codae_gestao_alimentacao_dieta(
 def client_autenticado_vinculo_terceirizada_dieta(
     client, django_user_model, escola, codae
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -931,7 +931,7 @@ def substituicao_padrao_dieta_especial_2(
 
 @pytest.fixture
 def client_autenticado_protocolo_dieta(client, django_user_model, escola, codae):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -1314,7 +1314,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
 
 @pytest.fixture
 def usuario_com_pk():
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = Usuario.objects.create_user(
         nome="Antonio Jose",

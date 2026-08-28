@@ -7,7 +7,11 @@ from rest_framework import status
 
 from src.escola.__tests__.conftest import mocked_response
 
-from ...dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
+from ...dados_comuns.constants import (
+    EMAIL_TESTE,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from ...eol_servico.utils import EOLServicoSGP
 from ..api.helpers import ofuscar_email
 from ..models import (
@@ -26,7 +30,7 @@ def test_get_usuarios(client_autenticado):
     assert isinstance(response.json(), dict)
     json = response.json()
     assert json["count"] == 1
-    assert json["results"][0]["email"] == "test@test.com"
+    assert json["results"][0]["email"] == EMAIL_TESTE
 
 
 def test_atualizar_email(users_admin_escola):

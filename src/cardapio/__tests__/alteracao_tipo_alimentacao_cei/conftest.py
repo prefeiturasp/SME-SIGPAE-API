@@ -28,7 +28,7 @@ def alteracao_cardapio_cei(escola):
 def client_autenticado_vinculo_escola_cei_cardapio(
     client, django_user_model, escola_cei
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     rf = "8888888"
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
@@ -57,7 +57,7 @@ def client_autenticado_vinculo_escola_cei_cardapio(
 
 @pytest.fixture
 def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola, codae):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

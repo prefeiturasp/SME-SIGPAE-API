@@ -68,7 +68,7 @@ def client_autenticado_diretor_escola(client, django_user_model, escola):
 
 @pytest.fixture
 def client_autenticado_vinculo_nutrimanifestacao(client, django_user_model, codae):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
