@@ -4,6 +4,7 @@ from django.db import models
 from multiselectfield import MultiSelectField
 
 from src.dados_comuns.behaviors import Logs, TemIdentificadorExternoAmigavel
+from src.dados_comuns.constants import MODEL_USUARIO
 from src.dados_comuns.fluxo_status import (
     FluxoSolicitacaoDeAlteracao,
     FluxoSolicitacaoRemessa,
@@ -145,9 +146,7 @@ class SolicitacaoDeAlteracaoRequisicao(
     justificativa_negacao = models.TextField(
         "Justificativa de negacao pela dilog", blank=True
     )
-    usuario_solicitante = models.ForeignKey(
-        "perfil.Usuario", on_delete=models.DO_NOTHING
-    )
+    usuario_solicitante = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
     numero_solicitacao = models.CharField(
         "Número da solicitação", blank=True, max_length=50, unique=True
     )

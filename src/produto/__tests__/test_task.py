@@ -17,6 +17,7 @@ from src.produto.tasks import (
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
+    gera_pdf_relatorio_historico_produto_async,
 )
 
 pytestmark = pytest.mark.django_db
@@ -279,3 +280,37 @@ def test_gera_excel_relatorio_reclamacao_produtos_erro(
     assert central_download.msg_erro == "'tuple' object has no attribute 'get'"
     assert central_download.visto is False
     assert central_download.usuario == user
+
+
+def test_gera_pdf_relatorio_historico_produto_async(
+    client_autenticado_vinculo_terceirizada_homologacao,
+):
+    _, homologacao_produto = client_autenticado_vinculo_terceirizada_homologacao
+    produto = homologacao_produto.produto
+    usuario = homologacao_produto.criado_por
+    nome_arquivo = f"relatorio_historico_produto_{produto.id_externo}.pdf"
+
+    resultado = gera_pdf_relatorio_historico_produto_async.delay(
+        user=usuario.username,
+        nome_arquivo=nome_arquivo,
+        uuid_produto=str(produto.uuid),
+    )
+
+    assert resultado.status == "SUCCESS"
+    assert resultado.ready() is True
+    assert resultado.successful() is True
+    assert resultado.id == resultado.task_id
+    assert isinstance(resultado.task_id, str)
+    assert isinstance(uuid.UUID(resultado.task_id), uuid.UUID)
+
+    central_download = CentralDeDownload.objects.filter(
+        identificador=nome_arquivo
+    ).first()
+
+    assert central_download is not None
+    assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert central_download.identificador == nome_arquivo
+    assert central_download.arquivo is not None
+    assert central_download.msg_erro == ""
+    assert central_download.visto is False
+    assert central_download.usuario == usuario

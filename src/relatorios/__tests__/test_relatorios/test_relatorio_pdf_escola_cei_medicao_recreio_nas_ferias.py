@@ -4,6 +4,13 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cei_recreio_nas_ferias,
     build_tabelas_relatorio_medicao,
@@ -30,7 +37,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
             num_inscritos=10,
             num_colaboradores=5,
             liberar_medicao=True,
-            cei_ou_emei="CEI",
+            cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
         )
 
     def _setup_solicitacao(self, solicitacao_medicao_inicial_factory, escola_cei):
@@ -47,17 +54,17 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
             nome="ALIMENTAÇÃO"
         )
         self.categoria_dieta_a = categoria_medicao_factory.create(
-            nome="DIETA ESPECIAL - TIPO A"
+            nome=DIETA_ESPECIAL_TIPO_A
         )
         self.categoria_dieta_b = categoria_medicao_factory.create(
-            nome="DIETA ESPECIAL - TIPO B"
+            nome=DIETA_ESPECIAL_TIPO_B
         )
 
     def _setup_medicoes(self, medicao_factory):
         self.medicao_recreio = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
             periodo_escolar=None,
-            grupo__nome="Recreio nas Férias",
+            grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
         )
         self.medicao_colaboradores = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
@@ -162,7 +169,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
         build_tabelas = build_tabelas_relatorio_medicao(self.solicitacao)
 
         assert any(
-            item.get("periodos") == ["Recreio nas Férias"] for item in build_tabelas
+            item.get("periodos") == [GRUPO_RECREIO_NAS_FERIAS] for item in build_tabelas
         )
         assert any(item.get("periodos") == ["Colaboradores"] for item in build_tabelas)
 
@@ -182,8 +189,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
             "header": [
                 "Faixa Etária",
                 "Alimentação",
-                "DIETA ESPECIAL - TIPO A",
-                "DIETA ESPECIAL - TIPO B",
+                DIETA_ESPECIAL_TIPO_A,
+                DIETA_ESPECIAL_TIPO_B,
                 "Total por Faixa Etária",
             ],
             "valores_campos": [
@@ -200,9 +207,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
                 "Total de Alimentações para Colaboradores",
             ],
             "valores_campos": [
-                ["Lanche", "20"],
-                ["Refeição", "28"],
-                ["Sobremesa", "28"],
+                [TIPOS_ALIMENTACAO.LANCHE.value, "20"],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, "28"],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, "28"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - 01/2026",
         }
@@ -250,8 +257,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
             "Total por Faixa Etária",
         ]
 
-        assert "DIETA ESPECIAL - TIPO A" not in tabela_alimentacao["header"]
-        assert "DIETA ESPECIAL - TIPO B" not in tabela_alimentacao["header"]
+        assert DIETA_ESPECIAL_TIPO_A not in tabela_alimentacao["header"]
+        assert DIETA_ESPECIAL_TIPO_B not in tabela_alimentacao["header"]
 
         assert tabela_alimentacao["valores_campos"] == [
             [str(self.faixa_1), "40", "40"],

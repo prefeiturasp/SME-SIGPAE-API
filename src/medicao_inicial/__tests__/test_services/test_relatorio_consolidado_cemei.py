@@ -6,6 +6,17 @@ import pandas as pd
 import pytest
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_INFANTIL_INTEGRAL,
+    GRUPO_INFANTIL_MANHA,
+    GRUPO_INFANTIL_TARDE,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.medicao_inicial.models import GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_cemei import (
     _define_filtro,
@@ -32,7 +43,9 @@ def test_get_alimentacoes_por_periodo(
     colunas = get_alimentacoes_por_periodo([relatorio_consolidado_xlsx_cemei])
     assert isinstance(colunas, list)
     assert len(colunas) == 83
-    assert sum(1 for tupla in colunas if tupla[0] == "Solicitações de Alimentação") == 2
+    assert (
+        sum(1 for tupla in colunas if tupla[0] == GRUPO_SOLICITACOES_ALIMENTACAO) == 2
+    )
     assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 8
     assert sum(1 for tupla in colunas if tupla[0] == "PARCIAL") == 8
     assert (
@@ -51,9 +64,9 @@ def test_get_alimentacoes_por_periodo(
         sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B - PARCIAL")
         == 8
     )
-    assert sum(1 for tupla in colunas if tupla[0] == "Infantil INTEGRAL") == 6
-    assert sum(1 for tupla in colunas if tupla[0] == "Infantil MANHA") == 6
-    assert sum(1 for tupla in colunas if tupla[0] == "Infantil TARDE") == 6
+    assert sum(1 for tupla in colunas if tupla[0] == GRUPO_INFANTIL_INTEGRAL) == 6
+    assert sum(1 for tupla in colunas if tupla[0] == GRUPO_INFANTIL_MANHA) == 6
+    assert sum(1 for tupla in colunas if tupla[0] == GRUPO_INFANTIL_TARDE) == 6
     assert (
         sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A - INFANTIL")
         == 3
@@ -107,23 +120,25 @@ def test_get_lista_alimentacoes(
     assert isinstance(parcial, list)
     assert parcial == retorno_cei
 
-    integral = _get_lista_alimentacoes(medicoes[2], "Infantil INTEGRAL")
+    integral = _get_lista_alimentacoes(medicoes[2], GRUPO_INFANTIL_INTEGRAL)
     assert isinstance(integral, list)
     assert integral == retorno_emei
 
-    manha = _get_lista_alimentacoes(medicoes[3], "Infantil MANHA")
+    manha = _get_lista_alimentacoes(medicoes[3], GRUPO_INFANTIL_MANHA)
     assert isinstance(manha, list)
     assert manha == retorno_emei
 
-    tarde = _get_lista_alimentacoes(medicoes[4], "Infantil TARDE")
+    tarde = _get_lista_alimentacoes(medicoes[4], GRUPO_INFANTIL_TARDE)
     assert isinstance(tarde, list)
     assert tarde == retorno_emei
 
-    programas_e_projetos = _get_lista_alimentacoes(medicoes[5], "Programas e Projetos")
+    programas_e_projetos = _get_lista_alimentacoes(
+        medicoes[5], GRUPO_PROGRAMAS_E_PROJETOS
+    )
     assert isinstance(programas_e_projetos, list)
     assert programas_e_projetos == retorno_emei
 
-    solicitacao = _get_lista_alimentacoes(medicoes[6], "Solicitações de Alimentação")
+    solicitacao = _get_lista_alimentacoes(medicoes[6], GRUPO_SOLICITACOES_ALIMENTACAO)
     assert isinstance(solicitacao, list)
     assert solicitacao == ["kit_lanche", "lanche_emergencial"]
 
@@ -137,13 +152,13 @@ def test_get_lista_alimentacoes_dietas(
     retorno_cei = [faixa.id for faixa in faixas_etarias_ativas]
 
     lista_dietas_integral_cei = _get_lista_alimentacoes_dietas(
-        medicoes[0], "DIETA ESPECIAL - TIPO A"
+        medicoes[0], DIETA_ESPECIAL_TIPO_A
     )
     assert isinstance(lista_dietas_integral_cei, list)
     assert lista_dietas_integral_cei == retorno_cei
 
     lista_dietas_integral_emei = _get_lista_alimentacoes_dietas(
-        medicoes[3], "DIETA ESPECIAL - TIPO A"
+        medicoes[3], DIETA_ESPECIAL_TIPO_A
     )
     assert isinstance(lista_dietas_integral_emei, list)
     assert lista_dietas_integral_emei == ["lanche", "lanche_4h"]
@@ -210,7 +225,7 @@ def test_get_alimentacoes_por_periodo_unifica_dieta_enteral_programas_e_projetos
     categoria_medicao_dieta_a_enteral_aminoacidos,
 ):
     medicao_programas_e_projetos = relatorio_consolidado_xlsx_cemei.medicoes.get(
-        grupo__nome="Programas e Projetos"
+        grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS
     )
     baker.make(
         "ValorMedicao",
@@ -239,7 +254,7 @@ def test_sort_and_merge(faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
     periodos_alimentacoes = {
         "INTEGRAL": faixas,
-        "Infantil INTEGRAL": [
+        GRUPO_INFANTIL_INTEGRAL: [
             "lanche",
             "lanche_4h",
             "refeicao",
@@ -247,7 +262,7 @@ def test_sort_and_merge(faixas_etarias_ativas):
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
         ],
-        "Solicitações de Alimentação": ["kit_lanche", "lanche_emergencial"],
+        GRUPO_SOLICITACOES_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
     }
     dietas_alimentacoes = {
         "DIETA ESPECIAL - TIPO A - INFANTIL": ["lanche", "lanche_4h", "refeicao"],
@@ -260,9 +275,9 @@ def test_sort_and_merge(faixas_etarias_ativas):
     assert len(dict_periodos_dietas["INTEGRAL"]) == 8
     assert dict_periodos_dietas["INTEGRAL"] == faixas
 
-    assert "Infantil INTEGRAL" in dict_periodos_dietas
-    assert len(dict_periodos_dietas["Infantil INTEGRAL"]) == 6
-    assert dict_periodos_dietas["Infantil INTEGRAL"] == [
+    assert GRUPO_INFANTIL_INTEGRAL in dict_periodos_dietas
+    assert len(dict_periodos_dietas[GRUPO_INFANTIL_INTEGRAL]) == 6
+    assert dict_periodos_dietas[GRUPO_INFANTIL_INTEGRAL] == [
         "lanche",
         "lanche_4h",
         "refeicao",
@@ -286,9 +301,9 @@ def test_sort_and_merge(faixas_etarias_ativas):
         "lanche_4h",
     ]
 
-    assert "Solicitações de Alimentação" in dict_periodos_dietas
-    assert len(dict_periodos_dietas["Solicitações de Alimentação"]) == 2
-    assert dict_periodos_dietas["Solicitações de Alimentação"] == [
+    assert GRUPO_SOLICITACOES_ALIMENTACAO in dict_periodos_dietas
+    assert len(dict_periodos_dietas[GRUPO_SOLICITACOES_ALIMENTACAO]) == 2
+    assert dict_periodos_dietas[GRUPO_SOLICITACOES_ALIMENTACAO] == [
         "kit_lanche",
         "lanche_emergencial",
     ]
@@ -301,7 +316,7 @@ def test_get_valores_tabela(relatorio_consolidado_xlsx_cemei, mock_colunas_cemei
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 76
     assert linhas[0] == [
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         5.0,
@@ -419,7 +434,12 @@ def test_processa_periodo_campo(
     )
     assert isinstance(integral_cei, list)
     assert len(integral_cei) == 4
-    assert integral_cei == ["CEMEI", "543210", "CEMEI TESTE", 100.0]
+    assert integral_cei == [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        "543210",
+        "CEMEI TESTE",
+        100.0,
+    ]
 
     dieta_a_integral = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cemei,
@@ -431,11 +451,17 @@ def test_processa_periodo_campo(
     )
     assert isinstance(dieta_a_integral, list)
     assert len(dieta_a_integral) == 5
-    assert dieta_a_integral == ["CEMEI", "543210", "CEMEI TESTE", 100.0, 10.0]
+    assert dieta_a_integral == [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        "543210",
+        "CEMEI TESTE",
+        100.0,
+        10.0,
+    ]
 
     integral_emei = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cemei,
-        "Infantil INTEGRAL",
+        GRUPO_INFANTIL_INTEGRAL,
         "refeicao",
         valores_iniciais,
         grupos_medicao,
@@ -443,7 +469,14 @@ def test_processa_periodo_campo(
     )
     assert isinstance(integral_emei, list)
     assert len(integral_emei) == 6
-    assert integral_emei == ["CEMEI", "543210", "CEMEI TESTE", 100.0, 10.0, 150.0]
+    assert integral_emei == [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        "543210",
+        "CEMEI TESTE",
+        100.0,
+        10.0,
+        150.0,
+    ]
 
     dieta_a_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cemei,
@@ -456,7 +489,7 @@ def test_processa_periodo_campo(
     assert isinstance(dieta_a_lanche, list)
     assert len(dieta_a_lanche) == 7
     assert dieta_a_lanche == [
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         100.0,
@@ -477,11 +510,11 @@ def test_define_filtro(relatorio_consolidado_xlsx_cemei):
     assert "periodo_escolar__nome" in integral_cei
     assert integral_cei["periodo_escolar__nome"] == "INTEGRAL"
 
-    integral_emei = _define_filtro("Infantil INTEGRAL", grupos_medicao)
+    integral_emei = _define_filtro(GRUPO_INFANTIL_INTEGRAL, grupos_medicao)
     assert isinstance(integral_emei, dict)
     assert "grupo__nome" in integral_emei
     assert "periodo_escolar__nome" not in integral_emei
-    assert integral_emei["grupo__nome"] == "Infantil INTEGRAL"
+    assert integral_emei["grupo__nome"] == GRUPO_INFANTIL_INTEGRAL
 
     dieta_especial_cei = _define_filtro(
         "DIETA ESPECIAL - TIPO A - INTEGRAL", grupos_medicao
@@ -500,18 +533,22 @@ def test_define_filtro(relatorio_consolidado_xlsx_cemei):
     assert dieta_especial_emei["grupo__nome__in"] == grupos_medicao
 
     dieta_especial_programas_projetos = _define_filtro(
-        "Programas e Projetos", grupos_medicao
+        GRUPO_PROGRAMAS_E_PROJETOS, grupos_medicao
     )
     assert isinstance(dieta_especial_programas_projetos, dict)
     assert "grupo__nome" in dieta_especial_programas_projetos
-    assert dieta_especial_programas_projetos["grupo__nome"] == "Programas e Projetos"
+    assert (
+        dieta_especial_programas_projetos["grupo__nome"] == GRUPO_PROGRAMAS_E_PROJETOS
+    )
 
     dieta_especial_programas_projetos = _define_filtro(
         "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS", grupos_medicao
     )
     assert isinstance(dieta_especial_programas_projetos, dict)
     assert "grupo__nome" in dieta_especial_programas_projetos
-    assert dieta_especial_programas_projetos["grupo__nome"] == "Programas e Projetos"
+    assert (
+        dieta_especial_programas_projetos["grupo__nome"] == GRUPO_PROGRAMAS_E_PROJETOS
+    )
 
 
 def test_processa_dieta_especial(
@@ -545,7 +582,7 @@ def test_processa_dieta_especial(
     )
     assert math.isclose(total, 30.0, rel_tol=1e-9)
 
-    filtros = {"grupo__nome": "Programas e Projetos"}
+    filtros = {"grupo__nome": GRUPO_PROGRAMAS_E_PROJETOS}
     periodo = "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS"
     campo = "lanche"
     total = _processa_dieta_especial(
@@ -565,7 +602,7 @@ def test_processa_periodo_regular(
     )
     assert math.isclose(total, 100.0, rel_tol=1e-9)
 
-    periodo = "Infantil INTEGRAL"
+    periodo = GRUPO_INFANTIL_INTEGRAL
     filtros = {"grupo__nome": periodo}
     campo = "lanche"
     total = _processa_periodo_regular(
@@ -666,16 +703,28 @@ def test_insere_tabela_periodos_na_planilha(
     )
     assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 5
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 4
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 5
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 4
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 3
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 3
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 3
+    )
     assert (
         sum(
             1
@@ -686,7 +735,7 @@ def test_insere_tabela_periodos_na_planilha(
     )
 
     assert df.iloc[0].tolist() == [
-        "CEMEI",
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
         "CEMEI TESTE",
         5.0,
@@ -872,19 +921,19 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_cemei):
     assert sheet["F3"].value == "INTEGRAL"
     assert sheet["F3"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["N3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["N3"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["N3"].fill.fgColor.rgb == "FF198459"
 
-    assert sheet["V3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["V3"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["V3"].fill.fgColor.rgb == "FF198459"
 
     assert sheet["AD3"].value == "PARCIAL"
     assert sheet["AD3"].fill.fgColor.rgb == "FFD06D12"
 
-    assert sheet["AL3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["AL3"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["AL3"].fill.fgColor.rgb == "FFD06D12"
 
-    assert sheet["AT3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["AT3"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["AT3"].fill.fgColor.rgb == "FFD06D12"
 
     assert sheet["BB3"].value == "INFANTIL INTEGRAL"
@@ -896,10 +945,10 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_cemei):
     assert sheet["BN3"].value == "INFANTIL TARDE"
     assert sheet["BN3"].fill.fgColor.rgb == "FF2F80ED"
 
-    assert sheet["BT3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["BT3"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["BT3"].fill.fgColor.rgb == "FF20AA73"
 
-    assert sheet["BW3"].value == "DIETA ESPECIAL - TIPO B"
+    assert sheet["BW3"].value == DIETA_ESPECIAL_TIPO_B
     assert sheet["BW3"].fill.fgColor.rgb == "FF198459"
 
     workbook_openpyxl.close()

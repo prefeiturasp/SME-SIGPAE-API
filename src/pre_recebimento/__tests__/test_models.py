@@ -1,8 +1,16 @@
+from datetime import timedelta
+
 import pytest
 from django.db import IntegrityError
+from django.utils import timezone
 from faker import Faker
+from model_bakery import baker
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import CronogramaAlteracaoWorkflow
+from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.pre_recebimento.cronograma_entrega.models import Cronograma
+from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 from ..base.models import UnidadeMedida
 from ..cronograma_entrega.models import (
@@ -13,17 +21,12 @@ from ..cronograma_entrega.models import (
     SolicitacaoAlteracaoCronograma,
 )
 from ..documento_recebimento.models import (
+    DataDeFabricaoEPrazo,
     DocumentoDeRecebimento,
     TipoDeDocumentoDeRecebimento,
 )
 from ..ficha_tecnica.models import AnaliseFichaTecnica, FichaTecnicaDoProduto
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
-from src.pre_recebimento.cronograma_entrega.models import Cronograma
-from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
-from datetime import timedelta
-from django.utils import timezone
-from src.dados_comuns.models import LogSolicitacoesUsuario
-from model_bakery import baker
 
 pytestmark = pytest.mark.django_db
 
@@ -293,6 +296,37 @@ def test_tipo_de_documento_de_recebimento_meta_modelo(
     assert obj._meta.verbose_name_plural == "Tipos de Documentos de Recebimento"
 
 
+def test_data_de_fabricacao_e_prazo_instance_model(data_de_fabricao_e_prazo_factory):
+    obj = data_de_fabricao_e_prazo_factory.create()
+    assert isinstance(obj, DataDeFabricaoEPrazo)
+    assert obj.documento_recebimento
+
+
+def test_data_de_fabricacao_e_prazo_srt_model_com_data(
+    data_de_fabricao_e_prazo_factory,
+):
+    obj = data_de_fabricao_e_prazo_factory.create()
+    expected = (
+        f"{obj.documento_recebimento.cronograma.numero} - "
+        f"{obj.data_fabricacao.strftime(FORMATO_DATA_BRASILEIRO)}"
+    )
+    assert obj.__str__() == expected
+
+
+def test_data_de_fabricacao_e_prazo_srt_model_sem_data(
+    data_de_fabricao_e_prazo_factory,
+):
+    obj = data_de_fabricao_e_prazo_factory.create(data_fabricacao=None)
+    assert obj.data_fabricacao is None
+    assert obj.__str__() == f"{obj.documento_recebimento.cronograma.numero} - -"
+
+
+def test_data_de_fabricacao_e_prazo_meta_modelo(data_de_fabricao_e_prazo_factory):
+    obj = data_de_fabricao_e_prazo_factory.create()
+    assert obj._meta.verbose_name == "Data de Fabricação e Prazo"
+    assert obj._meta.verbose_name_plural == "Datas de Fabricação e Prazos"
+
+
 def test_ficha_tecnica_programa(ficha_tecnica_factory):
     ficha = ficha_tecnica_factory.create()
     assert hasattr(ficha, "programa")
@@ -392,7 +426,7 @@ def test_ficha_tecnica_ponto_a_ponto_independente_da_categoria():
             tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
         )
 
-        assert ficha_tecnica.ponto_a_ponto is True
+        assert ficha_tecnica.eh_ponto_a_ponto is True
 
 
 def test_cronograma_identifica_ponto_a_ponto_pela_ficha_tecnica():
@@ -438,9 +472,7 @@ def test_ficha_tecnica_deve_retornar_logs_da_linha_do_tempo(
         LogSolicitacoesUsuario,
         uuid_original=ficha.uuid,
         usuario=usuario,
-        status_evento=(
-            LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE
-        ),
+        status_evento=(LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE),
     )
 
     baker.make(
@@ -461,9 +493,7 @@ def test_ficha_tecnica_deve_retornar_logs_da_linha_do_tempo(
     logs = list(ficha.logs)
 
     assert len(logs) == 2
-    assert logs[0].status_evento == (
-        LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA
-    )
+    assert logs[0].status_evento == (LogSolicitacoesUsuario.FICHA_TECNICA_CADASTRADA)
     assert logs[1].status_evento == (
         LogSolicitacoesUsuario.FICHA_TECNICA_ENVIADA_PARA_ANALISE
     )

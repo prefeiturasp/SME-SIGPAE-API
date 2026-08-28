@@ -26,6 +26,28 @@ from .constants import (
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DIRETOR_UE,
+    EM_ANALISE_LABEL,
+    EMAIL_ASSUNTO_STATUS_SOLICITACAO,
+    ERRO_SALVAR_LOG_TRANSICAO,
+    ESCOLA_CANCELOU_LABEL,
+    FORMATO_DATA_BRASILEIRO,
+    FORMATO_DATA_HORA_BRASILEIRO,
+    MENSAGEM_PERMISSAO_NEGADA,
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_ESCOLA,
+    MODEL_LOTE,
+    MODEL_TERCEIRIZADA,
+    MODULO_DIETA_ESPECIAL,
+    MODULO_GESTAO_ALIMENTACAO,
+    MODULO_GESTAO_PRODUTO,
+    RELATED_NAME_RASTRO_DRE,
+    RELATED_NAME_RASTRO_ESCOLA,
+    RELATED_NAME_RASTRO_LOTE,
+    RELATED_NAME_RASTRO_TERCEIRIZADA,
+    STATUS_ENVIADO_PARA_ANALISE,
+    TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
+    TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
+    TIPOS_ALIMENTACAO,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
 from .services import EmailENotificacaoService, PartesInteressadasService
@@ -84,7 +106,7 @@ class PedidoAPartirDaEscolaWorkflow(xwf_models.Workflow):
             "Terceirizada respondeu se é possível atender a solicitação",
         ),
         (TERCEIRIZADA_TOMOU_CIENCIA, "Terceirizada tomou"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
         (CANCELADO_AUTOMATICAMENTE, "Cancelamento automático"),
     )
 
@@ -204,7 +226,7 @@ class InformativoPartindoDaEscolaWorkflow(xwf_models.Workflow):
         (RASCUNHO, "Rascunho"),
         (INFORMADO, "Informado"),
         (TERCEIRIZADA_TOMOU_CIENCIA, "Terceirizada toma ciencia"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
     )
 
     transitions = (
@@ -233,7 +255,7 @@ class SolicitacaoRemessaWorkFlow(xwf_models.Workflow):
         (AGUARDANDO_CANCELAMENTO, "Aguardando cancelamento"),
         (PAPA_CANCELA, "Cancelada"),
         (DISTRIBUIDOR_CONFIRMA, "Confirmada"),
-        (DISTRIBUIDOR_SOLICITA_ALTERACAO, "Em análise"),
+        (DISTRIBUIDOR_SOLICITA_ALTERACAO, EM_ANALISE_LABEL),
         (DILOG_ACEITA_ALTERACAO, "Alterada"),
     )
 
@@ -283,7 +305,7 @@ class SolicitacaoDeAlteracaoWorkFlow(xwf_models.Workflow):
     NEGADA = "NEGADA"
 
     states = (
-        (EM_ANALISE, "Em análise"),
+        (EM_ANALISE, EM_ANALISE_LABEL),
         (ACEITA, "Aceita"),
         (NEGADA, "Negada"),
     )
@@ -433,7 +455,7 @@ class DietaEspecialWorkflow(xwf_models.Workflow):
         (CODAE_NEGOU_PEDIDO, "CODAE negou a solicitação"),
         (CODAE_AUTORIZADO, "CODAE autorizou"),
         (TERCEIRIZADA_TOMOU_CIENCIA, "Terceirizada toma ciencia"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
         (CODAE_NEGOU_CANCELAMENTO, "CODAE negou o cancelamento"),
         (ESCOLA_SOLICITOU_INATIVACAO, "Escola solicitou cancelamento"),
         (CODAE_NEGOU_INATIVACAO, "CODAE negou o cancelamento"),
@@ -898,7 +920,7 @@ class FluxoSolicitacaoRemessa(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     def _preenche_template_e_envia_email(
         self, assunto, titulo, user, partes_interessadas
@@ -1175,7 +1197,7 @@ class FluxoSolicitacaoDeAlteracao(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     def _preenche_template_e_envia_email(
         self, template, assunto, titulo, partes_interessadas, log_transicao, situacao
@@ -1399,7 +1421,7 @@ class FluxoGuiaRemessa(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     def _preenche_template_e_envia_email(
         self, template, assunto, titulo, partes_interessadas, log_transicao, url
@@ -1652,11 +1674,11 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
     DIAS_PARA_CANCELAR = 2
 
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -1673,7 +1695,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         return self.status == self.workflow_class.RASCUNHO
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     #
     # Esses hooks são chamados automaticamente após a
@@ -1684,7 +1706,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
     def _preenche_template_e_envia_email(
         self, assunto, titulo, user, partes_interessadas
     ):
-        template = "fluxo_autorizar_negar_cancelar.html"
+        template = TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
         dados_template = {
             "titulo": titulo,
             "tipo_solicitacao": self.DESCRICAO,
@@ -1696,7 +1718,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_autorizar_negar_cancelar.html",
+            template=TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
             dados_template={
                 "titulo": titulo,
                 "tipo_solicitacao": self.DESCRICAO,
@@ -1725,11 +1747,11 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         )
 
         usuarios_terceirizada = self.rastro_terceirizada.todos_emails_por_modulo(
-            "Gestão de Produto"
+            MODULO_GESTAO_PRODUTO
         )
         if self.status == self.workflow_class.CODAE_NAO_HOMOLOGADO:
             usuarios_terceirizada = self.rastro_terceirizada.emails_por_modulo(
-                "Gestão de Produto"
+                MODULO_GESTAO_PRODUTO
             )
 
         return list(usuarios_escolas_selecionadas) + usuarios_terceirizada
@@ -1770,7 +1792,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
 
     def _partes_interessadas_codae_questiona(self):
         emails = [self.produto.criado_por.email]
-        emails += self.rastro_terceirizada.emails_por_modulo("Gestão de Produto")
+        emails += self.rastro_terceirizada.emails_por_modulo(MODULO_GESTAO_PRODUTO)
         return list(set(emails))
 
     def _envia_email_codae_questiona(self, log_transicao, link_pdf):
@@ -1816,7 +1838,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         )
 
     def _partes_interessadas_codae_pede_analise_sensorial(self):
-        return self.rastro_terceirizada.emails_por_modulo("Gestão de Produto")
+        return self.rastro_terceirizada.emails_por_modulo(MODULO_GESTAO_PRODUTO)
 
     def _envia_email_codae_pede_analise_sensorial(self, log_transicao, link_pdf):
         html = render_to_string(
@@ -1837,7 +1859,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         )
 
     def _partes_interessadas_codae_ativa_ou_suspende(self):
-        return self.rastro_terceirizada.todos_emails_por_modulo("Gestão de Produto")
+        return self.rastro_terceirizada.todos_emails_por_modulo(MODULO_GESTAO_PRODUTO)
 
     def _envia_email_codae_ativa_ou_suspende(
         self, log_transicao, template_name, assunto
@@ -1863,7 +1885,9 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
                 "produto": self.produto,
                 "reclamacao": reclamacao,
                 "marca": self.produto.marca,
-                "criado_em": log_transicao.criado_em.strftime("%d/%m/%Y - %H:%M"),
+                "criado_em": log_transicao.criado_em.strftime(
+                    FORMATO_DATA_HORA_BRASILEIRO
+                ),
                 "log_transicao": log_transicao,
                 "link_questionamento": link,
             },
@@ -2038,7 +2062,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
             )
         if reclamacao:
             emails = reclamacao.escola.lote.terceirizada.emails_por_modulo(
-                "Gestão de Produto"
+                MODULO_GESTAO_PRODUTO
             )
             self._envia_email_codae_questiona_produto(
                 reclamacao, log_transicao, emails, link
@@ -2209,35 +2233,35 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_escola",
+        related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         null=True,
-        related_name="%(app_label)s_%(class)s_rastro_dre",
+        related_name=RELATED_NAME_RASTRO_DRE,
         blank=True,
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -2257,7 +2281,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         return (
             (isinstance(self, (AlteracaoCardapio, AlteracaoCardapioCEMEI)))
             and self.motivo
-            and self.motivo.nome == "Lanche Emergencial"
+            and self.motivo.nome == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
 
     def get_dias_suspensao(self):
@@ -2303,10 +2327,10 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         self.save()
         # envia email para partes interessadas
         id_externo = "#" + self.id_externo
-        assunto = "[SIGPAE] Status de solicitação - " + id_externo
+        assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
         titulo = f"Solicitação de {self.tipo} Cancelada"
         log_criado = self.logs.last().criado_em
-        criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+        criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
         self._preenche_template_e_envia_email_ue_cancela(
             assunto, titulo, id_externo, criado_em, self._partes_interessadas_ue_cancela
         )
@@ -2349,7 +2373,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     def _partes_interessadas_ue_cancela(self):
         email_query_set_terceirizada = (
             self.escola.lote.terceirizada.emails_terceirizadas.filter(
-                modulo__nome="Gestão de Alimentação"
+                modulo__nome=MODULO_GESTAO_ALIMENTACAO
             ).values_list("email", flat=True)
         )
         return list(email_query_set_terceirizada)
@@ -2369,7 +2393,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         email_escola_lista = [self.rastro_escola.contato.email]
         email_query_set_terceirizada = (
             self.rastro_escola.lote.terceirizada.emails_terceirizadas.filter(
-                modulo__nome="Gestão de Alimentação"
+                modulo__nome=MODULO_GESTAO_ALIMENTACAO
             ).values_list("email", flat=True)
         )
         return email_escola_lista + list(email_query_set_terceirizada)
@@ -2380,7 +2404,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         return []
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     #
     # Esses hooks são chamados automaticamente após a
@@ -2444,7 +2468,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         self, assunto, titulo, id_externo, criado_em, partes_interessadas
     ):
         url = f'{env("REACT_APP_URL")}/{self.path}'
-        template = "fluxo_codae_autoriza_ou_nega.html"
+        template = TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA
         dados_template = {
             "titulo": titulo,
             "tipo_solicitacao": self.DESCRICAO,
@@ -2461,7 +2485,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_codae_autoriza_ou_nega.html",
+            template=TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
             dados_template=dados_template,
             html=html,
         )
@@ -2499,7 +2523,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         # validada
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - " + id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
             titulo = f"Solicitação de {self.tipo} Não Validada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.DRE_NAO_VALIDOU,
@@ -2507,7 +2531,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
                 usuario=user,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             self._preenche_template_e_envia_email_dre_nega(
                 assunto,
                 titulo,
@@ -2552,7 +2576,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         ):
             if (
                 isinstance(self, (AlteracaoCardapio, AlteracaoCardapioCEMEI))
-                and self.motivo.nome == "Lanche Emergencial"
+                and self.motivo.nome == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             ):
                 return
             raise xworkflows.InvalidTransitionError(
@@ -2569,7 +2593,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         justificativa = kwargs.get("justificativa", "")
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - " + id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
             titulo = f"Solicitação de {self.tipo} Autorizada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
@@ -2577,7 +2601,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
                 justificativa=justificativa,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             self._preenche_template_e_envia_email_codae_autoriza_ou_nega(
                 assunto,
                 titulo,
@@ -2595,7 +2619,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         # a solicitacao NAO foi autorizada
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - " + id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
             titulo = f"Solicitação de {self.tipo} Negada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_NEGOU,
@@ -2603,7 +2627,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
                 justificativa=justificativa,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             self._preenche_template_e_envia_email_codae_autoriza_ou_nega(
                 assunto,
                 titulo,
@@ -2646,33 +2670,33 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escolas = models.ManyToManyField(
-        "escola.Escola",
+        MODEL_ESCOLA,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_escola",
+        related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         null=True,
-        related_name="%(app_label)s_%(class)s_rastro_dre",
+        related_name=RELATED_NAME_RASTRO_DRE,
         blank=True,
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -2728,7 +2752,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         )
         self.save()
         # envia email para partes interessadas
-        assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+        assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
         titulo = "Status de solicitação - #" + self.id_externo
         self._preenche_template_e_envia_email(
             assunto, titulo, user, self._partes_interessadas_cancelamento
@@ -2766,7 +2790,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         email_escola = [escola.contato.email]
         email_query_set_terceirizada = (
             escola.lote.terceirizada.emails_terceirizadas.filter(
-                modulo__nome="Gestão de Alimentação"
+                modulo__nome=MODULO_GESTAO_ALIMENTACAO
             ).values_list("email", flat=True)
         )
         return email_escola + list(email_query_set_terceirizada)
@@ -2782,12 +2806,12 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         return []
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        raise NotImplementedError("Deve criar um método salvar_log_transicao")
+        raise NotImplementedError(ERRO_SALVAR_LOG_TRANSICAO)
 
     def _preenche_template_e_envia_email(
         self, assunto, titulo, user, partes_interessadas
     ):
-        template = "fluxo_autorizar_negar_cancelar.html"
+        template = TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
         dados_template = {
             "titulo": titulo,
             "tipo_solicitacao": self.DESCRICAO,
@@ -2799,7 +2823,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_autorizar_negar_cancelar.html",
+            template=TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
             dados_template={
                 "titulo": titulo,
                 "tipo_solicitacao": self.DESCRICAO,
@@ -2853,7 +2877,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         user = kwargs["user"]
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
             titulo = f"Solicitação de {self.tipo} Autorizada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
@@ -2861,7 +2885,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
                 justificativa=justificativa,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             escolas = [eq.escola for eq in self.escolas_quantidades.all()]
             for escola in escolas:
                 self._preenche_template_e_envia_email_codae_autoriza_ou_nega(
@@ -2914,7 +2938,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         justificativa = kwargs.get("justificativa", "")
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
             titulo = f"Solicitação de {self.tipo} Negada"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.CODAE_NEGOU,
@@ -2922,7 +2946,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
                 justificativa=justificativa,
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             escolas = [eq.escola for eq in self.escolas_quantidades.all()]
             for escola in escolas:
                 self._preenche_template_e_envia_email_codae_autoriza_ou_nega(
@@ -2945,35 +2969,35 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_escola",
+        related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         null=True,
-        related_name="%(app_label)s_%(class)s_rastro_dre",
+        related_name=RELATED_NAME_RASTRO_DRE,
         blank=True,
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -2992,7 +3016,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
     def partes_interessadas_informacao(self):
         email_query_set_terceirizada = (
             self.escola.lote.terceirizada.emails_terceirizadas.filter(
-                modulo__nome="Gestão de Alimentação"
+                modulo__nome=MODULO_GESTAO_ALIMENTACAO
             ).values_list("email", flat=True)
         )
         return list(email_query_set_terceirizada)
@@ -3029,7 +3053,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_codae_autoriza_ou_nega.html",
+            template=TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
             dados_template=dados_template,
             html=html,
         )
@@ -3066,13 +3090,13 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
 
         if user:
             id_externo = "#" + self.id_externo
-            assunto = "[SIGPAE] Status de solicitação - " + id_externo
+            assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + id_externo
             titulo = f"Solicitação de {self.tipo}"
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.INICIO_FLUXO, usuario=user
             )
             log_criado = self.logs.last().criado_em
-            criado_em = log_criado.strftime("%d/%m/%Y - %H:%M")
+            criado_em = log_criado.strftime(FORMATO_DATA_HORA_BRASILEIRO)
             self._preenche_template_e_envia_email(
                 assunto,
                 titulo,
@@ -3113,35 +3137,35 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     status = xwf_models.StateField(workflow_class)
 
     rastro_escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_escola",
+        related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         on_delete=models.DO_NOTHING,
         null=True,
-        related_name="%(app_label)s_%(class)s_rastro_dre",
+        related_name=RELATED_NAME_RASTRO_DRE,
         blank=True,
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -3215,7 +3239,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         escola = self.rastro_escola
         try:
             emails_terceirizada = self.rastro_terceirizada.emails_por_modulo(
-                "Dieta Especial"
+                MODULO_DIETA_ESPECIAL
             )
             email_escola_eol = [escola.contato.email]
             email_lista = emails_terceirizada + email_escola_eol
@@ -3231,7 +3255,9 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         except AttributeError:
             email_lista = []
         if self.rastro_terceirizada:
-            email_lista += self.rastro_terceirizada.emails_por_modulo("Dieta Especial")
+            email_lista += self.rastro_terceirizada.emails_por_modulo(
+                MODULO_DIETA_ESPECIAL
+            )
         return email_lista
 
     @property
@@ -3248,7 +3274,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             email_escola_destino_eol = []
         try:
             emails_terceirizadas = self.rastro_terceirizada.emails_por_modulo(
-                "Dieta Especial"
+                MODULO_DIETA_ESPECIAL
             )
         except AttributeError:
             emails_terceirizadas = []
@@ -3259,7 +3285,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         escola = self.escola_destino
         try:
             emails_terceirizadas = self.rastro_terceirizada.emails_por_modulo(
-                "Dieta Especial"
+                MODULO_DIETA_ESPECIAL
             )
             email_escola_eol = [escola.contato.email]
             email_lista = emails_terceirizadas + email_escola_eol
@@ -3274,8 +3300,8 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         dados_template = {
             "nome_aluno": self.aluno.nome,
             "codigo_eol_aluno": self.aluno.codigo_eol,
-            "data_inicio": self.data_inicio.strftime("%d/%m/%Y"),
-            "data_termino": self.data_termino.strftime("%d/%m/%Y"),
+            "data_inicio": self.data_inicio.strftime(FORMATO_DATA_BRASILEIRO),
+            "data_termino": self.data_termino.strftime(FORMATO_DATA_BRASILEIRO),
             "unidade_destino": self.escola_destino.nome,
         }
 
@@ -3318,7 +3344,9 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
                 self.escola.lote.nome if self.escola.lote else "Sem Lote (Parceira)"
             ),
             "url": url,
-            "data_log": self.log_mais_recente.criado_em.strftime("%d/%m/%Y - %H:%M"),
+            "data_log": self.log_mais_recente.criado_em.strftime(
+                FORMATO_DATA_HORA_BRASILEIRO
+            ),
         }
         if transicao == "codae_autoriza":
             template = "fluxo_codae_autoriza_dieta.html"
@@ -3329,7 +3357,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         elif transicao == "cancelar_pedido":
             template = "fluxo_dieta_alta_medica.html"
         else:
-            template = "fluxo_autorizar_negar_cancelar.html"
+            template = TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
 
         html = render_to_string(template, dados_template)
         envia_email_em_massa_task.delay(
@@ -3357,7 +3385,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         alta_medica = kwargs.get("alta_medica", False)
         pendente_autorizacao = kwargs.get("pendente_autorizacao", False)
 
-        assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+        assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
         titulo = (
             f'Status de solicitação - "{self.aluno.codigo_eol} - {self.aluno.nome}"'
         )
@@ -3461,7 +3489,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
                     self._partes_interessadas_codae_autoriza,
                 )
             else:
-                assunto = "[SIGPAE] Status de solicitação - #" + self.id_externo
+                assunto = EMAIL_ASSUNTO_STATUS_SOLICITACAO + "#" + self.id_externo
                 titulo = self.str_dre_lote_escola
                 self._preenche_template_e_envia_email(
                     assunto,
@@ -3699,7 +3727,7 @@ class FluxoReclamacaoProduto(xwf_models.WorkflowEnabled, models.Model):
         )
         emails_terceirizadas = (
             self.homologacao_produto.rastro_terceirizada.todos_emails_por_modulo(
-                "Gestão de Produto"
+                MODULO_GESTAO_PRODUTO
             )
         )
         return [usuario.email for usuario in queryset] + emails_terceirizadas
@@ -4058,19 +4086,19 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     rastro_lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_lote",
+        related_name=RELATED_NAME_RASTRO_LOTE,
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        "terceirizada.Terceirizada",
+        MODEL_TERCEIRIZADA,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
-        related_name="%(app_label)s_%(class)s_rastro_terceirizada",
+        related_name=RELATED_NAME_RASTRO_TERCEIRIZADA,
         editable=False,
     )
 
@@ -4108,9 +4136,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             eh_diretor = user.vinculo_atual.perfil.nome == DIRETOR_UE
             escola_p_fom = user.vinculo_atual.instituicao.eh_p_fom
             if not eh_diretor and escola_possui_alunos_regulares and not escola_p_fom:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             log_transicao = self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
                 usuario=user,
@@ -4137,9 +4163,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [COGESTOR_DRE]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             if isinstance(self, OcorrenciaMedicaoInicial) or isinstance(self, Medicao):
                 self.deletar_log_correcao(
                     status_evento=[
@@ -4190,9 +4214,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         justificativa = kwargs.get("justificativa", "")
         if user:
             if user.vinculo_atual.perfil.nome not in [COGESTOR_DRE]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             if isinstance(self, OcorrenciaMedicaoInicial) or isinstance(self, Medicao):
                 self.deletar_log_correcao(
                     status_evento=[
@@ -4239,9 +4261,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 ADMINISTRADOR_MEDICAO,
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
             ]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4262,9 +4282,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 ADMINISTRADOR_MEDICAO,
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
             ]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4282,9 +4300,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         justificativa = kwargs.get("justificativa", "")
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4302,9 +4318,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4323,9 +4337,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
                 usuario=user,
@@ -4357,9 +4369,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
                 usuario=user,
@@ -4400,9 +4410,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
         if user:
             if nao_possui_permissao:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
 
             status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE
 
@@ -4437,9 +4445,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
         if user and isinstance(self, OcorrenciaMedicaoInicial):
             if nao_possui_permissao:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
 
             status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE
 
@@ -4462,9 +4468,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
                 usuario=user,
@@ -4480,9 +4484,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
-                raise PermissionDenied(
-                    "Você não tem permissão para executar essa ação."
-                )
+                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
                 usuario=user,
@@ -4504,7 +4506,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
 
         if not user or nao_possui_permissao:
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
         if isinstance(self, Medicao):
             raise ValidationError(
                 "`Medicao` não possui fluxo `ue_envia_sem_lancamentos`"
@@ -4531,7 +4533,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
 
         if not user or nao_possui_permissao:
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
         if isinstance(self, SolicitacaoMedicaoInicial):
             raise ValidationError(
                 "`SolicitacaoMedicaoInicial` não possui fluxo `medicao_sem_lancamentos`"
@@ -4550,7 +4552,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa = kwargs["justificativa"]
         if not user or user.vinculo_atual.perfil.nome != ADMINISTRADOR_MEDICAO:
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             usuario=user,
@@ -4680,7 +4682,9 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "nome_empresa": self.empresa.nome_fantasia,
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
-                "data_evento": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_evento": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "url_detalhe_cronograma": base_url + url_detalhe_cronograma,
             }
 
@@ -4783,7 +4787,9 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                 "nome_produto": self.ficha_tecnica.produto.nome,
                 "nome_usuario": user.nome,
                 "registro_funcional": user.registro_funcional,
-                "data_evento": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_evento": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "url_detalhe_cronograma": base_url + url_detalhe_cronograma,
             }
 
@@ -4893,7 +4899,7 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
         )
 
         from ..pre_recebimento.cronograma_entrega.api.helpers import (
-            migrar_fichas_para_etapas_novas,
+            aplicar_alteracao_cronograma,
         )
 
         user = kwargs["user"]
@@ -4905,22 +4911,10 @@ class FluxoCronograma(xwf_models.WorkflowEnabled, models.Model):
                     solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
                         uuid=solicitacao_uuid
                     )
-
-                    if solicitacao.status == solicitacao.workflow_class.APROVADO_DILOG:
-                        self.qtd_total_programada = solicitacao.qtd_total_programada
-
-                        etapas_antigas = list(solicitacao.etapas_antigas.all())
-                        etapas_novas = list(solicitacao.etapas_novas.all())
-
-                        migrar_fichas_para_etapas_novas(etapas_antigas, etapas_novas)
-
-                        self.etapas.set(etapas_novas)
-                        self.programacoes_de_recebimento.all().delete()
-                        self.programacoes_de_recebimento.set(
-                            solicitacao.programacoes_novas.all()
-                        )
-                        self.save()
-
+                    aplicar_alteracao_cronograma(
+                        cronograma=self,
+                        solicitacao=solicitacao,
+                    )
             except Exception as exc:
                 raise ValidationError(
                     f"Erro ao finalizar solicitação de alteração de cronograma: {str(exc)}"
@@ -4950,7 +4944,7 @@ class CronogramaAlteracaoWorkflow(xwf_models.Workflow):
 
     states = (
         (SOLICITACAO_CRIADA, "Solicitação criada"),
-        (EM_ANALISE, "Em análise"),
+        (EM_ANALISE, EM_ANALISE_LABEL),
         (ALTERACAO_ENVIADA_FORNECEDOR, "Alteração Enviada ao Fornecedor"),
         (FORNECEDOR_CIENTE, "Fornecedor Ciente"),
         (CRONOGRAMA_CIENTE, "Cronograma ciente"),
@@ -5132,7 +5126,7 @@ class FluxoAlteracaoCronograma(xwf_models.WorkflowEnabled, models.Model):
 
             numero_cronograma = self.cronograma.numero
             data_envio = (
-                self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+                self.log_mais_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
                 if self.log_mais_recente
                 else "(Não há data de envio)"
             )
@@ -5463,7 +5457,7 @@ class LayoutDeEmbalagemWorkflow(xwf_models.Workflow):
 
     states = (
         (LAYOUT_CRIADO, "Layout Criado"),
-        (ENVIADO_PARA_ANALISE, "Enviado para Análise"),
+        (ENVIADO_PARA_ANALISE, STATUS_ENVIADO_PARA_ANALISE),
         (APROVADO, "Aprovado"),
         (SOLICITADO_CORRECAO, "Solicitado Correção"),
     )
@@ -5497,7 +5491,9 @@ class FluxoLayoutDeEmbalagem(xwf_models.WorkflowEnabled, models.Model):
             )
 
             nome_empresa = self.ficha_tecnica.empresa.nome_fantasia
-            data_envio = self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+            data_envio = self.log_mais_recente.criado_em.strftime(
+                FORMATO_DATA_BRASILEIRO
+            )
             numero_ficha = self.ficha_tecnica.numero
             url_layout_embalagens = (
                 f"/pre-recebimento/analise-layout-embalagem?uuid={self.uuid}"
@@ -5589,7 +5585,7 @@ class FluxoLayoutDeEmbalagem(xwf_models.WorkflowEnabled, models.Model):
                 contexto_template={
                     "numero_ficha": numero_ficha,
                     "data_solicitacao": self.log_mais_recente.criado_em.strftime(
-                        "%d/%m/%Y"
+                        FORMATO_DATA_BRASILEIRO
                     ),
                     "url_layout_embalagens": base_url + url_corrigir_layout_embalagens,
                 },
@@ -5618,7 +5614,7 @@ class FluxoLayoutDeEmbalagem(xwf_models.WorkflowEnabled, models.Model):
             self._notificar_correcao_ou_atualizacao(user)
 
     def _notificar_correcao_ou_atualizacao(self, usuario):
-        data_envio = self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+        data_envio = self.log_mais_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         nome_empresa = self.ficha_tecnica.empresa
         perfis_interessados = [
             constants.DILOG_QUALIDADE,
@@ -5665,7 +5661,7 @@ class DocumentoDeRecebimentoWorkflow(xwf_models.Workflow):
 
     states = (
         (DOCUMENTO_CRIADO, "Documento Criado"),
-        (ENVIADO_PARA_ANALISE, "Enviado para Análise"),
+        (ENVIADO_PARA_ANALISE, STATUS_ENVIADO_PARA_ANALISE),
         (ENVIADO_PARA_CORRECAO, "Enviado para Correção"),
         (APROVADO, "Aprovado"),
     )
@@ -5702,7 +5698,9 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "nome_empresa": self.cronograma.empresa.nome_fantasia,
                 "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
-                "data_envio": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_envio": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
                 "url_documento_recebimento": base_url + url_documento_recebimento,
@@ -5756,7 +5754,7 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 "numero_cronograma": numero_cronograma,
                 "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
                 "data_solicitacao": self.log_mais_recente.criado_em.strftime(
-                    "%d/%m/%Y"
+                    FORMATO_DATA_BRASILEIRO
                 ),
                 "url_documento_recebimento": base_url + url_documento_recebimento,
             }
@@ -5810,7 +5808,9 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
-                "data_envio": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_envio": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "url_documento_recebimento": base_url + url_documento_recebimento,
             }
 
@@ -5863,7 +5863,9 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 ),
                 "nome_usuario_empresa": user.nome,
                 "cpf_usuario_empresa": user.cpf_formatado_e_censurado,
-                "data_envio": self.log_mais_recente.criado_em.strftime("%d/%m/%Y"),
+                "data_envio": self.log_mais_recente.criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                ),
                 "url_documento_recebimento": base_url + url_documento_recebimento,
             }
 
@@ -5953,7 +5955,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
             )
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
-            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+            data_envio = log_transicao.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
@@ -5993,7 +5995,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
 
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
-            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+            data_envio = log_transicao.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
@@ -6028,7 +6030,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
 
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
-            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+            data_envio = log_transicao.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
@@ -6067,7 +6069,7 @@ class FluxoFichaTecnicaDoProduto(xwf_models.WorkflowEnabled, models.Model):
             )
             numero_ficha_tecnica = self.numero
             nome_produto = self.produto.nome if self.produto else "-"
-            data_envio = log_transicao.criado_em.strftime("%d/%m/%Y")
+            data_envio = log_transicao.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
             url_detalhes_ficha_tecnica = (
                 f"{base_url}/pre-recebimento/detalhar-ficha-tecnica?uuid={self.uuid}"
@@ -6162,7 +6164,7 @@ class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
 
     states = (
         (RELATORIO_FINANCEIRO_GERADO, "Relatório Financeiro Gerado"),
-        (EM_ANALISE, "Em análise"),
+        (EM_ANALISE, EM_ANALISE_LABEL),
         (GERADA_MEDICAO_FINAL, "Gerada Medição Final"),
         (FINALIZADO, "Finalizado"),
     )
@@ -6306,7 +6308,7 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             f"{base_url}/pre-recebimento/detalhe-cronograma-semanal?uuid={self.uuid}"
         )
         numero_cronograma = self.numero
-        data_evento = self.log_mais_recente.criado_em.strftime("%d/%m/%Y")
+        data_evento = self.log_mais_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
         nome_produto = self.cronograma_mensal.ficha_tecnica.produto.nome
         destinatarios = (
             PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(

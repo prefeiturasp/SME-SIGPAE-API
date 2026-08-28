@@ -9,7 +9,6 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS", default=["sigpae.sme.prefeitura.sp.gov.br"]
 )
-# TODO: verificar essa conf...
 # CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST', default=['sigpae.sme.prefeitura.sp.gov.br']) noqa
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -31,7 +30,6 @@ if env.bool("ENABLE_SECURITY"):
     CSRF_COOKIE_SECURE = True
     # https://docs.djangoproject.com/en/dev/topics/security/#ssl-https
     # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-seconds
-    # TODO: set this to 60 seconds first and then to 518400 once you prove the former works
     SECURE_HSTS_SECONDS = 60
     # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-include-subdomains
     SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(

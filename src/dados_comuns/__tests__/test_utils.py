@@ -17,6 +17,8 @@ from ..constants import (
     DAQUI_A_SETE_DIAS,
     DAQUI_A_TRINTA_DIAS,
     SEM_FILTRO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
     obter_dias_uteis_apos_hoje,
 )
 from ..models import CentralDeDownload
@@ -159,13 +161,13 @@ def test_analisa_logs_quantidade_dietas_autorizadas(
     logs_dietas_cei = [
         log
         for log in LogQuantidadeDietasAutorizadasCEI.objects.all()
-        if log.escola.tipo_unidade.iniciais == "CEI DIRET"
+        if log.escola.tipo_unidade.iniciais == TIPO_UNIDADE_CEI_DIRET
     ]
     assert len(logs_dietas_cei) == 4
     logs_dietas_cemei = [
         log
         for log in LogQuantidadeDietasAutorizadasCEI.objects.all()
-        if log.escola.tipo_unidade.iniciais == "CEMEI"
+        if log.escola.tipo_unidade.iniciais == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
     ]
     assert len(logs_dietas_cemei) == 5
 
@@ -227,7 +229,7 @@ def test_envia_email_unico(reclamacao_produto_codae_recusou, dados_html):
     email = reclamacao_produto.criado_por.email
     corpo = ""
     html = dados_html
-    email = envia_email_unico(assunto, corpo, email, None, None, html)
+    email = envia_email_unico(assunto, corpo, email, "", None, html)
     assert email == 1
 
 
@@ -239,7 +241,7 @@ def test_envia_email_unico_exception(reclamacao_produto_codae_recusou, dados_htm
     corpo = ""
     html = dados_html
     with pytest.raises(ValueError):
-        email = envia_email_unico(assunto, corpo, email, None, None, html)
+        email = envia_email_unico(assunto, corpo, email, "", None, html)
     assert email == reclamacao_produto
 
 

@@ -23,6 +23,12 @@ from ..dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
+from ..dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MODEL_ESCOLA,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..escola.constants import (
@@ -126,7 +132,7 @@ class InclusaoAlimentacaoContinua(
     outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
     motivo = models.ForeignKey(MotivoInclusaoContinua, on_delete=models.DO_NOTHING)
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         related_name="inclusoes_alimentacao_continua",
     )
@@ -373,7 +379,7 @@ class GrupoInclusaoAlimentacaoNormal(
     DESCRICAO = "Inclusão de Alimentação"
 
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         related_name="grupos_inclusoes_normais",
     )
@@ -400,7 +406,7 @@ class GrupoInclusaoAlimentacaoNormal(
     def datas(self):
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.inclusoes_normais.order_by("data").values_list(
                     "data", flat=True
                 )
@@ -615,7 +621,7 @@ class InclusaoAlimentacaoDaCEI(
     DESCRICAO = "Inclusão de Alimentação Por CEI"
 
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         related_name="grupos_inclusoes_por_cei",
     )
@@ -638,7 +644,7 @@ class InclusaoAlimentacaoDaCEI(
     def datas(self):
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.dias_motivos_da_inclusao_cei.order_by(
                     "data"
                 ).values_list("data", flat=True)
@@ -904,7 +910,7 @@ class InclusaoDeAlimentacaoCEMEI(
     DESCRICAO = "Inclusão de Alimentação CEMEI"
 
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
         related_name="inclusoes_de_alimentacao_cemei",
     )
@@ -922,7 +928,7 @@ class InclusaoDeAlimentacaoCEMEI(
     def datas(self):
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.dias_motivos_da_inclusao_cemei.order_by(
                     "data"
                 ).values_list("data", flat=True)
@@ -1031,20 +1037,26 @@ class InclusaoDeAlimentacaoCEMEI(
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-                tipo_unidade_escolar__iniciais__in=["CEI DIRET", "EMEI"],
+                tipo_unidade_escolar__iniciais__in=[
+                    TIPO_UNIDADE_CEI_DIRET,
+                    TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                ],
             )
         )
 
         if eh_evento_especifico:
             vinculos = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                 periodo_escolar__nome__in=PERIODOS_CEMEI_EVENTO_ESPECIFICO,
-                tipo_unidade_escolar__iniciais__in=["CEI DIRET", "EMEI"],
+                tipo_unidade_escolar__iniciais__in=[
+                    TIPO_UNIDADE_CEI_DIRET,
+                    TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                ],
             )
 
         for periodo in periodos:
             tipos_alimentacao_cei = vinculos.filter(
                 periodo_escolar__nome=periodo,
-                tipo_unidade_escolar__iniciais="CEI DIRET",
+                tipo_unidade_escolar__iniciais=TIPO_UNIDADE_CEI_DIRET,
             )
 
             tipos_alimentacao_cei = tipos_alimentacao_cei.values_list(
@@ -1054,14 +1066,15 @@ class InclusaoDeAlimentacaoCEMEI(
             tipos_alimentacao_cei = ", ".join(tipos_alimentacao_cei)
 
             tipos_alimentacao_emei = vinculos.filter(
-                periodo_escolar__nome=periodo, tipo_unidade_escolar__iniciais="EMEI"
+                periodo_escolar__nome=periodo,
+                tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             )
             if eh_evento_especifico and not self.escola.periodos_escolares().filter(
                 nome=periodo
             ):
                 tipos_alimentacao_emei = vinculos.filter(
                     periodo_escolar__nome="INTEGRAL",
-                    tipo_unidade_escolar__iniciais="EMEI",
+                    tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
                 )
 
             tipos_alimentacao_emei = tipos_alimentacao_emei.values_list(

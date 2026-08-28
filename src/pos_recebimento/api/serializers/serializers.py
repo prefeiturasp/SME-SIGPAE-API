@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.perfil.api.serializers import UsuarioSimplesSerializer
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
-    CronogramaSimplesSerializer,
+    CronogramaSerializer,
 )
 from src.terceirizada.api.serializers.serializers import (
     ContratoSimplesSerializer,
@@ -15,7 +16,7 @@ from ...models import CronogramaTermoRecebimentoDefinitivo, TermoRecebimentoDefi
 class CronogramaTermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
     """Cronograma do termo com valor de contrato e quantidade recebida."""
 
-    cronograma = CronogramaSimplesSerializer(read_only=True)
+    cronograma = CronogramaSerializer(read_only=True)
 
     class Meta:
         model = CronogramaTermoRecebimentoDefinitivo
@@ -23,6 +24,53 @@ class CronogramaTermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer
             "cronograma",
             "valor_contrato",
             "quantidade_total_recebida",
+        )
+        read_only_fields = fields
+
+
+class TermoRecebimentoDefinitivoListagemSerializer(serializers.ModelSerializer):
+    """
+    Serializador para a listagem de Termos de Recebimento Definitivo.
+    """
+
+    nome_empresa = serializers.CharField(
+        source="empresa.nome_fantasia",
+        read_only=True,
+    )
+    cnpj_empresa = serializers.CharField(
+        source="empresa.cnpj",
+        read_only=True,
+    )
+    numero_contrato = serializers.CharField(
+        source="contrato.numero",
+        read_only=True,
+    )
+    numeros_cronogramas = serializers.SerializerMethodField()
+    status_display = serializers.CharField(
+        source="get_status_display",
+        read_only=True,
+    )
+    data_cadastro = serializers.SerializerMethodField()
+
+    def get_data_cadastro(self, obj):
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
+
+    def get_numeros_cronogramas(self, obj):
+        """Números dos cronogramas vinculados ao termo."""
+        return [cronograma.numero for cronograma in obj.cronogramas.all()]
+
+    class Meta:
+        model = TermoRecebimentoDefinitivo
+        fields = (
+            "uuid",
+            "nome_empresa",
+            "cnpj_empresa",
+            "numero_contrato",
+            "numeros_cronogramas",
+            "status",
+            "status_display",
+            "data_cadastro",
+            "alterado_em",
         )
         read_only_fields = fields
 

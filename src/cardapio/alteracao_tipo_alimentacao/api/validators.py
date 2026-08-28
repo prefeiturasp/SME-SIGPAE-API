@@ -9,6 +9,7 @@ from src.cardapio.alteracao_tipo_alimentacao_cemei.models import (
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 
 
 def precisa_pertencer_a_um_tipo_de_alimentacao(
@@ -107,18 +108,14 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs, eh_cemei=False):
         eh_cemei (bool, optional): Define se a consulta deve usar o modelo de
             substituição do fluxo CEMEI. Default é ``False``.
 
-    Returns:
-        bool: ``True`` quando nao ha duplicidade bloqueante ou quando o motivo
-        da solicitacao nao e Lanche Emergencial.
-
     Raises:
         ValidationError: Quando ja existe uma solicitacao ativa de Lanche
             Emergencial para a mesma combinacao de data e periodo.
     """
     motivo = attrs["motivo"]
 
-    if motivo.nome != "Lanche Emergencial":
-        return True
+    if motivo.nome != TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value:
+        return
 
     escola, periodos_e_tipos, datas, modelo = _get_parametros_queryset(attrs, eh_cemei)
 
@@ -152,4 +149,3 @@ def valida_duplicidade_solicitacoes_lanche_emergencial(attrs, eh_cemei=False):
         raise serializers.ValidationError(
             "Já existe uma solicitação de Lanche Emergencial para a mesma data e período selecionado!"
         )
-    return True

@@ -1,14 +1,21 @@
 import pytest
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cemei import (
+    _define_filtro,
     _get_lista_alimentacoes,
     _get_lista_alimentacoes_dietas,
     _processa_dieta_especial,
     _processa_periodo_regular,
-    get_alimentacoes_por_periodo,
-    _unificar_dietas,
     _sort_and_merge,
-    _define_filtro,
+    _unificar_dietas,
+    get_alimentacoes_por_periodo,
     get_valores_tabela,
 )
 
@@ -24,21 +31,11 @@ def test_get_alimentacoes_por_periodo(
     assert isinstance(colunas, list)
 
     assert (
-        sum(
-            1
-            for tupla in colunas
-            if tupla[0] == "Recreio nas Férias - de 0 a 3 anos e 11 meses"
-        )
-        == 8
+        sum(1 for tupla in colunas if tupla[0] == GRUPO_RECREIO_NAS_FERIAS_0_A_3) == 8
     )
 
     assert (
-        sum(
-            1
-            for tupla in colunas
-            if tupla[0] == "Recreio nas Férias - 4 a 14 anos"
-        )
-        == 6
+        sum(1 for tupla in colunas if tupla[0] == GRUPO_RECREIO_NAS_FERIAS_4_A_14) == 6
     )
 
     assert (
@@ -55,48 +52,23 @@ def test_get_alimentacoes_por_periodo(
         sum(
             1
             for tupla in colunas
-            if tupla[0]
-            == "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"
+            if tupla[0] == "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"
         )
         == 1
     )
 
-    assert (
-        sum(
-            1
-            for tupla in colunas
-            if tupla[0] == "Colaboradores"
-        )
-        == 6
-    )
+    assert sum(1 for tupla in colunas if tupla[0] == "Colaboradores") == 6
 
     for faixa in faixas_etarias_ativas:
-        assert (
-            sum(1 for tupla in colunas if tupla[1] == faixa.id)
-            == 2
-        )
+        assert sum(1 for tupla in colunas if tupla[1] == faixa.id) == 2
 
     assert sum(1 for tupla in colunas if tupla[1] == "refeicao") == 3
 
     assert sum(1 for tupla in colunas if tupla[1] == "sobremesa") == 2
 
-    assert (
-        sum(
-            1
-            for tupla in colunas
-            if tupla[1] == "total_refeicoes_pagamento"
-        )
-        == 2
-    )
+    assert sum(1 for tupla in colunas if tupla[1] == "total_refeicoes_pagamento") == 2
 
-    assert (
-        sum(
-            1
-            for tupla in colunas
-            if tupla[1] == "total_sobremesas_pagamento"
-        )
-        == 2
-    )
+    assert sum(1 for tupla in colunas if tupla[1] == "total_sobremesas_pagamento") == 2
 
 
 def test_get_lista_alimentacoes(
@@ -107,17 +79,11 @@ def test_get_lista_alimentacoes(
 
     assert medicoes.count() == 3
 
-    medicao_colaboradores = medicoes.get(
-        grupo__nome="Colaboradores"
-    )
+    medicao_colaboradores = medicoes.get(grupo__nome="Colaboradores")
 
-    medicao_cei = medicoes.get(
-        grupo__nome="Recreio nas Férias - de 0 a 3 anos e 11 meses"
-    )
+    medicao_cei = medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3)
 
-    medicao_emei = medicoes.get(
-        grupo__nome="Recreio nas Férias - 4 a 14 anos"
-    )
+    medicao_emei = medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14)
 
     colaboradores = _get_lista_alimentacoes(
         medicao_colaboradores,
@@ -142,10 +108,7 @@ def test_get_lista_alimentacoes(
 
     assert isinstance(recreio_cei, list)
 
-    assert recreio_cei == [
-        faixa.id
-        for faixa in faixas_etarias_ativas
-    ]
+    assert recreio_cei == [faixa.id for faixa in faixas_etarias_ativas]
 
     recreio_emei = _get_lista_alimentacoes(
         medicao_emei,
@@ -172,19 +135,13 @@ def test_get_lista_alimentacoes_dietas(
 
     assert medicoes.count() == 3
 
-    medicao_colaboradores = medicoes.get(
-        grupo__nome="Colaboradores"
-    )
+    medicao_colaboradores = medicoes.get(grupo__nome="Colaboradores")
 
-    medicao_cei = medicoes.get(
-        grupo__nome="Recreio nas Férias - de 0 a 3 anos e 11 meses"
-    )
+    medicao_cei = medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3)
 
-    medicao_emei = medicoes.get(
-        grupo__nome="Recreio nas Férias - 4 a 14 anos"
-    )
+    medicao_emei = medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14)
 
-    categoria_dieta_a = "DIETA ESPECIAL - TIPO A"
+    categoria_dieta_a = DIETA_ESPECIAL_TIPO_A
     categoria_dieta_a_enteral = (
         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
     )
@@ -204,10 +161,7 @@ def test_get_lista_alimentacoes_dietas(
 
     assert isinstance(recreio_cei, list)
 
-    assert recreio_cei == [
-        faixa.id
-        for faixa in faixas_etarias_ativas
-    ]
+    assert recreio_cei == [faixa.id for faixa in faixas_etarias_ativas]
 
     recreio_emei = _get_lista_alimentacoes_dietas(
         medicao_emei,
@@ -229,9 +183,7 @@ def test_unificar_dietas():
         ): [
             "refeicao",
         ],
-        (
-            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"
-        ): [
+        ("DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"): [
             "sobremesa",
         ],
     }
@@ -239,9 +191,7 @@ def test_unificar_dietas():
     resultado = _unificar_dietas(dietas)
 
     assert resultado == {
-        (
-            "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"
-        ): [
+        ("DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"): [
             "refeicao",
             "sobremesa",
         ]
@@ -250,7 +200,7 @@ def test_unificar_dietas():
 
 def test_sort_and_merge():
     periodos = {
-        "Recreio nas Férias - 4 a 14 anos": [
+        GRUPO_RECREIO_NAS_FERIAS_4_A_14: [
             "sobremesa",
             "refeicao",
             "refeicao",
@@ -269,16 +219,12 @@ def test_sort_and_merge():
         dietas,
     )
 
-    assert resultado[
-        "Recreio nas Férias - 4 a 14 anos"
-    ] == [
+    assert resultado[GRUPO_RECREIO_NAS_FERIAS_4_A_14] == [
         "refeicao",
         "sobremesa",
     ]
 
-    assert resultado[
-        "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"
-    ] == [
+    assert resultado["DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"] == [
         "refeicao",
         "sobremesa",
     ]
@@ -289,27 +235,19 @@ def test_define_filtro_dieta():
         "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"
     )
 
-    assert resultado == {
-        "grupo__nome__icontains": "4 A 14 ANOS"
-    }
+    assert resultado == {"grupo__nome__icontains": "4 A 14 ANOS"}
 
 
 def test_define_filtro_periodo():
-    resultado = _define_filtro(
-        "Colaboradores"
-    )
+    resultado = _define_filtro("Colaboradores")
 
-    assert resultado == {
-        "grupo__nome": "Colaboradores"
-    }
+    assert resultado == {"grupo__nome": "Colaboradores"}
 
     resultado = _define_filtro(
         "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS"
     )
 
-    assert resultado == {
-        "grupo__nome__icontains": "4 A 14 ANOS"
-    }
+    assert resultado == {"grupo__nome__icontains": "4 A 14 ANOS"}
 
 
 def test_processa_dieta_especial_recreio_cei(
@@ -325,10 +263,7 @@ def test_processa_dieta_especial_recreio_cei(
         solicitacao_recreio_cemei,
         {},
         "refeicao",
-        (
-            "DIETA ESPECIAL - TIPO A - "
-            "RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES"
-        ),
+        ("DIETA ESPECIAL - TIPO A - " "RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES"),
     )
 
     assert resultado == 100
@@ -347,10 +282,7 @@ def test_processa_dieta_especial_recreio_emei(
         solicitacao_recreio_cemei,
         {},
         "refeicao",
-        (
-            "DIETA ESPECIAL - TIPO A - "
-            "RECREIO NAS FÉRIAS - 4 A 14 ANOS"
-        ),
+        ("DIETA ESPECIAL - TIPO A - " "RECREIO NAS FÉRIAS - 4 A 14 ANOS"),
     )
 
     assert resultado == 200
@@ -369,7 +301,7 @@ def test_processa_periodo_regular_cei(
         solicitacao_recreio_cemei,
         {},
         "refeicao",
-        "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+        GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     )
 
     assert resultado == 300
@@ -388,7 +320,7 @@ def test_processa_periodo_regular_emei(
         solicitacao_recreio_cemei,
         {},
         "refeicao",
-        "Recreio nas Férias - 4 a 14 anos",
+        GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     )
 
     assert resultado == 400
@@ -406,7 +338,7 @@ def test_get_valores_tabela(
     monkeypatch.setattr(
         "src.medicao_inicial.services.relatorio_consolidado_recreio_cemei.get_valores_iniciais",
         lambda _solicitacao: [
-            "CEMEI",
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "123456",
             "CEMEI TESTE",
         ],
@@ -430,7 +362,7 @@ def test_get_valores_tabela(
         [solicitacao_recreio_cemei],
         [
             (
-                "Recreio nas Férias",
+                GRUPO_RECREIO_NAS_FERIAS,
                 "refeicao",
             ),
             (
@@ -442,7 +374,7 @@ def test_get_valores_tabela(
 
     assert resultado == [
         [
-            "CEMEI",
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "123456",
             "CEMEI TESTE",
             100,

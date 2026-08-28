@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.escola.models import DiretoriaRegional, Escola, Lote
 from src.relatorios.utils import html_to_pdf_file
@@ -44,7 +45,7 @@ def gera_relatorio_adesao_pdf(resultados, query_params):
     ]
 
     filtros = _formata_filtros(query_params)
-    data_relatorio = datetime.now().date().strftime("%d/%m/%Y")
+    data_relatorio = datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO)
 
     html_string = render_to_string(
         "relatorio_adesao.html",

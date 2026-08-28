@@ -1,10 +1,15 @@
 import datetime
 
 import pytest
+from django.utils import timezone
 from model_bakery import baker
 
 from src.dados_comuns import constants
 from src.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
+from src.pos_recebimento.models import (
+    CronogramaTermoRecebimentoDefinitivo,
+    TermoRecebimentoDefinitivo,
+)
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
     EtapasDoCronogramaFactory,
@@ -116,3 +121,67 @@ def payload_termo(ficha_assinada, tres_fiscais):
         "fiscal_3": str(tres_fiscais[2].uuid),
         "texto_termo": "<p>Termo de Recebimento Definitivo</p>",
     }
+
+
+DATA_CADASTRO_TERMO = datetime.datetime(2026, 3, 15, 12, 0)
+
+
+def _cria_termo(
+    empresa,
+    contrato,
+    fiscais,
+    numeros_cronogramas=(),
+    data_cadastro=DATA_CADASTRO_TERMO,
+):
+    """Termo com data de cadastro fixa e os cronogramas informados.
+
+    ``criado_em`` é ``auto_now_add``, então só pode ser fixado via UPDATE.
+    """
+    termo = TermoRecebimentoDefinitivo.objects.create(
+        empresa=empresa,
+        contrato=contrato,
+        fiscal_1=fiscais[0],
+        fiscal_2=fiscais[1],
+        fiscal_3=fiscais[2],
+        texto_termo="<p>Termo de Recebimento Definitivo</p>",
+        status=TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+    )
+    for numero in numeros_cronogramas:
+        CronogramaTermoRecebimentoDefinitivo.objects.create(
+            termo=termo,
+            cronograma=CronogramaFactory(
+                contrato=contrato, empresa=empresa, numero=numero
+            ),
+            valor_contrato="150000.00",
+            quantidade_total_recebida="1234.56",
+        )
+    TermoRecebimentoDefinitivo.objects.filter(pk=termo.pk).update(
+        criado_em=timezone.make_aware(data_cadastro)
+    )
+    termo.refresh_from_db()
+    return termo
+
+
+@pytest.fixture
+def termo_listagem(empresa, contrato, tres_fiscais):
+    """Termo com dois cronogramas, para a listagem."""
+    return _cria_termo(empresa, contrato, tres_fiscais, ("111/2026", "222/2026"))
+
+
+@pytest.fixture
+def termo_listagem_sem_cronogramas(empresa, contrato, tres_fiscais):
+    return _cria_termo(empresa, contrato, tres_fiscais)
+
+
+@pytest.fixture
+def termos_listagem_ordenados(empresa, contrato, tres_fiscais):
+    """Três termos com datas de cadastro distintas, do mais antigo ao mais recente."""
+    return [
+        _cria_termo(
+            empresa,
+            contrato,
+            tres_fiscais,
+            data_cadastro=datetime.datetime(ano, 3, 15, 12, 0),
+        )
+        for ano in (2024, 2025, 2026)
+    ]

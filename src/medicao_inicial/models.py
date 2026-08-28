@@ -24,20 +24,33 @@ from ..dados_comuns.behaviors import (
     TemMes,
     TemSemana,
 )
+from ..dados_comuns.constants import (
+    CRIADO_EM,
+    FORMATO_DATA_BRASILEIRO,
+    GRUPO_INFANTIL_INTEGRAL,
+    GRUPO_INFANTIL_MANHA,
+    GRUPO_INFANTIL_TARDE,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    MODEL_DIRETORIA_REGIONAL,
+    MODEL_ESCOLA,
+    MODEL_LOTE,
+    MODEL_USUARIO,
+)
 from ..dados_comuns.fluxo_status import (
     FluxoRelatorioFinanceiroMedicaoInicial,
     FluxoSolicitacaoMedicaoInicial,
     LogSolicitacoesUsuario,
 )
-from ..escola.constants import INFANTIL_OU_FUNDAMENTAL, CEI_OU_EMEI
+from ..escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from ..escola.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
 
 MODEL_PERIODO_ESCOLAR = "escola.PeriodoEscolar"
-GRUPO_RECREIO_NAS_FERIAS = "Recreio nas Férias"
-GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
+GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = GRUPO_RECREIO_NAS_FERIAS_0_A_3
 
 
 class TipoSobremesaDoce(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel, Ativavel):
@@ -66,7 +79,7 @@ class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         return None
 
     def __str__(self):
-        return f'{self.data.strftime("%d/%m/%Y")} - {self.tipo_unidade.iniciais} - Edital {self.edital}'
+        return f"{self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.tipo_unidade.iniciais} - Edital {self.edital}"
 
     class Meta:
         verbose_name = "Dia de sobremesa doce"
@@ -93,7 +106,7 @@ class SolicitacaoMedicaoInicial(
     """Solicitação de Medição Inicial."""
 
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="solicitacoes_medicao_inicial",
     )
@@ -110,7 +123,7 @@ class SolicitacaoMedicaoInicial(
     )
     dre_ciencia_correcao_data = models.DateTimeField(blank=True, null=True)
     dre_ciencia_correcao_usuario = models.ForeignKey(
-        "perfil.Usuario",
+        MODEL_USUARIO,
         on_delete=models.SET_NULL,
         related_name="solicitacoes_medicao_ciencia_correcao",
         blank=True,
@@ -147,9 +160,9 @@ class SolicitacaoMedicaoInicial(
         if not periodos_escolares:
             return
         grupos_cemei = {
-            "MANHA": "Infantil MANHA",
-            "TARDE": "Infantil TARDE",
-            "INTEGRAL": "Infantil INTEGRAL",
+            "MANHA": GRUPO_INFANTIL_MANHA,
+            "TARDE": GRUPO_INFANTIL_TARDE,
+            "INTEGRAL": GRUPO_INFANTIL_INTEGRAL,
         }
         for periodo_escolar in periodos_escolares:
             if self.escola.eh_cemei:
@@ -317,7 +330,7 @@ class SolicitacaoMedicaoInicial(
     @property
     def get_medicao_programas_e_projetos(self):
         try:
-            return self.medicoes.get(grupo__nome="Programas e Projetos")
+            return self.medicoes.get(grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS)
         except Medicao.DoesNotExist:
             return None
 
@@ -773,7 +786,7 @@ class PermissaoLancamentoEspecial(
     CriadoPor, CriadoEm, TemAlteradoEm, TemChaveExterna, TemIdentificadorExternoAmigavel
 ):
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="permissoes_lancamento_especial",
     )
@@ -784,7 +797,7 @@ class PermissaoLancamentoEspecial(
         AlimentacaoLancamentoEspecial
     )
     diretoria_regional = models.ForeignKey(
-        "escola.DiretoriaRegional",
+        MODEL_DIRETORIA_REGIONAL,
         related_name="permissoes_lancamento_especial",
         on_delete=models.DO_NOTHING,
     )
@@ -814,9 +827,9 @@ class PermissaoLancamentoEspecial(
 
 class LancheEmergencialDiario(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
-    criado_em = models.DateTimeField("Criado em", auto_now_add=True, null=True)
+    criado_em = models.DateTimeField(CRIADO_EM, auto_now_add=True, null=True)
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="lanches_emergenciais_diarios",
     )
@@ -943,7 +956,7 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
         on_delete=models.PROTECT,
     )
     lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
@@ -1046,7 +1059,7 @@ class RelatorioFinanceiro(
         related_name="relatorios_financeiros",
     )
     lote = models.ForeignKey(
-        "escola.Lote",
+        MODEL_LOTE,
         related_name="relatorios_financeiros",
         on_delete=models.PROTECT,
     )
@@ -1090,7 +1103,7 @@ class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
     relatorio_financeiro = models.ForeignKey(
         RelatorioFinanceiro,
         to_field="uuid",
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="dados_liquidacao",
     )
     numero_empenho = models.CharField(
@@ -1136,7 +1149,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
     relatorio_financeiro = models.ForeignKey(
         RelatorioFinanceiro,
         to_field="uuid",
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="descontos_financeiros",
     )
     unidades_educacionais = models.ManyToManyField(
@@ -1169,11 +1182,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         null=True,
         blank=True,
     )
-    cei_ou_emei = models.CharField(
-        max_length=4,
-        choices=CEI_OU_EMEI,
-        default="N/A"
-    )
+    cei_ou_emei = models.CharField(max_length=4, choices=CEI_OU_EMEI, default="N/A")
     infantil_ou_fundamental = models.CharField(
         max_length=11, choices=INFANTIL_OU_FUNDAMENTAL, default="N/A"
     )

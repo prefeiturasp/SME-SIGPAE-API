@@ -2,7 +2,11 @@ from datetime import date
 
 from django.template.loader import render_to_string
 
-from src.dados_comuns.constants import TIPO_SOLICITACAO_DIETA
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MODULO_DIETA_ESPECIAL,
+    TIPO_SOLICITACAO_DIETA,
+)
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from src.dados_comuns.utils import envia_email_unico
 from src.dieta_especial.logs_models.models import (
@@ -115,7 +119,7 @@ def _enviar_email_para_adm_terceirizada_e_escola(
     assunto = (
         f"Cancelamento Automático de Dieta Especial Nº {solicitacao_dieta.id_externo}"
     )
-    hoje = date.today().strftime("%d/%m/%Y")
+    hoje = date.today().strftime(FORMATO_DATA_BRASILEIRO)
     template = (
         "email/email_dieta_cancelada_automaticamente_terceirizada_escola_destino.html"
     )
@@ -132,7 +136,7 @@ def _enviar_email_para_adm_terceirizada_e_escola(
     }
     html = render_to_string(template, dados_template)
     emails_terceirizada = solicitacao_dieta.rastro_terceirizada.emails_por_modulo(
-        "Dieta Especial"
+        MODULO_DIETA_ESPECIAL
     )
     email_escola = [escola.contato.email]
     email_lista = emails_terceirizada + email_escola

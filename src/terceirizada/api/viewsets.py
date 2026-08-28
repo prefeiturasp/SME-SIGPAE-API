@@ -29,7 +29,6 @@ from ..models import (
 from ..utils import TerceirizadasEmailsPagination, obtem_dados_relatorio_quantitativo
 from .filters import (
     ContratoFilter,
-    EmailTerceirizadaPorModuloFilter,
     TerceirizadaFilter,
 )
 from .serializers.serializers import (
@@ -40,7 +39,6 @@ from .serializers.serializers import (
     EditalSerializer,
     EditalSimplesSerializer,
     EmailsPorModuloSerializer,
-    EmailsTerceirizadaPorModuloSerializer,
     ModalidadeSerializer,
     TerceirizadaLookUpSerializer,
     TerceirizadaSimplesSerializer,
@@ -250,15 +248,9 @@ class EditalContratosViewSet(viewsets.ModelViewSet):
 
 class EmailTerceirizadaPorModuloViewSet(viewsets.ModelViewSet):
     lookup_field = "uuid"
-    serializer_class = EmailsTerceirizadaPorModuloSerializer
+    http_method_names = ["post", "patch", "delete"]
+    serializer_class = CreateEmailTerceirizadaPorModuloSerializer
     queryset = EmailTerceirizadaPorModulo.objects.all()
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = EmailTerceirizadaPorModuloFilter
-
-    def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
-            return CreateEmailTerceirizadaPorModuloSerializer
-        return EmailsTerceirizadaPorModuloSerializer
 
 
 class ContratoViewSet(ReadOnlyModelViewSet):

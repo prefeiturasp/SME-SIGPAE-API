@@ -11,6 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from src.eol_servico.utils import EOLServicoSGP
 
+from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ..dados_comuns.utils import get_ultimo_dia_mes
 from ..escola import models
 
@@ -497,7 +498,9 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
     data_final = query_params.get("data_final")
     alunos_com_dietas_autorizadas = []
     for dieta in dietas_autorizadas:
-        datetime_autorizacao = datetime.strptime(dieta.data_autorizacao, "%d/%m/%Y")
+        datetime_autorizacao = datetime.strptime(
+            dieta.data_autorizacao, FORMATO_DATA_BRASILEIRO
+        )
         if data_inicial and data_final:
             if (
                 datetime_autorizacao >= datetime.strptime(data_inicial, "%Y-%m-%d")
@@ -519,11 +522,12 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
             )
             if (
                 datetime_autorizacao
-                >= datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
+                >= datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
                 and datetime_autorizacao
-                <= datetime.strptime(f"{num_dias}/{mes}/{ano}", "%d/%m/%Y")
+                <= datetime.strptime(f"{num_dias}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
             ) or (
-                datetime_autorizacao < datetime.strptime(f"{1}/{mes}/{ano}", "%d/%m/%Y")
+                datetime_autorizacao
+                < datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
             ):
                 alunos_com_dietas_autorizadas.append(
                     {
@@ -692,12 +696,24 @@ def _coleta_alunos_por_dia(
     data_final=None,
 ):
     for log_aluno_dia in log_periodo_faixa.logs_alunos_por_dia.all():
+        aluno_model = log_aluno_dia.aluno
+
         if escola and not aluno_pertence_a_escola(
-            log_aluno_dia.aluno, escola, data_inicial, data_final
+            aluno_model, escola, data_inicial, data_final
         ):
             continue
-        data_nascimento = log_aluno_dia.aluno.data_nascimento
-        aluno = f"{log_aluno_dia.aluno.nome} - {data_nascimento.day:02d}/{data_nascimento.month:02d}/{data_nascimento.year}"
+
+        data_nascimento = aluno_model.data_nascimento
+        aluno = (
+            f"{aluno_model.nome} - "
+            f"{data_nascimento.day:02d}/"
+            f"{data_nascimento.month:02d}/"
+            f"{data_nascimento.year}"
+        )
+
+        if aluno_model.serie:
+            aluno = f"{aluno} - {aluno_model.serie}"
+
         alunos_por_dia.append(aluno)
         alunos_por_faixa_append(alunos_por_faixa, aluno)
 

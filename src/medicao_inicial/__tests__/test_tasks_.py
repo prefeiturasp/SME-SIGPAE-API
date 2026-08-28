@@ -10,6 +10,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from pypdf import PdfWriter
 
+from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET, TIPOS_UNIDADE_ESCOLAR
 from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
 from src.escola.models import (
     AlunoPeriodoParcial,
@@ -70,7 +71,9 @@ class CriaSolicitacaoMedicaoInicialMesAtualTest(TestCase):
 
         mock_all.return_value = [escola_mock]
 
-        mock_select_for_update.return_value.filter.return_value.first.return_value = escola_mock
+        mock_select_for_update.return_value.filter.return_value.first.return_value = (
+            escola_mock
+        )
 
         mock_filter.return_value.exists.return_value = False
         mock_get.side_effect = SolicitacaoMedicaoInicial.DoesNotExist
@@ -130,7 +133,14 @@ class GeraPDFRelatorioUnificadoMedicoesIniciaisAsyncTest(TestCase):
         mock_gera_objeto.return_value = Mock()
         mock_relatorio_lançamentos.return_value = "arquivo_mock"
         uuid_mock = [UUID("12345678-abcd-1234-5678-123456789012")]
-        tipos_de_unidade = ["EMEF", "CEUEMEF", "EMEFM", "EMEBS", "CIEJA", "CEU Gestão"]
+        tipos_de_unidade = [
+            TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+            "CEUEMEF",
+            TIPOS_UNIDADE_ESCOLAR.EMEFM.value,
+            TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
+            TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+            "CEU Gestão",
+        ]
 
         gera_pdf_relatorio_unificado_async(
             "user", "nome_arquivo", uuid_mock, tipos_de_unidade
@@ -225,7 +235,6 @@ def test_exporta_relatorio_adesao_para_xlsx(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -258,7 +267,6 @@ def test_exporta_relatorio_adesao_para_xlsx(
 
     nome_arquivo = "relatorio-adesao.xlsx"
 
-    # act
     query_params = QueryDict(
         f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
     )
@@ -284,13 +292,11 @@ def test_exporta_relatorio_adesao_para_xlsx(
 
 @pytest.mark.django_db
 def test_exporta_relatorio_adesao_para_xlsx_sem_resultados(usuario):
-    # arrange
     mes = "03"
     ano = "2024"
 
     nome_arquivo = "relatorio-adesao.xlsx"
 
-    # act
     resultados = {}
 
     exporta_relatorio_adesao_para_xlsx(
@@ -314,7 +320,6 @@ def test_exporta_relatorio_adesao_para_pdf(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -347,7 +352,6 @@ def test_exporta_relatorio_adesao_para_pdf(
 
     nome_arquivo = "relatorio-adesao.pdf"
 
-    # act
     query_params = query_params = QueryDict(
         f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
     )
@@ -373,13 +377,11 @@ def test_exporta_relatorio_adesao_para_pdf(
 
 @pytest.mark.django_db
 def test_exporta_relatorio_adesao_para_pdf_sem_resultados(usuario):
-    # arrange
     mes = "03"
     ano = "2024"
 
     nome_arquivo = "relatorio-adesao.pdf"
 
-    # act
     resultados = {}
 
     exporta_relatorio_adesao_para_pdf(
@@ -427,7 +429,10 @@ def test_exporta_relatorio_consolidado_xlsx(
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
         mes=mes,
         ano=ano,
-        escola__tipo_unidade__iniciais__in=["EMEF", "EMEFM"],
+        escola__tipo_unidade__iniciais__in=[
+            TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+            TIPOS_UNIDADE_ESCOLAR.EMEFM.value,
+        ],
         escola__diretoria_regional=escola.diretoria_regional,
         status=status,
     )
@@ -514,7 +519,14 @@ def test_gera_pdf_relatorio_unificado_async_cei(
     solicitacoes_cei_relatorio_unificado, usuario
 ):
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", "CEI DIRET", "CEU CEI"]
+    tipos = [
+        TIPOS_UNIDADE_ESCOLAR.CCI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+        TIPO_UNIDADE_CEI_DIRET,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+    ]
 
     nome_arquivo = "relatorio_teste.pdf"
     usuario = usuario.get_username()
@@ -562,7 +574,14 @@ def test_processa_relatorio_lancamentos(
     central = baker.make(CentralDeDownload)
 
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", "CEI DIRET", "CEU CEI"]
+    tipos = [
+        TIPOS_UNIDADE_ESCOLAR.CCI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+        TIPO_UNIDADE_CEI_DIRET,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+    ]
 
     processa_relatorio_lançamentos(ids, tipos, merger, central)
 
@@ -964,7 +983,7 @@ def test_processa_relatorio_lancamentos_com_recreio(
     merger = PdfWriter()
     central = baker.make(CentralDeDownload)
     ids = [solicitacao_recreio_nas_ferias.uuid]
-    tipos = ["EMEF"]
+    tipos = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
 
     monkeypatch.setattr(
         "src.medicao_inicial.tasks.relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias",
@@ -994,7 +1013,7 @@ def test_processa_relatorio_lancamentos_com_recreio_cemei(
     merger = PdfWriter()
     central = baker.make(CentralDeDownload)
     ids = [solicitacao_recreio_cemei.uuid]
-    tipos = ["CEMEI"]
+    tipos = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
 
     monkeypatch.setattr(
         "src.medicao_inicial.tasks.relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias",
@@ -1015,7 +1034,7 @@ def test_processa_relatorio_lancamentos_sem_recreio(
     merger = PdfWriter()
     central = baker.make(CentralDeDownload)
     ids = [solicitacao_recreio_nas_ferias.uuid]
-    tipos = ["EMEF"]
+    tipos = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
 
     processa_relatorio_lançamentos(ids, tipos, merger, central)
 
@@ -1027,7 +1046,7 @@ def test_gera_pdf_relatorio_unificado_async_com_recreio(
     solicitacao_recreio_nas_ferias, usuario, monkeypatch
 ):
     ids = [solicitacao_recreio_nas_ferias.uuid]
-    tipos = ["EMEF"]
+    tipos = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
     nome_arquivo = "relatorio_unificado_recreio.pdf"
     user = usuario.get_username()
 

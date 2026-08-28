@@ -4,7 +4,29 @@ from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http import QueryDict
 
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
+from src.escola.models import Escola
 from src.medicao_inicial.models import Medicao, ValorMedicao
+
+ORDEM_PERIODOS = {
+    "MANHA": 1,
+    "TARDE": 2,
+    "INTEGRAL": 3,
+    "NOITE": 4,
+    "INTERMEDIARIO": 5,
+    "VESPERTINO": 6,
+}
+
+ORDEM_ALIMENTACOES = {
+    "LANCHE": 1,
+    "REFEIÇÃO": 2,
+    "SOBREMESA": 3,
+    "LANCHE 4H": 4,
+}
 
 
 def _obtem_medicoes(mes: str, ano: str, filtros: dict) -> QuerySet:
@@ -31,15 +53,15 @@ def _obtem_medicoes(mes: str, ano: str, filtros: dict) -> QuerySet:
         )
         .exclude(
             solicitacao_medicao_inicial__escola__tipo_unidade__iniciais__in=[
-                "CEI",
-                "CEI DIRET",
+                TIPOS_UNIDADE_ESCOLAR.CEI.value,
+                TIPO_UNIDADE_CEI_DIRET,
                 "CEI INDIR",
-                "CEI CEU",
-                "CCI",
-                "CCI/CIPS",
-                "CEU CEI",
-                "CEU CEMEI",
-                "CEMEI",
+                TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+                TIPOS_UNIDADE_ESCOLAR.CCI.value,
+                TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+                TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+                TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+                TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             ]
         )
     )
@@ -202,6 +224,27 @@ def _soma_totais_por_medicao(
     return resultados
 
 
+def _aplica_filtro_lista(
+    query_params: QueryDict, filtros: dict, parametro: str, chave_filtro: str
+) -> dict:
+    """
+    Aplica um filtro de lista de parâmetros ao dicionário de filtros, quando houver valores.
+
+    Args:
+        query_params (QueryDict): objeto QueryDict contendo os parâmetros da requisição HTTP.
+        filtros (dict): dicionário de filtros a ser atualizado.
+        parametro (str): nome do parâmetro a ser lido do query_params.
+        chave_filtro (str): chave do filtro a ser adicionada ao dicionário.
+
+    Returns:
+        dict: dicionário de filtros atualizado.
+    """
+    valores = query_params.getlist(parametro)
+    if valores:
+        filtros[chave_filtro] = valores
+    return filtros
+
+
 def _cria_filtros(query_params: QueryDict) -> dict:
     """
     Cria um dicionário de filtros para consulta de medições a partir de parâmetros de URL.
@@ -220,20 +263,137 @@ def _cria_filtros(query_params: QueryDict) -> dict:
     if dre:
         filtros["solicitacao_medicao_inicial__escola__diretoria_regional__uuid"] = dre
 
-    lotes = query_params.getlist("lotes[]")
-    if lotes:
-        filtros["solicitacao_medicao_inicial__escola__lote__uuid__in"] = lotes
+    filtros = _aplica_filtro_lista(
+        query_params,
+        filtros,
+        "lotes[]",
+        "solicitacao_medicao_inicial__escola__lote__uuid__in",
+    )
+    filtros = _aplica_filtro_lista(
+        query_params,
+        filtros,
+        "tipos_unidades[]",
+        "solicitacao_medicao_inicial__escola__tipo_unidade__uuid__in",
+    )
+    filtros = _aplica_filtro_lista(
+        query_params,
+        filtros,
+        "escola__uuid[]",
+        "solicitacao_medicao_inicial__escola__uuid__in",
+    )
 
     escola = query_params.get("escola")
     if escola:
         escola = escola.split("-")[0].strip()
         filtros["solicitacao_medicao_inicial__escola__codigo_eol"] = escola
 
-    periodos_escolares = query_params.getlist("periodos_escolares[]")
-    if periodos_escolares:
-        filtros["periodo_escolar__uuid__in"] = periodos_escolares
+    filtros = _aplica_filtro_lista(
+        query_params, filtros, "periodos_escolares[]", "periodo_escolar__uuid__in"
+    )
 
     return filtros
+
+
+def _parametros_consulta(
+    query_params: QueryDict,
+) -> tuple[str, str, str | None, str | None, list[str]]:
+    """
+    Extrai e normaliza os parâmetros comuns de consulta do relatório de adesão.
+
+    Args:
+        query_params (QueryDict): objeto QueryDict contendo os parâmetros da requisição HTTP.
+
+    Returns:
+        tuple: contendo (mes, ano, dia_inicial, dia_final, tipos_alimentacao)
+    """
+    mes_ano = query_params.get("mes_ano")
+    mes, ano = mes_ano.split("_")
+    periodo_lancamento_de = query_params.get("periodo_lancamento_de")
+    periodo_lancamento_ate = query_params.get("periodo_lancamento_ate")
+
+    dia_inicial = None
+    dia_final = None
+    if periodo_lancamento_de and periodo_lancamento_ate:
+        dia_inicial = periodo_lancamento_de.split("/")[0]
+        dia_final = periodo_lancamento_ate.split("/")[0]
+
+    tipos_alimentacao = query_params.getlist("tipos_alimentacao[]")
+
+    return mes, ano, dia_inicial, dia_final, tipos_alimentacao
+
+
+def _ordena_resultados(resultados: dict) -> dict:
+    """
+    Ordena de forma determinística os períodos e as alimentações do resultado.
+
+    A ordem dos períodos é: Manhã, Tarde, Integral, Noite, Intermediário, Vespertino.
+    A ordem das alimentações é: Lanche, Refeição, Sobremesa, Lanche 4h.
+    Períodos ou alimentações desconhecidos são mantidos por último, na ordem em que aparecem.
+
+    Args:
+        resultados (dict): dicionário com os resultados consolidados.
+
+    Returns:
+        dict: dicionário com os períodos e alimentações ordenados.
+    """
+
+    def _chave_periodo(medicao_nome: str) -> int:
+        periodo = medicao_nome.split(" - ")[-1].strip()
+        return ORDEM_PERIODOS.get(periodo, len(ORDEM_PERIODOS) + 1)
+
+    def _chave_alimentacao(alimentacao_nome: str) -> int:
+        return ORDEM_ALIMENTACOES.get(alimentacao_nome, len(ORDEM_ALIMENTACOES) + 1)
+
+    return {
+        medicao_nome: dict(
+            sorted(
+                alimentacoes.items(),
+                key=lambda item: _chave_alimentacao(item[0]),
+            )
+        )
+        for medicao_nome, alimentacoes in sorted(
+            resultados.items(), key=lambda item: _chave_periodo(item[0])
+        )
+    }
+
+
+def _calcula_resultados(
+    mes: str,
+    ano: str,
+    filtros: dict,
+    tipos_alimentacao: list[str],
+    dia_inicial: str | None,
+    dia_final: str | None,
+) -> dict:
+    """
+    Calcula e consolida os resultados de medições a partir de um conjunto de filtros.
+
+    Args:
+        mes (str): mês de referência no formato 'MM'
+        ano (str): ano de referência no formato 'AAAA'
+        filtros (dict): filtros a serem aplicados na consulta de medições
+        tipos_alimentacao (list[str]): lista de UUIDs de tipos de alimentação
+        dia_inicial (str | None): dia inicial do período de lançamento
+        dia_final (str | None): dia final do período de lançamento
+
+    Returns:
+        dict: dicionário consolidado com os resultados
+    """
+    resultados = {}
+    total_frequencia_por_medicao = {}
+
+    medicoes = _obtem_medicoes(mes, ano, filtros)
+    for medicao in medicoes:
+        resultados = _soma_totais_por_medicao(
+            resultados,
+            total_frequencia_por_medicao,
+            medicao,
+            tipos_alimentacao,
+            dia_inicial,
+            dia_final,
+        )
+
+    return _ordena_resultados(resultados)
 
 
 def obtem_resultados(query_params: QueryDict) -> dict:
@@ -250,35 +410,84 @@ def obtem_resultados(query_params: QueryDict) -> dict:
     Returns:
         dict: dicionário consolidado com os resultados
     """
-    mes_ano = query_params.get("mes_ano")
-    mes, ano = mes_ano.split("_")
-    periodo_lancamento_de = query_params.get("periodo_lancamento_de")
-    periodo_lancamento_ate = query_params.get("periodo_lancamento_ate")
-
-    dia_inicial = None
-    dia_final = None
-    if periodo_lancamento_de and periodo_lancamento_ate:
-        dia_inicial = periodo_lancamento_de.split("/")[0]
-        dia_final = periodo_lancamento_ate.split("/")[0]
-
-    tipos_alimentacao = query_params.getlist("tipos_alimentacao[]")
+    mes, ano, dia_inicial, dia_final, tipos_alimentacao = _parametros_consulta(
+        query_params
+    )
 
     filtros = _cria_filtros(query_params)
-    resultados = {}
-    total_frequencia_por_medicao = {}
+    return _calcula_resultados(
+        mes, ano, filtros, tipos_alimentacao, dia_inicial, dia_final
+    )
 
-    medicoes = _obtem_medicoes(mes, ano, filtros)
-    for medicao in medicoes:
-        resultados = _soma_totais_por_medicao(
-            resultados,
-            total_frequencia_por_medicao,
-            medicao,
-            tipos_alimentacao,
-            dia_inicial,
-            dia_final,
-        )
 
-    return resultados
+def obtem_escolas_ordenadas(escolas_uuid: list[str]) -> list[Escola]:
+    """
+    Retorna as escolas filtradas pelos UUIDs, ordenadas alfabeticamente pelo nome.
+
+    Args:
+        escolas_uuid (list[str]): lista de UUIDs de escolas.
+
+    Returns:
+        list[Escola]: escolas encontradas, ordenadas por nome.
+    """
+    return list(
+        Escola.objects.filter(uuid__in=escolas_uuid)
+        .only("uuid", "nome", "codigo_eol")
+        .order_by("nome")
+    )
+
+
+def obtem_resultados_para_escola(escola: Escola, query_params: QueryDict) -> dict:
+    """
+    Calcula os resultados consolidados de medições para uma única escola.
+
+    Args:
+        escola (Escola): escola para a qual os resultados serão calculados.
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        dict: dicionário com a identificação da escola e seus resultados.
+    """
+    mes, ano, dia_inicial, dia_final, tipos_alimentacao = _parametros_consulta(
+        query_params
+    )
+
+    filtros = _cria_filtros(query_params)
+    filtros["solicitacao_medicao_inicial__escola__uuid"] = escola.uuid
+    resultados = _calcula_resultados(
+        mes, ano, filtros, tipos_alimentacao, dia_inicial, dia_final
+    )
+
+    return {
+        "escola": {
+            "nome": escola.nome,
+            "codigo_eol": escola.codigo_eol,
+        },
+        "resultados": resultados,
+    }
+
+
+def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
+    """
+    Obtém e consolida resultados de medições de alimentação escolar agrupados por escola.
+
+    Para cada escola informada no filtro ``escola__uuid[]``, calcula os resultados
+    agregados da medição e os retorna junto com a identificação da escola
+    (nome e código EOL), permitindo que o resultado seja paginado com uma escola
+    por página.
+
+    Args:
+        query_params (QueryDict): QueryDict contendo os parâmetros da requisição
+
+    Returns:
+        list[dict]: lista de dicionários no formato
+        ``{"escola": {"nome": str, "codigo_eol": str}, "resultados": dict}``
+    """
+    escolas_uuid = query_params.getlist("escola__uuid[]")
+    return [
+        obtem_resultados_para_escola(escola, query_params)
+        for escola in obtem_escolas_ordenadas(escolas_uuid)
+    ]
 
 
 def _valida_ano_mes(mes_ano: str) -> tuple[int, int]:
@@ -367,7 +576,7 @@ def _parse_data(valor: str, campo: str) -> datetime:
         datetime:  objeto date convertido.
     """
     try:
-        return datetime.strptime(valor, "%d/%m/%Y").date()
+        return datetime.strptime(valor, FORMATO_DATA_BRASILEIRO).date()
     except ValueError:
         raise ValidationError(
             f"Formato de data inválido para '{campo}'. Use o formato dd/mm/yyyy"

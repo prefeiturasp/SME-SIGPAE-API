@@ -7,7 +7,12 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework.test import APIClient
 
-from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.dados_comuns.constants import (
+    DJANGO_ADMIN_PASSWORD,
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import CentralDeDownload
 from src.escola.fixtures.factories.escola_factory import (
@@ -39,10 +44,16 @@ class TestGeraRelatorioUnificado:
     """Testes para verificar a geração do relatório unificado de medições iniciais."""
 
     def setup_tipos_unidade_e_grupo(self):
-        tipo_unidade_emei = TipoUnidadeEscolarFactory.create(iniciais="EMEI")
-        tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(iniciais="CEMEI")
+        tipo_unidade_emei = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+        )
+        tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+        )
 
-        grupo_unidade_escolar = GrupoUnidadeEscolarFactory.create(nome="CEMEI")
+        grupo_unidade_escolar = GrupoUnidadeEscolarFactory.create(
+            nome=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+        )
         grupo_unidade_escolar.tipos_unidades.add(tipo_unidade_cemei)
 
         return tipo_unidade_emei, tipo_unidade_cemei, grupo_unidade_escolar
@@ -56,7 +67,7 @@ class TestGeraRelatorioUnificado:
             terceirizada=terceirizada,
             diretoria_regional=diretoria_regional,
         )
-        tipo_gestao = TipoGestaoFactory.create(nome="TERC TOTAL")
+        tipo_gestao = TipoGestaoFactory.create(nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
         return diretoria_regional, lote, tipo_gestao
 
@@ -341,7 +352,9 @@ class TestGeraRelatorioUnificado:
         assert historico.data_final == datetime.date(
             2025, 12, 31
         ), "Data final deve ser 31/12/2025"
-        assert "EMEI" in historico.nome, "Nome do histórico deve conter EMEI"
+        assert (
+            TIPOS_UNIDADE_ESCOLAR.EMEI.value in historico.nome
+        ), "Nome do histórico deve conter EMEI"
 
     def test_escola_sem_historico_nao_tem_registros(self):
         """
@@ -426,7 +439,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.call_count == 1
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is True
-        assert "Recreio nas Férias" in call_kwargs["nome_arquivo"]
+        assert GRUPO_RECREIO_NAS_FERIAS in call_kwargs["nome_arquivo"]
 
     @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
     def test_gera_relatorio_unificado_sem_recreio_nao_passa_flag(
@@ -469,7 +482,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.called
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is False
-        assert "Recreio nas Férias" not in call_kwargs["nome_arquivo"]
+        assert GRUPO_RECREIO_NAS_FERIAS not in call_kwargs["nome_arquivo"]
 
     @patch("src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei")
     @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
@@ -625,7 +638,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.called
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is False
-        assert "Recreio nas Férias" not in call_kwargs["nome_arquivo"]
+        assert GRUPO_RECREIO_NAS_FERIAS not in call_kwargs["nome_arquivo"]
         assert len(html_strings_captured) == 1
         assert solicitacao_sem_recreio.uuid in call_kwargs["ids_solicitacoes"]
         assert solicitacao_com_recreio.uuid not in call_kwargs["ids_solicitacoes"]

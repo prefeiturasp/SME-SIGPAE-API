@@ -6,6 +6,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from openpyxl import Workbook
 
+from src.dados_comuns.constants import (
+    MODEL_ESCOLA,
+    MODEL_USUARIO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
     ArquivoCargaDietaEspecial,
@@ -44,7 +49,7 @@ def perfil():
 @pytest.fixture
 def escola():
     return baker.make(
-        "escola.Escola",
+        MODEL_ESCOLA,
         codigo_codae="12345678",
         codigo_eol="654321",
         lote=baker.make("Lote", terceirizada=baker.make("Terceirizada")),
@@ -127,7 +132,7 @@ def dieta_especial_ativa(solicitacao_dieta_especial):
 
 @pytest.fixture
 def usuario():
-    return baker.make("perfil.Usuario")
+    return baker.make(MODEL_USUARIO)
 
 
 @pytest.fixture
@@ -156,7 +161,7 @@ def mock_cabecalho_e_informacoes_excel(
     informacoes = [
         "DRE XYZ",  # dre
         "TERCEIRIZADA",  # tipo_gestao
-        "EMEF",  # tipo_unidade
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,  # tipo_unidade
         escola.codigo_codae,  # codigo_escola
         "Escola Teste",  # nome_unidade
         aluno.codigo_eol,  # codigo_eol_aluno (obrigatório)

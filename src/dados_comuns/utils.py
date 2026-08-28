@@ -40,7 +40,13 @@ from src.dados_comuns.docs import (
     DOCS_FLUXO_PARTINDO_ESCOLA_GESTAO_ALIMENTACAO_DJANGO_WORKFLOW,
 )
 
-from .constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, DOMINIOS_DEV
+from .constants import (
+    DAQUI_A_SETE_DIAS,
+    DAQUI_A_TRINTA_DIAS,
+    DOMINIOS_DEV,
+    FORMATO_DATA_BRASILEIRO,
+    TIPOS_GESTAO,
+)
 from .models import CentralDeDownload, LogSolicitacoesUsuario, Notificacao
 
 calendar = BrazilSaoPauloCity()
@@ -202,7 +208,7 @@ def parse_date(value: str) -> datetime.date:
         ValidationError: Se a string não estiver no formato esperado.
     """
     try:
-        return datetime.datetime.strptime(value, "%d/%m/%Y").date()
+        return datetime.datetime.strptime(value, FORMATO_DATA_BRASILEIRO).date()
     except ValueError:
         raise ValidationError(f"Formato de data inválido: {value}. Use DD/MM/YYYY")
 
@@ -520,7 +526,7 @@ def analisa_logs_quantidade_dietas_autorizadas():
     )
     from src.escola.models import Escola
 
-    escolas = Escola.objects.filter(tipo_gestao__nome="TERC TOTAL")
+    escolas = Escola.objects.filter(tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value)
     for index, escola in enumerate(escolas):
         msg = "análise de LogQuantidadeDietasAutorizadas / LogQuantidadeDietasAutorizadasCEI"
         msg += f" para escola {escola.nome} ({index + 1}/{(escolas).count()})"
@@ -775,11 +781,23 @@ def remove_duplicados_do_query_set(query_set: QuerySet | list) -> list:
 
 
 def convert_dict_to_querydict(dict_: dict) -> QueryDict:
+    """
+    Converte um dicionário em um QueryDict.
+
+    Valores que são listas são adicionados como múltiplos valores na chave original
+    (ex.: ``unidades_educacionais_selecionadas``). Além disso, é adicionada a mesma
+    lista em uma chave com o sufixo ``[]`` (ex.: ``escola__uuid[]``), mantendo
+    compatibilidade com os dois formatos de chave usados nas consultas do sistema.
+    """
     query_dict = QueryDict("", mutable=True)
     for key, value in dict_.items():
         if isinstance(value, list):
             for item in value:
                 query_dict.update({key: item})
+            if not key.endswith("[]"):
+                key_brackets = f"{key}[]"
+                for item in value:
+                    query_dict.update({key_brackets: item})
         else:
             query_dict[key] = value
     return query_dict

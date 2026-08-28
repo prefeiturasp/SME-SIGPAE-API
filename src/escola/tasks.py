@@ -8,6 +8,7 @@ from django.core import management
 from django.template.loader import render_to_string
 from requests.exceptions import ConnectionError, Timeout
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
@@ -197,7 +198,9 @@ def nega_solicitacoes_vencidas():
             uuid__in=uuids_solicitacoes_dre_a_validar
         )
         if classe_solicitacao == AlteracaoCardapio:
-            solicitacoes = solicitacoes.exclude(motivo__nome="Lanche Emergencial")
+            solicitacoes = solicitacoes.exclude(
+                motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+            )
         for solicitacao in solicitacoes.all():
             usuario = Usuario.objects.filter(email="system@admin.com").first()
             solicitacao.dre_nao_valida(
@@ -251,7 +254,9 @@ def nega_solicitacoes_pendentes_autorizacao_vencidas():
             uuid__in=uuids_solicitacoes_dre_a_validar
         )
         if classe_solicitacao == AlteracaoCardapio:
-            solicitacoes = solicitacoes.exclude(motivo__nome="Lanche Emergencial")
+            solicitacoes = solicitacoes.exclude(
+                motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+            )
         for solicitacao in solicitacoes.all():
             usuario = Usuario.objects.filter(email="system@admin.com").first()
             if solicitacao.status in [

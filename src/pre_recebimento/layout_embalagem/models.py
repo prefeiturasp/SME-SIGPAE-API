@@ -3,6 +3,7 @@ import os
 
 from django.core.validators import FileExtensionValidator
 from django.db import models
+from django.template.loader import render_to_string
 
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
@@ -12,8 +13,7 @@ from ...dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
-from django.template.loader import render_to_string
-
+from ...dados_comuns.constants import EM_ANALISE_LABEL
 from ...dados_comuns.fluxo_status import (
     FluxoLayoutDeEmbalagem,
 )
@@ -72,7 +72,7 @@ class TipoDeEmbalagemDeLayout(TemChaveExterna):
     STATUS_CHOICES = (
         (STATUS_APROVADO, "Aprovado"),
         (STATUS_REPROVADO, "Reprovado"),
-        (STATUS_EM_ANALISE, "Em análise"),
+        (STATUS_EM_ANALISE, EM_ANALISE_LABEL),
     )
 
     TIPO_EMBALAGEM_CHOICES = (

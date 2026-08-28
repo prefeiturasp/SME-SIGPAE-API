@@ -296,7 +296,21 @@ def test_url_authorized_emails_terceirizadas(client_autenticado_terceiro):
 def test_url_authorized_emails_terceirizadas_por_modulo(client_autenticado_terceiro):
     client = client_autenticado_terceiro
     response = client.get("/emails-terceirizadas-modulos/")
+    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+
+
+def test_url_patch_email_terceirizada_por_modulo(
+    client_autenticado_terceiro, emailterceirizadapormodulo
+):
+    client = client_autenticado_terceiro
+    uuid = emailterceirizadapormodulo.uuid
+    response = client.patch(
+        f"/emails-terceirizadas-modulos/{uuid}/",
+        data=json.dumps({"email": "novoemail@teste.com"}),
+        content_type="application/json",
+    )
     assert response.status_code == status.HTTP_200_OK
+    assert response.json()["email"] == "novoemail@teste.com"
 
 
 def test_encerrar_contrato(client_autenticado_terceiro):

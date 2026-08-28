@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from src.dados_comuns.api.serializers import LogSolicitacoesSerializer
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.logistica.models import (
     Alimento,
     ConferenciaGuia,
@@ -147,7 +148,7 @@ class SolicitacaoRemessaContagemGuiasSerializer(serializers.ModelSerializer):
         return obj.get_status_display()
 
     def get_data_entrega(self, obj):
-        return obj.data_entrega.strftime("%d/%m/%Y")
+        return obj.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = SolicitacaoRemessa
@@ -306,7 +307,7 @@ class GuiaDaRemessaComOcorrenciasSerializer(serializers.ModelSerializer):
     data_entrega = serializers.SerializerMethodField()
 
     def get_data_entrega(self, obj):
-        return obj.data_entrega.strftime("%d/%m/%Y")
+        return obj.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = Guia
@@ -349,10 +350,10 @@ class SolicitacaoDeAlteracaoSerializer(serializers.ModelSerializer):
     numero_requisicao = serializers.SerializerMethodField()
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_data_entrega(self, obj):
-        return obj.data_entrega.strftime("%d/%m/%Y")
+        return obj.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_status(self, obj):
         return obj.get_status_display()

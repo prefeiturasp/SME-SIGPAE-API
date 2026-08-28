@@ -8,7 +8,7 @@ from django.http import QueryDict
 from faker import Faker
 from model_bakery import baker
 
-from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA
+from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA, MODEL_USUARIO
 from src.produto.api.serializers.serializers import (
     HomologacaoProdutoPainelGerencialSerializer,
     ProdutoReclamacaoSerializer,
@@ -51,7 +51,7 @@ def escola():
         uuid="b00b2cf4-286d-45ba-a18b-9ffe4e8d8dfd",
         lote=lote,
         diretoria_regional=diretoria_regional,
-        tipo_gestao__nome="TERC TOTAL",
+        tipo_gestao__nome=constants.TIPOS_GESTAO.TERC_TOTAL.value,
         contato=contato,
     )
 
@@ -203,7 +203,7 @@ def produtos_edital_41(escola):
 
 @pytest.fixture
 def client_autenticado_vinculo_terceirizada(client, django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     tecerizada = escola.lote.terceirizada
     user = django_user_model.objects.create_user(
@@ -241,7 +241,7 @@ def user(django_user_model):
 def client_autenticado_vinculo_terceirizada_homologacao(
     client, django_user_model, escola
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     tecerizada = escola.lote.terceirizada
     user = django_user_model.objects.create_user(
@@ -615,7 +615,7 @@ def client_autenticado_da_terceirizada(client, django_user_model, terceirizada):
 
 @pytest.fixture
 def tipo_gestao():
-    return baker.make(TipoGestao, nome="TERC TOTAL")
+    return baker.make(TipoGestao, nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
 
 
 @pytest.fixture
@@ -797,7 +797,7 @@ def imagem_produto2(produto, arquivo):
 
 @pytest.fixture
 def client_autenticado_vinculo_escola_ue(client, django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -1052,7 +1052,7 @@ def item_cadastrado_4(embalagem_produto):
 
 @pytest.fixture
 def usuario():
-    return baker.make("perfil.Usuario")
+    return baker.make(MODEL_USUARIO)
 
 
 @pytest.fixture

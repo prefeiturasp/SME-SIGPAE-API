@@ -10,6 +10,7 @@ from django_weasyprint.utils import django_url_fetcher
 from pypdf import PdfReader
 from weasyprint import HTML
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.relatorios.utils import merge_pdf_com_rodape_assinatura
 
 from ..utils import (
@@ -90,13 +91,13 @@ def test_config_cabecario_obter_cabecario_reduzido():
 
 
 def test_config_cabecario_obter_cabecario_por_data():
-    filtros = {"data_analise_inicial": date.today().strftime("%d/%m/%Y")}
+    filtros = {"data_analise_inicial": date.today().strftime(FORMATO_DATA_BRASILEIRO)}
     config = get_config_cabecario_relatorio_analise(filtros, None, None)
     assert config["cabecario_tipo"] == "CABECARIO_POR_DATA"
 
     filtros = {
-        "data_analise_inicial": date.today().strftime("%d/%m/%Y"),
-        "data_analise_final": date.today().strftime("%d/%m/%Y"),
+        "data_analise_inicial": date.today().strftime(FORMATO_DATA_BRASILEIRO),
+        "data_analise_final": date.today().strftime(FORMATO_DATA_BRASILEIRO),
     }
     assert config["cabecario_tipo"] == "CABECARIO_POR_DATA"
     config = get_config_cabecario_relatorio_analise(filtros, None, None)
