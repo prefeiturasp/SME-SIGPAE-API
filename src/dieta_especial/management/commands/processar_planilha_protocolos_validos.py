@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 
+from src.dados_comuns.constants import NOME_PROTOCOLO_PLANILHA
 from src.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
 )
@@ -38,7 +39,7 @@ class Command(BaseCommand):
         ws.title = "Dietas não relacionadas"
         cabecalho = [
             "uuid",
-            "nome protocolo na planilha",
+            NOME_PROTOCOLO_PLANILHA,
             "escola",
             "aluno",
             "lote",
@@ -51,9 +52,7 @@ class Command(BaseCommand):
 
         for ind, dict_solicitacao in enumerate(lista, 2):
             ws.cell(row=ind, column=1, value=str(dict_solicitacao["uuid"]))
-            ws.cell(
-                row=ind, column=2, value=dict_solicitacao["nome protocolo na planilha"]
-            )
+            ws.cell(row=ind, column=2, value=dict_solicitacao[NOME_PROTOCOLO_PLANILHA])
             ws.cell(row=ind, column=3, value=dict_solicitacao["escola"])
             ws.cell(row=ind, column=4, value=dict_solicitacao["aluno"])
             ws.cell(row=ind, column=5, value=dict_solicitacao["lote"])
@@ -85,7 +84,7 @@ class Command(BaseCommand):
                 if not protocolos:
                     objeto = {
                         "uuid": dado["UUID"],
-                        "nome protocolo na planilha": nome_protocolo,
+                        NOME_PROTOCOLO_PLANILHA: nome_protocolo,
                         "escola": solicitacao.escola.nome,
                         "aluno": solicitacao.aluno.nome,
                         "lote": solicitacao.escola.lote.nome,
