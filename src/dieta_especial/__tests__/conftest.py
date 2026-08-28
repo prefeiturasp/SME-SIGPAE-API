@@ -1430,9 +1430,9 @@ def filtro_historico_relatorio_dietas(
 @pytest.fixture
 def escolas_tipo_emebs():
     classificacao = {
-        "Escola EMEBS": {
+        constants.NOME_ESCOLA_EMEBS: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
-            "lote": "Lote EMEBS",
+            "lote": constants.NOME_LOTE_EMEBS,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1452,10 +1452,10 @@ def escolas_tipo_emebs():
         "infantil_ou_fundamental": "FUNDAMENTAL",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola EMEBS",
+        "nome_escola": constants.NOME_ESCOLA_EMEBS,
         "nome_periodo_escolar": "TARDE",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
-        "lote": "Lote EMEBS",
+        "lote": constants.NOME_LOTE_EMEBS,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
@@ -1465,10 +1465,10 @@ def escolas_tipo_emebs():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola EMEBS",
+        "nome_escola": constants.NOME_ESCOLA_EMEBS,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
-        "lote": "Lote EMEBS",
+        "lote": constants.NOME_LOTE_EMEBS,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 6,
         "inicio": None,
@@ -1480,9 +1480,9 @@ def escolas_tipo_emebs():
 @pytest.fixture
 def escolas_tipo_emei_emef_cieja():
     classificacao = {
-        "Escola EMEF": {
+        constants.NOME_ESCOLA_EMEF: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
-            "lote": "LOTE EMEF",
+            "lote": constants.NOME_LOTE_EMEF,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1502,10 +1502,10 @@ def escolas_tipo_emei_emef_cieja():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola EMEF",
+        "nome_escola": constants.NOME_ESCOLA_EMEF,
         "nome_periodo_escolar": "TARDE",
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
-        "lote": "LOTE EMEF",
+        "lote": constants.NOME_LOTE_EMEF,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
@@ -1516,10 +1516,10 @@ def escolas_tipo_emei_emef_cieja():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola EMEF",
+        "nome_escola": constants.NOME_ESCOLA_EMEF,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
-        "lote": "LOTE EMEF",
+        "lote": constants.NOME_LOTE_EMEF,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 6,
         "inicio": None,
@@ -1531,9 +1531,9 @@ def escolas_tipo_emei_emef_cieja():
 @pytest.fixture
 def escolas_tipos_cmct_ceugestao():
     classificacao = {
-        "Escola CEU GESTAO": {
+        constants.NOME_ESCOLA_CEU_GESTAO: {
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
-            "lote": "LOTE CEU GESTAO",
+            "lote": constants.NOME_LOTE_CEU_GESTAO,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1553,10 +1553,10 @@ def escolas_tipos_cmct_ceugestao():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEU GESTAO",
+        "nome_escola": constants.NOME_ESCOLA_CEU_GESTAO,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
-        "lote": "LOTE CEU GESTAO",
+        "lote": constants.NOME_LOTE_CEU_GESTAO,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 10,
         "inicio": None,
@@ -1567,10 +1567,10 @@ def escolas_tipos_cmct_ceugestao():
         "infantil_ou_fundamental": "N/A",
         "cei_ou_emei": "N/A",
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEU GESTAO",
+        "nome_escola": constants.NOME_ESCOLA_CEU_GESTAO,
         "nome_periodo_escolar": None,
         "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
-        "lote": "LOTE CEU GESTAO",
+        "lote": constants.NOME_LOTE_CEU_GESTAO,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 5,
         "inicio": None,
@@ -1582,9 +1582,9 @@ def escolas_tipos_cmct_ceugestao():
 @pytest.fixture
 def escolas_tipo_cei():
     classificacao = {
-        "Escola CEI DIRET": {
+        constants.NOME_ESCOLA_CEI_DIRET: {
             "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
-            "lote": "LOTE CEI DIRET",
+            "lote": constants.NOME_LOTE_CEI_DIRET,
             "data": datetime.date(2023, 12, 1),
             "classificacoes": {
                 CLASSIFICACAO_DIETA_NOME_TIPO_A: {
@@ -1606,10 +1606,10 @@ def escolas_tipo_cei():
 
     item = {
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEI DIRET",
+        "nome_escola": constants.NOME_ESCOLA_CEI_DIRET,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
-        "lote": "LOTE CEI DIRET",
+        "lote": constants.NOME_LOTE_CEI_DIRET,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 3,
         "inicio": 7,
@@ -1619,10 +1619,10 @@ def escolas_tipo_cei():
     }
     item_somatorio = {
         "data": datetime.date(2023, 12, 1),
-        "nome_escola": "Escola CEI DIRET",
+        "nome_escola": constants.NOME_ESCOLA_CEI_DIRET,
         "nome_periodo_escolar": "INTEGRAL",
         "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
-        "lote": "LOTE CEI DIRET",
+        "lote": constants.NOME_LOTE_CEI_DIRET,
         "nome_classificacao": CLASSIFICACAO_DIETA_NOME_TIPO_A,
         "quantidade_total": 4,
         "inicio": None,
