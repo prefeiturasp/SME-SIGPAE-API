@@ -1103,7 +1103,7 @@ class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
     relatorio_financeiro = models.ForeignKey(
         RelatorioFinanceiro,
         to_field="uuid",
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="dados_liquidacao",
     )
     numero_empenho = models.CharField(
@@ -1149,7 +1149,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
     relatorio_financeiro = models.ForeignKey(
         RelatorioFinanceiro,
         to_field="uuid",
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="descontos_financeiros",
     )
     unidades_educacionais = models.ManyToManyField(

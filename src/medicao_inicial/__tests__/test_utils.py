@@ -17,7 +17,7 @@ from src.dados_comuns.constants import (
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
-from src.medicao_inicial.models import DescontoFinanceiro
+from src.medicao_inicial.models import DescontoFinanceiro, SolicitacaoMedicaoInicial
 from src.medicao_inicial.utils import (
     atualiza_alunos_periodo_parcial,
     avalia_soma_total_com_dados_tabela_anterior,
@@ -51,6 +51,7 @@ from src.medicao_inicial.utils import (
     obter_instancia_dados,
     substitui_criador_system_por_usuario_real,
     tratar_valores,
+    processa_reabrir_lancamentos,
 )
 
 from .data import (
@@ -1997,3 +1998,100 @@ def test_get_eh_dia_letivo_nao_considera_dia_letivo_sigpae_de_outra_data(
         )
         is False
     )
+
+
+@pytest.mark.django_db
+class TestProcessaReabrirLancamentos:
+    def test_deve_reabrir_todas_as_solicitacoes_e_excluir_relatorio(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        usuario,
+    ):
+        solicitacao_medicao_inicial_cei.status = (
+            SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+        )
+        solicitacao_medicao_inicial_cei.save()
+
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[solicitacao_medicao_inicial_cei],
+            usuario=usuario,
+        )
+
+        solicitacao_medicao_inicial_cei.refresh_from_db()
+
+        assert (
+            solicitacao_medicao_inicial_cei.status
+            == SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+        )
+
+        assert not type(relatorio_financeiro_cei).objects.filter(
+            pk=relatorio_financeiro_cei.pk
+        ).exists()
+
+    def test_nao_deve_reabrir_solicitacao_de_tipo_de_unidade_fora_do_grupo(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        solicitacao_escola_emebs,
+        usuario,
+    ):
+        status_original = solicitacao_escola_emebs.status
+
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[
+                solicitacao_medicao_inicial_cei,
+                solicitacao_escola_emebs,
+            ],
+            usuario=usuario,
+        )
+
+        solicitacao_escola_emebs.refresh_from_db()
+
+        assert solicitacao_escola_emebs.status == status_original
+
+    def test_deve_atualizar_status_das_medicoes(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        usuario,
+    ):
+        medicoes = list(solicitacao_medicao_inicial_cei.medicoes.all())
+
+        assert medicoes
+
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[solicitacao_medicao_inicial_cei],
+            usuario=usuario,
+        )
+
+        status_esperado = (
+            SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+        )
+
+        for medicao in medicoes:
+            medicao.refresh_from_db()
+            assert medicao.status == status_esperado
+
+    def test_deve_alterar_status_do_relatorio_quando_nao_informa_unidades(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        usuario,
+    ):
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[solicitacao_medicao_inicial_cei],
+            usuario=usuario,
+        )
+
+        assert not type(relatorio_financeiro_cei).objects.filter(
+            pk=relatorio_financeiro_cei.pk
+        ).exists()
