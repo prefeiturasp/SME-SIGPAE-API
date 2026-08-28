@@ -61,8 +61,9 @@ listagens de apoio ao cadastro, implementadas em outros módulos:
 
 - ``GET /terceirizadas/lista-empresas-pos-recebimento/`` — empresas com ao
   menos uma ficha de recebimento "Assinado CODAE".
-- ``GET /cronogramas/lista-cronogramas-pos-recebimento/?contrato_id=<uuid>``
-  — cronogramas vinculados ao contrato selecionado.
+- ``GET /cronogramas/lista-cronogramas-pos-recebimento/?contrato_id=<uuid>&empresa_id=<uuid>``
+  — cronogramas do contrato e da empresa selecionados. Os dois filtros são
+  obrigatórios; sem ambos a resposta vem vazia.
 - ``GET /cronogramas/<uuid>/dados-cronograma-pos-recebimento/`` — dados do
   cronograma para preenchimento automático do cadastro.
 - ``GET /usuarios/fiscais/`` — usuários com perfil ``DILOG_QUALIDADE`` e
