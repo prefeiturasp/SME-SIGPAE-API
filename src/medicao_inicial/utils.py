@@ -7803,6 +7803,39 @@ def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
 
 
 def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario):
+    """Reabre os lançamentos de um relatório financeiro.
+
+    Filtra as solicitações do período de acordo com os tipos de unidade
+    educacional associados ao relatório financeiro e, quando informado,
+    também pelas unidades educacionais selecionadas. Em seguida, altera
+    o status das solicitações e de suas medições para
+    ``MEDICAO_APROVADA_PELA_DRE``, registrando o log de transição
+    correspondente.
+
+    Caso todas as solicitações do relatório tenham sido processadas,
+    o relatório financeiro é excluído.
+
+    Args:
+        relatorio_financeiro: Relatório financeiro que terá os lançamentos
+            reabertos. Deve possuir um grupo de unidade escolar associado,
+            contendo os tipos de unidades educacionais considerados no
+            processamento.
+        unidades_educacionais: Lista de UUIDs das unidades educacionais
+            que devem ser consideradas no processamento. Quando vazia ou
+            não informada, todas as unidades compatíveis com o relatório
+            financeiro são processadas.
+        solicitacoes_periodo: Coleção de solicitações de medição pertencentes
+            ao período do relatório financeiro. Apenas solicitações cuja
+            unidade educacional seja compatível com os tipos de unidade do
+            relatório são consideradas.
+        usuario: Usuário responsável pela reabertura dos lançamentos. É
+            utilizado para registrar os logs de transição de status.
+
+    Raises:
+        Exception: Qualquer exceção ocorrida durante a atualização das
+            solicitações ou medições faz com que a transação seja revertida.
+
+    """
     tipos_unidades = set(
         relatorio_financeiro
         .grupo_unidade_escolar
@@ -7827,12 +7860,12 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
     else:
         solicitacoes = solicitacoes_grupo
 
-    relatorio_financeiro.status = "RELATORIO_FINANCEIRO_GERADO"
-    relatorio_financeiro.save()
-
     total_solicitacoes = len(solicitacoes)
 
     with transaction.atomic():
+        relatorio_financeiro.status = "RELATORIO_FINANCEIRO_GERADO"
+        relatorio_financeiro.save()
+
         for solicitacao in solicitacoes:
             solicitacao.status = (
                 SolicitacaoMedicaoInicial
