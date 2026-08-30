@@ -7895,6 +7895,6 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
                     usuario=usuario,
                 )
                 medicao.save()
-        print(total_solicitacoes, total_solicitacoes_relatorio)
+
         if total_solicitacoes == total_solicitacoes_relatorio:
             relatorio_financeiro.delete()
