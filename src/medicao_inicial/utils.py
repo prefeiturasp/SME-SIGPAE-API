@@ -7826,8 +7826,9 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
         ]
     else:
         solicitacoes = solicitacoes_grupo
-        relatorio_financeiro.status = "RELATORIO_FINANCEIRO_GERADO"
-        relatorio_financeiro.save()
+
+    relatorio_financeiro.status = "RELATORIO_FINANCEIRO_GERADO"
+    relatorio_financeiro.save()
 
     total_solicitacoes = len(solicitacoes)
 
@@ -7861,6 +7862,6 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
                     usuario=usuario,
                 )
                 medicao.save()
-
+        print(total_solicitacoes, total_solicitacoes_relatorio)
         if total_solicitacoes == total_solicitacoes_relatorio:
             relatorio_financeiro.delete()
