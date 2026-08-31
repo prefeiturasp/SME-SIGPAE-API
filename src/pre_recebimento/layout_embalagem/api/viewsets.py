@@ -1,3 +1,5 @@
+"""Viewsets da API do submódulo de layout de embalagem."""
+
 from django.http import Http404, HttpResponse
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
@@ -37,6 +39,15 @@ from ....dados_comuns.api.paginations import DefaultPagination
 class LayoutDeEmbalagemModelViewSet(
     ViewSetActionPermissionMixin, viewsets.ModelViewSet
 ):
+    """Viewset de layouts de embalagem.
+
+    Exposto em ``/layouts-de-embalagem/``. A criação e a exclusão são
+    restritas ao fornecedor (``UsuarioEhFornecedor``); a visualização é
+    controlada por ``PermissaoParaVisualizarLayoutDeEmbalagem``. O
+    queryset é filtrado pela empresa do fornecedor quando o usuário é
+    fornecedor.
+    """
+
     lookup_field = "uuid"
     serializer_class = LayoutDeEmbalagemSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -49,6 +60,12 @@ class LayoutDeEmbalagemModelViewSet(
     }
 
     def get_queryset(self):
+        """Retorna os layouts conforme o perfil do usuário.
+
+        Fornecedores veem apenas os layouts das fichas técnicas da própria
+        empresa; os demais usuários veem todos os layouts. Ordenado por
+        ``-criado_em``.
+        """
         user = self.request.user
         if user.eh_fornecedor:
             return LayoutDeEmbalagem.objects.filter(
@@ -57,6 +74,12 @@ class LayoutDeEmbalagemModelViewSet(
         return LayoutDeEmbalagem.objects.all().order_by("-criado_em")
 
     def get_serializer_class(self):
+        """Retorna o serializer conforme a ação.
+
+        ``list`` usa ``LayoutDeEmbalagemSerializer`` e ``retrieve`` usa
+        ``LayoutDeEmbalagemDetalheSerializer``; as demais ações usam
+        ``LayoutDeEmbalagemCreateSerializer``.
+        """
         serializer_classes_map = {
             "list": LayoutDeEmbalagemSerializer,
             "retrieve": LayoutDeEmbalagemDetalheSerializer,
@@ -72,6 +95,13 @@ class LayoutDeEmbalagemModelViewSet(
         permission_classes=(PermissaoParaDashboardLayoutEmbalagem,),
     )
     def codae_aprova_ou_solicita_correcao(self, request, uuid):
+        """Analisa o layout de embalagem pela CODAE.
+
+        Endpoint ``PATCH /layouts-de-embalagem/{uuid}/codae-aprova-ou-solicita-correcao/``.
+        Analisa cada tipo de embalagem: se todos estiverem aprovados, o
+        layout é aprovado (``codae_aprova``); caso contrário, a CODAE
+        solicita correção (``codae_solicita_correcao``).
+        """
         serializer = LayoutDeEmbalagemAnaliseSerializer(
             instance=self.get_object(), data=request.data, context={"request": request}
         )
@@ -87,6 +117,12 @@ class LayoutDeEmbalagemModelViewSet(
         permission_classes=(PermissaoParaDashboardLayoutEmbalagem,),
     )
     def dashboard(self, request):
+        """Retorna os dados do dashboard de layouts de embalagem.
+
+        Endpoint ``GET /layouts-de-embalagem/dashboard/``. Usa
+        ``ServiceDashboardLayoutEmbalagem`` para montar os cards por
+        status conforme o perfil do usuário.
+        """
         dashboard_service = ServiceDashboardLayoutEmbalagem(
             self.get_queryset(),
             LayoutDeEmbalagemFilter,
@@ -103,6 +139,13 @@ class LayoutDeEmbalagemModelViewSet(
         permission_classes=(UsuarioEhFornecedor,),
     )
     def fornecedor_realiza_correcao(self, request, uuid):
+        """Registra a correção do layout pelo fornecedor.
+
+        Endpoint ``PATCH /layouts-de-embalagem/{uuid}/fornecedor-realiza-correcao/``.
+        O fornecedor reenvia as imagens dos tipos de embalagem reprovados,
+        que voltam para ``EM_ANALISE``, e o layout volta para
+        ``ENVIADO_PARA_ANALISE`` (``fornecedor_realiza_correcao``).
+        """
         serializer = LayoutDeEmbalagemCorrecaoSerializer(
             instance=self.get_object(), data=request.data, context={"request": request}
         )

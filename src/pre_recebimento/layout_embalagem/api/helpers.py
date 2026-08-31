@@ -1,3 +1,5 @@
+"""Helpers da API do submódulo de layout de embalagem."""
+
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
 )
@@ -8,6 +10,13 @@ from src.pre_recebimento.layout_embalagem.models import (
 
 
 def cria_tipos_de_embalagens(tipos_de_embalagens, layout_de_embalagem=None):
+    """Cria os tipos de embalagem e suas imagens para um layout.
+
+    Args:
+        tipos_de_embalagens: Lista de dados dos tipos de embalagem, com
+            as imagens em ``imagens_do_tipo_de_embalagem`` (base64).
+        layout_de_embalagem: Layout ao qual os tipos serão vinculados.
+    """
     for embalagem in tipos_de_embalagens:
         imagens = embalagem.pop("imagens_do_tipo_de_embalagem", [])
         tipo_de_embalagem = TipoDeEmbalagemDeLayout.objects.create(

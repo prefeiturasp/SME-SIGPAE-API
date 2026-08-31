@@ -1,3 +1,10 @@
+"""Serviços da API do submódulo base de pré-recebimento.
+
+Este módulo concentra serviços compartilhados pelos submódulos de
+pré-recebimento, como o ``BaseServiceDashboard`` usado na montagem dos
+dados dos dashboards por perfil e status.
+"""
+
 from typing import Type
 
 from django.db.models import QuerySet
@@ -7,6 +14,13 @@ from rest_framework.serializers import ModelSerializer
 
 
 class BaseServiceDashboard:
+    """Service base para montagem dos dados dos dashboards.
+
+    Deve ser estendido pelos serviços concretos dos submódulos. Na
+    implementação, sobrescreva ``STATUS_POR_PERFIL`` com o mapeamento dos
+    perfis e os respectivos status exibidos nos cards do dashboard.
+    """
+
     STATUS_POR_PERFIL = {}
 
     def __init__(
@@ -47,6 +61,19 @@ class BaseServiceDashboard:
 
     @classmethod
     def get_dashboard_status(cls, user) -> list:
+        """Retorna a lista de status exibidos para o perfil do usuário.
+
+        Args:
+            user: Usuário autenticado.
+
+        Returns:
+            Lista de status (strings) configurados em ``STATUS_POR_PERFIL``
+            para o perfil do vínculo atual do usuário.
+
+        Raises:
+            ValueError: Se o perfil não estiver mapeado em
+                ``STATUS_POR_PERFIL``.
+        """
         perfil = user.vinculo_atual.perfil.nome
 
         if perfil not in cls.STATUS_POR_PERFIL:
@@ -55,6 +82,16 @@ class BaseServiceDashboard:
         return cls.STATUS_POR_PERFIL[perfil]
 
     def get_dados_dashboard(self) -> list:
+        """Monta os dados do dashboard.
+
+        Se houver o parâmetro ``status`` na query string, retorna os dados
+        da visualização "ver mais" para os status informados; caso
+        contrário, retorna os dados agrupados por status (cards) conforme
+        o perfil do usuário.
+
+        Returns:
+            Lista de dicionários com os dados do dashboard.
+        """
         lista_status_ver_mais = self.request.query_params.getlist("status", None)
         offset = int(self.request.query_params.get("offset", 0))
         limit = int(self.request.query_params.get("limit", 6))
@@ -74,6 +111,17 @@ class BaseServiceDashboard:
         return dados
 
     def _get_dados_ver_mais(self, queryset_base, lista_status_ver_mais, offset, limit):
+        """Monta os dados da visualização "ver mais" por status.
+
+        Args:
+            queryset_base: QuerySet já filtrado.
+            lista_status_ver_mais: Lista de status solicitados.
+            offset: Deslocamento para paginação.
+            limit: Limite de registros.
+
+        Returns:
+            Dicionário com ``status``, ``total`` e ``dados`` serializados.
+        """
         qs = queryset_base.filter(status__in=lista_status_ver_mais)
         dados = {
             "status": lista_status_ver_mais,
@@ -84,6 +132,19 @@ class BaseServiceDashboard:
         return dados
 
     def _get_dados_cards(self, queryset_base, offset, limit):
+        """Monta os dados dos cards do dashboard por status.
+
+        Para cada status configurado para o perfil do usuário, filtra o
+        queryset e serializa os registros.
+
+        Args:
+            queryset_base: QuerySet já filtrado.
+            offset: Deslocamento para paginação.
+            limit: Limite de registros.
+
+        Returns:
+            Lista de dicionários com ``status`` e ``dados`` serializados.
+        """
         dados = []
         for status_perfil in self.get_dashboard_status(self.request.user):
             status_perfil_list = [status_perfil]

@@ -1,3 +1,5 @@
+"""Serializers de leitura do submódulo de layout de embalagem."""
+
 import datetime
 
 from rest_framework import serializers
@@ -19,12 +21,19 @@ from .....dados_comuns.api.serializers import (
 
 
 class ImagemDoTipoEmbalagemLookupSerializer(serializers.ModelSerializer):
+    """Serializer de leitura das imagens de um tipo de embalagem."""
+
     class Meta:
         model = ImagemDoTipoDeEmbalagem
         exclude = ("id", "tipo_de_embalagem")
 
 
 class TipoEmbalagemLayoutLookupSerializer(serializers.ModelSerializer):
+    """Serializer de leitura dos tipos de embalagem de um layout.
+
+    Inclui as ``imagens`` de cada tipo de embalagem.
+    """
+
     imagens = ImagemDoTipoEmbalagemLookupSerializer(many=True)
 
     class Meta:
@@ -33,6 +42,12 @@ class TipoEmbalagemLayoutLookupSerializer(serializers.ModelSerializer):
 
 
 class LayoutDeEmbalagemSerializer(serializers.ModelSerializer):
+    """Serializer de listagem dos layouts de embalagem.
+
+    Expõe dados resumidos do layout: número da ficha técnica, pregão/chamada
+    pública, nome do produto, status (texto), data de criação e programa.
+    """
+
     numero_ficha_tecnica = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
     pregao_chamada_publica = serializers.SerializerMethodField()
@@ -68,6 +83,13 @@ class LayoutDeEmbalagemSerializer(serializers.ModelSerializer):
 
 
 class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
+    """Serializer de detalhe dos layouts de embalagem.
+
+    Expõe todos os dados do layout, incluindo os tipos de embalagem (com
+    suas imagens, ordenados por primária/secundária/terciária), o log mais
+    recente, a indicação de primeira análise e o histórico de logs.
+    """
+
     numero_ficha_tecnica = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
     nome_empresa = serializers.SerializerMethodField()
@@ -149,6 +171,13 @@ class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
 
 
 class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
+    """Serializer do painel/dashboard de layouts de embalagem.
+
+    Expõe os dados exibidos nos cards do dashboard: número da ficha
+    técnica, produto, empresa, status, log mais recente e indicadores de
+    programa (``LEVE_LEITE``) e de ficha técnica FLV.
+    """
+
     numero_ficha_tecnica = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
     nome_empresa = serializers.SerializerMethodField()

@@ -1,3 +1,5 @@
+"""Viewsets da API do submódulo de cronograma semanal."""
+
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -350,6 +352,12 @@ class CronogramaSemanalViewSet(
 
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-cronograma")
     def gerar_pdf_cronograma(self, request, uuid=None):
+        """Gera o PDF do cronograma semanal.
+
+        Endpoint ``GET /cronogramas-semanais/{uuid}/gerar-pdf-cronograma/``.
+        Só é permitido quando o cronograma está no status
+        ``FORNECEDOR_CIENTE``.
+        """
         cronograma = self.get_object()
 
         if cronograma.status != CronogramaSemanalWorkflow.FORNECEDOR_CIENTE:

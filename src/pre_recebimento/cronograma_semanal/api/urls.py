@@ -1,3 +1,5 @@
+"""Rotas da API do submódulo de cronograma semanal."""
+
 from django.urls import include, path
 from rest_framework import routers
 
