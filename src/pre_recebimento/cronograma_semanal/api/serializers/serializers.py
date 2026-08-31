@@ -1,3 +1,5 @@
+"""Serializers de leitura do submódulo de cronograma semanal."""
+
 from rest_framework import serializers
 
 from src.dados_comuns.api.serializers import (

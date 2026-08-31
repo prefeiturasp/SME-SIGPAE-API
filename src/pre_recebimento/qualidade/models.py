@@ -1,3 +1,10 @@
+"""Modelos do submódulo de qualidade de pré-recebimento.
+
+Dados de referência utilizados pelo controle de qualidade: laboratórios
+credenciados que emitem laudos e tipos de embalagem (qualidade) usados
+nos cronogramas de entrega.
+"""
+
 from django.core.validators import MinLengthValidator
 from django.db import models
 
@@ -5,6 +12,14 @@ from ...dados_comuns.behaviors import ModeloBase
 
 
 class Laboratorio(ModeloBase):
+    """Laboratório credenciado que emite laudos de qualidade.
+
+    Registra os dados cadastrais do laboratório e se ele está credenciado
+    (``credenciado``). Apenas laboratórios credenciados são listados no
+    endpoint ``lista-laboratorios-credenciados``, usado na seleção de
+    laboratório dos documentos de recebimento.
+    """
+
     nome = models.CharField("Nome", max_length=150, unique=True)
     cnpj = models.CharField(
         "CNPJ", validators=[MinLengthValidator(14)], max_length=14, blank=True
@@ -21,6 +36,7 @@ class Laboratorio(ModeloBase):
     contatos = models.ManyToManyField("dados_comuns.Contato", blank=True)
 
     def __str__(self):
+        """Retorna o nome do laboratório."""
         return f"{self.nome}"
 
     class Meta:
@@ -29,10 +45,19 @@ class Laboratorio(ModeloBase):
 
 
 class TipoEmbalagemQld(ModeloBase):
+    """Tipo de embalagem (qualidade) utilizado em cronogramas.
+
+    Representa o tipo de embalagem secundária registrado no controle de
+    qualidade, referenciado pelos cronogramas de entrega. O nome e a
+    abreviação são armazenados em letras maiúsculas (normalização feita
+    nos serializers de criação).
+    """
+
     nome = models.CharField("Nome", max_length=150, unique=True)
     abreviacao = models.CharField("Abreviação", max_length=15)
 
     def __str__(self):
+        """Retorna o nome do tipo de embalagem."""
         return f"{self.nome}"
 
     class Meta:
