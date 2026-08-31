@@ -33,7 +33,8 @@ def _obtem_medicoes(mes: str, ano: str, filtros: dict) -> QuerySet:
     """
     Obtém um QuerySet de medições filtradas por mês, ano e filtros adicionais.
     Recupera medições aprovadas pela CODAE para o período especificado, excluindo unidades
-    de educação infantil e aplicando filtros adicionais quando fornecidos.
+    de educação infantil e medições de recreio nas férias, além de aplicar filtros
+    adicionais quando fornecidos.
 
     Args:
         mes (str): mês de referência para a filtragem (formato: 'MM')
@@ -64,6 +65,7 @@ def _obtem_medicoes(mes: str, ano: str, filtros: dict) -> QuerySet:
                 TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             ]
         )
+        .exclude(solicitacao_medicao_inicial__recreio_nas_ferias__isnull=False)
     )
 
 
