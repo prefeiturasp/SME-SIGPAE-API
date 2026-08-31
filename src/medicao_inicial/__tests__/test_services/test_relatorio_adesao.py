@@ -180,6 +180,43 @@ def test_obtem_resultados_relatorio_adesao_com_periodo_de_lancamento(
     }
 
 
+def test_obtem_resultados_relatorio_adesao_exclui_medicoes_de_recreio_nas_ferias(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+    recreio_nas_ferias,
+):
+    mes = "12"
+    ano = "2025"
+    solicitacao_recreio = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola,
+        rastro_lote=escola.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+        recreio_nas_ferias=recreio_nas_ferias,
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    _cria_medicao_com_valores(
+        solicitacao_recreio,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        range(1, 6),
+    )
+
+    query_params = QueryDict(f"mes_ano={mes}_{ano}")
+    resultados = obtem_resultados(query_params)
+
+    assert resultados == {}
+
+
 def test_obtem_resultados_relatorio_adesao_solicitacao_nao_aprovada_pela_codae(
     categoria_medicao,
     tipo_alimentacao_refeicao,
