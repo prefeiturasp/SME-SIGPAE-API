@@ -92,6 +92,7 @@ from src.pre_recebimento.tasks import (
 from src.relatorios.relatorios import (
     get_pdf_cronograma,
     get_pdf_cronograma_ponto_a_ponto_flv,
+    get_pdf_relatorio_solicitacao_alteracao_cronograma,
 )
 
 from ....dados_comuns.models import LogSolicitacoesUsuario
@@ -608,16 +609,24 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
     )
     def lista_cronogramas_pos_recebimento(self, request):
-        """Cronogramas vinculados ao contrato selecionado (query param
-        ``contrato_id``) para o cadastro do Termo de Recebimento Definitivo
-        (Pós-Recebimento)."""
+        """Cronogramas do contrato e da empresa selecionados (query params
+        ``contrato_id`` e ``empresa_id``) para o cadastro do Termo de
+        Recebimento Definitivo (Pós-Recebimento).
+
+        Os dois filtros são obrigatórios porque ``Cronograma.empresa`` e
+        ``Cronograma.contrato`` são independentes: filtrar só pelo contrato
+        ofereceria cronogramas que a validação do cadastro do termo rejeita
+        por não pertencerem à empresa selecionada.
+        """
         contrato_uuid = request.query_params.get("contrato_id")
-        if not _uuid_valido(contrato_uuid):
+        empresa_uuid = request.query_params.get("empresa_id")
+        if not _uuid_valido(contrato_uuid) or not _uuid_valido(empresa_uuid):
             queryset = Cronograma.objects.none()
         else:
-            queryset = Cronograma.objects.filter(contrato__uuid=contrato_uuid).order_by(
-                "numero"
-            )
+            queryset = Cronograma.objects.filter(
+                contrato__uuid=contrato_uuid,
+                empresa__uuid=empresa_uuid,
+            ).order_by("numero")
         return Response(
             {"results": CronogramaSimplesSerializer(queryset, many=True).data}
         )
@@ -840,6 +849,27 @@ class SolicitacaoDeAlteracaoCronogramaViewSet(viewsets.ModelViewSet):
             )
 
         return dados_dashboard
+
+    @action(
+        detail=True,
+        permission_classes=(PermissaoParaVisualizarSolicitacoesAlteracaoCronograma,),
+        methods=["GET"],
+        url_path="relatorio",
+    )
+    def relatorio(self, request, uuid):
+        """Gera o relatório da solicitação de alteração de cronograma."""
+        try:
+            solicitacao_cronograma = SolicitacaoAlteracaoCronograma.objects.get(
+                uuid=uuid
+            )
+            return get_pdf_relatorio_solicitacao_alteracao_cronograma(
+                solicitacao_cronograma=solicitacao_cronograma
+            )
+        except ObjectDoesNotExist as e:
+            return Response(
+                dict(detail=f"Solicitação Cronograma informado não é valido: {e}"),
+                status=HTTP_406_NOT_ACCEPTABLE,
+            )
 
     @action(
         detail=False,

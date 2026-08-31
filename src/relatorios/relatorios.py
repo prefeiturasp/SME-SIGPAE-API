@@ -9,6 +9,8 @@ from django.http import HttpResponseNotAllowed
 from django.template.loader import get_template, render_to_string
 
 from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    GRUPO_RECREIO_NAS_FERIAS,
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
@@ -16,7 +18,11 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEBS,
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
+from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from src.dados_comuns.utils import convert_image_to_base64
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
@@ -39,7 +45,6 @@ from ..dados_comuns.fluxo_status import (
 )
 from ..dados_comuns.fluxo_status import GuiaRemessaWorkFlow as GuiaStatus
 from ..dados_comuns.fluxo_status import (
-    ReclamacaoProdutoWorkflow,
     SolicitacaoMedicaoInicialWorkflow,
 )
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -367,12 +372,12 @@ def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
     vinculos_class = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
     vinculos_cei = vinculos_class.objects.filter(
         periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-        tipo_unidade_escolar__iniciais__in=["CEI DIRET"],
+        tipo_unidade_escolar__iniciais__in=[TIPO_UNIDADE_CEI_DIRET],
     )
     vinculos_cei = vinculos_cei.order_by("periodo_escolar__posicao")
     vinculos_emei = vinculos_class.objects.filter(
         periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-        tipo_unidade_escolar__iniciais__in=["EMEI"],
+        tipo_unidade_escolar__iniciais__in=[TIPOS_UNIDADE_ESCOLAR.EMEI.value],
     )
     vinculos_emei = vinculos_emei.order_by("periodo_escolar__posicao")
 
@@ -448,7 +453,7 @@ def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
             periodos_emei.append(periodo)
     data_final = None
     if solicitacao.data_final:
-        data_final = solicitacao.data_final.strftime("%d/%m/%Y")
+        data_final = solicitacao.data_final.strftime(FORMATO_DATA_BRASILEIRO)
     html_string = render_to_string(
         "solicitacao_alteracao_cardapio_cemei.html",
         {
@@ -461,7 +466,7 @@ def relatorio_alteracao_alimentacao_cemei(request, solicitacao):  # noqa C901
             "periodos_emei": periodos_emei,
             "periodos_escolares_emei": periodos_escolares_emei,
             "motivo": solicitacao.motivo,
-            "data_de": solicitacao.data.strftime("%d/%m/%Y"),
+            "data_de": solicitacao.data.strftime(FORMATO_DATA_BRASILEIRO),
             "data_ate": data_final,
         },
     )
@@ -537,12 +542,12 @@ def relatorio_dieta_especial_historico_conteudo(solicitacao, request=None):
     logs = solicitacao.logs
 
     data_inicio = (
-        solicitacao.data_inicio.strftime("%d/%m/%Y")
+        solicitacao.data_inicio.strftime(FORMATO_DATA_BRASILEIRO)
         if solicitacao.data_inicio
         else None
     )
     data_termino = (
-        solicitacao.data_termino.strftime("%d/%m/%Y")
+        solicitacao.data_termino.strftime(FORMATO_DATA_BRASILEIRO)
         if solicitacao.data_termino
         else None
     )
@@ -968,12 +973,12 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
     vinculos_class = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar
     vinculos_cei = vinculos_class.objects.filter(
         periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-        tipo_unidade_escolar__iniciais__in=["CEI DIRET"],
+        tipo_unidade_escolar__iniciais__in=[TIPO_UNIDADE_CEI_DIRET],
     )
     vinculos_cei = vinculos_cei.order_by("periodo_escolar__posicao")
     vinculos_emei = vinculos_class.objects.filter(
         periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
-        tipo_unidade_escolar__iniciais__in=["EMEI"],
+        tipo_unidade_escolar__iniciais__in=[TIPOS_UNIDADE_ESCOLAR.EMEI.value],
     )
 
     if solicitacao.dias_motivos_da_inclusao_cemei.filter(
@@ -982,7 +987,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
         eh_evento_especifico = True
         vinculos_emei = vinculos_class.objects.filter(
             periodo_escolar__nome__in=PERIODOS_CEMEI_EVENTO_ESPECIFICO,
-            tipo_unidade_escolar__iniciais__in=["EMEI"],
+            tipo_unidade_escolar__iniciais__in=[TIPOS_UNIDADE_ESCOLAR.EMEI.value],
         )
     vinculos_emei = vinculos_emei.order_by("periodo_escolar__posicao")
     for vinculo in vinculos_cei:
@@ -1021,7 +1026,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
             periodo["nome"] = vinculo.periodo_escolar.nome
             tipos_alimentacao = ", ".join(
                 vinculo.tipos_alimentacao.exclude(
-                    nome__icontains="Lanche Emergencial"
+                    nome__icontains=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
                 ).values_list("nome", flat=True)
             )
             if (
@@ -1033,7 +1038,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
                 vinculo_integral = vinculos_emei.get(periodo_escolar__nome="INTEGRAL")
                 tipos_alimentacao = ", ".join(
                     vinculo_integral.tipos_alimentacao.exclude(
-                        nome__icontains="Lanche Emergencial"
+                        nome__icontains=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
                     ).values_list("nome", flat=True)
                 )
             qtd_solicitacao = (
@@ -1229,7 +1234,6 @@ def relatorio_produto_homologacao(request, produto):
     """
     Esta é uma função interna (não exposta via URL) chamada para gerar PDF.
     Segura contra métodos HTTP inseguros.
-
     """
 
     valida_request_method_get(request)
@@ -1244,8 +1248,15 @@ def relatorio_produto_homologacao(request, produto):
     justificativa_analise_sensorial = get_ultima_justificativa_analise_sensorial(
         produto
     )
+
+    template_name = (
+        "homologacao_produto_antigo.html"
+        if env("DJANGO_ENV") == "production"
+        else "homologacao_produto.html"
+    )
+
     html_string = render_to_string(
-        "homologacao_produto.html",
+        template_name,
         {
             "terceirizada": terceirizada,
             "reclamacao": reclamacao,
@@ -1258,9 +1269,37 @@ def relatorio_produto_homologacao(request, produto):
             "justificativa_analise_sensorial": justificativa_analise_sensorial,
         },
     )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
     return html_to_pdf_response(
         html_string, f"produto_homologacao_{produto.id_externo}.pdf"
     )
+
+
+def relatorio_historico_produto(produto):
+    homologacao = produto.homologacao
+    terceirizada = homologacao.rastro_terceirizada
+    logs = homologacao.logs.order_by("criado_em")
+
+    html_string = render_to_string(
+        "relatorio_historico_produto.html",
+        {
+            "terceirizada": terceirizada,
+            "homologacao": homologacao,
+            "produto": produto,
+            "logs": formata_logs(logs),
+        },
+    )
+
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
+
+    response = html_to_pdf_response(
+        html_string,
+        f"relatorio_historico_produto_{produto.id_externo}.pdf",
+    )
+
+    return response.content
 
 
 def relatorio_marcas_por_produto_homologacao(produtos, dados, filtros):
@@ -1284,9 +1323,11 @@ def produtos_suspensos_por_edital(produtos, data_final, nome_edital, filtros):
         {
             "produtos": produtos,
             "total": len(produtos),
-            "hoje": datetime.date.today().strftime("%d/%m/%Y"),
+            "hoje": datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO),
             "data_final": (
-                data_final if data_final else datetime.date.today().strftime("%d/%m/%Y")
+                data_final
+                if data_final
+                else datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO)
             ),
             "nome_edital": nome_edital,
             "filtros": filtros,
@@ -1307,7 +1348,9 @@ def relatorio_produtos_suspensos(produtos, filtros):
             ultimo_log = produto.ultima_homologacao.ultimo_log
             if ultimo_log.criado_em < data_suspensao_inicial:
                 data_suspensao_inicial = ultimo_log.criado_em
-        filtros["data_suspensao_inicial"] = data_suspensao_inicial.strftime("%d/%m/%Y")
+        filtros["data_suspensao_inicial"] = data_suspensao_inicial.strftime(
+            FORMATO_DATA_BRASILEIRO
+        )
 
     html_string = render_to_string(
         "relatorio_suspensoes_produto.html", {"produtos": produtos, "config": filtros}
@@ -1789,7 +1832,7 @@ def _ajustar_labels_recreio_nas_ferias(tabelas: list, titulo_recreio: str) -> No
     Ajusta in-place os labels de períodos e categorias das tabelas
     conforme o título do recreio nas férias.
     """
-    PERIODO_PARTICIPANTES = "Recreio nas Férias"
+    PERIODO_PARTICIPANTES = GRUPO_RECREIO_NAS_FERIAS
     PERIODO_COLABORADORES = "Colaboradores"
     CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
 
@@ -2366,7 +2409,7 @@ def get_pdf_guia_distribuidor(data=None, many=False):
     html_string = render_to_string(
         "logistica/guia_distribuidor/guia_distribuidor_v2.html", {"pages": pages}
     )
-    data_arquivo = datetime.date.today().strftime("%d/%m/%Y")
+    data_arquivo = datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO)
 
     return html_to_pdf_response(
         html_string.replace("dt_file", data_arquivo), "guia_de_remessa.pdf"
@@ -2431,6 +2474,107 @@ def get_pdf_cronograma_semanal(request, cronograma):
         html_string.replace("dt_file", data_arquivo),
         f"cronograma_semanal_{cronograma.numero}.pdf",
     )
+
+
+def _busca_log_justificativa_cronograma(logs, autor_justificativa):
+    dict_logs = {
+        "cronograma": ["Cronograma Ciente"],
+        "abastecimento": ["Aprovado Abastecimento", "Reprovado Abastecimento"],
+        "dilog": ["Aprovado DILOG", "Reprovado DILOG"],
+    }
+    log_correto = next(
+        (
+            log
+            for log in logs
+            if log.status_evento_explicacao in dict_logs[autor_justificativa]
+        ),
+        None,
+    )
+    return {
+        "justificativa": log_correto.justificativa if log_correto else "",
+        "titulo": log_correto.status_evento_explicacao if log_correto else dict_logs[autor_justificativa][0],
+    }
+
+
+def _pinta_tabela(campo, etapa_nova, etapa_antiga):
+    valor_novo = getattr(etapa_nova, campo, None)
+    valor_antigo = getattr(etapa_antiga, campo, None) if etapa_antiga else None
+    return valor_novo != valor_antigo
+
+
+def _monta_etapas_com_diff(etapas_novas, etapas_antigas):
+    campos = [
+        "numero_empenho",
+        "qtd_total_empenho",
+        "etapa",
+        "parte",
+        "data_programada",
+        "quantidade",
+        "total_embalagens",
+    ]
+
+    etapas_antigas_list = list(etapas_antigas.all())
+    resultado = []
+
+    for etapa in etapas_novas.all():
+        etapa_antiga = next(
+            (
+                e
+                for e in etapas_antigas_list
+                if e.etapa == etapa.etapa and e.parte == etapa.parte
+            ),
+            None,
+        )
+        linha_diferente = etapa_antiga is None
+
+        classes = {
+            campo: (
+                "fundo-laranja"
+                if not linha_diferente and _pinta_tabela(campo, etapa, etapa_antiga)
+                else ""
+            )
+            for campo in campos
+        }
+
+        resultado.append(
+            {
+                "etapa": etapa,
+                "linha_diferente": linha_diferente,
+                "classes": classes,
+            }
+        )
+
+    return resultado
+
+
+def get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao_cronograma):
+    logs = solicitacao_cronograma.logs
+    etapas_com_diff = _monta_etapas_com_diff(
+        solicitacao_cronograma.etapas_novas,
+        solicitacao_cronograma.etapas_antigas,
+    )
+
+    log_cronograma = _busca_log_justificativa_cronograma(logs, "cronograma")
+    log_abastecimento = _busca_log_justificativa_cronograma(logs, "abastecimento")
+
+    eh_fornecedor_ciente = solicitacao_cronograma.get_status_display() == "Fornecedor Ciente"
+
+    html_string = render_to_string(
+        "pre_recebimento/cronogramas/relatorio_solicitacao_alteracao_cronograma.html",
+        {
+            "solicitacao_cronograma": solicitacao_cronograma,
+            "cronograma": solicitacao_cronograma.cronograma,
+            "empresa": solicitacao_cronograma.cronograma.empresa,
+            "etapas_com_diff": etapas_com_diff,
+            "justificativa_cronograma": log_cronograma["justificativa"],
+            "justificativa_abastecimento": log_abastecimento["justificativa"],
+            "titulo_abastecimento": log_abastecimento["titulo"],
+            "eh_fornecedor_ciente": eh_fornecedor_ciente,
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")
+    html_string = html_string.replace("dt_file", data_arquivo)
+    return html_to_pdf_response(html_string, "alteracao_cronograma.pdf")
 
 
 def get_pdf_ficha_tecnica(request, ficha):
@@ -2574,7 +2718,11 @@ def obter_justificativa_dieta(solicitacao):
 
     elif cancelamento_padrao or cancelado_pela_escola:
         log_recente = solicitacao.logs.last()
-        data = log_recente.criado_em.strftime("%d/%m/%Y") if log_recente else ""
+        data = (
+            log_recente.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
+            if log_recente
+            else ""
+        )
         mensagem = formata_justificativa(
             solicitacao, log_recente.status_evento_explicacao
         )
@@ -2663,7 +2811,9 @@ def cabecalho_reclamacao_produto(filtros: dict) -> dict:
     data_inicial = filtros.get("data_inicial_reclamacao")
     data_final = filtros.get("data_final_reclamacao")
     lotes = filtros.get("lotes")
-    cabecalho["data_extracao"] = datetime.datetime.now().date().strftime("%d/%m/%Y")
+    cabecalho["data_extracao"] = (
+        datetime.datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO)
+    )
     cabecalho["editais"] = ", ".join(sorted(filtros["editais"]))
     if lotes:
         lotes = Lote.objects.filter(uuid__in=lotes).order_by(
@@ -2759,7 +2909,7 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
         status_evento=LogSolicitacoesUsuario.CODAE_INATIVOU
     ).last()
     if log_inativado:
-        return log_inativado.criado_em.strftime("%d/%m/%Y")
+        return log_inativado.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     data = "Data não encontrada"
     solicitacoes_canceladas_e_autorizadas = (
@@ -2784,7 +2934,7 @@ def obtem_data_inativacao(solicitacao: SolicitacaoDietaEspecial) -> str:
                 status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU
             ).last()
             if log_autorizado:
-                data = log_autorizado.criado_em.strftime("%d/%m/%Y")
+                data = log_autorizado.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     return data
 

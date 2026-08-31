@@ -7,6 +7,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
     ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
@@ -399,8 +400,12 @@ def _formata_filtros(
     data_inicial = query_params.get("data_inicial")
     data_final = query_params.get("data_final")
     if data_inicial and data_final:
-        data_inicial_formatada = date.fromisoformat(data_inicial).strftime("%d/%m/%Y")
-        data_final_formatada = date.fromisoformat(data_final).strftime("%d/%m/%Y")
+        data_inicial_formatada = date.fromisoformat(data_inicial).strftime(
+            FORMATO_DATA_BRASILEIRO
+        )
+        data_final_formatada = date.fromisoformat(data_final).strftime(
+            FORMATO_DATA_BRASILEIRO
+        )
         filtros += f" - {data_inicial_formatada} a {data_final_formatada}"
     return filtros
 

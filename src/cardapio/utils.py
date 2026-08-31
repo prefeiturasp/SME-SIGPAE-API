@@ -1,5 +1,10 @@
 import datetime
 
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.escola.models import Escola
 
 
@@ -9,7 +14,7 @@ def converter_data(formato: str) -> str:
     """
     try:
         data_obj = datetime.datetime.strptime(formato, "%Y-%m-%d")
-        return data_obj.strftime("%d/%m/%Y")
+        return data_obj.strftime(FORMATO_DATA_BRASILEIRO)
     except ValueError:
         raise ValueError(f"Data inválida: {formato}. Esperado no formato YYYY-MM-DD.")
 
@@ -32,11 +37,11 @@ def ordem_periodos(
         "eh_ceu_gestao_data": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3, "NOITE": 4},
         "eh_emei_data": {"MANHA": 1, "TARDE": 2, "INTEGRAL": 3},
         "eh_cemei_data": {
-            "CEI DIRET": {
+            TIPO_UNIDADE_CEI_DIRET: {
                 "INTEGRAL": 1,
                 "PARCIAL": 2,
             },
-            "EMEI": {
+            TIPOS_UNIDADE_ESCOLAR.EMEI.value: {
                 "MANHA": 1,
                 "TARDE": 2,
                 "INTEGRAL": 3,

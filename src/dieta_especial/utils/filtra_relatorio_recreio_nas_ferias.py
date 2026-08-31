@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, QuerySet
 from django.http import QueryDict
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
@@ -16,7 +17,8 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
     Args:
         query_params (QueryDict): Parâmetros de filtro da requisição.
     Returns:
-        QuerySet: Conjunto de solicitações filtradas e ordenadas por escola de destino.
+        QuerySet: Conjunto de solicitações filtradas e ordenadas por escola de
+        destino e, em caso de empate, pelo id.
     """
     filtros = gera_filtros_relatorio_recreio_nas_ferias(query_params)
     padrao = filtros.get("padrao", {})
@@ -49,7 +51,7 @@ def filtra_relatorio_recreio_nas_ferias(query_params: QueryDict) -> QuerySet:
 
     queryset = SolicitacaoDietaEspecial.objects.filter(
         filtro_matriculados | filtro_nao_matriculados
-    ).order_by("escola_destino__nome")
+    ).order_by("escola_destino__nome", "id")
 
     return queryset
 
@@ -110,7 +112,7 @@ def _parse_data(valor: str, campo: str) -> datetime:
         datetime:  objeto date convertido.
     """
     try:
-        return datetime.strptime(valor, "%d/%m/%Y").date()
+        return datetime.strptime(valor, FORMATO_DATA_BRASILEIRO).date()
     except ValueError:
         raise ValidationError(
             f"Formato de data inválido para '{campo}'. Use o formato dd/mm/yyyy"

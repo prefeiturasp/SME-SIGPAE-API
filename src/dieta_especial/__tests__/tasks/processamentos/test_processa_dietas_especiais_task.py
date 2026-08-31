@@ -4,7 +4,11 @@ import random
 import pytest
 
 from config.celery import app
-from src.dados_comuns.constants import TIPO_SOLICITACAO_DIETA
+from src.dados_comuns.constants import (
+    TIPO_SOLICITACAO_DIETA,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -81,18 +85,22 @@ class TestProcessaDietasEspeciaisTask:
         self.lote = LoteFactory.create(
             nome="LOTE 01", diretoria_regional=self.dre, terceirizada=self.terceirizada
         )
-        self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         self.escola_emef = EscolaFactory.create(
             nome="EMEF PERICLES",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_emef,
             lote=self.lote,
             diretoria_regional=self.dre,
         )
-        self.tipo_unidade_emebs = TipoUnidadeEscolarFactory.create(iniciais="EMEBS")
+        self.tipo_unidade_emebs = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+        )
         self.escola_emebs = EscolaFactory.create(
             nome="EMEBS HELEN KELLER",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade_emebs,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -259,11 +267,13 @@ class TestCancelaDietasPendenteAutorizacaoTask:
         self.lote = LoteFactory.create(
             nome="LOTE 01", diretoria_regional=self.dre, terceirizada=self.terceirizada
         )
-        self.tipo_unidade = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        self.tipo_unidade = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         self.escola_origem = EscolaFactory.create(
             nome="EMEF ORIGEM",
             codigo_eol="100001",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -271,7 +281,7 @@ class TestCancelaDietasPendenteAutorizacaoTask:
         self.escola_destino = EscolaFactory.create(
             nome="EMEF DESTINO",
             codigo_eol="100002",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -279,7 +289,7 @@ class TestCancelaDietasPendenteAutorizacaoTask:
         self.escola_terceira = EscolaFactory.create(
             nome="EMEF TERCEIRA",
             codigo_eol="100003",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             tipo_unidade=self.tipo_unidade,
             lote=self.lote,
             diretoria_regional=self.dre,

@@ -5,6 +5,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from rest_framework import status
 
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+
 from ..models import DiaSuspensaoAtividades, FaixaEtaria, MudancaFaixasEtarias
 from ..services import NovoSGPServicoLogado, NovoSGPServicoLogadoException
 from .conftest import mocked_foto_aluno_novosgp, mocked_response
@@ -822,7 +824,9 @@ def test_url_endpoint_filtrar_sem_duplicacao_faixa_etaria(
     faixas_etarias_ativas,
 ):
     # Forçar a escola a ser CEI para testar a lógica específica
-    tipo_unidade_cei = baker.make("TipoUnidadeEscolar", iniciais="CEI")
+    tipo_unidade_cei = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
     escola.tipo_unidade = tipo_unidade_cei
     escola.save()
 

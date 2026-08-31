@@ -1,11 +1,25 @@
 import datetime
 import json
+from unittest.mock import patch
 
 import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    GRUPO_INFANTIL_INTEGRAL,
+    GRUPO_INFANTIL_MANHA,
+    GRUPO_INFANTIL_TARDE,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    MENSAGEM_PERMISSAO_NEGADA,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
     DescontoFinanceiro,
@@ -18,8 +32,14 @@ from src.medicao_inicial.models import (
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
+from src.medicao_inicial.services.relatorio_adesao import (
+    obtem_resultados_para_escola,
+)
 
-TIPOS_UNIDADE_PFOM = ["EMEF P FOM", "EMEI P FOM"]
+TIPOS_UNIDADE_PFOM = [
+    TIPOS_UNIDADE_ESCOLAR.EMEF_P_FOM.value,
+    TIPOS_UNIDADE_ESCOLAR.EMEI_P_FOM.value,
+]
 
 
 def _configura_escola_pfom(escola, tipo_unidade_pfom):
@@ -404,7 +424,7 @@ def test_url_endpoint_nao_tem_permissao_para_encerrar_medicao(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     json = response.json()
-    assert json == {"detail": "Você não tem permissão para executar essa ação."}
+    assert json == {"detail": MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_valores_medicao_com_grupo(
@@ -531,8 +551,8 @@ def test_url_endpoint_periodos_grupos_medicao(
         None,
         None,
         None,
-        "Programas e Projetos",
-        "Solicitações de Alimentação",
+        GRUPO_PROGRAMAS_E_PROJETOS,
+        GRUPO_SOLICITACOES_ALIMENTACAO,
         "ETEC",
     ]
     assert [r["nome_periodo_grupo"] for r in results] == [
@@ -540,8 +560,8 @@ def test_url_endpoint_periodos_grupos_medicao(
         "TARDE",
         "INTEGRAL",
         "NOITE",
-        "Programas e Projetos",
-        "Solicitações de Alimentação",
+        GRUPO_PROGRAMAS_E_PROJETOS,
+        GRUPO_SOLICITACOES_ALIMENTACAO,
         "ETEC",
     ]
 
@@ -668,7 +688,7 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
             [
                 r
                 for r in response.data["results"]
-                if r["nome_periodo_grupo"] == "Infantil MANHA"
+                if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
             ]
         )
         == 1
@@ -677,12 +697,12 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
         [
             r
             for r in response.data["results"]
-            if r["nome_periodo_grupo"] == "Infantil MANHA"
+            if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
         ][0]["quantidade_alunos"]
     assert [
         r
         for r in response.data["results"]
-        if r["nome_periodo_grupo"] == "Infantil MANHA"
+        if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
     ][0]["valor_total"] == 80
 
 
@@ -1627,7 +1647,7 @@ def test_finaliza_medicao_inicial_salva_logs(
     assert (
         medicao_manha.valores_medicao.filter(
             nome_campo="dietas_autorizadas",
-            categoria_medicao__nome="DIETA ESPECIAL - TIPO A",
+            categoria_medicao__nome=DIETA_ESPECIAL_TIPO_A,
         ).count()
         == 30
     )
@@ -1661,7 +1681,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 
     medicao_programas_projetos = (
         solicitacao_medicao_inicial_teste_salvar_logs.medicoes.get(
-            grupo__nome="Programas e Projetos"
+            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS
         )
     )
     assert (
@@ -1683,7 +1703,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 
     medicao_solicitacoes_alimentacao = (
         solicitacao_medicao_inicial_teste_salvar_logs.medicoes.get(
-            grupo__nome="Solicitações de Alimentação"
+            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO
         )
     )
     assert (
@@ -1926,9 +1946,9 @@ def test_periodos_escola_cemei_com_alunos_emei(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 3
     dados = response.data["results"]
-    assert dados[0] == "Infantil MANHA"
-    assert dados[1] == "Infantil TARDE"
-    assert dados[2] == "Infantil INTEGRAL"
+    assert dados[0] == GRUPO_INFANTIL_MANHA
+    assert dados[1] == GRUPO_INFANTIL_TARDE
+    assert dados[2] == GRUPO_INFANTIL_INTEGRAL
 
 
 def test_periodos_permissoes_lancamentos_especiais_mes_ano(
@@ -2004,7 +2024,6 @@ def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     solicitacao = make_solicitacao_medicao_inicial(
@@ -2035,8 +2054,8 @@ def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento(
             dia=dia,
         )
 
-    response = client_autenticado_coordenador_codae.get(
-        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}"
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/", {"mes_ano": f"{mes}_{ano}"}
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -2060,7 +2079,6 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     solicitacao = make_solicitacao_medicao_inicial(
@@ -2093,8 +2111,13 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento(
             dia=dia,
         )
 
-    response = client_autenticado_coordenador_codae.get(
-        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        {
+            "mes_ano": f"{mes}_{ano}",
+            "periodo_lancamento_de": periodo_lancamento_de,
+            "periodo_lancamento_ate": periodo_lancamento_ate,
+        },
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -2112,11 +2135,327 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento(
 def test_url_endpoint_relatorio_adesao_sem_mes_ano(
     client_autenticado_coordenador_codae,
 ):
-    response = client_autenticado_coordenador_codae.get(
-        "/medicao-inicial/relatorios/relatorio-adesao/"
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/", {}
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_url_endpoint_relatorio_adesao_com_escolas_paginado(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "03"
+    ano = "2024"
+    valores = range(1, 6)
+    total_servido = sum(valores)
+    total_frequencia = sum(valores)
+    total_adesao = round(total_servido / total_frequencia, 4)
+
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+
+    dias = [str(dia).rjust(2, "0") for dia in range(1, 6)]
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    escola2 = baker.make(
+        "Escola",
+        nome="EMEF DOIS",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=escola.tipo_unidade,
+        codigo_eol="654321",
+    )
+    solicitacao2 = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola2,
+        rastro_lote=escola2.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao2 = make_medicao(solicitacao2, periodo_escolar)
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao2,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao2,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    url_params = {
+        "mes_ano": f"{mes}_{ano}",
+        "escola__uuid[]": [str(escola.uuid), str(escola2.uuid)],
+    }
+    url = "/medicao-inicial/relatorios/relatorio-adesao/"
+
+    primeira_pagina = client_autenticado_coordenador_codae.post(url, url_params)
+    segunda_pagina = client_autenticado_coordenador_codae.post(
+        url, {**url_params, "page": 2}
+    )
+
+    assert primeira_pagina.status_code == status.HTTP_200_OK
+    assert segunda_pagina.status_code == status.HTTP_200_OK
+
+    data_primeira = primeira_pagina.json()
+    assert data_primeira["count"] == 2
+    assert data_primeira["page_size"] == 1
+    assert len(data_primeira["results"]) == 1
+    assert data_primeira["next"]
+    assert data_primeira["results"][0]["escola"]["nome"]
+    assert data_primeira["results"][0]["escola"]["codigo_eol"]
+    assert data_primeira["results"][0]["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": total_servido,
+                "total_frequencia": total_frequencia,
+                "total_adesao": total_adesao,
+            }
+        }
+    }
+
+    data_segunda = segunda_pagina.json()
+    assert len(data_segunda["results"]) == 1
+    assert data_segunda["previous"]
+
+    codigos_eol_por_pagina = {
+        data_primeira["results"][0]["escola"]["codigo_eol"],
+        data_segunda["results"][0]["escola"]["codigo_eol"],
+    }
+    assert codigos_eol_por_pagina == {escola.codigo_eol, escola2.codigo_eol}
+
+
+def test_url_endpoint_relatorio_adesao_com_escolas_corpo_json(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    valores = range(1, 6)
+    total_servido = sum(valores)
+    total_frequencia = sum(valores)
+    total_adesao = round(total_servido / total_frequencia, 4)
+
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    dias = [str(dia).rjust(2, "0") for dia in range(1, 6)]
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    escola2 = baker.make(
+        "Escola",
+        nome="EMEF DOIS",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=escola.tipo_unidade,
+        codigo_eol="654321",
+    )
+    solicitacao2 = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola2,
+        rastro_lote=escola2.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao2 = make_medicao(solicitacao2, periodo_escolar)
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao2,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao2,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    # act - corpo JSON com a chave escola__uuid sem os colchetes []
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        data=json.dumps(
+            {
+                "mes_ano": f"{mes}_{ano}",
+                "escola__uuid": [str(escola.uuid), str(escola2.uuid)],
+                "page": 1,
+            }
+        ),
+        content_type="application/json",
+    )
+
+    # assert
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["count"] == 2
+    assert data["page_size"] == 1
+    assert len(data["results"]) == 1
+    assert data["results"][0]["escola"]["nome"]
+    assert data["results"][0]["escola"]["codigo_eol"]
+    assert data["results"][0]["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": total_servido,
+                "total_frequencia": total_frequencia,
+                "total_adesao": total_adesao,
+            }
+        }
+    }
+
+
+def test_url_endpoint_relatorio_adesao_com_escolas_calcula_apenas_pagina_solicitada(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    # arrange
+    mes = "03"
+    ano = "2024"
+    valores = range(1, 6)
+
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    dias = [str(dia).rjust(2, "0") for dia in range(1, 6)]
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    escola2 = baker.make(
+        "Escola",
+        nome="EMEF DOIS",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=escola.tipo_unidade,
+        codigo_eol="654321",
+    )
+    solicitacao2 = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola2,
+        rastro_lote=escola2.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao2 = make_medicao(solicitacao2, periodo_escolar)
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao2,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao2,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    url_params = {
+        "mes_ano": f"{mes}_{ano}",
+        "escola__uuid[]": [str(escola.uuid), str(escola2.uuid)],
+    }
+    url = "/medicao-inicial/relatorios/relatorio-adesao/"
+
+    # act
+    with patch(
+        "src.medicao_inicial.api.viewsets.obtem_resultados_para_escola",
+        wraps=obtem_resultados_para_escola,
+    ) as mock_obtem_resultados:
+        response = client_autenticado_coordenador_codae.post(
+            url, {**url_params, "page": 2}
+        )
+
+    # assert
+    assert response.status_code == status.HTTP_200_OK
+    assert mock_obtem_resultados.call_count == 1
+    data = response.json()
+    assert data["count"] == 2
+    assert len(data["results"]) == 1
 
 
 def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento_ate(
@@ -2125,8 +2464,12 @@ def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento_ate(
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
-    response = client_autenticado_coordenador_codae.get(
-        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}"
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        {
+            "mes_ano": f"{mes}_{ano}",
+            "periodo_lancamento_de": periodo_lancamento_de,
+        },
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2142,8 +2485,13 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_no_formato_incorre
     ano = "2024"
     periodo_lancamento_de = f"01-{mes}-{ano}"
     periodo_lancamento_ate = f"03/{mes}/{ano}"
-    response = client_autenticado_coordenador_codae.get(
-        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        {
+            "mes_ano": f"{mes}_{ano}",
+            "periodo_lancamento_de": periodo_lancamento_de,
+            "periodo_lancamento_ate": periodo_lancamento_ate,
+        },
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2159,8 +2507,13 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_data_invertida(
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
     periodo_lancamento_ate = f"03/{mes}/{ano}"
-    response = client_autenticado_coordenador_codae.get(
-        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_ate}&periodo_lancamento_ate={periodo_lancamento_de}"
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        {
+            "mes_ano": f"{mes}_{ano}",
+            "periodo_lancamento_de": periodo_lancamento_ate,
+            "periodo_lancamento_ate": periodo_lancamento_de,
+        },
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2176,8 +2529,13 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_com_mes_diferente_
     ano = "2024"
     periodo_lancamento_de = f"01/03/{ano}"
     periodo_lancamento_ate = f"03/05/{ano}"
-    response = client_autenticado_coordenador_codae.get(
-        f"/medicao-inicial/relatorios/relatorio-adesao/?mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        {
+            "mes_ano": f"{mes}_{ano}",
+            "periodo_lancamento_de": periodo_lancamento_de,
+            "periodo_lancamento_ate": periodo_lancamento_ate,
+        },
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2189,7 +2547,6 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_com_mes_diferente_
 def test_url_endpoint_relatorio_adesao_exportar_xlsx(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
 
@@ -2203,7 +2560,6 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx(
 def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_periodo_lancamento(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -2229,7 +2585,6 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_mes_ano(
 def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_periodo_lancamento_ate(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -2247,7 +2602,6 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_sem_periodo_lancamento_ate(
 def test_url_endpoint_relatorio_adesao_exportar_pdf(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
 
@@ -2261,7 +2615,6 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf(
 def test_url_endpoint_relatorio_adesao_exportar_pdf_com_periodo_lancamento(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -2287,7 +2640,6 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_mes_ano(
 def test_url_endpoint_relatorio_adesao_exportar_pdf_sem_periodo_lancamento_ate(
     client_autenticado_coordenador_codae,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -2437,9 +2789,7 @@ def test_codae_solicita_correcao_sem_lancamento_usuario_sem_permissao(
         data=json.dumps(solicita_correcao),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_codae_solicita_correcao_sem_lancamento_solicitacao_nao_existe(
@@ -2540,9 +2890,7 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_usuario_nao_autrizado
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_atualiza_informacoes_basicas(
@@ -2731,32 +3079,32 @@ def test_url_endpoint_atualiza_informacoes_basicas_aluno_parcial_sincroniza_logs
         (
             "client_autenticado_da_escola",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_da_escola_cei",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_da_escola_cemei",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_da_escola_ceu_gestao",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_da_escola_emebs",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_adm_da_escola",
             status.HTTP_403_FORBIDDEN,
-            "Você não tem permissão para executar essa ação.",
+            MENSAGEM_PERMISSAO_NEGADA,
         ),
         (
             "client_autenticado_codae_medicao",
@@ -3065,10 +3413,10 @@ def test_url_endpoint_totais_atendimento_consumo(
     data = response.data
 
     assert "ALIMENTAÇÃO" in data
-    assert "DIETA ESPECIAL - TIPO A" in data
+    assert DIETA_ESPECIAL_TIPO_A in data
 
     alimentacao = data["ALIMENTAÇÃO"]
-    dieta_a = data["DIETA ESPECIAL - TIPO A"]
+    dieta_a = data[DIETA_ESPECIAL_TIPO_A]
 
     assert "total_refeicao" in alimentacao
     assert "refeicao" in dieta_a
@@ -3090,7 +3438,7 @@ def test_url_dias_frequencia_zerada(
     resultado = response.json()
     assert "05" in resultado["alimentacoes"]
     assert "13" in resultado["alimentacoes"]
-    assert resultado["dietas"]["DIETA ESPECIAL - TIPO A"] == ["05"]
+    assert resultado["dietas"][DIETA_ESPECIAL_TIPO_A] == ["05"]
 
 
 def test_url_dias_frequencia_zerada_solicitacao_nao_encontrada(
@@ -3349,7 +3697,7 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento_kit_lanche(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert {
         "erro": "Restam dias a serem lançados nos Kit Lanches.",
-        "periodo_escolar": "Solicitações de Alimentação",
+        "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
     } in response.json()
 
 
@@ -3392,11 +3740,11 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -3479,11 +3827,11 @@ def test_url_endpoint_finaliza_medicao_recreio_cei_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -3551,7 +3899,7 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_0_A_3,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
@@ -3559,15 +3907,15 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_4_A_14,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias - 4 a 14 anos",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_4_A_14,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_0_A_3,
         },
     ]
 
@@ -3668,3 +4016,28 @@ def test_url_endpoint_desconto_financeiro_sem_permissao(
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_url_endpoint_relatorio_reabrir_lancamentos(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_emei,
+    escola_emefm,
+):
+    url = (
+        f"/medicao-inicial/relatorio-financeiro/reabrir-lancamentos/"
+        f"{relatorio_financeiro_emei.uuid}/"
+    )
+
+    response = client_autenticado_codae_medicao.put(
+        url,
+        content_type="application/json",
+        data={
+            "unidades_educacionais": [str(escola_emefm.uuid)]
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "detail": "As solicitações das unidades selecionadas foram reabertas para lançamento."
+    }

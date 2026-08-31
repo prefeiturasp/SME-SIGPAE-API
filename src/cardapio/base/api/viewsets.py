@@ -214,7 +214,11 @@ class VinculoTipoAlimentacaoViewSet(
             )
             periodos_escolares_uuids_set.update(cemei_periodos)
 
-        tipo_unidade = "EMEI" if escola.eh_cemei else escola.tipo_unidade.iniciais
+        tipo_unidade = (
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value
+            if escola.eh_cemei
+            else escola.tipo_unidade.iniciais
+        )
 
         vinculos = (
             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
@@ -316,7 +320,10 @@ class VinculoTipoAlimentacaoViewSet(
         ordem_personalizada = ordem_periodos(escola, data_referencia)
 
         if escola.eh_cemei_data(data_referencia):
-            ordem_das_unidades = {"CEI DIRET": 1, "EMEI": 2}
+            ordem_das_unidades = {
+                constants.TIPO_UNIDADE_CEI_DIRET: 1,
+                constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value: 2,
+            }
             unidades = [
                 When(tipo_unidade_escolar__iniciais=key, then=Value(val))
                 for key, val in ordem_das_unidades.items()

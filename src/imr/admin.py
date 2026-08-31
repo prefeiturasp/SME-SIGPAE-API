@@ -139,11 +139,11 @@ class ImportacaoPlanilhaTipoPenalidadeAdmin(admin.ModelAdmin):
 
 
 class PerfisMultipleChoiceForm(forms.ModelForm):
-    perfis = forms.MultipleChoiceField(choices=PerfilDiretorSupervisao.PERFIS)
+    perfis = forms.MultipleChoiceField(choices=PerfilDiretorSupervisao.OPCOES_PERFIS)
 
 
 class TipoOcorrenciaForm(forms.ModelForm):
-    perfis = forms.MultipleChoiceField(choices=PerfilDiretorSupervisao.PERFIS)
+    perfis = forms.MultipleChoiceField(choices=PerfilDiretorSupervisao.OPCOES_PERFIS)
 
     class Meta:
         model = TipoOcorrencia

@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 
+from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
 from src.medicao_inicial.validators import (
     validate_lanches_emergenciais_diarios,
 )
@@ -73,7 +74,7 @@ class TestValidateLanchesEmergenciaisDiarios:
 
         assert retorno == [
             {
-                "periodo_escolar": "Solicitações de Alimentação",
+                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
                 "erro": "Restam dias a serem lançados nos Lanches Emergenciais.",
             }
         ]
@@ -99,7 +100,7 @@ class TestValidateLanchesEmergenciaisDiarios:
         medicao = medicao_factory.create(
             solicitacao_medicao_inicial=solicitacao,
             periodo_escolar=None,
-            grupo__nome="Solicitações de Alimentação",
+            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO,
         )
         valor_medicao_factory.create(
             medicao=medicao,
@@ -115,7 +116,7 @@ class TestValidateLanchesEmergenciaisDiarios:
         assert solicitacao.dias_lanche_emergencial_diario == ["05", "07"]
         assert retorno == [
             {
-                "periodo_escolar": "Solicitações de Alimentação",
+                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
                 "erro": "Restam dias a serem lançados nos Lanches Emergenciais.",
             }
         ]
@@ -141,7 +142,7 @@ class TestValidateLanchesEmergenciaisDiarios:
         medicao = medicao_factory.create(
             solicitacao_medicao_inicial=solicitacao,
             periodo_escolar=None,
-            grupo__nome="Solicitações de Alimentação",
+            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO,
         )
         categoria = categoria_medicao_factory.create()
         valor_medicao_factory.create(

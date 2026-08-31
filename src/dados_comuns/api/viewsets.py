@@ -1,7 +1,6 @@
 import datetime
 
-from des.models import DynamicEmailConfiguration
-from django.db import IntegrityError
+from django.db.models import Prefetch, Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django_filters import rest_framework as filters
@@ -14,7 +13,12 @@ from workalendar.america import BrazilSaoPauloCity
 
 from ...escola.models import DiaSuspensaoAtividades, Escola
 from ..behaviors import DiasSemana, TempoPasseio
-from ..constants import TEMPO_CACHE_1H, TEMPO_CACHE_6H, obter_dias_uteis_apos_hoje
+from ..constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TEMPO_CACHE_1H,
+    TEMPO_CACHE_6H,
+    obter_dias_uteis_apos_hoje,
+)
 from ..models import (
     CategoriaPerguntaFrequente,
     CentralDeDownload,
@@ -25,7 +29,7 @@ from ..models import (
 )
 from ..permissions import (
     PermissaoParaGerenciarCategoriasPerguntaFrequente,
-    UsuarioCODAEGestaoAlimentacao,
+    PermissaoParaGerenciarPerguntasFrequentes,
 )
 from ..utils import obter_dias_uteis_apos
 from .filters import CentralDeDownloadFilter, NotificacaoFilter
@@ -33,7 +37,6 @@ from .paginations import CustomPagination, DownloadPagination
 from .serializers import (
     CategoriaPerguntaFrequenteSerializer,
     CentralDeDownloadSerializer,
-    ConfiguracaoEmailSerializer,
     ConsultaPerguntasFrequentesSerializer,
     NotificacaoSerializer,
     PerguntaFrequenteCreateSerializer,
@@ -42,6 +45,27 @@ from .serializers import (
 )
 
 calendario = BrazilSaoPauloCity()
+
+
+def perguntas_frequentes_visiveis_para_usuario(usuario):
+    vinculo_atual = getattr(usuario, "vinculo_atual", None)
+
+    if not vinculo_atual or not vinculo_atual.perfil:
+        return PerguntaFrequente.objects.none()
+
+    if (
+        vinculo_atual.perfil.nome
+        in PermissaoParaGerenciarCategoriasPerguntaFrequente.PERFIS_PERMITIDOS
+    ):
+        return PerguntaFrequente.objects.all().prefetch_related("perfis")
+
+    return (
+        PerguntaFrequente.objects.filter(
+            Q(todos_os_perfis=True) | Q(perfis=vinculo_atual.perfil)
+        )
+        .distinct()
+        .prefetch_related("perfis")
+    )
 
 
 class ApiVersion(viewsets.ViewSet):
@@ -96,7 +120,8 @@ class DiasUteisViewSet(ViewSet):
         data = request.query_params.get("data")
         if data:
             data_apos_quatro_dias_uteis = obter_dias_uteis_apos(
-                datetime.datetime.strptime(data, "%d/%m/%Y"), quantidade_dias=4
+                datetime.datetime.strptime(data, FORMATO_DATA_BRASILEIRO),
+                quantidade_dias=4,
             )
             return Response(
                 {"data_apos_quatro_dias_uteis": data_apos_quatro_dias_uteis}
@@ -161,7 +186,7 @@ class FeriadosAnoViewSet(ViewSet):
         calendario.holidays()
 
         def formatar_data(data):
-            return datetime.date.strftime(data, "%d/%m/%Y")
+            return datetime.date.strftime(data, FORMATO_DATA_BRASILEIRO)
 
         retorno = [formatar_data(h[0]) for h in calendario.holidays()]
 
@@ -182,23 +207,6 @@ class FeriadosAnoViewSet(ViewSet):
         retorno = [h[0] for h in feriados_atual] + [h[0] for h in feriados_proximo]
 
         return Response({"results": retorno}, status=status.HTTP_200_OK)
-
-
-class ConfiguracaoEmailViewSet(ModelViewSet):
-    queryset = DynamicEmailConfiguration.objects.all()
-    serializer_class = ConfiguracaoEmailSerializer
-
-    def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except IntegrityError as e:
-            return Response(
-                data={
-                    "error": "A configuração já existe, tente usar o método PUT",
-                    "detail": f"{e}",
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
 
 
 class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
@@ -226,13 +234,40 @@ class CategoriaPerguntaFrequenteViewSet(ModelViewSet):
 
     @action(detail=False, url_path="perguntas-por-categoria")
     def perguntas_por_categoria(self, request):
-        serializer = self.get_serializer(self.get_queryset(), many=True)
+        perguntas = perguntas_frequentes_visiveis_para_usuario(request.user)
+        categorias = self.get_queryset().prefetch_related(
+            Prefetch("perguntafrequente_set", queryset=perguntas)
+        )
+        serializer = self.get_serializer(categorias, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], url_path="opcoes")
+    def opcoes(self, request):
+        categorias = self.get_queryset()
+        serializer = self.get_serializer(categorias, many=True)
         return Response(serializer.data)
 
 
 class PerguntaFrequenteViewSet(ModelViewSet):
     lookup_field = "uuid"
-    queryset = PerguntaFrequente.objects.all()
+    queryset = PerguntaFrequente.objects.all().order_by("-criado_em")
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        queryset = (
+            super()
+            .get_queryset()
+            .select_related("categoria")
+            .prefetch_related("perfis")
+        )
+
+        if self.action in ["list", "retrieve"]:
+            perguntas_visiveis = perguntas_frequentes_visiveis_para_usuario(
+                self.request.user
+            )
+            return queryset.filter(pk__in=perguntas_visiveis)
+
+        return queryset
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
@@ -240,9 +275,17 @@ class PerguntaFrequenteViewSet(ModelViewSet):
         return PerguntaFrequenteSerializer
 
     def get_permissions(self):
-        if self.action in ["create", "update", "partial_update", "destroy"]:
-            self.permission_classes = (UsuarioCODAEGestaoAlimentacao,)
-        return super(PerguntaFrequenteViewSet, self).get_permissions()
+        classes_de_permissao = [IsAuthenticated]
+
+        if self.action in {
+            "create",
+            "update",
+            "partial_update",
+            "destroy",
+        }:
+            classes_de_permissao.append(PermissaoParaGerenciarPerguntasFrequentes)
+
+        return [permission() for permission in classes_de_permissao]
 
 
 class NotificacaoViewSet(viewsets.ModelViewSet):

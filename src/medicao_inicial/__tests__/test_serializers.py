@@ -5,6 +5,11 @@ import pytest
 from model_bakery import baker
 from rest_framework import serializers
 
+from src.dados_comuns.constants import (
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
@@ -33,6 +38,7 @@ from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_fac
 )
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     ValorMedicao,
 )
@@ -537,7 +543,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
     """
 
     def _setup_escola_emef(self):
-        tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+        tipo_unidade = baker.make(
+            "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         terceirizada = baker.make("Terceirizada")
         diretoria_regional = baker.make("DiretoriaRegional")
         lote = baker.make(
@@ -546,7 +554,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             terceirizada=terceirizada,
             diretoria_regional=diretoria_regional,
         )
-        tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+        tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
         return baker.make(
             "Escola",
             nome="EMEF TESTE KIT",
@@ -566,6 +574,12 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
 
     def _setup_categoria(self):
         return CategoriaMedicaoFactory.create(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+
+    def _setup_grupo_solicitacoes_alimentacao(self):
+        grupo, _ = GrupoMedicao.objects.get_or_create(
+            nome=GRUPO_SOLICITACOES_ALIMENTACAO
+        )
+        return grupo
 
     def _setup_kit_lanche(self, escola, data):
         from src.kit_lanche.fixtures.factories.base_factory import (
@@ -608,6 +622,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_solicitacoes_alimentacao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 5))
@@ -623,7 +638,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             solicitacao
         )
 
-        medicao = solicitacao.medicoes.get(grupo__nome="Solicitações de Alimentação")
+        medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
         categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
         valor = ValorMedicao.objects.filter(
             medicao=medicao,
@@ -642,6 +657,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_solicitacoes_alimentacao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 15))
@@ -673,6 +689,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         """
         escola = self._setup_escola_emef()
         self._setup_categoria()
+        self._setup_grupo_solicitacoes_alimentacao()
         solicitacao = self._setup_solicitacao(escola)
 
         self._setup_kit_lanche(escola, date(2025, 5, 15))
@@ -682,7 +699,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             solicitacao
         )
 
-        medicao = solicitacao.medicoes.get(grupo__nome="Solicitações de Alimentação")
+        medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
         categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
         valor = ValorMedicao.objects.filter(
             medicao=medicao,

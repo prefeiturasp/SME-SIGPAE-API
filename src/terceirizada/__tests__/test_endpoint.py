@@ -3,6 +3,7 @@ import json
 import pytest
 from rest_framework import status
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.terceirizada.models import Terceirizada
 
 pytestmark = pytest.mark.django_db
@@ -206,11 +207,11 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(
     vigencia_contrato_edicao = contrato_edicao.vigencias.last()
     vigencia_payload = payload["contratos"][0]["vigencias"][0]
     assert (
-        vigencia_contrato_edicao.data_inicial.strftime("%d/%m/%Y")
+        vigencia_contrato_edicao.data_inicial.strftime(FORMATO_DATA_BRASILEIRO)
         == vigencia_payload["data_inicial"]
     )
     assert (
-        vigencia_contrato_edicao.data_final.strftime("%d/%m/%Y")
+        vigencia_contrato_edicao.data_final.strftime(FORMATO_DATA_BRASILEIRO)
         == vigencia_payload["data_final"]
     )
 
@@ -291,11 +292,11 @@ def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos_sem
     vigencia_contrato_edicao = contrato_edicao.vigencias.last()
     vigencia_payload = payload["contratos"][0]["vigencias"][0]
     assert (
-        vigencia_contrato_edicao.data_inicial.strftime("%d/%m/%Y")
+        vigencia_contrato_edicao.data_inicial.strftime(FORMATO_DATA_BRASILEIRO)
         == vigencia_payload["data_inicial"]
     )
     assert (
-        vigencia_contrato_edicao.data_final.strftime("%d/%m/%Y")
+        vigencia_contrato_edicao.data_final.strftime(FORMATO_DATA_BRASILEIRO)
         == vigencia_payload["data_final"]
     )
     assert contrato_edicao.modalidade == modalidade

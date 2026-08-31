@@ -6,6 +6,7 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemData,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
 from src.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from src.escola.models import Escola
 
@@ -67,7 +68,7 @@ class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
 
 class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas",
     )
@@ -91,7 +92,7 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
 
     def __str__(self) -> str:
         return (
-            f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - {self.classificacao.nome}'
+            f"{self.escola.nome} - {self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.classificacao.nome}"
             f'{(" - " + self.periodo_escolar.nome) if self.periodo_escolar else ""}'
             f" - {self.quantidade} dieta(s)"
         )
@@ -106,7 +107,7 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
 
 class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_cei",
     )
@@ -127,7 +128,7 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
 
     def __str__(self) -> str:
         return (
-            f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - {self.periodo_escolar.nome} - '
+            f"{self.escola.nome} - {self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.periodo_escolar.nome} - "
             f"{self.classificacao.nome} - {self.quantidade} dieta(s) -- {self.faixa_etaria}"
         )
 
@@ -143,7 +144,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFerias(
     TemChaveExterna, TemData, CriadoEm
 ):
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_recreio_ferias",
     )
@@ -156,7 +157,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFerias(
 
     def __str__(self) -> str:
         return (
-            f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - '
+            f"{self.escola.nome} - {self.data.strftime(FORMATO_DATA_BRASILEIRO)} - "
             f"{self.classificacao.nome} - {self.quantidade} dieta(s)"
         )
 
@@ -170,7 +171,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
     TemChaveExterna, TemData, CriadoEm
 ):
     escola = models.ForeignKey(
-        "escola.Escola",
+        MODEL_ESCOLA,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_recreio_ferias_cei",
     )
@@ -189,7 +190,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
 
     def __str__(self) -> str:
         return (
-            f'{self.escola.nome} - {self.data.strftime("%d/%m/%Y")} - '
+            f"{self.escola.nome} - {self.data.strftime(FORMATO_DATA_BRASILEIRO)} - "
             f"{self.classificacao.nome} - {self.quantidade} dieta(s) -- {self.faixa_etaria}"
         )
 

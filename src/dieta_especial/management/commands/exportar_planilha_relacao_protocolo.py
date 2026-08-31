@@ -5,6 +5,16 @@ from django.core.management.base import BaseCommand
 from openpyxl import Workbook
 from openpyxl.styles import Font
 
+from src.dados_comuns.constants import (
+    CHAVE_COD_EOL_ALUNO,
+    CHAVE_COD_EOL_ESCOLA,
+    CHAVE_LOTE,
+    CHAVE_NOME_ALUNO,
+    CHAVE_NOME_ESCOLA,
+    CHAVE_NOME_PROTOCOLO_DB,
+    CHAVE_NOME_PROTOCOLO_IMPORTADO_DIETA,
+    CHAVE_UUID,
+)
 from src.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
 )
@@ -36,18 +46,18 @@ class Command(BaseCommand):
             celula.font = Font(size="13", bold=True)
 
         for ind, dict_solicitacao in enumerate(dicts_para_planilha, 2):
-            ws.cell(row=ind, column=1, value=str(dict_solicitacao["UUID"]))
-            ws.cell(row=ind, column=2, value=dict_solicitacao["NOME ESCOLA"])
-            ws.cell(row=ind, column=3, value=dict_solicitacao["COD EOL ESCOLA"])
-            ws.cell(row=ind, column=4, value=dict_solicitacao["NOME ALUNO"])
-            ws.cell(row=ind, column=5, value=dict_solicitacao["COD EOL ALUNO"])
-            ws.cell(row=ind, column=6, value=dict_solicitacao["LOTE"])
+            ws.cell(row=ind, column=1, value=str(dict_solicitacao[CHAVE_UUID]))
+            ws.cell(row=ind, column=2, value=dict_solicitacao[CHAVE_NOME_ESCOLA])
+            ws.cell(row=ind, column=3, value=dict_solicitacao[CHAVE_COD_EOL_ESCOLA])
+            ws.cell(row=ind, column=4, value=dict_solicitacao[CHAVE_NOME_ALUNO])
+            ws.cell(row=ind, column=5, value=dict_solicitacao[CHAVE_COD_EOL_ALUNO])
+            ws.cell(row=ind, column=6, value=dict_solicitacao[CHAVE_LOTE])
             ws.cell(
                 row=ind,
                 column=7,
-                value=dict_solicitacao["NOME PROTOCOLO IMPORTADO DIETA"],
+                value=dict_solicitacao[CHAVE_NOME_PROTOCOLO_IMPORTADO_DIETA],
             )
-            ws.cell(row=ind, column=8, value=dict_solicitacao["NOME PROTOCOLO NO DB"])
+            ws.cell(row=ind, column=8, value=dict_solicitacao[CHAVE_NOME_PROTOCOLO_DB])
 
         wb.save(f"relacao-protocolos-{nome}.xlsx")
 
@@ -72,7 +82,7 @@ class Command(BaseCommand):
             if (
                 float(porcentagem_similar) > 0.95
             ):  # verifica se a similaridade é maior que 95%
-                dict_solicitacao["NOME PROTOCOLO NO DB"] = nomes_protocolos[ind]
+                dict_solicitacao[CHAVE_NOME_PROTOCOLO_DB] = nomes_protocolos[ind]
                 resultado = True
                 break
         return resultado
@@ -94,14 +104,14 @@ class Command(BaseCommand):
                 "protocolos_padroes_dieta_especial__nome_protocolo", flat=True
             )
             dict_solicitacao = {
-                "UUID": solicitacao.uuid,
-                "NOME ESCOLA": solicitacao.escola.nome,
-                "COD EOL ESCOLA": solicitacao.escola.codigo_eol,
-                "NOME ALUNO": solicitacao.aluno.nome,
-                "COD EOL ALUNO": solicitacao.aluno.codigo_eol,
-                "LOTE": solicitacao.escola.lote.nome,
-                "NOME PROTOCOLO IMPORTADO DIETA": nome_protocolo,
-                "NOME PROTOCOLO NO DB": "",
+                CHAVE_UUID: solicitacao.uuid,
+                CHAVE_NOME_ESCOLA: solicitacao.escola.nome,
+                CHAVE_COD_EOL_ESCOLA: solicitacao.escola.codigo_eol,
+                CHAVE_NOME_ALUNO: solicitacao.aluno.nome,
+                CHAVE_COD_EOL_ALUNO: solicitacao.aluno.codigo_eol,
+                CHAVE_LOTE: solicitacao.escola.lote.nome,
+                CHAVE_NOME_PROTOCOLO_IMPORTADO_DIETA: nome_protocolo,
+                CHAVE_NOME_PROTOCOLO_DB: "",
             }
             if self.compara_nome_protocolo(
                 nome_protocolo, nomes_protocolos, dict_solicitacao
@@ -110,14 +120,14 @@ class Command(BaseCommand):
             else:
                 dicts_protocolo_invalidos.append(dict_solicitacao)
         cabecalho = [
-            "UUID",
-            "NOME ESCOLA",
-            "COD EOL ESCOLA",
-            "NOME ALUNO",
-            "COD EOL ALUNO",
-            "LOTE",
-            "NOME PROTOCOLO IMPORTADO DIETA",
-            "NOME PROTOCOLO NO DB",
+            CHAVE_UUID,
+            CHAVE_NOME_ESCOLA,
+            CHAVE_COD_EOL_ESCOLA,
+            CHAVE_NOME_ALUNO,
+            CHAVE_COD_EOL_ALUNO,
+            CHAVE_LOTE,
+            CHAVE_NOME_PROTOCOLO_IMPORTADO_DIETA,
+            CHAVE_NOME_PROTOCOLO_DB,
         ]
         self.exportar_planilha(cabecalho, dicts_protocolo_validos, "validos")
         self.exportar_planilha(cabecalho, dicts_protocolo_invalidos, "invalidos")

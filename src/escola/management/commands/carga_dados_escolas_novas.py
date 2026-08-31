@@ -2,6 +2,7 @@ import csv
 
 from django.core.management.base import BaseCommand
 
+from src.dados_comuns.constants import TIPOS_GESTAO
 from src.escola.models import (  # noqa
     DiretoriaRegional,
     Escola,
@@ -22,7 +23,7 @@ def csv_to_list(filename: str) -> list:
 def cria_novas_escolas(
     unidade_escolar, codigo_eol, dre, nome_tipo_unidade, lote
 ):  # noqa
-    tipo_gestao = TipoGestao.objects.get(nome="TERC TOTAL")
+    tipo_gestao = TipoGestao.objects.get(nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade = TipoUnidadeEscolar.objects.filter(
         iniciais=nome_tipo_unidade
     ).first()  # noqa

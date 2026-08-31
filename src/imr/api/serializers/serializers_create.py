@@ -4,6 +4,7 @@ import datetime
 from rest_framework import serializers
 
 from src.cardapio.base.models import TipoAlimentacao
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import convert_base64_to_contentfile
 from src.escola.models import Escola
 from src.imr.models import (
@@ -625,7 +626,7 @@ class FormularioDiretorManyCreateSerializer(serializers.Serializer):
         ultimo_form_diretor = None
 
         for data in datas:
-            data_formatada = datetime.datetime.strptime(data, "%d/%m/%Y")
+            data_formatada = datetime.datetime.strptime(data, FORMATO_DATA_BRASILEIRO)
             validated_data_ = self._formata_dados_formulario(
                 data_formatada, solicitacao_medicao_inicial, ocorrencias
             )

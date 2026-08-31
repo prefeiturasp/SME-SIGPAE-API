@@ -4,6 +4,12 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    TIPO_ALIMENTACAO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.escola.models import (
     Escola,
     LogAlunosMatriculadosPeriodoEscola,
@@ -74,11 +80,13 @@ def horarios_combos_tipo_alimentacao_invalidos(request):
 
 @pytest.fixture()
 def alterar_tipos_alimentacao_data():
-    alimentacao1 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao1")
-    alimentacao2 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao2")
-    alimentacao3 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao3")
+    alimentacao1 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao1")
+    alimentacao2 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao2")
+    alimentacao3 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao3")
     periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
-    tipo_unidade_escolar = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
+    tipo_unidade_escolar = baker.make(
+        "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     vinculo = baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         periodo_escolar=periodo_escolar,
@@ -91,8 +99,8 @@ def alterar_tipos_alimentacao_data():
 @pytest.fixture(
     params=[
         # periodo escolar, tipo unidade escolar
-        ("MANHA", "EMEF"),
-        ("MANHA", "CIEJA"),
+        ("MANHA", TIPOS_UNIDADE_ESCOLAR.EMEF.value),
+        ("MANHA", TIPOS_UNIDADE_ESCOLAR.CIEJA.value),
     ]
 )
 def vinculo_tipo_alimentacao(request):
@@ -122,7 +130,7 @@ def horario_tipo_alimentacao(
     escola = escola_com_periodos_e_horarios_combos
     tipo_alimentacao = baker.make(
         "TipoAlimentacao",
-        nome="Lanche",
+        nome=TIPOS_ALIMENTACAO.LANCHE.value,
         posicao=2,
         uuid="c42a24bb-14f8-4871-9ee8-05bc42cf3061",
     )
@@ -157,14 +165,14 @@ def periodos_escolares():
 @pytest.fixture
 def escolas():
     for iniciais_unidade in [
-        "EMEI",
-        "EMEF",
-        "CEI",
-        "CEI DIRET",
-        "CEMEI",
-        "CIEJA",
-        "CEU GESTAO",
-        "EMEBS",
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI.value,
+        TIPO_UNIDADE_CEI_DIRET,
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
+        TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
     ]:
         tipo_unidade_escolar = baker.make(
             "TipoUnidadeEscolar", iniciais=iniciais_unidade
@@ -202,38 +210,50 @@ def _cria_vinculos(iniciais_unidade: str, periodos: list[str]):
 
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_emef(escolas, periodos_escolares):
-    return _cria_vinculos("EMEF", ["NOITE", "MANHA", "TARDE", "INTEGRAL"])
+    return _cria_vinculos(
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value, ["NOITE", "MANHA", "TARDE", "INTEGRAL"]
+    )
 
 
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_emei(escolas, periodos_escolares):
-    return _cria_vinculos("EMEI", ["TARDE", "MANHA", "INTEGRAL"])
+    return _cria_vinculos(
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value, ["TARDE", "MANHA", "INTEGRAL"]
+    )
 
 
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_cei(escolas, periodos_escolares):
-    return _cria_vinculos("CEI", ["PARCIAL", "INTEGRAL", "MANHA", "TARDE"])
+    return _cria_vinculos(
+        TIPOS_UNIDADE_ESCOLAR.CEI.value, ["PARCIAL", "INTEGRAL", "MANHA", "TARDE"]
+    )
 
 
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_cemei(escolas, periodos_escolares):
-    _cria_vinculos("CEI DIRET", ["PARCIAL", "INTEGRAL"])
-    _cria_vinculos("EMEI", ["INTEGRAL", "TARDE", "MANHA"])
-    return _cria_vinculos("CEMEI", [])
+    _cria_vinculos(TIPO_UNIDADE_CEI_DIRET, ["PARCIAL", "INTEGRAL"])
+    _cria_vinculos(TIPOS_UNIDADE_ESCOLAR.EMEI.value, ["INTEGRAL", "TARDE", "MANHA"])
+    return _cria_vinculos(TIPOS_UNIDADE_ESCOLAR.CEMEI.value, [])
 
 
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_cieja(escolas, periodos_escolares):
     return _cria_vinculos(
-        "CIEJA", ["VESPERTINO", "MANHA", "INTERMEDIARIO", "TARDE", "NOITE"]
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        ["VESPERTINO", "MANHA", "INTERMEDIARIO", "TARDE", "NOITE"],
     )
 
 
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_ceu_gestao(escolas, periodos_escolares):
-    return _cria_vinculos("CEU GESTAO", ["INTEGRAL", "MANHA", "TARDE", "NOITE"])
+    return _cria_vinculos(
+        TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
+        ["INTEGRAL", "MANHA", "TARDE", "NOITE"],
+    )
 
 
 @pytest.fixture
 def vinculo_alimentacao_periodo_escolar_emebs(escolas, periodos_escolares):
-    return _cria_vinculos("EMEBS", ["NOITE", "MANHA", "TARDE", "INTEGRAL"])
+    return _cria_vinculos(
+        TIPOS_UNIDADE_ESCOLAR.EMEBS.value, ["NOITE", "MANHA", "TARDE", "INTEGRAL"]
+    )

@@ -1,8 +1,11 @@
+"""Serializers de leitura do submódulo de cronograma semanal."""
+
 from rest_framework import serializers
 
 from src.dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSimplesSerializer,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     ContratoSimplesSerializer,
     TerceirizadaLookUpSerializer,
@@ -105,8 +108,8 @@ class CronogramaSemanalCalendarioSerializer(serializers.ModelSerializer):
 
         return [
             {
-                "data_inicio": p.data_inicio.strftime("%d/%m/%Y"),
-                "data_fim": p.data_fim.strftime("%d/%m/%Y"),
+                "data_inicio": p.data_inicio.strftime(FORMATO_DATA_BRASILEIRO),
+                "data_fim": p.data_fim.strftime(FORMATO_DATA_BRASILEIRO),
                 "quantidade": p.quantidade,
             }
             for p in programacoes

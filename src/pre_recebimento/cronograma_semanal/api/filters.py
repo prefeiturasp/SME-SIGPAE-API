@@ -1,8 +1,14 @@
+"""Filtros da API do submódulo de cronograma semanal."""
+
 from django.db.models import Exists, OuterRef
 from django_filters import rest_framework as filters
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
-from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal, ProgramacaoEntregaSemanal
+from src.pre_recebimento.cronograma_semanal.models import (
+    CronogramaSemanal,
+    ProgramacaoEntregaSemanal,
+)
 
 
 class CronogramaSemanalFilter(filters.FilterSet):
@@ -40,18 +46,31 @@ class CronogramaSemanalFilter(filters.FilterSet):
     data_inicial = filters.DateFilter(
         method="filter_por_periodo",
         label="Data Inicial",
-        input_formats=["%d/%m/%Y"],
+        input_formats=[FORMATO_DATA_BRASILEIRO],
     )
     data_final = filters.DateFilter(
         method="filter_por_periodo",
         label="Data Final",
-        input_formats=["%d/%m/%Y"],
+        input_formats=[FORMATO_DATA_BRASILEIRO],
     )
 
     def filter_por_periodo(self, queryset, name, value):
+        """Filtro de período (sem efeito direto).
+
+        O filtro por período é aplicado em ``filter_queryset`` por meio de
+        uma subquery nas programações de entrega, pois o período se refere
+        às programações e não ao cronograma em si.
+        """
         return queryset
 
     def filter_queryset(self, queryset):
+        """Aplica os filtros padrão e o filtro por período.
+
+        Quando ``data_inicial`` ou ``data_final`` são informados, mantém
+        apenas os cronogramas que possuem programações de entrega cujo
+        período (``data_inicio``/``data_fim``) intercepta o intervalo
+        informado.
+        """
         queryset = super().filter_queryset(queryset)
 
         data_inicial = self.form.cleaned_data.get("data_inicial")

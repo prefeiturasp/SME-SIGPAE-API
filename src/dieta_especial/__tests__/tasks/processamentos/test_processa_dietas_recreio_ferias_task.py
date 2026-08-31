@@ -7,6 +7,7 @@ from celery import shared_task
 from django.db.models import Q
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     MotivoAlteracaoUEFactory,
@@ -62,7 +63,9 @@ class TestLogsRecreioNasFerias:
         ClassificacaoDieta.objects.all().delete()
         TipoGestao.objects.all().delete()
 
-        self.tipo_gestao_terc = TipoGestaoFactory.create(nome="TERC TOTAL")
+        self.tipo_gestao_terc = TipoGestaoFactory.create(
+            nome=TIPOS_GESTAO.TERC_TOTAL.value
+        )
 
         self.dre = DiretoriaRegionalFactory.create(nome="IPIRANGA", iniciais="IP")
         self.terceirizada = EmpresaFactory.create(nome_fantasia="EMPRESA LTDA")
@@ -87,7 +90,9 @@ class TestLogsRecreioNasFerias:
         self.faixa_4a_a_5a11m = FaixaEtariaFactory.create(inicio=48, fim=72, ativo=True)
 
     def setup_escola_emef(self):
-        tipo_unidade = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        tipo_unidade = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         self.escola_emef = EscolaFactory.create(
             nome="EMEF TESTE",
             tipo_gestao=self.tipo_gestao_terc,
@@ -98,7 +103,9 @@ class TestLogsRecreioNasFerias:
         return self.escola_emef
 
     def setup_escola_cei(self):
-        tipo_unidade = TipoUnidadeEscolarFactory.create(iniciais="CEI")
+        tipo_unidade = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value
+        )
         self.escola_cei = EscolaFactory.create(
             nome="CEI TESTE",
             tipo_gestao=self.tipo_gestao_terc,
@@ -109,7 +116,9 @@ class TestLogsRecreioNasFerias:
         return self.escola_cei
 
     def setup_escola_cemei(self):
-        tipo_unidade = TipoUnidadeEscolarFactory.create(iniciais="CEMEI")
+        tipo_unidade = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+        )
         self.escola_cemei = EscolaFactory.create(
             nome="CEMEI TESTE",
             tipo_gestao=self.tipo_gestao_terc,
@@ -120,7 +129,9 @@ class TestLogsRecreioNasFerias:
         return self.escola_cemei
 
     def setup_escola_emebs(self):
-        tipo_unidade = TipoUnidadeEscolarFactory.create(iniciais="EMEBS")
+        tipo_unidade = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+        )
         self.escola_emebs = EscolaFactory.create(
             nome="EMEBS TESTE",
             tipo_gestao=self.tipo_gestao_terc,
@@ -391,7 +402,9 @@ class TestLogsRecreioNasFerias:
     @freeze_time("2025-01-15")
     def test_nao_gera_logs_para_escolas_nao_terc_total(self):
         tipo_gestao_direta = TipoGestaoFactory.create(nome="DIRETA")
-        tipo_unidade = TipoUnidadeEscolarFactory.create(iniciais="EMEF")
+        tipo_unidade = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
 
         escola_direta = EscolaFactory.create(
             nome="EMEF DIRETA",

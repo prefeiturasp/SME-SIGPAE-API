@@ -35,7 +35,7 @@ def ficha_assinada():
     )
 
 
-def test_cronogramas_list_filtra_por_contrato(
+def test_cronogramas_list_filtra_por_contrato_e_empresa(
     client_autenticado_codae_dilog,
     ficha_assinada,
     contrato,
@@ -47,23 +47,61 @@ def test_cronogramas_list_filtra_por_contrato(
 
     response = client_autenticado_codae_dilog.get(
         "/cronogramas/lista-cronogramas-pos-recebimento/",
-        {"contrato_id": str(cronograma.contrato.uuid)},
+        {
+            "contrato_id": str(cronograma.contrato.uuid),
+            "empresa_id": str(cronograma.empresa.uuid),
+        },
     )
 
     assert response.status_code == status.HTTP_200_OK
-    resultados = response.json()["results"]
-    uuids = [item["uuid"] for item in resultados]
+    uuids = [item["uuid"] for item in response.json()["results"]]
     assert str(cronograma.uuid) in uuids
     assert str(outro_cronograma.uuid) not in uuids
 
 
-def test_cronogramas_list_com_uuid_invalido_nao_retorna_erro_500(
+def test_cronogramas_list_nao_retorna_cronograma_de_outra_empresa(
+    client_autenticado_codae_dilog,
+    ficha_assinada,
+):
+    """``empresa`` e ``contrato`` do cronograma são independentes: o
+    cronograma do contrato mas de outra empresa seria rejeitado no cadastro
+    do termo, então não pode ser oferecido aqui."""
+    cronograma = ficha_assinada.etapa.cronograma
+    cronograma_de_outra_empresa = CronogramaFactory(
+        contrato=cronograma.contrato, empresa=EmpresaFactory()
+    )
+
+    response = client_autenticado_codae_dilog.get(
+        "/cronogramas/lista-cronogramas-pos-recebimento/",
+        {
+            "contrato_id": str(cronograma.contrato.uuid),
+            "empresa_id": str(cronograma.empresa.uuid),
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    uuids = [item["uuid"] for item in response.json()["results"]]
+    assert uuids == [str(cronograma.uuid)]
+    assert str(cronograma_de_outra_empresa.uuid) not in uuids
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"contrato_id": "uuid-invalido", "empresa_id": "uuid-invalido"},
+        {"contrato_id": "11111111-1111-1111-1111-111111111111"},
+        {"empresa_id": "11111111-1111-1111-1111-111111111111"},
+        {},
+    ],
+)
+def test_cronogramas_list_sem_os_dois_filtros_retorna_vazio(
     client_autenticado_dilog_cronograma,
+    params,
 ):
     response = client_autenticado_dilog_cronograma.get(
-        "/cronogramas/lista-cronogramas-pos-recebimento/",
-        {"contrato_id": "uuid-invalido"},
+        "/cronogramas/lista-cronogramas-pos-recebimento/", params
     )
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["results"] == []
 

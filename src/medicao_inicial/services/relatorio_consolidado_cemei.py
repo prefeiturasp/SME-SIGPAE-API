@@ -4,10 +4,15 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_CEMEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
@@ -33,7 +38,6 @@ from src.medicao_inicial.services.utils import (
 )
 
 PROGRAMAS_E_PROJETOS = "PROGRAMAS E PROJETOS"
-DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
 DIETA_ESPECIAL_TIPO_A_ENTERAL = (
     "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
 )
@@ -112,7 +116,7 @@ def _get_lista_alimentacoes(
             .values_list("nome_campo", flat=True)
             .distinct()
         )
-        if nome_periodo != "Solicitações de Alimentação":
+        if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
             lista_alimentacoes += [
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
@@ -263,7 +267,7 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
     filtros = {}
-    if periodo in ["Solicitações de Alimentação", "Programas e Projetos"] + list(
+    if periodo in [GRUPO_SOLICITACOES_ALIMENTACAO, GRUPO_PROGRAMAS_E_PROJETOS] + list(
         grupos_medicao
     ):
         filtros["grupo__nome"] = periodo
@@ -271,7 +275,7 @@ def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
         if "INFANTIL" in periodo:
             filtros["grupo__nome__in"] = grupos_medicao
         elif PROGRAMAS_E_PROJETOS in periodo:
-            filtros["grupo__nome"] = "Programas e Projetos"
+            filtros["grupo__nome"] = GRUPO_PROGRAMAS_E_PROJETOS
         else:
             filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
     else:
@@ -324,7 +328,7 @@ def _processa_periodo_regular(
             campo,
             periodo,
             query_params=query_params,
-            tipo_unidade="EMEI",
+            tipo_unidade=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         )
     return soma
 
@@ -389,11 +393,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - INTEGRAL": {
             "formatacao": formatacao_integral_cei,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - INTEGRAL": {
             "formatacao": formatacao_integral_cei,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         "PARCIAL": {
             "formatacao": formatacao_parcial,
@@ -401,11 +405,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - PARCIAL": {
             "formatacao": formatacao_parcial,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - PARCIAL": {
             "formatacao": formatacao_parcial,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         "INFANTIL INTEGRAL": {
             "formatacao": formatacao_integral,
@@ -421,11 +425,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - INFANTIL": {
             "formatacao": formatacao_dieta_a,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - INFANTIL": {
             "formatacao": formatacao_dieta_b,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         PROGRAMAS_E_PROJETOS: {
             "formatacao": formatacao_programas,
@@ -433,11 +437,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
     }
 

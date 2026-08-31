@@ -13,6 +13,7 @@ from faker import Faker
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPOS_ALIMENTACAO
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.paineis_consolidados.api import constants
 from src.paineis_consolidados.api.serializers import SolicitacoesExportXLSXSerializer
@@ -300,8 +301,10 @@ def test_build_xlsx_inclusao_continua_exibe_coluna_encerrado_e_traceja_data_fina
     )
     periodo_integral = periodo_escolar_factory.create(nome="INTEGRAL")
     periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
-    tipo_lanche = tipo_alimentacao_factory.create(nome="Lanche")
-    tipo_refeicao = tipo_alimentacao_factory.create(nome="Refeição")
+    tipo_lanche = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    tipo_refeicao = tipo_alimentacao_factory.create(
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value
+    )
     usuario = usuario_factory.create()
 
     inclusao = inclusao_alimentacao_continua_factory.create(
@@ -510,7 +513,7 @@ def test_build_pdf():
     texto = extrair_texto_de_pdf(pdf_cancelados).lower()
     assert "Total de Solicitações Cancelados: 0".lower() in texto
     assert "SIGPAE - RELATÓRIO DE solicitações de alimentação".lower() in texto
-    assert datetime.now().strftime("%d/%m/%Y") in texto
+    assert datetime.now().strftime(FORMATO_DATA_BRASILEIRO) in texto
     assert texto.count("cancelados") == 2
 
     pdf_autorizados = build_pdf([], "AUTORIZADOS")
@@ -519,7 +522,7 @@ def test_build_pdf():
     texto = extrair_texto_de_pdf(pdf_autorizados).lower()
     assert "Total de Solicitações autorizados: 0".lower() in texto
     assert "SIGPAE - RELATÓRIO DE solicitações de alimentação".lower() in texto
-    assert datetime.now().strftime("%d/%m/%Y") in texto
+    assert datetime.now().strftime(FORMATO_DATA_BRASILEIRO) in texto
     assert texto.count("autorizados") == 2
 
 
@@ -545,9 +548,13 @@ def test_build_pdf_inclusao_continua_exibe_coluna_encerramento_historicos_e_nao_
     )
     periodo_integral = periodo_escolar_factory.create(nome="INTEGRAL")
     periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
-    tipo_lanche = tipo_alimentacao_factory.create(nome="Lanche")
-    tipo_refeicao = tipo_alimentacao_factory.create(nome="Refeição")
-    tipo_lanche_4h = tipo_alimentacao_factory.create(nome="Lanche 4h")
+    tipo_lanche = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    tipo_refeicao = tipo_alimentacao_factory.create(
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value
+    )
+    tipo_lanche_4h = tipo_alimentacao_factory.create(
+        nome=TIPOS_ALIMENTACAO.LANCHE_4H.value
+    )
     usuario = usuario_factory.create()
 
     inclusao = inclusao_alimentacao_continua_factory.create(
@@ -654,7 +661,7 @@ def test_build_pdf_inclusao_continua_destaca_data_final_quando_todas_quantidades
     )
     periodo_integral = periodo_escolar_factory.create(nome="INTEGRAL")
     periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
-    tipo_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+    tipo_lanche = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
 
     inclusao = inclusao_alimentacao_continua_factory.create(
         escola=escola,

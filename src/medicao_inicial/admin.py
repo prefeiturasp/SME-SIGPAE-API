@@ -4,6 +4,8 @@ import importlib
 from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 from .models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
@@ -146,7 +148,7 @@ class PermissaoLancamentoEspecialAdmin(admin.ModelAdmin):
     @admin.display(description="Data Inicial")
     def get_data_inicial(self, obj):
         return (
-            datetime.date.strftime(obj.data_inicial, "%d/%m/%Y")
+            datetime.date.strftime(obj.data_inicial, FORMATO_DATA_BRASILEIRO)
             if obj.data_inicial
             else "-"
         )
@@ -154,7 +156,7 @@ class PermissaoLancamentoEspecialAdmin(admin.ModelAdmin):
     @admin.display(description="Data Final")
     def get_data_final(self, obj):
         return (
-            datetime.date.strftime(obj.data_final, "%d/%m/%Y")
+            datetime.date.strftime(obj.data_final, FORMATO_DATA_BRASILEIRO)
             if obj.data_final
             else "-"
         )

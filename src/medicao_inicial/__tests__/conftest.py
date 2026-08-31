@@ -11,7 +11,21 @@ from model_bakery import baker
 
 from src.dados_comuns import constants
 from src.dados_comuns.behaviors import TempoPasseio
-from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    DJANGO_ADMIN_PASSWORD,
+    GRUPO_INFANTIL_INTEGRAL,
+    GRUPO_INFANTIL_MANHA,
+    GRUPO_INFANTIL_TARDE,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    MODEL_LOTE,
+    MODEL_TERCEIRIZADA,
+)
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import (
@@ -73,7 +87,7 @@ def kit_lanche_2():
 
 @pytest.fixture
 def grupo_programas_e_projetos():
-    return baker.make("GrupoMedicao", nome="Programas e Projetos")
+    return baker.make("GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS)
 
 
 @pytest.fixture
@@ -83,27 +97,27 @@ def grupo_etec():
 
 @pytest.fixture
 def grupo_solicitacoes_alimentacao():
-    return baker.make("GrupoMedicao", nome="Solicitações de Alimentação")
+    return baker.make("GrupoMedicao", nome=GRUPO_SOLICITACOES_ALIMENTACAO)
 
 
 @pytest.fixture
 def grupo_infantil_integral():
-    return baker.make("GrupoMedicao", nome="Infantil INTEGRAL")
+    return baker.make("GrupoMedicao", nome=GRUPO_INFANTIL_INTEGRAL)
 
 
 @pytest.fixture
 def grupo_infantil_manha():
-    return baker.make("GrupoMedicao", nome="Infantil MANHA")
+    return baker.make("GrupoMedicao", nome=GRUPO_INFANTIL_MANHA)
 
 
 @pytest.fixture
 def grupo_infantil_tarde():
-    return baker.make("GrupoMedicao", nome="Infantil TARDE")
+    return baker.make("GrupoMedicao", nome=GRUPO_INFANTIL_TARDE)
 
 
 @pytest.fixture
 def grupo_recreio_nas_ferias():
-    return baker.make("GrupoMedicao", nome="Recreio nas Férias")
+    return baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
 
 
 @pytest.fixture
@@ -113,14 +127,12 @@ def grupo_colaboradores():
 
 @pytest.fixture
 def grupo_recreio_nas_ferias_0_a_3_anos_e_11_meses():
-    return baker.make(
-        "GrupoMedicao", nome="Recreio nas Férias - de 0 a 3 anos e 11 meses"
-    )
+    return baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3)
 
 
 @pytest.fixture
 def grupo_recreio_nas_ferias_4_a_14_anos():
-    return baker.make("GrupoMedicao", nome="Recreio nas Férias - 4 a 14 anos")
+    return baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14)
 
 
 @pytest.fixture
@@ -135,32 +147,40 @@ def motivo_inclusao_continua_etec():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make("TipoAlimentacao", nome="Refeição")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make("TipoAlimentacao", nome="Lanche")
+    return baker.make("TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.LANCHE.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_4h():
-    return baker.make("TipoAlimentacao", nome="Lanche 4h")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.LANCHE_4H.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_sobremesa():
-    return baker.make("TipoAlimentacao", nome="Sobremesa")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.SOBREMESA.value
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_almoco():
-    return baker.make("TipoAlimentacao", nome="Almoço")
+    return baker.make("TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.ALMOCO.value)
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
-    return baker.make("TipoAlimentacao", nome="Lanche Emergencial")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    )
 
 
 @pytest.fixture
@@ -175,72 +195,107 @@ def classificacao_dieta_tipo_a_enteral():
 
 @pytest.fixture
 def tipo_unidade_escolar():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_emef():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEU EMEF")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_EMEF.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_emei():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_emei():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_emefm():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEFM")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEFM.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cieja():
-    return baker.make("TipoUnidadeEscolar", iniciais="CIEJA")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cmct():
-    return baker.make("TipoUnidadeEscolar", iniciais="CMCT")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CMCT.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_gestao():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cei():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
+
+
+@pytest.fixture
+def tipo_unidade_escolar_cei_diret():
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cci():
-    return baker.make("TipoUnidadeEscolar", iniciais="CCI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cei_ceu():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEI CEU")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_ceu_cemei():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_cemei():
-    return baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
 
 
 @pytest.fixture
 def tipo_unidade_escolar_emebs():
-    return baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    return baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
 
 
 @pytest.fixture
@@ -293,18 +348,18 @@ def client_autenticado_coordenador_codae(client, django_user_model):
     )
     emef = baker.make(
         "TipoUnidadeEscolar",
-        iniciais="EMEF",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         uuid="1cc3253b-e297-42b3-8e57-ebfd115a1aba",
     )
     baker.make("Escola", tipo_unidade=emef, uuid="95ad02fb-d746-4e0c-95f4-0181a99bc192")
     baker.make(
         "TipoUnidadeEscolar",
-        iniciais="CEU GESTAO",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
         uuid="40ee89a7-dc70-4abb-ae21-369c67f2b9e3",
     )
     baker.make(
         "TipoUnidadeEscolar",
-        iniciais="CIEJA",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
         uuid="ac4858ff-1c11-41f3-b539-7a02696d6d1b",
     )
     edital = baker.make(
@@ -334,7 +389,7 @@ def escola(tipo_unidade_escolar, diretoria_regional):
         terceirizada=terceirizada,
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="EMEF TESTE",
@@ -366,8 +421,10 @@ def escola_emefm(diretoria_regional):
         terceirizada=terceirizada,
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEFM")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEFM.value
+    )
     return baker.make(
         "Escola",
         nome="EMEFM TESTE",
@@ -391,8 +448,10 @@ def escola_emei():
         terceirizada=terceirizada,
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEI")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
     return baker.make(
         "Escola",
         nome="EMEI TESTE",
@@ -411,7 +470,7 @@ def escola_ceu_emei(tipo_unidade_escolar_ceu_emei):
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CEU EMEI TESTE",
@@ -424,21 +483,20 @@ def escola_ceu_emei(tipo_unidade_escolar_ceu_emei):
 
 
 @pytest.fixture
-def escola_cei():
+def escola_cei(tipo_unidade_escolar_cei_diret):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CEI DIRET TESTE",
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
-        tipo_unidade=tipo_unidade_escolar,
+        tipo_unidade=tipo_unidade_escolar_cei_diret,
         codigo_eol="765432",
     )
 
@@ -450,8 +508,10 @@ def escola_cci():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CCI")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
+    )
     return baker.make(
         "Escola",
         nome="CCI TESTE",
@@ -498,8 +558,10 @@ def escola_cemei():
         nome="LOTE 2",
         diretoria_regional=diretoria_regional,
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+    )
     return baker.make(
         "Escola",
         nome="CEMEI TESTE",
@@ -518,8 +580,10 @@ def escola_ceu_cemei():
     diretoria_regional = baker.make(
         "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value
+    )
     return baker.make(
         "Escola",
         nome="CEU CEMEI TESTE",
@@ -541,8 +605,10 @@ def escola_emebs():
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
     return baker.make(
         "Escola",
         nome="EMEBS TESTE",
@@ -563,8 +629,10 @@ def escola_ceu_gestao():
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CEU GESTAO")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
+    )
     return baker.make(
         "Escola",
         nome="CEMEI TESTE",
@@ -584,8 +652,10 @@ def escola_cmct():
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
-    tipo_unidade_escolar = baker.make("TipoUnidadeEscolar", iniciais="CMCT")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
+    tipo_unidade_escolar = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CMCT.value
+    )
     return baker.make(
         "Escola",
         nome="CMCT TESTE",
@@ -605,7 +675,7 @@ def escola_cieja(tipo_unidade_escolar_cieja):
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CIEJA TESTE",
@@ -621,7 +691,7 @@ def escola_cieja(tipo_unidade_escolar_cieja):
 def aluno():
     return baker.make(
         "Aluno",
-        nome="Roberto Alves da Silva",
+        nome=constants.NOME_ALUNO_PADRAO,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
         uuid="2d20157a-4e52-4d25-a4c7-9c0e6b67ee18",
@@ -943,12 +1013,12 @@ def solicitacao_medicao_inicial_medicao_enviada_pela_ue_nok__2(
 
 @pytest.fixture
 def categoria_dieta_a():
-    return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
+    return baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
 
 
 @pytest.fixture
 def categoria_dieta_b():
-    return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    return baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
 
 
 @pytest.fixture
@@ -973,7 +1043,7 @@ def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):
     categoria_dieta_a = baker.make(
         "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
     )
-    categoria_dieta_b = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
     for dia in ["01", "02", "03", "04", "05"]:
         for campo in ["lanche", "refeicao", "lanche_emergencial", "sobremesa"]:
             for categoria in [categoria_medicao, categoria_dieta_a, categoria_dieta_b]:
@@ -1015,7 +1085,7 @@ def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_med
     categoria_dieta_a = baker.make(
         "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
     )
-    categoria_dieta_b = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
     tipos_turmas = ["INFANTIL", "FUNDAMENTAL"]
 
     for dia in range(1, 15):
@@ -1074,8 +1144,8 @@ def solicitacao_medicao_inicial_varios_valores_ceu_gestao(
         solicitacao_medicao_inicial=solicitacao_medicao,
         periodo_escolar=periodo_manha,
     )
-    categoria_dieta_a = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
-    categoria_dieta_b = baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    categoria_dieta_a = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
+    categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
     for dia in ["05"]:
         for campo in [
             "numero_de_alunos",
@@ -1177,7 +1247,7 @@ def solicitacao_medicao_inicial_varios_valores_escola_cei(
 
 
 def medicao_infantil_manha(solicitacao_medicao, categoria_medicao):
-    periodo_infantil_manha = baker.make("PeriodoEscolar", nome="Infantil MANHA")
+    periodo_infantil_manha = baker.make("PeriodoEscolar", nome=GRUPO_INFANTIL_MANHA)
     medicao_infantil_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
@@ -1247,9 +1317,11 @@ def solicitacao_medicao_inicial_com_valores_repeticao(escola, categoria_medicao)
     periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
     periodo_noite = baker.make("PeriodoEscolar", nome="NOITE")
     grupo_solicitacoes_alimentacao = baker.make(
-        "GrupoMedicao", nome="Solicitações de Alimentação"
+        "GrupoMedicao", nome=GRUPO_SOLICITACOES_ALIMENTACAO
     )
-    grupo_programas_e_projetos = baker.make("GrupoMedicao", nome="Programas e Projetos")
+    grupo_programas_e_projetos = baker.make(
+        "GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS
+    )
     grupo_etec = baker.make("GrupoMedicao", nome="ETEC")
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola
@@ -1328,7 +1400,9 @@ def solicitacao_medicao_inicial_dietas(
     periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
     periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
     periodo_noite = baker.make("PeriodoEscolar", nome="NOITE")
-    grupo_programas_e_projetos = baker.make("GrupoMedicao", nome="Programas e Projetos")
+    grupo_programas_e_projetos = baker.make(
+        "GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS
+    )
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola
     )
@@ -1396,7 +1470,7 @@ def solicitacao_medicao_inicial_dietas(
 def medicao_solicitacoes_alimentacao(escola):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
     categoria = baker.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
-    grupo = baker.make("GrupoMedicao", nome="Solicitações de Alimentação")
+    grupo = baker.make("GrupoMedicao", nome=GRUPO_SOLICITACOES_ALIMENTACAO)
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=6, ano=2023, escola=escola
     )
@@ -1879,7 +1953,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs_cei(
 def solicitacao_medicao_inicial_com_grupo(escola, categoria_medicao_dieta_a):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
     periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
-    grupo = baker.make("GrupoMedicao", nome="Programas e Projetos")
+    grupo = baker.make("GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS)
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
@@ -2430,7 +2504,9 @@ def medicao_status_inicial(solicitacao_medicao_inicial, categoria_medicao):
     valor = 10
     nome_campo = "observacoes"
     tipo_alimentacao = baker.make(
-        "TipoAlimentacao", nome="Lanche", uuid="0367af8d-26bd-40b5-83d2-9e337622ba50"
+        "TipoAlimentacao",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        uuid="0367af8d-26bd-40b5-83d2-9e337622ba50",
     )
     baker.make(
         "ValorMedicao",
@@ -2458,7 +2534,9 @@ def medicao_status_enviada_pela_ue(solicitacao_medicao_inicial, categoria_medica
     valor = 10
     nome_campo = "observacoes"
     tipo_alimentacao = baker.make(
-        "TipoAlimentacao", nome="Lanche", uuid="837ed21a-d535-4df2-aa37-f186e4e51392"
+        "TipoAlimentacao",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        uuid="837ed21a-d535-4df2-aa37-f186e4e51392",
     )
     baker.make(
         "ValorMedicao",
@@ -2486,7 +2564,9 @@ def medicao_aprovada_pela_dre(solicitacao_medicao_inicial, categoria_medicao):
     valor = 20
     nome_campo = "observacoes"
     tipo_alimentacao = baker.make(
-        "TipoAlimentacao", nome="Lanche", uuid="a5ea11b6-a043-47cd-ba69-d6b207312cbd"
+        "TipoAlimentacao",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        uuid="a5ea11b6-a043-47cd-ba69-d6b207312cbd",
     )
     baker.make(
         "ValorMedicao",
@@ -2508,7 +2588,7 @@ def categoria_medicao():
 
 @pytest.fixture
 def categoria_medicao_dieta_a():
-    return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
+    return baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
 
 
 @pytest.fixture
@@ -2521,7 +2601,7 @@ def categoria_medicao_dieta_a_enteral_aminoacidos():
 
 @pytest.fixture
 def categoria_medicao_dieta_b():
-    return baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO B")
+    return baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
 
 
 @pytest.fixture
@@ -2534,7 +2614,9 @@ def valor_medicao(medicao, categoria_medicao):
     valor = 13
     nome_campo = "observacoes"
     tipo_alimentacao = baker.make(
-        "TipoAlimentacao", nome="Lanche", uuid="b58b7946-67c4-416c-82cf-f26a470fb93e"
+        "TipoAlimentacao",
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
+        uuid="b58b7946-67c4-416c-82cf-f26a470fb93e",
     )
     return baker.make(
         "ValorMedicao",
@@ -2550,7 +2632,7 @@ def valor_medicao(medicao, categoria_medicao):
 
 @pytest.fixture()
 def usuario_diretoria_regional(django_user_model, escola):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -2873,7 +2955,7 @@ def logs_alunos_matriculados_periodo_escola_cemei(escola_cemei):
         periodo_escolar=periodo_integral,
         quantidade_alunos=50,
         tipo_turma=TipoTurma.REGULAR.name,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
     return LogAlunosMatriculadosPeriodoEscola.objects.all()
 
@@ -2921,8 +3003,8 @@ def edital():
 
 @pytest.fixture
 def contrato(edital):
-    terceirizada = baker.make("terceirizada.Terceirizada")
-    lote = baker.make("escola.Lote", terceirizada=terceirizada)
+    terceirizada = baker.make(MODEL_TERCEIRIZADA)
+    lote = baker.make(MODEL_LOTE, terceirizada=terceirizada)
     contrato = baker.make(
         "terceirizada.Contrato",
         lotes=[lote],
@@ -3325,9 +3407,18 @@ def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
         nome="Grupo 3",
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="EMEI P FOM"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI_P_FOM.value,
+            ),
         ],
     )
     return {
@@ -3344,19 +3435,19 @@ def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
 @pytest.fixture
 def mock_colunas():
     return [
-        ("Solicitações de Alimentação", "kit_lanche"),
-        ("Solicitações de Alimentação", "lanche_emergencial"),
+        (GRUPO_SOLICITACOES_ALIMENTACAO, "kit_lanche"),
+        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche_emergencial"),
         ("MANHA", "lanche"),
         ("MANHA", "lanche_4h"),
         ("MANHA", "refeicao"),
         ("MANHA", "total_refeicoes_pagamento"),
         ("MANHA", "sobremesa"),
         ("MANHA", "total_sobremesas_pagamento"),
-        ("DIETA ESPECIAL - TIPO A", "lanche"),
-        ("DIETA ESPECIAL - TIPO A", "lanche_4h"),
-        ("DIETA ESPECIAL - TIPO A", "refeicao"),
-        ("DIETA ESPECIAL - TIPO B", "lanche"),
-        ("DIETA ESPECIAL - TIPO B", "lanche_4h"),
+        (DIETA_ESPECIAL_TIPO_A, "lanche"),
+        (DIETA_ESPECIAL_TIPO_A, "lanche_4h"),
+        (DIETA_ESPECIAL_TIPO_A, "refeicao"),
+        (DIETA_ESPECIAL_TIPO_B, "lanche"),
+        (DIETA_ESPECIAL_TIPO_B, "lanche_4h"),
     ]
 
 
@@ -3364,7 +3455,7 @@ def mock_colunas():
 def mock_linhas_emef():
     return [
         [
-            "EMEF",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
             "123456",
             "EMEF TESTE",
             10.0,
@@ -3388,7 +3479,7 @@ def mock_linhas_emef():
 def mock_linhas_emei():
     return [
         [
-            "EMEI",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             "987654",
             "EMEI TESTE",
             5.0,
@@ -3459,7 +3550,7 @@ def relatorio_financeiro():
     return baker.make(
         "RelatorioFinanceiro",
         grupo_unidade_escolar=baker.make("GrupoUnidadeEscolar"),
-        lote=baker.make("escola.Lote"),
+        lote=baker.make(MODEL_LOTE),
         mes="10",
         ano="2025",
     )
@@ -3624,12 +3715,25 @@ def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
         nome="Grupo 1",
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CCI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CCI/CIPS"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEI CEU"),
+            baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI.value
+            ),
+            baker.make(
+                "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            ),
         ],
     )
     return {
@@ -3662,8 +3766,8 @@ def mock_colunas_cei(faixas_etarias_ativas):
     colunas.append(("TARDE", faixas_etarias_ativas[3].id))
     colunas.append(("TARDE", faixas_etarias_ativas[6].id))
 
-    colunas.append(("DIETA ESPECIAL - TIPO A", faixas_etarias_ativas[2].id))
-    colunas.append(("DIETA ESPECIAL - TIPO B", faixas_etarias_ativas[3].id))
+    colunas.append((DIETA_ESPECIAL_TIPO_A, faixas_etarias_ativas[2].id))
+    colunas.append((DIETA_ESPECIAL_TIPO_B, faixas_etarias_ativas[3].id))
 
     return colunas
 
@@ -3672,7 +3776,7 @@ def mock_colunas_cei(faixas_etarias_ativas):
 def mock_linhas_cei():
     return [
         [
-            "CEI DIRET",
+            constants.TIPO_UNIDADE_CEI_DIRET,
             "765432",
             "CEI DIRET TESTE",
             80.0,
@@ -3953,8 +4057,14 @@ def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei)
         nome="Grupo 2",
         uuid="012dc7a2-eb11-4000-96b9-e3c5130dc64c",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="CEMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU CEMEI"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+            ),
         ],
     )
     return {
@@ -3971,8 +4081,8 @@ def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei)
 @pytest.fixture
 def mock_colunas_cemei(faixas_etarias_ativas):
     colunas = [
-        ("Solicitações de Alimentação", "kit_lanche"),
-        ("Solicitações de Alimentação", "lanche_emergencial"),
+        (GRUPO_SOLICITACOES_ALIMENTACAO, "kit_lanche"),
+        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche_emergencial"),
     ]
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
 
@@ -3983,7 +4093,11 @@ def mock_colunas_cemei(faixas_etarias_ativas):
     colunas.extend(("DIETA ESPECIAL - TIPO A - PARCIAL", faixa) for faixa in faixas)
     colunas.extend(("DIETA ESPECIAL - TIPO B - PARCIAL", faixa) for faixa in faixas)
 
-    for periodo in ["Infantil INTEGRAL", "Infantil MANHA", "Infantil TARDE"]:
+    for periodo in [
+        GRUPO_INFANTIL_INTEGRAL,
+        GRUPO_INFANTIL_MANHA,
+        GRUPO_INFANTIL_TARDE,
+    ]:
         for campo in [
             "lanche",
             "lanche_4h",
@@ -4007,7 +4121,7 @@ def mock_colunas_cemei(faixas_etarias_ativas):
 def mock_linhas_cemei():
     return [
         [
-            "CEMEI",
+            constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "543210",
             "CEMEI TESTE",
             5.0,
@@ -4275,7 +4389,10 @@ def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs)
         nome="Grupo 5",
         uuid="172a2ae6-c417-49d3-91d3-a2dae3d8a56b",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="EMEBS"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
+            ),
         ],
     )
     return {
@@ -4292,12 +4409,18 @@ def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs)
 @pytest.fixture
 def mock_colunas_emebs():
     colunas = [
-        ("", "Solicitações de Alimentação", "lanche_emergencial"),
-        ("", "Solicitações de Alimentação", "kit_lanche"),
+        ("", GRUPO_SOLICITACOES_ALIMENTACAO, "lanche_emergencial"),
+        ("", GRUPO_SOLICITACOES_ALIMENTACAO, "kit_lanche"),
     ]
 
     for turma in ["INFANTIL", "FUNDAMENTAL"]:
-        for periodo in ["MANHA", "TARDE", "INTEGRAL", "NOITE", "Programas e Projetos"]:
+        for periodo in [
+            "MANHA",
+            "TARDE",
+            "INTEGRAL",
+            "NOITE",
+            GRUPO_PROGRAMAS_E_PROJETOS,
+        ]:
             if turma == "INFANTIL" and periodo == "NOITE":
                 continue
 
@@ -4309,15 +4432,15 @@ def mock_colunas_emebs():
                 "sobremesa",
                 "total_sobremesas_pagamento",
             ]:
-                if periodo == "Programas e Projetos" and campo == "sobremesa":
+                if periodo == GRUPO_PROGRAMAS_E_PROJETOS and campo == "sobremesa":
                     continue
                 colunas.append((turma, periodo, campo))
 
-        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "lanche"))
-        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "lanche_4h"))
-        colunas.append((turma, "DIETA ESPECIAL - TIPO A", "refeicao"))
-        colunas.append((turma, "DIETA ESPECIAL - TIPO B", "lanche"))
-        colunas.append((turma, "DIETA ESPECIAL - TIPO B", "lanche_4h"))
+        colunas.append((turma, DIETA_ESPECIAL_TIPO_A, "lanche"))
+        colunas.append((turma, DIETA_ESPECIAL_TIPO_A, "lanche_4h"))
+        colunas.append((turma, DIETA_ESPECIAL_TIPO_A, "refeicao"))
+        colunas.append((turma, DIETA_ESPECIAL_TIPO_B, "lanche"))
+        colunas.append((turma, DIETA_ESPECIAL_TIPO_B, "lanche_4h"))
     return colunas
 
 
@@ -4325,7 +4448,7 @@ def mock_colunas_emebs():
 def mock_linhas_emebs():
     return [
         [
-            "EMEBS",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
             "000329",
             "EMEBS TESTE",
             5.0,
@@ -4720,8 +4843,14 @@ def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_
         nome="Grupo 6",
         uuid="ee9abe61-e1c4-48fb-8b53-ffd2cef00458",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="CIEJA"),
-            baker.make("TipoUnidadeEscolar", iniciais="CMCT"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CMCT.value,
+            ),
         ],
     )
     return {
@@ -4739,8 +4868,8 @@ def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_
 def mock_colunas_cieja():
 
     colunas = [
-        ("Solicitações de Alimentação", "kit_lanche"),
-        ("Solicitações de Alimentação", "lanche_emergencial"),
+        (GRUPO_SOLICITACOES_ALIMENTACAO, "kit_lanche"),
+        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche_emergencial"),
     ]
     for periodo in [
         "MANHA",
@@ -4759,11 +4888,11 @@ def mock_colunas_cieja():
     colunas.append((PROGRAMAS_E_PROOJETOS, "lanche_4h"))
     colunas.append((PROGRAMAS_E_PROOJETOS, "total_refeicoes_pagamento"))
     colunas.append((PROGRAMAS_E_PROOJETOS, "total_sobremesas_pagamento"))
-    colunas.append(("DIETA ESPECIAL - TIPO A", "lanche"))
-    colunas.append(("DIETA ESPECIAL - TIPO A", "lanche_4h"))
-    colunas.append(("DIETA ESPECIAL - TIPO A", "refeicao"))
-    colunas.append(("DIETA ESPECIAL - TIPO B", "lanche"))
-    colunas.append(("DIETA ESPECIAL - TIPO B", "lanche_4h"))
+    colunas.append((DIETA_ESPECIAL_TIPO_A, "lanche"))
+    colunas.append((DIETA_ESPECIAL_TIPO_A, "lanche_4h"))
+    colunas.append((DIETA_ESPECIAL_TIPO_A, "refeicao"))
+    colunas.append((DIETA_ESPECIAL_TIPO_B, "lanche"))
+    colunas.append((DIETA_ESPECIAL_TIPO_B, "lanche_4h"))
 
     return colunas
 
@@ -4772,7 +4901,7 @@ def mock_colunas_cieja():
 def mock_linhas_cieja():
     return [
         [
-            "CIEJA",
+            constants.TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
             "111329",
             "CIEJA TESTE",
             5,
@@ -5384,7 +5513,9 @@ def medicoes_frequencia_zerada_emebs(
     categoria_medicao_dieta_a,
     classificacao_dieta_tipo_a,
 ):
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEBS")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value
+    )
     escola.tipo_unidade = tipo_unidade
     escola.save()
 
@@ -5684,7 +5815,7 @@ def apply_dieta(
         valor = medicao.valores_medicao.get(**filtros)
 
         if is_cemei:
-            is_programa = medicao.grupo.nome == "Programas e Projetos"
+            is_programa = medicao.grupo.nome == GRUPO_PROGRAMAS_E_PROJETOS
         else:
             is_programa = bool(medicao.grupo)
 
@@ -6080,6 +6211,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
 @pytest.fixture
 def grupo_unidade_escolar_cei(
     tipo_unidade_escolar_cei,
+    tipo_unidade_escolar_cei_diret,
     tipo_unidade_escolar_cci,
     tipo_unidade_escolar_cei_ceu,
 ):
@@ -6091,6 +6223,7 @@ def grupo_unidade_escolar_cei(
             tipo_unidade_escolar_cei,
             tipo_unidade_escolar_cci,
             tipo_unidade_escolar_cei_ceu,
+            tipo_unidade_escolar_cei_diret,
         ],
     )
 
@@ -7169,7 +7302,7 @@ def solicitacao_recreio_cemei(
         lote=solicitacao_recreio_nas_ferias.escola.lote,
         num_inscritos=90,
         num_colaboradores=9,
-        cei_ou_emei="CEI",
+        cei_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.CEI.value,
     )
     participante_emei = baker.make(
         "RecreioNasFeriasUnidadeParticipante",
@@ -7178,7 +7311,7 @@ def solicitacao_recreio_cemei(
         lote=solicitacao_recreio_nas_ferias.escola.lote,
         num_inscritos=100,
         num_colaboradores=10,
-        cei_ou_emei="EMEI",
+        cei_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
     )
 
     for alimentacao in [
@@ -7376,13 +7509,13 @@ def solicitacao_recreio_emei(
 @pytest.fixture
 def mock_colunas_recreio_emei():
     return [
-        ("Recreio nas Férias", "refeicao"),
-        ("Recreio nas Férias", "repeticao_refeicao"),
-        ("Recreio nas Férias", "total_refeicoes_pagamento"),
-        ("Recreio nas Férias", "sobremesa"),
-        ("Recreio nas Férias", "repeticao_sobremesa"),
-        ("Recreio nas Férias", "total_sobremesas_pagamento"),
-        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        (GRUPO_RECREIO_NAS_FERIAS, "refeicao"),
+        (GRUPO_RECREIO_NAS_FERIAS, "repeticao_refeicao"),
+        (GRUPO_RECREIO_NAS_FERIAS, "total_refeicoes_pagamento"),
+        (GRUPO_RECREIO_NAS_FERIAS, "sobremesa"),
+        (GRUPO_RECREIO_NAS_FERIAS, "repeticao_sobremesa"),
+        (GRUPO_RECREIO_NAS_FERIAS, "total_sobremesas_pagamento"),
+        (DIETA_ESPECIAL_TIPO_A, "refeicao"),
         ("Colaboradores", "refeicao"),
         ("Colaboradores", "repeticao_refeicao"),
         ("Colaboradores", "total_refeicoes_pagamento"),
@@ -7396,7 +7529,7 @@ def mock_colunas_recreio_emei():
 def mock_linhas_recreio_emei():
     return [
         [
-            "EMEI",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             "987654",
             "EMEI TESTE",
             1260.0,
@@ -7443,9 +7576,18 @@ def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
         nome="Grupo 3",
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="EMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="EMEI P FOM"),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.EMEI_P_FOM.value,
+            ),
         ],
     )
     return {
@@ -7464,8 +7606,8 @@ def mock_colunas_recreio_cei(faixas_etarias_ativas):
 
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
     colunas = []
-    colunas.extend(("Recreio nas Férias", faixa) for faixa in faixas)
-    colunas.extend(("DIETA ESPECIAL - TIPO A", faixa) for faixa in faixas)
+    colunas.extend((GRUPO_RECREIO_NAS_FERIAS, faixa) for faixa in faixas)
+    colunas.extend((DIETA_ESPECIAL_TIPO_A, faixa) for faixa in faixas)
     for campo in [
         "refeicao",
         "repeticao_refeicao",
@@ -7482,7 +7624,7 @@ def mock_colunas_recreio_cei(faixas_etarias_ativas):
 def mock_linhas_recreio_cei():
     return [
         [
-            "CEI DIRET",
+            constants.TIPO_UNIDADE_CEI_DIRET,
             "765432",
             "CEI DIRET TESTE",
             168.0,
@@ -7538,12 +7680,25 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
         nome="Grupo 1",
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
-            baker.make("TipoUnidadeEscolar", iniciais="CEI DIRET"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEU CEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CCI"),
-            baker.make("TipoUnidadeEscolar", iniciais="CCI/CIPS"),
-            baker.make("TipoUnidadeEscolar", iniciais="CEI CEU"),
+            baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI.value
+            ),
+            baker.make(
+                "TipoUnidadeEscolar", iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI.value
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            ),
+            baker.make(
+                "TipoUnidadeEscolar",
+                iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            ),
         ],
     )
     return {
@@ -7560,13 +7715,13 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
 @pytest.fixture
 def mock_colunas_recreio_emef():
     return [
-        ("Recreio nas Férias", "refeicao"),
-        ("Recreio nas Férias", "repeticao_refeicao"),
-        ("Recreio nas Férias", "total_refeicoes_pagamento"),
-        ("Recreio nas Férias", "sobremesa"),
-        ("Recreio nas Férias", "repeticao_sobremesa"),
-        ("Recreio nas Férias", "total_sobremesas_pagamento"),
-        ("DIETA ESPECIAL - TIPO A", "refeicao"),
+        (GRUPO_RECREIO_NAS_FERIAS, "refeicao"),
+        (GRUPO_RECREIO_NAS_FERIAS, "repeticao_refeicao"),
+        (GRUPO_RECREIO_NAS_FERIAS, "total_refeicoes_pagamento"),
+        (GRUPO_RECREIO_NAS_FERIAS, "sobremesa"),
+        (GRUPO_RECREIO_NAS_FERIAS, "repeticao_sobremesa"),
+        (GRUPO_RECREIO_NAS_FERIAS, "total_sobremesas_pagamento"),
+        (DIETA_ESPECIAL_TIPO_A, "refeicao"),
         ("Colaboradores", "refeicao"),
         ("Colaboradores", "repeticao_refeicao"),
         ("Colaboradores", "total_refeicoes_pagamento"),
@@ -7580,7 +7735,7 @@ def mock_colunas_recreio_emef():
 def mock_linhas_recreio_emef():
     return [
         [
-            "EMEF",
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
             "123456",
             "EMEF TESTE",
             1260.0,
@@ -7618,7 +7773,7 @@ def mock_colunas_recreio_cemei(faixas_etarias_ativas):
     return (
         [
             (
-                "Recreio nas Férias - de 0 a 3 anos e 11 meses",
+                GRUPO_RECREIO_NAS_FERIAS_0_A_3,
                 faixa.id,
             )
             for faixa in faixas_etarias_ativas
@@ -7632,19 +7787,19 @@ def mock_colunas_recreio_cemei(faixas_etarias_ativas):
         ]
         + [
             (
-                "Recreio nas Férias - 4 a 14 anos",
+                GRUPO_RECREIO_NAS_FERIAS_4_A_14,
                 "refeicao",
             ),
             (
-                "Recreio nas Férias - 4 a 14 anos",
+                GRUPO_RECREIO_NAS_FERIAS_4_A_14,
                 "sobremesa",
             ),
             (
-                "Recreio nas Férias - 4 a 14 anos",
+                GRUPO_RECREIO_NAS_FERIAS_4_A_14,
                 "total_refeicoes_pagamento",
             ),
             (
-                "Recreio nas Férias - 4 a 14 anos",
+                GRUPO_RECREIO_NAS_FERIAS_4_A_14,
                 "total_sobremesas_pagamento",
             ),
             (
@@ -7679,7 +7834,7 @@ def mock_colunas_recreio_cemei(faixas_etarias_ativas):
 def mock_linhas_recreio_cemei():
     return [
         [
-            "CEMEI",
+            constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "765432",
             "CEMEI TESTE",
             220.0,
@@ -7767,7 +7922,9 @@ def informacoes_excel_writer_sem_lancamentos(solicitacao_sem_lancamento):
         ("MANHA", "total_refeicoes_pagamento"),
         ("MANHA", "total_sobremesas_pagamento"),
     ]
-    linhas = [["EMEF", "123456", "EMEF TESTE", "SL", "SL"]]
+    linhas = [
+        [constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value, "123456", "EMEF TESTE", "SL", "SL"]
+    ]
     arquivo = BytesIO()
     aba = f"Relatório Consolidado {solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")

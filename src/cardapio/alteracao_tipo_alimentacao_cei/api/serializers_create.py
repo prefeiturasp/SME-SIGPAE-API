@@ -17,9 +17,11 @@ from src.dados_comuns.validators import (
     deve_pedir_com_antecedencia,
     deve_ser_no_mesmo_ano_corrente,
     nao_pode_ser_no_passado,
+    valida_dia_letivo_ou_inclusao_alimentacao_rpl,
     valida_duplicidade_solicitacoes_cei,
 )
-from src.escola.models import FaixaEtaria
+from src.escola.models import Escola, FaixaEtaria
+from src.inclusao_alimentacao.models import InclusaoAlimentacaoDaCEI
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEISerializerCreate(
@@ -145,6 +147,10 @@ class AlteracaoCardapioCEISerializerCreate(AlteracaoCardapioSerializerCreateBase
         motivo = MotivoAlteracaoCardapio.objects.filter(uuid=attrs["motivo"]).first()
         if motivo and motivo.nome == "RPL - Refeição por Lanche":
             valida_duplicidade_solicitacoes_cei(attrs, data)
+            escola = Escola.objects.get(uuid=attrs["escola"])
+            valida_dia_letivo_ou_inclusao_alimentacao_rpl(
+                escola, data, InclusaoAlimentacaoDaCEI
+            )
         return data
 
     class Meta:

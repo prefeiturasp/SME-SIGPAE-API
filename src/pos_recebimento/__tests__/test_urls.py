@@ -57,7 +57,7 @@ def test_termo_create_retorna_201(
 
     assert response.status_code == status.HTTP_201_CREATED
     termo = TermoRecebimentoDefinitivo.objects.get(uuid=response.json()["uuid"])
-    assert termo.status == TermoRecebimentoDefinitivo.ENVIADO
+    assert termo.status == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
     assert termo.criado_por is not None
     assert termo.alterado_por is not None
     assert termo.cronogramas_termo.count() == 1
@@ -301,3 +301,139 @@ def test_termo_create_valida_valores_maiores_que_zero(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "cronogramas[0].valor_contrato" in response.data
     assert "cronogramas[0].quantidade_total_recebida" in response.data
+
+
+def test_termo_list_retorna_200_paginado_com_serializer_de_listagem(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+):
+    response = client_autenticado_dilog_cronograma.get("/pos-recebimento/termos/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 1
+    resultado = response.json()["results"][0]
+    assert resultado["uuid"] == str(termo_listagem.uuid)
+    assert sorted(resultado["numeros_cronogramas"]) == ["111/2026", "222/2026"]
+    assert "texto_termo" not in resultado
+
+
+def test_termo_list_ordena_do_mais_recente_para_o_mais_antigo(
+    client_autenticado_dilog_cronograma,
+    termos_listagem_ordenados,
+):
+    response = client_autenticado_dilog_cronograma.get("/pos-recebimento/termos/")
+
+    assert response.status_code == status.HTTP_200_OK
+    uuids = [resultado["uuid"] for resultado in response.json()["results"]]
+    assert uuids == [str(termo.uuid) for termo in reversed(termos_listagem_ordenados)]
+
+
+def test_termo_list_nao_duplica_termo_com_varios_cronogramas(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+):
+    """O filtro atravessa M2M; sem ``distinct()`` o termo viria uma vez por cronograma."""
+    response = client_autenticado_dilog_cronograma.get(
+        "/pos-recebimento/termos/", {"numero_cronograma": "2026"}
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 1
+    assert len(response.json()["results"]) == 1
+
+
+def test_termo_list_pagina_resultados(
+    client_autenticado_dilog_cronograma,
+    termos_listagem_ordenados,
+):
+    response = client_autenticado_dilog_cronograma.get(
+        "/pos-recebimento/termos/", {"page_size": 2}
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["count"] == 3
+    assert len(response.json()["results"]) == 2
+    assert response.json()["next"] is not None
+
+
+@pytest.mark.parametrize(
+    "nome_client",
+    [
+        "client_autenticado_dilog_cronograma",
+        "client_autenticado_qualidade",
+        "client_autenticado_dilog_diretoria",
+    ],
+)
+def test_termo_list_e_detalhe_liberados_para_perfis_de_visualizacao(
+    request,
+    nome_client,
+    termo_listagem,
+):
+    """Visualização é liberada para mais perfis do que o cadastro."""
+    client = request.getfixturevalue(nome_client)
+
+    assert client.get("/pos-recebimento/termos/").status_code == status.HTTP_200_OK
+    assert (
+        client.get(f"/pos-recebimento/termos/{termo_listagem.uuid}/").status_code
+        == status.HTTP_200_OK
+    )
+
+
+def test_termo_list_negado_para_perfil_fora_da_codae(
+    client_autenticado_distribuidor,
+    termo_listagem,
+):
+    response = client_autenticado_distribuidor.get("/pos-recebimento/termos/")
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_termo_retrieve_retorna_detalhe_do_termo(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+    empresa,
+    contrato,
+    tres_fiscais,
+):
+    response = client_autenticado_dilog_cronograma.get(
+        f"/pos-recebimento/termos/{termo_listagem.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    detalhe = response.json()
+    assert detalhe["uuid"] == str(termo_listagem.uuid)
+    assert detalhe["empresa"]["uuid"] == str(empresa.uuid)
+    assert detalhe["contrato"]["uuid"] == str(contrato.uuid)
+    assert detalhe["texto_termo"] == termo_listagem.texto_termo
+    assert detalhe["status"] == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    assert [detalhe[f"fiscal_{i}"]["uuid"] for i in (1, 2, 3)] == [
+        str(fiscal.uuid) for fiscal in tres_fiscais
+    ]
+
+
+def test_termo_retrieve_retorna_cronogramas_com_valores_do_vinculo(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+):
+    response = client_autenticado_dilog_cronograma.get(
+        f"/pos-recebimento/termos/{termo_listagem.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    cronogramas = response.json()["cronogramas"]
+    assert sorted(item["cronograma"]["numero"] for item in cronogramas) == [
+        "111/2026",
+        "222/2026",
+    ]
+    assert all(item["valor_contrato"] == "150000.00" for item in cronogramas)
+    assert all(item["quantidade_total_recebida"] == "1234.56" for item in cronogramas)
+
+
+def test_termo_retrieve_uuid_inexistente_retorna_404(
+    client_autenticado_dilog_cronograma,
+):
+    response = client_autenticado_dilog_cronograma.get(
+        "/pos-recebimento/termos/11111111-1111-1111-1111-111111111111/"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND

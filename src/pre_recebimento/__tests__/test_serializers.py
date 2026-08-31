@@ -4,6 +4,8 @@ from django.utils import timezone
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.base.api.serializers.serializer_create import (
     UnidadeMedidaCreateSerializer,
 )
@@ -25,8 +27,8 @@ from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     InterrupcaoProgramadaEntregaCreateSerializer,
     InterrupcaoProgramadaEntregaSerializer,
     PainelCronogramaSerializer,
-    SolicitacaoAlteracaoCronogramaSerializer,
     PainelSolicitacaoAlteracaoCronogramaSerializerItem,
+    SolicitacaoAlteracaoCronogramaSerializer,
 )
 from src.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
@@ -37,21 +39,18 @@ from src.pre_recebimento.documento_recebimento.api.serializers.serializers impor
     DocumentoDeRecebimentoSerializer,
     PainelDocumentoDeRecebimentoSerializer,
 )
-from src.pre_recebimento.layout_embalagem.api.serializers.serializers import (
-    PainelLayoutEmbalagemSerializer,
-)
-
 from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
     FichaTecnicaDetalharSerializer,
     FichaTecnicaSimplesSerializer,
     PainelFichaTecnicaSerializer,
 )
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
-
+from src.pre_recebimento.layout_embalagem.api.serializers.serializers import (
+    PainelLayoutEmbalagemSerializer,
+)
 from src.pre_recebimento.layout_embalagem.fixtures.factories.layout_embalagem_factory import (
     LayoutDeEmbalagemFactory,
 )
-from src.dados_comuns.models import LogSolicitacoesUsuario
 
 pytestmark = pytest.mark.django_db
 
@@ -64,7 +63,7 @@ def test_etapas_cronograma_serializer(etapa):
     etapa.save()
     serializer = EtapasDoCronogramaSerializer(etapa)
     assert serializer.data["data_programada"] == etapa.data_programada.strftime(
-        "%d/%m/%Y"
+        FORMATO_DATA_BRASILEIRO
     )
 
 
@@ -127,7 +126,7 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert cronograma_completo.log_mais_recente is not None
     assert serializer.data["log_mais_recente"].split(" ")[
         0
-    ] == cronograma_completo.criado_em.strftime("%d/%m/%Y")
+    ] == cronograma_completo.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     assert serializer.data["programa_leve_leite"] == True
 
@@ -139,7 +138,7 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert cronograma_incompleto.log_mais_recente is None
     assert serializer.data[
         "log_mais_recente"
-    ] == cronograma_incompleto.criado_em.strftime("%d/%m/%Y")
+    ] == cronograma_incompleto.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     assert "programa_leve_leite" in serializer.data
     assert serializer.data["programa_leve_leite"] is None
@@ -150,7 +149,9 @@ def test_painel_cronograma_serializer_log_recente(cronogramas_multiplos_status_c
     cronograma_completo = Cronograma.objects.filter(numero="002/2023A").first()
     serializer = PainelCronogramaSerializer(cronograma_completo)
 
-    expected_date = (timezone.now() - timezone.timedelta(2)).strftime("%d/%m/%Y")
+    expected_date = (timezone.now() - timezone.timedelta(2)).strftime(
+        FORMATO_DATA_BRASILEIRO
+    )
     assert serializer.data["log_mais_recente"] == expected_date
 
 
@@ -201,7 +202,7 @@ def test_etapas_do_cronograma_calendario_serializer(
     assert serializer.data["numero_cronograma"] == cronograma.numero
     assert serializer.data["nome_fornecedor"] == cronograma.empresa.nome_fantasia
     assert serializer.data["data_programada"] == etapa.data_programada.strftime(
-        "%d/%m/%Y"
+        FORMATO_DATA_BRASILEIRO
     )
     assert serializer.data["numero_empenho"] == etapa.numero_empenho
     assert serializer.data["etapa"] == f"Etapa {etapa.etapa}"
@@ -303,7 +304,9 @@ def test_etapas_cronograma_ficha_recebimento_serializer(etapa_com_fichas_recebim
     assert data["numero_empenho"] == "EMP001"
     assert data["etapa"] == "Etapa 1"
     assert data["parte"] == "Parte 2"
-    assert data["data_programada"] == etapa.data_programada.strftime("%d/%m/%Y")
+    assert data["data_programada"] == etapa.data_programada.strftime(
+        FORMATO_DATA_BRASILEIRO
+    )
     assert data["unidade_medida"] == etapa.cronograma.unidade_medida.abreviacao
     assert data["unidade_medida"] == etapa.cronograma.unidade_medida.abreviacao
 
@@ -509,7 +512,7 @@ def test_documento_recebimento_serializer(documento_recebimento_leve_leite):
     assert data["nome_produto"] == doc.cronograma.ficha_tecnica.produto.nome
     assert data["programa_leve_leite"] is True
     assert data["status"] == doc.get_status_display()
-    assert data["criado_em"] == doc.criado_em.strftime("%d/%m/%Y")
+    assert data["criado_em"] == doc.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     # Teste com programa diferente
     doc.cronograma.ficha_tecnica.programa = "ALIMENTACAO_ESCOLAR"
@@ -600,7 +603,9 @@ def test_interrupcao_programada_entrega_serializer(interrupcao_programada_entreg
     data = serializer.data
 
     assert data["uuid"] == str(interrupcao_programada_entrega.uuid)
-    assert data["data"] == interrupcao_programada_entrega.data.strftime("%d/%m/%Y")
+    assert data["data"] == interrupcao_programada_entrega.data.strftime(
+        FORMATO_DATA_BRASILEIRO
+    )
     assert data["motivo"] == interrupcao_programada_entrega.motivo
     assert data["motivo_display"] == interrupcao_programada_entrega.get_motivo_display()
     assert data["tipo_calendario"] == interrupcao_programada_entrega.tipo_calendario
@@ -682,7 +687,9 @@ def test_ficha_tecnica_simples_serializer_expoe_ponto_a_ponto():
     assert "flv_ponto_a_ponto" not in dados
 
 
-def test_painel_solicitacao_alteracao_cronograma_serializer_retorna_ponto_a_ponto(cronograma_assinado_perfil_dilog):
+def test_painel_solicitacao_alteracao_cronograma_serializer_retorna_ponto_a_ponto(
+    cronograma_assinado_perfil_dilog,
+):
     cronograma = cronograma_assinado_perfil_dilog
     cronograma.ficha_tecnica.tipo_entrega = FichaTecnicaDoProduto.PONTO_A_PONTO
     cronograma.ficha_tecnica.save()
@@ -705,15 +712,20 @@ def test_painel_solicitacao_alteracao_cronograma_serializer_retorna_ponto_a_pont
 
 
 def test_painel_layout_embalagem_serializer_retorna_true_para_ficha_tecnica_flv():
-    layout = LayoutDeEmbalagemFactory(ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_FLV)
+    layout = LayoutDeEmbalagemFactory(
+        ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_FLV
+    )
     data = PainelLayoutEmbalagemSerializer(layout).data
     assert data["eh_ficha_tecnica_flv"] is True
 
 
 def test_painel_layout_embalagem_serializer_retorna_false_para_ficha_tecnica_nao_flv():
-    layout = LayoutDeEmbalagemFactory(ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS)
+    layout = LayoutDeEmbalagemFactory(
+        ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS
+    )
     data = PainelLayoutEmbalagemSerializer(layout).data
     assert data["eh_ficha_tecnica_flv"] is False
+
 
 def test_ficha_tecnica_detalhar_serializer_retorna_logs_da_linha_do_tempo(
     ficha_tecnica_factory,
@@ -750,12 +762,8 @@ def test_ficha_tecnica_detalhar_serializer_retorna_logs_da_linha_do_tempo(
 
     assert len(logs) == 2
 
-    assert logs[0]["status_evento_explicacao"] == (
-        "Ficha Técnica cadastrada"
-    )
-    assert logs[1]["status_evento_explicacao"] == (
-        "Ficha Técnica aprovada"
-    )
+    assert logs[0]["status_evento_explicacao"] == ("Ficha Técnica cadastrada")
+    assert logs[1]["status_evento_explicacao"] == ("Ficha Técnica aprovada")
 
     assert logs[0]["criado_em"]
     assert logs[1]["criado_em"]

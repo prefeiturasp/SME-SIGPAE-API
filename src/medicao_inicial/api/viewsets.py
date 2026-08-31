@@ -4,9 +4,11 @@ import json
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
+from django.core.paginator import EmptyPage, Paginator
 from django.db import transaction
 from django.db.models import Exists, F, IntegerField, OuterRef, Q, QuerySet
 from django.db.models.functions import Cast
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status
@@ -15,6 +17,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.utils.urls import replace_query_param
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 from workalendar.america import BrazilSaoPauloCity
 from xworkflows import InvalidTransitionError
@@ -22,7 +25,9 @@ from xworkflows import InvalidTransitionError
 from src.cardapio.utils import ordem_periodos
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.services.relatorio_adesao import (
+    obtem_escolas_ordenadas,
     obtem_resultados,
+    obtem_resultados_para_escola,
     valida_parametros_periodo_lancamento,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
@@ -48,7 +53,7 @@ from ...dados_comuns.permissions import (
     UsuarioSupervisaoNutricao,
     ViewSetActionPermissionMixin,
 )
-from ...dados_comuns.utils import get_ultimo_dia_mes
+from ...dados_comuns.utils import convert_dict_to_querydict, get_ultimo_dia_mes
 from ...escola.api.permissions import (
     PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada,
 )
@@ -106,6 +111,7 @@ from ..utils import (
     log_alteracoes_escola_corrige_periodo,
     mapear_dados_existentes,
     obter_instancia_dados,
+    processa_reabrir_lancamentos,
     tratar_valores,
 )
 from .constants import (
@@ -579,32 +585,7 @@ class SolicitacaoMedicaoInicialViewSet(
         ],
     )
     def meses_anos(self, request):
-        qs_solicitacao_medicao = SolicitacaoMedicaoInicial.objects.all()
-        query_set = self._condicao_por_usuario(self.get_queryset())
-
-        if (
-            isinstance(request.user.vinculo_atual.instituicao, DiretoriaRegional)
-            or request.user.tipo_usuario
-            in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]
-            or (
-                request.query_params.get("eh_relatorio_adesao")
-                and request.user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA
-            )
-        ):
-            qs_solicitacao_medicao = query_set
-
-        filtros = {}
-
-        if request.query_params.get("status"):
-            filtros["status"] = request.query_params.get("status")
-
-        if request.query_params.get("dre"):
-            filtros["escola__diretoria_regional__uuid"] = request.query_params.get(
-                "dre"
-            )
-
-        if filtros:
-            qs_solicitacao_medicao = qs_solicitacao_medicao.filter(**filtros)
+        qs_solicitacao_medicao = self._montar_queryset_meses_anos(request)
 
         meses_anos = qs_solicitacao_medicao.values_list(
             "mes", "ano", "recreio_nas_ferias__titulo", "recreio_nas_ferias__uuid"
@@ -644,6 +625,41 @@ class SolicitacaoMedicaoInicialViewSet(
             },
             status=status.HTTP_200_OK,
         )
+
+    def _montar_queryset_meses_anos(self, request):
+        qs_solicitacao_medicao = SolicitacaoMedicaoInicial.objects.all()
+        query_set = self._condicao_por_usuario(self.get_queryset())
+
+        if (
+            isinstance(request.user.vinculo_atual.instituicao, DiretoriaRegional)
+            or request.user.tipo_usuario
+            in USUARIOS_VISAO_CODAE + ["terceirizada", "supervisao_nutricao"]
+            or (
+                request.query_params.get("eh_relatorio_adesao")
+                and request.user.tipo_usuario == constants.TIPO_USUARIO_ESCOLA
+            )
+        ):
+            qs_solicitacao_medicao = query_set
+
+        if request.query_params.get("eh_relatorio_adesao"):
+            qs_solicitacao_medicao = qs_solicitacao_medicao.exclude(
+                recreio_nas_ferias__isnull=False
+            )
+
+        filtros = {}
+
+        if request.query_params.get("status"):
+            filtros["status"] = request.query_params.get("status")
+
+        if request.query_params.get("dre"):
+            filtros["escola__diretoria_regional__uuid"] = request.query_params.get(
+                "dre"
+            )
+
+        if filtros:
+            qs_solicitacao_medicao = qs_solicitacao_medicao.filter(**filtros)
+
+        return qs_solicitacao_medicao
 
     @action(detail=False, methods=["GET"], url_path="historico-ocorrencias-pdf")
     def historico_ocorrencias_pdf(self, request):
@@ -1038,7 +1054,8 @@ class SolicitacaoMedicaoInicialViewSet(
                 quantidade_alunos__gt=0,
             )
             existe_emei = logs.filter(
-                cei_ou_emei="EMEI", periodo_escolar__nome="INTEGRAL"
+                cei_ou_emei=constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+                periodo_escolar__nome="INTEGRAL",
             ).exists()
             lista_periodos = list(
                 set(logs.values_list("periodo_escolar__nome", flat=True))
@@ -1047,7 +1064,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 lista_periodos.remove("INTEGRAL")
             lista_periodos = sorted(f"Infantil {periodo}" for periodo in lista_periodos)
             ordem_personalizada = ordem_periodos(escola, data_referencia).get(
-                "EMEI", {}
+                constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value, {}
             )
             retorno = sorted(
                 lista_periodos,
@@ -2246,11 +2263,22 @@ class RelatoriosViewSet(ViewSet):
         | UsuarioSupervisaoNutricao
     ]
 
-    @action(detail=False, url_name="relatorio-adesao", url_path="relatorio-adesao")
+    @action(
+        detail=False,
+        methods=["post"],
+        url_name="relatorio-adesao",
+        url_path="relatorio-adesao",
+    )
     def relatorio_adesao(self, request: Request):
-        query_params = request.query_params
         try:
+            query_params = (
+                request.data
+                if isinstance(request.data, QueryDict)
+                else convert_dict_to_querydict(request.data)
+            )
             valida_parametros_periodo_lancamento(query_params)
+            if query_params.getlist("escola__uuid[]"):
+                return self._relatorio_adesao_por_escola(request, query_params)
             resultados = obtem_resultados(query_params)
 
             return Response(data=resultados, status=status.HTTP_200_OK)
@@ -2263,6 +2291,51 @@ class RelatoriosViewSet(ViewSet):
                 data={"detail": MSG_ERROR_VERIFIQUE_PARAMETROS},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def _relatorio_adesao_por_escola(self, request: Request, query_params) -> Response:
+        escolas_uuid = query_params.getlist("escola__uuid[]")
+        escolas = obtem_escolas_ordenadas(escolas_uuid)
+        return self._pagina_resultados(request, query_params, escolas)
+
+    def _pagina_resultados(
+        self, request: Request, query_params, escolas: list
+    ) -> Response:
+        paginator = Paginator(escolas, 1)
+        page_number = query_params.get("page") or request.query_params.get("page", 1)
+        try:
+            page_number = int(page_number)
+        except (TypeError, ValueError):
+            raise ValidationError("O parâmetro 'page' deve ser um número inteiro")
+        try:
+            page = paginator.page(page_number)
+        except EmptyPage:
+            raise ValidationError("Página inválida")
+
+        resultados = [
+            obtem_resultados_para_escola(escola, query_params) for escola in page
+        ]
+
+        url = request.build_absolute_uri()
+        next_page = (
+            replace_query_param(url, "page", page.next_page_number())
+            if page.has_next()
+            else None
+        )
+        previous_page = (
+            replace_query_param(url, "page", page.previous_page_number())
+            if page.has_previous()
+            else None
+        )
+
+        return Response(
+            {
+                "next": next_page,
+                "previous": previous_page,
+                "count": paginator.count,
+                "page_size": 1,
+                "results": resultados,
+            }
+        )
 
     @action(
         detail=False,
@@ -2465,6 +2538,31 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         ],
     )
     def relatorio_consolidado(self, _, uuid_relatorio_financeiro):
+        """Retorna os dados consolidados do relatório financeiro.
+
+        Busca o relatório financeiro pelo UUID e identifica a
+        parametrização financeira vigente para o lote, grupo de unidade
+        escolar e período de referência do relatório.
+
+        A parametrização é considerada válida quando sua data inicial é
+        anterior ou igual ao último dia do mês de referência e sua data
+        final é posterior ou igual ao primeiro dia do mês, ou quando não
+        possui data final.
+
+        Args:
+            _: Argumento da requisição HTTP, não utilizado pelo método.
+            uuid_relatorio_financeiro: UUID do relatório financeiro que
+                será consultado.
+
+        Returns:
+            Response: Resposta HTTP contendo os dados da parametrização
+                financeira, o UUID do lote e o mês/ano de referência.
+
+        Raises:
+            Exception: Retorna HTTP 400 caso ocorra um erro durante o
+                processamento da requisição.
+
+        """
         try:
             relatorio_financeiro = RelatorioFinanceiro.objects.get(
                 uuid=uuid_relatorio_financeiro
@@ -2522,6 +2620,30 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         ],
     )
     def relatorio_pdf(self, request, uuid_relatorio_financeiro):
+        """Solicita a geração assíncrona do relatório financeiro em PDF.
+
+        Localiza o relatório financeiro pelo UUID e envia uma tarefa para
+        o Celery responsável pela geração do arquivo PDF. A geração é
+        executada de forma assíncrona, permitindo que a requisição HTTP
+        seja concluída sem aguardar o processamento do arquivo.
+
+        O nome do arquivo gerado é composto pela diretoria regional,
+        grupo de unidade escolar e período de referência do relatório.
+
+        Args:
+            request: Requisição HTTP contendo o usuário responsável pela
+                solicitação.
+            uuid_relatorio_financeiro: UUID do relatório financeiro que
+                será exportado.
+
+        Returns:
+            Response: Retorna HTTP 200 quando a solicitação de geração
+                do arquivo é enviada com sucesso.
+
+                Retorna HTTP 404 caso o relatório financeiro não seja
+                encontrado.
+
+        """
         user = request.user.get_username()
 
         relatorio_financeiro = RelatorioFinanceiro.objects.filter(
@@ -2544,6 +2666,97 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
             status=status.HTTP_200_OK,
         )
+
+    @action(
+        detail=False,
+        methods=["PUT"],
+        url_path="reabrir-lancamentos/(?P<uuid_relatorio_financeiro>[^/.]+)",
+        permission_classes=[UsuarioMedicao],
+    )
+    def reabrir_lancamentos(self, request, uuid_relatorio_financeiro):
+        """Reabre os lançamentos de um relatório financeiro.
+
+        Localiza o relatório financeiro pelo UUID e identifica as
+        solicitações de medição aprovadas pela CODAE no mês e ano de
+        referência do relatório.
+
+        As solicitações são posteriormente filtradas pelas unidades
+        educacionais informadas na requisição, quando houver. O
+        processamento das solicitações é realizado por
+        ``processa_reabrir_lancamentos``, que atualiza o status das
+        solicitações e de suas medições e registra os respectivos logs
+        de transição.
+
+        Args:
+            request: Requisição HTTP contendo o usuário responsável pela
+                reabertura e, opcionalmente, a lista de unidades
+                educacionais que devem ser reabertas. A lista deve ser
+                enviada no campo ``unidades_educacionais`` do corpo da
+                requisição.
+            uuid_relatorio_financeiro: UUID do relatório financeiro cujos
+                lançamentos serão reabertos.
+
+        Returns:
+            Response: Retorna HTTP 200 após a reabertura dos lançamentos.
+
+                Retorna HTTP 404 caso o relatório financeiro não seja
+                encontrado.
+
+                Retorna HTTP 400 caso ocorra algum erro durante o
+                processamento.
+
+        Raises:
+            Exception: Captura exceções ocorridas durante o processamento
+                e retorna uma resposta HTTP 400 contendo a mensagem do
+                erro.
+
+        """
+        try:
+            usuario = request.user
+
+            relatorio_financeiro = RelatorioFinanceiro.objects.filter(
+                uuid=uuid_relatorio_financeiro
+            ).first()
+
+            if not relatorio_financeiro:
+                return Response(
+                    {"Erro": "Relatório financeiro não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            unidades_educacionais = request.data.get(
+                "unidades_educacionais", []
+            )
+
+            filtros_relatorio = {
+                "mes": relatorio_financeiro.mes,
+                "ano": relatorio_financeiro.ano,
+                "status": SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+            }
+
+            solicitacoes_periodo = list(
+                SolicitacaoMedicaoInicial.objects.filter(
+                    **filtros_relatorio
+                )
+            )
+
+            processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario)
+
+            return Response(
+                {
+                    "detail": (
+                        "As solicitações das unidades selecionadas "
+                        "foram reabertas para lançamento."
+                    )
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:
+            return Response(
+                {"Erro": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class DadosLiquidacaoViewSet(ModelViewSet):

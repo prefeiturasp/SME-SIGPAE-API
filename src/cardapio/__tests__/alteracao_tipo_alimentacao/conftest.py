@@ -12,6 +12,12 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
+from src.dados_comuns.constants import (
+    EMAIL_TESTE,
+    MODEL_ESCOLA,
+    TIPO_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 
 
@@ -292,13 +298,15 @@ def daqui_dez_dias_ou_ultimo_dia_do_ano():
     ]
 )
 def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano):
-    alimentacao1 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao1")
-    alimentacao2 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao2")
-    alimentacao3 = baker.make("cardapio.TipoAlimentacao", nome="tp_alimentacao3")
+    alimentacao1 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao1")
+    alimentacao2 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao2")
+    alimentacao3 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao3")
     periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
-    tipo_unidade_escolar = baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF")
+    tipo_unidade_escolar = baker.make(
+        "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     escola = baker.make(
-        "escola.Escola", nome="PERICLIS", tipo_unidade=tipo_unidade_escolar
+        MODEL_ESCOLA, nome="PERICLIS", tipo_unidade=tipo_unidade_escolar
     )
     baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
@@ -342,7 +350,7 @@ def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano)
 
 @pytest.fixture
 def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola, codae):
-    email = "test@test.com"
+    email = EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

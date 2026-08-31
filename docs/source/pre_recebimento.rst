@@ -15,3 +15,7 @@ de recebimento.
    pre_recebimento/cronograma_entrega
    pre_recebimento/ficha_tecnica
    pre_recebimento/documento_recebimento
+   pre_recebimento/base
+   pre_recebimento/qualidade
+   pre_recebimento/cronograma_semanal
+   pre_recebimento/layout_embalagem

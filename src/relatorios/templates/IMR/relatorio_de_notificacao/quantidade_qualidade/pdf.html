@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   {% load static %} {% load sass_tags %}
   <head>
     <meta charset="utf-8" />
@@ -8,7 +8,7 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <title>
-      NOTIFICAÇÃO QUANTIDADE/QUALIDADE DE UTENSÍLIOS/MOBILIÁRIOS/EQUIPAMENTOS
+      NOTIFICAÇÃO PARA REPOSIÇÃO DE UTENSÍLIOS DE MESA, MOBILIÁRIOS E EQUIPAMENTOS
     </title>
     <link
       rel="stylesheet"
@@ -20,124 +20,95 @@
       href="{% sass_src 'css/custom_bootstrap.scss' %}"
       type="text/css"
     />
-    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css' integrity="sha384-5tJ3LhJ91syIgweMID0/0ICfCY1Mtj29TIeskHQpukmra/g6KFRzZKZKyy6Dw2rX" crossorigin="anonymous" />
   </head>
   <body>
-    <header class="header">
-      <div class="toolbar d-flex align-items-center">
-        <div class="col-2 text-center">
-          <img src="{% static 'images/logo-color.svg' %}" alt="logo" />
+    <header>
+      <div class="toolbar">
+        <div class="logo-prefeitura">
+          <img
+            src="{% static 'images/logo-color.svg' %}"
+            alt="Cidade de São Paulo Educação"
+          />
         </div>
-        <div class="col-10 text-center">
-          <h4 class="title m-0">
+        <div class="titulos">
+          <h4 class="title">
             SECRETARIA MUNICIPAL DE EDUCAÇÃO | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR
           </h4>
-          <h6 class="subtitle m-0">
-            NOTIFICAÇÃO QUANTIDADE/QUALIDADE DE
-            UTENSÍLIOS/MOBILIÁRIOS/EQUIPAMENTOS
+          <h6 class="subtitle">
+            NOTIFICAÇÃO PARA REPOSIÇÃO DE UTENSÍLIOS DE MESA, MOBILIÁRIOS E EQUIPAMENTOS
           </h6>
         </div>
       </div>
       <section class="informacoes">
-        <div class="row">
-          <div class="col-8 d-flex align-items-center">
-            <p>Solicitante:</p>
-            <p class="pl-2"><strong>{{dados.usuario.nome}}</strong></p>
+        <div class="linha-informacao">
+          <div class="informacao-principal">
+            <span>Solicitante:</span>
+            <strong>{{dados.usuario.nome}}</strong>
           </div>
-          <div class="col-4 d-flex align-items-center">
-            <p>Data da Visita:</p>
-            <p class="pl-2"><strong>{{dados.data_visita}}</strong></p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-8 d-flex align-items-center">
-            <p>Unidade:</p>
-            <p class="pl-2"><strong>{{dados.unidade}}</strong></p>
-          </div>
-          <div class="col-4 d-flex align-items-center">
-            <p>DRE:</p>
-            <p class="pl-2"><strong>{{dados.diretoria_regional}}</strong></p>
+          <div class="informacao-secundaria">
+            <span>Data da visita:</span>
+            <strong>{{dados.data_visita}}</strong>
           </div>
         </div>
-        <div class="row">
-          <div class="col-8 d-flex align-items-center">
-            <p>Contratada:</p>
-            <p class="pl-2"><strong>{{dados.terceirizada}}</strong></p>
+        <div class="linha-informacao">
+          <div class="informacao-principal">
+            <span>Unidade:</span>
+            <strong>{{dados.unidade}}</strong>
           </div>
-          <div class="col-4 d-flex align-items-center">
-            <p>Lote:</p>
-            <p class="pl-2"><strong>{{dados.lote}}</strong></p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12 d-flex align-items-center">
-            <p>Referência:</p>
-            <p class="pl-2"><strong>{{dados.edital}}</strong></p>
+          <div class="informacao-secundaria">
+            <span>DRE:</span>
+            <strong>{{dados.diretoria_regional}}</strong>
           </div>
         </div>
-        <div class="row">
-          <div class="col-6 d-flex align-items-center">
-            <p>Nº de Matriculados:</p>
-            <p class="pl-2"><strong>{{dados.total_matriculados_por_data}}</strong></p>
+        <div class="linha-informacao">
+          <div class="informacao-principal">
+            <span>Empresa:</span>
+            <strong>{{dados.terceirizada}}</strong>
           </div>
-          <div class="col-6 d-flex align-items-center">
-            <p>Maior Nº de Frequentes no Período:</p>
-            <p class="pl-2"><strong>{{dados.maior_frequencia_no_periodo}}</strong></p>
+          <div class="informacao-secundaria">
+            <span>Lote:</span>
+            <strong>{{dados.lote}}</strong>
           </div>
         </div>
+        <div class="linha-informacao">
+          <div class="informacao-principal">
+            <span>Referência:</span>
+            <strong>{{dados.edital}}</strong>
+          </div>
+        </div>
+        <div class="linha-informacao">
+          <div class="informacao-matriculados">
+            <span>Nº de matriculados:</span>
+            <strong>{{dados.total_matriculados_por_data}}</strong>
+          </div>
+          <div class="informacao-frequentes">
+            <span>Maior nº de frequentes no período:</span>
+            <strong>{{dados.maior_frequencia_no_periodo}}</strong>
+          </div>
         </div>
       </section>
     </header>
     <footer>
-      <div class="row d-flex justify-content-center mb-3">
-        <div class="col-6">
-        <p class="text-center">Assinatura Nutricionista Supervisora CODAE</p>
-        <div class="border row p-2">
-          <div class="col-2 d-flex align-items-center">
-            <img src="{% static 'images/Logo_SIGPAE_pb.png' %}" alt="logo do sipgpae em preto e branco" />
-          </div>
-          <div class="col-10">
-            <p class="m-0 pl-2">
-              Documento gerado e registrado eletronicamente por {{dados.usuario.nome}},
-              RF: {{dados.usuario.registro_funcional.0}}****{{dados.usuario.registro_funcional.5}}{{dados.usuario.registro_funcional.6}},
-              em {{dados.data_geracao}}, às {{dados.hora_geracao}}.
-            </p>
-          </div>
-        </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-6">
-          <p class="text-center"><strong>Entrega da presente Notificação à Empresa</strong></p>
-          <p class="text-center">______/______/______</p>
-        </div>
-        <div class="col-6">
-          <p class="text-center">_______________________________________</p>
-          <p class="text-center"><strong>Assinatura Nutricionista RT da Empresa</strong></p>
-        </div>
-      </div>
-      <div>
-      <p class="text-center">Conferência pelo representante da U.E. se as adequações acima foram ou não realizadas:</p>
-        <div class="row">
-          <div class="col-6">
-            <p class="text-center"> <strong>Data da Conferência:</strong> ______/______/______</p>
-          </div>
-          <div class="col-6">
-            <p class="text-center">_______________________________________</p>
-            <p class="text-center"><strong>Responsável pela U.E</strong></p>
-          </div>
+      <div class="assinatura-supervisora">
+        <p>Assinatura Nutricionista Supervisora CODAE</p>
+        <div class="registro-assinatura">
+          <img
+            src="{% static 'images/Logo_SIGPAE_pb.png' %}"
+            alt="Logo do SIGPAE"
+          />
+          <p>
+            Documento gerado e registrado eletronicamente por {{dados.usuario.nome}},
+            RF: {{dados.usuario.registro_funcional.0}}****{{dados.usuario.registro_funcional.5}}{{dados.usuario.registro_funcional.6}},
+            em {{dados.data_geracao}}.
+          </p>
         </div>
       </div>
       <div class="barra-informacoes">
-        <div class="row d-flex align-items-center">
-          <div class="col-4"></div>
-          <div class="col-4">
-            <p class="paginador"></p>
-          </div>
-          <div class="col-4">
-            <p class="gerado-em">Documento gerado em dt_file </p>
-          </div>
-        </div>
+        <p class="paginador"></p>
+        <p class="gerado-em">
+          Documento gerado eletronicamente em {{dados.data_geracao}}
+        </p>
+      </div>
     </footer>
     <main class="content">
       <section>
@@ -147,11 +118,9 @@
             equipamentos em quantidade abaixo relacionada, de modo a assegurar o
             adequado atendimento ao número de refeições servidas.
           </p>
-          <p>
-            <strong
-              >A empresa deve atender a solicitação no prazo de até TRÊS dias
-              úteis a partir da data protocolada.</strong
-            >
+          <p class="prazo-atendimento">
+            A empresa deve atender a solicitação no prazo de até
+            <u>TRÊS</u> dias úteis a partir da data protocolada.
           </p>
           <p>
             Solicitamos que, mediante a apresentação do presente documento pela
@@ -161,6 +130,16 @@
           </p>
         </div>
         <table>
+          <colgroup>
+            <col class="coluna-tipo" />
+            <col class="coluna-descricao" />
+            <col class="coluna-boas-condicoes" />
+            <col class="coluna-reposicao" />
+            <col class="coluna-retirada" />
+            <col class="coluna-sim" />
+            <col class="coluna-nao-prazo" />
+            <col class="coluna-nao-quantidade" />
+          </colgroup>
           <thead>
             <tr>
               <th rowspan="2" scope="col">Tipo</th>
@@ -194,6 +173,31 @@
             </tr>
             {% endfor %}
           </tbody>
+        </table>
+        <p class="conferencia">
+          Conferência pelo representante da U.E. se as adequações acima foram ou não realizadas:
+        </p>
+        <table class="assinaturas-conferencia">
+          <tr>
+            <th scope="row">
+              Data da conferência:
+              ______/______/______
+            </th>
+            <td>
+              <span class="linha-para-assinatura"></span>
+              Responsável pela U.E.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">
+              Entrega da presente notificação à Empresa:
+              ______/______/______
+            </th>
+            <td>
+              <span class="linha-para-assinatura"></span>
+              Assinatura Nutricionista RT da Empresa
+            </td>
+          </tr>
         </table>
       </section>
     </main>

@@ -4,6 +4,10 @@ from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_EMEI_EMEF,
@@ -84,7 +88,7 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
         .distinct()
     )
 
-    if nome_periodo != "Solicitações de Alimentação":
+    if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
         lista_alimentacoes += [
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -112,7 +116,7 @@ def _get_lista_alimentacoes_dietas(medicao, categoria, query_params=None):
 
 
 def _unificar_dietas_tipo_a(dietas_alimentacoes):
-    dieta_principal = "DIETA ESPECIAL - TIPO A"
+    dieta_principal = DIETA_ESPECIAL_TIPO_A
     dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
     valor_principal = dietas_alimentacoes.get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
@@ -217,14 +221,14 @@ def _processa_periodo_campo(
 def _define_filtro(periodo, dietas_especiais, periodos_escolares):
     filtros = {}
     if periodo in [
-        "Programas e Projetos",
+        GRUPO_PROGRAMAS_E_PROJETOS,
         "ETEC",
-        "Solicitações de Alimentação",
+        GRUPO_SOLICITACOES_ALIMENTACAO,
     ]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
-        filtros["grupo__nome__in"] = ["Programas e Projetos", "ETEC"]
+        filtros["grupo__nome__in"] = [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
@@ -241,10 +245,10 @@ def processa_dieta_especial(solicitacao, filtros, campo, periodo, query_params=N
 
     categorias = (
         [
-            "DIETA ESPECIAL - TIPO A",
+            DIETA_ESPECIAL_TIPO_A,
             "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
         ]
-        if periodo == "DIETA ESPECIAL - TIPO A"
+        if periodo == DIETA_ESPECIAL_TIPO_A
         else [periodo]
     )
     total = 0.0
@@ -271,7 +275,7 @@ def processa_periodo_regular(
 
     categorias = (
         [periodo.upper()]
-        if periodo == "Solicitações de Alimentação"
+        if periodo == GRUPO_SOLICITACOES_ALIMENTACAO
         else [MEDICAO_CATEGORIA_ALIMENTACAO]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
@@ -472,8 +476,8 @@ def ajusta_layout_tabela(workbook, worksheet, df):
         "INTERMEDIARIO": formatacao_intermediario,
         "PROGRAMAS E PROJETOS": formatacao_programas,
         "ETEC": formatacao_etec,
-        "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
+        DIETA_ESPECIAL_TIPO_A: formatacao_dieta_a,
+        DIETA_ESPECIAL_TIPO_B: formatacao_dieta_b,
     }
 
     for col_num, value in enumerate(df.columns.values):

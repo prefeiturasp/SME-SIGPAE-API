@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+{% include 'relatorio_base.html' %} {% load index static sass_tags %}
+{% load static %}
+{% load sass_tags %}
+{% load index %}
+
+<html lang="pt-BR">
+<head>
+	<link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/logistica/relatorio_guia.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/logistica/barra_status.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/pre_recebimento/relatorio_solicitacao_alteracao_cronograma.scss' %}" type="text/css">
+  <title>SIGPAE</title>
+</head>
+<body>
+<style>
+  @page {
+    @bottom-right {
+      content: "Documento gerado em dt_file";
+    }
+  }
+</style>
+<header class="header">
+		<section class="titulo-e-logo flex-between">
+      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
+			<h1 class="titulo">SIGPAE - Sistema de Gestão do Programa de Alimentação Escolar</h1>
+      <div class="paginacao">
+        <p>Página</p>
+        <p class="paginador"></p>
+      </div>
+    </section>
+    <div class="info mt-2 border border-dark">
+			<div class="row">
+        <div class="col pt-2 pb-2 grow-2"> Data da Solicitação: </div>
+				<div class="col pt-2 pb-2 grow-2"> Nº da Solicitação: </div>
+        <div class="col pt-2 pb-2 grow-2"> Nº do Cronograma: </div>
+			</div>
+			<div class="row green-important-text">
+				<div class="col pb-2 grow-2"> {{solicitacao_cronograma.criado_em|date:"d/m/Y"}} </div>
+				<div class="col pb-2 grow-2"> {{solicitacao_cronograma.numero_solicitacao}} </div>
+        <div class="col pb-2 grow-2"> {{cronograma.numero}} </div>
+			</div>
+		</div>
+
+    <section class="flex pt-3 pb-2">
+      <div class="empresa">
+        <b>Empresa: </b> {{empresa.nome_fantasia}} / {{empresa.razao_social}}
+      </div>
+    </section>
+	</header>
+
+<main>
+    <div class="page-container" style="width: 100%;">
+      <h4 class="center">ALTERAÇÃO DE CRONOGRAMA</h4>
+      <div class="produto">
+        <div class="title">Produto:</div>
+        <h4 class="title font-weight-bold produto-nome">
+          {{ cronograma.ficha_tecnica.produto.nome }} {% if
+          cronograma.ficha_tecnica.programa == 'LEVE_LEITE' %}
+          <span class="tag-leve-leite">LEVE LEITE - PLL</span>
+          {% endif %}
+        </h4>
+      </div>
+      <hr />
+
+      <div class="dados_cronograma">
+        <h5 class="title titulo-secao">Dados do Produto</h5>
+
+        <div class="dados">
+          <div>Marca:</div>
+          <div>Quantidade Total Programada:</div>
+          <div>Custo Unitário do Produto:</div>
+        </div>
+
+        <div class="dados font-weight-bold produto-dados pb-3">
+          <div>{{cronograma.ficha_tecnica.marca.nome}}</div>
+          <div>
+            {{cronograma.qtd_total_programada|agrupador_milhar_com_decimal}}
+            {{cronograma.unidade_medida.abreviacao}}
+          </div>
+          <div>R$ {{cronograma.custo_unitario_produto|floatformat:2}}</div>
+        </div>
+
+        <div class="dados">
+          <div>Embalagem Primária:</div>
+          <div>Embalagem Secundária:</div>
+        </div>
+
+        <div class="dados font-weight-bold produto-dados pb-3">
+          <div>
+            {{cronograma.ficha_tecnica.peso_liquido_embalagem_primaria}}
+            {{cronograma.ficha_tecnica.unidade_medida_primaria.abreviacao}}
+          </div>
+          <div>
+            {{cronograma.ficha_tecnica.peso_liquido_embalagem_secundaria}}
+            {{cronograma.ficha_tecnica.unidade_medida_secundaria.abreviacao}}
+          </div>
+        </div>
+
+        <div class="table-responsive-sm">
+          <table class="table table-lg table-bordered table-cronograma">
+            <thead>
+              <tr>
+                <th scope="col">Nº do Empenho</th>
+                <th scope="col">Qtde. Total do Empenho</th>
+                <th scope="col">Etapa</th>
+                <th scope="col">Parte</th>
+                <th scope="col">Data Programada</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Total de Embalagens</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for etapa in solicitacao_cronograma.etapas_antigas.all %}
+              <tr>
+                <td>{{etapa.numero_empenho}}</td>
+                <td>
+                  {% if etapa.qtd_total_empenho %}
+                    {{ etapa.qtd_total_empenho|agrupador_milhar_com_decimal }}
+                    {{ cronograma.unidade_medida.abreviacao }}
+                  {% else %}
+                    ---
+                  {% endif %}
+                </td>
+                <td>Etapa {{etapa.etapa}}</td>
+                <td>{% if etapa.parte %}Parte {{etapa.parte}}{% endif %}</td>
+                <td>{{etapa.data_programada|date:"d/m/Y"}}</td>
+                <td>
+                  {{etapa.quantidade|agrupador_milhar_com_decimal}}
+                  {{cronograma.unidade_medida.abreviacao}}
+                </td>
+                <td>
+                  {{etapa.total_embalagens|agrupador_milhar_com_decimal}}
+                  {{cronograma.tipo_embalagem_secundaria.abreviacao}}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <hr />
+
+      <div class="armazem">
+        <h5 class="title titulo-secao titulo-armazem">Armazém</h5>
+        <span>
+          <strong>{{ cronograma.armazem.nome_fantasia|upper }}</strong>
+        </span>
+      </div>
+
+      <div>
+        <h5 class="title titulo-secao titulo-laranja">Solicitação de Alteração do Fornecedor</h5>
+
+        <div class="table-responsive-sm">
+          <table class="table table-lg table-bordered table-cronograma-alteracao">
+            <thead>
+              <tr>
+                <th scope="col">Nº do Empenho</th>
+                <th scope="col">Qtde. Total do Empenho</th>
+                <th scope="col">Etapa</th>
+                <th scope="col">Parte</th>
+                <th scope="col">Data Programada</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Total de Embalagens</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in etapas_com_diff %}
+              <tr class="{% if item.linha_diferente %}fundo-laranja{% endif %}">
+                <td class="{{ item.classes.numero_empenho }}">
+                  {% if item.etapa.numero_empenho %}
+                    {{ item.etapa.numero_empenho }}
+                  {% else %}
+                    ---
+                  {% endif %}
+                </td>
+                <td class="{{ item.classes.qtd_total_empenho }}">
+                  {% if item.etapa.qtd_total_empenho %}
+                    {{ item.etapa.qtd_total_empenho|agrupador_milhar_com_decimal }}
+                    {{ cronograma.unidade_medida.abreviacao }}
+                  {% else %}
+                    ---
+                  {% endif %}
+                </td>
+                <td class="{{ item.classes.etapa }}">Etapa {{ item.etapa.etapa }}</td>
+                <td class="{{ item.classes.parte }}">{% if item.etapa.parte %}Parte {{ item.etapa.parte }}{% endif %}</td>
+                <td class="{{ item.classes.data_programada }}">{{ item.etapa.data_programada|date:"d/m/Y" }}</td>
+                <td class="{{ item.classes.quantidade }}">
+                  {{ item.etapa.quantidade|agrupador_milhar_com_decimal }}
+                  {{ cronograma.unidade_medida.abreviacao }}
+                </td>
+                <td class="{{ item.classes.total_embalagens }}">
+                  {{ item.etapa.total_embalagens|agrupador_milhar_com_decimal }}
+                  {{ cronograma.tipo_embalagem_secundaria.abreviacao }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="campo-de-texto pb-4">
+        <div class="bloco-justificativa">
+          <p><strong class="asterisco">*</strong> Justificativa</p>
+          <div class="area-texto">{{ solicitacao_cronograma.justificativa|linebreaksbr }}</div>
+        </div>
+
+        <div class="bloco-justificativa">
+          <h5 class="title titulo-secao">Análise Cronograma</h5>
+          <div class="area-texto">{{ justificativa_cronograma }}</div>
+        </div>
+
+        {% if not eh_fornecedor_ciente %}
+          {% if titulo_abastecimento != "Reprovado Abastecimento" %}
+            <h5 class="title titulo-secao">{{ titulo_abastecimento }}</h5>
+            {% if justificativa_abastecimento %}
+            <div class="area-texto">{{ justificativa_abastecimento|linebreaksbr }}</div>
+            {% endif %}
+          {% endif %}
+
+          <h5 class="title titulo-secao">Aprovado DILOG</h5>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,10 +1,15 @@
 from datetime import datetime
 
 import environ
-from des.models import DynamicEmailConfiguration
 from rest_framework import serializers
 
-from ...perfil.api.serializers import UsuarioSerializer, UsuarioSimplesSerializer
+from ...perfil.api.serializers import (
+    PerfilSimplesSerializer,
+    UsuarioSerializer,
+    UsuarioSimplesSerializer,
+)
+from ...perfil.models import Perfil
+from ..constants import FORMATO_DATA_BRASILEIRO
 from ..models import (
     AnexoLogSolicitacoesUsuario,
     CategoriaPerguntaFrequente,
@@ -16,8 +21,8 @@ from ..models import (
     PerguntaFrequente,
     SolicitacaoAberta,
 )
-from ..services import ServiceMapeamentoLogsLinhaDoTempo
 from ..normalizers import normalizar_nome_categoria
+from ..services import ServiceMapeamentoLogsLinhaDoTempo
 
 
 class CamposObrigatoriosMixin:
@@ -161,21 +166,6 @@ class LogSolicitacoesUsuarioComVinculoSerializer(LogSolicitacoesUsuarioSerialize
         )
 
 
-class ConfiguracaoEmailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DynamicEmailConfiguration
-        fields = (
-            "host",
-            "port",
-            "username",
-            "password",
-            "from_email",
-            "use_tls",
-            "use_ssl",
-            "timeout",
-        )
-
-
 class ContatoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contato
@@ -213,16 +203,10 @@ class CategoriaPerguntaFrequenteSerializer(serializers.ModelSerializer):
         )
 
         if categoria_duplicada:
-            if self.instance:
-                mensagem = (
-                    "Não é possível cadastrar a categoria, pois já existe uma "
-                    "categoria com esse nome. Altere o nome informado e tente novamente."
-                )
-            else:
-                mensagem = (
-                    "Não é possível cadastrar a categoria, pois já existe uma "
-                    "categoria com esse nome. Altere o nome informado e tente novamente."
-                )
+            mensagem = (
+                "Não é possível cadastrar a categoria, pois já existe uma "
+                "categoria com esse nome. Altere o nome informado e tente novamente."
+            )
 
             raise serializers.ValidationError(mensagem)
 
@@ -239,6 +223,12 @@ class PerguntaFrequenteCreateSerializer(serializers.ModelSerializer):
         required=True,
         queryset=CategoriaPerguntaFrequente.objects.all(),
     )
+    perfis = serializers.SlugRelatedField(
+        slug_field="uuid",
+        many=True,
+        required=False,
+        queryset=Perfil.objects.filter(ativo=True),
+    )
 
     class Meta:
         model = PerguntaFrequente
@@ -246,9 +236,12 @@ class PerguntaFrequenteCreateSerializer(serializers.ModelSerializer):
 
 
 class PerguntaFrequenteSerializer(serializers.ModelSerializer):
+    categoria = CategoriaPerguntaFrequenteSerializer(read_only=True)
+    perfis = PerfilSimplesSerializer(many=True, read_only=True)
+
     class Meta:
         model = PerguntaFrequente
-        exclude = ("id", "categoria", "criado_em")
+        exclude = ("id", "criado_em")
 
 
 class ConsultaPerguntasFrequentesSerializer(serializers.ModelSerializer):
@@ -277,7 +270,7 @@ class NotificacaoSerializer(serializers.ModelSerializer):
         return obj.hora.strftime("%H:%M")
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = Notificacao

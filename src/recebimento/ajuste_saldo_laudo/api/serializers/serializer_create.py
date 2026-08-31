@@ -1,3 +1,5 @@
+"""Serializers de criação do submódulo de ajuste de saldo do laudo."""
+
 from rest_framework import serializers
 
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -8,6 +10,13 @@ from src.recebimento.ajuste_saldo_laudo.models import AjusteSaldo
 
 
 class AjusteSaldoCreateSerializer(serializers.ModelSerializer):
+    """Serializer de criação do ajuste de saldo.
+
+    Recebe o ``documento_recebimento`` (uuid) e a ``quantidade_descontada``
+    (obrigatória). Valida que a quantidade descontada não seja maior que o
+    saldo disponível do laudo (``calcular_saldo_laudo``).
+    """
+
     documento_recebimento = serializers.UUIDField()
 
     def create(self, validated_data):
@@ -41,6 +50,13 @@ class AjusteSaldoCreateSerializer(serializers.ModelSerializer):
 
 
 class AjusteSaldoUpdateSerializer(serializers.ModelSerializer):
+    """Serializer de atualização do ajuste de saldo.
+
+    Atualiza a ``quantidade_descontada`` validando que o saldo após o
+    desconto não seja menor que zero (considera o saldo disponível somado à
+    quantidade já descontada no próprio ajuste).
+    """
+
     def update(self, instance, validated_data):
         nova_quantidade_descontada = validated_data.get("quantidade_descontada")
         if nova_quantidade_descontada is None:

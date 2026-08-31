@@ -2,6 +2,10 @@ from unittest.mock import patch
 
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import (
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.dados_comuns.models import SolicitacaoAberta, VersaoSistema
 from src.dados_comuns.tasks import (
     atualiza_versao_sistema,
@@ -102,13 +106,13 @@ def test_deleta_logs_duplicados_e_cria_logs_caso_nao_existam(
     logs_dietas_cei = [
         log
         for log in LogQuantidadeDietasAutorizadasCEI.objects.all()
-        if log.escola.tipo_unidade.iniciais == "CEI DIRET"
+        if log.escola.tipo_unidade.iniciais == TIPO_UNIDADE_CEI_DIRET
     ]
     assert len(logs_dietas_cei) == 4
     logs_dietas_cemei = [
         log
         for log in LogQuantidadeDietasAutorizadasCEI.objects.all()
-        if log.escola.tipo_unidade.iniciais == "CEMEI"
+        if log.escola.tipo_unidade.iniciais == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
     ]
     assert len(logs_dietas_cemei) == 5
 
