@@ -169,8 +169,26 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
         many=True, required=True
     )
 
+    def validate(self, attrs):
+        tipos_por_combinacao = {}
+
+        for cadastro in attrs["cadastros_calendario"]:
+            tipo = cadastro["tipo"]
+            for tipo_unidade in cadastro["tipo_unidades"]:
+                for edital in cadastro["editais"]:
+                    chave = (tipo_unidade.uuid, edital.uuid)
+                    tipo_existente = tipos_por_combinacao.get(chave)
+                    if tipo_existente and tipo_existente.uuid != tipo.uuid:
+                        raise serializers.ValidationError(
+                            "Não é possível realizar o cadastro. Já existe "
+                            f"uma {tipo_existente.nome} cadastrada "
+                            "para esta Data, Edital e Tipo de Unidade."
+                        )
+                    tipos_por_combinacao[chave] = tipo
+
+        return attrs
+
     def create(self, validated_data):
-        """Cria ou atualiza dias de sobremesa doce."""
         return self._save_dias_sobremesa(validated_data)
 
     def update(self, instance, validated_data):
