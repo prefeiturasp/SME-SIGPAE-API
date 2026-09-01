@@ -73,6 +73,13 @@ class TermoRecebimentoDefinitivo(ModeloBase, CriadoPor):
         verbose_name="Fiscal 3",
         related_name="termos_recebimento_definitivo_fiscal_3",
     )
+    valor_contrato = models.DecimalField(
+        "Valor do Contrato",
+        max_digits=15,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
     texto_termo = models.TextField("Texto do Termo")
     status = models.CharField(
         "Status",
@@ -103,8 +110,7 @@ class TermoRecebimentoDefinitivo(ModeloBase, CriadoPor):
 class CronogramaTermoRecebimentoDefinitivo(models.Model):
     """Cronograma vinculado a um Termo de Recebimento Definitivo.
 
-    Cada cronograma do termo possui seu próprio valor de contrato e
-    quantidade total recebida (repetidos por cronograma).
+    Cada cronograma do termo possui sua própria quantidade total recebida.
     """
 
     termo = models.ForeignKey(
@@ -117,11 +123,6 @@ class CronogramaTermoRecebimentoDefinitivo(models.Model):
         Cronograma,
         on_delete=models.PROTECT,
         verbose_name="Cronograma",
-    )
-    valor_contrato = models.DecimalField(
-        "Valor do Contrato",
-        max_digits=15,
-        decimal_places=2,
     )
     quantidade_total_recebida = models.DecimalField(
         "Quantidade Total Recebida",
