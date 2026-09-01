@@ -1,5 +1,19 @@
 @import "variaveis";
 
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url("../fonts/Roboto/Roboto-Regular.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url("../fonts/Roboto/Roboto-Bold.ttf") format('truetype');
+}
+
 h2 {
   margin: 0;
   padding: 50px 0 30px 0;
@@ -7,7 +21,7 @@ h2 {
 }
 
 h3 {
-  font-weight: normal;
+  font-weight: bold;
 }
 
 main {
@@ -34,6 +48,7 @@ td {
 
 th {
   background-color: $cinza-claro;
+  font-weight: bold;
 }
 
 table tr:last-child {
