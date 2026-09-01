@@ -2538,6 +2538,31 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         ],
     )
     def relatorio_consolidado(self, _, uuid_relatorio_financeiro):
+        """Retorna os dados consolidados do relatório financeiro.
+
+        Busca o relatório financeiro pelo UUID e identifica a
+        parametrização financeira vigente para o lote, grupo de unidade
+        escolar e período de referência do relatório.
+
+        A parametrização é considerada válida quando sua data inicial é
+        anterior ou igual ao último dia do mês de referência e sua data
+        final é posterior ou igual ao primeiro dia do mês, ou quando não
+        possui data final.
+
+        Args:
+            _: Argumento da requisição HTTP, não utilizado pelo método.
+            uuid_relatorio_financeiro: UUID do relatório financeiro que
+                será consultado.
+
+        Returns:
+            Response: Resposta HTTP contendo os dados da parametrização
+                financeira, o UUID do lote e o mês/ano de referência.
+
+        Raises:
+            Exception: Retorna HTTP 400 caso ocorra um erro durante o
+                processamento da requisição.
+
+        """
         try:
             relatorio_financeiro = RelatorioFinanceiro.objects.get(
                 uuid=uuid_relatorio_financeiro
@@ -2595,6 +2620,30 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         ],
     )
     def relatorio_pdf(self, request, uuid_relatorio_financeiro):
+        """Solicita a geração assíncrona do relatório financeiro em PDF.
+
+        Localiza o relatório financeiro pelo UUID e envia uma tarefa para
+        o Celery responsável pela geração do arquivo PDF. A geração é
+        executada de forma assíncrona, permitindo que a requisição HTTP
+        seja concluída sem aguardar o processamento do arquivo.
+
+        O nome do arquivo gerado é composto pela diretoria regional,
+        grupo de unidade escolar e período de referência do relatório.
+
+        Args:
+            request: Requisição HTTP contendo o usuário responsável pela
+                solicitação.
+            uuid_relatorio_financeiro: UUID do relatório financeiro que
+                será exportado.
+
+        Returns:
+            Response: Retorna HTTP 200 quando a solicitação de geração
+                do arquivo é enviada com sucesso.
+
+                Retorna HTTP 404 caso o relatório financeiro não seja
+                encontrado.
+
+        """
         user = request.user.get_username()
 
         relatorio_financeiro = RelatorioFinanceiro.objects.filter(
@@ -2625,6 +2674,43 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         permission_classes=[UsuarioMedicao],
     )
     def reabrir_lancamentos(self, request, uuid_relatorio_financeiro):
+        """Reabre os lançamentos de um relatório financeiro.
+
+        Localiza o relatório financeiro pelo UUID e identifica as
+        solicitações de medição aprovadas pela CODAE no mês e ano de
+        referência do relatório.
+
+        As solicitações são posteriormente filtradas pelas unidades
+        educacionais informadas na requisição, quando houver. O
+        processamento das solicitações é realizado por
+        ``processa_reabrir_lancamentos``, que atualiza o status das
+        solicitações e de suas medições e registra os respectivos logs
+        de transição.
+
+        Args:
+            request: Requisição HTTP contendo o usuário responsável pela
+                reabertura e, opcionalmente, a lista de unidades
+                educacionais que devem ser reabertas. A lista deve ser
+                enviada no campo ``unidades_educacionais`` do corpo da
+                requisição.
+            uuid_relatorio_financeiro: UUID do relatório financeiro cujos
+                lançamentos serão reabertos.
+
+        Returns:
+            Response: Retorna HTTP 200 após a reabertura dos lançamentos.
+
+                Retorna HTTP 404 caso o relatório financeiro não seja
+                encontrado.
+
+                Retorna HTTP 400 caso ocorra algum erro durante o
+                processamento.
+
+        Raises:
+            Exception: Captura exceções ocorridas durante o processamento
+                e retorna uma resposta HTTP 400 contendo a mensagem do
+                erro.
+
+        """
         try:
             usuario = request.user
 

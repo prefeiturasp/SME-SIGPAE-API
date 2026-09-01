@@ -1,3 +1,5 @@
+"""Serializers de criação do módulo de recebimento."""
+
 from rest_framework import serializers
 
 from src.dados_comuns.fluxo_status import DocumentoDeRecebimentoWorkflow
@@ -23,6 +25,13 @@ from src.recebimento.models import (
 
 
 class QuestoesPorProdutoCreateSerializer(serializers.ModelSerializer):
+    """Serializer de criação/atualização das questões por produto.
+
+    Recebe a ``ficha_tecnica`` (uuid) e as listas de questões primárias e
+    secundárias (uuids). Na atualização, as questões anteriores são
+    substituídas pelas novas.
+    """
+
     ficha_tecnica = serializers.SlugRelatedField(
         slug_field="uuid",
         queryset=FichaTecnicaDoProduto.objects.all(),
@@ -65,12 +74,19 @@ class QuestoesPorProdutoCreateSerializer(serializers.ModelSerializer):
 
 
 class VeiculoFichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
+    """Serializer do veículo no rascunho da ficha de recebimento."""
+
     class Meta:
         model = VeiculoFichaDeRecebimento
         exclude = ("id", "ficha_recebimento")
 
 
 class QuestaoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
+    """Serializer de criação da resposta a uma questão na ficha.
+
+    Recebe a ``questao_conferencia`` (uuid) e a ``resposta``.
+    """
+
     questao_conferencia = serializers.SlugRelatedField(
         slug_field="uuid",
         queryset=QuestaoConferencia.objects.all(),
@@ -83,6 +99,11 @@ class QuestaoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
 
 
 class ArquivoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
+    """Serializer de criação do arquivo da ficha de recebimento.
+
+    Recebe o ``arquivo`` em base64 e o ``nome``.
+    """
+
     arquivo = serializers.CharField()
 
     class Meta:
@@ -91,6 +112,12 @@ class ArquivoFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
 
 
 class DocumentoFichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
+    """Serializer do documento de recebimento na ficha.
+
+    Vincula um documento de recebimento (apenas com status ``APROVADO``) à
+    ficha, com a ``quantidade_recebida`` (obrigatória e maior que zero).
+    """
+
     documento_recebimento = serializers.SlugRelatedField(
         slug_field="uuid",
         queryset=DocumentoDeRecebimento.objects.filter(
@@ -109,7 +136,19 @@ class DocumentoFichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
 
 
 class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
+    """Serializer de criação da ocorrência da ficha de recebimento.
+
+    Quando ``rascunho`` é ``True``, as validações de tipo/relação são
+    ignoradas. Caso contrário, valida: (1) ``quantidade`` obrigatória para
+    os tipos diferentes de ``OUTROS_MOTIVOS``; (2) tipo ``FALTA`` com
+    relação obrigatória ``CRONOGRAMA`` ou ``NOTA_FISCAL``; (3) tipo
+    ``RECUSA`` com relação obrigatória ``TOTAL`` ou ``PARCIAL`` e número da
+    nota obrigatório; (4) tipo ``OUTROS_MOTIVOS`` zera ``relacao`` e
+    ``numero_nota``.
+    """
+
     def __init__(self, *args, **kwargs):
+        """Inicializa o serializer recebendo a flag ``rascunho``."""
         self.rascunho = kwargs.pop("rascunho", False)
         super().__init__(*args, **kwargs)
 
@@ -118,12 +157,14 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
         exclude = ("id", "ficha_recebimento")
 
     def _validate_quantidade(self, tipo, quantidade):
+        """Valida a quantidade para tipos diferentes de OUTROS_MOTIVOS."""
         if tipo != OcorrenciaFichaRecebimento.TIPO_OUTROS and not quantidade:
             raise serializers.ValidationError(
                 {"quantidade": "Este campo é obrigatório para o tipo selecionado."}
             )
 
     def _validate_falta(self, relacao):
+        """Valida a relação para o tipo FALTA."""
         valid_relations = [
             OcorrenciaFichaRecebimento.RELACAO_CRONOGRAMA,
             OcorrenciaFichaRecebimento.RELACAO_NOTA_FISCAL,
@@ -136,6 +177,7 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
             )
 
     def _validate_recusa(self, relacao, numero_nota):
+        """Valida a relação e o número da nota para o tipo RECUSA."""
         valid_relations = [
             OcorrenciaFichaRecebimento.RELACAO_TOTAL,
             OcorrenciaFichaRecebimento.RELACAO_PARCIAL,
@@ -150,6 +192,7 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
             )
 
     def validate(self, data):
+        """Aplica as validações por tipo de ocorrência (fora do rascunho)."""
         if getattr(self, "rascunho", False):
             return data
 
@@ -172,6 +215,16 @@ class OcorrenciaFichaRecebimentoCreateSerializer(serializers.ModelSerializer):
 
 
 class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
+    """Serializer de criação/atualização da ficha de recebimento.
+
+    Exige a ``etapa`` (uuid), a ``data_entrega``, os ``documentos_recebimento``
+    (apenas ``APROVADO``), os indicadores de conformidade, os pesos das
+    embalagens primárias, os ``veiculos``, o ``sistema_vedacao_embalagem_secundaria``
+    e as ``questoes`` obrigatórias. Na criação e na atualização de fichas em
+    ``RASCUNHO``, executa ``inicia_fluxo`` (RASCUNHO → ASSINADA). Os campos
+    de peso são normalizados de texto (``1.234,56`` → ``1234.56``).
+    """
+
     etapa = serializers.SlugRelatedField(
         slug_field="uuid",
         required=True,
@@ -250,6 +303,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
+        """Aplica as validações de divergência, veículos e questões."""
         data = super().validate(data)
 
         self._validar_campos_divergencia(data)
@@ -323,12 +377,14 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
             )
 
     def create(self, validated_data):
+        """Cria a ficha de recebimento e inicia o fluxo (ASSINADA)."""
         ficha = criar_ficha(validated_data)
         user = self.context["request"].user
         ficha.inicia_fluxo(user=user)
         return ficha
 
     def update(self, instance, validated_data):
+        """Atualiza a ficha, iniciando o fluxo quando ela está em rascunho."""
         eh_rascunho = (
             hasattr(instance, "status")
             and instance.status == instance.workflow_class.RASCUNHO
@@ -343,6 +399,7 @@ class FichaDeRecebimentoCreateSerializer(serializers.ModelSerializer):
         return ficha_atualizada
 
     def to_internal_value(self, data):
+        """Normaliza os campos de peso de texto (vírgula) para decimal."""
         peso_fields = [
             "numero_paletes",
             "peso_embalagem_primaria_1",
@@ -380,6 +437,7 @@ class FichaDeRecebimentoCreateSerializerSaldoZero(FichaDeRecebimentoCreateSerial
         ]
 
     def to_internal_value(self, data):
+        """Limpa os campos de saldo total zero na atualização."""
         result = super().to_internal_value(data)
 
         if self.instance is not None:
@@ -403,12 +461,21 @@ class FichaDeRecebimentoCreateSerializerSaldoZero(FichaDeRecebimentoCreateSerial
         return result
 
     def validate(self, data):
+        """Valida os dados sem as regras de saldo total zero."""
         data = super(FichaDeRecebimentoCreateSerializer, self).validate(data)
 
         return data
 
 
 class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
+    """Serializer de criação/atualização do rascunho da ficha de recebimento.
+
+    Diferente do serializer de criação assinada, não exige os campos de
+    conferência (documentos, veículos, questões e ocorrências são
+    opcionais) e não inicia o fluxo: a ficha permanece em ``RASCUNHO``. Ao
+    atualizar uma ficha ``ASSINADA``, executa ``volta_para_rascunho``.
+    """
+
     etapa = serializers.SlugRelatedField(
         slug_field="uuid",
         required=True,
@@ -440,9 +507,11 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
+        """Cria a ficha de recebimento rascunho."""
         return criar_ficha(validated_data)
 
     def update(self, instance, validated_data):
+        """Atualiza a ficha, voltando para rascunho quando está assinada."""
         ficha_atualizada = atualizar_ficha(instance, validated_data)
 
         if (
@@ -455,6 +524,7 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
         return ficha_atualizada
 
     def to_internal_value(self, data):
+        """Normaliza os campos de peso de texto (vírgula) para decimal."""
         peso_fields = [
             "numero_paletes",
             "peso_embalagem_primaria_1",
@@ -475,6 +545,14 @@ class FichaDeRecebimentoRascunhoSerializer(serializers.ModelSerializer):
 
 
 class FichaDeRecebimentoReposicaoSerializer(serializers.ModelSerializer):
+    """Serializer de criação/atualização da ficha no fluxo de reposição.
+
+    Exige ``etapa``, ``data_entrega``, ``observacao`` e
+    ``reposicao_cronograma`` (uuid). Os ``documentos_recebimento`` são
+    filtrados para o status ``APROVADO``. Na criação e na atualização de
+    fichas em ``RASCUNHO``, executa ``inicia_fluxo`` (RASCUNHO → ASSINADA).
+    """
+
     etapa = serializers.SlugRelatedField(
         slug_field="uuid",
         required=True,
@@ -504,12 +582,14 @@ class FichaDeRecebimentoReposicaoSerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
+        """Cria a ficha de reposição e inicia o fluxo (ASSINADA)."""
         ficha = criar_ficha(validated_data)
         user = self.context["request"].user
         ficha.inicia_fluxo(user=user)
         return ficha
 
     def update(self, instance, validated_data):
+        """Atualiza a ficha de reposição, iniciando o fluxo em rascunho."""
         eh_rascunho = (
             hasattr(instance, "status")
             and instance.status == instance.workflow_class.RASCUNHO
@@ -524,10 +604,12 @@ class FichaDeRecebimentoReposicaoSerializer(serializers.ModelSerializer):
         return ficha_atualizada
 
     def to_representation(self, instance):
+        """Retorna a representação padrão do serializer."""
         representation = super().to_representation(instance)
         return representation
 
     def to_internal_value(self, data):
+        """Normaliza os campos de peso de texto (vírgula) para decimal."""
         peso_fields = [
             "numero_paletes",
             "peso_embalagem_primaria_1",

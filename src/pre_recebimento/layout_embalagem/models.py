@@ -1,3 +1,9 @@
+"""Modelos do submódulo de layout de embalagem de pré-recebimento.
+
+Gerencia o envio e a aprovação dos layouts de embalagem dos produtos
+pelos fornecedores, com análise da CODAE e correção pelo fornecedor.
+"""
+
 import io
 import os
 
@@ -27,6 +33,13 @@ from ...relatorios.utils import (
 
 
 class ImagemDoTipoDeEmbalagem(TemChaveExterna):
+    """Imagem/arquivo anexado a um tipo de embalagem de layout.
+
+    Aceita arquivos ``PDF``, ``PNG``, ``JPG`` e ``JPEG``, com tamanho
+    máximo de 10MB (``validate_file_size_10mb``). Ao excluir o registro, o
+    arquivo associado também é removido do armazenamento.
+    """
+
     tipo_de_embalagem = models.ForeignKey(
         "TipoDeEmbalagemDeLayout",
         on_delete=models.CASCADE,
@@ -43,6 +56,7 @@ class ImagemDoTipoDeEmbalagem(TemChaveExterna):
     nome = models.CharField(max_length=500, blank=True)
 
     def __str__(self):
+        """Retorna a representação textual da imagem."""
         return (
             f"{self.tipo_de_embalagem.tipo_embalagem} - {self.nome}"
             if self.tipo_de_embalagem
@@ -50,6 +64,7 @@ class ImagemDoTipoDeEmbalagem(TemChaveExterna):
         )
 
     def delete(self, *args, **kwargs):
+        """Exclui o registro e remove o arquivo associado do disco."""
         # Antes de excluir o objeto, exclui o arquivo associado
         if self.arquivo:
             if os.path.isfile(self.arquivo.path):
@@ -62,6 +77,14 @@ class ImagemDoTipoDeEmbalagem(TemChaveExterna):
 
 
 class TipoDeEmbalagemDeLayout(TemChaveExterna):
+    """Tipo de embalagem (primária, secundária ou terciária) de um layout.
+
+    Cada item possui um status próprio de análise (``APROVADO``,
+    ``REPROVADO`` ou ``EM_ANALISE``) e um complemento de status opcional
+    com a justificativa da análise. A combinação
+    ``layout_de_embalagem`` + ``tipo_embalagem`` é única.
+    """
+
     STATUS_APROVADO = "APROVADO"
     STATUS_REPROVADO = "REPROVADO"
     STATUS_EM_ANALISE = "EM_ANALISE"
@@ -96,6 +119,7 @@ class TipoDeEmbalagemDeLayout(TemChaveExterna):
     complemento_do_status = models.TextField("Complemento do status", blank=True)
 
     def __str__(self):
+        """Retorna a representação textual do tipo de embalagem."""
         return (
             f"{self.tipo_embalagem} - {self.status}"
             if self.tipo_embalagem
@@ -111,6 +135,17 @@ class TipoDeEmbalagemDeLayout(TemChaveExterna):
 class LayoutDeEmbalagem(
     ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoLayoutDeEmbalagem
 ):
+    """Layout de embalagem de um produto vinculado a uma ficha técnica.
+
+    Representa o conjunto de imagens das embalagens (primária, secundária
+    e terciária) enviado pelo fornecedor para aprovação da CODAE. O status
+    é gerenciado pelo ``FluxoLayoutDeEmbalagem``: o fluxo inicia em
+    ``LAYOUT_CRIADO`` e segue para ``ENVIADO_PARA_ANALISE``; a CODAE pode
+    aprovar (``APROVADO``) ou solicitar correção (``SOLICITADO_CORRECAO``);
+    o fornecedor corrige (volta para ``ENVIADO_PARA_ANALISE``) ou atualiza
+    um layout aprovado (``fornecedor_atualiza``).
+    """
+
     ficha_tecnica = models.OneToOneField(
         FichaTecnicaDoProduto,
         on_delete=models.PROTECT,
@@ -121,6 +156,16 @@ class LayoutDeEmbalagem(
     observacoes = models.TextField("Observações", blank=True)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra o log de transição de status do layout.
+
+        Cria um ``LogSolicitacoesUsuario`` com o tipo
+        ``LAYOUT_DE_EMBALAGEM``, incluindo a justificativa quando houver.
+
+        Args:
+            status_evento: Evento de status a registrar.
+            usuario: Usuário que executou a transição.
+            **kwargs: Pode conter ``justificativa``.
+        """
         justificativa = kwargs.get("justificativa", "")
         LogSolicitacoesUsuario.objects.create(
             descricao=str(self),
@@ -133,6 +178,7 @@ class LayoutDeEmbalagem(
 
     @property
     def aprovado(self):
+        """Indica se todos os tipos de embalagem do layout estão aprovados."""
         return (
             self.tipos_de_embalagens.filter(status="APROVADO").count()
             == self.tipos_de_embalagens.count()
@@ -140,6 +186,11 @@ class LayoutDeEmbalagem(
 
     @property
     def eh_primeira_analise(self):
+        """Indica se a análise atual é a primeira.
+
+        Retorna ``True`` quando o log mais recente não é uma correção
+        realizada pelo fornecedor (``LAYOUT_CORRECAO_REALIZADA``).
+        """
         if self.log_mais_recente is not None:
             return (
                 not self.log_mais_recente.status_evento
@@ -149,6 +200,7 @@ class LayoutDeEmbalagem(
         return True
 
     def __str__(self):
+        """Retorna a representação textual do layout de embalagem."""
         try:
             return f"Layout de Embalagens {self.ficha_tecnica.numero} - {self.ficha_tecnica.produto.nome}"
         except AttributeError:
