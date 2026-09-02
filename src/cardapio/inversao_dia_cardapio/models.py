@@ -133,17 +133,21 @@ class InversaoCardapio(
 
     @property
     def data(self):
-        """Retorna a menor data relevante entre a primeira e a segunda data da inversao.
+        """Retorna a menor data entre todos os conjuntos da inversão.
 
         Returns:
-            datetime.date | None: Menor data entre ``data_de`` e ``data_para``.
-                Se apenas uma delas existir, retorna a data disponivel.
+            datetime.date | None: Menor data preenchida na solicitação ou
+                ``None`` quando nenhuma data foi informada.
         """
-        if self.data_de is None:
-            return self.data_para
-        if self.data_para is None:
-            return self.data_de
-        return self.data_para if self.data_para < self.data_de else self.data_de
+        datas_inversao = [
+            self.data_de_inversao,
+            self.data_para_inversao,
+            self.data_de_inversao_2,
+            self.data_para_inversao_2,
+        ]
+        datas_preenchidas = [data for data in datas_inversao if data]
+
+        return min(datas_preenchidas, default=None)
 
     @property
     def tipo(self):
