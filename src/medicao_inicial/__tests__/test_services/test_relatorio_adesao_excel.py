@@ -40,7 +40,7 @@ def test_gera_relatorio_adesao_xlsx(mock_exportacao_relatorio_adesao):
         None,
     )
     assert rows[1] == (
-        "MARÇO - 2025 | DIRETORIA REGIONAL IPIRANGA | LOTE 01, LOTE 02, LOTE 03 | EMEF TESTE | PERÍODO DE LANÇAMENTO: 05/03/2025 ATÉ 15/03/2025",
+        "MARÇO 2025 | LOTE 01, LOTE 02, LOTE 03 - DRE DIRETORIA REGIONAL IPIRANGA | EMEF TESTE | PERÍODO DE LANÇAMENTO: DE 05/03/2025 ATÉ 15/03/2025",
         None,
         None,
         None,
@@ -111,7 +111,7 @@ def test_preenche_linha_dos_filtros_selecionados(
     assert "A2:D2" in str(merged_ranges)
     assert (
         sheet["A2"].value
-        == "MARÇO - 2025 | DIRETORIA REGIONAL IPIRANGA | LOTE 01, LOTE 02, LOTE 03 | EMEF TESTE | PERÍODO DE LANÇAMENTO: 05/03/2025 ATÉ 15/03/2025"
+        == "MARÇO 2025 | LOTE 01, LOTE 02, LOTE 03 - DRE DIRETORIA REGIONAL IPIRANGA | EMEF TESTE | PERÍODO DE LANÇAMENTO: DE 05/03/2025 ATÉ 15/03/2025"
     )
     assert sheet["A2"].alignment.vertical == "center"
     assert sheet["A2"].font.bold is False
@@ -123,8 +123,8 @@ def test_formata_filtros(mock_exportacao_relatorio_adesao):
     _, query_params = mock_exportacao_relatorio_adesao
     filtros = _formata_filtros(query_params)
     assert filtros == (
-        "Março - 2025 | DIRETORIA REGIONAL IPIRANGA | Lote 01, Lote 02, Lote 03 | EMEF TESTE | "
-        "Período de lançamento: 05/03/2025 até 15/03/2025"
+        "Março 2025 | Lote 01, Lote 02, Lote 03 - DRE DIRETORIA REGIONAL IPIRANGA | EMEF TESTE | "
+        "PERÍODO DE LANÇAMENTO: DE 05/03/2025 ATÉ 15/03/2025"
     )
 
 
@@ -247,3 +247,75 @@ def test_formata_numeros_linha_total(
     assert columns[3].number_format == "0.00%"
 
     workbook_openpyxl.close()
+
+
+@freeze_time("2025-07-20")
+def test_gera_relatorio_adesao_xlsx_por_escola_uma_aba_por_escola(
+    mock_exportacao_relatorio_adesao,
+):
+    resultados_agregados, query_params = mock_exportacao_relatorio_adesao
+    resultados_por_escola = [
+        {
+            "escola": {"nome": "EMEF TESTE A", "codigo_eol": "123456"},
+            "resultados": resultados_agregados,
+        },
+        {
+            "escola": {"nome": "EMEF TESTE B", "codigo_eol": "654321"},
+            "resultados": resultados_agregados,
+        },
+    ]
+
+    excel = gera_relatorio_adesao_xlsx(resultados_por_escola, query_params)
+    assert isinstance(excel, bytes)
+
+    workbook = load_workbook(filename=BytesIO(excel))
+    assert workbook.sheetnames == ["EMEF TESTE A", "EMEF TESTE B"]
+
+    for aba in workbook.sheetnames:
+        sheet = workbook[aba]
+        rows = list(sheet.iter_rows(values_only=True))
+        assert rows[0] == (
+            "Relatório de Adesão das Alimentações Servidas",
+            None,
+            None,
+            None,
+        )
+        assert (
+            f"{aba} | PERÍODO DE LANÇAMENTO: DE 05/03/2025 ATÉ 15/03/2025" in rows[1][0]
+        )
+        assert rows[2] == ("Data: 20/07/2025", None, None, None)
+        assert rows[3] == ("MANHA", None, None, None)
+        assert rows[4] == (
+            "Tipo de Alimentação",
+            "Total de Alimentações Servidas",
+            "Número Total de Frequência",
+            "% de Adesão",
+        )
+        assert rows[5] == ("LANCHE", 140, 755, 0.1854)
+
+
+@freeze_time("2025-07-20")
+def test_gera_relatorio_adesao_xlsx_por_escola_uma_escola(
+    mock_exportacao_relatorio_adesao,
+):
+    resultados_agregados, query_params = mock_exportacao_relatorio_adesao
+    resultados_por_escola = [
+        {
+            "escola": {"nome": "EMEF TESTE A", "codigo_eol": "123456"},
+            "resultados": resultados_agregados,
+        }
+    ]
+
+    excel = gera_relatorio_adesao_xlsx(resultados_por_escola, query_params)
+
+    workbook = load_workbook(filename=BytesIO(excel))
+    assert workbook.sheetnames == ["EMEF TESTE A"]
+
+
+def test_formata_filtros_com_nome_escola(mock_exportacao_relatorio_adesao):
+    _, query_params = mock_exportacao_relatorio_adesao
+    filtros = _formata_filtros(query_params, nome_escola="EMEI VICENTE PAULO DA SILVA")
+    assert filtros == (
+        "Março 2025 | Lote 01, Lote 02, Lote 03 - DRE DIRETORIA REGIONAL IPIRANGA | EMEI VICENTE PAULO DA SILVA | "
+        "PERÍODO DE LANÇAMENTO: DE 05/03/2025 ATÉ 15/03/2025"
+    )
