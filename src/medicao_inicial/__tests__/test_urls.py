@@ -2718,8 +2718,12 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_com_escolas(
     assert response.status_code == status.HTTP_200_OK
     mock_exporta_pdf.assert_called_once()
     _, kwargs = mock_exporta_pdf.call_args
-    assert kwargs["resultados"][0]["escola"]["nome"]
-    assert kwargs["resultados"][0]["resultados"]
+    assert len(kwargs["resultados"]) == 2
+    assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
+        "EMEF TESTE",
+        "EMEF DOIS",
+    }
+    assert any(r["resultados"] for r in kwargs["resultados"])
 
 
 @freeze_time("2025-09-30")
