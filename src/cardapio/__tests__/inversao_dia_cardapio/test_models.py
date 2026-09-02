@@ -36,6 +36,39 @@ def test_inversao_dia_cardapio_fluxo_codae_em_cima_da_hora_error(inversao_dia_ca
         inversao_dia_cardapio.codae_autoriza(user=user)
 
 
+@pytest.mark.parametrize(
+    "campo_fora_do_prazo",
+    ["data_de_inversao_2", "data_para_inversao_2"],
+)
+@freeze_time("2026-09-01")
+def test_inversao_dia_cardapio_considera_segundo_conjunto_no_calculo_do_prazo(
+    inversao_dia_cardapio, campo_fora_do_prazo
+):
+    usuario = baker.make(MODEL_USUARIO)
+    inversao_dia_cardapio.data_de_inversao = datetime.date(2026, 9, 14)
+    inversao_dia_cardapio.data_para_inversao = datetime.date(2026, 9, 15)
+    inversao_dia_cardapio.data_de_inversao_2 = datetime.date(2026, 9, 16)
+    inversao_dia_cardapio.data_para_inversao_2 = datetime.date(2026, 9, 17)
+    setattr(
+        inversao_dia_cardapio,
+        campo_fora_do_prazo,
+        datetime.date(2026, 9, 4),
+    )
+
+    assert inversao_dia_cardapio.data == datetime.date(2026, 9, 4)
+    assert inversao_dia_cardapio.prioridade != "REGULAR"
+
+    inversao_dia_cardapio.inicia_fluxo(user=usuario)
+    inversao_dia_cardapio.dre_valida(user=usuario)
+
+    assert inversao_dia_cardapio.foi_solicitado_fora_do_prazo is True
+    with pytest.raises(
+        InvalidTransitionError,
+        match="CODAE não pode autorizar direto caso seja em cima da hora, deve questionar",
+    ):
+        inversao_dia_cardapio.codae_autoriza(user=usuario)
+
+
 def test_inversao_dia_cardapio_fluxo(inversao_dia_cardapio):
     fake_user = baker.make(MODEL_USUARIO)
     inversao_dia_cardapio.inicia_fluxo(user=fake_user)

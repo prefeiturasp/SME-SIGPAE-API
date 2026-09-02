@@ -14,7 +14,7 @@ from ...models import CronogramaTermoRecebimentoDefinitivo, TermoRecebimentoDefi
 
 
 class CronogramaTermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
-    """Cronograma do termo com valor de contrato e quantidade recebida."""
+    """Cronograma do termo com a quantidade recebida."""
 
     cronograma = CronogramaSerializer(read_only=True)
 
@@ -22,7 +22,6 @@ class CronogramaTermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer
         model = CronogramaTermoRecebimentoDefinitivo
         fields = (
             "cronograma",
-            "valor_contrato",
             "quantidade_total_recebida",
         )
         read_only_fields = fields
@@ -80,7 +79,7 @@ class TermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
 
     Os modelos já existentes (empresa, contrato, cronogramas e fiscais)
     são serializados pelos serializers de seus respectivos módulos. Cada
-    cronograma possui seu próprio valor de contrato e quantidade recebida.
+    cronograma possui sua própria quantidade recebida;
     """
 
     empresa = TerceirizadaSimplesSerializer(read_only=True)
@@ -104,6 +103,7 @@ class TermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
             "fiscal_1",
             "fiscal_2",
             "fiscal_3",
+            "valor_contrato",
             "texto_termo",
             "status",
             "criado_em",

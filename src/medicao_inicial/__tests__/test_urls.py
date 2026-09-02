@@ -118,7 +118,7 @@ def test_url_endpoint_cria_dias_sobremesa_doce(client_autenticado_coordenador_co
     assert DiaSobremesaDoce.objects.count() == 0
 
 
-def test_url_endpoint_cria_dias_sobremesa_doce_tipos_diferentes(
+def test_url_endpoint_nao_permite_criar_dias_sobremesa_doce_tipos_diferentes(
     client_autenticado_coordenador_codae,
 ):
     tipo_doce = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
@@ -138,15 +138,19 @@ def test_url_endpoint_cria_dias_sobremesa_doce_tipos_diferentes(
             },
         ],
     }
+
     response = client_autenticado_coordenador_codae.post(
         "/medicao-inicial/dias-sobremesa-doce/",
         content_type="application/json",
         data=data,
     )
-    assert response.status_code == status.HTTP_201_CREATED
-    assert DiaSobremesaDoce.objects.count() == 2
-    assert DiaSobremesaDoce.objects.filter(tipo=tipo_doce).count() == 1
-    assert DiaSobremesaDoce.objects.filter(tipo=tipo_af).count() == 1
+    print(repr(response.json()))
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["non_field_errors"][0] == (
+        "Não é possível realizar o cadastro. Já existe uma Sobremesa Doce "
+        "cadastrada para esta Data, Edital e Tipo de Unidade."
+    )
+    assert DiaSobremesaDoce.objects.count() == 0
 
 
 def test_url_endpoint_update_dia_sobremesa_doce(
@@ -194,7 +198,7 @@ def test_url_endpoint_update_dia_sobremesa_doce(
     assert registro.tipo == tipo_af
 
 
-def test_url_endpoint_update_dia_sobremesa_doce_adiciona_tipos(
+def test_url_endpoint_update_dia_sobremesa_doce_nao_permite_adicionar_outro_tipo(
     client_autenticado_coordenador_codae,
 ):
     tipo_doce = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
@@ -209,11 +213,14 @@ def test_url_endpoint_update_dia_sobremesa_doce_adiciona_tipos(
             },
         ],
     }
+
     response = client_autenticado_coordenador_codae.post(
         "/medicao-inicial/dias-sobremesa-doce/",
         content_type="application/json",
         data=create_data,
     )
+
+    assert response.status_code == status.HTTP_201_CREATED
     assert DiaSobremesaDoce.objects.count() == 1
 
     registro = DiaSobremesaDoce.objects.first()
@@ -232,15 +239,22 @@ def test_url_endpoint_update_dia_sobremesa_doce_adiciona_tipos(
             },
         ],
     }
+
     response = client_autenticado_coordenador_codae.patch(
         f"/medicao-inicial/dias-sobremesa-doce/{registro.uuid}/",
         content_type="application/json",
         data=update_data,
     )
-    assert response.status_code == status.HTTP_200_OK
-    assert DiaSobremesaDoce.objects.count() == 2
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["non_field_errors"][0] == (
+        "Não é possível realizar o cadastro. Já existe uma Sobremesa Doce "
+        "cadastrada para esta Data, Edital e Tipo de Unidade."
+    )
+
+    assert DiaSobremesaDoce.objects.count() == 1
     assert DiaSobremesaDoce.objects.filter(tipo=tipo_doce).count() == 1
-    assert DiaSobremesaDoce.objects.filter(tipo=tipo_af).count() == 1
+    assert DiaSobremesaDoce.objects.filter(tipo=tipo_af).count() == 0
 
 
 def test_url_endpoint_list_dias_erro(client_autenticado_coordenador_codae):
@@ -256,7 +270,6 @@ def test_url_endpoint_lista_dias_filtro_tipo_padrao(
     client_autenticado_coordenador_codae,
 ):
     tipo_doce = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
-    tipo_af = baker.make("TipoSobremesaDoce", nome="Sobremesa AF")
     create_data = {
         "data": "2022-08-08",
         "cadastros_calendario": [
@@ -265,18 +278,14 @@ def test_url_endpoint_lista_dias_filtro_tipo_padrao(
                 "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
                 "tipo": str(tipo_doce.uuid),
             },
-            {
-                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
-                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
-                "tipo": str(tipo_af.uuid),
-            },
         ],
     }
-    client_autenticado_coordenador_codae.post(
+    response_post = client_autenticado_coordenador_codae.post(
         "/medicao-inicial/dias-sobremesa-doce/",
         content_type="application/json",
         data=create_data,
     )
+    assert response_post.status_code == status.HTTP_201_CREATED
 
     response = client_autenticado_coordenador_codae.get(
         "/medicao-inicial/dias-sobremesa-doce/lista-dias/?mes=8&ano=2022",
@@ -289,7 +298,6 @@ def test_url_endpoint_lista_dias_filtro_tipo_padrao(
 def test_url_endpoint_lista_dias_filtro_tipo_af(
     client_autenticado_coordenador_codae,
 ):
-    tipo_doce = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
     tipo_af = baker.make("TipoSobremesaDoce", nome="Sobremesa AF")
     create_data = {
         "data": "2022-08-10",
@@ -297,26 +305,25 @@ def test_url_endpoint_lista_dias_filtro_tipo_af(
             {
                 "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
                 "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
-                "tipo": str(tipo_doce.uuid),
-            },
-            {
-                "editais": ["85d4bdf1-79d3-4f93-87d7-9999ae4cd9c2"],
-                "tipo_unidades": ["1cc3253b-e297-42b3-8e57-ebfd115a1aba"],
                 "tipo": str(tipo_af.uuid),
             },
         ],
     }
-    client_autenticado_coordenador_codae.post(
+
+    create_response = client_autenticado_coordenador_codae.post(
         "/medicao-inicial/dias-sobremesa-doce/",
         content_type="application/json",
         data=create_data,
     )
+
+    assert create_response.status_code == status.HTTP_201_CREATED
 
     response = client_autenticado_coordenador_codae.get(
         "/medicao-inicial/dias-sobremesa-doce/lista-dias/"
         "?mes=8&ano=2022&tipo=Sobremesa+AF",
         content_type="application/json",
     )
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == ["2022-08-10"]
 
@@ -2712,9 +2719,11 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_com_escolas(
     mock_exporta_pdf.assert_called_once()
     _, kwargs = mock_exporta_pdf.call_args
     assert len(kwargs["resultados"]) == 2
-    assert kwargs["resultados"][0]["escola"]["nome"]
-    assert "escola" in kwargs["resultados"][0]
-    assert "resultados" in kwargs["resultados"][0]
+    assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
+        "EMEF TESTE",
+        "EMEF DOIS",
+    }
+    assert any(r["resultados"] for r in kwargs["resultados"])
 
 
 @patch("src.medicao_inicial.api.viewsets.exporta_relatorio_adesao_para_xlsx.delay")
@@ -2775,9 +2784,11 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_escolas(
     mock_exporta_xlsx.assert_called_once()
     _, kwargs = mock_exporta_xlsx.call_args
     assert len(kwargs["resultados"]) == 2
-    assert kwargs["resultados"][0]["escola"]["nome"]
-    assert "escola" in kwargs["resultados"][0]
-    assert "resultados" in kwargs["resultados"][0]
+    assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
+        "EMEF TESTE",
+        "EMEF DOIS",
+    }
+    assert any(r["resultados"] for r in kwargs["resultados"])
 
 
 @freeze_time("2025-09-30")
