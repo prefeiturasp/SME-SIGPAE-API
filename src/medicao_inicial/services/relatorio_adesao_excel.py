@@ -116,7 +116,7 @@ def _preenche_titulo(workbook, worksheet, colunas):
         "Relatório de Adesão das Alimentações Servidas",
         formatacao,
     )
-    worksheet.set_row(0, 50)
+    worksheet.set_row(0, 70)
     worksheet.insert_image(
         0,
         0,
@@ -140,7 +140,7 @@ def _preenche_linha_dos_filtros_selecionados(
     filtros = _formata_filtros(query_params, nome_escola)
 
     worksheet.merge_range(1, 0, 1, len(colunas) - 1, filtros.upper())
-    worksheet.set_row(1, 30, workbook.add_format({"align": "vcenter"}))
+    worksheet.set_row(1, 40, workbook.add_format({"align": "vcenter"}))
 
 
 def _preenche_data_do_relatorio(workbook, worksheet, colunas):
@@ -151,7 +151,7 @@ def _preenche_data_do_relatorio(workbook, worksheet, colunas):
         len(colunas) - 1,
         "Data: " + datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO),
     )
-    worksheet.set_row(2, 25, workbook.add_format({"align": "vcenter"}))
+    worksheet.set_row(2, 30, workbook.add_format({"align": "vcenter"}))
 
 
 def _preenche_linha_do_periodo(
@@ -169,18 +169,20 @@ def _preenche_linha_do_periodo(
         periodo.upper(),
         formatacao,
     )
-    worksheet.set_row(proxima_linha - 1, 25, workbook.add_format({"align": "vcenter"}))
+    worksheet.set_row(proxima_linha - 1, 35, workbook.add_format({"align": "vcenter"}))
 
 
 def _ajusta_layout_header(workbook, worksheet, proxima_linha, df):
     linha = proxima_linha - len(df.index) - 1
-    formatacao = workbook.add_format({"bold": True, "bg_color": "#A5DD9B"})
+    formatacao = workbook.add_format(
+        {"bold": True, "bg_color": "#A5DD9B", "text_wrap": True}
+    )
     formatacao.set_align("center")
     formatacao.set_align("vcenter")
     formatacao.set_border()
 
     worksheet.write_row(linha, 0, df.columns.values, formatacao)
-    worksheet.set_row(linha, 25)
+    worksheet.set_row(linha, 45)
 
 
 def _formata_numeros_linha_total(workbook, worksheet, proxima_linha, colunas, df):
@@ -203,7 +205,7 @@ def _formata_numeros_linha_total(workbook, worksheet, proxima_linha, colunas, df
 
         worksheet.write_row(linha, index, [value], formatacao)
 
-    worksheet.set_row(linha, 25)
+    worksheet.set_row(linha, 35)
 
 
 def _ajusta_layout_colunas(workbook, worksheet, colunas):
@@ -211,7 +213,8 @@ def _ajusta_layout_colunas(workbook, worksheet, colunas):
     formatacao.set_align("center")
     formatacao.set_align("vcenter")
 
-    worksheet.set_column(0, len(colunas) - 1, 30, formatacao)
+    worksheet.set_column(0, 0, 45, formatacao)
+    worksheet.set_column(1, 3, 45, formatacao)
 
 
 def _formata_numeros_colunas_total_servido_e_frequencia(workbook, worksheet):
@@ -219,7 +222,7 @@ def _formata_numeros_colunas_total_servido_e_frequencia(workbook, worksheet):
     formatacao.set_align("center")
     formatacao.set_align("vcenter")
 
-    worksheet.set_column(1, 2, None, formatacao)
+    worksheet.set_column(1, 2, 45, formatacao)
 
 
 def _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas):
@@ -227,7 +230,7 @@ def _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas):
     formatacao.set_align("center")
     formatacao.set_align("vcenter")
 
-    worksheet.set_column(len(colunas) - 1, len(colunas) - 1, None, formatacao)
+    worksheet.set_column(len(colunas) - 1, len(colunas) - 1, 45, formatacao)
 
 
 def _preenche_aba(
@@ -256,6 +259,9 @@ def _preenche_aba(
             periodo,
             colunas,
         )
+
+        for linha in range(proxima_linha, proxima_linha + len(df.index)):
+            worksheet.set_row(linha, 30)
 
         proxima_linha += len(df.index) + 1
 
