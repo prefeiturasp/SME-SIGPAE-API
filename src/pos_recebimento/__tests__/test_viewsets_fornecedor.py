@@ -116,7 +116,6 @@ def _cria_termo(
         CronogramaTermoRecebimentoDefinitivo.objects.create(
             termo=termo,
             cronograma=CronogramaFactory(contrato=contrato, empresa=empresa, numero=numero),
-            valor_contrato="150000.00",
             quantidade_total_recebida="1234.56",
         )
     TermoRecebimentoDefinitivo.objects.filter(pk=termo.pk).update(
