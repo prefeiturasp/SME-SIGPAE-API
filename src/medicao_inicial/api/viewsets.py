@@ -2347,7 +2347,10 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
-            resultados = obtem_resultados(query_params)
+            if query_params.getlist("escola__uuid[]"):
+                resultados = obtem_resultados_por_escola(query_params)
+            else:
+                resultados = obtem_resultados(query_params)
 
             query_params_dict = query_params.dict()
 
