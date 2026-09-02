@@ -109,8 +109,8 @@ class TermoRecebimentoDefinitivoViewSet(
 
     def perform_create(self, serializer):
         """Persiste o termo com status ``ENVIADO_FISCAIS`` e cria as linhas do
-        modelo intermediário (cronograma + valor_contrato + quantidade
-        total recebida) para cada cronograma do payload."""
+        modelo intermediário (cronograma + quantidade total recebida) para
+        cada cronograma do payload."""
         cronogramas = serializer.validated_data.pop("cronogramas")
         instance = serializer.save(
             criado_por=self.request.user,
@@ -121,7 +121,6 @@ class TermoRecebimentoDefinitivoViewSet(
             CronogramaTermoRecebimentoDefinitivo.objects.create(
                 termo=instance,
                 cronograma=item["cronograma"],
-                valor_contrato=item["valor_contrato"],
                 quantidade_total_recebida=item["quantidade_total_recebida"],
             )
 
