@@ -1,14 +1,17 @@
+from django.db.models import Prefetch
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
 from src.dados_comuns.api.paginations import DefaultPagination
+from src.pre_recebimento.cronograma_entrega.models import Cronograma
 
 from ..models import CronogramaTermoRecebimentoDefinitivo, TermoRecebimentoDefinitivo
 from .filters import TermoRecebimentoDefinitivoFilter
 from .permissions import (
     PermissaoParaCadastrarTermoRecebimentoDefinitivo,
     PermissaoParaVisualizarTermoRecebimentoDefinitivo,
+    usuario_vinculado_a_empresa_fornecedor,
 )
 from .serializers.serializers import (
     TermoRecebimentoDefinitivoListagemSerializer,
@@ -43,14 +46,31 @@ class TermoRecebimentoDefinitivoViewSet(
     def get_queryset(self):
         """Termos ordenados por data de criação (decrescente).
 
-        Na listagem, os relacionamentos exibidos no grid são pré-carregados
-        para evitar N+1.
+        Usuários vinculados a empresa fornecedora veem apenas os termos
+        da própria empresa com status do fluxo de envio (exibidos como
+        "Recebido") ou ``ASSINADO_FORNECEDOR`` (exibido como "Assinado").
+        Na listagem, os relacionamentos exibidos no grid são
+        pré-carregados para evitar N+1.
         """
         queryset = TermoRecebimentoDefinitivo.objects.all().order_by("-criado_em")
 
+        if usuario_vinculado_a_empresa_fornecedor(self.request.user):
+            queryset = queryset.filter(
+                empresa=self.request.user.vinculo_atual.instituicao,
+                status__in=[
+                    *TermoRecebimentoDefinitivo.STATUS_RECEBIDO_FORNECEDOR,
+                    TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+                ],
+            )
+
         if self.action == "list":
             return queryset.select_related("empresa", "contrato").prefetch_related(
-                "cronogramas"
+                Prefetch(
+                    "cronogramas",
+                    queryset=Cronograma.objects.select_related(
+                        "ficha_tecnica__produto"
+                    ),
+                )
             )
 
         return queryset
