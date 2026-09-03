@@ -28,6 +28,7 @@ from src.medicao_inicial.services.relatorio_adesao import (
     obtem_escolas_ordenadas,
     obtem_resultados,
     obtem_resultados_para_escola,
+    obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
@@ -2385,7 +2386,10 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
-            resultados = obtem_resultados(query_params)
+            if query_params.getlist("escola__uuid[]"):
+                resultados = obtem_resultados_por_escola(query_params)
+            else:
+                resultados = obtem_resultados(query_params)
             query_params_dict = query_params.dict()
 
             if query_params.get("lotes[]"):
@@ -2724,9 +2728,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
-            unidades_educacionais = request.data.get(
-                "unidades_educacionais", []
-            )
+            unidades_educacionais = request.data.get("unidades_educacionais", [])
 
             filtros_relatorio = {
                 "mes": relatorio_financeiro.mes,
@@ -2735,12 +2737,15 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             }
 
             solicitacoes_periodo = list(
-                SolicitacaoMedicaoInicial.objects.filter(
-                    **filtros_relatorio
-                )
+                SolicitacaoMedicaoInicial.objects.filter(**filtros_relatorio)
             )
 
-            processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario)
+            processa_reabrir_lancamentos(
+                relatorio_financeiro,
+                unidades_educacionais,
+                solicitacoes_periodo,
+                usuario,
+            )
 
             return Response(
                 {
