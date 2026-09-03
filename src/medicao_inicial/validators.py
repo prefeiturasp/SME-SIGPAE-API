@@ -1289,7 +1289,6 @@ def validate_lancamento_inclusoes_emei_cemei(
     solicitacao, lista_erros, inclusoes, escola, categoria, medicao
 ):
     list_inclusoes = []
-
     for inclusao in inclusoes:
         for qt in inclusao.quantidade_alunos_emei_da_inclusao_cemei.all():
             periodo = qt.periodo_escolar
@@ -1297,22 +1296,17 @@ def validate_lancamento_inclusoes_emei_cemei(
                 alimentacoes_permitidas = get_alimentacoes_permitidas(
                     solicitacao, escola, periodo
                 )
-                vinculo = VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
-                    tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
-                    periodo_escolar=periodo,
-                )
-                alimentacoes_vinculadas = vinculo.tipos_alimentacao.exclude(
+                tipos_alimentacao = qt.tipos_alimentacao.exclude(
                     nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
                 )
-                alimentacoes_vinculadas = list(
-                    set(alimentacoes_vinculadas.values_list("nome", flat=True))
+                tipos_alimentacao = list(
+                    set(tipos_alimentacao.values_list("nome", flat=True))
                 )
-                alimentacoes = alimentacoes_vinculadas + alimentacoes_permitidas
+                alimentacoes = tipos_alimentacao + alimentacoes_permitidas
                 eh_numero_alunos = periodo not in escola.periodos_escolares(
                     ano=solicitacao.ano, mes=solicitacao.mes
                 )
                 linhas_da_tabela = get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
-
                 dia_da_inclusao = str(
                     inclusao.dias_motivos_da_inclusao_cemei.first().data.day
                 ).rjust(2, "0")
