@@ -74,6 +74,9 @@ from ...inclusao_alimentacao.models import (
     InclusaoDeAlimentacaoCEMEI,
     QuantidadePorPeriodo,
 )
+from ...inclusao_alimentacao.utils import (
+    quantidade_periodo_possui_dia_ativo_no_mes,
+)
 from ...paineis_consolidados.api.constants import FILTRO_DRE_UUID
 from ..forms import AlunosPorFaixaEtariaForm
 from ..models import (
@@ -355,29 +358,6 @@ class EscolaQuantidadeAlunosPorPeriodoEFaixaViewSet(GenericViewSet):
             return Response(
                 data={"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST
             )
-
-
-def quantidade_periodo_possui_dia_ativo_no_mes(
-    quantidade_periodo, primeiro_dia_mes, ultimo_dia_mes
-):
-    inclusao = quantidade_periodo.inclusao_alimentacao_continua
-    data_inicio = max(inclusao.data_inicial, primeiro_dia_mes)
-    data_fim = min(inclusao.data_final, ultimo_dia_mes)
-    if quantidade_periodo.encerrado_a_partir_de:
-        data_fim = min(data_fim, quantidade_periodo.encerrado_a_partir_de)
-    if data_inicio > data_fim:
-        return False
-
-    dias_semana = quantidade_periodo.dias_semana
-    if not dias_semana:
-        return True
-
-    data = data_inicio
-    while data <= data_fim:
-        if data.weekday() in dias_semana:
-            return True
-        data += datetime.timedelta(days=1)
-    return False
 
 
 def periodos_inclusao_continua_ativas(instituicao, primeiro_dia_mes, ultimo_dia_mes):
