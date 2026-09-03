@@ -281,14 +281,14 @@ def gera_objeto_na_central_download(user, identificador):
     return obj_arquivo_download
 
 
-def atualiza_central_download(obj_central_download, identificador, arquivo):
+def atualiza_central_download(obj_central_download,identificador,arquivo,content_type=None):
     type_pdf = "application/pdf"
     type_xlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    content_type = type_pdf if ".pdf" in identificador else type_xlsx
 
-    obj_central_download.arquivo = SimpleUploadedFile(
-        identificador, arquivo, content_type=content_type
-    )
+    if content_type is None:
+        content_type = type_pdf if ".pdf" in identificador else type_xlsx
+
+    obj_central_download.arquivo = SimpleUploadedFile(identificador,arquivo,content_type=content_type)
     obj_central_download.status = CentralDeDownload.STATUS_CONCLUIDO
     obj_central_download.save()
 

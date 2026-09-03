@@ -68,7 +68,11 @@ from ...dados_comuns.permissions import (
     UsuarioSupervisaoNutricao,
     UsuarioTerceirizadaProduto,
 )
-from ...dados_comuns.utils import url_configs
+from ...dados_comuns.utils import (
+    atualiza_central_download_com_erro,
+    gera_objeto_na_central_download,
+    url_configs,
+)
 from ...dieta_especial.protocolo_padrao.models import Alimento
 from ...escola.models import DiretoriaRegional, Escola, Lote
 from ...relatorios.relatorios import (
@@ -109,6 +113,8 @@ from ..models import (
 )
 from ..tasks import (
     gera_excel_relatorio_reclamacao_produtos_async,
+    gera_imagens_historico_reclamacao_produto_async,
+    gera_pdf_historico_reclamacao_produto_async,
     gera_pdf_relatorio_historico_produto_async,
     gera_pdf_relatorio_produtos_homologados_async,
     gera_pdf_relatorio_reclamacao_produtos_async,
@@ -169,6 +175,10 @@ from .serializers.serializers import (
     UnidadeMedidaSerialzer,
     VinculosProdutosEditalAtivosSerializer,
 )
+from ..services.historico_reclamacao_produto import (
+    ServicoHistoricoReclamacaoProduto,
+)
+from .permissions import PermissaoArquivosHistoricoReclamacao
 from .serializers.serializers_create import (
     CadastroProdutosEditalCreateSerializer,
     ProdutoEditalCreateSerializer,
@@ -3542,6 +3552,130 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
                 dict(detail=f"Erro de transição de estado: {e}"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def _solicitar_download_historico(
+        self,
+        request,
+        uuid_log,
+        tipo_arquivo,
+    ):
+        configuracoes = {
+            "pdf": {
+                "obter_anexos": (
+                    ServicoHistoricoReclamacaoProduto.obter_pdfs_acao
+                ),
+                "obter_nome": (
+                    ServicoHistoricoReclamacaoProduto.obter_nome_download_pdfs
+                ),
+                "tarefa": gera_pdf_historico_reclamacao_produto_async,
+                "mensagem_sem_arquivo": (
+                    "Não há PDF disponível para esta ação do histórico."
+                ),
+                "mensagem_sucesso": (
+                    "Solicitação de download do PDF recebida com sucesso."
+                ),
+            },
+            "imagens": {
+                "obter_anexos": (
+                    ServicoHistoricoReclamacaoProduto.obter_imagens_acao
+                ),
+                "obter_nome": (
+                    ServicoHistoricoReclamacaoProduto.obter_nome_download_imagens
+                ),
+                "tarefa": gera_imagens_historico_reclamacao_produto_async,
+                "mensagem_sem_arquivo": (
+                    "Não há imagens disponíveis para esta ação do histórico."
+                ),
+                "mensagem_sucesso": (
+                    "Solicitação de download das imagens recebida com sucesso."
+                ),
+            },
+        }
+        configuracao = configuracoes[tipo_arquivo]
+        reclamacao_produto = self.get_object()
+        try:
+            anexos = configuracao["obter_anexos"](
+                uuid_reclamacao=reclamacao_produto.uuid,
+                uuid_log=uuid_log,
+            )
+        except LogSolicitacoesUsuario.DoesNotExist:
+            return Response(
+                {
+                    "detail": (
+                        "A ação informada não pertence ao histórico "
+                        "desta reclamação."
+                    )
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except ValueError as erro:
+            return Response(
+                {"detail": str(erro)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not anexos:
+            return Response(
+                {"detail": configuracao["mensagem_sem_arquivo"]},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        nome_arquivo = configuracao["obter_nome"](anexos, uuid_log)
+        download = gera_objeto_na_central_download(
+            request.user.get_username(),
+            nome_arquivo,
+        )
+        try:
+            configuracao["tarefa"].delay(
+                uuid_central_download=str(download.uuid),
+                uuid_reclamacao=str(reclamacao_produto.uuid),
+                uuid_log=str(uuid_log),
+            )
+        except Exception as erro:
+            atualiza_central_download_com_erro(download, str(erro))
+            return Response(
+                {"detail": "Não foi possível iniciar o processamento do arquivo."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(
+            {
+                "detail": configuracao["mensagem_sucesso"],
+                "download_uuid": download.uuid,
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[IsAuthenticated, PermissaoArquivosHistoricoReclamacao],
+        url_path=r"historico/(?P<uuid_log>[^/.]+)/download-pdf",
+    )
+    def download_pdf_historico(self, request, uuid=None, uuid_log=None):
+        return self._solicitar_download_historico(
+            request=request,
+            uuid_log=uuid_log,
+            tipo_arquivo="pdf",
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[IsAuthenticated, PermissaoArquivosHistoricoReclamacao],
+        url_path=r"historico/(?P<uuid_log>[^/.]+)/download-imagens",
+    )
+    def download_imagens_historico(
+        self,
+        request,
+        uuid=None,
+        uuid_log=None,
+    ):
+        return self._solicitar_download_historico(
+            request=request,
+            uuid_log=uuid_log,
+            tipo_arquivo="imagens",
+        )
 
 
 class SolicitacaoCadastroProdutoDietaFilter(filters.FilterSet):
