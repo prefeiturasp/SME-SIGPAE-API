@@ -2159,8 +2159,13 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
 
     @xworkflows.after_transition("codae_suspende")
     def _codae_suspende_hook(self, *args, **kwargs):
+        status_evento = (
+            LogSolicitacoesUsuario.CODAE_MANTEVE_PRODUTO_SUSPENSO
+            if kwargs.get("manteve_produto_suspenso")
+            else LogSolicitacoesUsuario.CODAE_SUSPENDEU
+        )
         log_suspensao = self.salva_log_com_justificativa_e_anexos(
-            LogSolicitacoesUsuario.CODAE_SUSPENDEU, kwargs["request"]
+            status_evento, kwargs["request"]
         )
         self._envia_email_codae_ativa_ou_suspende(
             log_suspensao,

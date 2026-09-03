@@ -1253,6 +1253,9 @@ class HomologacaoProdutoViewSet(
         justificativa += f"<p>{numeros_editais_para_justificativa}</p>"
 
         try:
+            editais_ja_suspensos = not vinculos_produto_edital.filter(
+                edital__uuid__in=editais_para_suspensao_ativacao, suspenso=False
+            ).exists()
             vinculos_produto_edital.filter(
                 edital__uuid__in=editais_para_suspensao_ativacao
             ).update(
@@ -1279,7 +1282,10 @@ class HomologacaoProdutoViewSet(
                     )
                     homologacao_produto.save()
             else:
-                homologacao_produto.codae_suspende(request=request)
+                homologacao_produto.codae_suspende(
+                    request=request,
+                    manteve_produto_suspenso=editais_ja_suspensos,
+                )
             return Response(
                 self.get_serializer(homologacao_produto).data, status=status.HTTP_200_OK
             )
