@@ -1,11 +1,13 @@
 import pytest
 from model_bakery import baker
+from types import SimpleNamespace
 
 from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 from src.medicao_inicial.api.serializers_create import (
     DescontoFinanceiroUpdateSerializer,
+    SolicitacaoMedicaoInicialCreateSerializer,
 )
-from src.medicao_inicial.models import DescontoFinanceiro
+from src.medicao_inicial.models import DescontoFinanceiro, TipoContagemAlimentacao
 
 
 @pytest.mark.django_db
@@ -293,3 +295,42 @@ def test_desconto_financeiro_serializer_grupo_emebs(
 
     assert instance_updated.infantil_ou_fundamental == "FUNDAMENTAL"
     assert instance_updated.tipo_alimentacao == tipo_alimentacao_refeicao
+
+
+@pytest.mark.django_db
+def test_solicitacao_medicao_inicial_salva_descricao_do_metodo(
+    escola_emei,
+    usuario,
+):
+    tipo_contagem = baker.make(TipoContagemAlimentacao)
+
+    payload = {
+        "escola": str(escola_emei.uuid),
+        "tipos_contagem_alimentacao": [str(tipo_contagem.uuid)],
+        "responsaveis": [
+            {
+                "nome": "João Silva",
+                "rf": "1234567",
+            }
+        ],
+        "mes": "05",
+        "ano": "2025",
+        "recreio_nas_ferias": None,
+        "descricao_metodo": "Contagem manual",
+    }
+
+    request = SimpleNamespace(user=usuario)
+
+    serializer = SolicitacaoMedicaoInicialCreateSerializer(
+        data=payload,
+        context={"request": request},
+    )
+
+    assert serializer.is_valid(), serializer.errors
+
+    solicitacao = serializer.save()
+
+    assert solicitacao.descricao_metodo == "Contagem manual"
+    assert list(solicitacao.tipos_contagem_alimentacao.all()) == [
+        tipo_contagem
+    ]
