@@ -64,7 +64,7 @@ django-multiselectfield="==0.1.13" # https://github.com/goinnn/django-multiselec
 django-celery-beat="==2.8.0"  # https://github.com/celery/django-celery-beat
 django-admin-rangefilter="==0.13.3" # https://github.com/silentsokolov/django-admin-rangefilter
 django-nested-inline="==0.4.6"
-djangorestframework="==3.16.1"  # https://github.com/encode/django-rest-framework
+djangorestframework="==3.17.2"  # https://github.com/encode/django-rest-framework
 djangorestframework-simplejwt="==5.5.1" # https://github.com/jazzband/djangorestframework-simplejwt
 workalendar="==17.0.0" # https://github.com/peopledoc/workalendar
 djangorestframework-xml = "==2.0.0"
