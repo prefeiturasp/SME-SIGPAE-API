@@ -1118,6 +1118,19 @@ def test_relatorio_solicitacao_medicao_recreio_nas_ferias_rodape_aprovacao(
     assert "Usuário TESTE" in texto
 
 
+def test_relatorio_solicitacao_medicao_recreio_nas_ferias_exibe_outros_com_descricao_metodo(
+    solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae,
+):
+    solicitacao = solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae
+    solicitacao.descricao_metodo = "Contagem manual por planilha"
+    solicitacao.save(update_fields=["descricao_metodo"])
+
+    relatorio = relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(solicitacao)
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert "Outros: Contagem manual por planilha" in texto
+
+
 def test_relatorio_solicitacao_medicao_recreio_nas_ferias_cei_rodape_aprovacao(
     solicitacao_medicao_inicial_recreio_nas_ferias_cei_aprovada_codae,
 ):
