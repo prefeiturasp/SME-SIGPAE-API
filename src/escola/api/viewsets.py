@@ -71,8 +71,11 @@ from ...escola.api.serializers_create import (
     MudancaFaixasEtariasCreateSerializer,
 )
 from ...inclusao_alimentacao.models import (
-    InclusaoAlimentacaoContinua,
     InclusaoDeAlimentacaoCEMEI,
+    QuantidadePorPeriodo,
+)
+from ...inclusao_alimentacao.utils import (
+    quantidade_periodo_possui_dia_ativo_no_mes,
 )
 from ...paineis_consolidados.api.constants import FILTRO_DRE_UUID
 from ..forms import AlunosPorFaixaEtariaForm
@@ -357,6 +360,50 @@ class EscolaQuantidadeAlunosPorPeriodoEFaixaViewSet(GenericViewSet):
             )
 
 
+def periodos_inclusao_continua_ativas(instituicao, primeiro_dia_mes, ultimo_dia_mes):
+    quantidades_periodo = (
+        QuantidadePorPeriodo.objects.filter(
+            inclusao_alimentacao_continua__status="CODAE_AUTORIZADO",
+            inclusao_alimentacao_continua__rastro_escola=instituicao,
+            inclusao_alimentacao_continua__data_inicial__lte=ultimo_dia_mes,
+            cancelado=False,
+        )
+        .exclude(inclusao_alimentacao_continua__motivo__nome="ETEC")
+        .filter(
+            Q(
+                encerrado_a_partir_de__isnull=True,
+                inclusao_alimentacao_continua__data_final__gte=primeiro_dia_mes,
+            )
+            | Q(encerrado_a_partir_de__gte=primeiro_dia_mes)
+        )
+        .select_related("periodo_escolar", "inclusao_alimentacao_continua")
+    )
+    periodos = {}
+    for quantidade_periodo in quantidades_periodo:
+        if not quantidade_periodo_possui_dia_ativo_no_mes(
+            quantidade_periodo, primeiro_dia_mes, ultimo_dia_mes
+        ):
+            continue
+        periodo_escolar = quantidade_periodo.periodo_escolar
+        if periodo_escolar and periodo_escolar.nome:
+            periodos[periodo_escolar.nome] = periodo_escolar.uuid
+    return periodos
+
+
+def periodos_cemei_evento_especifico(instituicao, primeiro_dia_mes, ultimo_dia_mes):
+    cemei_periodos_emei = InclusaoDeAlimentacaoCEMEI.objects.filter(
+        status="CODAE_AUTORIZADO",
+        escola=instituicao,
+        dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+        dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
+        dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
+    ).values_list(
+        "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
+        "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__uuid",
+    )
+    return {nome: uuid for nome, uuid in cemei_periodos_emei if nome is not None}
+
+
 class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
     lookup_field = "uuid"
     queryset = PeriodoEscolar.objects.all()
@@ -436,6 +483,9 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
         ``InclusaoDeAlimentacaoCEMEI`` com motivo ``Evento Especifico``,
         retornando os periodos escolares distintos (nome e uuid) com datas
         contidas no mes informado via query params ``mes`` e ``ano``.
+        Periodos encerrados antecipadamente (``encerrado_a_partir_de``),
+        cancelados ou sem dia da semana ativo no recorte do mes nao sao
+        retornados.
         """
         try:
             for param in ["mes", "ano"]:
@@ -443,55 +493,24 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
                     raise ValidationError(f"{param} é obrigatório via query_params")
             mes = request.query_params.get("mes")
             ano = request.query_params.get("ano")
-            escola = request.query_params.get("escola")
             primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
             ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
             instituicao = request.user.vinculo_atual.instituicao
+            escola = request.query_params.get("escola")
             if (
-                isinstance(instituicao, DiretoriaRegional)
-                or isinstance(instituicao, Codae)
-                or isinstance(instituicao, Terceirizada)
-            ) and escola:
+                isinstance(instituicao, (DiretoriaRegional, Codae, Terceirizada))
+                and escola
+            ):
                 instituicao = Escola.objects.get(uuid=escola)
-            periodos = dict(
-                InclusaoAlimentacaoContinua.objects.filter(
-                    status="CODAE_AUTORIZADO", rastro_escola=instituicao
-                )
-                .filter(
-                    data_inicial__lte=ultimo_dia_mes,
-                )
-                .filter(
-                    Q(
-                        quantidades_por_periodo__encerrado_a_partir_de__isnull=True,
-                        data_final__gte=primeiro_dia_mes,
-                    )
-                    | Q(
-                        quantidades_por_periodo__encerrado_a_partir_de__gte=primeiro_dia_mes
-                    )
-                )
-                .exclude(motivo__nome="ETEC")
-                .values_list(
-                    "quantidades_por_periodo__periodo_escolar__nome",
-                    "quantidades_por_periodo__periodo_escolar__uuid",
-                )
-                .distinct()
+            periodos = periodos_inclusao_continua_ativas(
+                instituicao, primeiro_dia_mes, ultimo_dia_mes
             )
-            cemei_base_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
-                status="CODAE_AUTORIZADO",
-                escola=instituicao,
-                dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
-                dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
-                dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
+            periodos.update(
+                periodos_cemei_evento_especifico(
+                    instituicao, primeiro_dia_mes, ultimo_dia_mes
+                )
             )
-            cemei_periodos_emei = cemei_base_qs.values_list(
-                "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
-                "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__uuid",
-            )
-            cemei_tuples = {
-                (nome, uuid) for nome, uuid in cemei_periodos_emei if nome is not None
-            }
-            periodos.update(dict(cemei_tuples))
-            return Response({"periodos": periodos if len(periodos) else None})
+            return Response({"periodos": periodos or None})
         except ValidationError as e:
             return Response({"detail": e}, status=status.HTTP_400_BAD_REQUEST)
 

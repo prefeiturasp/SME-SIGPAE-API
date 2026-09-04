@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import patch
 
 import pytest
@@ -21,6 +22,7 @@ from ...dados_comuns.constants import (
     TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
     TERCEIRIZADA_TOMOU_CIENCIA,
 )
+from ...dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from ...perfil.models import Usuario
 from ..models import (
@@ -886,6 +888,258 @@ def test_url_endpoint_inclusao_continua_escola_encerra_todos_periodos(
         ).count()
         == 1
     )
+
+
+def _cria_solicitacao_com_medicao_programas_e_projetos(
+    escola, mes, ano, dias=None
+):
+    from src.medicao_inicial.models import (
+        CategoriaMedicao,
+        GrupoMedicao,
+        Medicao,
+        SolicitacaoMedicaoInicial,
+        ValorMedicao,
+    )
+
+    grupo_programas, _ = GrupoMedicao.objects.get_or_create(
+        nome=GRUPO_PROGRAMAS_E_PROJETOS
+    )
+    categoria, _ = CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    solicitacao = baker.make(
+        SolicitacaoMedicaoInicial,
+        escola=escola,
+        mes=mes,
+        ano=ano,
+    )
+    medicao_programas = baker.make(
+        Medicao,
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_programas,
+    )
+    for dia in dias or ["01"]:
+        baker.make(
+            ValorMedicao,
+            medicao=medicao_programas,
+            categoria_medicao=categoria,
+            dia=dia,
+            nome_campo="numero_de_alunos",
+            valor="10",
+        )
+    medicao_manha = baker.make(
+        Medicao,
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=baker.make("PeriodoEscolar", nome="MANHA"),
+    )
+    return solicitacao, medicao_programas, medicao_manha
+
+
+@freeze_time("2026-07-01")
+def test_escola_encerra_inclusao_continua_remove_medicao_programas_e_projetos_inativa(
+    client_autenticado_vinculo_escola_inclusao, escola
+):
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        data_inicial=datetime.date(2026, 4, 1),
+        data_final=datetime.date(2026, 9, 30),
+        status=PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+    )
+    qtd = baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    solicitacao_abril, medicao_abril, medicao_manha_abril = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(escola, "04", "2026")
+    )
+    solicitacao_junho, medicao_junho, medicao_manha_junho = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(escola, "06", "2026")
+    )
+    solicitacao_julho, medicao_julho, medicao_manha_julho = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(escola, "07", "2026")
+    )
+
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao.uuid}/{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data={
+            "justificativa": "Projeto encerrado",
+            "encerrado_a_partir_de": "30/06/2026",
+            "quantidades_periodo": [{"uuid": str(qtd.uuid), "cancelado": True}],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert solicitacao_abril.medicoes.filter(uuid=medicao_abril.uuid).exists()
+    assert solicitacao_abril.medicoes.filter(uuid=medicao_manha_abril.uuid).exists()
+    assert solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
+    assert solicitacao_julho.medicoes.filter(uuid=medicao_julho.uuid).exists()
+    assert solicitacao_julho.medicoes.filter(uuid=medicao_manha_julho.uuid).exists()
+
+
+@freeze_time("2026-07-01")
+def test_escola_encerra_inclusao_continua_remove_apenas_valores_a_partir_do_encerramento_no_mesmo_mes(
+    client_autenticado_vinculo_escola_inclusao, escola
+):
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        data_inicial=datetime.date(2026, 4, 1),
+        data_final=datetime.date(2026, 9, 30),
+        status=PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+    )
+    qtd = baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    solicitacao_junho, medicao_junho, medicao_manha_junho = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(
+            escola, "06", "2026", dias=["01", "15", "16", "30"]
+        )
+    )
+    solicitacao_julho, medicao_julho, medicao_manha_julho = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(
+            escola, "07", "2026", dias=["01", "15"]
+        )
+    )
+
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao.uuid}/{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data={
+            "justificativa": "Projeto encerrado",
+            "encerrado_a_partir_de": "15/06/2026",
+            "quantidades_periodo": [{"uuid": str(qtd.uuid), "cancelado": True}],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
+    assert set(medicao_junho.valores_medicao.values_list("dia", flat=True)) == {
+        "01",
+        "15",
+    }
+    assert solicitacao_julho.medicoes.filter(uuid=medicao_julho.uuid).exists()
+    assert solicitacao_julho.medicoes.filter(uuid=medicao_manha_julho.uuid).exists()
+    assert set(medicao_julho.valores_medicao.values_list("dia", flat=True)) == {
+        "01",
+        "15",
+    }
+
+
+@freeze_time("2026-07-01")
+def test_escola_cancela_inclusao_continua_sem_encerramento_nao_remove_medicao_programas_e_projetos(
+    client_autenticado_vinculo_escola_inclusao, escola
+):
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        data_inicial=datetime.date(2026, 7, 1),
+        data_final=datetime.date(2026, 7, 31),
+        status=PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+    )
+    qtd_manha = baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=baker.make("PeriodoEscolar", nome="TARDE"),
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    solicitacao, medicao_programas, medicao_manha = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(escola, "07", "2026")
+    )
+
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao.uuid}/{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data={
+            "justificativa": "cancelando parcialmente",
+            "quantidades_periodo": [{"uuid": str(qtd_manha.uuid), "cancelado": True}],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert solicitacao.medicoes.filter(uuid=medicao_programas.uuid).exists()
+    assert solicitacao.medicoes.filter(uuid=medicao_manha.uuid).exists()
+
+
+@freeze_time("2026-07-01")
+def test_escola_encerra_inclusao_continua_mantem_medicao_quando_ainda_ha_periodo_ativo(
+    client_autenticado_vinculo_escola_inclusao, escola
+):
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        data_inicial=datetime.date(2026, 7, 1),
+        data_final=datetime.date(2026, 7, 31),
+        status=PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+    )
+    qtd_manha = baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_tarde,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    solicitacao, medicao_programas, medicao_manha = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(escola, "07", "2026")
+    )
+
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao.uuid}/{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data={
+            "justificativa": "Encerrar só a manhã",
+            "encerrado_a_partir_de": "02/07/2026",
+            "quantidades_periodo": [
+                {"uuid": str(qtd_manha.uuid), "cancelado": True},
+            ],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert solicitacao.medicoes.filter(uuid=medicao_programas.uuid).exists()
+    assert solicitacao.medicoes.filter(uuid=medicao_manha.uuid).exists()
 
 
 def test_url_endpoint_inclusao_continua_minhas_solicitacoes(

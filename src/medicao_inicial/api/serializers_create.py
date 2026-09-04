@@ -121,6 +121,8 @@ from ..validators import (
     validate_solicitacoes_programas_e_projetos_emebs,
     validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
     validate_ultimo_dia_mes_letivo,
+    get_filtro_inclusao_continua_ativa,
+    get_filtro_quantidade_periodo_ativa,
 )
 
 
@@ -825,7 +827,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         dia_semana = data.weekday()
         numero_alunos = 0
         for quantidade_periodo in inclusao.quantidades_periodo.filter(
-            dias_semana__icontains=dia_semana, cancelado=False
+            get_filtro_quantidade_periodo_ativa(data),
+            dias_semana__icontains=dia_semana,
+            cancelado=False,
         ):
             numero_alunos += quantidade_periodo.numero_alunos
         return numero_alunos
@@ -858,26 +862,26 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         nome_motivo: str,
         nome_grupo: str,
     ) -> None:
-        if not inclusoes_continuas.filter(motivo__nome__icontains=nome_motivo).exists():
+        inclusoes_do_motivo = inclusoes_continuas.filter(
+            motivo__nome__icontains=nome_motivo
+        )
+        if not inclusoes_do_motivo.exists():
+            return
+        valores_por_dia = self._valores_numero_alunos_inclusoes_continuas_por_dia(
+            instance, inclusoes_do_motivo, quantidade_dias_mes
+        )
+        if not valores_por_dia:
             return
         categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
         medicao = self.retorna_medicao_por_nome_grupo(instance, nome_grupo)
         valores_medicao_a_criar = []
-        for dia in range(1, quantidade_dias_mes + 1):
-            data = date(year=int(instance.ano), month=int(instance.mes), day=dia)
-            numero_alunos = 0
-            for inclusao in inclusoes_continuas.filter(
-                motivo__nome__icontains=nome_motivo
-            ):
-                if not (inclusao.data_inicial <= data <= inclusao.data_final):
-                    continue
-                if medicao.valores_medicao.filter(
-                    categoria_medicao=categoria,
-                    dia=f"{dia:02d}",
-                    nome_campo="numero_de_alunos",
-                ).exists():
-                    continue
-                numero_alunos += self.retorna_numero_alunos_dia(inclusao, data)
+        for dia, numero_alunos in valores_por_dia.items():
+            if medicao.valores_medicao.filter(
+                categoria_medicao=categoria,
+                dia=f"{dia:02d}",
+                nome_campo="numero_de_alunos",
+            ).exists():
+                continue
             valores_medicao_a_criar = self.cria_valor_medicao(
                 numero_alunos,
                 medicao,
@@ -887,6 +891,24 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 valores_medicao_a_criar,
             )
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
+
+    def _valores_numero_alunos_inclusoes_continuas_por_dia(
+        self,
+        instance: SolicitacaoMedicaoInicial,
+        inclusoes_do_motivo: QuerySet,
+        quantidade_dias_mes: int,
+    ) -> dict:
+        valores_por_dia = {}
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = date(year=int(instance.ano), month=int(instance.mes), day=dia)
+            numero_alunos = 0
+            for inclusao in inclusoes_do_motivo:
+                if not (inclusao.data_inicial <= data <= inclusao.data_final):
+                    continue
+                numero_alunos += self.retorna_numero_alunos_dia(inclusao, data)
+            if numero_alunos > 0:
+                valores_por_dia[dia] = numero_alunos
+        return valores_por_dia
 
     def cria_valores_medicao_logs_numero_alunos_inclusoes_continuas_emef_emei(
         self, instance: SolicitacaoMedicaoInicial
@@ -899,10 +921,13 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             year=int(instance.ano), month=int(instance.mes), day=quantidade_dias_mes
         )
         primeiro_dia_mes = date(year=int(instance.ano), month=int(instance.mes), day=1)
-        inclusoes_continuas = escola.inclusoes_alimentacao_continua.filter(
-            status="CODAE_AUTORIZADO",
-            data_inicial__lte=ultimo_dia_mes,
-            data_final__gte=primeiro_dia_mes,
+        inclusoes_continuas = (
+            escola.inclusoes_alimentacao_continua.filter(
+                status="CODAE_AUTORIZADO",
+                data_inicial__lte=ultimo_dia_mes,
+            )
+            .filter(get_filtro_inclusao_continua_ativa(primeiro_dia_mes))
+            .distinct()
         )
         if not inclusoes_continuas.count():
             return
