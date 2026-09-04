@@ -65,7 +65,8 @@ def test_termo_create_retorna_201(
     assert str(cronograma_termo.cronograma.uuid) in (
         response.json()["cronogramas"][0]["cronograma"]["uuid"]
     )
-    assert response.json()["cronogramas"][0]["valor_contrato"] == "150000.00"
+    assert str(termo.valor_contrato) == "150000.00"
+    assert response.json()["valor_contrato"] == "150000.00"
     assert response.json()["cronogramas"][0]["quantidade_total_recebida"] == "1234.56"
 
 
@@ -116,13 +117,13 @@ def test_termo_create_valida_empresa_sem_ficha_assinada(
         "cronogramas": [
             {
                 "cronograma": str(cronograma_sem_ficha.uuid),
-                "valor_contrato": "1000.00",
                 "quantidade_total_recebida": "100.00",
             }
         ],
         "fiscal_1": str(tres_fiscais[0].uuid),
         "fiscal_2": str(tres_fiscais[1].uuid),
         "fiscal_3": str(tres_fiscais[2].uuid),
+        "valor_contrato": "1000.00",
         "texto_termo": "<p>Termo</p>",
     }
 
@@ -178,13 +179,13 @@ def test_termo_create_valida_cronograma_de_outro_contrato(
         "cronogramas": [
             {
                 "cronograma": str(cronograma_outro_contrato.uuid),
-                "valor_contrato": "1000.00",
                 "quantidade_total_recebida": "100.00",
             }
         ],
         "fiscal_1": str(tres_fiscais[0].uuid),
         "fiscal_2": str(tres_fiscais[1].uuid),
         "fiscal_3": str(tres_fiscais[2].uuid),
+        "valor_contrato": "1000.00",
         "texto_termo": "<p>Termo</p>",
     }
 
@@ -213,13 +214,13 @@ def test_termo_create_valida_contrato_de_outra_empresa(
         "cronogramas": [
             {
                 "cronograma": str(cronograma.uuid),
-                "valor_contrato": "1000.00",
                 "quantidade_total_recebida": "100.00",
             }
         ],
         "fiscal_1": str(tres_fiscais[0].uuid),
         "fiscal_2": str(tres_fiscais[1].uuid),
         "fiscal_3": str(tres_fiscais[2].uuid),
+        "valor_contrato": "1000.00",
         "texto_termo": "<p>Termo</p>",
     }
 
@@ -289,7 +290,7 @@ def test_termo_create_valida_valores_maiores_que_zero(
     payload_termo,
 ):
     payload = dict(payload_termo)
-    payload["cronogramas"][0]["valor_contrato"] = "-10.00"
+    payload["valor_contrato"] = "-10.00"
     payload["cronogramas"][0]["quantidade_total_recebida"] = "0"
 
     response = _post_json(
@@ -299,7 +300,7 @@ def test_termo_create_valida_valores_maiores_que_zero(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "cronogramas[0].valor_contrato" in response.data
+    assert "valor_contrato" in response.data
     assert "cronogramas[0].quantidade_total_recebida" in response.data
 
 
@@ -405,6 +406,7 @@ def test_termo_retrieve_retorna_detalhe_do_termo(
     assert detalhe["empresa"]["uuid"] == str(empresa.uuid)
     assert detalhe["contrato"]["uuid"] == str(contrato.uuid)
     assert detalhe["texto_termo"] == termo_listagem.texto_termo
+    assert detalhe["valor_contrato"] == "150000.00"
     assert detalhe["status"] == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
     assert [detalhe[f"fiscal_{i}"]["uuid"] for i in (1, 2, 3)] == [
         str(fiscal.uuid) for fiscal in tres_fiscais
@@ -425,7 +427,6 @@ def test_termo_retrieve_retorna_cronogramas_com_valores_do_vinculo(
         "111/2026",
         "222/2026",
     ]
-    assert all(item["valor_contrato"] == "150000.00" for item in cronogramas)
     assert all(item["quantidade_total_recebida"] == "1234.56" for item in cronogramas)
 
 
