@@ -1,14 +1,17 @@
 """Utilitários de inclusão contínua e medição de Programas e Projetos.
 
-Funções auxiliares para identificar períodos ativos no mês e remover
-valores de Programas e Projetos no mês em que a inclusão contínua é
-encerrada antecipadamente.
+Funções auxiliares para identificar períodos ativos no mês e remover a
+medição de Programas e Projetos quando a inclusão contínua é encerrada e
+não resta valor nem outra quantidade ativa na instituição.
 """
 
 import datetime
 
+from django.db.models import Q
+
 from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS
 from src.dados_comuns.utils import get_ultimo_dia_mes
+from src.inclusao_alimentacao.models import QuantidadePorPeriodo
 
 
 def quantidade_periodo_possui_dia_ativo_no_mes(
@@ -50,30 +53,6 @@ def quantidade_periodo_possui_dia_ativo_no_mes(
     return False
 
 
-def inclusao_possui_quantidade_ativa_no_mes(
-    inclusao, primeiro_dia_mes, ultimo_dia_mes
-):
-    """Indica se a inclusão contínua ainda tem quantidade ativa no mês.
-
-    Quantidades canceladas são ignoradas.
-
-    Args:
-        inclusao (InclusaoAlimentacaoContinua): Inclusão contínua avaliada.
-        primeiro_dia_mes (datetime.date): Primeiro dia do mês avaliado.
-        ultimo_dia_mes (datetime.date): Último dia do mês avaliado.
-
-    Returns:
-        bool: ``True`` se alguma quantidade não cancelada ainda tiver dia
-        ativo no mês.
-    """
-    for quantidade_periodo in inclusao.quantidades_periodo.filter(cancelado=False):
-        if quantidade_periodo_possui_dia_ativo_no_mes(
-            quantidade_periodo, primeiro_dia_mes, ultimo_dia_mes
-        ):
-            return True
-    return False
-
-
 def medicao_programas_e_projetos_do_mes(escola, ano, mes):
     """Busca a medição de Programas e Projetos da escola no mês/ano.
 
@@ -101,30 +80,56 @@ def medicao_programas_e_projetos_do_mes(escola, ano, mes):
     ).first()
 
 
-def exclui_valores_medicao_a_partir_do_dia(medicao, dia):
-    """Exclui valores da medição de Programas e Projetos a partir de um dia.
+def escola_possui_outra_quantidade_ativa_no_mes(
+    escola, primeiro_dia_mes, ultimo_dia_mes, uuids_excluir
+):
+    """Indica se a escola tem outra quantidade de inclusão contínua ativa no mês.
 
-    A medição em si é mantida, assim como os valores anteriores ao dia
-    informado. A exclusão dos valores é feita em uma única consulta.
+    Percorre as inclusões autorizadas da instituição, no mesmo critério de
+    ``periodos_inclusao_continua_ativas``, excluindo as quantidades em
+    ``uuids_excluir`` (as recém-encerradas). Respeita vigência e
+    ``dias_semana``. Quantidades canceladas e motivo ETEC são ignoradas.
 
     Args:
-        medicao (Medicao): Medição de Programas e Projetos. Se ``None``, a
-            função não faz nada.
-        dia (int): Primeiro dia cujos valores devem ser excluídos
-            (inclusivo).
+        escola (Escola): Instituição da inclusão.
+        primeiro_dia_mes (datetime.date): Primeiro dia do mês avaliado.
+        ultimo_dia_mes (datetime.date): Último dia do mês avaliado.
+        uuids_excluir: UUIDs das quantidades recém-encerradas.
+
+    Returns:
+        bool: ``True`` se existir outra quantidade com dia ativo no mês.
     """
-    if not medicao:
-        return
-    medicao.valores_medicao.filter(dia__gte=f"{dia:02d}").delete()
+    quantidades = (
+        QuantidadePorPeriodo.objects.filter(
+            inclusao_alimentacao_continua__status="CODAE_AUTORIZADO",
+            inclusao_alimentacao_continua__rastro_escola=escola,
+            inclusao_alimentacao_continua__data_inicial__lte=ultimo_dia_mes,
+            cancelado=False,
+        )
+        .exclude(inclusao_alimentacao_continua__motivo__nome="ETEC")
+        .exclude(uuid__in=uuids_excluir)
+        .filter(
+            Q(
+                encerrado_a_partir_de__isnull=True,
+                inclusao_alimentacao_continua__data_final__gte=primeiro_dia_mes,
+            )
+            | Q(encerrado_a_partir_de__gte=primeiro_dia_mes)
+        )
+        .select_related("inclusao_alimentacao_continua")
+    )
+    for quantidade_periodo in quantidades:
+        if quantidade_periodo_possui_dia_ativo_no_mes(
+            quantidade_periodo, primeiro_dia_mes, ultimo_dia_mes
+        ):
+            return True
+    return False
 
 
 def exclui_valores_inativos_mes_encerramento(medicao, inclusao, encerrado_a_partir_de):
-    """Remove valores inativos no mês do encerramento antecipado.
+    """Remove a medição de Programas e Projetos se ela ficar sem uso no mês.
 
-    A data ``encerrado_a_partir_de`` permanece vigente. Só exclui valores
-    dos dias seguintes, e apenas se nenhuma quantidade da inclusão continuar
-    ativa nesse restante do mês. Se o encerramento cair no último dia do
-    mês, nada é removido.
+    Se existir outra quantidade ativa na unidade no mês, a medição é mantida.
+    Caso contrário, a medição é excluída.
 
     Args:
         medicao (Medicao): Medição de Programas e Projetos do mês do
@@ -135,31 +140,30 @@ def exclui_valores_inativos_mes_encerramento(medicao, inclusao, encerrado_a_part
     """
     if not medicao:
         return
-    primeiro_dia_inativo = encerrado_a_partir_de + datetime.timedelta(days=1)
-    ultimo_dia_mes = get_ultimo_dia_mes(
-        datetime.date(encerrado_a_partir_de.year, encerrado_a_partir_de.month, 1)
+    primeiro_dia_mes = datetime.date(
+        encerrado_a_partir_de.year, encerrado_a_partir_de.month, 1
     )
-    if primeiro_dia_inativo > ultimo_dia_mes:
-        return
-    if inclusao_possui_quantidade_ativa_no_mes(
-        inclusao, primeiro_dia_inativo, ultimo_dia_mes
+    ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+    uuids_encerrados = inclusao.quantidades_periodo.filter(
+        encerrado_a_partir_de=encerrado_a_partir_de
+    ).values_list("uuid", flat=True)
+    if escola_possui_outra_quantidade_ativa_no_mes(
+        inclusao.escola, primeiro_dia_mes, ultimo_dia_mes, uuids_encerrados
     ):
         return
-    exclui_valores_medicao_a_partir_do_dia(medicao, primeiro_dia_inativo.day)
+    medicao.delete()
 
 
 def remove_medicao_programas_e_projetos_se_inclusao_inativa(
     inclusao, encerrado_a_partir_de
 ):
-    """Remove valores inativos de Programas e Projetos no mês do encerramento.
+    """Remove a medição de Programas e Projetos se ela ficar sem uso no mês.
 
-    Atua só no mês de ``encerrado_a_partir_de``: mantém a medição e os
-    valores ainda vigentes e exclui os posteriores à data. Meses anteriores
-    e posteriores não são alterados.
+    Atua só no mês de ``encerrado_a_partir_de``. Outra quantidade ativa na
+    instituição, ou qualquer valor na medição, faz com que ela seja
+    mantida. Sem os dois, a medição vazia é excluída.
 
-    Não faz nada quando a escola ou a data de encerramento estão ausentes,
-    nem quando outra quantidade da inclusão permanece ativa no restante do
-    mês.
+    Não faz nada quando a escola ou a data de encerramento estão ausentes.
 
     Args:
         inclusao (InclusaoAlimentacaoContinua): Inclusão contínua encerrada.
