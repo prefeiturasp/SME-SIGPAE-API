@@ -3553,13 +3553,9 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-    def _solicitar_download_historico(
-        self,
-        request,
-        uuid_log,
-        tipo_arquivo,
-    ):
-        configuracoes = {
+    @staticmethod
+    def _obter_configuracao_download_historico(tipo_arquivo):
+        return {
             "pdf": {
                 "obter_anexos": (
                     ServicoHistoricoReclamacaoProduto.obter_pdfs_acao
@@ -3590,8 +3586,35 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
                     "Solicitação de download das imagens recebida com sucesso."
                 ),
             },
-        }
-        configuracao = configuracoes[tipo_arquivo]
+        }[tipo_arquivo]
+
+    @staticmethod
+    def _iniciar_download_historico(
+        configuracao,
+        download,
+        reclamacao_produto,
+        uuid_log,
+    ):
+        try:
+            configuracao["tarefa"].delay(
+                uuid_central_download=str(download.uuid),
+                uuid_reclamacao=str(reclamacao_produto.uuid),
+                uuid_log=str(uuid_log),
+            )
+        except Exception as erro:
+            atualiza_central_download_com_erro(download, str(erro))
+            return Response(
+                {"detail": "Não foi possível iniciar o processamento do arquivo."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+    def _solicitar_download_historico(
+        self,
+        request,
+        uuid_log,
+        tipo_arquivo,
+    ):
+        configuracao = self._obter_configuracao_download_historico(tipo_arquivo)
         reclamacao_produto = self.get_object()
         try:
             anexos = configuracao["obter_anexos"](
@@ -3608,11 +3631,6 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )
-        except ValueError as erro:
-            return Response(
-                {"detail": str(erro)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
         if not anexos:
             return Response(
@@ -3625,18 +3643,14 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
             request.user.get_username(),
             nome_arquivo,
         )
-        try:
-            configuracao["tarefa"].delay(
-                uuid_central_download=str(download.uuid),
-                uuid_reclamacao=str(reclamacao_produto.uuid),
-                uuid_log=str(uuid_log),
-            )
-        except Exception as erro:
-            atualiza_central_download_com_erro(download, str(erro))
-            return Response(
-                {"detail": "Não foi possível iniciar o processamento do arquivo."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+        resposta_erro = self._iniciar_download_historico(
+            configuracao,
+            download,
+            reclamacao_produto,
+            uuid_log,
+        )
+        if resposta_erro:
+            return resposta_erro
 
         return Response(
             {

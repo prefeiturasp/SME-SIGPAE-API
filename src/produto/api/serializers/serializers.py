@@ -140,6 +140,7 @@ class InformacoesNutricionaisDoProdutoSerializer(serializers.ModelSerializer):
         model = InformacoesNutricionaisDoProduto
         exclude = ("id", "produto")
 
+
 class LogHistoricoReclamacaoProdutoSerializer(
     LogSolicitacoesUsuarioComAnexosSerializer
 ):
