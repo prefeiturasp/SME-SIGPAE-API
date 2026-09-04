@@ -36,32 +36,71 @@ def _insere_tabela_periodo_na_planilha(aba, refeicoes, colunas, proxima_linha, w
     return df
 
 
-def _formata_filtros(query_params: dict):
-    mes, ano = query_params.get("mes_ano").split("_")
-    filtros = f"{converte_numero_em_mes(int(mes))} - {ano}"
-
-    dre_uuid = query_params.get("diretoria_regional")
-    if dre_uuid:
-        dre = DiretoriaRegional.objects.filter(uuid=dre_uuid).first()
-        filtros += f" | {dre.nome}"
-
+def _obtem_nomes_lotes(query_params: dict) -> list[str]:
     lotes_uuid = query_params.get("lotes")
-    if lotes_uuid:
-        lotes = Lote.objects.filter(uuid__in=lotes_uuid).values_list("nome", flat=True)
-        filtros += f" | {', '.join(lotes)}"
+    if not lotes_uuid:
+        return []
+    return list(Lote.objects.filter(uuid__in=lotes_uuid).values_list("nome", flat=True))
 
+
+def _obtem_dre(query_params: dict):
+    dre_uuid = query_params.get("diretoria_regional")
+    if not dre_uuid:
+        return None
+    return DiretoriaRegional.objects.filter(uuid=dre_uuid).first()
+
+
+def _formata_segmento_dre_lote(dre, lote_nomes: list[str]) -> str:
+    if lote_nomes and dre:
+        return f" | {', '.join(lote_nomes)} - DRE {dre.nome}"
+    if lote_nomes:
+        return f" | {', '.join(lote_nomes)}"
+    if dre:
+        return f" | DRE {dre.nome}"
+    return ""
+
+
+def _formata_segmento_escola(query_params: dict, nome_escola: str = None) -> str:
+    if nome_escola:
+        return f" | {nome_escola}"
     escola_codigo_eol = query_params.get("escola")
-    if escola_codigo_eol:
-        escola_codigo_eol, *_ = escola_codigo_eol.split("-")
-        escola = Escola.objects.filter(codigo_eol=escola_codigo_eol.strip()).first()
-        filtros += f" | {escola.nome}"
+    if not escola_codigo_eol:
+        return ""
+    escola_codigo_eol, *_ = escola_codigo_eol.split("-")
+    escola = Escola.objects.filter(codigo_eol=escola_codigo_eol.strip()).first()
+    if not escola:
+        return ""
+    return f" | {escola.nome}"
 
+
+def _formata_segmento_periodo_lancamento(query_params: dict) -> str:
     periodo_lancamento_de = query_params.get("periodo_lancamento_de")
     periodo_lancamento_ate = query_params.get("periodo_lancamento_ate")
-    if periodo_lancamento_de and periodo_lancamento_ate:
-        filtros += f" | Período de lançamento: {periodo_lancamento_de} até {periodo_lancamento_ate}"
+    if not periodo_lancamento_de or not periodo_lancamento_ate:
+        return ""
+    return (
+        f" | PERÍODO DE LANÇAMENTO: DE {periodo_lancamento_de} "
+        f"ATÉ {periodo_lancamento_ate}"
+    )
+
+
+def _formata_filtros(query_params: dict, nome_escola: str = None):
+    mes, ano = query_params.get("mes_ano").split("_")
+    filtros = f"{converte_numero_em_mes(int(mes))} {ano}"
+
+    filtros += _formata_segmento_dre_lote(
+        _obtem_dre(query_params), _obtem_nomes_lotes(query_params)
+    )
+    filtros += _formata_segmento_escola(query_params, nome_escola)
+    filtros += _formata_segmento_periodo_lancamento(query_params)
 
     return filtros
+
+
+def _eh_relatorio_por_escola(resultados):
+    return (
+        isinstance(resultados, list) and bool(resultados) and "escola" in resultados[0]
+    )
 
 
 def _preenche_titulo(workbook, worksheet, colunas):
@@ -77,7 +116,7 @@ def _preenche_titulo(workbook, worksheet, colunas):
         "Relatório de Adesão das Alimentações Servidas",
         formatacao,
     )
-    worksheet.set_row(0, 50)
+    worksheet.set_row(0, 70)
     worksheet.insert_image(
         0,
         0,
@@ -96,11 +135,12 @@ def _preenche_linha_dos_filtros_selecionados(
     worksheet,
     query_params: dict,
     colunas: List[str],
+    nome_escola: str = None,
 ):
-    filtros = _formata_filtros(query_params)
+    filtros = _formata_filtros(query_params, nome_escola)
 
     worksheet.merge_range(1, 0, 1, len(colunas) - 1, filtros.upper())
-    worksheet.set_row(1, 30, workbook.add_format({"align": "vcenter"}))
+    worksheet.set_row(1, 40, workbook.add_format({"align": "vcenter"}))
 
 
 def _preenche_data_do_relatorio(workbook, worksheet, colunas):
@@ -111,7 +151,7 @@ def _preenche_data_do_relatorio(workbook, worksheet, colunas):
         len(colunas) - 1,
         "Data: " + datetime.now().date().strftime(FORMATO_DATA_BRASILEIRO),
     )
-    worksheet.set_row(2, 25, workbook.add_format({"align": "vcenter"}))
+    worksheet.set_row(2, 30, workbook.add_format({"align": "vcenter"}))
 
 
 def _preenche_linha_do_periodo(
@@ -129,18 +169,20 @@ def _preenche_linha_do_periodo(
         periodo.upper(),
         formatacao,
     )
-    worksheet.set_row(proxima_linha - 1, 25, workbook.add_format({"align": "vcenter"}))
+    worksheet.set_row(proxima_linha - 1, 35, workbook.add_format({"align": "vcenter"}))
 
 
 def _ajusta_layout_header(workbook, worksheet, proxima_linha, df):
     linha = proxima_linha - len(df.index) - 1
-    formatacao = workbook.add_format({"bold": True, "bg_color": "#A5DD9B"})
+    formatacao = workbook.add_format(
+        {"bold": True, "bg_color": "#A5DD9B", "text_wrap": True}
+    )
     formatacao.set_align("center")
     formatacao.set_align("vcenter")
     formatacao.set_border()
 
     worksheet.write_row(linha, 0, df.columns.values, formatacao)
-    worksheet.set_row(linha, 25)
+    worksheet.set_row(linha, 45)
 
 
 def _formata_numeros_linha_total(workbook, worksheet, proxima_linha, colunas, df):
@@ -163,7 +205,7 @@ def _formata_numeros_linha_total(workbook, worksheet, proxima_linha, colunas, df
 
         worksheet.write_row(linha, index, [value], formatacao)
 
-    worksheet.set_row(linha, 25)
+    worksheet.set_row(linha, 35)
 
 
 def _ajusta_layout_colunas(workbook, worksheet, colunas):
@@ -171,7 +213,8 @@ def _ajusta_layout_colunas(workbook, worksheet, colunas):
     formatacao.set_align("center")
     formatacao.set_align("vcenter")
 
-    worksheet.set_column(0, len(colunas) - 1, 30, formatacao)
+    worksheet.set_column(0, 0, 45, formatacao)
+    worksheet.set_column(1, 3, 45, formatacao)
 
 
 def _formata_numeros_colunas_total_servido_e_frequencia(workbook, worksheet):
@@ -179,7 +222,7 @@ def _formata_numeros_colunas_total_servido_e_frequencia(workbook, worksheet):
     formatacao.set_align("center")
     formatacao.set_align("vcenter")
 
-    worksheet.set_column(1, 2, None, formatacao)
+    worksheet.set_column(1, 2, 45, formatacao)
 
 
 def _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas):
@@ -187,7 +230,49 @@ def _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas):
     formatacao.set_align("center")
     formatacao.set_align("vcenter")
 
-    worksheet.set_column(len(colunas) - 1, len(colunas) - 1, None, formatacao)
+    worksheet.set_column(len(colunas) - 1, len(colunas) - 1, 45, formatacao)
+
+
+def _preenche_aba(
+    workbook, writer, aba: str, resultados, query_params, colunas, nome_escola=None
+):
+    proxima_linha = 4  # 4 linhas em branco para o cabecalho
+    quantidade_de_linhas_em_branco_apos_tabela = 2
+
+    worksheet = workbook.add_worksheet(aba)
+
+    _preenche_titulo(workbook, worksheet, colunas)
+    _preenche_linha_dos_filtros_selecionados(
+        workbook, worksheet, query_params, colunas, nome_escola
+    )
+    _preenche_data_do_relatorio(workbook, worksheet, colunas)
+
+    for periodo, refeicoes in resultados.items():
+        df = _insere_tabela_periodo_na_planilha(
+            aba, refeicoes, colunas, proxima_linha, writer
+        )
+
+        _preenche_linha_do_periodo(
+            workbook,
+            worksheet,
+            proxima_linha,
+            periodo,
+            colunas,
+        )
+
+        for linha in range(proxima_linha, proxima_linha + len(df.index)):
+            worksheet.set_row(linha, 30)
+
+        proxima_linha += len(df.index) + 1
+
+        _ajusta_layout_header(workbook, worksheet, proxima_linha, df)
+        _formata_numeros_linha_total(workbook, worksheet, proxima_linha, colunas, df)
+
+        proxima_linha += quantidade_de_linhas_em_branco_apos_tabela
+
+    _ajusta_layout_colunas(workbook, worksheet, colunas)
+    _formata_numeros_colunas_total_servido_e_frequencia(workbook, worksheet)
+    _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas)
 
 
 def gera_relatorio_adesao_xlsx(resultados, query_params):
@@ -201,43 +286,28 @@ def gera_relatorio_adesao_xlsx(resultados, query_params):
     file = io.BytesIO()
 
     with pd.ExcelWriter(file, engine="xlsxwriter") as writer:
-        aba = "Relatório de Adesão"
-        proxima_linha = 4  # 4 linhas em branco para o cabecalho
-        quantidade_de_linhas_em_branco_apos_tabela = 2
-
         workbook = writer.book
-        worksheet = workbook.add_worksheet(aba)
 
-        _preenche_titulo(workbook, worksheet, colunas)
-        _preenche_linha_dos_filtros_selecionados(
-            workbook, worksheet, query_params, colunas
-        )
-        _preenche_data_do_relatorio(workbook, worksheet, colunas)
-
-        for periodo, refeicoes in resultados.items():
-            df = _insere_tabela_periodo_na_planilha(
-                aba, refeicoes, colunas, proxima_linha, writer
-            )
-
-            _preenche_linha_do_periodo(
+        if _eh_relatorio_por_escola(resultados):
+            for resultado in resultados:
+                aba = resultado["escola"]["nome"]
+                _preenche_aba(
+                    workbook,
+                    writer,
+                    aba,
+                    resultado["resultados"],
+                    query_params,
+                    colunas,
+                    nome_escola=resultado["escola"]["nome"],
+                )
+        else:
+            _preenche_aba(
                 workbook,
-                worksheet,
-                proxima_linha,
-                periodo,
+                writer,
+                "Relatório de Adesão",
+                resultados,
+                query_params,
                 colunas,
             )
-
-            proxima_linha += len(df.index) + 1
-
-            _ajusta_layout_header(workbook, worksheet, proxima_linha, df)
-            _formata_numeros_linha_total(
-                workbook, worksheet, proxima_linha, colunas, df
-            )
-
-            proxima_linha += quantidade_de_linhas_em_branco_apos_tabela
-
-        _ajusta_layout_colunas(workbook, worksheet, colunas)
-        _formata_numeros_colunas_total_servido_e_frequencia(workbook, worksheet)
-        _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas)
 
     return file.getvalue()
