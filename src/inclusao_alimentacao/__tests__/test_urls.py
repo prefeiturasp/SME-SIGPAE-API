@@ -916,7 +916,7 @@ def _cria_solicitacao_com_medicao_programas_e_projetos(
         solicitacao_medicao_inicial=solicitacao,
         grupo=grupo_programas,
     )
-    for dia in dias or ["01"]:
+    for dia in ["01"] if dias is None else dias:
         baker.make(
             ValorMedicao,
             medicao=medicao_programas,
@@ -934,7 +934,7 @@ def _cria_solicitacao_com_medicao_programas_e_projetos(
 
 
 @freeze_time("2026-07-01")
-def test_escola_encerra_inclusao_continua_remove_medicao_programas_e_projetos_inativa(
+def test_escola_encerra_inclusao_continua_exclui_medicao_no_ultimo_dia_quando_nao_ha_outra_inclusao(
     client_autenticado_vinculo_escola_inclusao, escola
 ):
     motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
@@ -979,14 +979,14 @@ def test_escola_encerra_inclusao_continua_remove_medicao_programas_e_projetos_in
     assert response.status_code == status.HTTP_200_OK
     assert solicitacao_abril.medicoes.filter(uuid=medicao_abril.uuid).exists()
     assert solicitacao_abril.medicoes.filter(uuid=medicao_manha_abril.uuid).exists()
-    assert solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert not solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
     assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
     assert solicitacao_julho.medicoes.filter(uuid=medicao_julho.uuid).exists()
     assert solicitacao_julho.medicoes.filter(uuid=medicao_manha_julho.uuid).exists()
 
 
 @freeze_time("2026-07-01")
-def test_escola_encerra_inclusao_continua_remove_apenas_valores_a_partir_do_encerramento_no_mesmo_mes(
+def test_escola_encerra_inclusao_continua_exclui_medicao_mesmo_com_valores_quando_nao_ha_outra_inclusao(
     client_autenticado_vinculo_escola_inclusao, escola
 ):
     motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
@@ -1010,12 +1010,7 @@ def test_escola_encerra_inclusao_continua_remove_apenas_valores_a_partir_do_ence
     )
     solicitacao_junho, medicao_junho, medicao_manha_junho = (
         _cria_solicitacao_com_medicao_programas_e_projetos(
-            escola, "06", "2026", dias=["01", "15", "16", "30"]
-        )
-    )
-    solicitacao_julho, medicao_julho, medicao_manha_julho = (
-        _cria_solicitacao_com_medicao_programas_e_projetos(
-            escola, "07", "2026", dias=["01", "15"]
+            escola, "06", "2026", dias=["01", "05", "16", "30"]
         )
     )
 
@@ -1024,24 +1019,163 @@ def test_escola_encerra_inclusao_continua_remove_apenas_valores_a_partir_do_ence
         content_type="application/json",
         data={
             "justificativa": "Projeto encerrado",
-            "encerrado_a_partir_de": "15/06/2026",
+            "encerrado_a_partir_de": "05/06/2026",
             "quantidades_periodo": [{"uuid": str(qtd.uuid), "cancelado": True}],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert not solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
+
+
+@freeze_time("2026-07-01")
+def test_escola_encerra_inclusao_continua_exclui_medicao_sem_valores_quando_nao_ha_outra_inclusao(
+    client_autenticado_vinculo_escola_inclusao, escola
+):
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        data_inicial=datetime.date(2026, 6, 1),
+        data_final=datetime.date(2026, 9, 30),
+        status=PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+    )
+    qtd = baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    solicitacao_junho, medicao_junho, medicao_manha_junho = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(
+            escola, "06", "2026", dias=[]
+        )
+    )
+
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao.uuid}/{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data={
+            "justificativa": "Projeto encerrado",
+            "encerrado_a_partir_de": "05/06/2026",
+            "quantidades_periodo": [{"uuid": str(qtd.uuid), "cancelado": True}],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert not solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
+
+
+@freeze_time("2026-07-01")
+def test_escola_encerra_inclusao_continua_mantem_medicao_quando_ha_outra_inclusao_ativa(
+    client_autenticado_vinculo_escola_inclusao, escola
+):
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao_a = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        data_inicial=datetime.date(2026, 6, 1),
+        data_final=datetime.date(2026, 9, 30),
+        status=PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+    )
+    qtd_a = baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao_a,
+        periodo_escolar=periodo_manha,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    inclusao_b = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        data_inicial=datetime.date(2026, 6, 1),
+        data_final=datetime.date(2026, 9, 30),
+        status=PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao_b,
+        periodo_escolar=baker.make("PeriodoEscolar", nome="TARDE"),
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    solicitacao_junho, medicao_junho, medicao_manha_junho = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(
+            escola, "06", "2026", dias=[]
+        )
+    )
+
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao_a.uuid}/{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data={
+            "justificativa": "Projeto A encerrado",
+            "encerrado_a_partir_de": "05/06/2026",
+            "quantidades_periodo": [{"uuid": str(qtd_a.uuid), "cancelado": True}],
         },
     )
 
     assert response.status_code == status.HTTP_200_OK
     assert solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
     assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
-    assert set(medicao_junho.valores_medicao.values_list("dia", flat=True)) == {
-        "01",
-        "15",
-    }
-    assert solicitacao_julho.medicoes.filter(uuid=medicao_julho.uuid).exists()
-    assert solicitacao_julho.medicoes.filter(uuid=medicao_manha_julho.uuid).exists()
-    assert set(medicao_julho.valores_medicao.values_list("dia", flat=True)) == {
-        "01",
-        "15",
-    }
+
+
+@freeze_time("2026-07-01")
+def test_escola_encerra_inclusao_continua_exclui_medicao_no_primeiro_dia_quando_nao_ha_outra_inclusao(
+    client_autenticado_vinculo_escola_inclusao, escola
+):
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_lote=escola.lote,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        data_inicial=datetime.date(2026, 6, 1),
+        data_final=datetime.date(2026, 9, 30),
+        status=PedidoAPartirDaEscolaWorkflow.CODAE_AUTORIZADO,
+    )
+    qtd = baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[0, 1, 2, 3, 4, 5, 6],
+    )
+    solicitacao_junho, medicao_junho, medicao_manha_junho = (
+        _cria_solicitacao_com_medicao_programas_e_projetos(
+            escola, "06", "2026", dias=["01", "15", "30"]
+        )
+    )
+
+    response = client_autenticado_vinculo_escola_inclusao.patch(
+        f"/inclusoes-alimentacao-continua/{inclusao.uuid}/{ESCOLA_CANCELA}/",
+        content_type="application/json",
+        data={
+            "justificativa": "Projeto encerrado no primeiro dia do mês",
+            "encerrado_a_partir_de": "01/06/2026",
+            "quantidades_periodo": [{"uuid": str(qtd.uuid), "cancelado": True}],
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert not solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
 
 
 @freeze_time("2026-07-01")
