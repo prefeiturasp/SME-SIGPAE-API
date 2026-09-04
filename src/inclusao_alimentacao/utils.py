@@ -2,7 +2,7 @@
 
 Funções auxiliares para identificar períodos ativos no mês e remover a
 medição de Programas e Projetos quando a inclusão contínua é encerrada e
-não resta valor nem outra quantidade ativa na instituição.
+não há outra quantidade ativa na instituição.
 """
 
 import datetime
@@ -160,8 +160,8 @@ def remove_medicao_programas_e_projetos_se_inclusao_inativa(
     """Remove a medição de Programas e Projetos se ela ficar sem uso no mês.
 
     Atua só no mês de ``encerrado_a_partir_de``. Outra quantidade ativa na
-    instituição, ou qualquer valor na medição, faz com que ela seja
-    mantida. Sem os dois, a medição vazia é excluída.
+    instituição faz com que a medição seja mantida. Sem isso, a medição é
+    excluída.
 
     Não faz nada quando a escola ou a data de encerramento estão ausentes.
 

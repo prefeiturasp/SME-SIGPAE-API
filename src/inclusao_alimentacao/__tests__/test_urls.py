@@ -934,7 +934,7 @@ def _cria_solicitacao_com_medicao_programas_e_projetos(
 
 
 @freeze_time("2026-07-01")
-def test_escola_encerra_inclusao_continua_mantem_medicao_no_ultimo_dia_do_mes(
+def test_escola_encerra_inclusao_continua_exclui_medicao_no_ultimo_dia_quando_nao_ha_outra_inclusao(
     client_autenticado_vinculo_escola_inclusao, escola
 ):
     motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
@@ -979,15 +979,14 @@ def test_escola_encerra_inclusao_continua_mantem_medicao_no_ultimo_dia_do_mes(
     assert response.status_code == status.HTTP_200_OK
     assert solicitacao_abril.medicoes.filter(uuid=medicao_abril.uuid).exists()
     assert solicitacao_abril.medicoes.filter(uuid=medicao_manha_abril.uuid).exists()
-    assert solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert not solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
     assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
-    assert medicao_junho.valores_medicao.exists()
     assert solicitacao_julho.medicoes.filter(uuid=medicao_julho.uuid).exists()
     assert solicitacao_julho.medicoes.filter(uuid=medicao_manha_julho.uuid).exists()
 
 
 @freeze_time("2026-07-01")
-def test_escola_encerra_inclusao_continua_mantem_medicao_quando_possui_valores(
+def test_escola_encerra_inclusao_continua_exclui_medicao_mesmo_com_valores_quando_nao_ha_outra_inclusao(
     client_autenticado_vinculo_escola_inclusao, escola
 ):
     motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
@@ -1026,14 +1025,8 @@ def test_escola_encerra_inclusao_continua_mantem_medicao_quando_possui_valores(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert not solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
     assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
-    assert set(medicao_junho.valores_medicao.values_list("dia", flat=True)) == {
-        "01",
-        "05",
-        "16",
-        "30",
-    }
 
 
 @freeze_time("2026-07-01")
@@ -1142,7 +1135,7 @@ def test_escola_encerra_inclusao_continua_mantem_medicao_quando_ha_outra_inclusa
 
 
 @freeze_time("2026-07-01")
-def test_escola_encerra_inclusao_continua_no_primeiro_dia_mantem_medicao_com_valores(
+def test_escola_encerra_inclusao_continua_exclui_medicao_no_primeiro_dia_quando_nao_ha_outra_inclusao(
     client_autenticado_vinculo_escola_inclusao, escola
 ):
     motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Contínuos")
@@ -1181,13 +1174,8 @@ def test_escola_encerra_inclusao_continua_no_primeiro_dia_mantem_medicao_com_val
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
+    assert not solicitacao_junho.medicoes.filter(uuid=medicao_junho.uuid).exists()
     assert solicitacao_junho.medicoes.filter(uuid=medicao_manha_junho.uuid).exists()
-    assert set(medicao_junho.valores_medicao.values_list("dia", flat=True)) == {
-        "01",
-        "15",
-        "30",
-    }
 
 
 @freeze_time("2026-07-01")
