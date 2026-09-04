@@ -153,18 +153,27 @@ def test_gerar_arquivo_pdf_unico_sem_compactacao(reclamacao):
     assert tipo_mime == "application/pdf"
 
 
-def test_mais_de_um_pdf_na_mesma_acao_retorna_erro(reclamacao):
+def test_multiplos_pdfs_sao_agrupados_em_zip(reclamacao):
     criar_anexo_reclamacao(reclamacao, "documento-1.pdf", b"%PDF-1.4 primeiro")
     criar_anexo_reclamacao(reclamacao, "documento-2.pdf", b"%PDF-1.4 segundo")
 
-    with pytest.raises(
-        ValueError,
-        match="A ação do histórico possui mais de um PDF vinculado",
-    ):
+    nome, conteudo, tipo_mime = (
         ServicoHistoricoReclamacaoProduto.gerar_arquivo_pdfs(
             reclamacao.uuid,
             reclamacao.uuid,
         )
+    )
+
+    assert nome == f"documentos_reclamacao_{reclamacao.uuid}.zip"
+    assert tipo_mime == "application/zip"
+
+    with zipfile.ZipFile(io.BytesIO(conteudo)) as arquivo_zip:
+        assert set(arquivo_zip.namelist()) == {
+            "documento-1.pdf",
+            "documento-2.pdf",
+        }
+        assert arquivo_zip.read("documento-1.pdf") == b"%PDF-1.4 primeiro"
+        assert arquivo_zip.read("documento-2.pdf") == b"%PDF-1.4 segundo"
 
 
 def test_multiplas_imagens_sao_agrupadas_em_zip(reclamacao):

@@ -80,10 +80,6 @@ class ServicoHistoricoReclamacaoProduto:
             for anexo in anexos
             if cls._obter_tipo_mime(anexo) == "application/pdf"
         ]
-        if len(pdfs) > 1:
-            raise ValueError(
-                "A ação do histórico possui mais de um PDF vinculado."
-            )
         return pdfs
 
     @classmethod
@@ -113,9 +109,11 @@ class ServicoHistoricoReclamacaoProduto:
     def obter_nome_download_pdfs(
         cls,
         pdfs: list[TipoAnexoHistorico],
-        _uuid_log: UUID | str,
+        uuid_log: UUID | str,
     ) -> str:
-        return cls.obter_nome_anexo(pdfs[0])
+        if len(pdfs) == 1:
+            return cls.obter_nome_anexo(pdfs[0])
+        return f"documentos_reclamacao_{uuid_log}.zip"
 
     @classmethod
     def obter_nome_download_imagens(
