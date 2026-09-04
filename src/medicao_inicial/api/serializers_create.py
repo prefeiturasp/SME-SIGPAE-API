@@ -279,6 +279,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         allow_null=True,
         default=None,
     )
+    descricao_metodo = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, attrs):
         escola = attrs.get("escola")
