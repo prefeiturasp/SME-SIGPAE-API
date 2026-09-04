@@ -33,12 +33,24 @@ class TermoRecebimentoDefinitivoFilter(filters.FilterSet):
         lookup_expr="icontains",
         distinct=True,
     )
+    numero_contrato = filters.CharFilter(
+        field_name="contrato__numero",
+        lookup_expr="icontains",
+    )
     status = filters.MultipleChoiceFilter(
         field_name="status",
         choices=[
             (str(state), state)
             for state, _ in TermoRecebimentoDefinitivo.STATUS_CHOICES
         ],
+    )
+    status_fornecedor = filters.CharFilter(
+        field_name="status",
+        method="filter_status_fornecedor",
+        help_text=(
+            "Filtro agregado para o fornecedor: RECEBIDO agrupa os status "
+            "do fluxo de envio; ASSINADO corresponde a ASSINADO_FORNECEDOR."
+        ),
     )
     data_inicial = filters.DateFilter(
         field_name="criado_em",
@@ -52,3 +64,20 @@ class TermoRecebimentoDefinitivoFilter(filters.FilterSet):
     class Meta:
         model = TermoRecebimentoDefinitivo
         fields = ("uuid", "status")
+
+    def filter_status_fornecedor(self, queryset, name, value):
+        """Agrupa os status na visão do fornecedor.
+
+        ``RECEBIDO`` corresponde aos status do fluxo de envio e
+        ``ASSINADO`` ao status ``ASSINADO_FORNECEDOR``. Qualquer outro
+        valor não aplica filtro.
+        """
+        if value == "RECEBIDO":
+            return queryset.filter(
+                status__in=TermoRecebimentoDefinitivo.STATUS_RECEBIDO_FORNECEDOR
+            )
+        if value == "ASSINADO":
+            return queryset.filter(
+                status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR
+            )
+        return queryset

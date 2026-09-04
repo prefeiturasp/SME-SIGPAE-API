@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+{% include 'relatorio_base.html' %} {% load index %} {% load static %} {% load sass_tags %}
+
+<html lang="pt-BR">
+  <head>
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/cabecalho_relatorio_adesao.scss' %}"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/relatorio_adesao.scss' %}"
+      type="text/css"
+    />
+    <style>
+      @page {
+        @bottom-center {
+          width: 100%;
+          background: #EEEEEE;
+          color: #000000;
+          content: "Página " counter(page) " de " counter(pages);
+          font-size: 16px;
+        }
+        margin-bottom: 2em;
+      }
+
+      td:not(:first-child) {
+        text-align: center;
+      }
+    </style>
+    <title>SIGPAE</title>
+  </head>
+  <body>
+    {% for escola in escolas %}
+    <header class="header" {% if not forloop.first %}style="page-break-before: always;"{% endif %}>
+      <div id="container-logo">
+        <figure class="logo-sme">
+          <img
+            src="{% static 'images/LOGO_FUNDO_CLARO.png' %}"
+            alt="logo-sme"
+          />
+        </figure>
+        <h1>SISTEMA GESTÃO DO PROGRAMA DE ALIMENTAÇÃO ESCOLAR</h1>
+      </div>
+      <div id="container-filtros">
+        <span style="margin-right: 50px">{{ escola.filtros }}</span>
+        <span style="flex-shrink: 0">Data do Relatório: {{ data_relatorio }}</span>
+      </div>
+    </header>
+    <main>
+      <h2>RELATÓRIO DE ADESÃO DAS ALIMENTAÇÕES SERVIDAS</h2>
+      <div>
+        {% for periodo, alimentacoes in escola.resultados.items %}
+        <div id="periodo">
+          <h3>{{ periodo }}</h3>
+          <table>
+            <thead>
+              <tr>
+                {% for coluna in colunas %}
+                <th>{{ coluna }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for alimentacao, totais in alimentacoes.items %}
+              <tr>
+                <td>{{ alimentacao }}</td>
+                {% for total, valor in totais.items %}
+                {% if total == "total_adesao" %}
+                <td>{{ valor|numero_para_porcentagem }}</td>
+                {% else %}
+                <td>{{ valor|numero_para_milhar }}</td>
+                {% endif %}
+                {% endfor %}
+              </tr>
+              {% endfor %}
+              <tr>
+                <td>TOTAL</td>
+                <td>{{ alimentacoes|relatorio_adesao_total_servido|numero_para_milhar }}</td>
+                <td>{{ alimentacoes|relatorio_adesao_total_frequencia|numero_para_milhar }}</td>
+                <td>{{ alimentacoes|relatorio_adesao_total_adesao|numero_para_porcentagem }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        {% endfor %}
+      </div>
+    </main>
+    {% endfor %}
+  </body>
+</html>
