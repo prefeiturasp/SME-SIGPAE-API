@@ -144,19 +144,25 @@
   font-size: 10px;
   line-height: 15px;
   text-align: center;
+  display: flex;
+  align-items: stretch;
   .label-contagem {
-    height: 30px;
-    padding-top: 20px;
-    padding-bottom: 5px;
+    min-height: 30px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     color: $branco;
     background: $verde-escuro;
     border: solid 1px $verde-escuro;
     border-radius: 4px 0px 0px 4px;
+    margin-left: -10px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .value-contagem {
-    height: 30px;
-    padding-top: 20px;
-    padding-bottom: 5px;
+    min-height: 30px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     border: solid 1px $cinza-claro;
     border-radius: 0px 4px 4px 0px;
     color: $cinza-meio-escuro;
