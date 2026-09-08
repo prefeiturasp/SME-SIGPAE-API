@@ -2,6 +2,7 @@ from django_filters import rest_framework as filters
 
 from ..models import Notificacao
 
+from ..models import PerguntaFrequente
 
 class NotificacaoFilter(filters.FilterSet):
     uuid = filters.CharFilter(
@@ -45,3 +46,30 @@ class CentralDeDownloadFilter(filters.FilterSet):
         lookup_expr="exact",
     )
     visto = filters.BooleanFilter(field_name="visto")
+
+class PerguntaFrequenteFilter(filters.FilterSet):
+    titulo = filters.CharFilter(
+        field_name="pergunta",
+        lookup_expr="icontains",
+    )
+    categoria = filters.UUIDFilter(
+        field_name="categoria__uuid",
+    )
+    perfil = filters.CharFilter(
+        method="filtrar_perfil",
+    )
+
+    def filtrar_perfil(self, queryset, _name, value):
+        if not value:
+            return queryset
+
+        if value == "todos":
+            return queryset.filter(todos_os_perfis=True)
+
+        return queryset.filter(
+            perfis__uuid=value
+        ).distinct()
+
+    class Meta:
+        model = PerguntaFrequente
+        fields = []
