@@ -275,6 +275,10 @@ def _preenche_aba(
     _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas)
 
 
+def _normaliza_nome_aba(nome: str) -> str:
+    return nome[:31]
+
+
 def gera_relatorio_adesao_xlsx(resultados, query_params):
     colunas = [
         "Tipo de Alimentação",
@@ -290,7 +294,7 @@ def gera_relatorio_adesao_xlsx(resultados, query_params):
 
         if _eh_relatorio_por_escola(resultados):
             for resultado in resultados:
-                aba = resultado["escola"]["nome"]
+                aba = _normaliza_nome_aba(resultado["escola"]["nome"])
                 _preenche_aba(
                     workbook,
                     writer,
