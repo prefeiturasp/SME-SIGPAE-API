@@ -103,6 +103,7 @@ pypdf = "==6.16.1"
 unidecode = "==1.4.0"
 bleach = "==6.4.0"
 num2words = "==0.5.14"
+SME-Sidecar-SDK = {ref = "v1.0.0", git = "https://github.com/prefeiturasp/SME-Sidecar-SDK.git"}
 
 [requires]
 python_version = "3.13.3"
