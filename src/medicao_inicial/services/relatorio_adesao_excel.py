@@ -276,6 +276,14 @@ def _preenche_aba(
 
 
 def _normaliza_nome_aba(nome: str) -> str:
+    """
+    Trunca o nome da aba do Excel para no máximo 31 caracteres.
+
+    O Excel limita o nome de uma planilha a 31 caracteres. Nomes de unidades
+    educacionais podem ultrapassar esse limite, o que faz o xlsxwriter lançar
+    um erro ao gerar o relatório de adesão separado por escola. Truncar o nome
+    evita esse erro mantendo a aba identificável.
+    """
     return nome[:31]
 
 
