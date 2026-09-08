@@ -14,6 +14,45 @@ pytestmark = pytest.mark.django_db
 
 
 class TestCronogramaSemanalViewSet:
+    def test_lista_relatorio_retorna_linhas_com_dados_do_cronograma_mensal(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_para_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        mensal = cronograma_semanal_para_relatorio.cronograma_mensal
+
+        response = client.get("/cronogramas-semanais/listagem-relatorio/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+        linha = response.json()["results"][0]
+        assert linha["numero"] == mensal.numero
+        assert linha["empresa"] == mensal.empresa.nome_fantasia
+        assert linha["produto"] == mensal.ficha_tecnica.produto.nome
+        assert linha["qtd_total_empenho"] == mensal.qtd_total_empenho
+        assert linha["custo_unitario_produto"] == mensal.custo_unitario_produto
+        assert linha["status"] == cronograma_semanal_para_relatorio.get_status_display()
+
+    def test_lista_relatorio_retorna_programacoes_da_linha(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_para_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get("/cronogramas-semanais/listagem-relatorio/")
+
+        assert response.status_code == status.HTTP_200_OK
+        programacoes = response.json()["results"][0]["programacoes"]
+        assert [p["mes_programado"] for p in programacoes] == ["03/2026", "04/2026"]
+        assert programacoes[0] == {
+            "quantidade": 50.0,
+            "data_inicio": "01/03/2026",
+            "data_fim": "15/03/2026",
+            "mes_programado": "03/2026",
+        }
+
     def test_post_rascunho_sucesso(
         self,
         client_autenticado_vinculo_dilog_cronograma,
