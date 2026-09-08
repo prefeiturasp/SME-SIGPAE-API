@@ -319,3 +319,23 @@ def test_formata_filtros_com_nome_escola(mock_exportacao_relatorio_adesao):
         "Março 2025 | Lote 01, Lote 02, Lote 03 - DRE DIRETORIA REGIONAL IPIRANGA | EMEI VICENTE PAULO DA SILVA | "
         "PERÍODO DE LANÇAMENTO: DE 05/03/2025 ATÉ 15/03/2025"
     )
+
+
+@freeze_time("2025-07-20")
+def test_gera_relatorio_adesao_xlsx_por_escola_nome_aba_truncado(
+    mock_exportacao_relatorio_adesao,
+):
+    resultados_agregados, query_params = mock_exportacao_relatorio_adesao
+    nome_escola = "CEU EMEI BENNO HUBERT STOLLENWERK, PE. CEU EMEI BENNO"
+    resultados_por_escola = [
+        {
+            "escola": {"nome": nome_escola, "codigo_eol": "123456"},
+            "resultados": resultados_agregados,
+        }
+    ]
+
+    excel = gera_relatorio_adesao_xlsx(resultados_por_escola, query_params)
+
+    workbook = load_workbook(filename=BytesIO(excel))
+    assert workbook.sheetnames == [nome_escola[:31]]
+    assert all(len(aba) <= 31 for aba in workbook.sheetnames)
