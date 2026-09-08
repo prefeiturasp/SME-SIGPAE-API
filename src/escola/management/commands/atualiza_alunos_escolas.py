@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import environ
 import requests
 from django.core.management.base import BaseCommand
+from django.db import connection
 from requests import ConnectionError
 from rest_framework import status
 
@@ -75,6 +76,8 @@ class Command(BaseCommand):
                 quantidade_alunos_atual=quantidade_alunos_atual,
             )
 
+            self._sanitiza_dados_alunos()
+
             toc = timeit.default_timer()
             result = round(toc - tic, 2)
             if result > 60:
@@ -87,6 +90,34 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.ERROR("Execution stopped due to repeated failures.")
             )
+
+    def _sanitiza_dados_alunos(self):
+        if env("DJANGO_ENV") != "testes":
+            return
+        if env("DJANGO_ENV") == "production":
+            return
+        if not self._existe_funcao_sanitizar_dados():
+            self.stdout.write(
+                self.style.WARNING(
+                    "Função public.sanitizar_dados não encontrada no banco."
+                )
+            )
+            return
+        with connection.cursor() as cursor:
+            cursor.execute("CALL public.sanitizar_dados(FALSE)")
+        self.stdout.write(
+            self.style.SUCCESS("Sanitização de dados concluída com sucesso.")
+        )
+
+    def _existe_funcao_sanitizar_dados(self):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 1
+                FROM pg_proc
+                JOIN pg_namespace ns ON ns.oid = pg_proc.pronamespace
+                WHERE proname = 'sanitizar_dados' AND ns.nspname = 'public'
+                """)
+            return cursor.fetchone() is not None
 
     def _salva_logs_requisicao(self, response, cod_eol_escola):
         if not response.status_code == status.HTTP_404_NOT_FOUND:
