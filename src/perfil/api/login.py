@@ -2,7 +2,7 @@ import datetime
 import logging
 import re
 
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from requests.exceptions import Timeout
 from rest_framework import permissions, status
 from rest_framework.exceptions import PermissionDenied
@@ -288,6 +288,14 @@ class LoginView(TokenObtainPairView):
                 user_dict["email"], login
             )
             self.checa_vinculo_se_servidor(login)
+        elif user_dict_local := self._autenticar_usuario_django_se_senha_nao_ascii(
+            login, senha
+        ):
+            user_dict_local["email"] = self.validar_email_usuario_coresso(
+                user_dict_local["email"], login
+            )
+            self.checa_vinculo_se_servidor(login)
+            return user_dict_local
         else:
             self.checa_login_senha_coresso(login, senha)
             dados_usuario = self.get_dados_usuario_json(login)
@@ -297,6 +305,21 @@ class LoginView(TokenObtainPairView):
             self.checa_se_cria_usuario(dados_usuario)
             user_dict = {"login": login, **dados_usuario}
         return user_dict
+
+    def _senha_possui_nao_ascii(self, senha):
+        return bool(senha) and not senha.isascii()
+
+    def _autenticar_usuario_django_se_senha_nao_ascii(self, login, senha):
+        if not self._senha_possui_nao_ascii(senha):
+            return None
+        usuario = authenticate(username=login, password=senha)
+        if usuario is None:
+            return None
+        return {
+            "login": usuario.username,
+            "nome": usuario.nome,
+            "email": usuario.email,
+        }
 
     def handle_user_not_found(self, login):
         logger.info("Usuário %s não encontrado.", login)
