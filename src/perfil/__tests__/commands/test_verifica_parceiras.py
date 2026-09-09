@@ -37,7 +37,7 @@ def test_extrair_cpfs_pdf(mock_pdfplumber):
     assert cpfs == ["12345678900", "11122233344"]
 
 
-@patch("requests.get")
+@patch("src.perfil.management.commands.verifica_parceiras.EOL_SGP_CLIENT.get")
 def test_consultar_api_sucesso(mock_get):
     mock_resp = MagicMock()
     mock_resp.status_code = 200
@@ -49,7 +49,7 @@ def test_consultar_api_sucesso(mock_get):
     assert result["nome"] == "João"
 
 
-@patch("requests.get")
+@patch("src.perfil.management.commands.verifica_parceiras.EOL_SGP_CLIENT.get")
 def test_consultar_api_falha(mock_get):
     mock_resp = MagicMock()
     mock_resp.status_code = 404
