@@ -15,7 +15,7 @@ class DadosComunsConfig(AppConfig):
 
         runtime.configure(
             Settings(
-                service_name="pedagogico-ms",
+                service_name="sigpae",
                 service_version="1.0.0",
             )
         )

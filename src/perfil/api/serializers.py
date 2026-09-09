@@ -2,10 +2,10 @@ import logging
 import re
 
 import environ
+import httpx
 from django.db import transaction
 from django.db.utils import IntegrityError
 from munch import Munch
-from requests import ConnectTimeout, ReadTimeout
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -515,11 +515,7 @@ class AlteraEmailSerializer(serializers.ModelSerializer):
                 {"detail": "Já existe um usuário com este e-mail"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        except ReadTimeout:
-            return Response(
-                {"detail": "EOL Timeout"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        except ConnectTimeout:
+        except httpx.TimeoutException:
             return Response(
                 {"detail": "EOL Timeout"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -530,11 +526,7 @@ class AlteraEmailSerializer(serializers.ModelSerializer):
             EOLServicoSGP.redefine_email(username, validated_data.get("email"))
         except EOLException as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except ReadTimeout:
-            return Response(
-                {"detail": "EOL Timeout"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        except ConnectTimeout:
+        except httpx.TimeoutException:
             return Response(
                 {"detail": "EOL Timeout"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -568,11 +560,7 @@ class AlterarVinculoSerializer(serializers.ModelSerializer):
                 )
             except EOLException as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-            except ReadTimeout:
-                return Response(
-                    {"detail": "EOL Timeout"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            except ConnectTimeout:
+            except httpx.TimeoutException:
                 return Response(
                     {"detail": "EOL Timeout"}, status=status.HTTP_400_BAD_REQUEST
                 )
@@ -626,11 +614,7 @@ class RedefinirSenhaSerializer(serializers.ModelSerializer):
 
         except EOLException as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except ReadTimeout:
-            return Response(
-                {"detail": "EOL Timeout"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        except ConnectTimeout:
+        except httpx.TimeoutException:
             return Response(
                 {"detail": "EOL Timeout"}, status=status.HTTP_400_BAD_REQUEST
             )

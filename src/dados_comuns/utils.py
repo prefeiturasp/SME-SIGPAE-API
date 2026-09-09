@@ -12,8 +12,8 @@ from mimetypes import guess_extension
 from typing import Any
 
 import environ
+import httpx
 import numpy as np
-import requests
 from dateutil.relativedelta import relativedelta
 from des.models import DynamicEmailConfiguration
 from django.conf import settings
@@ -47,6 +47,7 @@ from .constants import (
     FORMATO_DATA_BRASILEIRO,
     TIPOS_GESTAO,
 )
+from .http_client import GITHUB_CLIENT
 from .models import CentralDeDownload, LogSolicitacoesUsuario, Notificacao
 
 calendar = BrazilSaoPauloCity()
@@ -766,13 +767,13 @@ def obter_versao_api():
         "X-GitHub-Api-Version": github_api_version,
     }
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = GITHUB_CLIENT.get(url, headers=headers, timeout=10)
         response.raise_for_status()
 
         latest_release = response.json()
         return latest_release.get("tag_name")
 
-    except requests.exceptions.RequestException as ex:
+    except httpx.HTTPError as ex:
         logger.error(f"Erro na requisição: {ex}")
     except Exception as ex:
         logger.error(f"Não foi possível obter a última versão da API: {ex}")

@@ -5,9 +5,9 @@ import logging.config
 import os
 
 import environ
-import requests
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sme_sidecar_sdk import build_http_client
 
 # (src/config/settings/base.py - 3 = src/)
 
@@ -324,9 +324,10 @@ REST_FRAMEWORK = {
 # ------------------------------------------------------------------------------
 def obter_versao():
     try:
-        url = "https://api.github.com/repos/prefeiturasp/SME-SIGPAE-API/releases/latest"
-        response = requests.get(url, timeout=5)
-        response.raise_for_status()
+        with build_http_client("github", base_url="https://api.github.com") as client:
+            response = client.get(
+                "/repos/prefeiturasp/SME-SIGPAE-API/releases/latest", timeout=5
+            )
         return response.json().get("tag_name")
     except Exception as e:
         print(f"[WARN] Não foi possível obter versão do GitHub: {e}")

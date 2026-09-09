@@ -1,13 +1,14 @@
 import logging
 
 import environ
-import requests
+import httpx
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from django.db.utils import IntegrityError
-from requests import ConnectionError
+from sme_sidecar_sdk import CircuitOpenError
 
 from ....dados_comuns.constants import DJANGO_EOL_API_TOKEN, DJANGO_EOL_API_URL
+from ....dados_comuns.http_client import EOL_CLIENT, executar_chamada
 from ...models import Escola, EscolaPeriodoEscolar, PeriodoEscolar
 from .helper import calcula_total_alunos_por_escola_por_periodo
 
@@ -23,12 +24,16 @@ class Command(BaseCommand):
         headers = {"Authorization": f"Token {DJANGO_EOL_API_TOKEN}"}
 
         try:
-            r = requests.get(
-                f"{DJANGO_EOL_API_URL}/total_alunos/", headers=headers, timeout=120
+            r = executar_chamada(
+                EOL_CLIENT,
+                "get",
+                f"{DJANGO_EOL_API_URL}/total_alunos/",
+                headers=headers,
+                timeout=120,
             )
             json = r.json()
             logger.debug(f"payload da resposta: {json}")
-        except ConnectionError as e:
+        except (httpx.TransportError, CircuitOpenError) as e:
             msg = f"Erro de conexão na api do  EOL: {e}"
             logger.error(msg)
             self.stdout.write(self.style.ERROR(msg))
