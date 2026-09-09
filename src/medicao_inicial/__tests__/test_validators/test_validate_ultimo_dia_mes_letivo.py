@@ -61,7 +61,7 @@ def _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia, escola=No
             medicao=medicao,
             categoria_medicao=categoria,
             dia=_dia_str(dia),
-            nome_campo="lanche",
+            nome_campo="matriculados",
             valor="10",
         )
     return medicao
