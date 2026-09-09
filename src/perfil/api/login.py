@@ -283,7 +283,7 @@ class LoginView(TokenObtainPairView):
     def autenticar_usuario(self, login, senha):
         response = AutenticacaoService.autentica(login, senha)
         user_dict = response.json()
-        if "login" in user_dict.keys():
+        if isinstance(user_dict, dict) and "login" in user_dict:
             user_dict["email"] = self.validar_email_usuario_coresso(
                 user_dict["email"], login
             )

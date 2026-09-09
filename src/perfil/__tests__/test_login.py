@@ -774,6 +774,35 @@ def test_login_com_senha_nao_ascii_quando_coresso_falha(
     assert usuario.check_password(senha)
 
 
+def test_login_com_senha_nao_ascii_quando_coresso_retorna_string(
+    client_autenticado_da_escola, monkeypatch
+):
+    senha = "Senha123ção"
+    usuario = Usuario.objects.get(username="1234567")
+    usuario.set_password(senha)
+    usuario.save()
+
+    monkeypatch.setattr(
+        AutenticacaoService,
+        "autentica",
+        lambda p1, p2: mocked_response("Erro ao autenticar", 500),
+    )
+    monkeypatch.setattr(
+        EOLServicoSGP,
+        "get_dados_usuario",
+        lambda p1: mocked_response(mocked_response_get_dados_usuario_coresso(), 200),
+    )
+
+    response = client_autenticado_da_escola.post(
+        "/login/",
+        content_type="application/json",
+        data=json.dumps({"login": "1234567", "password": senha}),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["token"]
+
+
 def test_login_com_senha_nao_ascii_incorreta_nao_autentica(
     client_autenticado_da_escola, monkeypatch
 ):
