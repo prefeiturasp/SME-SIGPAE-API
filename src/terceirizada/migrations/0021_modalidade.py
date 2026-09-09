@@ -2,7 +2,6 @@
 
 import uuid
 
-import django_prometheus.models
 from django.db import migrations, models
 
 
@@ -52,10 +51,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "Modalidade",
                 "verbose_name_plural": "Modalidades",
             },
-            bases=(
-                django_prometheus.models.ExportModelOperationsMixin("modalidade"),
-                models.Model,
-            ),
+            bases=(models.Model,),
         ),
         migrations.RunPython(cria_modalidades, reverse_code=remove_modalidades),
     ]

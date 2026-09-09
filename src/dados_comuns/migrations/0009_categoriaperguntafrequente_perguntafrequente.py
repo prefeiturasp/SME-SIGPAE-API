@@ -3,7 +3,6 @@
 import uuid
 
 import django.db.models.deletion
-import django_prometheus.models
 from django.db import migrations, models
 
 
@@ -30,10 +29,7 @@ class Migration(migrations.Migration):
                     models.CharField(blank=True, max_length=100, verbose_name="Nome"),
                 ),
             ],
-            bases=(
-                django_prometheus.models.ExportModelOperationsMixin("cat_faq"),
-                models.Model,
-            ),
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name="PerguntaFrequente",
@@ -65,9 +61,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            bases=(
-                django_prometheus.models.ExportModelOperationsMixin("faq"),
-                models.Model,
-            ),
+            bases=(models.Model,),
         ),
     ]

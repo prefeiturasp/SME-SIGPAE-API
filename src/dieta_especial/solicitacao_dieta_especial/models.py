@@ -19,7 +19,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.db import models
 from django.db.models import Q, QuerySet
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -169,7 +168,6 @@ class ClassificacaoDieta(Descritivel, Nomeavel):
 
 
 class SolicitacaoDietaEspecial(
-    ExportModelOperationsMixin("dieta_especial"),
     TemChaveExterna,
     CriadoEm,
     CriadoPor,
@@ -703,7 +701,7 @@ class SolicitacaoDietaEspecial(
         return f"Solicitação #{self.id_externo}"
 
 
-class Anexo(ExportModelOperationsMixin("anexo"), models.Model):
+class Anexo(models.Model):
     """Anexo (arquivo) vinculado a uma solicitação de dieta especial.
 
     Attributes:

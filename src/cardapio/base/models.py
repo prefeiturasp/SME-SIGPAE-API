@@ -1,5 +1,4 @@
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -10,9 +9,7 @@ from src.dados_comuns.behaviors import (
 from src.dados_comuns.constants import MODEL_ESCOLA, TIPOS_ALIMENTACAO
 
 
-class TipoAlimentacao(
-    ExportModelOperationsMixin("tipo_alimentacao"), Nomeavel, TemChaveExterna, Posicao
-):
+class TipoAlimentacao(Nomeavel, TemChaveExterna, Posicao):
     """Representa um tipo de alimentação que pode compor o cardápio escolar.
 
     Os registros deste modelo são reutilizados em vínculos com período escolar,
@@ -84,7 +81,6 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
 
 
 class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
-    ExportModelOperationsMixin("vinculo_alimentacao_periodo_escolar_tipo_ue"),
     Ativavel,
     TemChaveExterna,
 ):
@@ -118,9 +114,7 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
         verbose_name_plural = "Vínculos tipo alimentação"
 
 
-class MotivoDRENaoValida(
-    ExportModelOperationsMixin("motivo_dre_nao_valida"), Nomeavel, TemChaveExterna
-):
+class MotivoDRENaoValida(Nomeavel, TemChaveExterna):
     """Armazena motivos usados pela DRE para não validar uma solicitação no módulo de Gestão de Alimentação.
 
     Os registros deste modelo são exibidos quando uma solicitação que passa

@@ -6,7 +6,6 @@ from django.db import models
 from django.db.models.functions import Length
 from django.db.models.query import QuerySet
 from django.db.utils import IntegrityError
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -17,7 +16,6 @@ from src.dados_comuns.behaviors import (
 
 
 class Perfil(
-    ExportModelOperationsMixin("perfil"),
     Nomeavel,
     Descritivel,
     Ativavel,
@@ -93,7 +91,7 @@ class VinculoQueryset(QuerySet):
         return queryset
 
 
-class Vinculo(ExportModelOperationsMixin("vinculo_perfil"), Ativavel, TemChaveExterna):
+class Vinculo(Ativavel, TemChaveExterna):
     """Para informar que tipo de funcao uma pessoa teve em um dado intervalo de tempo em uma instituição.
 
     Ex.: de jan a dez de 2018 (Intervalo) Ciclano (Usuário) foi Diretor (Perfil) na instituição ESCOLA (instituicao)

@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Sum
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.alteracao_tipo_alimentacao.behaviors import (
     EhAlteracaoCardapio,
@@ -28,7 +27,6 @@ from src.dados_comuns.utils import patch_docs
 
 
 class AlteracaoCardapio(
-    ExportModelOperationsMixin("alteracao_cardapio"),
     CriadoEm,
     CriadoPor,
     TemChaveExterna,
@@ -320,7 +318,6 @@ class AlteracaoCardapio(
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolar(
-    ExportModelOperationsMixin("substituicao_alimentacao_periodo_escolar"),
     TemChaveExterna,
 ):
     """Representa uma substituição de tipo de alimentação em um período escolar específico.
@@ -370,7 +367,6 @@ class SubstituicaoAlimentacaoNoPeriodoEscolar(
 
 
 class MotivoAlteracaoCardapio(
-    ExportModelOperationsMixin("motivo_alteracao_cardapio"),
     Nomeavel,
     TemChaveExterna,
     Ativavel,
