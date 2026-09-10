@@ -79,7 +79,18 @@
       <div class="col-4 label-contagem">
         Método de Contagem das Alimentações Servidas
       </div>
-      <div class="col-4 value-contagem">{{tipos_contagem_alimentacao}}</div>
+      <div class="col-4 value-contagem">
+        {% for item in tipos_contagem_alimentacao %}
+          <div class="item-contagem">
+            <span class="check-icon">&#10003;</span>
+            {% if item|slice:":7" == "Outros:" %}
+              <span><strong>Outros:</strong>{{ item|slice:"7:" }}</span>
+            {% else %}
+              <span>{{ item }}</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
       <div class="col-2"></div>
     </div>
     <div class="row p-0 mx-4 mt-5 tipo-avaliacao">

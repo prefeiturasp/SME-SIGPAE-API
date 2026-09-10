@@ -143,6 +143,12 @@ class SolicitacaoMedicaoInicial(
         blank=True,
         null=True,
     )
+    descricao_metodo = models.CharField(
+        "Descrição do método de contagem",
+        max_length=100,
+        blank=True,
+        null=True,
+    )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")

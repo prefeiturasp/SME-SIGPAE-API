@@ -2726,6 +2726,71 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_com_escolas(
     assert any(r["resultados"] for r in kwargs["resultados"])
 
 
+@patch("src.medicao_inicial.api.viewsets.exporta_relatorio_adesao_para_xlsx.delay")
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_escolas(
+    mock_exporta_xlsx,
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "03"
+    ano = "2024"
+    valores = range(1, 6)
+
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    dias = [str(dia).rjust(2, "0") for dia in range(1, 6)]
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    escola2 = baker.make(
+        "Escola",
+        nome="EMEF DOIS",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=escola.tipo_unidade,
+        codigo_eol="654321",
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        f"/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/?mes_ano={mes}_{ano}"
+        f"&escola__uuid[]={escola.uuid}"
+        f"&escola__uuid[]={escola2.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    mock_exporta_xlsx.assert_called_once()
+    _, kwargs = mock_exporta_xlsx.call_args
+    assert len(kwargs["resultados"]) == 2
+    assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
+        "EMEF TESTE",
+        "EMEF DOIS",
+    }
+    assert any(r["resultados"] for r in kwargs["resultados"])
+
+
 @freeze_time("2025-09-30")
 def test_url_endpoint_parametrizacao_financeira(
     client_autenticado_codae_medicao,

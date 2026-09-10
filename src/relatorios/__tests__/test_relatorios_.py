@@ -942,6 +942,19 @@ def test_relatorio_solicitacao_medicao_mostra_cpf_quando_responsavel_tem_11_digi
     assert "RF: 12345678901" not in texto
 
 
+def test_relatorio_solicitacao_medicao_exibe_outros_com_descricao_metodo(
+    solicitacao_medicao_inicial_aprovada_codae,
+):
+    solicitacao = solicitacao_medicao_inicial_aprovada_codae
+    solicitacao.descricao_metodo = "Contagem manual por planilha"
+    solicitacao.save(update_fields=["descricao_metodo"])
+
+    relatorio = relatorio_solicitacao_medicao_por_escola(solicitacao)
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert "Outros: Contagem manual por planilha" in texto
+
+
 def test_obter_relatorio_da_unidade_cemei():
     with patch(
         "src.dados_comuns.constants.ORDEM_UNIDADES_GRUPO_EMEF",
@@ -1103,6 +1116,19 @@ def test_relatorio_solicitacao_medicao_recreio_nas_ferias_rodape_aprovacao(
     assert "Aprovado por CODAE em" in texto
     assert "05/08/2025" in texto
     assert "Usuário TESTE" in texto
+
+
+def test_relatorio_solicitacao_medicao_recreio_nas_ferias_exibe_outros_com_descricao_metodo(
+    solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae,
+):
+    solicitacao = solicitacao_medicao_inicial_recreio_nas_ferias_aprovada_codae
+    solicitacao.descricao_metodo = "Contagem manual por planilha"
+    solicitacao.save(update_fields=["descricao_metodo"])
+
+    relatorio = relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(solicitacao)
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert "Outros: Contagem manual por planilha" in texto
 
 
 def test_relatorio_solicitacao_medicao_recreio_nas_ferias_cei_rodape_aprovacao(

@@ -1,10 +1,10 @@
 import datetime
+from uuid import uuid4
 
 import pytest
 from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
-from uuid import uuid4
 
 from src.dados_comuns import constants as const
 from src.pos_recebimento.models import (
@@ -99,7 +99,7 @@ def _cria_termo(
             username=f"fiscal{indice}_{sufixo}@test.com",
             email=f"fiscal{indice}_{sufixo}@test.com",
             password=const.DJANGO_ADMIN_PASSWORD,
-            registro_funcional=f"1234{indice}{sufixo[:2]}",
+            registro_funcional=f"{indice}{sufixo[:6]}",
         )
         for indice in (1, 2, 3)
     ]
@@ -115,7 +115,9 @@ def _cria_termo(
     for numero in numeros_cronogramas:
         CronogramaTermoRecebimentoDefinitivo.objects.create(
             termo=termo,
-            cronograma=CronogramaFactory(contrato=contrato, empresa=empresa, numero=numero),
+            cronograma=CronogramaFactory(
+                contrato=contrato, empresa=empresa, numero=numero
+            ),
             quantidade_total_recebida="1234.56",
         )
     TermoRecebimentoDefinitivo.objects.filter(pk=termo.pk).update(
@@ -131,9 +133,7 @@ def test_termo_list_liberado_para_administrador_empresa(
     contrato_fornecedor,
     django_user_model,
 ):
-    termo = _cria_termo(
-        empresa_fornecedora, contrato_fornecedor, django_user_model
-    )
+    termo = _cria_termo(empresa_fornecedora, contrato_fornecedor, django_user_model)
 
     response = client_admin_empresa.get("/pos-recebimento/termos/")
 
@@ -148,9 +148,7 @@ def test_termo_list_liberado_para_usuario_empresa(
     contrato_fornecedor,
     django_user_model,
 ):
-    termo = _cria_termo(
-        empresa_fornecedora, contrato_fornecedor, django_user_model
-    )
+    termo = _cria_termo(empresa_fornecedora, contrato_fornecedor, django_user_model)
 
     response = client_usuario_empresa.get("/pos-recebimento/termos/")
 
@@ -167,9 +165,7 @@ def test_termo_list_negado_para_usuario_empresa_nao_fornecedora(
 ):
     _cria_termo(empresa_fornecedora, contrato_fornecedor, django_user_model)
 
-    response = client_usuario_empresa_nao_fornecedora.get(
-        "/pos-recebimento/termos/"
-    )
+    response = client_usuario_empresa_nao_fornecedora.get("/pos-recebimento/termos/")
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -227,7 +223,9 @@ def test_termo_list_retorna_dados_do_grid_do_fornecedor(
         status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
         numeros_cronogramas=("111/2026", "222/2026"),
     )
-    produtos = [cronograma.ficha_tecnica.produto for cronograma in termo.cronogramas.all()]
+    produtos = [
+        cronograma.ficha_tecnica.produto for cronograma in termo.cronogramas.all()
+    ]
     produtos[0].nome = "BISCOITO DE POLVILHO DOCE"
     produtos[1].nome = "LEITE EM PÓ INTEGRAL"
     for produto in produtos:

@@ -429,6 +429,139 @@ def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_considera_enc
     }
 
 
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_nao_retorna_quando_encerrada_antes_do_mes(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 4, 1),
+        data_final=datetime.date(2026, 12, 31),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        encerrado_a_partir_de=datetime.date(2026, 4, 30),
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=05&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] is None
+
+
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_ignora_periodo_cancelado(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 5, 1),
+        data_final=datetime.date(2026, 5, 31),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        cancelado=True,
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_tarde,
+        cancelado=False,
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=05&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] == {
+        "TARDE": str(periodo_tarde.uuid),
+    }
+
+
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_nao_retorna_sem_dia_da_semana_ativo(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 6, 1),
+        data_final=datetime.date(2026, 9, 30),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[4],
+        encerrado_a_partir_de=datetime.date(2026, 7, 2),
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=07&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] is None
+
+
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_retorna_quando_dia_da_semana_ainda_cabe_no_encerramento(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 6, 1),
+        data_final=datetime.date(2026, 9, 30),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[4],
+        encerrado_a_partir_de=datetime.date(2026, 7, 3),
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=07&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] == {
+        "MANHA": str(periodo_manha.uuid),
+    }
+
+
 def test_url_endpoint_diretoria_regional_simplessima_actions(
     client_autenticado_da_dre, diretoria_regional
 ):

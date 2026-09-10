@@ -154,7 +154,9 @@ def validate_ultimo_dia_mes_letivo(
     dia_str = f"{ultimo_dia:02d}"
     for medicao in instance.medicoes.exclude(grupo__nome__in=EXCLUIR_MEDICOES):
         tem_valor = (
-            medicao.valores_medicao.filter(dia=dia_str).exclude(valor=None).exists()
+            medicao.valores_medicao.filter(dia=dia_str, nome_campo="matriculados")
+            .exclude(valor__in=[None, "0"])
+            .exists()
         )
         if not tem_valor:
             lista_erros.append(
