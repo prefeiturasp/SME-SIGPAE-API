@@ -7,7 +7,6 @@ import os
 import environ
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
-from sme_sidecar_sdk import build_http_client
 
 # (src/config/settings/base.py - 3 = src/)
 
@@ -319,22 +318,10 @@ REST_FRAMEWORK = {
 
 # DRF-SPECTACULAR SETTINGS
 # ------------------------------------------------------------------------------
-def obter_versao():
-    try:
-        with build_http_client("github", base_url="https://api.github.com") as client:
-            response = client.get(
-                "/repos/prefeiturasp/SME-SIGPAE-API/releases/latest", timeout=5
-            )
-        return response.json().get("tag_name")
-    except Exception as e:
-        print(f"[WARN] Não foi possível obter versão do GitHub: {e}")
-        return "2.0.0"
-
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "SIGPAE API",
     "DESCRIPTION": "API da aplicação SIGPAE",
-    "VERSION": obter_versao(),
+    "VERSION": env("DJANGO_API_VERSION", default="2.0.0"),
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": r"/api/",
     "SCHEMA_PATH_PREFIX_INSERT": "/api",
