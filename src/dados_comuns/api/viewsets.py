@@ -254,7 +254,7 @@ class PerguntaFrequenteViewSet(ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = PerguntaFrequenteFilter
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
 

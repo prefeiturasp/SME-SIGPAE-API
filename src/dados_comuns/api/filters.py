@@ -1,8 +1,8 @@
 from django_filters import rest_framework as filters
 
 from ..models import Notificacao
-
 from ..models import PerguntaFrequente
+
 
 class NotificacaoFilter(filters.FilterSet):
     uuid = filters.CharFilter(
@@ -47,8 +47,11 @@ class CentralDeDownloadFilter(filters.FilterSet):
     )
     visto = filters.BooleanFilter(field_name="visto")
 
+
 class ListaCharFilter(filters.BaseInFilter, filters.CharFilter):
     pass
+
+
 class PerguntaFrequenteFilter(filters.FilterSet):
     titulo = filters.CharFilter(
         field_name="pergunta",
@@ -64,10 +67,10 @@ class PerguntaFrequenteFilter(filters.FilterSet):
     def filtrar_perfis(self, queryset, _name, value):
         if not value:
             return queryset
-        
+
         if "todos" in value:
             return queryset.filter(todos_os_perfis=True)
-    
+
         return queryset.filter(
             perfis__uuid__in=value
         ).distinct()
