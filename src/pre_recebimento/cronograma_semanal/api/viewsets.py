@@ -26,6 +26,10 @@ from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.pre_recebimento.cronograma_semanal.api.filters import (
     CronogramaSemanalFilter,
+    CronogramaSemanalRelatorioFilter,
+)
+from src.pre_recebimento.cronograma_semanal.api.helpers import (
+    periodo_de_entrega,
 )
 from src.pre_recebimento.cronograma_semanal.api.serializers.serializer_create import (
     CronogramaSemanalAlterarSerializer,
@@ -85,8 +89,15 @@ class CronogramaSemanalViewSet(
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = CronogramaSemanalFilter
     pagination_class = PreRecebimentoPagination
+
+    @property
+    def filterset_class(self):
+        """O relatório tem seus próprios filtros, independentes da listagem."""
+        if getattr(self, "action", None) == "lista_relatorio":
+            return CronogramaSemanalRelatorioFilter
+
+        return CronogramaSemanalFilter
 
     def get_permissions(self):
         permission_classes = self.permission_action_classes.get(
@@ -165,12 +176,10 @@ class CronogramaSemanalViewSet(
         empresa, produto, quantidade do empenho e custo unitário), o status
         do semanal e suas programações de entrega.
 
-        Os filtros de ``CronogramaSemanalFilter`` (número, empresa,
-        produto, status e período das programações) já são aplicados por
-        ``filter_queryset``; novos filtros entram no filterset, sem
-        alteração aqui. Filtros que dependam dos dados já serializados —
-        como o ``filtrar_etapas`` do relatório de cronogramas mensais —
-        entrariam entre a serialização e a paginação.
+        Quando o mês de entrega é informado, ele recorta duas vezes: o
+        filterset descarta os cronogramas sem nenhuma programação no
+        período, e o serializer exibe apenas as programações que
+        correspondem ao filtro.
         """
         queryset = (
             self.filter_queryset(self.get_queryset())
@@ -185,6 +194,18 @@ class CronogramaSemanalViewSet(
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    def get_serializer_context(self):
+        """Repassa o mês de entrega ao serializer do relatório, que recorta
+        as programações exibidas pelo mesmo período do filtro."""
+        context = super().get_serializer_context()
+
+        if getattr(self, "action", None) == "lista_relatorio":
+            context["periodo_de_entrega"] = periodo_de_entrega(
+                self.request.query_params
+            )
+
+        return context
 
     @action(
         detail=False,
