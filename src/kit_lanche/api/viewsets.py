@@ -45,8 +45,15 @@ from ..models import (
 from ..utils import (
     KitLanchePagination,
     cancela_solicitacao_kit_lanche_unificada,
+    prepara_solicitacoes_listagem_similares,
+    prepara_solicitacoes_listagem_similares_cemei,
 )
-from .serializers import serializers, serializers_create, serializers_create_cei
+from .serializers import (
+    serializers,
+    serializers_create,
+    serializers_create_cei,
+    serializers_listagem,
+)
 
 
 class KitLancheViewSet(ModelViewSet):
@@ -149,7 +156,18 @@ class SolicitacaoKitLancheAvulsaViewSet(DataSolicitacaoContextMixin, ModelViewSe
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        serializer = self.get_serializer(kit_lanches_avulso, many=True)
+        kit_lanches_avulso = kit_lanches_avulso.select_related(
+            "solicitacao_kit_lanche",
+            "escola",
+            "escola__tipo_unidade",
+            "escola__lote",
+        )
+        kit_lanches_avulso = prepara_solicitacoes_listagem_similares(
+            kit_lanches_avulso, SolicitacaoKitLancheAvulsa
+        )
+        serializer = serializers_listagem.SolicitacaoKitLancheAvulsaListagemSerializer(
+            kit_lanches_avulso, many=True, context={"request": request}
+        )
         return Response({"results": serializer.data})
 
     @action(
@@ -169,7 +187,18 @@ class SolicitacaoKitLancheAvulsaViewSet(DataSolicitacaoContextMixin, ModelViewSe
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        serializer = self.get_serializer(kit_lanches_avulso, many=True)
+        kit_lanches_avulso = kit_lanches_avulso.select_related(
+            "solicitacao_kit_lanche",
+            "escola",
+            "escola__tipo_unidade",
+            "escola__lote",
+        )
+        kit_lanches_avulso = prepara_solicitacoes_listagem_similares(
+            kit_lanches_avulso, SolicitacaoKitLancheAvulsa
+        )
+        serializer = serializers_listagem.SolicitacaoKitLancheAvulsaListagemSerializer(
+            kit_lanches_avulso, many=True, context={"request": request}
+        )
         return Response({"results": serializer.data})
 
     @action(
@@ -792,7 +821,20 @@ class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        serializer = self.get_serializer(kit_lanches_avulso, many=True)
+        kit_lanches_avulso = kit_lanches_avulso.select_related(
+            "solicitacao_kit_lanche",
+            "escola",
+            "escola__tipo_unidade",
+            "escola__lote",
+        )
+        kit_lanches_avulso = prepara_solicitacoes_listagem_similares(
+            kit_lanches_avulso, SolicitacaoKitLancheCEIAvulsa
+        )
+        serializer = (
+            serializers_listagem.SolicitacaoKitLancheCEIAvulsaListagemSerializer(
+                kit_lanches_avulso, many=True, context={"request": request}
+            )
+        )
         return Response({"results": serializer.data})
 
     @action(
@@ -814,7 +856,20 @@ class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        serializer = self.get_serializer(kit_lanches_avulso, many=True)
+        kit_lanches_avulso = kit_lanches_avulso.select_related(
+            "solicitacao_kit_lanche",
+            "escola",
+            "escola__tipo_unidade",
+            "escola__lote",
+        )
+        kit_lanches_avulso = prepara_solicitacoes_listagem_similares(
+            kit_lanches_avulso, SolicitacaoKitLancheCEIAvulsa
+        )
+        serializer = (
+            serializers_listagem.SolicitacaoKitLancheCEIAvulsaListagemSerializer(
+                kit_lanches_avulso, many=True, context={"request": request}
+            )
+        )
         return Response({"results": serializer.data})
 
     @action(
@@ -939,8 +994,14 @@ class SolicitacaoKitLancheCEMEIViewSet(
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_cemei = kit_lanches_cemei.filter(rastro_lote__uuid=lote_uuid)
-        serializer = serializers.SolicitacaoKitLancheCEMEIRetrieveSerializer(
-            kit_lanches_cemei, many=True
+        kit_lanches_cemei = kit_lanches_cemei.select_related(
+            "escola", "escola__tipo_unidade", "escola__lote"
+        )
+        kit_lanches_cemei = prepara_solicitacoes_listagem_similares_cemei(
+            kit_lanches_cemei
+        )
+        serializer = serializers_listagem.SolicitacaoKitLancheCEMEIListagemSerializer(
+            kit_lanches_cemei, many=True, context={"request": request}
         )
         return Response({"results": serializer.data})
 
@@ -963,8 +1024,14 @@ class SolicitacaoKitLancheCEMEIViewSet(
         if request.query_params.get("lote"):
             lote_uuid = request.query_params.get("lote")
             kit_lanches_cemei = kit_lanches_cemei.filter(rastro_lote__uuid=lote_uuid)
-        serializer = serializers.SolicitacaoKitLancheCEMEIRetrieveSerializer(
-            kit_lanches_cemei, many=True
+        kit_lanches_cemei = kit_lanches_cemei.select_related(
+            "escola", "escola__tipo_unidade", "escola__lote"
+        )
+        kit_lanches_cemei = prepara_solicitacoes_listagem_similares_cemei(
+            kit_lanches_cemei
+        )
+        serializer = serializers_listagem.SolicitacaoKitLancheCEMEIListagemSerializer(
+            kit_lanches_cemei, many=True, context={"request": request}
         )
         return Response({"results": serializer.data})
 

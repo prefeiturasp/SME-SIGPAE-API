@@ -5,6 +5,7 @@ from rest_framework import serializers
 from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ....dados_comuns.utils import update_instance_from_dict
+from ....eol_servico.utils import EOLServicoSGP
 from ....escola.api.serializers import (
     AlunoSerializer,
     AlunoSimplesSerializer,
@@ -35,6 +36,36 @@ from ...models import (
     SolicitacaoKitLancheEMEIdaCEMEI,
     SolicitacaoKitLancheUnificada,
 )
+
+
+class LogsPrefetchMixin:
+    def get_logs(self, obj):
+        logs = getattr(obj, "_prefetched_logs", None)
+        if logs is None:
+            logs = obj.logs
+        return LogSolicitacoesUsuarioSerializer(
+            logs, many=True, context=self.context
+        ).data
+
+
+class ListaAlunosEOLRequestMixin:
+    def get_lista_alunos_eol(self, codigo_eol):
+        request = self.context.get("request")
+        if request is None:
+            return EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                codigo_eol
+            )
+        cache = getattr(request, "_kit_lanche_eol_alunos_cache", None)
+        if cache is None:
+            cache = {}
+            setattr(request, "_kit_lanche_eol_alunos_cache", cache)
+        if codigo_eol not in cache:
+            cache[codigo_eol] = (
+                EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                    codigo_eol
+                )
+            )
+        return cache[codigo_eol]
 
 
 class ItemKitLancheSerializer(serializers.ModelSerializer):
@@ -130,10 +161,12 @@ class SolicitacaoKitLancheSimplesSerializer(serializers.ModelSerializer):
         exclude = ("id",)
 
 
-class SolicitacaoKitLancheAvulsaSimilarSerializer(serializers.ModelSerializer):
+class SolicitacaoKitLancheAvulsaSimilarSerializer(
+    LogsPrefetchMixin, serializers.ModelSerializer
+):
     solicitacao_kit_lanche = SolicitacaoKitLancheSimplesSerializer()
     id_externo = serializers.CharField()
-    logs = LogSolicitacoesUsuarioSerializer(many=True)
+    logs = serializers.SerializerMethodField()
     data = serializers.DateField()
 
     class Meta:
@@ -294,13 +327,15 @@ class FaixaEtariaSolicitacaoKitLancheCEIAvulsaSerializer(serializers.ModelSerial
         exclude = ("id", "solicitacao_kit_lanche_avulsa")
 
 
-class SolicitacaoKitLancheCEISimilarSerializer(serializers.ModelSerializer):
+class SolicitacaoKitLancheCEISimilarSerializer(
+    ListaAlunosEOLRequestMixin, LogsPrefetchMixin, serializers.ModelSerializer
+):
     solicitacao_kit_lanche = SolicitacaoKitLancheSimplesSerializer()
     faixas_etarias = FaixaEtariaSolicitacaoKitLancheCEIAvulsaSerializer(many=True)
     quantidade_alunos = serializers.IntegerField()
     id_externo = serializers.CharField()
     alunos_com_dieta_especial_participantes = AlunoSerializer(many=True)
-    logs = LogSolicitacoesUsuarioSerializer(many=True)
+    logs = serializers.SerializerMethodField()
     escola = EscolaSimplesSerializer()
 
     def to_representation(self, instance):
@@ -312,7 +347,9 @@ class SolicitacaoKitLancheCEISimilarSerializer(serializers.ModelSerializer):
         )
 
         qtde_alunos = instance.escola.alunos_por_faixa_etaria(
-            instance.data, faixas_etarias_da_solicitacao
+            instance.data,
+            faixas_etarias_da_solicitacao,
+            lista_alunos=self.get_lista_alunos_eol(instance.escola.codigo_eol),
         )
         for faixa_etaria in retorno["faixas_etarias"]:
             uuid_faixa_etaria = faixa_etaria["faixa_etaria"]["uuid"]
@@ -436,11 +473,13 @@ class SolicitacaoKitLancheCEIdaCEMEIRetrieveSerializer(serializers.ModelSerializ
         exclude = ("id",)
 
 
-class SolicitacaoKitLancheCEMEISimilarSerializer(serializers.ModelSerializer):
+class SolicitacaoKitLancheCEMEISimilarSerializer(
+    LogsPrefetchMixin, serializers.ModelSerializer
+):
     solicitacao_cei = SolicitacaoKitLancheCEIdaCEMEIRetrieveSerializer()
     solicitacao_emei = SolicitacaoKitLancheEMEIdaCEMEIRetrieveSerializer()
     id_externo = serializers.CharField()
-    logs = LogSolicitacoesUsuarioSerializer(many=True)
+    logs = serializers.SerializerMethodField()
     data = serializers.DateField()
 
     class Meta:

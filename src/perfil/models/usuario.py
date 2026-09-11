@@ -234,19 +234,23 @@ class Usuario(
 
     @property
     def vinculo_atual(self):
+        if hasattr(self, "_vinculo_atual_cache"):
+            return self._vinculo_atual_cache
+        vinculo = None
         if self.vinculos.filter(
             Q(data_inicial=None, data_final=None, ativo=False)
             | Q(  # noqa W504 esperando ativacao
                 data_inicial__isnull=False, data_final=None, ativo=True
             )
         ).exists():
-            return self.vinculos.get(
+            vinculo = self.vinculos.get(
                 Q(data_inicial=None, data_final=None, ativo=False)
                 | Q(  # noqa W504 esperando ativacao
                     data_inicial__isnull=False, data_final=None, ativo=True
                 )
             )
-        return None
+        self._vinculo_atual_cache = vinculo
+        return vinculo
 
     @property
     def existe_vinculo_ativo(self):

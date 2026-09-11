@@ -1208,15 +1208,18 @@ class Escola(
             )
         return resultados
 
-    def alunos_por_faixa_etaria(self, data_referencia=None, faixas_etarias=None):
+    def alunos_por_faixa_etaria(
+        self, data_referencia=None, faixas_etarias=None, lista_alunos=None
+    ):
         data_referencia = self.obter_data_referencia(data_referencia)
         faixas_etarias = self.obter_faixas_etarias(faixas_etarias)
 
-        lista_alunos = (
-            EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
-                self.codigo_eol
+        if lista_alunos is None:
+            lista_alunos = (
+                EOLServicoSGP.get_lista_alunos_por_escola_ano_corrente_ou_seguinte(
+                    self.codigo_eol
+                )
             )
-        )
 
         seis_anos_atras = datetime.date.today() - relativedelta(years=6)
 
