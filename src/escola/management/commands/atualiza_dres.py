@@ -1,8 +1,8 @@
 import environ
-import requests
 from django.core.management.base import BaseCommand
 
 from ....dados_comuns.constants import DJANGO_EOL_API_TOKEN, DJANGO_EOL_API_URL
+from ....dados_comuns.http_client import EOL_CLIENT, executar_chamada
 from ...models import DiretoriaRegional
 
 env = environ.Env()
@@ -14,7 +14,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         headers = {"Authorization": f"Token {DJANGO_EOL_API_TOKEN}"}
 
-        r = requests.get(f"{DJANGO_EOL_API_URL}/dres/", headers=headers, timeout=120)
+        r = executar_chamada(
+            EOL_CLIENT,
+            "get",
+            f"{DJANGO_EOL_API_URL}/dres/",
+            headers=headers,
+            timeout=120,
+        )
         json = r.json()
 
         for diret in json["results"]:

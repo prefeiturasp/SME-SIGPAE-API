@@ -83,7 +83,7 @@ def _mock_api_response(codigos_ativos, status_code=200):
 
 
 @mock.patch(
-    "src.escola.management.commands.encerra_historicos_alunos_inativos.requests.get"
+    "src.escola.management.commands.encerra_historicos_alunos_inativos.EOL_SGP_CLIENT.get"
 )
 class TestAlunoPermanenceAtivo:
     """Quando o aluno está ativo na API, o histórico NÃO deve ser encerrado."""
@@ -112,7 +112,7 @@ class TestAlunoPermanenceAtivo:
 
 
 @mock.patch(
-    "src.escola.management.commands.encerra_historicos_alunos_inativos.requests.get"
+    "src.escola.management.commands.encerra_historicos_alunos_inativos.EOL_SGP_CLIENT.get"
 )
 class TestAlunoInativoEncerraHistorico:
     """Quando o aluno NÃO está ativo na API, o histórico deve ser encerrado."""
@@ -189,7 +189,7 @@ class TestAlunoInativoEncerraHistorico:
 
 
 @mock.patch(
-    "src.escola.management.commands.encerra_historicos_alunos_inativos.requests.get"
+    "src.escola.management.commands.encerra_historicos_alunos_inativos.EOL_SGP_CLIENT.get"
 )
 class TestHistoricoJaEncerradoNaoEAlterado:
     """Históricos já com data_fim preenchida não devem ser tocados."""
@@ -217,7 +217,7 @@ class TestHistoricoJaEncerradoNaoEAlterado:
 
 
 @mock.patch(
-    "src.escola.management.commands.encerra_historicos_alunos_inativos.requests.get"
+    "src.escola.management.commands.encerra_historicos_alunos_inativos.EOL_SGP_CLIENT.get"
 )
 class TestFalhaAPINaoAlteraHistoricos:
     """Se a API falha (retorna None), nenhum histórico deve ser alterado."""
@@ -334,7 +334,7 @@ class TestCalculaDataFim:
 
 
 @mock.patch(
-    "src.escola.management.commands.encerra_historicos_alunos_inativos.requests.get"
+    "src.escola.management.commands.encerra_historicos_alunos_inativos.EOL_SGP_CLIENT.get"
 )
 class TestEscolasSemHistoricos:
     """Escola sem históricos ativos não deve causar erro."""
@@ -350,7 +350,7 @@ class TestEscolasSemHistoricos:
 
 
 @mock.patch(
-    "src.escola.management.commands.encerra_historicos_alunos_inativos.requests.get"
+    "src.escola.management.commands.encerra_historicos_alunos_inativos.EOL_SGP_CLIENT.get"
 )
 class TestMistoAtivosInativos:
     """Cenário com alunos ativos e inativos na mesma escola."""

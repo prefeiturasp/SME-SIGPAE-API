@@ -1,5 +1,4 @@
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers import (
     InversaoCardapioDestaSemanaManager,
@@ -27,7 +26,6 @@ FORMATO_DATA_BR = FORMATO_DATA_BRASILEIRO
 
 
 class InversaoCardapio(
-    ExportModelOperationsMixin("inversao_cardapio"),
     CriadoEm,
     CriadoPor,
     TemObservacao,

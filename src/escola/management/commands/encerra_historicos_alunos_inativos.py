@@ -1,15 +1,16 @@
 import datetime
 import logging
 
-import requests
+import httpx
 from django.core.management.base import BaseCommand
-from requests import ConnectionError
 from rest_framework import status
+from sme_sidecar_sdk import CircuitOpenError
 
 from src.dados_comuns.constants import (
     DJANGO_EOL_SGP_API_TOKEN,
     DJANGO_EOL_SGP_API_URL,
 )
+from src.dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
 from src.escola.models import (
     Escola,
     HistoricoMatriculaAluno,
@@ -61,7 +62,9 @@ class Command(BaseCommand):
 
         while tentativas < max_tentativas:
             try:
-                response = requests.get(
+                response = executar_chamada(
+                    EOL_SGP_CLIENT,
+                    "get",
                     f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{cod_eol_escola}/anosLetivos/{ano}",
                     headers=self.headers,
                     timeout=10,
@@ -85,7 +88,7 @@ class Command(BaseCommand):
                     f"{cod_eol_escola}: Status {response.status_code}"
                 )
 
-            except ConnectionError as e:
+            except (httpx.TransportError, CircuitOpenError) as e:
                 tentativas += 1
                 msg = f"Erro de conexão para escola {cod_eol_escola}: {e}"
                 LogAtualizaDadosAluno(

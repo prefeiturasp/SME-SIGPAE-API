@@ -3,7 +3,6 @@
 import uuid
 
 import django.db.models.deletion
-import django_prometheus.models
 import django_xworkflows.models
 from django.conf import settings
 from django.db import migrations, models
@@ -150,9 +149,6 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Alterações de cardápio CEI",
             },
             bases=(
-                django_prometheus.models.ExportModelOperationsMixin(
-                    "alteracao_cardapio_cei"
-                ),
                 django_xworkflows.models.BaseWorkflowEnabled,
                 src.dados_comuns.behaviors.TemIdentificadorExternoAmigavel,
                 src.dados_comuns.behaviors.Logs,
@@ -219,12 +215,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "Substituições de alimentação CEI no período",
                 "verbose_name_plural": "Substituições de alimentação CEI no período",
             },
-            bases=(
-                django_prometheus.models.ExportModelOperationsMixin(
-                    "substituicao_cei_alimentacao_periodo_escolar"
-                ),
-                models.Model,
-            ),
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name="FaixaEtariaSubstituicaoAlimentacaoCEI",
@@ -263,11 +254,6 @@ class Migration(migrations.Migration):
                 "verbose_name": "Faixa Etária de substituição de alimentação CEI",
                 "verbose_name_plural": "Faixas Etárias de substituição de alimentação CEI",
             },
-            bases=(
-                django_prometheus.models.ExportModelOperationsMixin(
-                    "faixa_etaria_substituicao_alimentacao_cei"
-                ),
-                models.Model,
-            ),
+            bases=(models.Model,),
         ),
     ]

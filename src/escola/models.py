@@ -20,7 +20,6 @@ from django.core.validators import (
 )
 from django.db import models, transaction
 from django.db.models import F, Q, Sum
-from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework import status
 
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
@@ -141,7 +140,6 @@ LISTA_TIPOS_UNIDADES = [
 
 
 class DiretoriaRegional(
-    ExportModelOperationsMixin("diretoria_regional"),
     Nomeavel,
     Iniciais,
     TemChaveExterna,
@@ -407,9 +405,7 @@ class DiretoriaRegional(
         ordering = ("nome",)
 
 
-class FaixaIdadeEscolar(
-    ExportModelOperationsMixin("faixa_idade"), Nomeavel, Ativavel, TemChaveExterna
-):
+class FaixaIdadeEscolar(Nomeavel, Ativavel, TemChaveExterna):
     """de 1 a 2 anos, de 2 a 5 anos, de 7 a 18 anos, etc."""
 
     def __str__(self):
@@ -421,9 +417,7 @@ class FaixaIdadeEscolar(
         ordering = ("nome",)
 
 
-class TipoUnidadeEscolar(
-    ExportModelOperationsMixin("tipo_ue"), Iniciais, Ativavel, TemChaveExterna
-):
+class TipoUnidadeEscolar(Iniciais, Ativavel, TemChaveExterna):
     """EMEF, CIEJA, EMEI, EMEBS, CEI, CEMEI..."""
 
     periodos_escolares = models.ManyToManyField(
@@ -452,9 +446,7 @@ class TipoUnidadeEscolar(
         ordering = ("iniciais",)
 
 
-class TipoGestao(
-    ExportModelOperationsMixin("tipo_gestao"), Nomeavel, Ativavel, TemChaveExterna
-):
+class TipoGestao(Nomeavel, Ativavel, TemChaveExterna):
     """Terceirizada completa, tec mista."""
 
     def __str__(self):
@@ -465,9 +457,7 @@ class TipoGestao(
         verbose_name_plural = "Tipos de gestão"
 
 
-class PeriodoEscolar(
-    ExportModelOperationsMixin("periodo_escolar"), Nomeavel, TemChaveExterna, Posicao
-):
+class PeriodoEscolar(Nomeavel, TemChaveExterna, Posicao):
     """manhã, intermediário, tarde, vespertino, noturno, integral."""
 
     tipos_alimentacao = models.ManyToManyField(
@@ -502,7 +492,6 @@ class PeriodoEscolar(
 
 
 class Escola(
-    ExportModelOperationsMixin("escola"),
     Ativavel,
     TemChaveExterna,
     TemCodigoEOL,
@@ -1695,9 +1684,7 @@ class Escola(
         ordering = ("codigo_eol",)
 
 
-class EscolaPeriodoEscolar(
-    ExportModelOperationsMixin("escola_periodo"), Ativavel, TemChaveExterna
-):
+class EscolaPeriodoEscolar(Ativavel, TemChaveExterna):
     """Serve para guardar a quantidade de alunos da escola em um dado periodo escolar.
 
     Ex: EMEI BLABLA pela manhã tem 55 alunos
@@ -1817,7 +1804,7 @@ class LogRotinaDiariaAlunos(TemChaveExterna, CriadoEm):
         ordering = ("-criado_em",)
 
 
-class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Iniciais):
+class Lote(TemChaveExterna, Nomeavel, Iniciais):
     """Lote de escolas."""
 
     tipo_gestao = models.ForeignKey(
@@ -2378,9 +2365,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         ordering = ("nome",)
 
 
-class Subprefeitura(
-    ExportModelOperationsMixin("subprefeitura"), Nomeavel, TemChaveExterna
-):
+class Subprefeitura(Nomeavel, TemChaveExterna):
     OPCOES_AGRUPAMENTO = (
         (1, 1),
         (2, 2),
@@ -2415,7 +2400,6 @@ class Subprefeitura(
 
 
 class Codae(
-    ExportModelOperationsMixin("codae"),
     Nomeavel,
     TemChaveExterna,
     TemVinculos,

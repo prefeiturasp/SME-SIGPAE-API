@@ -12,7 +12,6 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework.status import HTTP_200_OK
 from simple_email_confirmation.models import SimpleEmailConfirmationUserMixin
 
@@ -163,7 +162,6 @@ class CustomAbstractUser(AbstractBaseUser, PermissionsMixin):
 # TODO: Refatorar classe Usuário para comportar classes Pessoa, Usuário,
 # Nutricionista
 class Usuario(
-    ExportModelOperationsMixin("usuario"),
     SimpleEmailConfirmationUserMixin,
     CustomAbstractUser,
     TemChaveExterna,

@@ -4,16 +4,17 @@ import timeit
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import environ
-import requests
+import httpx
 from django.core.management.base import BaseCommand
 from django.db import connection
-from requests import ConnectionError
 from rest_framework import status
+from sme_sidecar_sdk import CircuitOpenError
 
 from src.dados_comuns.constants import (
     DJANGO_EOL_SGP_API_TOKEN,
     DJANGO_EOL_SGP_API_URL,
 )
+from src.dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
 from src.dados_comuns.utils import bulk_create_safe, bulk_update_safe
 from src.escola.models import (
     Aluno,
@@ -132,7 +133,9 @@ class Command(BaseCommand):
 
     def get_response_alunos_por_escola(self, cod_eol_escola, ano_param=None):
         ano = datetime.date.today().year
-        return requests.get(
+        return executar_chamada(
+            EOL_SGP_CLIENT,
+            "get",
             f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{cod_eol_escola}/anosLetivos/{ano_param or ano}",
             headers=self.headers,
             timeout=10,
@@ -159,7 +162,7 @@ class Command(BaseCommand):
                     f"Tentativa {tentativas}/{max_tentativas} for escola {cod_eol_escola}: Status {response.status_code}"
                 )
 
-            except ConnectionError as e:
+            except (httpx.TransportError, CircuitOpenError) as e:
                 tentativas += 1
                 msg = f"Erro de conexão na API do EOL para escola {cod_eol_escola}: {e}"
                 log_erro = LogAtualizaDadosAluno(
