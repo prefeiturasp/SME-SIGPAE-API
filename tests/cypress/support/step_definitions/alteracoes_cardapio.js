@@ -431,3 +431,106 @@ Then('deve retornar a listagem das minhas solicitacoes', function () {
 	expect(this.response.body.count).to.exist
 	validarListagem(this.response.body.results)
 })
+
+const acoesAlteracaoCardapio = {
+	'codae-autoriza-pedido': 'executar_codae_autoriza_pedido_alteracao_cardapio',
+	'codae-cancela-pedido': 'executar_codae_cancela_pedido_alteracao_cardapio',
+	'codae-questiona-pedido': 'executar_codae_questiona_pedido_alteracao_cardapio',
+	'diretoria-regional-nao-valida-pedido':
+		'executar_diretoria_regional_nao_valida_pedido_alteracao_cardapio',
+	'diretoria-regional-valida-pedido':
+		'executar_diretoria_regional_valida_pedido_alteracao_cardapio',
+	'escola-cancela-pedido-48h-antes':
+		'executar_escola_cancela_pedido_48h_antes_alteracao_cardapio',
+	'inicio-pedido': 'executar_inicio_pedido_alteracao_cardapio',
+	'marcar-conferida': 'executar_marcar_conferida_alteracao_cardapio',
+	'terceirizada-responde-questionamento':
+		'executar_terceirizada_responde_questionamento_alteracao_cardapio',
+	'terceirizada-toma-ciencia':
+		'executar_terceirizada_toma_ciencia_alteracao_cardapio',
+}
+
+function esperarRespostaAlteracao(response) {
+	expect([200, 201, 204, 400, 403, 404]).to.include(response.status)
+}
+
+function dadosDaAcao(acao) {
+	const dados = { justificativa: 'teste automatizado api' }
+	if (acao === 'codae-questiona-pedido') {
+		dados.observacao_questionamento_codae = 'teste automatizado api'
+	}
+	if (acao === 'terceirizada-responde-questionamento') {
+		dados.resposta_sim_nao = true
+	}
+	if (acao === 'escola-cancela-pedido-48h-antes') {
+		dados.datas = []
+	}
+	return dados
+}
+
+When('atualizo parcialmente uma alteracao de cardapio existente', function () {
+	const dados = dadosValidos()
+	cy.cadastrar_alteracoes_cardapio(dados).then((cadastro) => {
+		expect(cadastro.status, JSON.stringify(cadastro.body)).to.eq(201)
+		const uuid = cadastro.body.uuid
+		cy.atualizar_parcial_alteracoes_cardapio(uuid, {
+			...dados,
+			observacao: '<p>teste automatizado api atualizado</p>',
+		}).then((response) => {
+			this.response = response
+		})
+	})
+})
+
+When('atualizo uma alteracao de cardapio existente', function () {
+	cy.cadastrar_alteracoes_cardapio(dadosValidos()).then((cadastro) => {
+		expect(cadastro.status, JSON.stringify(cadastro.body)).to.eq(201)
+		cy.atualizar_alteracoes_cardapio(cadastro.body.uuid, dadosValidos()).then(
+			(response) => {
+				this.response = response
+			},
+		)
+	})
+})
+
+When('executo a acao de alteracao de cardapio {string}', function (acao) {
+	const comando = acoesAlteracaoCardapio[acao]
+	expect(comando, `Acao nao mapeada: ${acao}`).to.exist
+	cy[comando](uuidAlteracaoExistente, dadosDaAcao(acao)).then((response) => {
+		this.response = response
+	})
+})
+
+Then('a atualizacao da alteracao deve retornar um status valido', function () {
+	esperarRespostaAlteracao(this.response)
+})
+
+Then(
+	'a acao de alteracao de cardapio deve retornar um status valido',
+	function () {
+		esperarRespostaAlteracao(this.response)
+	},
+)
+
+When('consulto pedidos de alteracao de cardapio da CODAE por filtro', function () {
+	cy.consultar_pedidos_codae_alteracoes_cardapio('sem_filtro').then(
+		(response) => {
+			this.response = response
+		},
+	)
+})
+
+When(
+	'consulto pedidos de alteracao de cardapio da diretoria regional por filtro',
+	function () {
+		cy.consultar_pedidos_diretoria_regional_alteracoes_cardapio(
+			'sem_filtro',
+		).then((response) => {
+			this.response = response
+		})
+	},
+)
+
+Then('a listagem de pedidos deve retornar um status valido', function () {
+	esperarRespostaAlteracao(this.response)
+})

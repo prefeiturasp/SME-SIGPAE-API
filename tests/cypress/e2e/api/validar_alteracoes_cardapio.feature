@@ -79,3 +79,36 @@ Feature: Validar alteracoes de cardapio da aplicacao SIGPAE
   Scenario: Consultar minhas solicitacoes de alteracao de cardapio
     When consulto minhas solicitacoes de alteracao de cardapio
     Then deve retornar a listagem das minhas solicitacoes
+
+  Scenario: Atualizar parcialmente uma alteracao de cardapio
+    When atualizo parcialmente uma alteracao de cardapio existente
+    Then a atualizacao da alteracao deve retornar um status valido
+
+  Scenario: Atualizar uma alteracao de cardapio
+    When atualizo uma alteracao de cardapio existente
+    Then a atualizacao da alteracao deve retornar um status valido
+
+  Scenario Outline: Executar acao do fluxo de alteracao de cardapio
+    When executo a acao de alteracao de cardapio "<acao>"
+    Then a acao de alteracao de cardapio deve retornar um status valido
+
+    Examples:
+      | acao                                      |
+      | codae-autoriza-pedido                     |
+      | codae-cancela-pedido                      |
+      | codae-questiona-pedido                   |
+      | diretoria-regional-nao-valida-pedido     |
+      | diretoria-regional-valida-pedido         |
+      | escola-cancela-pedido-48h-antes           |
+      | inicio-pedido                             |
+      | marcar-conferida                          |
+      | terceirizada-responde-questionamento      |
+      | terceirizada-toma-ciencia                 |
+
+  Scenario: Consultar pedidos da CODAE por filtro
+    When consulto pedidos de alteracao de cardapio da CODAE por filtro
+    Then a listagem de pedidos deve retornar um status valido
+
+  Scenario: Consultar pedidos da diretoria regional por filtro
+    When consulto pedidos de alteracao de cardapio da diretoria regional por filtro
+    Then a listagem de pedidos deve retornar um status valido
