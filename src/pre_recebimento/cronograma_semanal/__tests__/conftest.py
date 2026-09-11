@@ -339,6 +339,35 @@ def cronograma_ponto_a_ponto_com_etapas(
 
 
 @pytest.fixture
+def cronograma_semanal_para_relatorio(cronograma_ponto_a_ponto_com_etapas):
+    """Cronograma semanal com duas programações de entrega, para o relatório.
+
+    O cronograma mensal de origem já traz ``qtd_total_empenho`` e
+    ``custo_unitario_produto`` preenchidos.
+    """
+    from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+    semanal = baker.make(
+        CronogramaSemanal,
+        cronograma_mensal=cronograma_ponto_a_ponto_com_etapas,
+        status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+    )
+    for mes, inicio, fim, quantidade in (
+        ("03/2026", datetime.date(2026, 3, 1), datetime.date(2026, 3, 15), 50.0),
+        ("04/2026", datetime.date(2026, 4, 1), datetime.date(2026, 4, 15), 30.0),
+    ):
+        baker.make(
+            ProgramacaoEntregaSemanal,
+            cronograma_semanal=semanal,
+            mes_programado=mes,
+            data_inicio=inicio,
+            data_fim=fim,
+            quantidade=quantidade,
+        )
+    return semanal
+
+
+@pytest.fixture
 def empresa_fornecedor(cronograma_ponto_a_ponto_assinado):
     return cronograma_ponto_a_ponto_assinado.empresa
 

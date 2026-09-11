@@ -27,6 +27,9 @@ from src.inclusao_alimentacao.models import (
     MotivoInclusaoContinua,
     MotivoInclusaoNormal,
 )
+from src.inclusao_alimentacao.utils import (
+    remove_medicao_programas_e_projetos_se_inclusao_inativa,
+)
 from src.relatorios.relatorios import (
     relatorio_inclusao_alimentacao_cei,
     relatorio_inclusao_alimentacao_cemei,
@@ -593,6 +596,9 @@ class InclusaoAlimentacaoContinuaViewSet(
                     justificativa=justificativa,
                 )
                 services.enviar_email_ue_cancelar_pedido_parcialmente(obj)
+                remove_medicao_programas_e_projetos_se_inclusao_inativa(
+                    obj, encerrado_a_partir_de
+                )
             else:
                 if len(uuids_selecionados) == obj.quantidades_periodo.count():
                     obj.cancelar_pedido(user=request.user, justificativa=justificativa)

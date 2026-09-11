@@ -129,6 +129,68 @@ class CronogramaSemanalCalendarioSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class ProgramacaoEntregaSemanalRelatorioSerializer(serializers.ModelSerializer):
+    """Programação de entrega de uma linha do relatório de Cronogramas
+    Semanais. As datas seguem o formato brasileiro, como no calendário."""
+
+    data_inicio = serializers.DateField(format=FORMATO_DATA_BRASILEIRO, read_only=True)
+    data_fim = serializers.DateField(format=FORMATO_DATA_BRASILEIRO, read_only=True)
+
+    class Meta:
+        model = ProgramacaoEntregaSemanal
+        fields = (
+            "quantidade",
+            "data_inicio",
+            "data_fim",
+            "mes_programado",
+        )
+        read_only_fields = fields
+
+
+class CronogramaSemanalRelatorioSerializer(serializers.ModelSerializer):
+    """Linha do relatório de Cronogramas Semanais.
+
+    Os dados do produto, da empresa e do empenho vêm do cronograma mensal
+    de origem; as programações de entrega vêm do próprio semanal.
+    """
+
+    numero = serializers.CharField(source="cronograma_mensal.numero", read_only=True)
+    empresa = serializers.CharField(
+        source="cronograma_mensal.empresa.nome_fantasia", read_only=True
+    )
+    produto = serializers.CharField(
+        source="cronograma_mensal.ficha_tecnica.produto.nome", read_only=True
+    )
+    qtd_total_empenho = serializers.FloatField(
+        source="cronograma_mensal.qtd_total_empenho", read_only=True
+    )
+    unidade_medida = serializers.CharField(
+        source="cronograma_mensal.unidade_medida.abreviacao", read_only=True
+    )
+    status = serializers.CharField(source="get_status_display", read_only=True)
+    custo_unitario_produto = serializers.FloatField(
+        source="cronograma_mensal.custo_unitario_produto", read_only=True
+    )
+    programacoes = ProgramacaoEntregaSemanalRelatorioSerializer(
+        many=True, read_only=True
+    )
+
+    class Meta:
+        model = CronogramaSemanal
+        fields = (
+            "uuid",
+            "numero",
+            "empresa",
+            "produto",
+            "qtd_total_empenho",
+            "unidade_medida",
+            "status",
+            "custo_unitario_produto",
+            "programacoes",
+        )
+        read_only_fields = fields
+
+
 class ProgramacaoEntregaSemanalDetailSerializer(serializers.ModelSerializer):
     """Serializer para leitura de ProgramacaoEntregaSemanal"""
 

@@ -846,6 +846,8 @@ def relatorio_adesao_total_frequencia(alimentacoes):
 def relatorio_adesao_total_adesao(alimentacoes):
     total_servido = relatorio_adesao_total_servido(alimentacoes)
     total_frequencia = relatorio_adesao_total_frequencia(alimentacoes)
+    if total_frequencia == 0:
+        return 0
     return round(total_servido / total_frequencia, 4)
 
 

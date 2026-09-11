@@ -17,6 +17,7 @@ def test_listagem_retorna_apenas_os_campos_do_grid(termo_listagem):
         "cnpj_empresa",
         "numero_contrato",
         "numeros_cronogramas",
+        "produtos",
         "status",
         "status_display",
         "data_cadastro",

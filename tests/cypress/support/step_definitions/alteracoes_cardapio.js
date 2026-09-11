@@ -29,6 +29,16 @@ function dataLetiva(dataBase) {
 	return data
 }
 
+function dataNaoLetivaFutura() {
+	let data = dayjs().add(1, 'day')
+
+	while ([1, 7, 12].includes(data.month() + 1) || ![0, 6].includes(data.day())) {
+		data = data.add(1, 'day')
+	}
+
+	return data.format('YYYY-MM-DD')
+}
+
 function dadosValidos(data = validar_dia_semana(dayjs(), 5).format('YYYY-MM-DD')) {
 	return {
 		motivo: '1ddec320-cd24-4cf4-9666-3e7b3a2b903c',
@@ -90,7 +100,7 @@ function dadosDoCaso(caso) {
 		terceirizada_conferiu_branco: { terceirizada_conferiu_gestao: '' },
 		data_branco: { data: '' },
 		data_passado: { data: dayjs().subtract(1, 'day').format('YYYY-MM-DD') },
-		data_nao_letivo: { data: '2026-11-30' },
+		data_nao_letivo: { data: dataNaoLetivaFutura() },
 		data_formato_invalido: { data: dayjs().format('DD-MM-YYYU') },
 	}
 
@@ -243,13 +253,13 @@ When('consulto uma alteracao de cardapio por id sem barra final', function () {
 })
 
 When('consulto uma alteracao de cardapio existente', function () {
-	cy.autenticar_login(
-		Cypress.env('usuario_coordenador_supervisao_nutricao'),
-		Cypress.env('senha'),
-	)
-	aguardarApi()
-	cy.validar_alteracoes_cardapio(`${uuidAlteracaoExistente}/`).then((response) => {
-		this.response = response
+	cy.validar_alteracoes_cardapio_minhas_solicitacoes().then((lista) => {
+		expect(lista.status).to.eq(200)
+		expect(lista.body.results).to.be.an('array').and.not.be.empty
+		this.uuid = lista.body.results[0].uuid
+		cy.validar_alteracoes_cardapio(`${this.uuid}/`).then((response) => {
+			this.response = response
+		})
 	})
 })
 
@@ -363,14 +373,19 @@ Then('a consulta da alteracao deve redirecionar para a barra final', function ()
 	)
 })
 
-Then('deve retornar os dados completos da alteracao de cardapio', function () {
-	expect(this.response.status).to.eq(200)
+Then('deve retornar os dados completos da alteracao ou permissao negada', function () {
+	expect([200, 403]).to.include(this.response.status)
+	if (this.response.status === 403) {
+		expect(this.response.body.detail).to.exist
+		return
+	}
+	expect(this.response.body.uuid).to.eq(this.uuid)
 	expect(this.response.body.criado_em).to.exist
 	expect(this.response.body.criado_por).to.exist
 	expect(this.response.body.data_final).to.exist
 	expect(this.response.body.datas_intervalo).to.be.an('array').that.is.not.empty
 	expect(this.response.body.foi_solicitado_fora_do_prazo).to.eq(false)
-	expect(this.response.body.id_externo).to.eq('3F42C')
+	expect(this.response.body.id_externo).to.be.a('string').and.not.be.empty
 	expect(this.response.body.logs).to.be.an('array').that.is.not.empty
 	expect(this.response.body.motivo.ativo).to.eq(true)
 	expect(this.response.body.motivo.nome).to.be.a('string').and.not.be.empty

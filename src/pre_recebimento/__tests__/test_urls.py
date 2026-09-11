@@ -521,6 +521,8 @@ def test_url_perfil_dilog_reprova_alteracao_cronograma(
         uuid=solicitacao_cronograma_aprovado_dilog_abastecimento.uuid
     )
     assert obj.status == "REPROVADO_DILOG"
+    obj.cronograma.refresh_from_db()
+    assert obj.cronograma.status == CronogramaWorkflow.ASSINADO_CODAE
 
 
 def test_url_analise_dilog_erro_solicitacao_cronograma_invalido(

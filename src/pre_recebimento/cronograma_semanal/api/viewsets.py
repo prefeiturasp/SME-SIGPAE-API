@@ -15,6 +15,7 @@ from src.dados_comuns.permissions import (
     PermissaoParaDarCienciaCronogramaSemanal,
     PermissaoParaVisualizarCalendarioCronograma,
     PermissaoParaVisualizarCronogramaSemanal,
+    PermissaoParaVisualizarRelatorioCronograma,
 )
 from src.pre_recebimento.base.api.paginations import (
     PreRecebimentoPagination,
@@ -36,6 +37,7 @@ from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
     CronogramaSemanalDetailSerializer,
     CronogramaSemanalListagemSerializer,
     CronogramaSemanalRascunhosSerializer,
+    CronogramaSemanalRelatorioSerializer,
 )
 from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 from src.relatorios.relatorios import (
@@ -79,6 +81,7 @@ class CronogramaSemanalViewSet(
         "rascunhos_listagem": [PermissaoParaCriarCronogramaSemanal],
         "alterar_cronograma": [PermissaoParaCriarCronogramaSemanal],
         "calendario": [PermissaoParaVisualizarCalendarioCronograma],
+        "lista_relatorio": [PermissaoParaVisualizarRelatorioCronograma],
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
@@ -116,6 +119,7 @@ class CronogramaSemanalViewSet(
             "fornecedor_ciente": CronogramaSemanalDetailSerializer,
             "list": CronogramaSemanalListagemSerializer,
             "calendario": CronogramaSemanalCalendarioSerializer,
+            "lista_relatorio": CronogramaSemanalRelatorioSerializer,
         }
         return serializer_map.get(self.action, CronogramaSemanalListagemSerializer)
 
@@ -137,6 +141,42 @@ class CronogramaSemanalViewSet(
             queryset = queryset.filter(
                 cronograma_mensal__empresa=vinculo.instituicao
             ).exclude(status="RASCUNHO")
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="listagem-relatorio",
+        url_name="lista_relatorio",
+    )
+    def lista_relatorio(self, request, *args, **kwargs):
+        """Retorna a listagem de cronogramas semanais para relatório.
+
+        Endpoint: ``GET /cronogramas-semanais/listagem-relatorio/``
+
+        Cada linha traz os dados do cronograma mensal de origem (número,
+        empresa, produto, quantidade do empenho e custo unitário), o status
+        do semanal e suas programações de entrega.
+
+        Os filtros de ``CronogramaSemanalFilter`` (número, empresa,
+        produto, status e período das programações) já são aplicados por
+        ``filter_queryset``; novos filtros entram no filterset, sem
+        alteração aqui. Filtros que dependam dos dados já serializados —
+        como o ``filtrar_etapas`` do relatório de cronogramas mensais —
+        entrariam entre a serialização e a paginação.
+        """
+        queryset = (
+            self.filter_queryset(self.get_queryset())
+            .order_by("-alterado_em")
+            .distinct()
+        )
 
         page = self.paginate_queryset(queryset)
         if page is not None:

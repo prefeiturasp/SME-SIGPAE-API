@@ -1,4 +1,4 @@
-FROM python:3.13.3-bullseye AS docs-builder
+FROM python:3.13.3-bookworm AS docs-builder
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -13,7 +13,7 @@ COPY . /code/
 RUN pipenv install --system --deploy --ignore-pipfile --dev && \
     sphinx-build -b html docs/source docs/build/html
 
-FROM python:3.13.3-bullseye
+FROM python:3.13.3-bookworm
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \

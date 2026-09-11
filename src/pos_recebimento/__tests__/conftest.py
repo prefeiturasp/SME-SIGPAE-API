@@ -112,13 +112,13 @@ def payload_termo(ficha_assinada, tres_fiscais):
         "cronogramas": [
             {
                 "cronograma": str(cronograma.uuid),
-                "valor_contrato": "150000.00",
                 "quantidade_total_recebida": "1234.56",
             }
         ],
         "fiscal_1": str(tres_fiscais[0].uuid),
         "fiscal_2": str(tres_fiscais[1].uuid),
         "fiscal_3": str(tres_fiscais[2].uuid),
+        "valor_contrato": "150000.00",
         "texto_termo": "<p>Termo de Recebimento Definitivo</p>",
     }
 
@@ -143,6 +143,7 @@ def _cria_termo(
         fiscal_1=fiscais[0],
         fiscal_2=fiscais[1],
         fiscal_3=fiscais[2],
+        valor_contrato="150000.00",
         texto_termo="<p>Termo de Recebimento Definitivo</p>",
         status=TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
     )
@@ -152,7 +153,6 @@ def _cria_termo(
             cronograma=CronogramaFactory(
                 contrato=contrato, empresa=empresa, numero=numero
             ),
-            valor_contrato="150000.00",
             quantidade_total_recebida="1234.56",
         )
     TermoRecebimentoDefinitivo.objects.filter(pk=termo.pk).update(
