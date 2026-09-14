@@ -14,7 +14,7 @@ def test_horario_do_combo_tipo_alimentacao_serializer_validators(
     serializer_obj = (
         HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate()
     )
-    attrs = dict(hora_inicial=hora_inicial, hora_final=hora_final, escola=escola)
+    attrs = {"hora_inicial": hora_inicial, "hora_final": hora_final, "escola": escola}
 
     response_geral = serializer_obj.validate(attrs=attrs)
     assert response_geral == attrs
