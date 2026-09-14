@@ -156,7 +156,6 @@ class GrupoSuspensaoAlimentacaoSerializerViewSet(
             Response: Resposta paginada com a lista serializada das
             solicitações da terceirizada.
         """
-        # TODO: colocar regras de Terceirizada aqui...
         usuario = request.user
         terceirizada = usuario.vinculo_atual.instituicao
         suspensoes_cardapio = terceirizada.suspensoes_alimentacao_das_minhas_escolas(

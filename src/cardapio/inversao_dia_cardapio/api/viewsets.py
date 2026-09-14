@@ -141,7 +141,6 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         Returns:
             Response: Resposta paginada com as solicitações da terceirizada.
         """
-        # TODO: colocar regras de Terceirizada aqui...
         usuario = request.user
         terceirizada = usuario.vinculo_atual.instituicao
         inversoes_cardapio = terceirizada.inversoes_cardapio_das_minhas_escolas(

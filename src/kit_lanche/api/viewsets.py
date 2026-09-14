@@ -511,7 +511,6 @@ class SolicitacaoKitLancheUnificadaViewSet(DataSolicitacaoContextMixin, ModelVie
         permission_classes=(UsuarioEmpresaGenerico,),
     )
     def solicitacoes_terceirizada(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de Terceirizada aqui...
         usuario = request.user
         terceirizada = usuario.vinculo_atual.instituicao
         solicitacoes_unificadas = (
