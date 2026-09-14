@@ -199,7 +199,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -228,7 +228,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -258,7 +258,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -295,7 +295,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -326,7 +326,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -363,7 +363,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -396,7 +396,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -425,7 +425,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -455,7 +455,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except InvalidTransitionError as e:
             return Response(
-                dict(detail=f"Erro de transição de estado: {e}"),
+                {"detail": f"Erro de transição de estado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -475,7 +475,7 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                {"detail": "Você só pode excluir quando o status for RASCUNHO."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -523,6 +523,6 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
             return Response(serializer.data)
         except Exception as e:
             return Response(
-                dict(detail=f"Erro ao marcar solicitação como conferida: {e}"),
+                {"detail": f"Erro ao marcar solicitação como conferida: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
