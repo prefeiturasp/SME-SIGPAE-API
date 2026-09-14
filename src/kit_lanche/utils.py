@@ -147,40 +147,14 @@ def prepara_solicitacoes_listagem_similares(solicitacoes, model):
     pool = anexa_logs_prefetched(pool)
     por_chave = defaultdict(list)
     for obj in pool:
-        chave = (
-            obj.escola_id,
-            obj.solicitacao_kit_lanche.data,
-            obj.solicitacao_kit_lanche.tempo_passeio,
-        )
+        chave = (obj.escola_id, obj.solicitacao_kit_lanche.data)
         por_chave[chave].append(obj)
     for solicitacao in solicitacoes:
-        chave = (
-            solicitacao.escola_id,
-            solicitacao.solicitacao_kit_lanche.data,
-            solicitacao.solicitacao_kit_lanche.tempo_passeio,
-        )
+        chave = (solicitacao.escola_id, solicitacao.solicitacao_kit_lanche.data)
         solicitacao._prefetched_solicitacoes_similares = [
             c for c in por_chave.get(chave, []) if c.uuid != solicitacao.uuid
         ]
     return solicitacoes
-
-
-def _cemei_similares_correspondem(candidato, solicitacao):
-    if (
-        candidato.tem_solicitacao_cei
-        and solicitacao.tem_solicitacao_cei
-        and candidato.solicitacao_cei.tempo_passeio
-        != solicitacao.solicitacao_cei.tempo_passeio
-    ):
-        return False
-    if (
-        candidato.tem_solicitacao_emei
-        and solicitacao.tem_solicitacao_emei
-        and candidato.solicitacao_emei.tempo_passeio
-        != solicitacao.solicitacao_emei.tempo_passeio
-    ):
-        return False
-    return True
 
 
 def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
@@ -222,6 +196,5 @@ def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
                 (solicitacao.escola_id, solicitacao.data), []
             )
             if candidato.uuid != solicitacao.uuid
-            and _cemei_similares_correspondem(candidato, solicitacao)
         ]
     return solicitacoes
