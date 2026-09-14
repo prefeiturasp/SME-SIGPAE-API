@@ -109,7 +109,6 @@ class GrupoSuspensaoAlimentacaoSerializerViewSet(
             Response: Resposta paginada com a lista serializada das
             solicitações encontradas.
         """
-        # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
         alteracoes_cardapio = codae.suspensoes_cardapio_das_minhas_escolas(

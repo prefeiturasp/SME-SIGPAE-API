@@ -112,7 +112,6 @@ class InversaoCardapioViewSet(DataSolicitacaoContextMixin, viewsets.ModelViewSet
         Returns:
             Response: Lista serializada das solicitações encontradas.
         """
-        # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
         inversoes_cardapio = codae.inversoes_cardapio_das_minhas_escolas(

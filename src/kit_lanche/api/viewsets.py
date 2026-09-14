@@ -489,7 +489,6 @@ class SolicitacaoKitLancheUnificadaViewSet(DataSolicitacaoContextMixin, ModelVie
         permission_classes=(UsuarioCODAEGestaoAlimentacao,),
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
         solicitacoes_unificadas = codae.solicitacoes_unificadas(filtro_aplicado)
