@@ -27,7 +27,7 @@ class TestCronogramaSemanalViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == 1
         linha = response.json()["results"][0]
-        assert linha["numero"] == mensal.numero
+        assert linha["numero"] == cronograma_semanal_para_relatorio.numero
         assert linha["empresa"] == mensal.empresa.nome_fantasia
         assert linha["produto"] == mensal.ficha_tecnica.produto.nome
         assert linha["qtd_total_empenho"] == mensal.qtd_total_empenho
@@ -930,3 +930,173 @@ class TestCronogramaSemanalViewSet:
 
         # Colunas exclusivas do template Mensal não devem aparecer no template semanal
         assert "Etapa" not in pdf_text or "Data Programada" in pdf_text
+
+
+class TestRelatorioCronogramaSemanalFiltros:
+    """Filtros do endpoint ``GET /cronogramas-semanais/listagem-relatorio/``."""
+
+    URL = "/cronogramas-semanais/listagem-relatorio/"
+
+    def _numeros(self, response):
+        return [linha["numero"] for linha in response.json()["results"]]
+
+    def test_sem_filtros_retorna_todos(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get(self.URL)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert sorted(self._numeros(response)) == ["001/2026", "002/2026"]
+
+    def test_filtra_por_empresa(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        _, segundo = cronogramas_semanais_relatorio
+
+        response = client.get(
+            self.URL, {"empresa": str(segundo.cronograma_mensal.empresa.uuid)}
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert self._numeros(response) == ["002/2026"]
+
+    def test_filtra_por_varias_empresas(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        primeiro, segundo = cronogramas_semanais_relatorio
+
+        response = client.get(
+            self.URL,
+            {
+                "empresa": [
+                    str(primeiro.cronograma_mensal.empresa.uuid),
+                    str(segundo.cronograma_mensal.empresa.uuid),
+                ]
+            },
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert sorted(self._numeros(response)) == ["001/2026", "002/2026"]
+
+    def test_filtra_por_nome_do_produto(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        _, segundo = cronogramas_semanais_relatorio
+        nome_produto = segundo.cronograma_mensal.ficha_tecnica.produto.nome
+
+        response = client.get(self.URL, {"nome_produto": nome_produto.lower()})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert self._numeros(response) == ["002/2026"]
+
+    def test_filtra_por_numero_do_cronograma_mensal(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get(self.URL, {"numero_cronograma_mensal": "005"})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert self._numeros(response) == ["002/2026"]
+
+    def test_filtra_por_numero_do_cronograma_semanal(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get(self.URL, {"numero_cronograma_semanal": "002"})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert self._numeros(response) == ["002/2026"]
+
+    def test_filtra_por_status(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get(self.URL, {"status": "FORNECEDOR_CIENTE"})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert self._numeros(response) == ["002/2026"]
+
+    def test_mes_de_entrega_descarta_cronograma_sem_programacao_no_periodo(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get(
+            self.URL, {"mes_inicial": "03/2026", "mes_final": "03/2026"}
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert self._numeros(response) == ["001/2026"]
+
+    def test_mes_de_entrega_recorta_as_programacoes_exibidas(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get(
+            self.URL, {"mes_inicial": "03/2026", "mes_final": "03/2026"}
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        programacoes = response.json()["results"][0]["programacoes"]
+        assert [p["mes_programado"] for p in programacoes] == ["03/2026"]
+
+    def test_mes_de_entrega_aceita_data_do_front(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        """O front envia o primeiro dia do mês; o dia é descartado."""
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get(
+            self.URL, {"mes_inicial": "2026-04-01", "mes_final": "2026-04-01"}
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert self._numeros(response) == ["002/2026"]
+
+    def test_filtros_sao_combinados(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronogramas_semanais_relatorio,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+        _, segundo = cronogramas_semanais_relatorio
+
+        response = client.get(
+            self.URL,
+            {
+                "empresa": str(segundo.cronograma_mensal.empresa.uuid),
+                "status": "ENVIADO_AO_FORNECEDOR",
+            },
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["results"] == []

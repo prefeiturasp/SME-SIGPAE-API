@@ -349,6 +349,7 @@ def cronograma_semanal_para_relatorio(cronograma_ponto_a_ponto_com_etapas):
 
     semanal = baker.make(
         CronogramaSemanal,
+        numero="010/2026",
         cronograma_mensal=cronograma_ponto_a_ponto_com_etapas,
         status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
     )
@@ -365,6 +366,51 @@ def cronograma_semanal_para_relatorio(cronograma_ponto_a_ponto_com_etapas):
             quantidade=quantidade,
         )
     return semanal
+
+
+@pytest.fixture
+def cronogramas_semanais_relatorio(
+    cronograma_ponto_a_ponto_com_etapas, cronograma_ponto_a_ponto_assinado_2
+):
+    """Dois cronogramas semanais para exercitar os filtros do relatório.
+
+    Diferem em empresa, produto, número (mensal e semanal), status e meses
+    de entrega:
+
+    - ``001/2026``: mensal ``004/2024A``, Enviado ao Fornecedor, com
+      programações em 03/2026 e 05/2026;
+    - ``002/2026``: mensal ``005/2024A``, Fornecedor Ciente, com uma
+      programação em 04/2026.
+    """
+    from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+    primeiro = baker.make(
+        CronogramaSemanal,
+        numero="001/2026",
+        cronograma_mensal=cronograma_ponto_a_ponto_com_etapas,
+        status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+    )
+    segundo = baker.make(
+        CronogramaSemanal,
+        numero="002/2026",
+        cronograma_mensal=cronograma_ponto_a_ponto_assinado_2,
+        status=CronogramaSemanalWorkflow.FORNECEDOR_CIENTE,
+    )
+    programacoes = (
+        (primeiro, "03/2026", datetime.date(2026, 3, 1), datetime.date(2026, 3, 15)),
+        (primeiro, "05/2026", datetime.date(2026, 5, 1), datetime.date(2026, 5, 15)),
+        (segundo, "04/2026", datetime.date(2026, 4, 1), datetime.date(2026, 4, 15)),
+    )
+    for semanal, mes, data_inicio, data_fim in programacoes:
+        baker.make(
+            ProgramacaoEntregaSemanal,
+            cronograma_semanal=semanal,
+            mes_programado=mes,
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+            quantidade=50.0,
+        )
+    return primeiro, segundo
 
 
 @pytest.fixture
