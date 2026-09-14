@@ -38,7 +38,7 @@ def test_permissoes_alteracao_cardapio_viewset(
     )
     assert response.status_code == status.HTTP_200_OK
     # Não pode ver dados de uma alteração de cardápio de outra escola
-    response = client_autenticado_vinculo_escola_cardapio.get(
+    client_autenticado_vinculo_escola_cardapio.get(
         f"/{ENDPOINT_ALTERACAO_CARD}/{alteracao_cardapio_outra_dre.uuid}/"
     )
     alteracao_cardapio.status = PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR

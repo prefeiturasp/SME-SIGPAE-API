@@ -5,24 +5,24 @@ TARGET_PERIODOS_ESCOLARES = ("MANHA", "TARDE", "NOITE", "INTEGRAL")
 
 
 def popula_vinculos_ceu_polo(apps, schema_editor):
-    Vinculo = apps.get_model(
+    vinculo_model = apps.get_model(
         "cardapio",
         "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
     )
-    PeriodoEscolar = apps.get_model("escola", "PeriodoEscolar")
-    TipoUnidadeEscolar = apps.get_model("escola", "TipoUnidadeEscolar")
+    periodo_escolar = apps.get_model("escola", "PeriodoEscolar")
+    tipo_unidade_escolar = apps.get_model("escola", "TipoUnidadeEscolar")
 
     db_alias = schema_editor.connection.alias
 
     periodos = {
         periodo.nome: periodo
-        for periodo in PeriodoEscolar.objects.using(db_alias).filter(
+        for periodo in periodo_escolar.objects.using(db_alias).filter(
             nome__in=TARGET_PERIODOS_ESCOLARES
         )
     }
     tipos_unidade = {
         tipo_unidade.iniciais: tipo_unidade
-        for tipo_unidade in TipoUnidadeEscolar.objects.using(db_alias).filter(
+        for tipo_unidade in tipo_unidade_escolar.objects.using(db_alias).filter(
             iniciais__in=TARGET_TIPOS_UNIDADE_ESCOLAR
         )
     }
@@ -37,7 +37,7 @@ def popula_vinculos_ceu_polo(apps, schema_editor):
             if not periodo:
                 continue
 
-            vinculo, _ = Vinculo.objects.using(db_alias).get_or_create(
+            vinculo, _ = vinculo_model.objects.using(db_alias).get_or_create(
                 tipo_unidade_escolar=tipo_unidade,
                 periodo_escolar=periodo,
             )

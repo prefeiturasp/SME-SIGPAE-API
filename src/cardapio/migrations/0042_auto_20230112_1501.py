@@ -5,16 +5,16 @@ from django.db import migrations, models
 
 
 def popular_posicao(apps, _):
-    TipoAlimentacao = apps.get_model("cardapio", "TipoAlimentacao")
-    TipoAlimentacao.objects.filter(nome="Lanche 4h").update(posicao=1)
-    TipoAlimentacao.objects.filter(nome="Lanche").update(posicao=2)
-    TipoAlimentacao.objects.filter(nome="Refeição").update(posicao=3)
-    TipoAlimentacao.objects.filter(nome="Sobremesa").update(posicao=4)
+    tipo_alimentacao = apps.get_model("cardapio", "TipoAlimentacao")
+    tipo_alimentacao.objects.filter(nome="Lanche 4h").update(posicao=1)
+    tipo_alimentacao.objects.filter(nome="Lanche").update(posicao=2)
+    tipo_alimentacao.objects.filter(nome="Refeição").update(posicao=3)
+    tipo_alimentacao.objects.filter(nome="Sobremesa").update(posicao=4)
 
 
 def backwards(apps, _):
-    TipoAlimentacao = apps.get_model("cardapio", "TipoAlimentacao")
-    TipoAlimentacao.objects.update(posicao=None)
+    tipo_alimentacao = apps.get_model("cardapio", "TipoAlimentacao")
+    tipo_alimentacao.objects.update(posicao=None)
 
 
 class Migration(migrations.Migration):

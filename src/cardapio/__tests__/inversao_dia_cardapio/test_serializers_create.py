@@ -26,12 +26,12 @@ def test_inversao_serializer_validators(inversao_card_params, tipo_alimentacao):
     escola = baker.make(MODEL_ESCOLA, tipo_unidade=tipo_ue, lote=lote)
     baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=True)
     baker.make("escola.DiaCalendario", escola=escola, data=data_para, dia_letivo=True)
-    attrs = dict(
-        data_de=data_de,
-        data_para=data_para,
-        escola=escola,
-        tipos_alimentacao=[tipo_alimentacao],
-    )
+    attrs = {
+        "data_de": data_de,
+        "data_para": data_para,
+        "escola": escola,
+        "tipos_alimentacao": [tipo_alimentacao],
+    }
 
     response_de = serializer_obj.validate_data_de(data_de=data_de)
     response_para = serializer_obj.validate_data_para(data_para=data_para)
@@ -54,12 +54,16 @@ def test_inversao_serializer_creators(inversao_card_params):
     escola1 = baker.make(MODEL_ESCOLA, tipo_unidade=tipo_ue, lote=lote)
     escola2 = baker.make(MODEL_ESCOLA, tipo_unidade=tipo_ue, lote=lote)
 
-    validated_data_create = dict(
-        data_de=data_de_cria, data_para=data_para, escola=escola1
-    )
-    validated_data_update = dict(
-        data_de=data_de_atualiza, data_para=data_para_atualiza, escola=escola2
-    )
+    validated_data_create = {
+        "data_de": data_de_cria,
+        "data_para": data_para,
+        "escola": escola1,
+    }
+    validated_data_update = {
+        "data_de": data_de_atualiza,
+        "data_para": data_para_atualiza,
+        "escola": escola2,
+    }
 
     inversao_cardapio = serializer_obj.create(validated_data=validated_data_create)
     assert isinstance(inversao_cardapio, InversaoCardapio)
@@ -88,12 +92,12 @@ def test_inversao_serializer_falha_em_final_de_semana_nao_letivo(tipo_alimentaca
     # Sábado NÃO letivo
     baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=False)
 
-    attrs = dict(
-        data_de=data_de,
-        data_para=data_para,
-        escola=escola,
-        tipos_alimentacao=[tipo_alimentacao],
-    )
+    attrs = {
+        "data_de": data_de,
+        "data_para": data_para,
+        "escola": escola,
+        "tipos_alimentacao": [tipo_alimentacao],
+    }
 
     from rest_framework.exceptions import ValidationError
 
