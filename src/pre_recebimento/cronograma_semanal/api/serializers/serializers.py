@@ -12,6 +12,9 @@ from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     UnidadeMedidaSerialzer,
 )
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
+from src.pre_recebimento.cronograma_semanal.api.helpers import (
+    q_programacao_no_periodo,
+)
 from src.pre_recebimento.cronograma_semanal.models import (
     CronogramaSemanal,
     ProgramacaoEntregaSemanal,
@@ -154,7 +157,6 @@ class CronogramaSemanalRelatorioSerializer(serializers.ModelSerializer):
     de origem; as programações de entrega vêm do próprio semanal.
     """
 
-    numero = serializers.CharField(source="cronograma_mensal.numero", read_only=True)
     empresa = serializers.CharField(
         source="cronograma_mensal.empresa.nome_fantasia", read_only=True
     )
@@ -171,9 +173,26 @@ class CronogramaSemanalRelatorioSerializer(serializers.ModelSerializer):
     custo_unitario_produto = serializers.FloatField(
         source="cronograma_mensal.custo_unitario_produto", read_only=True
     )
-    programacoes = ProgramacaoEntregaSemanalRelatorioSerializer(
-        many=True, read_only=True
-    )
+    programacoes = serializers.SerializerMethodField(read_only=True)
+
+    def get_programacoes(self, obj):
+        """Programações do cronograma, recortadas pelo mês de entrega.
+
+        Quando o relatório é filtrado por mês de entrega, o cronograma só
+        exibe as programações que correspondem ao filtro — as demais ficam
+        de fora, ainda que pertençam ao mesmo cronograma.
+        """
+        data_inicial, data_final = self.context.get("periodo_de_entrega", (None, None))
+
+        programacoes = obj.programacoes.all()
+        if data_inicial or data_final:
+            programacoes = programacoes.filter(
+                q_programacao_no_periodo(data_inicial, data_final)
+            )
+
+        return ProgramacaoEntregaSemanalRelatorioSerializer(
+            programacoes, many=True
+        ).data
 
     class Meta:
         model = CronogramaSemanal
