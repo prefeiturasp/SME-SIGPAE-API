@@ -4,7 +4,6 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models import Q
 from django.db.utils import IntegrityError
-from django_prometheus.models import ExportModelOperationsMixin
 
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
@@ -39,7 +38,7 @@ from ..perfil.models.usuario import Usuario
 from .managers import EditalManager
 
 
-class Edital(ExportModelOperationsMixin("edital"), TemChaveExterna):
+class Edital(TemChaveExterna):
     numero = models.CharField(
         "Edital No", max_length=100, help_text="Número do Edital", unique=True
     )
@@ -63,9 +62,7 @@ class Edital(ExportModelOperationsMixin("edital"), TemChaveExterna):
 
 
 # TODO: remover esse modelo (deprecado)
-class Nutricionista(
-    ExportModelOperationsMixin("nutricionista"), TemChaveExterna, Nomeavel
-):
+class Nutricionista(TemChaveExterna, Nomeavel):
     # TODO: verificar a diferença dessa pra nutricionista da CODAE
 
     crn_numero = models.CharField("Nutricionista crn", max_length=160, blank=True)
@@ -92,7 +89,6 @@ class Nutricionista(
 
 
 class Terceirizada(
-    ExportModelOperationsMixin("terceirizada"),
     TemChaveExterna,
     Ativavel,
     TemIdentificadorExternoAmigavel,
@@ -564,7 +560,7 @@ class Terceirizada(
         verbose_name_plural = "Terceirizadas"
 
 
-class Modalidade(ExportModelOperationsMixin("modalidade"), TemChaveExterna, Nomeavel):
+class Modalidade(TemChaveExterna, Nomeavel):
     def __str__(self):
         return self.nome
 
@@ -573,7 +569,7 @@ class Modalidade(ExportModelOperationsMixin("modalidade"), TemChaveExterna, Nome
         verbose_name_plural = "Modalidades"
 
 
-class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
+class Contrato(TemChaveExterna):
     LEVE_LEITE = "LEVE_LEITE"
     ALIMENTACAO_ESCOLAR = "ALIMENTACAO_ESCOLAR"
     PROGRAMA_CHOICES = (
@@ -666,9 +662,7 @@ class Contrato(ExportModelOperationsMixin("contato"), TemChaveExterna):
         verbose_name_plural = "Contratos"
 
 
-class VigenciaContrato(
-    ExportModelOperationsMixin("vigencia_contrato"), TemChaveExterna, IntervaloDeDia
-):
+class VigenciaContrato(TemChaveExterna, IntervaloDeDia):
     ATIVO = "ativo"
     VENCIDO = "vencido"
     PROXIMO_AO_VENCIMENTO = "proximo_ao_vencimento"
@@ -708,7 +702,7 @@ class VigenciaContrato(
         verbose_name_plural = "Vigências de contrato"
 
 
-class Modulo(ExportModelOperationsMixin("modulo"), TemChaveExterna):
+class Modulo(TemChaveExterna):
     nome = models.CharField("Nome", max_length=100)
 
     def __str__(self):
@@ -719,9 +713,7 @@ class Modulo(ExportModelOperationsMixin("modulo"), TemChaveExterna):
         verbose_name_plural = "Módulos"
 
 
-class EmailTerceirizadaPorModulo(
-    ExportModelOperationsMixin("email_terceirizada_por_modulo"), TemChaveExterna
-):
+class EmailTerceirizadaPorModulo(TemChaveExterna):
     email = models.EmailField("E-mail")
     terceirizada = models.ForeignKey(
         Terceirizada, on_delete=models.CASCADE, related_name="emails_terceirizadas"

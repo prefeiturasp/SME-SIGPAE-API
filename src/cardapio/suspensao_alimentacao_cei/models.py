@@ -1,5 +1,4 @@
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
 from src.dados_comuns.behaviors import (
@@ -23,7 +22,6 @@ from src.dados_comuns.utils import patch_docs
 
 
 class SuspensaoAlimentacaoDaCEI(
-    ExportModelOperationsMixin("suspensao_alimentacao_de_cei"),
     TemData,
     TemChaveExterna,
     CriadoPor,

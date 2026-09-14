@@ -3,7 +3,6 @@ import logging
 from datetime import date, datetime
 
 import environ
-import requests
 from rest_framework import status
 
 from ..dados_comuns.constants import (
@@ -13,6 +12,11 @@ from ..dados_comuns.constants import (
     DJANGO_EOL_PAPA_API_USUARIO,
     DJANGO_EOL_SGP_API_TOKEN,
     DJANGO_EOL_SGP_API_URL,
+)
+from ..dados_comuns.http_client import (
+    EOL_PAPA_CLIENT,
+    EOL_SGP_CLIENT,
+    executar_chamada,
 )
 from ..perfil.services.autenticacao_service import AutenticacaoService
 
@@ -34,7 +38,9 @@ class EOLServicoSGP:
     @classmethod
     def matricula_por_escola(cls, codigo_eol: str, data: str, tipo_turma: int = 1):
         """Consulta a quantidade de matriculados na API do sgp."""
-        response = requests.get(
+        response = executar_chamada(
+            EOL_SGP_CLIENT,
+            "get",
             f"{DJANGO_EOL_SGP_API_URL}/matriculas/escolas/dre/{codigo_eol}/quantidades/",
             headers=cls.HEADER,
             timeout=cls.TIMEOUT,
@@ -50,7 +56,9 @@ class EOLServicoSGP:
 
     @classmethod
     def chamada_externa_usuario_existe_core_sso(cls, login):
-        return requests.post(
+        return executar_chamada(
+            EOL_SGP_CLIENT,
+            "post",
             f"{DJANGO_EOL_SGP_API_URL}/AutenticacaoSgp/UsuarioExisteCoreSSO/",
             headers=cls.HEADER,
             data={"usuario": login},
@@ -80,7 +88,9 @@ class EOLServicoSGP:
 
         logger.info("Consultando informação de %s.", login)
         try:
-            response = requests.get(
+            response = executar_chamada(
+                EOL_SGP_CLIENT,
+                "get",
                 f"{DJANGO_EOL_SGP_API_URL}/AutenticacaoSgp/{login}/dados",
                 headers=cls.HEADER,
                 timeout=cls.TIMEOUT,
@@ -110,7 +120,13 @@ class EOLServicoSGP:
         try:
             grupo_id = next(el["id"] for el in sys_grupo_ids if el["nome"] == perfil)
             url = f"{DJANGO_EOL_SGP_API_URL}/perfis/servidores/{login}/perfil/{grupo_id}/atribuirPerfil"
-            response = requests.get(url, headers=cls.HEADER, timeout=cls.TIMEOUT)
+            response = executar_chamada(
+                EOL_SGP_CLIENT,
+                "get",
+                url,
+                headers=cls.HEADER,
+                timeout=cls.TIMEOUT,
+            )
             if response.status_code == status.HTTP_200_OK:
                 return ""
             else:
@@ -122,8 +138,9 @@ class EOLServicoSGP:
 
     @classmethod
     def chamada_externa_criar_usuario_coresso(cls, headers, payload):
-        return requests.request(
-            "POST",
+        return executar_chamada(
+            EOL_SGP_CLIENT,
+            "post",
             f"{DJANGO_EOL_SGP_API_URL}/v1/usuarios/coresso",
             headers=headers,
             data=payload,
@@ -176,7 +193,9 @@ class EOLServicoSGP:
 
     @classmethod
     def chamada_externa_altera_email_coresso(cls, data):
-        return requests.post(
+        return executar_chamada(
+            EOL_SGP_CLIENT,
+            "post",
             f"{DJANGO_EOL_SGP_API_URL}/AutenticacaoSgp/AlterarEmail",
             data=data,
             headers=cls.HEADER,
@@ -202,7 +221,9 @@ class EOLServicoSGP:
 
     @classmethod
     def chamada_externa_altera_senha(cls, data):
-        return requests.post(
+        return executar_chamada(
+            EOL_SGP_CLIENT,
+            "post",
             f"{DJANGO_EOL_SGP_API_URL}/AutenticacaoSgp/AlterarSenha",
             data=data,
             headers=cls.HEADER,
@@ -236,7 +257,9 @@ class EOLServicoSGP:
 
     @classmethod
     def chamada_externa_dados_usuario(cls, registro_funcional):
-        return requests.get(
+        return executar_chamada(
+            EOL_SGP_CLIENT,
+            "get",
             f"{DJANGO_EOL_SGP_API_URL}/funcionarios/DadosSigpae/{registro_funcional}",
             headers=cls.HEADER,
             timeout=cls.TIMEOUT,
@@ -254,7 +277,9 @@ class EOLServicoSGP:
     def chamada_externa_alunos_por_escola_por_ano_letivo(
         cls, codigo_eol_ue, ano=datetime.today().year
     ):
-        return requests.get(
+        return executar_chamada(
+            EOL_SGP_CLIENT,
+            "get",
             f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{codigo_eol_ue}/anosLetivos/{ano}",
             headers=cls.HEADER,
             timeout=cls.TIMEOUT,
@@ -335,7 +360,9 @@ class EOLPapaService:
             "SENHA": DJANGO_EOL_PAPA_API_SENHA_CANCELAMENTO,
         }
 
-        response = requests.post(
+        response = executar_chamada(
+            EOL_PAPA_CLIENT,
+            "post",
             f"{DJANGO_EOL_PAPA_API_URL}/confirmarcancelamentosolicitacao/",
             timeout=cls.TIMEOUT,
             json=payload,
@@ -362,7 +389,9 @@ class EOLPapaService:
             "USUARIO": DJANGO_EOL_PAPA_API_USUARIO,
             "SENHA": DJANGO_EOL_PAPA_API_SENHA_ENVIO,
         }
-        response = requests.post(
+        response = executar_chamada(
+            EOL_PAPA_CLIENT,
+            "post",
             f"{DJANGO_EOL_PAPA_API_URL}/confirmarenviosolicitacao/",
             timeout=cls.TIMEOUT,
             json=payload,

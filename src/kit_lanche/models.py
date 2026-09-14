@@ -5,7 +5,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
-from django_prometheus.models import ExportModelOperationsMixin
 
 from ..dados_comuns.behaviors import (  # noqa I101
     CanceladoIndividualmente,
@@ -44,9 +43,7 @@ from .managers import (
 )
 
 
-class ItemKitLanche(
-    ExportModelOperationsMixin("item_kit_lanche"), Nomeavel, TemChaveExterna
-):
+class ItemKitLanche(Nomeavel, TemChaveExterna):
     """Que compõe o KitLanche.
 
     - Barra de Cereal (20 a 25 g embalagem individual)
@@ -63,7 +60,7 @@ class ItemKitLanche(
         verbose_name_plural = "Item do kit lanche"
 
 
-class KitLanche(ExportModelOperationsMixin("kit_lanche"), Nomeavel, TemChaveExterna):
+class KitLanche(Nomeavel, TemChaveExterna):
     """kit1, kit2, kit3."""
 
     ATIVO = "ATIVO"
@@ -97,7 +94,6 @@ class KitLanche(ExportModelOperationsMixin("kit_lanche"), Nomeavel, TemChaveExte
 
 
 class SolicitacaoKitLanche(
-    ExportModelOperationsMixin("kit_lanche_base"),
     TemData,
     Motivo,
     Descritivel,
@@ -168,9 +164,7 @@ class SolicitacaoKitLancheAvulsaBase(
         abstract = True
 
 
-class SolicitacaoKitLancheAvulsa(
-    ExportModelOperationsMixin("kit_lanche_avulsa"), SolicitacaoKitLancheAvulsaBase
-):
+class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
     quantidade_alunos = models.BigIntegerField(blank=True, null=True)
     escola = models.ForeignKey(
         MODEL_ESCOLA,
@@ -243,9 +237,7 @@ class SolicitacaoKitLancheAvulsa(
         verbose_name_plural = "Solicitações de kit lanche avulsa"
 
 
-class SolicitacaoKitLancheCEIAvulsa(
-    ExportModelOperationsMixin("kit_lanche_cei_avulsa"), SolicitacaoKitLancheAvulsaBase
-):
+class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
     escola = models.ForeignKey(
         MODEL_ESCOLA,
         on_delete=models.DO_NOTHING,
@@ -367,7 +359,6 @@ class FaixaEtariaSolicitacaoKitLancheCEIAvulsa(
 
 
 class SolicitacaoKitLancheUnificada(
-    ExportModelOperationsMixin("kit_lanche_unificada"),
     CriadoPor,
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
@@ -633,7 +624,6 @@ class SolicitacaoKitLancheUnificada(
 
 
 class EscolaQuantidade(
-    ExportModelOperationsMixin("escola_quantidade"),
     TemChaveExterna,
     TempoPasseio,
     CanceladoIndividualmente,

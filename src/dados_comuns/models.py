@@ -3,7 +3,6 @@ from datetime import datetime
 
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from .constants import (
     CRIADO_EM,
@@ -14,9 +13,7 @@ from .constants import (
 )
 
 
-class LogSolicitacoesUsuario(
-    ExportModelOperationsMixin("log_solicitacoes"), models.Model
-):
+class LogSolicitacoesUsuario(models.Model):
     """Eventos de dados importantes para acompanhamento.
 
     Ex.: Fulano X  executou a atividade Y no objeto W no dia DDDDMMAA
@@ -433,9 +430,7 @@ class LogSolicitacoesUsuario(
         )
 
 
-class AnexoLogSolicitacoesUsuario(
-    ExportModelOperationsMixin("log_solicitacoes_anexo"), models.Model
-):
+class AnexoLogSolicitacoesUsuario(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     log = models.ForeignKey(
         LogSolicitacoesUsuario, related_name="anexos", on_delete=models.DO_NOTHING
@@ -447,7 +442,7 @@ class AnexoLogSolicitacoesUsuario(
         return f"Anexo {self.uuid} - {self.nome}"
 
 
-class Endereco(ExportModelOperationsMixin("endereco"), models.Model):
+class Endereco(models.Model):
     logradouro = models.CharField(max_length=255, validators=[MinLengthValidator(5)])
     numero = models.IntegerField(null=True)
     complemento = models.CharField(max_length=50, blank=True)
@@ -455,7 +450,7 @@ class Endereco(ExportModelOperationsMixin("endereco"), models.Model):
     cep = models.IntegerField()
 
 
-class Contato(ExportModelOperationsMixin("contato"), models.Model):
+class Contato(models.Model):
     nome = models.CharField("Nome", max_length=160, blank=True)
     telefone = models.CharField(
         max_length=13, validators=[MinLengthValidator(8)], blank=True
@@ -481,7 +476,7 @@ class Contato(ExportModelOperationsMixin("contato"), models.Model):
             return f"{self.email}"
 
 
-class CategoriaPerguntaFrequente(ExportModelOperationsMixin("cat_faq"), models.Model):
+class CategoriaPerguntaFrequente(models.Model):
     nome = models.CharField("Nome", blank=True, max_length=100)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
@@ -489,7 +484,7 @@ class CategoriaPerguntaFrequente(ExportModelOperationsMixin("cat_faq"), models.M
         return self.nome
 
 
-class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
+class PerguntaFrequente(models.Model):
     categoria = models.ForeignKey(
         "CategoriaPerguntaFrequente", on_delete=models.CASCADE
     )
