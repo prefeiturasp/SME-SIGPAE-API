@@ -6,7 +6,7 @@ from datetime import date
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
-from django_weasyprint.utils import django_url_fetcher
+from django_weasyprint.utils import DjangoURLFetcher
 from pikepdf import Pdf
 from pypdf import PdfReader, PdfWriter
 from weasyprint import CSS, HTML
@@ -80,7 +80,7 @@ def merge_pdf_com_rodape_assinatura(arquivo_usuario, string_pdf_rodape):
 def html_to_pdf_response(html_string, pdf_filename, request=None):
     pdf_file = HTML(
         string=html_string,
-        url_fetcher=django_url_fetcher,
+        url_fetcher=DjangoURLFetcher(),
         base_url=request.build_absolute_uri("/") if request else "file://abobrinha",
     ).write_pdf()
     response = HttpResponse(pdf_file, content_type="application/pdf")
@@ -153,7 +153,7 @@ def html_to_pdf_email_anexo(html_string, pdf_filename=None):
     # O PDF gerado aqui pode ser anexado num email.
     # Utilizado para enviar email ao cancelar dietas ativas automaticamente.
     pdf_file = HTML(
-        string=html_string, url_fetcher=django_url_fetcher, base_url="file://abobrinha"
+        string=html_string, url_fetcher=DjangoURLFetcher(), base_url="file://abobrinha"
     ).write_pdf()
     return pdf_file
 

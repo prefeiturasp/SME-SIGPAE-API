@@ -6,7 +6,7 @@ import pikepdf
 import pytest
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
-from django_weasyprint.utils import django_url_fetcher
+from django_weasyprint.utils import DjangoURLFetcher
 from pypdf import PdfReader
 from weasyprint import HTML
 
@@ -148,7 +148,7 @@ def test_html_to_pdf_response():
 def test_extrair_texto_de_pdf():
     html_string = "<h1>Teste de PDF</h1><p>Conteúdo do PDF gerado</p>"
     pdf_file = HTML(
-        string=html_string, url_fetcher=django_url_fetcher, base_url="file://abobrinha"
+        string=html_string, url_fetcher=DjangoURLFetcher(), base_url="file://abobrinha"
     ).write_pdf()
     response = HttpResponse(pdf_file, content_type="application/pdf")
     texto = extrair_texto_de_pdf(response.content)
