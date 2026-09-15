@@ -28,7 +28,7 @@ describe('Validar rotas de alergias intolerancias da aplicação SIGPAE', () => 
 				expect(response.status).to.eq(200)
 				expect(response.body).to.have.property('descricao').that.is.a('string')
 				expect(response.body).to.have.property('id').that.is.a('number')
-				expect(response.body.descricao).to.eq('ARGININEMIA')
+				expect(response.body.descricao).to.eq('ARGININEMIA') 
 				expect(response.body.id).to.eq(127)
 			})
 		})

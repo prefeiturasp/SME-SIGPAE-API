@@ -1,4 +1,5 @@
 /// <reference types='cypress' />
+
 const dayjs = require('dayjs')
 const { validar_dia_semana } = require('../../support/utils/data_utils')
 var data_atual = dayjs()
