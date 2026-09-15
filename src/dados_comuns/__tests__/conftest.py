@@ -442,7 +442,7 @@ def client_autenticado_medicao(client, user_administrador_medicao):
 
 @pytest.fixture
 def notificacao(usuario_teste_notificacao_autenticado):
-    user, client = usuario_teste_notificacao_autenticado
+    user, _ = usuario_teste_notificacao_autenticado
     return baker.make(
         "Notificacao",
         tipo=Notificacao.TIPO_NOTIFICACAO_ALERTA,
@@ -456,7 +456,7 @@ def notificacao(usuario_teste_notificacao_autenticado):
 
 @pytest.fixture
 def notificacao_de_pendencia(usuario_teste_notificacao_autenticado):
-    user, client = usuario_teste_notificacao_autenticado
+    user, _ = usuario_teste_notificacao_autenticado
     return baker.make(
         "Notificacao",
         tipo=Notificacao.TIPO_NOTIFICACAO_PENDENCIA,
@@ -483,7 +483,7 @@ def notificacao_de_pendencia_com_requisicao(usuario_teste_notificacao_autenticad
         quantidade_total_guias=2,
         distribuidor=distribuidor,
     )
-    user, client = usuario_teste_notificacao_autenticado
+    user, _ = usuario_teste_notificacao_autenticado
     return baker.make(
         "Notificacao",
         tipo=Notificacao.TIPO_NOTIFICACAO_PENDENCIA,
@@ -502,7 +502,7 @@ def arquivo():
 
 @pytest.fixture
 def download(usuario_teste_notificacao_autenticado, arquivo):
-    user, client = usuario_teste_notificacao_autenticado
+    user, _ = usuario_teste_notificacao_autenticado
     return baker.make(
         "CentralDeDownload",
         status=CentralDeDownload.STATUS_CONCLUIDO,

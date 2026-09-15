@@ -14,18 +14,13 @@ from ..services import TermoRecebimentoDefinitivoService
 class CronogramaTermoRecebimentoDefinitivoCreateSerializer(serializers.Serializer):
     """Item de cronograma do Termo de Recebimento Definitivo.
 
-    Cada cronograma possui seu próprio valor de contrato e quantidade
-    total recebida.
+    Cada cronograma possui sua própria quantidade total recebida.
     """
 
     cronograma = serializers.SlugRelatedField(
         slug_field="uuid",
         queryset=Cronograma.objects.all(),
         error_messages={"does_not_exist": "Cronograma não encontrado."},
-    )
-    valor_contrato = serializers.DecimalField(
-        max_digits=15,
-        decimal_places=2,
     )
     quantidade_total_recebida = serializers.DecimalField(
         max_digits=15,
@@ -36,9 +31,9 @@ class CronogramaTermoRecebimentoDefinitivoCreateSerializer(serializers.Serialize
 class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
     """Serializador de criação do Termo de Recebimento Definitivo.
 
-    Recebe os uuids de empresa, contrato, cronogramas (cada um com seu
-    valor de contrato e quantidade recebida) e fiscais, e valida as
-    regras de negócio:
+    Recebe os uuids de empresa, contrato, cronogramas (cada um com sua
+    quantidade recebida) e fiscais, além do valor do contrato — único por
+    termo —, e valida as regras de negócio:
 
     - todos os campos obrigatórios;
     - empresa com ao menos uma ficha de recebimento "Assinado CODAE";
@@ -57,6 +52,10 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
         slug_field="uuid",
         queryset=Contrato.objects.all(),
         error_messages={"does_not_exist": "Contrato não encontrado."},
+    )
+    valor_contrato = serializers.DecimalField(
+        max_digits=15,
+        decimal_places=2,
     )
     cronogramas = CronogramaTermoRecebimentoDefinitivoCreateSerializer(
         many=True,
@@ -87,6 +86,7 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
             "fiscal_1",
             "fiscal_2",
             "fiscal_3",
+            "valor_contrato",
             "texto_termo",
         )
 
@@ -157,11 +157,10 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
         )
 
         errors = {}
+        valor_contrato = attrs.get("valor_contrato")
+        if valor_contrato is not None and valor_contrato <= 0:
+            errors["valor_contrato"] = "O valor do contrato deve ser maior que zero."
         for index, item in enumerate(cronogramas):
-            if item["valor_contrato"] is not None and item["valor_contrato"] <= 0:
-                errors[f"cronogramas[{index}].valor_contrato"] = (
-                    "O valor do contrato deve ser maior que zero."
-                )
             if (
                 item["quantidade_total_recebida"] is not None
                 and item["quantidade_total_recebida"] <= 0

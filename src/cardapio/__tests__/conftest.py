@@ -513,7 +513,7 @@ def vinculos_alimentacao():
 
 @pytest.fixture
 def ativa_vinculo(vinculos_alimentacao):
-    tipo_unidade, escola, periodo_escolar, escola_periodo_escolar = vinculos_alimentacao
+    tipo_unidade, _, periodo_escolar, escola_periodo_escolar = vinculos_alimentacao
     baker.make(
         "VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
         tipo_unidade_escolar=tipo_unidade,

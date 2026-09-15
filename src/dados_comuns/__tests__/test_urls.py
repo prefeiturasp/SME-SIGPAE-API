@@ -67,6 +67,78 @@ def test_url_atualiza_faq(client_autenticado_coordenador_codae):
     assert categoria.uuid == payload["categoria"]
 
 
+def test_url_exclui_duvida_frequente(client_autenticado_coordenador_codae):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="2de7d022-a2e5-45ba-aec9-ff335b686c10",
+    )
+    pergunta = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        uuid="473b72a5-f19d-43f0-92d3-d499aa4e1b75",
+    )
+
+    response = client_autenticado_coordenador_codae.delete(
+        f"/perguntas-frequentes/{pergunta.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert not PerguntaFrequente.objects.filter(uuid=pergunta.uuid).exists()
+    assert CategoriaPerguntaFrequente.objects.filter(uuid=categoria.uuid).exists()
+
+
+def test_url_exclui_apenas_duvida_frequente_selecionada(
+    client_autenticado_coordenador_codae,
+):
+    categoria = baker.make(
+        CategoriaPerguntaFrequente,
+        uuid="c534bc5b-0286-4c72-aabd-ffb46d303b04",
+    )
+    pergunta_excluida = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        uuid="4c60ef05-12a0-4894-9336-5200789c40e0",
+    )
+    pergunta_mantida = baker.make(
+        PerguntaFrequente,
+        categoria=categoria,
+        uuid="04d6351c-485d-425d-8233-2fa963405ad6",
+    )
+
+    response = client_autenticado_coordenador_codae.delete(
+        f"/perguntas-frequentes/{pergunta_excluida.uuid}/"
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert not PerguntaFrequente.objects.filter(uuid=pergunta_excluida.uuid).exists()
+    assert PerguntaFrequente.objects.filter(uuid=pergunta_mantida.uuid).exists()
+
+
+def test_url_usuario_sem_permissao_nao_exclui_duvida_frequente(
+    usuario_teste_notificacao_autenticado,
+):
+    _, client = usuario_teste_notificacao_autenticado
+    pergunta = baker.make(
+        PerguntaFrequente,
+        uuid="c5550990-88ef-4e6e-8dce-5a3d57e3cd9e",
+    )
+
+    response = client.delete(f"/perguntas-frequentes/{pergunta.uuid}/")
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert PerguntaFrequente.objects.filter(uuid=pergunta.uuid).exists()
+
+
+def test_url_nao_exclui_duvida_frequente_inexistente(
+    client_autenticado_coordenador_codae,
+):
+    response = client_autenticado_coordenador_codae.delete(
+        "/perguntas-frequentes/8f455142-d358-4014-90b4-dc713b39c3e3/"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
 @freeze_time("2021-06-16")
 def test_proximo_dia_util_suspensao_alimentacao_segunda(client_autenticado):
     from src.dados_comuns.constants import obter_dias_uteis_apos_hoje

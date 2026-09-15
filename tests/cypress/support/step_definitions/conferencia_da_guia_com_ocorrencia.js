@@ -25,6 +25,9 @@ function dadosPut(conferencia) {
 		eh_reposicao: conferencia.eh_reposicao,
 	}
 }
+function guiaAtiva(item) {
+	return enumNormalizado(item.guia?.situacao) === 'ATIVA'
+}
 Given('que estou autenticado como abastecimento para conferencia com ocorrencia', () => {
 	cy.autenticar_login(Cypress.env('usuario_abastecimento'), Cypress.env('senha'))
 })
@@ -54,16 +57,14 @@ function atualizarPut(contexto, predicado) {
 	})
 }
 When('atualizo por PUT uma conferencia com ocorrencia ativa', function () {
-	atualizarPut(this, (item) => item.guia.situacao === 'ATIVA' &&
-		item.guia.status === 'Recebida' && item.eh_reposicao === false)
+	atualizarPut(this, guiaAtiva)
 })
 When('atualizo por PUT uma conferencia vinculada a guia arquivada', function () {
 	atualizarPut(this, (item) => item.guia.situacao === 'ARQUIVADA')
 })
 When('atualizo por PATCH uma conferencia com ocorrencia ativa', function () {
 	cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then((lista) => {
-		const conferencia = lista.body.results.find((item) =>
-			item.guia.situacao === 'ATIVA' && item.guia.status === 'Recebida')
+		const conferencia = lista.body.results.find(guiaAtiva)
 		expect(conferencia).to.exist
 		this.uuid = conferencia.uuid
 		cy.atualizar_conferencia_da_guia_com_ocorrencia_patch(

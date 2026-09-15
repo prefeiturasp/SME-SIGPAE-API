@@ -32,7 +32,7 @@ from ..permissions import (
     PermissaoParaGerenciarPerguntasFrequentes,
 )
 from ..utils import obter_dias_uteis_apos
-from .filters import CentralDeDownloadFilter, NotificacaoFilter
+from .filters import CentralDeDownloadFilter, NotificacaoFilter, PerguntaFrequenteFilter
 from .paginations import CustomPagination, DownloadPagination
 from .serializers import (
     CategoriaPerguntaFrequenteSerializer,
@@ -252,20 +252,21 @@ class PerguntaFrequenteViewSet(ModelViewSet):
     lookup_field = "uuid"
     queryset = PerguntaFrequente.objects.all().order_by("-criado_em")
     pagination_class = CustomPagination
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = PerguntaFrequenteFilter
 
     def get_queryset(self):
-        queryset = (
-            super()
-            .get_queryset()
-            .select_related("categoria")
-            .prefetch_related("perfis")
-        )
+        queryset = super().get_queryset()
 
         if self.action in ["list", "retrieve"]:
             perguntas_visiveis = perguntas_frequentes_visiveis_para_usuario(
                 self.request.user
             )
-            return queryset.filter(pk__in=perguntas_visiveis)
+            return (
+                queryset.filter(pk__in=perguntas_visiveis)
+                .select_related("categoria")
+                .prefetch_related("perfis")
+            )
 
         return queryset
 

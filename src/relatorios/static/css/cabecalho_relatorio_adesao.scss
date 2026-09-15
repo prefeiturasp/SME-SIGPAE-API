@@ -1,5 +1,19 @@
 @import "variaveis";
 
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url("../fonts/Roboto/Roboto-Regular.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url("../fonts/Roboto/Roboto-Bold.ttf") format('truetype');
+}
+
 header {
   padding: 15px 30px;
   background-color: $cinza-claro;
@@ -21,6 +35,7 @@ header {
 
     & span {
       font-size: 12px;
+      font-weight: bold;
     }
   }
 }

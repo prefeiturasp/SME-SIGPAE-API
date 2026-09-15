@@ -56,9 +56,9 @@ Feature: Validar alteracoes de cardapio da aplicacao SIGPAE
     When consulto uma alteracao de cardapio por id sem barra final
     Then a consulta da alteracao deve redirecionar para a barra final
 
-  Scenario: Consultar alteracao de cardapio por id com sucesso
+  Scenario: Consultar alteracao de cardapio por id conforme permissao do perfil
     When consulto uma alteracao de cardapio existente
-    Then deve retornar os dados completos da alteracao de cardapio
+    Then deve retornar os dados completos da alteracao ou permissao negada
 
   Scenario: Excluir alteracao de cardapio com sucesso
     When cadastro e excluo uma alteracao de cardapio
