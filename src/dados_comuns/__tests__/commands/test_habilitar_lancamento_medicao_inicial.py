@@ -10,58 +10,63 @@ from django.test import override_settings
 pytestmark = pytest.mark.django_db
 
 
+@pytest.fixture
+def mocks_modulo_habilitar():
+    with mock.patch.multiple(
+        "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial",
+        matriculados_por_escola_e_periodo_regulares=mock.DEFAULT,
+        call_command=mock.DEFAULT,
+        habilitar_dias_letivos=mock.DEFAULT,
+        obter_informacoes_escolas=mock.DEFAULT,
+        obter_usuario=mock.DEFAULT,
+        incluir_dietas_especiais=mock.DEFAULT,
+        remover_dietas_especiais=mock.DEFAULT,
+        solicitar_kit_lanche=mock.DEFAULT,
+        solicitar_lanche_emergencial=mock.DEFAULT,
+        incluir_programas_e_projetos=mock.DEFAULT,
+        incluir_etec=mock.DEFAULT,
+        incluir_log_alunos_matriculados=mock.DEFAULT,
+        remover_log_alunos_matriculados=mock.DEFAULT,
+    ) as mocks:
+        yield mocks
+
+
 @override_settings(DJANGO_ENV="development")
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_etec"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_programas_e_projetos"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_lanche_emergencial"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_kit_lanche"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_dietas_especiais"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_dietas_especiais"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_log_alunos_matriculados"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_log_alunos_matriculados"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
-)
 @mock.patch("src.escola.models.Escola.objects.get")
 def test_executa_com_sucesso(
     mock_get_escola,
-    mock_obter_usuario,
-    mock_obter_escolas,
-    mock_habilitar_dias_letivos,
-    mock_remover_logs,
-    mock_incluir_logs,
-    mock_remover_dietas_especiais,
-    mock_incluir_dietas_especiais,
-    mock_solicitar_kit_lache,
-    mock_solicitar_lanche_emergencial,
-    mock_programas_e_projetos,
-    mock_etec,
+    mocks_modulo_habilitar,
     user_diretor_escola,
     usuario_da_dre,
     escola,
 ):
+    mocks = mocks_modulo_habilitar
+    (
+        mock_etec,
+        mock_programas_e_projetos,
+        mock_solicitar_lanche_emergencial,
+        mock_solicitar_kit_lache,
+        mock_incluir_dietas_especiais,
+        mock_remover_dietas_especiais,
+        mock_incluir_logs,
+        mock_remover_logs,
+        mock_habilitar_dias_letivos,
+        mock_obter_escolas,
+        mock_obter_usuario,
+    ) = (
+        mocks["incluir_etec"],
+        mocks["incluir_programas_e_projetos"],
+        mocks["solicitar_lanche_emergencial"],
+        mocks["solicitar_kit_lanche"],
+        mocks["incluir_dietas_especiais"],
+        mocks["remover_dietas_especiais"],
+        mocks["incluir_log_alunos_matriculados"],
+        mocks["remover_log_alunos_matriculados"],
+        mocks["habilitar_dias_letivos"],
+        mocks["obter_informacoes_escolas"],
+        mocks["obter_usuario"],
+    )
+
     usuario, _ = user_diretor_escola
     usuario_dre, _ = usuario_da_dre
 
@@ -195,68 +200,48 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
 
 @override_settings(DJANGO_ENV="development")
 @mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.matriculados_por_escola_e_periodo_regulares"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.call_command"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.habilitar_dias_letivos"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_informacoes_escolas"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.obter_usuario"
-)
-@mock.patch(
     "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.calendario_sgp"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_dietas_especiais"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_dietas_especiais"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_kit_lanche"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.solicitar_lanche_emergencial"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_programas_e_projetos"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_etec"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.incluir_log_alunos_matriculados"
-)
-@mock.patch(
-    "src.dados_comuns.management.commands.habilitar_lancamento_medicao_inicial.remover_log_alunos_matriculados"
 )
 @mock.patch("src.escola.models.Escola.objects.get")
 def test_executa_com_atualizar_escolas(
     mock_get_escola,
-    mock_remover_logs,
-    mock_incluir_logs,
-    mock_etec,
-    mock_programas_e_projetos,
-    mock_solicitar_lanche_emergencial,
-    mock_solicitar_kit_lanche,
-    mock_remover_dietas_especiais,
-    mock_incluir_dietas_especiais,
     mock_calendario_sgp,
-    mock_obter_usuario,
-    mock_obter_escolas,
-    mock_habilitar_dias_letivos,
-    mock_call_command,
-    mock_matriculados_task,
+    mocks_modulo_habilitar,
     user_diretor_escola,
     usuario_da_dre,
     escola,
 ):
+    mocks = mocks_modulo_habilitar
+    (
+        mock_matriculados_task,
+        mock_call_command,
+        mock_habilitar_dias_letivos,
+        mock_obter_escolas,
+        mock_obter_usuario,
+        mock_incluir_dietas_especiais,
+        mock_remover_dietas_especiais,
+        mock_solicitar_kit_lanche,
+        mock_solicitar_lanche_emergencial,
+        mock_programas_e_projetos,
+        mock_etec,
+        mock_incluir_logs,
+        mock_remover_logs,
+    ) = (
+        mocks["matriculados_por_escola_e_periodo_regulares"],
+        mocks["call_command"],
+        mocks["habilitar_dias_letivos"],
+        mocks["obter_informacoes_escolas"],
+        mocks["obter_usuario"],
+        mocks["incluir_dietas_especiais"],
+        mocks["remover_dietas_especiais"],
+        mocks["solicitar_kit_lanche"],
+        mocks["solicitar_lanche_emergencial"],
+        mocks["incluir_programas_e_projetos"],
+        mocks["incluir_etec"],
+        mocks["incluir_log_alunos_matriculados"],
+        mocks["remover_log_alunos_matriculados"],
+    )
+
     usuario, _ = user_diretor_escola
     usuario_dre, _ = usuario_da_dre
 

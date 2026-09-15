@@ -151,7 +151,8 @@ class LogSolicitacoesUsuario(
         ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
         FICHA_TECNICA_CADASTRADA,
         MEDICAO_CODAE_REABRIU_LANCAMENTO,
-    ) = range(116)
+        CODAE_MANTEVE_PRODUTO_SUSPENSO,
+    ) = range(117)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -339,6 +340,7 @@ class LogSolicitacoesUsuario(
         ),
         (ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA, "Escola alterou"),
         (MEDICAO_CODAE_REABRIU_LANCAMENTO, "CODAE reabriu lançamento"),
+        (CODAE_MANTEVE_PRODUTO_SUSPENSO, "CODAE manteve o produto suspenso"),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,

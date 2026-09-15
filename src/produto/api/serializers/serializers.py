@@ -53,6 +53,9 @@ from ...models import (
     TipoDeInformacaoNutricional,
     UnidadeMedida,
 )
+from ...services.historico_reclamacao_produto import (
+    ServicoHistoricoReclamacaoProduto,
+)
 
 
 class FabricanteSerializer(serializers.ModelSerializer):
@@ -138,6 +141,26 @@ class InformacoesNutricionaisDoProdutoSerializer(serializers.ModelSerializer):
         exclude = ("id", "produto")
 
 
+class LogHistoricoReclamacaoProdutoSerializer(
+    LogSolicitacoesUsuarioComAnexosSerializer
+):
+    arquivos_disponiveis = serializers.SerializerMethodField()
+
+    def get_arquivos_disponiveis(self, obj):
+        anexos = ServicoHistoricoReclamacaoProduto.obter_anexos_log_para_resumo(
+            log=obj,
+            anexos_iniciais=self.context["anexos_iniciais"],
+        )
+        return ServicoHistoricoReclamacaoProduto.obter_resumo_arquivos(anexos)
+
+    class Meta(LogSolicitacoesUsuarioComAnexosSerializer.Meta):
+        fields = LogSolicitacoesUsuarioComAnexosSerializer.Meta.fields + (
+            "uuid",
+            "status_evento",
+            "arquivos_disponiveis",
+        )
+
+
 class ReclamacaoDeProdutoSerializer(serializers.ModelSerializer):
     escola = EscolaSimplissimaSerializer()
     anexos = serializers.SerializerMethodField()
@@ -145,24 +168,54 @@ class ReclamacaoDeProdutoSerializer(serializers.ModelSerializer):
     logs = serializers.SerializerMethodField()
     usuario = serializers.SerializerMethodField()
 
+    def get_logs(self, obj):
+        anexos_iniciais = list(obj.anexos.all())
+        logs = list(
+            LogSolicitacoesUsuario.objects.filter(
+                uuid_original=obj.uuid,
+                solicitacao_tipo=LogSolicitacoesUsuario.RECLAMACAO_PRODUTO,
+            )
+            .prefetch_related("anexos")
+            .order_by("criado_em")
+        )
+        dados_logs = LogHistoricoReclamacaoProdutoSerializer(
+            logs,
+            many=True,
+            context={**self.context, "anexos_iniciais": anexos_iniciais},
+        ).data
+
+        acao_inicial = (
+            ServicoHistoricoReclamacaoProduto.obter_dados_acao_inicial_legada(
+                reclamacao=obj,
+                logs=logs,
+                anexos=anexos_iniciais,
+            )
+        )
+        if acao_inicial:
+            acao_inicial["anexos"] = AnexoReclamacaoDeProdutoSerializer(
+                acao_inicial["anexos"],
+                context=self.context,
+                many=True,
+            ).data
+            acao_inicial["usuario"] = UsuarioSerializer(
+                acao_inicial["usuario"]
+            ).data
+            dados_logs.insert(0, acao_inicial)
+
+        return dados_logs
+
+    def get_anexos(self, obj):
+        return AnexoReclamacaoDeProdutoSerializer(
+            obj.anexos.all(),
+            context=self.context,
+            many=True,
+        ).data
+
     def get_usuario(self, obj):
         return UsuarioSerializer(
             Usuario.objects.filter(
                 registro_funcional=obj.reclamante_registro_funcional
             ).first(),
-        ).data
-
-    def get_anexos(self, obj):
-        return AnexoReclamacaoDeProdutoSerializer(
-            obj.anexos.all(), context=self.context, many=True
-        ).data
-
-    def get_logs(self, obj):
-        return LogSolicitacoesUsuarioComAnexosSerializer(
-            LogSolicitacoesUsuario.objects.filter(uuid_original=obj.uuid).order_by(
-                "criado_em"
-            ),
-            many=True,
         ).data
 
     class Meta:

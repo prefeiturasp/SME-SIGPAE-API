@@ -6,7 +6,7 @@ from src.dados_comuns.parser_xml import (
 
 
 def test_xml_convert_retorna_dicionario(parser_xml):
-    parser, xml_dicionario, xml_lista = parser_xml
+    parser, xml_dicionario, _ = parser_xml
     result = parser._xml_convert(xml_dicionario)
     assert result == {
         "Str": "Aluno com alergia a frutos do mar.",
@@ -16,13 +16,13 @@ def test_xml_convert_retorna_dicionario(parser_xml):
 
 
 def test_xml_convert_retona_lista(parser_xml):
-    parser, xml_dicionario, xml_lista = parser_xml
+    parser, _, xml_lista = parser_xml
     result = parser._xml_convert(xml_lista)
     assert result == ["Paulo Antônio", "Maria Antônia"]
 
 
 def test_check_and_returns_data_from_element_retona_dicionario(parser_xml):
-    parser, xml_dicionario, xml_lista = parser_xml
+    parser, xml_dicionario, _ = parser_xml
     result = check_and_returns_data_from_element(parser, xml_dicionario)
     assert result == {
         "Str": "Aluno com alergia a frutos do mar.",
@@ -32,19 +32,19 @@ def test_check_and_returns_data_from_element_retona_dicionario(parser_xml):
 
 
 def test_check_and_returns_data_from_element_retona_lista(parser_xml):
-    parser, xml_dicionario, xml_lista = parser_xml
+    parser, _, xml_lista = parser_xml
     result = check_and_returns_data_from_element(parser, xml_lista)
     assert result == ["Paulo Antônio", "Maria Antônia"]
 
 
 def test_check_xml_list_retona_falso(parser_xml):
-    parser, xml_dicionario, xml_lista = parser_xml
+    parser, xml_dicionario, _ = parser_xml
     result = check_xml_list(xml_dicionario)
     assert result is False
 
 
 def test_check_xml_list_retona_verdadeiro(parser_xml):
-    parser, xml_dicionario, xml_lista = parser_xml
+    _, _, xml_lista = parser_xml
     result = check_xml_list(xml_lista)
     assert result is True
 

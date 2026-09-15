@@ -279,8 +279,16 @@ class ReclamacaoDeProdutoSerializerCreate(serializers.ModelSerializer):
         for anexo in anexos:
             arquivo = convert_base64_to_contentfile(anexo.pop("base64"))
             AnexoReclamacaoDeProduto.objects.create(
-                reclamacao_de_produto=reclamacao, arquivo=arquivo, nome=anexo["nome"]
+                reclamacao_de_produto=reclamacao,
+                arquivo=arquivo,
+                nome=anexo["nome"],
             )
+
+        reclamacao.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.ESCOLA_OU_NUTRICIONISTA_RECLAMOU,
+            user=reclamacao.criado_por,
+            justificativa=reclamacao.reclamacao,
+        )
 
         return reclamacao
 

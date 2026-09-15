@@ -15,6 +15,7 @@ from src.dados_comuns.permissions import (
     PermissaoParaDarCienciaCronogramaSemanal,
     PermissaoParaVisualizarCalendarioCronograma,
     PermissaoParaVisualizarCronogramaSemanal,
+    PermissaoParaVisualizarRelatorioCronograma,
 )
 from src.pre_recebimento.base.api.paginations import (
     PreRecebimentoPagination,
@@ -25,6 +26,10 @@ from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.pre_recebimento.cronograma_semanal.api.filters import (
     CronogramaSemanalFilter,
+    CronogramaSemanalRelatorioFilter,
+)
+from src.pre_recebimento.cronograma_semanal.api.helpers import (
+    periodo_de_entrega,
 )
 from src.pre_recebimento.cronograma_semanal.api.serializers.serializer_create import (
     CronogramaSemanalAlterarSerializer,
@@ -36,6 +41,7 @@ from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
     CronogramaSemanalDetailSerializer,
     CronogramaSemanalListagemSerializer,
     CronogramaSemanalRascunhosSerializer,
+    CronogramaSemanalRelatorioSerializer,
 )
 from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 from src.relatorios.relatorios import (
@@ -79,11 +85,19 @@ class CronogramaSemanalViewSet(
         "rascunhos_listagem": [PermissaoParaCriarCronogramaSemanal],
         "alterar_cronograma": [PermissaoParaCriarCronogramaSemanal],
         "calendario": [PermissaoParaVisualizarCalendarioCronograma],
+        "lista_relatorio": [PermissaoParaVisualizarRelatorioCronograma],
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = CronogramaSemanalFilter
     pagination_class = PreRecebimentoPagination
+
+    @property
+    def filterset_class(self):
+        """O relatório tem seus próprios filtros, independentes da listagem."""
+        if getattr(self, "action", None) == "lista_relatorio":
+            return CronogramaSemanalRelatorioFilter
+
+        return CronogramaSemanalFilter
 
     def get_permissions(self):
         permission_classes = self.permission_action_classes.get(
@@ -116,6 +130,7 @@ class CronogramaSemanalViewSet(
             "fornecedor_ciente": CronogramaSemanalDetailSerializer,
             "list": CronogramaSemanalListagemSerializer,
             "calendario": CronogramaSemanalCalendarioSerializer,
+            "lista_relatorio": CronogramaSemanalRelatorioSerializer,
         }
         return serializer_map.get(self.action, CronogramaSemanalListagemSerializer)
 
@@ -145,6 +160,52 @@ class CronogramaSemanalViewSet(
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="listagem-relatorio",
+        url_name="lista_relatorio",
+    )
+    def lista_relatorio(self, request, *args, **kwargs):
+        """Retorna a listagem de cronogramas semanais para relatório.
+
+        Endpoint: ``GET /cronogramas-semanais/listagem-relatorio/``
+
+        Cada linha traz os dados do cronograma mensal de origem (número,
+        empresa, produto, quantidade do empenho e custo unitário), o status
+        do semanal e suas programações de entrega.
+
+        Quando o mês de entrega é informado, ele recorta duas vezes: o
+        filterset descarta os cronogramas sem nenhuma programação no
+        período, e o serializer exibe apenas as programações que
+        correspondem ao filtro.
+        """
+        queryset = (
+            self.filter_queryset(self.get_queryset())
+            .order_by("-alterado_em")
+            .distinct()
+        )
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_serializer_context(self):
+        """Repassa o mês de entrega ao serializer do relatório, que recorta
+        as programações exibidas pelo mesmo período do filtro."""
+        context = super().get_serializer_context()
+
+        if getattr(self, "action", None) == "lista_relatorio":
+            context["periodo_de_entrega"] = periodo_de_entrega(
+                self.request.query_params
+            )
+
+        return context
 
     @action(
         detail=False,
