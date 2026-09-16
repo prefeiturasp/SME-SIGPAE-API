@@ -24,6 +24,25 @@ function montarDadosPatch(conferencia) {
 	}
 }
 
+function buscarConferencia(criterio, descricao, offset = 0) {
+	return cy.consultar_conferencia_da_guia_com_ocorrencia(
+		`limit=100&offset=${offset}`,
+	).then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array')
+		const conferencia = response.body.results.find(criterio)
+		if (conferencia) {
+			return conferencia
+		}
+		if (response.body.next && response.body.results.length > 0) {
+			return buscarConferencia(criterio, descricao, offset + response.body.results.length)
+		}
+		throw new Error(
+			`Nenhuma conferência ${descricao} foi encontrada após consultar todas as páginas.`,
+		)
+	})
+}
+
 function montarDadosPost(conferencia) {
 	const alimento = conferencia.conferencia_dos_alimentos.find(
 		(itemAlimento) => itemAlimento.tem_ocorrencia,
@@ -133,19 +152,12 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 
 	context('Rota PUT api/conferencia-da-guia-com-ocorrencia/{uuid}/', () => {
 		it('Atualiza conferência da guia com ocorrência por UUID com sucesso', () => {
-			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then(
-				(responseLista) => {
-					expect(responseLista.status).to.eq(200)
-					expect(responseLista.body.results).to.be.an('array').and.not.to.be.empty
-
-					const conferencia = responseLista.body.results.find(
-						(item) =>
-							item.guia.situacao === 'ATIVA' &&
-							item.guia.status === 'Recebida' &&
-							item.eh_reposicao === false,
-					)
-					expect(conferencia).to.exist
-
+			buscarConferencia(
+				(item) => item.guia.situacao === 'ATIVA' &&
+					item.guia.status === 'Recebida' && item.eh_reposicao === false,
+				'com guia ATIVA, status Recebida e sem reposição',
+			).then(
+				(conferencia) => {
 					const dados_teste = {
 						conferencia_dos_alimentos:
 							conferencia.conferencia_dos_alimentos.map((alimento) => ({
@@ -180,15 +192,11 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 		})
 
 		it('Exibe erro ao atualizar conferência vinculada a guia arquivada', () => {
-			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then(
-				(responseLista) => {
-					expect(responseLista.status).to.eq(200)
-
-					const conferencia = responseLista.body.results.find(
-						(item) => item.guia.situacao === 'ARQUIVADA',
-					)
-					expect(conferencia).to.exist
-
+			buscarConferencia(
+				(item) => item.guia.situacao === 'ARQUIVADA',
+				'com guia ARQUIVADA',
+			).then(
+				(conferencia) => {
 					const dados_teste = {
 						conferencia_dos_alimentos:
 							conferencia.conferencia_dos_alimentos.map((alimento) => ({
@@ -225,16 +233,11 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 
 	context('Rota PATCH api/conferencia-da-guia-com-ocorrencia/{uuid}/', () => {
 		it('Atualiza parcialmente conferência por UUID com sucesso', () => {
-			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then(
-				(responseLista) => {
-					expect(responseLista.status).to.eq(200)
-
-					const conferencia = responseLista.body.results.find(
-						(item) =>
-							item.guia.situacao === 'ATIVA' && item.guia.status === 'Recebida',
-					)
-					expect(conferencia).to.exist
-
+			buscarConferencia(
+				(item) => item.guia.situacao === 'ATIVA' && item.guia.status === 'Recebida',
+				'com guia ATIVA e status Recebida',
+			).then(
+				(conferencia) => {
 					cy.atualizar_conferencia_da_guia_com_ocorrencia_patch(
 						conferencia.uuid,
 						montarDadosPatch(conferencia),
@@ -272,17 +275,13 @@ describe('Validar conferência da guia com ocorrência da aplicação SIGPAE', (
 
 	context('Rota POST api/conferencia-da-guia-com-ocorrencia/', () => {
 		it('Cadastra conferência da guia com ocorrência com sucesso', () => {
-			cy.consultar_conferencia_da_guia_com_ocorrencia('limit=10&offset=0').then(
-				(responseLista) => {
-					expect(responseLista.status).to.eq(200)
-					expect(responseLista.body.results).to.be.an('array').and.not.to.be.empty
-
-					const conferencia = responseLista.body.results.find((item) =>
-						item.conferencia_dos_alimentos.some(
-							(itemAlimento) => itemAlimento.tem_ocorrencia,
-						),
-					)
-					expect(conferencia).to.exist
+			buscarConferencia(
+				(item) => item.conferencia_dos_alimentos.some(
+					(itemAlimento) => itemAlimento.tem_ocorrencia,
+				),
+				'com alimento com ocorrência',
+			).then(
+				(conferencia) => {
 					const dados_teste = montarDadosPost(conferencia)
 
 					cy.cadastrar_conferencia_da_guia_com_ocorrencia(dados_teste).then(
