@@ -330,7 +330,7 @@ describe('Validar rotas de Terceirizadas da aplicação SIGPAE', () => {
 			cy.cadastrar_terceirizadas(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
 				expect(response.body.cnpj[0]).to.eq(
-					'Este campo não pode estar em branco.',
+					'Este campo pode não estar em branco.',
 				)
 			})
 		})

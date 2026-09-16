@@ -20,6 +20,17 @@ function obter_data_letiva_para_teste(dataBase) {
 	return data
 }
 
+function obter_domingo_fora_das_ferias(dataBase) {
+	let data = dataBase.add(1, 'day')
+	while (data.year() === dataBase.year()) {
+		if (data.day() === 0 && ![0, 6, 11].includes(data.month())) {
+			return data
+		}
+		data = data.add(1, 'day')
+	}
+	return null
+}
+
 describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 	var usuario = Cypress.env('usuario_diretor_ue')
 	var senha = Cypress.env('senha')
@@ -152,7 +163,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 				expect(response.status).to.eq(400)
 				expect(
 					response.allRequestResponses[0]['Response Body'].motivo[0],
-				).to.eq('Este campo não pode ser nulo.')
+				).to.eq('Este campo pode não ser nulo.')
 			})
 		})
 
@@ -210,7 +221,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 				expect(response.status).to.eq(400)
 				expect(
 					response.allRequestResponses[0]['Response Body'].escola[0],
-				).to.eq('Este campo não pode ser nulo.')
+				).to.eq('Este campo pode não ser nulo.')
 			})
 		})
 
@@ -269,7 +280,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 				expect(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.periodo_escolar[0],
-				).to.eq('Este campo não pode ser nulo.')
+				).to.eq('Este campo pode não ser nulo.')
 			})
 		})
 
@@ -389,11 +400,11 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 				expect(
 					response.allRequestResponses[0]['Response Body'].datas_intervalo[0]
 						.alteracao_cardapio[0],
-				).to.eq('Este campo não pode ser nulo.')
+				).to.eq('Este campo pode não ser nulo.')
 				expect(
 					response.allRequestResponses[0]['Response Body'].substituicoes[0]
 						.alteracao_cardapio[0],
-				).to.eq('Este campo não pode ser nulo.')
+				).to.eq('Este campo pode não ser nulo.')
 			})
 		})
 
@@ -813,13 +824,13 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
 				expect(response.body.data_final[0]).to.eq(
-					'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
+					'Formato de data inválido. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
 				)
 				expect(response.body.data_inicial[0]).to.eq(
-					'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
+					'Formato de data inválido. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
 				)
 				expect(response.body.datas_intervalo[0].data[0]).to.eq(
-					'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
+					'Formato de data inválido. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
 				)
 			})
 		})
@@ -852,9 +863,9 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			})
 		})
 
-		// Substitui o it por it.only para pular em Jan, Jul ou Dez Conforme a regra de negócio
-		const currentMonth = dayjs().month() + 1
-		const conditionalIt = [1, 7, 12].includes(currentMonth) ? it.skip : it
+		// A regra considera o mês da data solicitada, não o mês da execução.
+		const dataNaoLetiva = obter_domingo_fora_das_ferias(data_atual)
+		const conditionalIt = dataNaoLetiva ? it : it.skip
 		conditionalIt(
 			'Validar POST com datas em dia nao letivo de lanche emergencial',
 			() => {
@@ -875,7 +886,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 					terceirizada_conferiu_gestao: true,
 					eh_alteracao_com_lanche_repetida: true,
 					criado_por: null,
-					data: '2026-11-30',
+					data: dataNaoLetiva.format('YYYY-MM-DD'),
 				}
 				cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
@@ -908,13 +919,13 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 			}
 			cy.cadastrar_alteracoes_cardapio(dados_teste).then((response) => {
 				expect(response.body.data_final[0]).to.eq(
-					'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
+					'Formato de data inválido. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
 				)
 				expect(response.body.data_inicial[0]).to.eq(
-					'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
+					'Formato de data inválido. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
 				)
 				expect(response.body.datas_intervalo[0].data[0]).to.eq(
-					'Formato inválido para data. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
+					'Formato de data inválido. Use um dos formatos a seguir: DD/MM/YYYY, YYYY-MM-DD.',
 				)
 			})
 		})
@@ -966,7 +977,7 @@ describe('Validar rotas de alteracoes cardapio da aplicação SIGPAE', () => {
 
 		it('Validar GET de alterações cardápio por id com sucesso', () => {
 			var id = '3f42cdc6-f524-4364-af62-13a831abae5d/'
-			usuario = Cypress.env('usuario_coordenador_supervisao_nutricao')
+			usuario = Cypress.env('usuario_codae')
 			senha = Cypress.env('senha')
 			cy.autenticar_login(usuario, senha)
 			aguardar_processamento_api()

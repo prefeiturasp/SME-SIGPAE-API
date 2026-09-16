@@ -168,7 +168,7 @@ describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
 			var dados_teste = montarDadosConferencia({ data_recebimento: '' })
 
 			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
-				validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato inval')
+				validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato de data invalido')
 			})
 		})
 
@@ -184,7 +184,7 @@ describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
 			var dados_teste = montarDadosConferencia({ guia: '' })
 
 			cy.cadastrar_conferencia_da_guia(dados_teste).then((response) => {
-				validarErroCampoOuPermissao(response, 'guia', 'nao pode')
+				validarErroCampoOuPermissao(response, 'guia', 'Este campo pode nao ser nulo.')
 			})
 		})
 
@@ -288,7 +288,7 @@ describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
 
 				var dados_teste = montarDadosConferencia({ data_recebimento: '' })
 				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-					validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato inval')
+					validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato de data invalido')
 				})
 
 				excluirConferenciaSeCriada(uuid)
@@ -318,7 +318,7 @@ describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
 
 				var dados_teste = montarDadosConferencia({ guia: '' })
 				cy.alterar_conferencia_da_guia(dados_teste, uuid).then((response) => {
-					validarErroCampoOuPermissao(response, 'guia', 'nao pode')
+					validarErroCampoOuPermissao(response, 'guia', 'Este campo pode nao ser nulo.')
 				})
 
 				excluirConferenciaSeCriada(uuid)
@@ -404,7 +404,7 @@ describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
 
 				var dados_teste = montarDadosConferencia({ data_recebimento: '' })
 				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
-					validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato inval')
+					validarErroCampoOuPermissao(response, 'data_recebimento', 'Formato de data invalido')
 				})
 
 				excluirConferenciaSeCriada(uuid)
@@ -434,7 +434,7 @@ describe('Validar rotas de conferencia da guia da aplicacao SIGPAE', () => {
 
 				var dados_teste = montarDadosConferencia({ guia: '' })
 				cy.alterar_conferencia_da_guia_patch(dados_teste, uuid).then((response) => {
-					validarErroCampoOuPermissao(response, 'guia', 'nao pode')
+					validarErroCampoOuPermissao(response, 'guia', 'Este campo pode nao ser nulo.')
 				})
 
 				excluirConferenciaSeCriada(uuid)

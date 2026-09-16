@@ -252,10 +252,10 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 			cy.cadastrar_itens_cadastros(dados_teste).then((response) => {
 				expect(response.status).to.eq(400)
 				expect(response.body.nome[0]).to.eq(
-					'Este campo não pode estar em branco.',
+					'Este campo pode não estar em branco.',
 				)
 				expect(response.body.tipo[0]).to.eq(
-					'Este campo não pode estar em branco.',
+					'Este campo pode não estar em branco.',
 				)
 			})
 		})
@@ -426,10 +426,10 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 				cy.put_alterar_itens_cadastros(uuid, dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
 					expect(response.body.nome[0]).to.eq(
-						'Este campo não pode estar em branco.',
+						'Este campo pode não estar em branco.',
 					)
 					expect(response.body.tipo[0]).to.eq(
-						'Este campo não pode estar em branco.',
+						'Este campo pode não estar em branco.',
 					)
 				})
 			})
@@ -575,10 +575,10 @@ describe('Validar rotas de Itens Cadastros da aplicação SIGPAE', () => {
 				cy.patch_alterar_itens_cadastros(uuid, dados_teste).then((response) => {
 					expect(response.status).to.eq(400)
 					expect(response.body.nome[0]).to.eq(
-						'Este campo não pode estar em branco.',
+						'Este campo pode não estar em branco.',
 					)
 					expect(response.body.tipo[0]).to.eq(
-						'Este campo não pode estar em branco.',
+						'Este campo pode não estar em branco.',
 					)
 				})
 			})
