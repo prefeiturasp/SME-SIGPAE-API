@@ -1,5 +1,6 @@
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
 from src.dados_comuns.templatetags.email_templatetags import (
     traduz_movimentacao,
 )
@@ -7,7 +8,7 @@ from src.dados_comuns.templatetags.email_templatetags import (
 
 def test_template_email_base():
     titulo = "Teste template"
-    template = "fluxo_autorizar_negar_cancelar.html"
+    template = TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
     hidden_email = None
     tipo_solicitacao = "inclusao de alimentacao"
     movimentacao_realizada = "ESCOLA_CANCELOU"

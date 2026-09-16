@@ -1,0 +1,111 @@
+{% load static %}
+
+{% block css %}
+<style>
+  .conteudo-titulo {
+    height: 60px !important;
+  }
+
+  .text-center {
+    font-size: 12px !important;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+  }
+
+  .article-dre {
+    width: 100% !important;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .produto-header {
+    color: #42474A;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+  }
+
+  .value-header {
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .info-container {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    color: #42474A;
+  }
+
+  .info-container .col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .info-container span {
+    margin: 4px 0;
+    font-size: 14px;
+  }
+
+  .info-body p {
+    margin-top: 0;
+  }
+</style>
+{% endblock %}
+
+<header class="header">
+  <section class="titulo-e-logo flex-between">
+    <div class="col-2">
+      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
+    </div>
+    <div class="col-8">
+      <h1 class="text-center">
+        SECRETARIA MUNICIPAL DE EDUCAÇÃO | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE
+      </h1>
+      <h1 class="text-center">
+        <strong>FICHA DO PRODUTO</strong>
+      </h1>
+    </div>
+  </section>
+
+  <section class="conteudo-titulo" style="width: 100%;">
+    <article class="article-dre">
+      <div class="produto-header">
+        <span class="label-header">Produto: </span>
+        <span class="value-header">{{ produto.nome }}</span>
+      </div>
+      <div class="produto-header">
+        <span class="label-header">Marca: </span>
+        <span class="value-header">{{ produto.marca }}</span>
+      </div>
+      <div class="produto-header">
+        <span class="label-header">Tipo: </span>
+        <span class="value-header">
+          {% if produto.eh_para_alunos_com_dieta %}
+            DIETA ESPECIAL
+          {% else %}
+            COMUM
+          {% endif %}
+        </span>
+      </div>
+    </article>
+  </section>
+
+  <div class="info-container mt-2 border border-dark">
+    <div class="col">
+      <span class="pt-2 pb-2 grow-2">Data do Cadastro: <strong>{{ produto.ultima_homologacao.data_cadastro }}</strong></span>
+      <span class="pt-2 pb-2 grow-2">Empresa Solicitante (Terceirizada): <strong>{{ terceirizada.nome }}</strong></span>
+      <span class="pt-2 pb-2 grow-2">E-mail: <strong>{{ terceirizada.representante_email }}</strong></span>
+    </div>
+    <div class="col">
+      <span class="pt-2 pb-2 grow-2">Nº da Solicitação: <strong>{{ produto.id_externo }}</strong></span>
+      <span class="pb-2 grow-2"></br></span>
+      <span class="pb-2 grow-2">Telefone: <strong>{{ produto.ultima_homologacao.rastro_terceirizada.contatos.all.0.telefone }}</strong></span>
+    </div>
+  </div>
+</header>

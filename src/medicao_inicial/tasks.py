@@ -4,10 +4,10 @@ import logging
 from io import BytesIO
 from uuid import UUID
 
-from django.db.models import Q
-
 from celery import shared_task
 from dateutil.relativedelta import relativedelta
+from django.db.models import Q
+from django.db import transaction
 from pypdf import PdfWriter
 
 from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
@@ -73,30 +73,47 @@ def cria_solicitacao_medicao_inicial_mes_atual():
     data_mes_anterior = data_hoje + relativedelta(months=-1)
 
     for escola in Escola.objects.all():
-        if not solicitacao_medicao_atual_existe(escola, data_hoje):
-            try:
-                solicitacao_mes_anterior = buscar_solicitacao_mes_anterior(
-                    escola, data_mes_anterior
-                )
-                solicitacao_atual = criar_nova_solicitacao(
-                    solicitacao_mes_anterior, escola, data_hoje
-                )
-                copiar_responsaveis(solicitacao_mes_anterior, solicitacao_atual)
+        if not escola.lote or not escola.lote.terceirizada:
+            continue
 
-                if solicitacao_atual.ue_possui_alunos_periodo_parcial:
-                    copiar_alunos_periodo_parcial(
-                        solicitacao_mes_anterior, solicitacao_atual
-                    )
-                usuario_admin = Usuario.objects.get(email="system@admin.com")
-                solicitacao_atual.inicia_fluxo(user=usuario_admin)
+        try:
+            _processa_escola(escola, data_hoje, data_mes_anterior)
+        except SolicitacaoMedicaoInicial.DoesNotExist:
+            logger.info(
+                "x-x-x-x Não existe Solicitação de Medição Inicial para a escola "
+                f"{escola.nome} no mês anterior ({data_mes_anterior.month:02d}/"
+                f"{data_mes_anterior.year}) x-x-x-x"
+            )
 
-            except SolicitacaoMedicaoInicial.DoesNotExist:
-                message = (
-                    "x-x-x-x Não existe Solicitação de Medição Inicial para a escola "
-                    f"{escola.nome} no mês anterior ({data_mes_anterior.month:02d}/"
-                    f"{data_mes_anterior.year}) x-x-x-x"
-                )
-                logger.info(message)
+
+def _processa_escola(escola, data_hoje, data_mes_anterior):
+    """Processa uma escola dentro de uma transação atômica."""
+    with transaction.atomic():
+        escola_locked = (
+            Escola.objects.select_for_update(skip_locked=True)
+            .filter(pk=escola.pk)
+            .first()
+        )
+        if not escola_locked:
+            logger.info(f"Escola {escola.nome} sendo processada por outro worker. Pulando.")
+            return
+
+        if solicitacao_medicao_atual_existe(escola_locked, data_hoje):
+            return
+
+        solicitacao_mes_anterior = buscar_solicitacao_mes_anterior(
+            escola_locked, data_mes_anterior
+        )
+        solicitacao_atual = criar_nova_solicitacao(
+            solicitacao_mes_anterior, escola_locked, data_hoje
+        )
+        copiar_responsaveis(solicitacao_mes_anterior, solicitacao_atual)
+
+        if solicitacao_atual.ue_possui_alunos_periodo_parcial:
+            copiar_alunos_periodo_parcial(solicitacao_mes_anterior, solicitacao_atual)
+
+        usuario_admin = Usuario.objects.get(email="system@admin.com")
+        solicitacao_atual.inicia_fluxo(user=usuario_admin)
 
 
 def solicitacao_medicao_atual_existe(escola, data):
@@ -233,12 +250,24 @@ def get_relatorio_solicitacao_medicao_por_escola(solicitacao):
     eh_cei = escola.eh_cei_data(data_ref)
 
     _RELATORIO_MAP = [
-        (tem_recreio and eh_cei, relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias),
-        (tem_recreio and escola.eh_cemei_data(data_ref), relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias),
+        (
+            tem_recreio and eh_cei,
+            relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias,
+        ),
+        (
+            tem_recreio and escola.eh_cemei_data(data_ref),
+            relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias,
+        ),
         (tem_recreio, relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias),
         (eh_cei, relatorio_solicitacao_medicao_por_escola_cei),
-        (escola.eh_cemei_data(data_ref), relatorio_solicitacao_medicao_por_escola_cemei),
-        (escola.eh_emebs_data(data_ref), relatorio_solicitacao_medicao_por_escola_emebs),
+        (
+            escola.eh_cemei_data(data_ref),
+            relatorio_solicitacao_medicao_por_escola_cemei,
+        ),
+        (
+            escola.eh_emebs_data(data_ref),
+            relatorio_solicitacao_medicao_por_escola_emebs,
+        ),
     ]
 
     for condicao, relatorio_fn in _RELATORIO_MAP:
@@ -259,6 +288,7 @@ def gera_pdf_relatorio_unificado_async(
     nome_arquivo: str,
     ids_solicitacoes: list[UUID],
     tipos_de_unidade: list[str],
+    contem_recreio: bool = False,
 ) -> None:
     """
     Gera um PDF unificado contendo os relatórios das solicitações informadas.
@@ -273,6 +303,7 @@ def gera_pdf_relatorio_unificado_async(
         ids_solicitacoes (list[UUID]): Lista de UUIDs das solicitações.
         tipos_de_unidade (list[str]): Tipos de unidade utilizados para selecionar
             o módulo gerador do relatório.
+        contem_recreio (bool): Se True, utiliza os templates de recreio nas férias.
 
     Raises:
         Exception: Qualquer erro interno durante o processo de merge ou geração
@@ -287,7 +318,11 @@ def gera_pdf_relatorio_unificado_async(
         merger_arquivo_final = PdfWriter()
 
         processa_relatorio_lançamentos(
-            ids_solicitacoes, tipos_de_unidade, merger_lancamentos, obj_central_download
+            ids_solicitacoes,
+            tipos_de_unidade,
+            merger_lancamentos,
+            obj_central_download,
+            contem_recreio,
         )
 
         output_final = cria_merge_pdfs(merger_lancamentos, merger_arquivo_final)
@@ -306,6 +341,7 @@ def processa_relatorio_lançamentos(
     tipos_de_unidade: list[str],
     merger_lancamentos: PdfWriter,
     obj_central_download: CentralDeDownload,
+    contem_recreio: bool = False,
 ) -> None:
     """
     Processa cada solicitação gerando seu PDF individual e adicionando ao merger.
@@ -317,6 +353,8 @@ def processa_relatorio_lançamentos(
         merger_lancamentos (PdfWriter): Instância usada para acumular os PDFs.
         obj_central_download (CentralDeDownload): Objeto de controle na Central
             de Download para registrar erros e status.
+        contem_recreio (bool): Se True, utiliza o dispatcher de recreio para
+            cada solicitação individualmente.
 
     Raises:
         Exception: Erros individuais de processamento são capturados e
@@ -327,7 +365,11 @@ def processa_relatorio_lançamentos(
     modulo_da_unidade = obter_relatorio_da_unidade(tipos_de_unidade)
     for solicitacao in ordenar_unidades(solicitacoes):
         try:
-            arquivo_lancamentos = modulo_da_unidade(solicitacao)
+            if contem_recreio:
+                relatorio_fn = get_relatorio_solicitacao_medicao_por_escola(solicitacao)
+                arquivo_lancamentos = relatorio_fn(solicitacao)
+            else:
+                arquivo_lancamentos = modulo_da_unidade(solicitacao)
             arquivo_lancamentos_io = BytesIO(arquivo_lancamentos)
             merger_lancamentos.append(arquivo_lancamentos_io)
         except Exception as e:
@@ -532,18 +574,22 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         mes = int(relatorio_financeiro.mes)
         ano = int(relatorio_financeiro.ano)
 
-        parametrizacao = ParametrizacaoFinanceira.objects.filter(
-            lote=relatorio_financeiro.lote,
-            grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
-            data_inicial__lte=datetime.date(
-                ano,
-                mes,
-                calendar.monthrange(ano, mes)[1],
-            ),
-        ).filter(
-            Q(data_final__gte=datetime.date(ano, mes, 1))
-            | Q(data_final__isnull=True)
-        ).first()
+        parametrizacao = (
+            ParametrizacaoFinanceira.objects.filter(
+                lote=relatorio_financeiro.lote,
+                grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
+                data_inicial__lte=datetime.date(
+                    ano,
+                    mes,
+                    calendar.monthrange(ano, mes)[1],
+                ),
+            )
+            .filter(
+                Q(data_final__gte=datetime.date(ano, mes, 1))
+                | Q(data_final__isnull=True)
+            )
+            .first()
+        )
 
         if not parametrizacao:
             raise Exception(

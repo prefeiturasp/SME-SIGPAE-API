@@ -1,9 +1,17 @@
+"""Serializers de leitura do submódulo de ajuste de saldo do laudo."""
+
 from rest_framework import serializers
 
 from src.recebimento.ajuste_saldo_laudo.models import AjusteSaldo
 
 
 class AjusteSaldoDetalharSerializer(serializers.ModelSerializer):
+    """Serializer de detalhe do ajuste de saldo.
+
+    Expõe o número do cronograma, o número do laudo, a unidade de medida e
+    a quantidade descontada, derivados do documento de recebimento.
+    """
+
     numero_cronograma = serializers.SerializerMethodField()
     numero_laudo = serializers.SerializerMethodField()
     unidade_medida = serializers.SerializerMethodField()
@@ -29,6 +37,12 @@ class AjusteSaldoDetalharSerializer(serializers.ModelSerializer):
 
 
 class AjusteSaldoListagemSerializer(serializers.ModelSerializer):
+    """Serializer de listagem do ajuste de saldo.
+
+    Expõe o número do cronograma, produto, fornecedor, número do laudo,
+    unidade de medida e a quantidade descontada, todos somente leitura.
+    """
+
     numero_cronograma = serializers.SerializerMethodField()
     produto = serializers.SerializerMethodField()
     fornecedor = serializers.SerializerMethodField()

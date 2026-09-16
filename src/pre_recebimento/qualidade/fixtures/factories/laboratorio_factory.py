@@ -1,3 +1,5 @@
+"""Factory de laboratório para testes."""
+
 from factory import Sequence
 from factory.django import DjangoModelFactory
 from faker import Faker
@@ -10,6 +12,12 @@ fake = Faker("pt_BR")
 
 
 class LaboratorioFactory(DjangoModelFactory):
+    """Cria um ``Laboratorio`` com nome e CNPJ sequenciais.
+
+    O ``nome`` é gerado como ``Laboratorio {n}`` e o ``cnpj`` como uma
+    sequência de 14 dígitos preenchida com zeros à esquerda.
+    """
+
     class Meta:
         model = Laboratorio
 

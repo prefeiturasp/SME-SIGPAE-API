@@ -10,6 +10,7 @@ from src.dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
     ReclamacaoProdutoWorkflow,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.produto.models import (
     DataHoraVinculoProdutoEdital,
     HomologacaoProduto,
@@ -1731,6 +1732,37 @@ def test_url_endpoint_homologacao_produto_suspender_datas_horas(
     }
 
 
+def test_url_endpoint_homologacao_produto_suspender_tudo_ja_suspenso(
+    client_autenticado_vinculo_codae_produto,
+    hom_produto_com_editais_pendente_homologacao,
+):
+    ProdutoEdital.objects.update(suspenso=True)
+    data = {
+        "editais_para_suspensao_ativacao": ["12288b47-9d27-4089-8c2e-48a6061d83ea"],
+        "justificativa": "test unitário",
+        "uuidTerceirizada": str(
+            hom_produto_com_editais_pendente_homologacao.rastro_terceirizada.uuid
+        ),
+    }
+    response = client_autenticado_vinculo_codae_produto.patch(
+        f"/homologacoes-produtos/{hom_produto_com_editais_pendente_homologacao.uuid}/"
+        f"{constants.SUSPENDER_PRODUTO}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    hom_produto_com_editais_pendente_homologacao.refresh_from_db()
+    assert (
+        hom_produto_com_editais_pendente_homologacao.status
+        == HomologacaoProdutoWorkflow.CODAE_SUSPENDEU
+    )
+    assert (
+        hom_produto_com_editais_pendente_homologacao.logs.last().status_evento
+        == LogSolicitacoesUsuario.CODAE_MANTEVE_PRODUTO_SUSPENSO
+    )
+
+
 def test_endpoint_codae_suspende_via_reclamacao_parcialmente(
     client_autenticado_vinculo_codae_produto,
     hom_produto_com_editais_escola_ou_nutri_reclamou,
@@ -1859,7 +1891,7 @@ def test_relatorio_produtos_suspensos(
         "/produtos/filtro-relatorio-produto-suspenso/"
         "?nome_edital=Edital de Pregão nº 41/sme/2017"
         "&status=CODAE_SUSPENDEU&status=CODAE_AUTORIZOU_RECLAMACAO&page=1&page_size=10"
-        f'&data_suspensao_final={hoje.strftime("%d/%m/%Y")}'
+        f"&data_suspensao_final={hoje.strftime(constants.FORMATO_DATA_BRASILEIRO)}"
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 1
@@ -1868,7 +1900,7 @@ def test_relatorio_produtos_suspensos(
         "/produtos/filtro-relatorio-produto-suspenso/"
         "?nome_edital=Edital de Pregão nº 41/sme/2017"
         "&status=CODAE_SUSPENDEU&status=CODAE_AUTORIZOU_RECLAMACAO&page=1&page_size=10"
-        f'&data_suspensao_final={ontem.strftime("%d/%m/%Y")}'
+        f"&data_suspensao_final={ontem.strftime(constants.FORMATO_DATA_BRASILEIRO)}"
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 0
@@ -2234,9 +2266,7 @@ def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_perfil(
         f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
@@ -2248,6 +2278,4 @@ def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
         f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}

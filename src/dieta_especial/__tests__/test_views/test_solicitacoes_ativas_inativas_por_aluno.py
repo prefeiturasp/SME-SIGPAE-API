@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from src.dados_comuns.constants import EMAIL_TESTE
 from src.dieta_especial.solicitacao_dieta_especial.api.viewsets import (
     SolicitacoesAtivasInativasPorAlunoView,
 )
@@ -234,7 +235,7 @@ def test_get_queryset_filtra_por_escola_do_vinculo_quando_usuario_e_escola(
 ):
     client = client_autenticado_vinculo_escola
 
-    user = django_user_model.objects.get(username="test@test.com")
+    user = django_user_model.objects.get(username=EMAIL_TESTE)
     vinculo = user.vinculos.filter(ativo=True).latest("data_inicial")
     escola_a = vinculo.instituicao
 

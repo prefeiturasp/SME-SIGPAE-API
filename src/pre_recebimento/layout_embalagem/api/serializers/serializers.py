@@ -1,6 +1,13 @@
+"""Serializers de leitura do submódulo de layout de embalagem."""
+
 import datetime
 
 from rest_framework import serializers
+
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    FORMATO_DATA_HORA_BRASILEIRO,
+)
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from src.pre_recebimento.layout_embalagem.models import (
     ImagemDoTipoDeEmbalagem,
@@ -14,12 +21,19 @@ from .....dados_comuns.api.serializers import (
 
 
 class ImagemDoTipoEmbalagemLookupSerializer(serializers.ModelSerializer):
+    """Serializer de leitura das imagens de um tipo de embalagem."""
+
     class Meta:
         model = ImagemDoTipoDeEmbalagem
         exclude = ("id", "tipo_de_embalagem")
 
 
 class TipoEmbalagemLayoutLookupSerializer(serializers.ModelSerializer):
+    """Serializer de leitura dos tipos de embalagem de um layout.
+
+    Inclui as ``imagens`` de cada tipo de embalagem.
+    """
+
     imagens = ImagemDoTipoEmbalagemLookupSerializer(many=True)
 
     class Meta:
@@ -28,6 +42,12 @@ class TipoEmbalagemLayoutLookupSerializer(serializers.ModelSerializer):
 
 
 class LayoutDeEmbalagemSerializer(serializers.ModelSerializer):
+    """Serializer de listagem dos layouts de embalagem.
+
+    Expõe dados resumidos do layout: número da ficha técnica, pregão/chamada
+    pública, nome do produto, status (texto), data de criação e programa.
+    """
+
     numero_ficha_tecnica = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
     pregao_chamada_publica = serializers.SerializerMethodField()
@@ -63,6 +83,13 @@ class LayoutDeEmbalagemSerializer(serializers.ModelSerializer):
 
 
 class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
+    """Serializer de detalhe dos layouts de embalagem.
+
+    Expõe todos os dados do layout, incluindo os tipos de embalagem (com
+    suas imagens, ordenados por primária/secundária/terciária), o log mais
+    recente, a indicação de primeira análise e o histórico de logs.
+    """
+
     numero_ficha_tecnica = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
     nome_empresa = serializers.SerializerMethodField()
@@ -95,10 +122,12 @@ class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
     def get_log_mais_recente(self, obj):
         if obj.log_mais_recente:
             return datetime.datetime.strftime(
-                obj.log_mais_recente.criado_em, "%d/%m/%Y - %H:%M"
+                obj.log_mais_recente.criado_em, FORMATO_DATA_HORA_BRASILEIRO
             )
         else:
-            return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y - %H:%M")
+            return datetime.datetime.strftime(
+                obj.criado_em, FORMATO_DATA_HORA_BRASILEIRO
+            )
 
     def get_primeira_analise(self, obj):
         return obj.eh_primeira_analise
@@ -142,6 +171,13 @@ class LayoutDeEmbalagemDetalheSerializer(serializers.ModelSerializer):
 
 
 class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
+    """Serializer do painel/dashboard de layouts de embalagem.
+
+    Expõe os dados exibidos nos cards do dashboard: número da ficha
+    técnica, produto, empresa, status, log mais recente e indicadores de
+    programa (``LEVE_LEITE``) e de ficha técnica FLV.
+    """
+
     numero_ficha_tecnica = serializers.SerializerMethodField()
     nome_produto = serializers.SerializerMethodField()
     nome_empresa = serializers.SerializerMethodField()
@@ -176,10 +212,10 @@ class PainelLayoutEmbalagemSerializer(serializers.ModelSerializer):
                 )
 
             return datetime.datetime.strftime(
-                obj.log_mais_recente.criado_em, "%d/%m/%Y"
+                obj.log_mais_recente.criado_em, FORMATO_DATA_BRASILEIRO
             )
 
-        return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+        return datetime.datetime.strftime(obj.criado_em, FORMATO_DATA_BRASILEIRO)
 
     def get_programa_leve_leite(self, obj):
         try:

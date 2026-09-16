@@ -1,6 +1,10 @@
 import pytest
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+)
 from src.medicao_inicial.api.filters import (
     ClausulaDeDescontoFilter,
     DiaParaCorrecaoFilter,
@@ -38,7 +42,7 @@ def test_dia_para_corrigir_filter_solicitacao(dia_para_corrigir):
 
 def test_dia_para_corrigir_filter_grupo():
     filtro = DiaParaCorrecaoFilter(
-        data={"nome_grupo": "Solicitações de Alimentação"},
+        data={"nome_grupo": GRUPO_SOLICITACOES_ALIMENTACAO},
         queryset=DiaParaCorrigir.objects.filter(habilitado_correcao=True),
     )
     assert filtro.qs.count() == 0
@@ -59,7 +63,7 @@ def test_valor_medicao_filter_grupo_com_uuid_solicitacao(
     filtro = ValorMedicaoFilter(
         data={
             "uuid_solicitacao_medicao": solicitacao_medicao_inicial_com_grupo.uuid,
-            "nome_grupo": "Programas e Projetos",
+            "nome_grupo": GRUPO_PROGRAMAS_E_PROJETOS,
         },
         queryset=ValorMedicao.objects.all(),
     )
@@ -73,7 +77,7 @@ def test_valor_medicao_filter_sem_grupo_retorna_apenas_medicoes_sem_grupo(
     valor_medicao,
     categoria_medicao,
 ):
-    grupo = baker.make("GrupoMedicao", nome="Programas e Projetos")
+    grupo = baker.make("GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS)
     medicao_com_grupo = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao_inicial,

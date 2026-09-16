@@ -1,6 +1,7 @@
 import pytest
 from model_bakery import baker
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.recebimento.api.serializers.serializers import (
     ArquivoFichaRecebimentoSerializer,
     DadosCronogramaSerializer,
@@ -243,7 +244,7 @@ def test_ficha_recebimento_serializer(ficha_recebimento):
 
     assert "data_recebimento" in data
     assert data["data_recebimento"] == ficha_recebimento.data_entrega.strftime(
-        "%d/%m/%Y"
+        FORMATO_DATA_BRASILEIRO
     )
 
     assert "status" in data

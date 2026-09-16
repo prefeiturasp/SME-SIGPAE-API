@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.management.commands.dieta_especial_criar &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.management.commands.dieta_especial_criar</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.management.commands.dieta_especial_criar</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.core.management.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseCommand</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">faker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Faker</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.solicitacao_dieta_especial.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SolicitacaoDietaEspecial</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Aluno</span><span class="p">,</span> <span class="n">Escola</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.perfil.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Usuario</span>
+
+<span class="n">faker</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">()</span>
+<span class="n">fake</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">(</span><span class="s2">&quot;pt-br&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="criar_dieta">
+<a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.criar_dieta">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">criar_dieta</span><span class="p">(</span><span class="n">codigo_eol_aluno</span><span class="p">,</span> <span class="n">codigo_eol_escola</span><span class="p">):</span>
+    <span class="n">aluno</span> <span class="o">=</span> <span class="n">Aluno</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">codigo_eol</span><span class="o">=</span><span class="n">codigo_eol_aluno</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="n">escola_destino</span> <span class="o">=</span> <span class="n">Escola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">codigo_eol</span><span class="o">=</span><span class="n">codigo_eol_escola</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">escola_destino</span><span class="o">.</span><span class="n">codigo_eol</span> <span class="o">==</span> <span class="s2">&quot;017981&quot;</span><span class="p">:</span>
+        <span class="n">email</span> <span class="o">=</span> <span class="s2">&quot;escolaemef@admin.com&quot;</span>
+    <span class="k">if</span> <span class="n">escola_destino</span><span class="o">.</span><span class="n">codigo_eol</span> <span class="o">==</span> <span class="s2">&quot;099791&quot;</span><span class="p">:</span>
+        <span class="n">email</span> <span class="o">=</span> <span class="s2">&quot;escolaemef3@admin.com&quot;</span>
+
+    <span class="n">criado_por</span> <span class="o">=</span> <span class="n">Usuario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">)</span>
+    <span class="n">dieta_existe</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">aluno__codigo_eol</span><span class="o">=</span><span class="n">codigo_eol_aluno</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dieta_existe</span><span class="p">:</span>
+        <span class="n">dieta</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">criado_por</span><span class="o">=</span><span class="n">criado_por</span><span class="p">,</span>
+            <span class="n">ativo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">aluno</span><span class="o">=</span><span class="n">aluno</span><span class="p">,</span>
+            <span class="n">escola_destino</span><span class="o">=</span><span class="n">escola_destino</span><span class="p">,</span>
+            <span class="n">nome_completo_pescritor</span><span class="o">=</span><span class="n">fake</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span>
+            <span class="n">registro_funcional_pescritor</span><span class="o">=</span><span class="n">codigo_eol_aluno</span><span class="p">[:</span><span class="mi">6</span><span class="p">],</span>
+            <span class="n">observacoes</span><span class="o">=</span><span class="n">fake</span><span class="o">.</span><span class="n">paragraph</span><span class="p">(</span><span class="n">nb_sentences</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">dieta</span><span class="o">.</span><span class="n">inicia_fluxo</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">criado_por</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Command">
+<a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.Command">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">):</span>
+    <span class="n">help</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Cria uma Dieta Especial, informando aluno e escola.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Command.add_arguments">
+<a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.Command.add_arguments">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--aluno&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;aluno&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Informar código EOL do aluno.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--escola&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-e&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;escola&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Informar código EOL da escola. Pericles 017981, Plinio 099791&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Command.handle">
+<a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.dieta_especial_criar.Command.handle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="n">aluno</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">&quot;aluno&quot;</span><span class="p">]</span>
+        <span class="n">escola</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">&quot;escola&quot;</span><span class="p">]</span>
+        <span class="n">criar_dieta</span><span class="p">(</span><span class="n">aluno</span><span class="p">,</span> <span class="n">escola</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

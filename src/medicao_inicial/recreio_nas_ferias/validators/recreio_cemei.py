@@ -1,4 +1,11 @@
 from src.cardapio.base.models import TipoAlimentacao
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
@@ -35,8 +42,6 @@ from src.medicao_inicial.validators import (
     get_classificacoes_dietas_cei,
 )
 
-GRUPO_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
-GRUPO_EMEI = "Recreio nas Férias - 4 a 14 anos"
 GRUPO_COLABORADORES = "Colaboradores"
 
 
@@ -62,17 +67,17 @@ def cria_valores_medicao_participantes_cemei(
             unidade_educacional=instance.escola
         )
     }
-    participantes_cei = participantes.get("CEI")
-    participantes_emei = participantes.get("EMEI")
+    participantes_cei = participantes.get(TIPOS_UNIDADE_ESCOLAR.CEI.value)
+    participantes_emei = participantes.get(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     informacoes_participantes = {}
     grupos = [
         (
             participantes_emei,
-            GRUPO_EMEI,
+            GRUPO_RECREIO_NAS_FERIAS_4_A_14,
         ),
         (
             participantes_cei,
-            GRUPO_CEI,
+            GRUPO_RECREIO_NAS_FERIAS_0_A_3,
         ),
     ]
 
@@ -124,7 +129,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_cemei(
         data__range=[inicio_recreio, fim_recreio],
     )
     cria_valores_medicao_dietas_autorizadas_do_recreio(
-        instance, logs_do_recreio_emei, GRUPO_EMEI
+        instance, logs_do_recreio_emei, GRUPO_RECREIO_NAS_FERIAS_4_A_14
     )
 
     logs_do_recreio_cei = escola.logs_dietas_autorizadas_recreio_ferias_cei.filter(
@@ -133,7 +138,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_cemei(
     )
 
     cria_valores_medicao_dietas_autorizadas_do_recreio_cei(
-        instance, logs_do_recreio_cei, GRUPO_CEI
+        instance, logs_do_recreio_cei, GRUPO_RECREIO_NAS_FERIAS_0_A_3
     )
 
 
@@ -234,14 +239,16 @@ def validate_lancamento_alimentacoes_medicao_recreio_cemei(
         participantes[participante.cei_ou_emei] = participante
 
     tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
-    participantes_cei = participantes.get("CEI")
-    participantes_emei = participantes.get("EMEI")
+    participantes_cei = participantes.get(TIPOS_UNIDADE_ESCOLAR.CEI.value)
+    participantes_emei = participantes.get(TIPOS_UNIDADE_ESCOLAR.EMEI.value)
     if existe_colaborador_cemei(participantes_cei, participantes_emei):
         informacoes_alimentacao[GRUPO_COLABORADORES] = tipos_alimentacao_map.get(
             "Colaboradores", []
         )
     if participantes_emei is not None and participantes_emei.num_inscritos > 0:
-        informacoes_alimentacao[GRUPO_EMEI] = tipos_alimentacao_map.get("Infantil", [])
+        informacoes_alimentacao[GRUPO_RECREIO_NAS_FERIAS_4_A_14] = (
+            tipos_alimentacao_map.get("Infantil", [])
+        )
 
     if informacoes_alimentacao:
         informacoes = {
@@ -255,7 +262,7 @@ def validate_lancamento_alimentacoes_medicao_recreio_cemei(
     if participantes_cei is not None and participantes_cei.num_inscritos > 0:
         lista_erros = buscar_valores_lancamento_alimentacoes_faixa_etaria(
             solicitacao,
-            GRUPO_CEI,
+            GRUPO_RECREIO_NAS_FERIAS_0_A_3,
             dias_letivos,
             categoria_alimentacao,
             lista_erros,
@@ -354,7 +361,9 @@ def valida_dietas_emei_da_cemei(
     Returns:
         list: Lista de erros atualizada contendo eventuais pendências de lançamentos.
     """
-    medicao_recreio_emei = solicitacao.medicoes.filter(grupo__nome=GRUPO_EMEI).first()
+    medicao_recreio_emei = solicitacao.medicoes.filter(
+        grupo__nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14
+    ).first()
     if not medicao_recreio_emei:
         return erros_unicos(lista_erros)
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
@@ -413,7 +422,7 @@ def _valida_faixas_etarias(
     mes: str,
     ano: str,
     logs_indexados,
-    faixas
+    faixas,
 ) -> bool:
     """Valida todas as faixas etárias para um dia e categoria específicos."""
     for faixa in faixas:
@@ -437,14 +446,16 @@ def valida_dietas_cei_da_cemei(
     dias_letivos: list[str],
     lista_erros: list,
 ) -> list:
-    medicao_recreio_cei = solicitacao.medicoes.filter(grupo__nome=GRUPO_CEI).first()
+    medicao_recreio_cei = solicitacao.medicoes.filter(
+        grupo__nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3
+    ).first()
 
     if not medicao_recreio_cei:
         return erros_unicos(lista_erros)
 
     categorias = list(
         CategoriaMedicao.objects.filter(
-            nome__in=["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
+            nome__in=[DIETA_ESPECIAL_TIPO_A, DIETA_ESPECIAL_TIPO_B]
         )
     )
     valores_medicao = get_valores_medicao_cei(

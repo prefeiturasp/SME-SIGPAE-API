@@ -1,5 +1,6 @@
 import json
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.medicao_inicial.services.relatorio_historio_correcoes_pdf import (
     ajusta_informacoes_por_status,
@@ -39,7 +40,7 @@ def test_gera_relatorio_historico_correcoes_pdf(
     assert "Período Manhã" in texto
     assert "Tabela de Alimentação" in texto
     assert "DIAS 12" in texto
-    assert "Lanche 4h" in texto
+    assert TIPOS_ALIMENTACAO.LANCHE_4H.value in texto
     assert "Repetição de Refeição" in texto
 
     assert "APROVADO PELA DRE" in texto

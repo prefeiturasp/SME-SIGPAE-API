@@ -215,7 +215,9 @@ def retorna_status_ficha_tecnica(status):
 
 
 def formata_cnpj_ficha_tecnica(cnpj):
-    cnpj = "".join(filter(str.isdigit, str(cnpj)))
+    if not cnpj:
+        return ""
+    cnpj = str(cnpj).replace(".", "").replace("/", "").replace("-", "")
     if len(cnpj) != 14:
         return cnpj
     return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"

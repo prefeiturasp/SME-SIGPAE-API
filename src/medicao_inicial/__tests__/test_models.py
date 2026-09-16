@@ -4,9 +4,14 @@ from unittest.mock import patch
 import pytest
 from django.db.utils import IntegrityError
 from model_bakery import baker
+
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+)
 from src.medicao_inicial.models import (
-    SolicitacaoMedicaoInicial,
     DescontoFinanceiro,
+    SolicitacaoMedicaoInicial,
 )
 
 pytestmark = pytest.mark.django_db
@@ -17,6 +22,11 @@ def test_dia_sobremesa_doce_model(dia_sobremesa_doce):
         dia_sobremesa_doce.__str__()
         == "08/08/2022 - EMEF - Edital Edital de Pregão nº 13/SME/2020"
     )
+
+
+def test_tipo_sobremesa_doce_model():
+    tipo = baker.make("TipoSobremesaDoce", nome="Sobremesa Doce")
+    assert tipo.__str__() == "Sobremesa Doce"
 
 
 def test_solicitacao_medicao_inicial_model(solicitacao_medicao_inicial):
@@ -231,10 +241,10 @@ def test_solicitacao_medicao_normaliza_grupo_legado_recreio_nas_ferias_para_cei(
     escola_cei,
     recreio_nas_ferias,
 ):
-    grupo_recreio = baker.make("GrupoMedicao", nome="Recreio nas Férias")
+    grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
     grupo_legado = baker.make(
         "GrupoMedicao",
-        nome="Recreio nas Férias - de 0 a 3 anos e 11 meses",
+        nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     )
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -251,14 +261,14 @@ def test_solicitacao_medicao_normaliza_grupo_legado_recreio_nas_ferias_para_cei(
     )
 
     medicao_normalizada = solicitacao.get_medicao_por_periodo_e_ou_grupo(
-        "Recreio nas Férias"
+        GRUPO_RECREIO_NAS_FERIAS
     )
 
     medicao.refresh_from_db()
 
     assert medicao_normalizada == medicao
     assert medicao.grupo == grupo_recreio
-    assert medicao.nome_periodo_grupo == "Recreio nas Férias"
+    assert medicao.nome_periodo_grupo == GRUPO_RECREIO_NAS_FERIAS
 
 
 def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
@@ -267,7 +277,7 @@ def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
 ):
     grupo_legado = baker.make(
         "GrupoMedicao",
-        nome="Recreio nas Férias - de 0 a 3 anos e 11 meses",
+        nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     )
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -283,17 +293,21 @@ def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
         periodo_escolar=None,
     )
 
-    assert medicao.nome_periodo_grupo == "Recreio nas Férias - de 0 a 3 anos e 11 meses"
+    assert medicao.nome_periodo_grupo == GRUPO_RECREIO_NAS_FERIAS_0_A_3
 
 
 def test_unique_constraint_sem_recreio(escola):
     """Não deve permitir duas solicitações sem recreio para a mesma escola/mes/ano."""
     SolicitacaoMedicaoInicial.objects.create(
-        escola=escola, mes="06", ano="2024",
+        escola=escola,
+        mes="06",
+        ano="2024",
     )
     with pytest.raises(IntegrityError):
         SolicitacaoMedicaoInicial.objects.create(
-            escola=escola, mes="06", ano="2024",
+            escola=escola,
+            mes="06",
+            ano="2024",
         )
 
 

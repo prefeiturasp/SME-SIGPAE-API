@@ -217,7 +217,12 @@ class FichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        return cria_ficha_tecnica(validated_data)
+        """Cria a ficha técnica como rascunho (via helper) e registra o log
+        de cadastro. Não inicia o fluxo: a ficha permanece em RASCUNHO."""
+        instance = cria_ficha_tecnica(validated_data)
+        user = self.context["request"].user
+        instance.salvar_log_ficha_tecnica_cadastrada(usuario=user)
+        return instance
 
     def update(self, instance, validated_data):
         return atualiza_ficha_tecnica(instance, validated_data)
@@ -334,6 +339,17 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
     modo_de_preparo = serializers.CharField(required=False, allow_blank=True)
     informacoes_adicionais = serializers.CharField(required=False, allow_blank=True)
 
+    def create(self, validated_data):
+        """Cria a ficha técnica, registra o log de cadastro e inicia o fluxo
+        (a ficha passa para ENVIADA_PARA_ANALISE)."""
+        instance = cria_ficha_tecnica(validated_data)
+
+        user = self.context["request"].user
+        instance.salvar_log_ficha_tecnica_cadastrada(usuario=user)
+        instance.inicia_fluxo(user=user)
+
+        return instance
+
     def validate(self, attrs):
         if attrs.get("categoria") == FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS:
             valida_campos_pereciveis_ficha_tecnica(attrs)
@@ -362,14 +378,6 @@ class FichaTecnicaCreateSerializer(serializers.ModelSerializer):
         if value and "pdf" not in value:
             raise serializers.ValidationError("Arquivo deve ser um PDF.")
         return value
-
-    def create(self, validated_data):
-        instance = cria_ficha_tecnica(validated_data)
-
-        user = self.context["request"].user
-        instance.inicia_fluxo(user=user)
-
-        return instance
 
     def update(self, instance, validated_data):
         instance = atualiza_ficha_tecnica(instance, validated_data)
@@ -441,9 +449,12 @@ class FichaTecnicaFLVCreateSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        """Cria a ficha técnica FLV, registra o log de cadastro e inicia o
+        fluxo (a ficha passa para ENVIADA_PARA_ANALISE)."""
         instance = cria_ficha_tecnica(validated_data)
 
         user = self.context["request"].user
+        instance.salvar_log_ficha_tecnica_cadastrada(usuario=user)
         instance.inicia_fluxo(user=user)
 
         return instance
@@ -548,6 +559,7 @@ class AnaliseFichaTecnicaRascunhoSerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
+        """Cria a análise em rascunho (não altera o status da ficha)."""
         return AnaliseFichaTecnica.objects.create(
             ficha_tecnica=self.context.get("ficha_tecnica"),
             criado_por=self.context.get("criado_por"),
@@ -689,6 +701,9 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
                 )
 
     def create(self, validated_data):
+        """Cria a análise final e avalia o estado da ficha: aprova
+        (gpcodae_aprova) ou envia para correção
+        (gpcodae_envia_para_correcao) conforme a análise ser aprovada."""
         usuario = self.context.get("criado_por")
         analise = AnaliseFichaTecnica.objects.create(
             criado_por=usuario,

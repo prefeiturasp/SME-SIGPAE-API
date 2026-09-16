@@ -10,6 +10,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from pypdf import PdfWriter
 
+from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET, TIPOS_UNIDADE_ESCOLAR
 from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
 from src.escola.models import (
     AlunoPeriodoParcial,
@@ -41,27 +42,50 @@ from src.terceirizada.models import Terceirizada
 
 
 class CriaSolicitacaoMedicaoInicialMesAtualTest(TestCase):
+    @patch("src.medicao_inicial.tasks.Escola.objects.select_for_update")
     @patch("src.medicao_inicial.tasks.Escola.objects.all")
     @patch("src.medicao_inicial.tasks.SolicitacaoMedicaoInicial.objects.filter")
     @patch("src.medicao_inicial.tasks.SolicitacaoMedicaoInicial.objects.get")
     @patch("src.medicao_inicial.tasks.SolicitacaoMedicaoInicial.objects.create")
     @patch("src.medicao_inicial.tasks.logger.info")
     def test_cria_solicitacao_medicao_inicial_mes_atual(
-        self, mock_logger_info, mock_create, mock_get, mock_filter, mock_all
+        self,
+        mock_logger_info,
+        mock_create,
+        mock_get,
+        mock_filter,
+        mock_all,
+        mock_select_for_update,
     ):
         data_hoje = datetime.date.today()
         data_mes_anterior = data_hoje + relativedelta(months=-1)
+
         escola_nome_mock = "escola1"
-        mock_all.return_value = [Mock(nome=escola_nome_mock)]
+
+        lote_mock = Mock(terceirizada=True)
+        escola_mock = Mock(
+            nome=escola_nome_mock,
+            pk=1,
+            lote=lote_mock,
+        )
+
+        mock_all.return_value = [escola_mock]
+
+        mock_select_for_update.return_value.filter.return_value.first.return_value = (
+            escola_mock
+        )
+
         mock_filter.return_value.exists.return_value = False
         mock_get.side_effect = SolicitacaoMedicaoInicial.DoesNotExist
 
         cria_solicitacao_medicao_inicial_mes_atual()
 
         message = (
-            f"x-x-x-x Não existe Solicitação de Medição Inicial para a escola {escola_nome_mock} no "
-            f"mês anterior ({data_mes_anterior.month:02d}/{data_mes_anterior.year}) x-x-x-x"
+            f"x-x-x-x Não existe Solicitação de Medição Inicial para a escola "
+            f"{escola_nome_mock} no mês anterior "
+            f"({data_mes_anterior.month:02d}/{data_mes_anterior.year}) x-x-x-x"
         )
+
         mock_logger_info.assert_called_with(message)
 
 
@@ -109,7 +133,14 @@ class GeraPDFRelatorioUnificadoMedicoesIniciaisAsyncTest(TestCase):
         mock_gera_objeto.return_value = Mock()
         mock_relatorio_lançamentos.return_value = "arquivo_mock"
         uuid_mock = [UUID("12345678-abcd-1234-5678-123456789012")]
-        tipos_de_unidade = ["EMEF", "CEUEMEF", "EMEFM", "EMEBS", "CIEJA", "CEU Gestão"]
+        tipos_de_unidade = [
+            TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+            "CEUEMEF",
+            TIPOS_UNIDADE_ESCOLAR.EMEFM.value,
+            TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
+            TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+            "CEU Gestão",
+        ]
 
         gera_pdf_relatorio_unificado_async(
             "user", "nome_arquivo", uuid_mock, tipos_de_unidade
@@ -204,7 +235,6 @@ def test_exporta_relatorio_adesao_para_xlsx(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -237,7 +267,6 @@ def test_exporta_relatorio_adesao_para_xlsx(
 
     nome_arquivo = "relatorio-adesao.xlsx"
 
-    # act
     query_params = QueryDict(
         f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
     )
@@ -263,13 +292,11 @@ def test_exporta_relatorio_adesao_para_xlsx(
 
 @pytest.mark.django_db
 def test_exporta_relatorio_adesao_para_xlsx_sem_resultados(usuario):
-    # arrange
     mes = "03"
     ano = "2024"
 
     nome_arquivo = "relatorio-adesao.xlsx"
 
-    # act
     resultados = {}
 
     exporta_relatorio_adesao_para_xlsx(
@@ -293,7 +320,6 @@ def test_exporta_relatorio_adesao_para_pdf(
     make_valores_medicao,
     make_periodo_escolar,
 ):
-    # arrange
     mes = "03"
     ano = "2024"
     periodo_lancamento_de = f"01/{mes}/{ano}"
@@ -326,7 +352,6 @@ def test_exporta_relatorio_adesao_para_pdf(
 
     nome_arquivo = "relatorio-adesao.pdf"
 
-    # act
     query_params = query_params = QueryDict(
         f"mes_ano={mes}_{ano}&periodo_lancamento_de={periodo_lancamento_de}&periodo_lancamento_ate={periodo_lancamento_ate}"
     )
@@ -352,13 +377,11 @@ def test_exporta_relatorio_adesao_para_pdf(
 
 @pytest.mark.django_db
 def test_exporta_relatorio_adesao_para_pdf_sem_resultados(usuario):
-    # arrange
     mes = "03"
     ano = "2024"
 
     nome_arquivo = "relatorio-adesao.pdf"
 
-    # act
     resultados = {}
 
     exporta_relatorio_adesao_para_pdf(
@@ -406,7 +429,10 @@ def test_exporta_relatorio_consolidado_xlsx(
     solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
         mes=mes,
         ano=ano,
-        escola__tipo_unidade__iniciais__in=["EMEF", "EMEFM"],
+        escola__tipo_unidade__iniciais__in=[
+            TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+            TIPOS_UNIDADE_ESCOLAR.EMEFM.value,
+        ],
         escola__diretoria_regional=escola.diretoria_regional,
         status=status,
     )
@@ -435,7 +461,7 @@ def test_exporta_relatorio_consolidado_xlsx(
     grupo_unidade_escolar = GrupoUnidadeEscolar.objects.get(uuid=grupo_escolar)
     tipos_unidades = grupo_unidade_escolar.tipos_unidades.all()
     tipos_de_unidade_do_grupo = list(tipos_unidades.values_list("iniciais", flat=True))
-    nome_arquivo = f"Relatório Consolidado das Medições Inicias - {escola.diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
+    nome_arquivo = f"Relatório Consolidado das Medições Iniciais - {escola.diretoria_regional.nome} - {grupo_unidade_escolar.nome} - {mes}/{ano}.xlsx"
 
     exporta_relatorio_consolidado_xlsx(
         user=usuario,
@@ -448,7 +474,7 @@ def test_exporta_relatorio_consolidado_xlsx(
             "status": status,
             "dre": escola.diretoria_regional.uuid,
         },
-        contem_recreio=False
+        contem_recreio=False,
     )
 
     assert CentralDeDownload.objects.count() == 1
@@ -493,7 +519,14 @@ def test_gera_pdf_relatorio_unificado_async_cei(
     solicitacoes_cei_relatorio_unificado, usuario
 ):
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", "CEI DIRET", "CEU CEI"]
+    tipos = [
+        TIPOS_UNIDADE_ESCOLAR.CCI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+        TIPO_UNIDADE_CEI_DIRET,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+    ]
 
     nome_arquivo = "relatorio_teste.pdf"
     usuario = usuario.get_username()
@@ -541,7 +574,14 @@ def test_processa_relatorio_lancamentos(
     central = baker.make(CentralDeDownload)
 
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
-    tipos = ["CCI", "CCI/CIPS", "CEI", "CEI CEU", "CEI DIRET", "CEU CEI"]
+    tipos = [
+        TIPOS_UNIDADE_ESCOLAR.CCI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+        TIPO_UNIDADE_CEI_DIRET,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+    ]
 
     processa_relatorio_lançamentos(ids, tipos, merger, central)
 
@@ -921,5 +961,119 @@ def test_gerar_pdf_relatorio_financeiro_async(
 
     registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
 
+    assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert registro.arquivo is not None
+
+
+@pytest.mark.django_db
+def test_processa_relatorio_lancamentos_com_recreio(
+    solicitacao_recreio_nas_ferias, monkeypatch
+):
+    from io import BytesIO
+
+    from model_bakery import baker
+
+    def gerar_pdf_fake(_):
+        buffer = BytesIO()
+        writer = PdfWriter()
+        writer.add_blank_page(width=100, height=100)
+        writer.write(buffer)
+        return buffer.getvalue()
+
+    merger = PdfWriter()
+    central = baker.make(CentralDeDownload)
+    ids = [solicitacao_recreio_nas_ferias.uuid]
+    tipos = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.tasks.relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias",
+        gerar_pdf_fake,
+    )
+
+    processa_relatorio_lançamentos(ids, tipos, merger, central, contem_recreio=True)
+
+    assert len(merger.pages) == 1
+
+
+@pytest.mark.django_db
+def test_processa_relatorio_lancamentos_com_recreio_cemei(
+    solicitacao_recreio_cemei, monkeypatch
+):
+    from io import BytesIO
+
+    from model_bakery import baker
+
+    def gerar_pdf_fake(_):
+        buffer = BytesIO()
+        writer = PdfWriter()
+        writer.add_blank_page(width=100, height=100)
+        writer.write(buffer)
+        return buffer.getvalue()
+
+    merger = PdfWriter()
+    central = baker.make(CentralDeDownload)
+    ids = [solicitacao_recreio_cemei.uuid]
+    tipos = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.tasks.relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias",
+        gerar_pdf_fake,
+    )
+
+    processa_relatorio_lançamentos(ids, tipos, merger, central, contem_recreio=True)
+
+    assert len(merger.pages) == 1
+
+
+@pytest.mark.django_db
+def test_processa_relatorio_lancamentos_sem_recreio(
+    solicitacao_recreio_nas_ferias, pdf_real_monkeypatch
+):
+    from model_bakery import baker
+
+    merger = PdfWriter()
+    central = baker.make(CentralDeDownload)
+    ids = [solicitacao_recreio_nas_ferias.uuid]
+    tipos = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
+
+    processa_relatorio_lançamentos(ids, tipos, merger, central)
+
+    assert len(merger.pages) == 1
+
+
+@pytest.mark.django_db
+def test_gera_pdf_relatorio_unificado_async_com_recreio(
+    solicitacao_recreio_nas_ferias, usuario, monkeypatch
+):
+    ids = [solicitacao_recreio_nas_ferias.uuid]
+    tipos = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
+    nome_arquivo = "relatorio_unificado_recreio.pdf"
+    user = usuario.get_username()
+
+    def gerar_pdf_fake(_):
+        from io import BytesIO
+
+        from pypdf import PdfWriter
+
+        buffer = BytesIO()
+        writer = PdfWriter()
+        writer.add_blank_page(width=100, height=100)
+        writer.write(buffer)
+        return buffer.getvalue()
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.tasks.relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias",
+        gerar_pdf_fake,
+    )
+
+    gera_pdf_relatorio_unificado_async(
+        user=user,
+        nome_arquivo=nome_arquivo,
+        ids_solicitacoes=ids,
+        tipos_de_unidade=tipos,
+        contem_recreio=True,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
     assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
     assert registro.arquivo is not None

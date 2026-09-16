@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.documento_recebimento.api.viewsets &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.documento_recebimento.api.viewsets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.documento_recebimento.api.viewsets</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Prefetch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">rest_framework</span> <span class="k">as</span> <span class="n">filters</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">viewsets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DocumentoDeRecebimentoWorkflow</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PermissaoParaDashboardDocumentosDeRecebimento</span><span class="p">,</span>
+    <span class="n">PermissaoParaRelatorioDocumentosDeRecebimento</span><span class="p">,</span>
+    <span class="n">PermissaoParaVisualizarDocumentosDeRecebimento</span><span class="p">,</span>
+    <span class="n">UsuarioEhDilogQualidade</span><span class="p">,</span>
+    <span class="n">UsuarioEhFornecedor</span><span class="p">,</span>
+    <span class="n">ViewSetActionPermissionMixin</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cronograma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.api.filters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaRelatorioDocumentosFilter</span><span class="p">,</span>
+    <span class="n">DocumentoDeRecebimentoFilter</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.api.serializers.serializer_create</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DocumentoDeRecebimentoAnalisarRascunhoSerializer</span><span class="p">,</span>
+    <span class="n">DocumentoDeRecebimentoAnalisarSerializer</span><span class="p">,</span>
+    <span class="n">DocumentoDeRecebimentoAtualizacaoSerializer</span><span class="p">,</span>
+    <span class="n">DocumentoDeRecebimentoCorrecaoSerializer</span><span class="p">,</span>
+    <span class="n">DocumentoDeRecebimentoCreateSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaRelatorioDocumentosSerializer</span><span class="p">,</span>
+    <span class="n">DocRecebimentoDetalharCodaeSerializer</span><span class="p">,</span>
+    <span class="n">DocRecebimentoDetalharSerializer</span><span class="p">,</span>
+    <span class="n">DocumentoDeRecebimentoSerializer</span><span class="p">,</span>
+    <span class="n">PainelDocumentoDeRecebimentoSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.api.services</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ServiceDashboardDocumentosDeRecebimento</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">gera_relatorio_documentos_recebimento_xlsx</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DocumentoDeRecebimento</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">....dados_comuns.api.paginations</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultPagination</span>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocumentoDeRecebimentoModelViewSet</span><span class="p">(</span>
+    <span class="n">ViewSetActionPermissionMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span>
+<span class="p">):</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimentoSerializer</span>
+    <span class="n">filter_backends</span> <span class="o">=</span> <span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">DjangoFilterBackend</span><span class="p">,)</span>
+    <span class="n">filterset_class</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimentoFilter</span>
+    <span class="n">pagination_class</span> <span class="o">=</span> <span class="n">DefaultPagination</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">PermissaoParaVisualizarDocumentosDeRecebimento</span><span class="p">,)</span>
+    <span class="n">permission_action_classes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;create&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">UsuarioEhFornecedor</span><span class="p">],</span>
+        <span class="s2">&quot;delete&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">UsuarioEhFornecedor</span><span class="p">],</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.get_queryset">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.get_queryset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">DocumentoDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span>
+                <span class="s2">&quot;cronograma&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma__empresa&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s2">&quot;fichas_documentos__ficha_recebimento&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">eh_fornecedor</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cronograma__empresa</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">queryset</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">retrieve</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">DocRecebimentoDetalharSerializer</span>
+            <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">eh_fornecedor</span>
+            <span class="k">else</span> <span class="n">DocRecebimentoDetalharCodaeSerializer</span>
+        <span class="p">)</span>
+        <span class="n">serializer_classes_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;list&quot;</span><span class="p">:</span> <span class="n">DocumentoDeRecebimentoSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;retrieve&quot;</span><span class="p">:</span> <span class="n">retrieve</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">serializer_classes_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="n">DocumentoDeRecebimentoCreateSerializer</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.dashboard">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.dashboard">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;dashboard&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaDashboardDocumentosDeRecebimento</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">dashboard_service</span> <span class="o">=</span> <span class="n">ServiceDashboardDocumentosDeRecebimento</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">),</span>
+            <span class="n">DocumentoDeRecebimentoFilter</span><span class="p">,</span>
+            <span class="n">PainelDocumentoDeRecebimentoSerializer</span><span class="p">,</span>
+            <span class="n">request</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">dashboard_service</span><span class="o">.</span><span class="n">get_dados_dashboard</span><span class="p">()})</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.codae_analisa_documentos_rascunho">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.codae_analisa_documentos_rascunho">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;PATCH&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;analise-documentos-rascunho&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEhDilogQualidade</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">codae_analisa_documentos_rascunho</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimentoAnalisarRascunhoSerializer</span><span class="p">(</span>
+            <span class="n">instance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">(),</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">documento_recebimento_atualizado</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="n">DocRecebimentoDetalharCodaeSerializer</span><span class="p">(</span>
+                    <span class="n">documento_recebimento_atualizado</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">data</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.codae_analisa_documentos">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.codae_analisa_documentos">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;PATCH&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;analise-documentos&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEhDilogQualidade</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">codae_analisa_documentos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimentoAnalisarSerializer</span><span class="p">(</span>
+            <span class="n">instance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">(),</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">documento_recebimento_atualizado</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="n">DocRecebimentoDetalharCodaeSerializer</span><span class="p">(</span>
+                    <span class="n">documento_recebimento_atualizado</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">data</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.fornecedor_realiza_correcao">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.fornecedor_realiza_correcao">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;PATCH&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;corrigir-documentos&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEhFornecedor</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fornecedor_realiza_correcao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimentoCorrecaoSerializer</span><span class="p">(</span>
+            <span class="n">instance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">(),</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">documentos_corrigidos</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="n">DocRecebimentoDetalharSerializer</span><span class="p">(</span><span class="n">documentos_corrigidos</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.fornecedor_realiza_atualizacao">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.fornecedor_realiza_atualizacao">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;PATCH&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;atualizar-documentos&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">UsuarioEhFornecedor</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fornecedor_realiza_atualizacao</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimentoAtualizacaoSerializer</span><span class="p">(</span>
+            <span class="n">instance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">(),</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">documentos_atualizados</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="n">DocRecebimentoDetalharSerializer</span><span class="p">(</span><span class="n">documentos_atualizados</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.download_laudo_assinado">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.download_laudo_assinado">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;download-laudo-assinado&quot;</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaVisualizarDocumentosDeRecebimento</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_laudo_assinado</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+        <span class="n">doc_recebimento</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">doc_recebimento</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">DocumentoDeRecebimentoWorkflow</span><span class="o">.</span><span class="n">APROVADO</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span>
+                <span class="s2">&quot;Não é possível fazer download do Laudo assinado de um Documento não Aprovado.&quot;</span><span class="p">,</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span>
+            <span class="n">doc_recebimento</span><span class="o">.</span><span class="n">arquivo_laudo_assinado</span><span class="p">,</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calcular_totalizadores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs_qs</span><span class="p">):</span>
+        <span class="n">contagens</span> <span class="o">=</span> <span class="n">docs_qs</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">))</span>
+        <span class="n">contagens_por_status</span> <span class="o">=</span> <span class="p">{</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">contagens</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;Total de Documentos Recebidos&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">contagens_por_status</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="s2">&quot;Total de Pendentes de Aprovação&quot;</span><span class="p">:</span> <span class="n">contagens_por_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">DocumentoDeRecebimentoWorkflow</span><span class="o">.</span><span class="n">ENVIADO_PARA_ANALISE</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Total de Enviados para Correção&quot;</span><span class="p">:</span> <span class="n">contagens_por_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">DocumentoDeRecebimentoWorkflow</span><span class="o">.</span><span class="n">ENVIADO_PARA_CORRECAO</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;Total de Aprovados&quot;</span><span class="p">:</span> <span class="n">contagens_por_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">DocumentoDeRecebimentoWorkflow</span><span class="o">.</span><span class="n">APROVADO</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.lista_relatorio">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.lista_relatorio">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaRelatorioDocumentosDeRecebimento</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;listagem-relatorio&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lista_relatorio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">status_documento</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;status_documento&quot;</span><span class="p">)</span>
+
+        <span class="n">docs_qs</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span>
+            <span class="s2">&quot;laboratorio&quot;</span><span class="p">,</span> <span class="s2">&quot;unidade_medida&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s2">&quot;datas_fabricacao_e_prazos&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status_documento</span><span class="p">:</span>
+            <span class="n">docs_qs</span> <span class="o">=</span> <span class="n">docs_qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status__in</span><span class="o">=</span><span class="n">status_documento</span><span class="p">)</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">documentos_de_recebimento__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s2">&quot;ficha_tecnica__produto&quot;</span><span class="p">,</span> <span class="s2">&quot;empresa&quot;</span><span class="p">,</span> <span class="s2">&quot;contrato&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="n">Prefetch</span><span class="p">(</span><span class="s2">&quot;documentos_de_recebimento&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">docs_qs</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="n">CronogramaRelatorioDocumentosFilter</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">queryset</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">qs</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">status_documento</span><span class="p">:</span>
+            <span class="n">queryset</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">documentos_de_recebimento__status__in</span><span class="o">=</span><span class="n">status_documento</span>
+            <span class="p">)</span>
+
+        <span class="n">docs_totais</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cronograma__in</span><span class="o">=</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status_documento</span><span class="p">:</span>
+            <span class="n">docs_totais</span> <span class="o">=</span> <span class="n">docs_totais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status__in</span><span class="o">=</span><span class="n">status_documento</span><span class="p">)</span>
+
+        <span class="n">totalizadores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calcular_totalizadores</span><span class="p">(</span><span class="n">docs_totais</span><span class="p">)</span>
+
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="n">itens</span> <span class="o">=</span> <span class="n">page</span> <span class="k">if</span> <span class="n">page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">queryset</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaRelatorioDocumentosSerializer</span><span class="p">(</span><span class="n">itens</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dados</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">serializer</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;documentos&quot;</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="n">page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">dados</span><span class="p">)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;totalizadores&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">totalizadores</span>
+            <span class="k">return</span> <span class="n">response</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">dados</span><span class="p">,</span> <span class="s2">&quot;totalizadores&quot;</span><span class="p">:</span> <span class="n">totalizadores</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="DocumentoDeRecebimentoModelViewSet.exportar_excel">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.viewsets.DocumentoDeRecebimentoModelViewSet.exportar_excel">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">permission_classes</span><span class="o">=</span><span class="p">(</span><span class="n">PermissaoParaRelatorioDocumentosDeRecebimento</span><span class="p">,),</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;exportar-excel&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exportar_excel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">status_documento</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">&quot;status_documento&quot;</span><span class="p">)</span>
+
+        <span class="n">docs_qs</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span>
+            <span class="s2">&quot;laboratorio&quot;</span><span class="p">,</span> <span class="s2">&quot;unidade_medida&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s2">&quot;datas_fabricacao_e_prazos&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status_documento</span><span class="p">:</span>
+            <span class="n">docs_qs</span> <span class="o">=</span> <span class="n">docs_qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status__in</span><span class="o">=</span><span class="n">status_documento</span><span class="p">)</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">documentos_de_recebimento__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s2">&quot;ficha_tecnica__produto&quot;</span><span class="p">,</span> <span class="s2">&quot;empresa&quot;</span><span class="p">,</span> <span class="s2">&quot;contrato&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="n">Prefetch</span><span class="p">(</span><span class="s2">&quot;documentos_de_recebimento&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">docs_qs</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="n">CronogramaRelatorioDocumentosFilter</span><span class="p">(</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">queryset</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">qs</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">status_documento</span><span class="p">:</span>
+            <span class="n">queryset</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">documentos_de_recebimento__status__in</span><span class="o">=</span><span class="n">status_documento</span>
+            <span class="p">)</span>
+
+        <span class="n">docs_totais</span> <span class="o">=</span> <span class="n">DocumentoDeRecebimento</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">cronograma__in</span><span class="o">=</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status_documento</span><span class="p">:</span>
+            <span class="n">docs_totais</span> <span class="o">=</span> <span class="n">docs_totais</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status__in</span><span class="o">=</span><span class="n">status_documento</span><span class="p">)</span>
+
+        <span class="n">totalizadores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calcular_totalizadores</span><span class="p">(</span><span class="n">docs_totais</span><span class="p">)</span>
+
+        <span class="n">arquivo</span> <span class="o">=</span> <span class="n">gera_relatorio_documentos_recebimento_xlsx</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">totalizadores</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">HttpResponse</span><span class="p">(</span>
+            <span class="n">arquivo</span><span class="p">,</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">response</span><span class="p">[</span><span class="s2">&quot;Content-Disposition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;attachment; filename=&quot;relatorio_documentos_recebimento.xlsx&quot;&#39;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

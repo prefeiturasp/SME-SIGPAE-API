@@ -9,6 +9,7 @@ from src.dados_comuns.api.serializers import (
     ContatoSerializer,
     LogSolicitacoesUsuarioSerializer,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import nao_pode_ser_no_passado
 from src.dieta_especial.protocolo_padrao.api.serializers import (
@@ -54,7 +55,7 @@ from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.produto.models import Produto, SolicitacaoCadastroProdutoDieta
 
 CLASSIFICACAO_NOME_SOURCE = "classificacao.nome"
-DATE_FORMAT = "%d/%m/%Y"
+DATE_FORMAT = FORMATO_DATA_BRASILEIRO
 
 
 class AlergiaIntoleranciaSerializer(serializers.ModelSerializer):

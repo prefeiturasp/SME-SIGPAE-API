@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 from freezegun.api import freeze_time
 
-from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD, TIPO_UNIDADE_CEI_DIRET
 from src.eol_servico.utils import (
     EOLException,
     EOLServicoSGP,
@@ -42,7 +42,7 @@ class TestEOLServicoSGP(TestCase):
         self.escola = EscolaFactory.create(
             nome="CEI DIRET CABREUVAS",
             codigo_eol="400020",
-            tipo_unidade__iniciais="CEI DIRET",
+            tipo_unidade__iniciais=TIPO_UNIDADE_CEI_DIRET,
         )
 
         PeriodoEscolarFactory.create(nome="INTEGRAL", tipo_turno=6)

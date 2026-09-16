@@ -12,7 +12,7 @@ def _dados_template_base(status_analise):
         "razao_social": "Razao Social LTDA",
         "nome_fantasia": "Fornecedor XYZ",
         "log_transicao": None,
-        "url_solicitacao_alteracao": "http://teste.com",
+        "url_solicitacao_alteracao": "https://teste.com",
     }
 
 
@@ -42,4 +42,7 @@ def test_template_email_parecer_codae(status_analise):
         f"<strong>{dados_template['numero_cronograma']}</strong> de <strong>{dados_template['nome_produto']}</strong>"
         in html
     )
-    assert f"<strong>{dados_template['nome_fantasia']} - {dados_template['razao_social']}</strong>" in html
+    assert (
+        f"<strong>{dados_template['nome_fantasia']} - {dados_template['razao_social']}</strong>"
+        in html
+    )

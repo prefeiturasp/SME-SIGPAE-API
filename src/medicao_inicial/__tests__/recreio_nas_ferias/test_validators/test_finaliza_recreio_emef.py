@@ -3,6 +3,10 @@ import datetime
 import pytest
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
+)
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
@@ -55,7 +59,7 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_dados_nao_lancados(
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -87,7 +91,7 @@ def test_validate_lancamento_dietas_medicao_recreio_dados_nao_lancados(
     assert lista_erros == [
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         }
     ]
 
@@ -102,7 +106,10 @@ def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_emef):
 
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
-    alimentacoes = ["Refeição", "Sobremesa"]
+    alimentacoes = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
     assert "Colaboradores" in resultado
     for esperado in alimentacoes:
         assert (
@@ -254,7 +261,7 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_erro_quando_existe_obs
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -292,7 +299,7 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_gera_erro_sem_observac
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -414,7 +421,11 @@ def test_get_linhas_da_tabela_dieta_recreio_com_todas_alimentacoes(
     categoria_medicao_dieta_a_enteral_aminoacidos,
 ):
     resultado = get_linhas_da_tabela_dieta_recreio(
-        ["Lanche", "Lanche 4h", "Refeição"],
+        [
+            TIPOS_ALIMENTACAO.LANCHE.value,
+            TIPOS_ALIMENTACAO.LANCHE_4H.value,
+            TIPOS_ALIMENTACAO.REFEICAO.value,
+        ],
         categoria_medicao_dieta_a_enteral_aminoacidos,
     )
 
@@ -502,7 +513,7 @@ def test_cria_valores_medicao_participantes_emef_emei_cieja_ceugestao_sem_tipo_a
 
     ValorMedicao.objects.filter(
         medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
-        medicao__grupo__nome="Recreio nas Férias",
+        medicao__grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
         nome_campo="participantes",
     ).delete()
     ValorMedicao.objects.filter(
@@ -517,7 +528,7 @@ def test_cria_valores_medicao_participantes_emef_emei_cieja_ceugestao_sem_tipo_a
 
     participantes_valores = ValorMedicao.objects.filter(
         medicao__solicitacao_medicao_inicial=solicitacao_recreio_emef,
-        medicao__grupo__nome="Recreio nas Férias",
+        medicao__grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
         nome_campo="participantes",
     )
     colaboradores_valores = ValorMedicao.objects.filter(

@@ -13,6 +13,7 @@ from src.dados_comuns.constants import (
     DILOG_CRONOGRAMA,
     DILOG_QUALIDADE,
     DJANGO_ADMIN_PASSWORD,
+    EMAIL_TESTE,
     USUARIO_EMPRESA,
 )
 from src.dados_comuns.fluxo_status import (
@@ -1042,7 +1043,7 @@ def analise_ficha_tecnica(
 
 @pytest.fixture
 def client_autenticado_vinculo_dilog_cronograma(client, django_user_model, codae):
-    email = "test@test.com"
+    email = EMAIL_TESTE
     password = DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -1068,7 +1069,7 @@ def client_autenticado_vinculo_dilog_cronograma(client, django_user_model, codae
 
 @pytest.fixture
 def client_autenticado_vinculo_dilog_qualidade(client, django_user_model, codae):
-    email = "test@test.com"
+    email = EMAIL_TESTE
     password = DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -1536,7 +1537,7 @@ def client_user_autenticado_fornecedor_usuario(
 ):
 
     email = "funcionario_fornecedor@test.com"
-    password = "adminadmin"
+    password = DJANGO_ADMIN_PASSWORD
 
     user = django_user_model.objects.create_user(
         username=email,
@@ -1571,7 +1572,7 @@ def client_user_autenticado_fornecedor(
 ):
 
     email = "fornecedor@test.com"
-    password = "adminadmin"
+    password = DJANGO_ADMIN_PASSWORD
 
     user = django_user_model.objects.create_user(
         username=email,

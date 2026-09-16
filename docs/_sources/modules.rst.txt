@@ -7,5 +7,8 @@ Módulos principais do sistema.
    :maxdepth: 4
 
    cardapio
+   dieta_especial
    pre_recebimento
+   recebimento
+   pos_recebimento
 

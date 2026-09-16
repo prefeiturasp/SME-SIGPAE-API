@@ -41,6 +41,9 @@ from src.pre_recebimento.documento_recebimento.api.serializers.serializers impor
 from src.pre_recebimento.documento_recebimento.api.services import (
     ServiceDashboardDocumentosDeRecebimento,
 )
+from src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel import (
+    gera_relatorio_documentos_recebimento_xlsx,
+)
 from src.pre_recebimento.documento_recebimento.models import (
     DocumentoDeRecebimento,
 )
@@ -265,3 +268,54 @@ class DocumentoDeRecebimentoModelViewSet(
             response.data["totalizadores"] = totalizadores
             return response
         return Response({"results": dados, "totalizadores": totalizadores})
+
+    @action(
+        detail=False,
+        permission_classes=(PermissaoParaRelatorioDocumentosDeRecebimento,),
+        methods=["GET"],
+        url_path="exportar-excel",
+    )
+    def exportar_excel(self, request, *args, **kwargs):
+        status_documento = request.query_params.getlist("status_documento")
+
+        docs_qs = DocumentoDeRecebimento.objects.select_related(
+            "laboratorio", "unidade_medida"
+        ).prefetch_related("datas_fabricacao_e_prazos")
+        if status_documento:
+            docs_qs = docs_qs.filter(status__in=status_documento)
+
+        queryset = (
+            Cronograma.objects.filter(documentos_de_recebimento__isnull=False)
+            .select_related("ficha_tecnica__produto", "empresa", "contrato")
+            .prefetch_related(Prefetch("documentos_de_recebimento", queryset=docs_qs))
+            .order_by("-alterado_em")
+            .distinct()
+        )
+
+        queryset = CronogramaRelatorioDocumentosFilter(
+            request.query_params, queryset=queryset
+        ).qs.distinct()
+
+        if status_documento:
+            queryset = queryset.filter(
+                documentos_de_recebimento__status__in=status_documento
+            )
+
+        docs_totais = DocumentoDeRecebimento.objects.filter(cronograma__in=queryset)
+        if status_documento:
+            docs_totais = docs_totais.filter(status__in=status_documento)
+
+        totalizadores = self._calcular_totalizadores(docs_totais)
+
+        arquivo = gera_relatorio_documentos_recebimento_xlsx(queryset, totalizadores)
+
+        response = HttpResponse(
+            arquivo,
+            content_type=(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            ),
+        )
+        response["Content-Disposition"] = (
+            'attachment; filename="relatorio_documentos_recebimento.xlsx"'
+        )
+        return response

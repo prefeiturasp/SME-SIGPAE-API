@@ -5,6 +5,7 @@ from celery import shared_task
 from django.template.loader import render_to_string
 
 from config import celery  # noqa: I001
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import GuiaRemessaWorkFlow
 from src.dados_comuns.models import Notificacao
 from src.dados_comuns.tasks import envia_email_em_massa_task
@@ -114,7 +115,7 @@ def avisa_a_escola_que_tem_guias_pendestes_de_conferencia():
                     categoria=Notificacao.CATEGORIA_NOTIFICACAO_GUIA_DE_REMESSA,
                     titulo=(
                         f"A Guia de Remessa Nº {guia.numero_guia}, "
-                        + f'com data de entrega prevista para {guia.data_entrega.strftime("%d/%m/%Y")}, '
+                        + f"com data de entrega prevista para {guia.data_entrega.strftime(FORMATO_DATA_BRASILEIRO)}, "
                         + "está Pendente de Conferência"
                     ),
                     descricao=texto_notificacao,

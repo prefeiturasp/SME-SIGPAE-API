@@ -7,6 +7,7 @@ from src.dados_comuns.behaviors import (
     TemAlteradoEm,
     TemChaveExterna,
 )
+from src.dados_comuns.constants import GRUPO_RECREIO_NAS_FERIAS, TIPOS_UNIDADE_ESCOLAR
 from src.escola.models import Escola, Lote
 
 
@@ -17,7 +18,7 @@ class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
     class Meta:
         ordering = ["-alterado_em"]
-        verbose_name = "Recreio nas Férias"
+        verbose_name = GRUPO_RECREIO_NAS_FERIAS
         verbose_name_plural = "Recreios nas Férias"
 
     def __str__(self):
@@ -25,7 +26,11 @@ class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 
 class RecreioNasFeriasUnidadeParticipante(TemChaveExterna, CriadoEm, TemAlteradoEm):
-    OPCOES_CEI_OU_EMEI = (("N/A", "N/A"), ("CEI", "CEI"), ("EMEI", "EMEI"))
+    OPCOES_CEI_OU_EMEI = (
+        ("N/A", "N/A"),
+        (TIPOS_UNIDADE_ESCOLAR.CEI.value, TIPOS_UNIDADE_ESCOLAR.CEI.value),
+        (TIPOS_UNIDADE_ESCOLAR.EMEI.value, TIPOS_UNIDADE_ESCOLAR.EMEI.value),
+    )
 
     recreio_nas_ferias = models.ForeignKey(
         RecreioNasFerias,

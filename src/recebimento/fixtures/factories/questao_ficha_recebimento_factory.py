@@ -1,3 +1,5 @@
+"""Factory de resposta a questão da ficha de recebimento para testes."""
+
 from factory import LazyFunction, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
@@ -14,6 +16,8 @@ fake = Faker("pt_BR")
 
 
 class QuestaoFichaRecebimentoFactory(DjangoModelFactory):
+    """Cria uma ``QuestaoFichaRecebimento`` com resposta e tipo aleatórios."""
+
     class Meta:
         model = QuestaoFichaRecebimento
 

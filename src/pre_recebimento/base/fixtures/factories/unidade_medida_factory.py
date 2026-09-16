@@ -1,3 +1,5 @@
+"""Factory de unidade de medida para testes."""
+
 from factory import LazyAttribute, Sequence
 from factory.django import DjangoModelFactory
 from faker import Faker
@@ -8,6 +10,12 @@ fake = Faker("pt_BR")
 
 
 class UnidadeMedidaFactory(DjangoModelFactory):
+    """Cria uma ``UnidadeMedida`` com nome sequencial.
+
+    O ``nome`` é gerado como ``Unidade {n}`` e a ``abreviacao`` como os 3
+    primeiros caracteres do nome.
+    """
+
     class Meta:
         model = UnidadeMedida
 

@@ -17,13 +17,14 @@ from rest_framework.test import APIClient
 
 from src.dados_comuns import constants
 from src.dados_comuns.api.paginations import DefaultPagination
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import (
     CronogramaWorkflow,
     DocumentoDeRecebimentoWorkflow,
     FichaTecnicaDoProdutoWorkflow,
     LayoutDeEmbalagemWorkflow,
 )
-from src.dados_comuns.models import CentralDeDownload
+from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
 from src.pre_recebimento.base.api.serializers.serializers import (
     UnidadeMedidaSimplesSerializer,
 )
@@ -57,7 +58,6 @@ from src.pre_recebimento.ficha_tecnica.models import (
 from src.pre_recebimento.layout_embalagem.api.services import (
     ServiceDashboardLayoutEmbalagem,
 )
-from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.layout_embalagem.models import (
     ImagemDoTipoDeEmbalagem,
     LayoutDeEmbalagem,
@@ -396,6 +396,45 @@ def test_url_perfil_dilog_abastecimento_cronograma(
     assert obj.status == "APROVADO_DILOG_ABASTECIMENTO"
 
 
+def test_url_perfil_dilog_abastecimento_aprova_com_justificativa(
+    client_autenticado_dilog_abastecimento,
+    solicitacao_cronograma_ciente,
+):
+    justificativa = "Cronograma aprovado após análise do Abastecimento"
+
+    data = json.dumps(
+        {
+            "aprovado": True,
+            "justificativa_abastecimento": justificativa,
+        }
+    )
+
+    response = client_autenticado_dilog_abastecimento.patch(
+        f"/solicitacao-de-alteracao-de-cronograma/"
+        f"{solicitacao_cronograma_ciente.uuid}/analise-abastecimento/",
+        data,
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    solicitacao = SolicitacaoAlteracaoCronograma.objects.get(
+        uuid=solicitacao_cronograma_ciente.uuid
+    )
+
+    assert solicitacao.status == "APROVADO_DILOG_ABASTECIMENTO"
+
+    log_aprovacao = LogSolicitacoesUsuario.objects.filter(
+        uuid_original=solicitacao.uuid,
+        status_evento=(
+            LogSolicitacoesUsuario.APROVADO_DILOG_ABASTECIMENTO_SOLICITACAO_ALTERACAO
+        ),
+    ).first()
+
+    assert log_aprovacao is not None
+    assert log_aprovacao.justificativa == justificativa
+
+
 def test_url_perfil_dilog_abastecimento_reprova_alteracao_cronograma(
     client_autenticado_dilog_abastecimento, solicitacao_cronograma_ciente
 ):
@@ -482,6 +521,8 @@ def test_url_perfil_dilog_reprova_alteracao_cronograma(
         uuid=solicitacao_cronograma_aprovado_dilog_abastecimento.uuid
     )
     assert obj.status == "REPROVADO_DILOG"
+    obj.cronograma.refresh_from_db()
+    assert obj.cronograma.status == CronogramaWorkflow.ASSINADO_CODAE
 
 
 def test_url_analise_dilog_erro_solicitacao_cronograma_invalido(
@@ -1153,7 +1194,9 @@ def test_url_unidades_medida_listar_com_filtros(
     assert response.data["results"][0]["nome"] == "KILOGRAMA"
 
     data_cadastro = (
-        unidades_medida_reais_logistica[0].criado_em.date().strftime("%d/%m/%Y")
+        unidades_medida_reais_logistica[0]
+        .criado_em.date()
+        .strftime(FORMATO_DATA_BRASILEIRO)
     )
     url_com_filtro_data_cadastro = (
         f"/unidades-medida-logistica/?data_cadastro={data_cadastro}"
@@ -2441,7 +2484,7 @@ def test_url_documentos_de_recebimento_detalhar(
     )
     assert dados_documento_de_recebimento[
         "criado_em"
-    ] == documento_de_recebimento.criado_em.strftime("%d/%m/%Y")
+    ] == documento_de_recebimento.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
     assert (
         dados_documento_de_recebimento["status"]
         == documento_de_recebimento.get_status_display()
@@ -4043,9 +4086,7 @@ def test_deleta_interrupcao_programada(client_autenticado_vinculo_dilog_cronogra
 
 
 @pytest.fixture
-def _layout_com_imagem_e_log_aprovacao(
-    layout_de_embalagem_aprovado, django_user_model
-):
+def _layout_com_imagem_e_log_aprovacao(layout_de_embalagem_aprovado, django_user_model):
     """Retorna layout aprovado com imagem (PDF) e log de LAYOUT_APROVADO."""
     layout = layout_de_embalagem_aprovado
     tipo = layout.tipos_de_embalagens.first()
@@ -4083,9 +4124,7 @@ def _layout_com_imagem_e_log_aprovacao(
 
 
 @pytest.fixture
-def _layout_sem_log_aprovacao(
-    layout_de_embalagem_aprovado, django_user_model
-):
+def _layout_sem_log_aprovacao(layout_de_embalagem_aprovado, django_user_model):
     """Retorna layout aprovado mas SEM log de LAYOUT_APROVADO."""
     layout = layout_de_embalagem_aprovado
     tipo = layout.tipos_de_embalagens.first()

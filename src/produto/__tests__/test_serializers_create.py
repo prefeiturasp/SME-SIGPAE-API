@@ -1,6 +1,7 @@
 import pytest
 from model_bakery import baker
 
+from src.dados_comuns.constants import MODEL_USUARIO
 from src.produto.api.serializers.serializers_create import *
 
 pytestmark = pytest.mark.django_db
@@ -8,7 +9,7 @@ pytestmark = pytest.mark.django_db
 
 def test_produto_edital_create(produto_edital_rascunho):
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     serializer = CadastroProdutosEditalCreateSerializer(
         data=produto_edital_rascunho, context={"request": FakeObject}

@@ -2,9 +2,8 @@ from unittest.mock import patch
 
 import pytest
 
-from src.escola.api.serializers import DiaCalendarioSerializer
-
-from src.escola.api.serializers import AlunoSerializer
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+from src.escola.api.serializers import AlunoSerializer, DiaCalendarioSerializer
 
 pytestmark = pytest.mark.django_db
 
@@ -67,7 +66,7 @@ def test_serialize_dia_calendario_sem_periodo_escolar(dia_calendario_diurno):
 
 def test_aluno_serializer_exibe_periodo(aluno):
     aluno.nao_matriculado = False
-    aluno.escola.tipo_unidade.iniciais = "EMEF"
+    aluno.escola.tipo_unidade.iniciais = TIPOS_UNIDADE_ESCOLAR.EMEF.value
 
     with patch.object(
         AlunoSerializer,

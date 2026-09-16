@@ -109,6 +109,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Escola</span><span class="p">,</span> <span class="n">PeriodoEscolar</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.inclusao_alimentacao.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">InclusaoAlimentacaoNormal</span><span class="p">,</span>
+    <span class="n">InclusaoDeAlimentacaoCEMEI</span><span class="p">,</span>
+    <span class="n">QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI</span><span class="p">,</span>
     <span class="n">QuantidadePorPeriodo</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -241,6 +243,11 @@
 <span class="sd">        os periodos obtidos com os vinculos da escola para montar o conjunto de</span>
 <span class="sd">        vinculos elegiveis.</span>
 
+<span class="sd">        Para escolas CEMEI, tambem consulta inclusoes do tipo</span>
+<span class="sd">        ``InclusaoDeAlimentacaoCEMEI`` com motivo ``Evento Especifico``</span>
+<span class="sd">        autorizadas no mes, coletando os periodos escolares das quantidades</span>
+<span class="sd">        EMEI dessas inclusoes.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            mes (str | int): Mes de referencia da consulta.</span>
 <span class="sd">            ano (str | int): Ano de referencia da consulta.</span>
@@ -251,12 +258,15 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            QuerySet[VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar]:</span>
-<span class="sd">            Vinculos compatíveis com o cenario consultado.</span>
+<span class="sd">            Vinculos compativeis com o cenario consultado.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mes_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
+        <span class="n">ano_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ano</span><span class="p">)</span>
+
         <span class="n">gupos_uuids</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">InclusaoAlimentacaoNormal</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">data__month</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mes</span><span class="p">),</span>
-                <span class="n">data__year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">ano</span><span class="p">),</span>
+                <span class="n">data__month</span><span class="o">=</span><span class="n">mes_int</span><span class="p">,</span>
+                <span class="n">data__year</span><span class="o">=</span><span class="n">ano_int</span><span class="p">,</span>
                 <span class="n">motivo__nome</span><span class="o">=</span><span class="s2">&quot;Evento Específico&quot;</span><span class="p">,</span>
                 <span class="n">grupo_inclusao__escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
                 <span class="n">grupo_inclusao__status</span><span class="o">=</span><span class="s2">&quot;CODAE_AUTORIZADO&quot;</span><span class="p">,</span>
@@ -273,14 +283,34 @@
             <span class="n">grupo_inclusao_normal__uuid__in</span><span class="o">=</span><span class="n">gupos_uuids</span>
         <span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">periodo_escolar__uuid__in</span><span class="o">=</span><span class="n">periodos_escolares_uuids</span><span class="p">)</span>
 
-        <span class="n">periodos_escolares_uuids</span> <span class="o">=</span> <span class="n">quantidades_por_periodo</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
-            <span class="s2">&quot;periodo_escolar__uuid&quot;</span>
+        <span class="n">periodos_escolares_uuids_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="n">quantidades_por_periodo</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;periodo_escolar__uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">cemei_qs</span> <span class="o">=</span> <span class="n">InclusaoDeAlimentacaoCEMEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">escola</span><span class="o">=</span><span class="n">escola</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="s2">&quot;CODAE_AUTORIZADO&quot;</span><span class="p">,</span>
+            <span class="n">dias_motivos_da_inclusao_cemei__data__month</span><span class="o">=</span><span class="n">mes_int</span><span class="p">,</span>
+            <span class="n">dias_motivos_da_inclusao_cemei__data__year</span><span class="o">=</span><span class="n">ano_int</span><span class="p">,</span>
+            <span class="n">dias_motivos_da_inclusao_cemei__motivo__nome</span><span class="o">=</span><span class="s2">&quot;Evento Específico&quot;</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">cemei_qs</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">cemei_uuids</span> <span class="o">=</span> <span class="n">cemei_qs</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">cemei_periodos</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">inclusao_alimentacao_cemei__uuid__in</span><span class="o">=</span><span class="n">cemei_uuids</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s2">&quot;periodo_escolar__uuid&quot;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">periodos_escolares_uuids_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cemei_periodos</span><span class="p">)</span>
+
+        <span class="n">tipo_unidade</span> <span class="o">=</span> <span class="s2">&quot;EMEI&quot;</span> <span class="k">if</span> <span class="n">escola</span><span class="o">.</span><span class="n">eh_cemei</span> <span class="k">else</span> <span class="n">escola</span><span class="o">.</span><span class="n">tipo_unidade</span><span class="o">.</span><span class="n">iniciais</span>
+
         <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">tipo_unidade_escolar__iniciais</span><span class="o">=</span><span class="n">escola</span><span class="o">.</span><span class="n">tipo_unidade</span><span class="o">.</span><span class="n">iniciais</span><span class="p">,</span>
+                <span class="n">tipo_unidade_escolar__iniciais</span><span class="o">=</span><span class="n">tipo_unidade</span><span class="p">,</span>
                 <span class="n">periodo_escolar__nome__in</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO</span><span class="p">,</span>
-                <span class="n">periodo_escolar__uuid__in</span><span class="o">=</span><span class="n">periodos_escolares_uuids</span><span class="p">,</span>
+                <span class="n">periodo_escolar__uuid__in</span><span class="o">=</span><span class="n">periodos_escolares_uuids_set</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">vinculos</span></div>

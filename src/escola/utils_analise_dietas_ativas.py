@@ -5,6 +5,7 @@ from pathlib import Path
 
 import openpyxl
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.escola.models import Escola
 from src.produto.models import ProtocoloDeDietaEspecial
 from utility.carga_dados.helper import excel_to_list_with_openpyxl, progressbar
@@ -337,7 +338,7 @@ def retorna_alunos_com_nascimento_diferente(items, escolas, arquivo_saida):  # n
             )
             if aluno_localizado:
                 nascimento_planilha = string_to_date(
-                    aluno["DataNascimento"], "%d/%m/%Y"
+                    aluno["DataNascimento"], FORMATO_DATA_BRASILEIRO
                 )
                 nascimento_eol = string_to_date(
                     aluno_localizado[0]["dt_nascimento_aluno"], "%Y-%m-%dT%H:%M:%S"

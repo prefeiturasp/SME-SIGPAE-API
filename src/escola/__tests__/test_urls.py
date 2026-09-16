@@ -5,12 +5,22 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from rest_framework import status
 
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+
 from ..models import DiaSuspensaoAtividades, FaixaEtaria, MudancaFaixasEtarias
-from ..services import NovoSGPServicoLogado
-from .conftest import mocked_foto_aluno_novosgp, mocked_response, mocked_token_novosgp
+from ..services import NovoSGPServicoLogado, NovoSGPServicoLogadoException
+from .conftest import mocked_foto_aluno_novosgp, mocked_response
 
 ENDPOINT_ALUNOS_POR_PERIODO = "quantidade-alunos-por-periodo"
 ENDPOINT_LOTES = "lotes"
+ENDPOINT_LISTA_DIAS = "dias-suspensao-atividades/lista-dias"
+
+
+def _mock_obter_token_erro(monkeypatch):
+    def _raise_login_error(self):
+        raise NovoSGPServicoLogadoException("Não foi possível logar no sistema")
+
+    monkeypatch.setattr(NovoSGPServicoLogado, "_obter_token", _raise_login_error)
 
 
 def test_url_endpoint_quantidade_alunos_por_periodo(client_autenticado, escola):
@@ -173,8 +183,8 @@ def test_url_endpoint_lista_faixas_etarias(
 def test_url_endpoint_get_foto_aluno(client_autenticado_da_escola, aluno, monkeypatch):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -191,8 +201,8 @@ def test_url_endpoint_get_foto_aluno_204(
 ):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -206,14 +216,30 @@ def test_url_endpoint_get_foto_aluno_204(
 def test_url_endpoint_get_foto_aluno_token_invalido(
     client_autenticado_da_escola, aluno, monkeypatch
 ):
-    monkeypatch.setattr(
-        NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(None, 204),
-    )
+    _mock_obter_token_erro(monkeypatch)
     response = client_autenticado_da_escola.get(f"/alunos/{aluno.codigo_eol}/ver-foto/")
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json()["detail"] == "Não foi possível logar no sistema"
+
+
+def test_url_endpoint_get_foto_aluno_codae(
+    client_autenticado_coordenador_codae, aluno, monkeypatch
+):
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer abc123",
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_foto_aluno",
+        lambda p1, p2: mocked_response(mocked_foto_aluno_novosgp(), 200),
+    )
+    response = client_autenticado_coordenador_codae.get(
+        f"/alunos/{aluno.codigo_eol}/ver-foto/"
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["data"] == mocked_foto_aluno_novosgp()
 
 
 def test_url_endpoint_update_foto_aluno(
@@ -224,8 +250,8 @@ def test_url_endpoint_update_foto_aluno(
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -247,8 +273,8 @@ def test_url_endpoint_update_foto_aluno_error(
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -267,11 +293,7 @@ def test_url_endpoint_update_foto_aluno_token_invalido(
     foto = SimpleUploadedFile(
         "file.jpg", str.encode("file_content"), content_type="image/jpg"
     )
-    monkeypatch.setattr(
-        NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 204),
-    )
+    _mock_obter_token_erro(monkeypatch)
     response = client_autenticado_da_escola.post(
         f"/alunos/{aluno.codigo_eol}/atualizar-foto/", {"file": foto}
     )
@@ -284,8 +306,8 @@ def test_url_endpoint_deletar_foto_aluno(
 ):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -303,8 +325,8 @@ def test_url_endpoint_deletar_foto_aluno_204(
 ):
     monkeypatch.setattr(
         NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(mocked_token_novosgp(), 200),
+        "_obter_token",
+        lambda self: "Bearer abc123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -320,11 +342,7 @@ def test_url_endpoint_deletar_foto_aluno_204(
 def test_url_endpoint_deletar_foto_aluno_token_invalido(
     client_autenticado_da_escola, aluno, monkeypatch
 ):
-    monkeypatch.setattr(
-        NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response(None, 204),
-    )
+    _mock_obter_token_erro(monkeypatch)
     response = client_autenticado_da_escola.delete(
         f"/alunos/{aluno.codigo_eol}/deletar-foto/"
     )
@@ -408,6 +426,139 @@ def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_considera_enc
     assert response.json()["periodos"] == {
         "TARDE": str(periodo_tarde.uuid),
         "NOITE": str(periodo_noite.uuid),
+    }
+
+
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_nao_retorna_quando_encerrada_antes_do_mes(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 4, 1),
+        data_final=datetime.date(2026, 12, 31),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        encerrado_a_partir_de=datetime.date(2026, 4, 30),
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=05&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] is None
+
+
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_ignora_periodo_cancelado(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    periodo_tarde = baker.make("PeriodoEscolar", nome="TARDE")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 5, 1),
+        data_final=datetime.date(2026, 5, 31),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        cancelado=True,
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_tarde,
+        cancelado=False,
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=05&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] == {
+        "TARDE": str(periodo_tarde.uuid),
+    }
+
+
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_nao_retorna_sem_dia_da_semana_ativo(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 6, 1),
+        data_final=datetime.date(2026, 9, 30),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[4],
+        encerrado_a_partir_de=datetime.date(2026, 7, 2),
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=07&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] is None
+
+
+def test_url_endpoint_periodos_escolares_inclusao_continua_por_mes_retorna_quando_dia_da_semana_ainda_cabe_no_encerramento(
+    client_autenticado_da_escola, escola
+):
+    client = client_autenticado_da_escola
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programa Contínuo")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        data_inicial=datetime.date(2026, 6, 1),
+        data_final=datetime.date(2026, 9, 30),
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+    )
+    baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=periodo_manha,
+        dias_semana=[4],
+        encerrado_a_partir_de=datetime.date(2026, 7, 3),
+    )
+
+    response = client.get(
+        "/periodos-escolares/inclusao-continua-por-mes/?mes=07&ano=2026"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["periodos"] == {
+        "MANHA": str(periodo_manha.uuid),
     }
 
 
@@ -806,7 +957,9 @@ def test_url_endpoint_filtrar_sem_duplicacao_faixa_etaria(
     faixas_etarias_ativas,
 ):
     # Forçar a escola a ser CEI para testar a lógica específica
-    tipo_unidade_cei = baker.make("TipoUnidadeEscolar", iniciais="CEI")
+    tipo_unidade_cei = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
     escola.tipo_unidade = tipo_unidade_cei
     escola.save()
 
@@ -921,7 +1074,7 @@ ENDPOINT_LOTES_SIMPLES = "lotes-simples"
 def test_url_endpoint_lotes_simples_filtro_edital(
     client_autenticado, lote, diretoria_regional
 ):
-    from src.terceirizada.models import Edital, Contrato
+    from src.terceirizada.models import Contrato, Edital
 
     edital = baker.make(Edital, numero="Edital Teste")
     outro_lote = baker.make("Lote", nome="Outro Lote")
@@ -943,3 +1096,96 @@ def test_url_endpoint_lotes_simples_filtro_edital(
     uuids_retornados = [r["uuid"] for r in results]
     assert str(lote.uuid) in uuids_retornados
     assert str(outro_lote.uuid) not in uuids_retornados
+
+
+def test_url_endpoint_lista_dias_sem_parametros(client_autenticado):
+    response = client_autenticado.get(f"/{ENDPOINT_LISTA_DIAS}/")
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"] == "Informe escola, mes e ano."
+
+
+def test_url_endpoint_lista_dias_escola_nao_encontrada(client_autenticado):
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LISTA_DIAS}/",
+        {"escola": "00000000-0000-0000-0000-000000000000", "mes": 5, "ano": 2026},
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json()["detail"] == "Escola não encontrada."
+
+
+def test_url_endpoint_lista_dias_suspensos(client_autenticado, escola):
+    edital_1 = baker.make("terceirizada.Edital", numero="Edital 01/2026")
+    edital_2 = baker.make("terceirizada.Edital", numero="Edital 02/2026")
+    lote = baker.make("Lote")
+
+    contrato_1 = baker.make("terceirizada.Contrato", edital=edital_1, encerrado=False)
+    contrato_1.lotes.add(lote)
+
+    contrato_2 = baker.make("terceirizada.Contrato", edital=edital_2, encerrado=False)
+    contrato_2.lotes.add(lote)
+
+    escola.lote = lote
+    escola.save()
+
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 10),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital_1,
+    )
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 10),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital_2,
+    )
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 20),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital_1,
+    )
+
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LISTA_DIAS}/",
+        {"escola": str(escola.uuid), "mes": 5, "ano": 2026},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    resultado = response.json()
+    assert len(resultado) == 2
+
+    assert resultado[0]["data"] == "10/05/2026"
+    assert set(resultado[0]["editais"]) == {"Edital 01/2026", "Edital 02/2026"}
+
+    assert resultado[1]["data"] == "20/05/2026"
+    assert resultado[1]["editais"] == ["Edital 01/2026"]
+
+
+def test_url_endpoint_lista_dias_nao_retorna_contrato_encerrado(
+    client_autenticado, escola
+):
+    edital = baker.make("terceirizada.Edital", numero="Edital 01/2026")
+    lote = baker.make("Lote")
+    contrato = baker.make("terceirizada.Contrato", edital=edital, encerrado=True)
+    contrato.lotes.add(lote)
+    escola.lote = lote
+    escola.save()
+
+    baker.make(
+        DiaSuspensaoAtividades,
+        data=datetime.date(2026, 5, 10),
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital,
+    )
+
+    response = client_autenticado.get(
+        f"/{ENDPOINT_LISTA_DIAS}/",
+        {"escola": str(escola.uuid), "mes": 5, "ano": 2026},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == []

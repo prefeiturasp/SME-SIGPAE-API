@@ -1,3 +1,5 @@
+"""Formulários do módulo de recebimento."""
+
 import functools
 import operator
 
@@ -9,6 +11,13 @@ from src.recebimento.models import QuestaoConferencia
 
 
 class QuestaoForm(forms.ModelForm):
+    """Formulário da questão de conferência no admin.
+
+    Normaliza o texto da questão em letras maiúsculas (via widget) e valida
+    que não exista outra questão com a mesma ``posicao`` para o mesmo tipo
+    de questão.
+    """
+
     class Meta:
         model = QuestaoConferencia
         fields = "__all__"
@@ -22,12 +31,19 @@ class QuestaoForm(forms.ModelForm):
         }
 
     def full_clean(self, *args, **kwargs):
+        """Limpa erros duplicados do campo ``posicao``."""
         super().full_clean()
         # Limpa os erros extras para o campo 'posicao'
         if "posicao" in self.errors and len(self.errors["posicao"]) > 1:
             self.errors["posicao"] = self.error_class([self.errors["posicao"][0]])
 
     def clean(self):
+        """Valida a unicidade da posição por tipo de questão.
+
+        Raises:
+            ValidationError: Se já existir uma pergunta com a mesma posição
+                para o mesmo tipo de questão.
+        """
         cleaned_data = super().clean()
         posicao = cleaned_data.get("posicao", None)
         tipo_questao = cleaned_data.get("tipo_questao", None)

@@ -1,35 +1,34 @@
 @charset "UTF-8";
 @import "../../variaveis";
 
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../../../fonts/Roboto/Roboto-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../../../fonts/Roboto/Roboto-Bold.ttf") format("truetype");
+}
+
 @page {
   size: A4;
-  margin: 7cm 0 8.7cm 0;
-  padding: 0;
-  @top-center {
-    content: element(heading);
-  }
-  @bottom-center {
-    content: element(footering);
-  }
-}
-
-/* NOSONAR */
-@page:first {
-  size: A4;
-  margin: 7cm 0 9cm 0;
+  margin: 7.7cm 0 3.5cm 0;
   padding: 0;
 
   @top-center {
     content: element(heading);
+    width: 100%;
   }
+
   @bottom-center {
     content: element(footering);
-  }
-}
-
-@media print {
-  body {
-    margin: 0;
+    width: 100%;
+    vertical-align: bottom;
   }
 }
 
@@ -42,84 +41,257 @@ body {
 header {
   position: running(heading);
   background-color: $cinza-claro;
-  width: 215mm;
-  padding: 0.5cm;
+  width: 100%;
+  padding: 0.8cm 0.5cm 0.5cm;
   margin-bottom: 1cm;
+  box-sizing: border-box;
 
-  .title {
-    font-weight: 600;
-    color: $cinza-meio-escuro;
-    font-size: 12px;
-  }
-  .subtitle {
-    font-weight: 600;
-    font-size: 10px;
-    color: $cinza-meio-escuro;
-    padding-top: 10px;
-  }
   .toolbar {
-    margin: 0 24px 24px 24px;
-    height: auto;
     display: flex;
     align-items: center;
+    margin: 0 24px 16px;
+
+    .logo-prefeitura {
+      width: 20%;
+
+      img {
+        display: block;
+        width: 113px;
+        height: 43px;
+      }
+    }
+
+    .titulos {
+      width: 80%;
+      text-align: left;
+    }
   }
+
+  .title {
+    margin: 0;
+    color: $cinza-meio-escuro;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .subtitle {
+    margin: 0;
+    padding-top: 8px;
+    color: $cinza-meio-escuro;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
   .informacoes {
-    background-color: $branco;
-    border-radius: 4px;
-    border: 1px solid $preto;
-    padding: 10px;
     margin: 0 24px;
-    p {
-      text-transform: uppercase;
-      font-size: 12px;
-      margin: 5px 0;
+    padding: 10px;
+    background-color: $branco;
+    border: 1px solid $preto;
+    border-radius: 4px;
+
+    .linha-informacao {
+      display: flex;
+      margin: 8px 0;
+    }
+
+    .informacao-principal {
+      width: 68%;
+    }
+
+    .informacao-secundaria {
+      width: 32%;
+    }
+
+    .informacao-matriculados {
+      width: 28%;
+    }
+
+    .informacao-frequentes {
+      width: 72%;
+    }
+
+    .informacao-principal,
+    .informacao-secundaria,
+    .informacao-matriculados,
+    .informacao-frequentes {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    span,
+    strong {
       color: $cinza-meio-escuro;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    strong {
+      margin-left: 6px;
     }
   }
 }
 
 .content {
   margin: 0 0.5cm;
-  padding: 0;
+
   .content-top {
-    padding: 16px 0 0 0;
+    padding: 16px 0 0;
+
     p {
+      margin: 0 0 18px;
+      color: $cinza-meio-escuro;
       font-size: 14px;
-      opacity: 0.8;
+      line-height: 1.6;
       text-align: center;
     }
+
+    .prazo-atendimento {
+      font-weight: 700;
+    }
   }
+
   table {
     width: 100%;
     border-collapse: collapse;
-    border: 0px, 0.5px, 0px, 0px;
-    border-color: $cinza-meio-claro;
   }
+
+  .coluna-tipo {
+    width: 14%;
+  }
+
+  .coluna-descricao {
+    width: 16%;
+  }
+
+  .coluna-boas-condicoes {
+    width: 19%;
+  }
+
+  .coluna-reposicao {
+    width: 13%;
+  }
+
+  .coluna-retirada {
+    width: 12%;
+  }
+
+  .coluna-sim {
+    width: 5%;
+  }
+
+  .coluna-nao-prazo {
+    width: 10%;
+  }
+
+  .coluna-nao-quantidade {
+    width: 11%;
+  }
+
   th,
   td {
-    border: 1px solid $cinza-meio-claro;
     padding: 8px;
-    text-align: center;
+    border: 1px solid $cinza-meio-claro;
     font-size: 10px;
+    text-align: center;
   }
+
   th {
     background-color: $cinza-claro;
+  }
+
+  .conferencia {
+    margin: 20px 0 0;
+    color: $cinza-meio-escuro;
+    font-size: 12px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .assinaturas-conferencia {
+    margin: 48px 0 0;
+
+    td,
+    th {
+      width: 50%;
+      padding: 0 12px;
+      border: 0;
+      background-color: $branco;
+      color: $cinza-meio-escuro;
+      font-size: 12px;
+      font-weight: 400;
+      text-align: center;
+      vertical-align: top;
+    }
+
+    tr + tr td,
+    tr + tr th {
+      padding-top: 36px;
+    }
+
+    .linha-para-assinatura {
+      display: block;
+      margin-top: 11px;
+      margin-bottom: 6px;
+      border-top: 1px solid $cinza-meio-escuro;
+    }
   }
 }
 
 footer {
   position: running(footering);
-  width: 215mm;
-  font-size: 12px;
+  width: 100%;
+  box-sizing: border-box;
   color: $cinza-meio-escuro;
+  font-size: 12px;
+
+  .assinatura-supervisora {
+    width: 50%;
+    margin: 0 auto 12px;
+
+    > p {
+      margin: 0 0 4px;
+      text-align: center;
+    }
+
+    .registro-assinatura {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid $cinza-meio-claro;
+
+      img {
+        width: 45px;
+        margin-right: 8px;
+      }
+
+      p {
+        margin: 0;
+        font-size: 10px;
+      }
+    }
+  }
+
   .barra-informacoes {
-    text-align: center;
+    position: relative;
+    min-height: 24px;
+    padding: 6px 24px;
     background-color: $cinza-claro;
-    padding: 0.1mm 0;
+    text-align: center;
+
+    p {
+      margin: 0;
+    }
+
     .paginador {
       content: "Página " counter(page) "/" counter(pages);
     }
+
     .gerado-em {
+      position: absolute;
+      top: 7px;
+      right: 24px;
       font-size: 10px;
     }
   }

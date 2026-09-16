@@ -3,12 +3,13 @@ from smtplib import SMTPServerDisconnected
 
 from celery import shared_task
 
-from .models import SolicitacaoAberta
+from .models import SolicitacaoAberta, VersaoSistema
 from .utils import (
     analisa_logs_alunos_matriculados_periodo_escola,
     analisa_logs_quantidade_dietas_autorizadas,
     envia_email_em_massa,
     envia_email_unico,
+    obter_versao_api,
 )
 
 
@@ -52,3 +53,18 @@ def deleta_solicitacoes_abertas():
 def deleta_logs_duplicados_e_cria_logs_caso_nao_existam():
     analisa_logs_alunos_matriculados_periodo_escola()
     analisa_logs_quantidade_dietas_autorizadas()
+
+
+@shared_task(
+    autoretry_for=(Exception,),
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 3},
+)
+def atualiza_versao_sistema():
+    versao = obter_versao_api()
+    if versao:
+        versao_sistema = VersaoSistema.objects.get()
+        versao_sistema.versao = versao
+        versao_sistema.save()
+        return versao
+    return None

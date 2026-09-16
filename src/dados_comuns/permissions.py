@@ -1,7 +1,11 @@
 from rest_framework.permissions import BasePermission
 
 from ..escola.models import Codae, DiretoriaRegional, Escola
-from ..medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from ..medicao_inicial.models import (
+    Medicao,
+    OcorrenciaMedicaoInicial,
+    SolicitacaoMedicaoInicial,
+)
 from ..terceirizada.models import Terceirizada
 from .constants import (
     ADMINISTRADOR_CODAE_DILOG_CONTABIL,
@@ -79,7 +83,7 @@ class UsuarioEscolaTercTotal(BasePermission):
         if instituicao in escolas:
             return True
 
-        if isinstance(obj, Medicao):
+        if isinstance(obj, (Medicao, OcorrenciaMedicaoInicial)):
             return instituicao == obj.solicitacao_medicao_inicial.escola
 
         if getattr(obj, "tipo", None) == "Kit Lanche Unificado":
@@ -189,7 +193,7 @@ class UsuarioDiretoriaRegional(BasePermission):
                 retorno = (
                     usuario.vinculo_atual.instituicao == obj.escola.diretoria_regional
                 )
-            elif isinstance(obj, Medicao):
+            elif isinstance(obj, (Medicao, OcorrenciaMedicaoInicial)):
                 retorno = (
                     usuario.vinculo_atual.instituicao
                     == obj.solicitacao_medicao_inicial.escola.diretoria_regional
@@ -255,22 +259,9 @@ class UsuarioCODAENutriManifestacao(BasePermission):
 class UsuarioCODAENutriSupervisao(BasePermission):
     """Permite acesso a usuários com vinculo a CODAE - Nutri Supervisão."""
 
-    def has_permission(self, request, view):
-        usuario = request.user
-        return (
-            not usuario.is_anonymous
-            and usuario.vinculo_atual
-            and isinstance(usuario.vinculo_atual.instituicao, Codae)
-            and usuario.vinculo_atual.perfil.nome in [COORDENADOR_SUPERVISAO_NUTRICAO]
-        )
-
-
-class PermissaoParaVisualizarRelatorioFiscalizacaoNutri(BasePermission):
     PERFIS_PERMITIDOS = [
+        ADMINISTRADOR_SUPERVISAO_NUTRICAO,
         COORDENADOR_SUPERVISAO_NUTRICAO,
-        COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
-        COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
-        ADMINISTRADOR_MEDICAO,
     ]
 
     def has_permission(self, request, view):
@@ -278,13 +269,37 @@ class PermissaoParaVisualizarRelatorioFiscalizacaoNutri(BasePermission):
         return (
             not usuario.is_anonymous
             and usuario.vinculo_atual
-            and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
-            )
+            and isinstance(usuario.vinculo_atual.instituicao, Codae)
+            and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
         )
+
+
+class PermissaoParaVisualizarRelatorioFiscalizacaoNutri(BasePermission):
+    PERFIS_PERMITIDOS = [
+        ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+        COORDENADOR_SUPERVISAO_NUTRICAO,
+        COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+        COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        ADMINISTRADOR_MEDICAO,
+        ADMINISTRADOR_CODAE_GABINETE,
+        DINUTRE_DIRETORIA,
+    ]
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        if usuario.is_anonymous or not usuario.vinculo_atual:
+            return False
+
+        instituicao = usuario.vinculo_atual.instituicao
+        perfil = usuario.vinculo_atual.perfil.nome
+
+        if isinstance(instituicao, DiretoriaRegional):
+            return perfil == COGESTOR_DRE
+
+        if isinstance(instituicao, Terceirizada):
+            return instituicao.tipo_servico == Terceirizada.TERCEIRIZADA
+
+        return isinstance(instituicao, Codae) and perfil in self.PERFIS_PERMITIDOS
 
 
 class UsuarioCODAEDietaEspecial(BasePermission):
@@ -1565,6 +1580,29 @@ class PermissaoParaVisualizarFichaTecnica(BasePermission):
         )
 
 
+class PermissaoParaRelatorioFichasTecnicas(BasePermission):
+    PERFIS_PERMITIDOS = [
+        DILOG_QUALIDADE,
+        DILOG_CRONOGRAMA,
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
+        COORDENADOR_GESTAO_PRODUTO,
+        ADMINISTRADOR_GESTAO_PRODUTO,
+    ]
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and (
+                (
+                    isinstance(usuario.vinculo_atual.instituicao, Codae)
+                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
+                )
+            )
+        )
+
+
 class PermissaoParaAnalisarFichaTecnica(BasePermission):
     PERFIS_PERMITIDOS = [
         COORDENADOR_GESTAO_PRODUTO,
@@ -1705,3 +1743,27 @@ class PermissaoParaDarCienciaCronogramaSemanal(BasePermission):
         return (
             not usuario.is_anonymous and usuario.vinculo_atual and usuario.eh_fornecedor
         )
+
+
+class PermissaoParaGerenciarCategoriasPerguntaFrequente(BasePermission):
+    """Permissão para cadastrar uma categoria no página de ajuda"""
+
+    PERFIS_PERMITIDOS = [
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
+        COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        ADMINISTRADOR_CODAE_GABINETE,
+    ]
+
+    def has_permission(self, request, view):
+        usuario = request.user
+
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Codae)
+            and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
+        )
+
+
+class PermissaoParaGerenciarPerguntasFrequentes(PermissaoParaGerenciarCategoriasPerguntaFrequente):
+    """Permissão para gerenciar dúvidas frequentes na página de ajuda."""

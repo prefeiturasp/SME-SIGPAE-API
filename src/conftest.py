@@ -371,7 +371,7 @@ register(GrupoUnidadeEscolarFactory)
 register(LancheEmergencialDiarioFactory)
 register(DiaLetivoSIGPAEFactory)
 
-EMAIL_TEST = "test@test.com"
+EMAIL_TEST = constants.EMAIL_TESTE
 
 
 @pytest.fixture
@@ -425,7 +425,7 @@ def client_autenticado_vinculo_escola(client, django_user_model):
         iniciais=f.name()[:10],
         uuid="56725de5-89d3-4edf-8633-3e0b5c99e9d4",
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     escola = baker.make(
         "Escola",
         nome="EMEI NOE AZEVEDO, PROF",
@@ -827,6 +827,36 @@ def eolservicosgp_get_lista_alunos(monkeypatch):
     return monkeypatch.setattr(
         EOLServicoSGP, "get_alunos_por_escola_por_ano_letivo", lambda x: js
     )
+
+
+@pytest.fixture
+def solicitacao_alteracao_cronograma_base():
+    marca = baker.make("produto.Marca", nome="Marca Teste")
+    produto_edital = baker.make("produto.NomeDeProdutoEdital", nome="Produto Teste")
+    ficha_tecnica = baker.make(
+        "pre_recebimento.FichaTecnicaDoProduto",
+        produto=produto_edital,
+        marca=marca,
+    )
+    empresa = baker.make(
+        "terceirizada.Terceirizada",
+        nome_fantasia="Fornecedor Teste",
+        razao_social="Fornecedor Teste LTDA",
+    )
+    cronograma = baker.make(
+        "pre_recebimento.Cronograma",
+        numero="CRONO-001",
+        empresa=empresa,
+        ficha_tecnica=ficha_tecnica,
+    )
+    solicitacao = baker.make(
+        "pre_recebimento.SolicitacaoAlteracaoCronograma",
+        cronograma=cronograma,
+        justificativa="Justificativa de teste da solicitação",
+        status="FORNECEDOR_CIENTE",
+    )
+    solicitacao.refresh_from_db()
+    return solicitacao
 
 
 @pytest.fixture

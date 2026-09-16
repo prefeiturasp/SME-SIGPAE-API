@@ -3,6 +3,7 @@ import logging
 
 from celery import shared_task
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
@@ -56,7 +57,7 @@ def gera_pdf_relatorio_dietas_especiais_terceirizadas_async(
                 ),
                 "alergias_intolerancias": solicitacao.alergias_intolerancias,
                 "data_nascimento_aluno": (
-                    solicitacao.aluno.data_nascimento.strftime("%d/%m/%Y")
+                    solicitacao.aluno.data_nascimento.strftime(FORMATO_DATA_BRASILEIRO)
                     if solicitacao.aluno and solicitacao.aluno.data_nascimento
                     else None
                 ),

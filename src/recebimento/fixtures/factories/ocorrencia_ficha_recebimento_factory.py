@@ -1,3 +1,5 @@
+"""Factory de ocorrência da ficha de recebimento para testes."""
+
 from factory import LazyFunction, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
@@ -11,6 +13,13 @@ fake = Faker("pt_BR")
 
 
 class OcorrenciaFichaRecebimentoFactory(DjangoModelFactory):
+    """Cria uma ``OcorrenciaFichaRecebimento`` com dados aleatórios.
+
+    O ``tipo`` e a ``relacao`` são escolhidos aleatoriamente entre as
+    opções do modelo; ``quantidade``, ``descricao`` e ``numero_nota`` são
+    gerados pelo Faker.
+    """
+
     class Meta:
         model = OcorrenciaFichaRecebimento
 

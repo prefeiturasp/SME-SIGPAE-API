@@ -1,0 +1,505 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.ficha_tecnica.api.serializers.serializers &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.ficha_tecnica.api.serializers.serializers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.ficha_tecnica.api.serializers.serializers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.base.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.ficha_tecnica.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AnaliseFichaTecnica</span><span class="p">,</span>
+    <span class="n">FabricanteFichaTecnica</span><span class="p">,</span>
+    <span class="n">FichaTecnicaDoProduto</span><span class="p">,</span>
+    <span class="n">InformacoesNutricionaisFichaTecnica</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.produto.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FabricanteSimplesSerializer</span><span class="p">,</span>
+    <span class="n">InformacaoNutricionalSerializer</span><span class="p">,</span>
+    <span class="n">MarcaSimplesSerializer</span><span class="p">,</span>
+    <span class="n">NomeDeProdutoEditalSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.terceirizada.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TerceirizadaLookUpSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="FichaTecnicaSimplesSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaSimplesSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaSimplesSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">NomeDeProdutoEditalSerializer</span><span class="p">()</span>
+    <span class="n">uuid_empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">ponto_a_ponto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FichaTecnicaSimplesSerializer.get_uuid_empresa">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaSimplesSerializer.get_uuid_empresa">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_uuid_empresa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="FichaTecnicaSimplesSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaSimplesSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProduto</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;uuid_empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pregao_chamada_publica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FichaTecnicaCronogramaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaCronogramaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaCronogramaSerializer</span><span class="p">(</span><span class="n">FichaTecnicaSimplesSerializer</span><span class="p">):</span>
+    <span class="n">marca</span> <span class="o">=</span> <span class="n">MarcaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida_volume_primaria</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida_primaria</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida_secundaria</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FichaTecnicaCronogramaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaCronogramaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">(</span><span class="n">FichaTecnicaSimplesSerializer</span><span class="o">.</span><span class="n">Meta</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">FichaTecnicaSimplesSerializer</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">fields</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">&quot;marca&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;volume_embalagem_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_volume_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peso_liquido_embalagem_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peso_liquido_embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_secundaria&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FichaTecnicaListagemSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaListagemSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaListagemSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">nome_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">criado_em</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">programa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">ponto_a_ponto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FichaTecnicaListagemSerializer.get_nome_produto">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaListagemSerializer.get_nome_produto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nome_produto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">produto</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="FichaTecnicaListagemSerializer.get_criado_em">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaListagemSerializer.get_criado_em">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_criado_em</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FichaTecnicaListagemSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaListagemSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProduto</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pregao_chamada_publica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ponto_a_ponto&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="InformacoesNutricionaisFichaTecnicaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.InformacoesNutricionaisFichaTecnicaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InformacoesNutricionaisFichaTecnicaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">informacao_nutricional</span> <span class="o">=</span> <span class="n">InformacaoNutricionalSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="InformacoesNutricionaisFichaTecnicaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.InformacoesNutricionaisFichaTecnicaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">InformacoesNutricionaisFichaTecnica</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;informacao_nutricional&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade_por_100g&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;quantidade_porcao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;valor_diario&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">read_only_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FabricanteFichaTecnicaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FabricanteFichaTecnicaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FabricanteFichaTecnicaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">fabricante</span> <span class="o">=</span> <span class="n">FabricanteSimplesSerializer</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FabricanteFichaTecnicaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FabricanteFichaTecnicaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">FabricanteFichaTecnica</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fabricante&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cnpj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cep&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;endereco&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;complemento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bairro&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cidade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;estado&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;email&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;telefone&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FichaTecnicaDetalharSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaDetalharSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaDetalharSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">criado_em</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">NomeDeProdutoEditalSerializer</span><span class="p">()</span>
+    <span class="n">marca</span> <span class="o">=</span> <span class="n">MarcaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">TerceirizadaLookUpSerializer</span><span class="p">()</span>
+    <span class="n">fabricante</span> <span class="o">=</span> <span class="n">FabricanteFichaTecnicaSerializer</span><span class="p">()</span>
+    <span class="n">envasador_distribuidor</span> <span class="o">=</span> <span class="n">FabricanteFichaTecnicaSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida_porcao</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">programa_display</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_programa_display&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">informacoes_nutricionais</span> <span class="o">=</span> <span class="n">InformacoesNutricionaisFichaTecnicaSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">unidade_medida_primaria</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida_secundaria</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida_primaria_vazia</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida_secundaria_vazia</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">unidade_medida_volume_primaria</span> <span class="o">=</span> <span class="n">UnidadeMedidaSimplesSerializer</span><span class="p">()</span>
+    <span class="n">logs</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuarioSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FichaTecnicaDetalharSerializer.get_criado_em">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaDetalharSerializer.get_criado_em">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_criado_em</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FichaTecnicaDetalharSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaDetalharSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProduto</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pregao_chamada_publica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;marca&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;categoria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_entrega&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_display&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;criado_em&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fabricante&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;envasador_distribuidor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;prazo_validade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_registro&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;organico&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mecanismo_controle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;especie_variedade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;componentes_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alergenicos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ingredientes_alergenicos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gluten&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lactose&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lactose_detalhe&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;porcao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_porcao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;valor_unidade_caseira&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_caseira&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;informacoes_nutricionais&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;prazo_validade_descongelamento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;condicoes_de_conservacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;temperatura_congelamento&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;temperatura_veiculo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;condicoes_de_transporte&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;embalagem_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;embalagens_de_acordo_com_anexo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;material_embalagem_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto_eh_liquido&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;volume_embalagem_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_volume_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peso_liquido_embalagem_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_primaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peso_liquido_embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peso_embalagem_primaria_vazia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_primaria_vazia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peso_embalagem_secundaria_vazia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unidade_medida_secundaria_vazia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;variacao_percentual&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sistema_vedacao_embalagem_secundaria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rotulo_legivel&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_responsavel_tecnico&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;habilitacao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_registro_orgao&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;arquivo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;modo_de_preparo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;informacoes_adicionais&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;logs&quot;</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnaliseFichaTecnicaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.AnaliseFichaTecnicaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnaliseFichaTecnicaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">aprovada</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AnaliseFichaTecnicaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.AnaliseFichaTecnicaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">AnaliseFichaTecnica</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;ficha_tecnica&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FichaTecnicaComAnaliseDetalharSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaComAnaliseDetalharSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaComAnaliseDetalharSerializer</span><span class="p">(</span><span class="n">FichaTecnicaDetalharSerializer</span><span class="p">):</span>
+    <span class="n">analise</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">log_mais_recente</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FichaTecnicaComAnaliseDetalharSerializer.get_analise">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaComAnaliseDetalharSerializer.get_analise">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_analise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">analise_mais_recente</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">analises</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">AnaliseFichaTecnicaSerializer</span><span class="p">(</span><span class="n">analise_mais_recente</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+            <span class="k">if</span> <span class="n">analise_mais_recente</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FichaTecnicaComAnaliseDetalharSerializer.get_log_mais_recente">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaComAnaliseDetalharSerializer.get_log_mais_recente">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_log_mais_recente</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">log_mais_recente</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span>
+
+        <span class="k">if</span> <span class="n">log_mais_recente</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y - %H:%M&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">alterado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y - %H:%M&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FichaTecnicaComAnaliseDetalharSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.FichaTecnicaComAnaliseDetalharSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">(</span><span class="n">FichaTecnicaDetalharSerializer</span><span class="o">.</span><span class="n">Meta</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">FichaTecnicaDetalharSerializer</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">fields</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">&quot;analise&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log_mais_recente&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PainelFichaTecnicaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.PainelFichaTecnicaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PainelFichaTecnicaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">numero_ficha</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;numero&quot;</span><span class="p">)</span>
+    <span class="n">nome_produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;produto.nome&quot;</span><span class="p">)</span>
+    <span class="n">categoria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">tipo_entrega</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">()</span>
+    <span class="n">nome_empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;empresa.nome_fantasia&quot;</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span>
+    <span class="n">log_mais_recente</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">programa_leve_leite</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PainelFichaTecnicaSerializer.get_log_mais_recente">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.PainelFichaTecnicaSerializer.get_log_mais_recente">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_log_mais_recente</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">==</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">log_mais_recente</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">criado_em</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PainelFichaTecnicaSerializer.get_programa_leve_leite">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.PainelFichaTecnicaSerializer.get_programa_leve_leite">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_programa_leve_leite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">programa</span> <span class="o">==</span> <span class="s2">&quot;LEVE_LEITE&quot;</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PainelFichaTecnicaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.PainelFichaTecnicaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProduto</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero_ficha&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nome_empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log_mais_recente&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa_leve_leite&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;categoria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tipo_entrega&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RelatorioFichaTecnicaSerializer">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.RelatorioFichaTecnicaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RelatorioFichaTecnicaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">produto</span> <span class="o">=</span> <span class="n">NomeDeProdutoEditalSerializer</span><span class="p">()</span>
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">TerceirizadaLookUpSerializer</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_status_display&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">categoria</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_categoria_display&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">programa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;get_programa_display&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RelatorioFichaTecnicaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.serializers.serializers.RelatorioFichaTecnicaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProduto</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;numero&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;produto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;categoria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;programa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pregao_chamada_publica&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,3 +1,5 @@
+"""Permissões da API do módulo de recebimento."""
+
 from rest_framework.permissions import BasePermission
 
 from src.dados_comuns.constants import (
@@ -10,9 +12,15 @@ from src.dados_comuns.constants import (
 
 
 class PermissaoParaVisualizarQuestoesConferencia(BasePermission):
+    """Permite visualizar as questões de conferência.
+
+    Apenas usuários com perfil ``DILOG_QUALIDADE``.
+    """
+
     PERFIS_PERMITIDOS = [DILOG_QUALIDADE]
 
     def has_permission(self, request, view):
+        """Verifica se o usuário autenticado possui perfil permitido."""
         usuario = request.user
         return (
             not usuario.is_anonymous
@@ -22,9 +30,15 @@ class PermissaoParaVisualizarQuestoesConferencia(BasePermission):
 
 
 class PermissaoParaCadastrarFichaRecebimento(BasePermission):
+    """Permite cadastrar fichas de recebimento.
+
+    Apenas usuários com perfil ``DILOG_QUALIDADE``.
+    """
+
     PERFIS_PERMITIDOS = [DILOG_QUALIDADE]
 
     def has_permission(self, request, view):
+        """Verifica se o usuário autenticado possui perfil permitido."""
         usuario = request.user
         return (
             not usuario.is_anonymous
@@ -34,6 +48,13 @@ class PermissaoParaCadastrarFichaRecebimento(BasePermission):
 
 
 class PermissaoParaVisualizarFichaRecebimento(BasePermission):
+    """Permite visualizar fichas de recebimento.
+
+    Perfis permitidos: ``DILOG_QUALIDADE``,
+    ``COORDENADOR_CODAE_DILOG_LOGISTICA``, ``DILOG_CRONOGRAMA``,
+    ``DILOG_DIRETORIA`` e ``DILOG_ABASTECIMENTO``.
+    """
+
     PERFIS_PERMITIDOS = [
         DILOG_QUALIDADE,
         COORDENADOR_CODAE_DILOG_LOGISTICA,
@@ -43,6 +64,7 @@ class PermissaoParaVisualizarFichaRecebimento(BasePermission):
     ]
 
     def has_permission(self, request, view):
+        """Verifica se o usuário autenticado possui perfil permitido."""
         usuario = request.user
         return (
             not usuario.is_anonymous

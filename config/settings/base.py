@@ -129,6 +129,7 @@ LOCAL_APPS = [
     "src.medicao_inicial.apps.MedicaoInicialConfig",
     "src.pre_recebimento.apps.PreRecebimentoConfig",
     "src.recebimento.apps.RecebimentoConfig",
+    "src.pos_recebimento.apps.PosRecebimentoConfig",
     "src.imr.apps.ImrConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -347,7 +348,6 @@ SIMPLE_JWT = {
 }
 
 URL_CONFIGS = {
-    # TODO: rever essa logica de link para trabalhar no front, tá dando voltas
     "CONFIRMAR_EMAIL": "/confirmar-email?uuid={uuid}&confirmationKey={confirmation_key}",
     "RECUPERAR_SENHA": "/recuperar-senha?uuid={uuid}&confirmationKey={confirmation_key}&visao={visao}",
     "LOGIN_TERCEIRIZADAS": "/login?tab=terceirizadas",

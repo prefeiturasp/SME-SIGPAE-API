@@ -42,7 +42,12 @@ def _cria_log_aluno_por_dia(log_faixa_dia, aluno):
 
 def _formata_nome_aluno(aluno):
     dn = aluno.data_nascimento
-    return f"{aluno.nome} - {dn.day:02d}/{dn.month:02d}/{dn.year}"
+    texto = f"{aluno.nome} - {dn.day:02d}/{dn.month:02d}/{dn.year}"
+
+    if aluno.serie:
+        texto = f"{texto} - {aluno.serie}"
+
+    return texto
 
 
 # ---------------------------------------------------------------------------
@@ -443,6 +448,24 @@ class TestColetaAlunosPorDia:
         )
 
         assert len(alunos_por_dia) == 2
+
+    def test_aluno_com_serie_aparece_formatado_corretamente(self):
+        """Garante que a série do aluno é incluída na string formatada."""
+        escola = EscolaFactory()
+        aluno = AlunoFactory(escola=escola, serie="4A")
+
+        log_faixa = self._cria_log_faixa_dia(escola)
+        _cria_log_aluno_por_dia(log_faixa, aluno)
+
+        alunos_por_dia = []
+        alunos_por_faixa = []
+        _coleta_alunos_por_dia(
+            log_faixa, alunos_por_dia, alunos_por_faixa, escola, None
+        )
+
+        assert _formata_nome_aluno(aluno) in alunos_por_dia
+        assert _formata_nome_aluno(aluno) in alunos_por_faixa
+        assert alunos_por_dia[0].endswith(" - 4A")
 
 
 class TestFormataPeriodosPdfControleFrequencia:

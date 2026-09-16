@@ -60,5 +60,7 @@ docker-compose-dev.yml
 # ──────────────────────────────
 *.key
 *.pem
+.env*
+*.env
 
 pgdata/

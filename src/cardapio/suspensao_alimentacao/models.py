@@ -20,6 +20,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -157,7 +158,7 @@ class GrupoSuspensaoAlimentacao(
     """
 
     DESCRICAO = "Suspensão de Alimentação"
-    escola = models.ForeignKey("escola.Escola", on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
     objects = models.Manager()  # Manager Padrão
     desta_semana = GrupoSuspensaoAlimentacaoDestaSemanaManager()
     deste_mes = GrupoSuspensaoAlimentacaoDesteMesManager()
@@ -225,7 +226,7 @@ class GrupoSuspensaoAlimentacao(
         Returns:
             str: String ``"Suspensão de Alimentação"``.
         """
-        return "Suspensão de Alimentação"
+        return self.DESCRICAO
 
     @property
     def path(self):
@@ -259,7 +260,7 @@ class GrupoSuspensaoAlimentacao(
         """
         return ", ".join(
             [
-                data.strftime("%d/%m/%Y")
+                data.strftime(FORMATO_DATA_BRASILEIRO)
                 for data in self.suspensoes_alimentacao.order_by("data").values_list(
                     "data", flat=True
                 )
@@ -295,13 +296,13 @@ class GrupoSuspensaoAlimentacao(
         datas = list(
             self.suspensoes_alimentacao.order_by("data").values_list("data", flat=True)
         )
-        datas = [d.strftime("%d/%m/%Y") for d in datas]
+        datas = [d.strftime(FORMATO_DATA_BRASILEIRO) for d in datas]
         datas = " ".join(datas)
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
-            "tipo_doc": "Suspensão de Alimentação",
+            "tipo_doc": self.DESCRICAO,
             "data_evento": datas,
             "numero_alunos": self.numero_alunos,
             "label_data": label_data,

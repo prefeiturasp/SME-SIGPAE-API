@@ -8,6 +8,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from xworkflows import InvalidTransitionError
 
 from src.dados_comuns import constants, services
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.mixins.serializer_context import DataSolicitacaoContextMixin
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.permissions import (
@@ -25,6 +26,9 @@ from src.inclusao_alimentacao.models import (
     InclusaoDeAlimentacaoCEMEI,
     MotivoInclusaoContinua,
     MotivoInclusaoNormal,
+)
+from src.inclusao_alimentacao.utils import (
+    remove_medicao_programas_e_projetos_se_inclusao_inativa,
 )
 from src.relatorios.relatorios import (
     relatorio_inclusao_alimentacao_cei,
@@ -365,7 +369,6 @@ class InclusaoAlimentacaoDaCEIViewSet(InclusaoAlimentacaoViewSetBase):
         permission_classes=(UsuarioCODAEGestaoAlimentacao,),
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de codae CODAE aqui...
         try:
             usuario = request.user
             codae = usuario.vinculo_atual.instituicao
@@ -454,7 +457,6 @@ class GrupoInclusaoAlimentacaoNormalViewSet(InclusaoAlimentacaoViewSetBase):
         permission_classes=(UsuarioCODAEGestaoAlimentacao,),
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
         inclusoes_continuas = (
@@ -580,7 +582,7 @@ class InclusaoAlimentacaoContinuaViewSet(
             ]
             if encerrado_a_partir_de_str:
                 encerrado_a_partir_de = datetime.datetime.strptime(
-                    encerrado_a_partir_de_str, "%d/%m/%Y"
+                    encerrado_a_partir_de_str, FORMATO_DATA_BRASILEIRO
                 ).date()
                 obj.quantidades_periodo.filter(uuid__in=uuids_selecionados).update(
                     encerrado_a_partir_de=encerrado_a_partir_de,
@@ -592,6 +594,9 @@ class InclusaoAlimentacaoContinuaViewSet(
                     justificativa=justificativa,
                 )
                 services.enviar_email_ue_cancelar_pedido_parcialmente(obj)
+                remove_medicao_programas_e_projetos_se_inclusao_inativa(
+                    obj, encerrado_a_partir_de
+                )
             else:
                 if len(uuids_selecionados) == obj.quantidades_periodo.count():
                     obj.cancelar_pedido(user=request.user, justificativa=justificativa)
@@ -631,7 +636,6 @@ class InclusaoAlimentacaoContinuaViewSet(
         permission_classes=(UsuarioCODAEGestaoAlimentacao,),
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
         inclusoes_continuas = codae.inclusoes_alimentacao_continua_das_minhas_escolas(

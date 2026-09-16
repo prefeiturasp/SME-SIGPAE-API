@@ -8,6 +8,7 @@ from src.dados_comuns.behaviors import (
     ModeloBase,
     TemIdentificadorExternoAmigavel,
 )
+from src.dados_comuns.constants import MODEL_USUARIO
 from src.dados_comuns.fluxo_status import (
     CronogramaAlteracaoWorkflow,
     FluxoAlteracaoCronograma,
@@ -89,8 +90,7 @@ class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronogr
         if not self.ficha_tecnica:
             return False
         return bool(
-            self.ficha_tecnica
-            and self.ficha_tecnica.tipo_entrega == "PONTO_A_PONTO"
+            self.ficha_tecnica and self.ficha_tecnica.tipo_entrega == "PONTO_A_PONTO"
         )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
@@ -331,9 +331,7 @@ class SolicitacaoAlteracaoCronograma(
     justificativa = models.TextField(
         "Justificativa de solicitação pelo fornecedor", blank=True
     )
-    usuario_solicitante = models.ForeignKey(
-        "perfil.Usuario", on_delete=models.DO_NOTHING
-    )
+    usuario_solicitante = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
     numero_solicitacao = models.CharField(
         "Número da solicitação", blank=True, max_length=50, unique=True
     )

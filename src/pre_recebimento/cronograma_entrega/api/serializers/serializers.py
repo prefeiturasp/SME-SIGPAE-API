@@ -33,6 +33,7 @@ from src.terceirizada.api.serializers.serializers import (
 from .....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioSerializer,
 )
+from .....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 
 
 class ProgramacaoDoRecebimentoDoCronogramaSerializer(serializers.ModelSerializer):
@@ -56,7 +57,7 @@ class EtapasDoCronogramaSerializer(serializers.ModelSerializer):
             return None
         if obj.cronograma and obj.cronograma.ponto_a_ponto:
             return obj.data_programada.strftime("%m/%Y")
-        return obj.data_programada.strftime("%d/%m/%Y")
+        return obj.data_programada.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -120,7 +121,7 @@ class EtapasDoCronogramaCalendarioSerializer(serializers.ModelSerializer):
             return None
         if obj.cronograma and obj.cronograma.ponto_a_ponto:
             return obj.data_programada.strftime("%m/%Y")
-        return obj.data_programada.strftime("%d/%m/%Y")
+        return obj.data_programada.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_status(self, obj):
         return obj.cronograma.get_status_display() if obj.cronograma else None
@@ -394,7 +395,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
             return None
         if obj.cronograma and obj.cronograma.ponto_a_ponto:
             return obj.data_programada.strftime("%m/%Y")
-        return obj.data_programada.strftime("%d/%m/%Y")
+        return obj.data_programada.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_desvinculada_recebimento(self, obj):
         return not obj.ficha_recebimento.exists()
@@ -603,7 +604,7 @@ class EtapaCronogramaRelatorioSerializer(serializers.ModelSerializer):
             return None
         if obj.cronograma and obj.cronograma.ponto_a_ponto:
             return obj.data_programada.strftime("%m/%Y")
-        return obj.data_programada.strftime("%d/%m/%Y")
+        return obj.data_programada.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_etapa(self, obj):
         return f"Etapa {obj.etapa}" if obj.etapa is not None else None
@@ -816,10 +817,10 @@ class PainelCronogramaSerializer(serializers.ModelSerializer):
                     obj.log_mais_recente.criado_em, "%d/%m/%Y %H:%M"
                 )
             return datetime.datetime.strftime(
-                obj.log_mais_recente.criado_em, "%d/%m/%Y"
+                obj.log_mais_recente.criado_em, FORMATO_DATA_BRASILEIRO
             )
         else:
-            return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+            return datetime.datetime.strftime(obj.criado_em, FORMATO_DATA_BRASILEIRO)
 
     def get_programa_leve_leite(self, obj):
         try:
@@ -860,9 +861,13 @@ class PainelSolicitacaoAlteracaoCronogramaSerializerItem(serializers.ModelSerial
         if obj.log_criado_em:
             if obj.log_criado_em.date() == datetime.date.today():
                 return datetime.datetime.strftime(obj.log_criado_em, "%d/%m/%Y %H:%M")
-            return datetime.datetime.strftime(obj.log_criado_em, "%d/%m/%Y")
+            return datetime.datetime.strftime(
+                obj.log_criado_em, FORMATO_DATA_BRASILEIRO
+            )
         else:
-            return datetime.datetime.strftime(obj.log_criado_em, "%d/%m/%Y")
+            return datetime.datetime.strftime(
+                obj.log_criado_em, FORMATO_DATA_BRASILEIRO
+            )
 
     def get_programa_leve_leite(self, obj):
         try:
@@ -977,3 +982,50 @@ class CronogramaMensalAssinadoSerializer(serializers.ModelSerializer):
             "fornecedor_nome",
             "numero_contrato",
         )
+
+
+class CronogramaDetalhePosRecebimentoSerializer(serializers.ModelSerializer):
+    """Dados do cronograma para preenchimento automático do cadastro do
+    Termo de Recebimento Definitivo (Pós-Recebimento).
+
+    Produto e unidade de medida vêm da ficha técnica; o número do processo
+    SEI vem do contrato vinculado ao cronograma. As relações são opcionais
+    (blank/null) e os campos são protegidos contra ausência.
+    """
+
+    produto = serializers.SerializerMethodField()
+    processo_sei = serializers.SerializerMethodField()
+    unidade_medida = serializers.SerializerMethodField()
+    unidade_medida_abreviacao = serializers.SerializerMethodField()
+
+    def get_produto(self, obj):
+        if obj.ficha_tecnica and obj.ficha_tecnica.produto:
+            return obj.ficha_tecnica.produto.nome
+        return None
+
+    def get_processo_sei(self, obj):
+        if obj.contrato:
+            return obj.contrato.processo
+        return None
+
+    def get_unidade_medida(self, obj):
+        if obj.unidade_medida:
+            return obj.unidade_medida.nome
+        return None
+
+    def get_unidade_medida_abreviacao(self, obj):
+        if obj.unidade_medida:
+            return obj.unidade_medida.abreviacao
+        return None
+
+    class Meta:
+        model = Cronograma
+        fields = (
+            "uuid",
+            "numero",
+            "produto",
+            "processo_sei",
+            "unidade_medida",
+            "unidade_medida_abreviacao",
+        )
+        read_only_fields = fields

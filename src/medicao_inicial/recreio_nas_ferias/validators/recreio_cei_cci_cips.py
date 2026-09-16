@@ -4,6 +4,11 @@ from datetime import timedelta
 
 from django.db.models import QuerySet
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_RECREIO_NAS_FERIAS,
+)
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.models import Escola, FaixaEtaria
 from src.medicao_inicial.models import (
@@ -25,9 +30,6 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
 from src.medicao_inicial.validators import erros_unicos, lista_erros_com_periodo
 
 CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
-CATEGORIA_DIETA_TIPO_A = "DIETA ESPECIAL - TIPO A"
-
-GRUPO_RECREIO = "Recreio nas Férias"
 
 
 def cria_valores_medicao_participantes_cei(instance: SolicitacaoMedicaoInicial) -> None:
@@ -48,7 +50,7 @@ def cria_valores_medicao_participantes_cei(instance: SolicitacaoMedicaoInicial) 
     ).first()
 
     informacoes_participantes = {
-        GRUPO_RECREIO: participantes.num_inscritos,
+        GRUPO_RECREIO_NAS_FERIAS: participantes.num_inscritos,
     }
     if existe_colaborador(participantes):
         informacoes_participantes["Colaboradores"] = participantes.num_colaboradores
@@ -85,7 +87,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_cei(
     )
 
     cria_valores_medicao_dietas_autorizadas_do_recreio_cei(
-        instance, logs_do_recreio, GRUPO_RECREIO
+        instance, logs_do_recreio, GRUPO_RECREIO_NAS_FERIAS
     )
 
 
@@ -168,7 +170,7 @@ def _categoria_tem_logs_dieta_autorizada_cei(
     """
     termo = (
         "tipo a"
-        if categoria.nome == CATEGORIA_DIETA_TIPO_A
+        if categoria.nome == DIETA_ESPECIAL_TIPO_A
         else categoria.nome.split(" - ")[1].lower()
     )
 
@@ -217,7 +219,7 @@ def retorna_valor_para_log_dieta_autorizada_cei(
         int: Quantidade total autorizada para a categoria na data e faixa etária informado. Retorna ``0`` quando não houver registros.
     """
     logs_do_dia = logs_por_dia.get(data, {}).get(faixa_etaria.id, {})
-    if categoria.nome == CATEGORIA_DIETA_TIPO_A:
+    if categoria.nome == DIETA_ESPECIAL_TIPO_A:
         return sum(
             quantidade for nome, quantidade in logs_do_dia.items() if "tipo a" in nome
         )
@@ -325,7 +327,7 @@ def validate_lancamento_alimentacoes_inscritos(
 
     lista_erros = buscar_valores_lancamento_alimentacoes_faixa_etaria(
         solicitacao,
-        GRUPO_RECREIO,
+        GRUPO_RECREIO_NAS_FERIAS,
         dias_letivos,
         categoria_alimentacao,
         lista_erros,
@@ -474,10 +476,12 @@ def validate_lancamento_dietas_medicao_recreio_cei(
     recreio = solicitacao.recreio_nas_ferias
     categorias = list(
         CategoriaMedicao.objects.filter(
-            nome__in=[CATEGORIA_DIETA_TIPO_A, "DIETA ESPECIAL - TIPO B"]
+            nome__in=[DIETA_ESPECIAL_TIPO_A, DIETA_ESPECIAL_TIPO_B]
         )
     )
-    medicao_recreio = solicitacao.medicoes.filter(grupo__nome=GRUPO_RECREIO).first()
+    medicao_recreio = solicitacao.medicoes.filter(
+        grupo__nome=GRUPO_RECREIO_NAS_FERIAS
+    ).first()
 
     dias_letivos = [
         f"{dia:02d}"
@@ -730,7 +734,7 @@ def get_classificacoes_dietas_cei(
 
     termo = (
         "Tipo A"
-        if categoria.nome == CATEGORIA_DIETA_TIPO_A
+        if categoria.nome == DIETA_ESPECIAL_TIPO_A
         else categoria.nome.split(" - ")[1]
     )
 
@@ -763,7 +767,7 @@ def cria_valores_medicao_dietas_autorizadas_do_recreio_cei(
 
     categorias = list(
         CategoriaMedicao.objects.filter(
-            nome__in=[CATEGORIA_DIETA_TIPO_A, "DIETA ESPECIAL - TIPO B"]
+            nome__in=[DIETA_ESPECIAL_TIPO_A, DIETA_ESPECIAL_TIPO_B]
         )
     )
     tipos_alimentacao = get_tipos_alimentacao_recreio(instance)

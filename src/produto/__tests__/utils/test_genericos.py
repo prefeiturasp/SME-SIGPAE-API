@@ -3,6 +3,7 @@ from datetime import date, datetime
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.produto.utils.genericos import (
     changes_between,
     compara_lista_imagens,
@@ -57,7 +58,7 @@ def test_get_filtros_data_em_analise_sensorial_sem_data_final():
 def test_converte_para_datetime():
     data_str = "13/08/2020"
     data_datetime = converte_para_datetime(data_str)
-    data_datetime_aux = datetime.strptime(data_str, "%d/%m/%Y")
+    data_datetime_aux = datetime.strptime(data_str, FORMATO_DATA_BRASILEIRO)
     assert data_datetime == data_datetime_aux
 
 

@@ -1,5 +1,9 @@
 import pytest
 
+from src.dados_comuns.constants import (
+    GRUPO_INFANTIL_TARDE,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+)
 from src.medicao_inicial.validators import (
     _validate_solicitacoes_programas_e_projetos_emei_cemei,
     validate_solicitacoes_programas_e_projetos,
@@ -9,7 +13,7 @@ from src.medicao_inicial.validators import (
 pytestmark = pytest.mark.django_db
 
 MSG_ERRO = "Avaliar lançamentos de dias sem frequencia nos demais períodos."
-PERIODO = "Programas e Projetos"
+PERIODO = GRUPO_PROGRAMAS_E_PROJETOS
 
 
 def assert_erro(lista_erros):
@@ -187,14 +191,14 @@ def test_com_observacao_ok(request, validator, fixture_name, categoria_fixture, 
             _validate_solicitacoes_programas_e_projetos_emei_cemei,
             "solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao",
             "categoria_medicao",
-            "Infantil TARDE",
+            GRUPO_INFANTIL_TARDE,
             None,
         ),
         (
             _validate_solicitacoes_programas_e_projetos_emei_cemei,
             "solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas",
             "categoria_medicao_dieta_a",
-            "Infantil TARDE",
+            GRUPO_INFANTIL_TARDE,
             None,
         ),
     ],
@@ -261,14 +265,14 @@ def test_com_um_periodo_nao_zero_ok(
             _validate_solicitacoes_programas_e_projetos_emei_cemei,
             "solicitacao_medicao_finaliza_programas_projetos_zerados_cemei_alimentacao",
             "categoria_medicao",
-            "Infantil TARDE",
+            GRUPO_INFANTIL_TARDE,
             None,
         ),
         (
             _validate_solicitacoes_programas_e_projetos_emei_cemei,
             "solicitacao_medicao_finaliza_programas_projetos_cemei_zerados_dietas",
             "categoria_medicao_dieta_a",
-            "Infantil TARDE",
+            GRUPO_INFANTIL_TARDE,
             None,
         ),
     ],

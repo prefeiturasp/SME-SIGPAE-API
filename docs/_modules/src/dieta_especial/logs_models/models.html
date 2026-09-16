@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.dieta_especial.logs_models.models &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.dieta_especial.logs_models.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.dieta_especial.logs_models.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.core.validators</span><span class="w"> </span><span class="kn">import</span> <span class="n">MinLengthValidator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CriadoEm</span><span class="p">,</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span>
+    <span class="n">TemData</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CEI_OU_EMEI</span><span class="p">,</span> <span class="n">INFANTIL_OU_FUNDAMENTAL</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Escola</span>
+
+
+<div class="viewcode-block" id="LogDietasAtivasCanceladasAutomaticamente">
+<a class="viewcode-back" href="../../../../dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogDietasAtivasCanceladasAutomaticamente">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogDietasAtivasCanceladasAutomaticamente</span><span class="p">(</span><span class="n">CriadoEm</span><span class="p">):</span>
+    <span class="n">dieta</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;SolicitacaoDietaEspecial&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;dietas_especiais&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">codigo_eol_aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>  <span class="c1"># noqa DJ01</span>
+        <span class="s2">&quot;Código EOL aluno&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">7</span><span class="p">)],</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nome_aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Nome do Aluno&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">codigo_eol_escola_origem</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Código EOL escola origem&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nome_escola_origem</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Nome da Escola origem&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">codigo_eol_escola_destino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Código EOL escola destino&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nome_escola_destino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="s2">&quot;Nome da Escola destino&quot;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-criado_em&quot;</span><span class="p">,)</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;log dietas ativas canceladas automaticamente&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;log dietas ativas canceladas automaticamente&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">escola_existe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">escola_existe_no_sigpae</span> <span class="o">=</span> <span class="n">Escola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">codigo_eol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">codigo_eol_escola_destino</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">escola_existe_no_sigpae</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="LogQuantidadeDietasAutorizadas">
+<a class="viewcode-back" href="../../../../dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogQuantidadeDietasAutorizadas</span><span class="p">(</span><span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemData</span><span class="p">,</span> <span class="n">CriadoEm</span><span class="p">):</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Escola&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;ClassificacaoDieta&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.PeriodoEscolar&quot;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">cei_ou_emei</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">CEI_OU_EMEI</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+    <span class="n">infantil_ou_fundamental</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">INFANTIL_OU_FUNDAMENTAL</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;N/A&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classificacao</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s2">&quot; - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quantidade</span><span class="si">}</span><span class="s2"> dieta(s)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Log da quantidade de dietas autorizadas por unidade escolar&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Logs da quantidade de dietas autorizadas por unidade escolar&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-data&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__nome&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="LogQuantidadeDietasAutorizadasCEI">
+<a class="viewcode-back" href="../../../../dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogQuantidadeDietasAutorizadasCEI</span><span class="p">(</span><span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemData</span><span class="p">,</span> <span class="n">CriadoEm</span><span class="p">):</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Escola&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas_cei&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;ClassificacaoDieta&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas_cei&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.PeriodoEscolar&quot;</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas_cei&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.FaixaEtaria&quot;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">periodo_escolar</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s1"> - &#39;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classificacao</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quantidade</span><span class="si">}</span><span class="s2"> dieta(s) -- </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Log da quantidade de dietas autorizadas por unidade escolar CEI&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Logs da quantidade de dietas autorizadas por unidade escolar CEI&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-data&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__nome&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="LogQuantidadeDietasAutorizadasRecreioNasFerias">
+<a class="viewcode-back" href="../../../../dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFerias">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogQuantidadeDietasAutorizadasRecreioNasFerias</span><span class="p">(</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemData</span><span class="p">,</span> <span class="n">CriadoEm</span>
+<span class="p">):</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Escola&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas_recreio_ferias&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;ClassificacaoDieta&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas_recreio_ferias&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> - &#39;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classificacao</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quantidade</span><span class="si">}</span><span class="s2"> dieta(s)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Log da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Logs da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias&quot;</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-data&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__nome&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI">
+<a class="viewcode-back" href="../../../../dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</span><span class="p">(</span>
+    <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemData</span><span class="p">,</span> <span class="n">CriadoEm</span>
+<span class="p">):</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.Escola&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas_recreio_ferias_cei&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
+    <span class="n">classificacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;ClassificacaoDieta&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas_recreio_ferias_cei&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s2">&quot;escola.FaixaEtaria&quot;</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;logs_dietas_autorizadas_recreio_ferias_cei&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> - &#39;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classificacao</span><span class="o">.</span><span class="n">nome</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quantidade</span><span class="si">}</span><span class="s2"> dieta(s) -- </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faixa_etaria</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s2">&quot;Log da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias&quot;</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Logs da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias&quot;</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;-data&quot;</span><span class="p">,</span> <span class="s2">&quot;escola__nome&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

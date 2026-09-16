@@ -139,3 +139,8 @@ class DiaLetivoSIGPAEAdmin(admin.ModelAdmin):
             nomes = obj.escolas.values_list("nome", flat=True)
             return ", ".join(nomes)
         return f"{count} escolas"
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields["escolas"].required = False
+        return form

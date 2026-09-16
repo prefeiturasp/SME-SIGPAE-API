@@ -8,7 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
-from ...dados_comuns.constants import FILTRO_PADRAO_PEDIDOS, SEM_FILTRO
+from ...dados_comuns.constants import (
+    FILTRO_PADRAO_PEDIDOS,
+    FORMATO_DATA_BRASILEIRO,
+    MODULO_DIETA_ESPECIAL,
+    SEM_FILTRO,
+    TIPOS_ALIMENTACAO,
+)
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarDietaEspecial,
     UsuarioCODAEDietaEspecial,
@@ -144,7 +150,8 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         # .distinct()/.order_by() limpa o DISTINCT ON (uuid) específico do campo upstream
         # que entraria em conflito com annotate() — limitação do ORM do Django.
         uuids = (
-            query_set.order_by().distinct()
+            query_set.order_by()
+            .distinct()
             .values("uuid")
             .annotate(max_log=Max("data_log"))
             .order_by("-max_log")
@@ -167,7 +174,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         """Solicitações de Lanche Emergencial vencidas são tratadas como PRIORITARIO."""
         if (
             solicitacao.prioridade == "VENCIDO"
-            and solicitacao.motivo == "Lanche Emergencial"
+            and solicitacao.motivo == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         ):
             return "PRIORITARIO"
         return solicitacao.prioridade
@@ -178,21 +185,21 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
                 (solicitacao.desc_doc, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
-                or solicitacao.motivo == "Lanche Emergencial"
+                or solicitacao.motivo == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             ]
         elif tipo_visao == TIPO_VISAO_LOTE:
             descricao_prioridade = [
                 (solicitacao.lote_nome, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
-                or solicitacao.motivo == "Lanche Emergencial"
+                or solicitacao.motivo == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             ]
         else:
             descricao_prioridade = [
                 (solicitacao.dre_nome, self._prioridade_efetiva(solicitacao))
                 for solicitacao in query_set
                 if solicitacao.prioridade != "VENCIDO"
-                or solicitacao.motivo == "Lanche Emergencial"
+                or solicitacao.motivo == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
             ]
         return descricao_prioridade
 
@@ -243,7 +250,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
-            "Dieta Especial": {
+            MODULO_DIETA_ESPECIAL: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
@@ -612,7 +619,7 @@ class NutrisupervisaoSolicitacoesViewSet(SolicitacoesViewSet):
 
         dia = request.query_params.get("dia")
         if dia:
-            data = datetime.datetime.strptime(dia, "%d/%m/%Y").date()
+            data = datetime.datetime.strptime(dia, FORMATO_DATA_BRASILEIRO).date()
             queryset = queryset.filter(criado_em__date=data)
         else:
             anos = request.query_params.get("anos")

@@ -6,7 +6,13 @@ from django.contrib import admin
 from freezegun import freeze_time
 from model_bakery import baker
 
-from ...dados_comuns.constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS, SEM_FILTRO
+from ...dados_comuns.constants import (
+    DAQUI_A_SETE_DIAS,
+    DAQUI_A_TRINTA_DIAS,
+    SEM_FILTRO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from ..admin import PlanilhaAtualizacaoTipoGestaoEscolaAdmin
 from ..models import (
     AlunosMatriculadosPeriodoEscola,
@@ -179,32 +185,38 @@ def test_sub_prefeitura(sub_prefeitura):
 def test_aluno(aluno):
     assert aluno.__str__() == "Fulano da Silva - 000001"
 
+
 def test_aluno_retorna_periodo_escolar(aluno):
     aluno.nao_matriculado = False
-    aluno.escola.tipo_unidade.iniciais = "EMEF"
+    aluno.escola.tipo_unidade.iniciais = TIPOS_UNIDADE_ESCOLAR.EMEF.value
     assert aluno.periodo == aluno.periodo_escolar.nome
+
 
 def test_aluno_nao_retorna_periodo_quando_nao_tem_codigo_eol(aluno):
     aluno.codigo_eol = None
     aluno.nao_matriculado = False
-    aluno.escola.tipo_unidade.iniciais = "EMEF"
+    aluno.escola.tipo_unidade.iniciais = TIPOS_UNIDADE_ESCOLAR.EMEF.value
     assert aluno.periodo is None
+
 
 def test_aluno_nao_retorna_periodo_quando_nao_matriculado(aluno):
     aluno.nao_matriculado = True
-    aluno.escola.tipo_unidade.iniciais = "EMEF"
+    aluno.escola.tipo_unidade.iniciais = TIPOS_UNIDADE_ESCOLAR.EMEF.value
     assert aluno.periodo is None
+
 
 def test_aluno_nao_retorna_periodo_para_tipo_unidade_cei(aluno):
     aluno.nao_matriculado = False
-    aluno.escola.tipo_unidade.iniciais = "CEI"
+    aluno.escola.tipo_unidade.iniciais = TIPOS_UNIDADE_ESCOLAR.CEI.value
     assert aluno.periodo is None
+
 
 def test_aluno_nao_retorna_periodo_para_cei_do_cemei(aluno, escola_cemei):
     aluno.nao_matriculado = False
     aluno.escola = escola_cemei
     aluno.ciclo = aluno.CICLO_ALUNO_CEI
     assert aluno.periodo is None
+
 
 @freeze_time("2019-06-20")
 def test_data_pertence_faixa_etaria_hoje(datas_e_faixas):
@@ -393,11 +405,15 @@ def test_criar_log_alunos_matriculados_periodo_escola_cemei_regular(
     )
     assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 3
     assert (
-        LogAlunosMatriculadosPeriodoEscola.objects.filter(cei_ou_emei="CEI").exists()
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(
+            cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value
+        ).exists()
         is True
     )
     assert (
-        LogAlunosMatriculadosPeriodoEscola.objects.filter(cei_ou_emei="EMEI").exists()
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(
+            cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+        ).exists()
         is True
     )
     assert LogAlunosMatriculadosPeriodoEscola.objects.first().tipo_turma == "REGULAR"
@@ -624,21 +640,24 @@ def test_periodos_escolares_escola_cmct(escola_cmct):
 
 def test_formata_para_relatorio_verifica_periodo(log_alunos_matriculados_cei):
     alunos_matriculados_manha = AlunosMatriculadosPeriodoEscola.objects.get(
-        periodo_escolar__nome="MANHA", escola__tipo_unidade__iniciais="CEI DIRET"
+        periodo_escolar__nome="MANHA",
+        escola__tipo_unidade__iniciais=TIPO_UNIDADE_CEI_DIRET,
     )
     data = alunos_matriculados_manha.formata_para_relatorio()
     assert data["periodo_escolar"] == "Infantil Manhã"
     assert data["eh_cei"] is True
 
     alunos_matriculados_tarde = AlunosMatriculadosPeriodoEscola.objects.get(
-        periodo_escolar__nome="TARDE", escola__tipo_unidade__iniciais="CEI DIRET"
+        periodo_escolar__nome="TARDE",
+        escola__tipo_unidade__iniciais=TIPO_UNIDADE_CEI_DIRET,
     )
     data = alunos_matriculados_tarde.formata_para_relatorio()
     assert data["periodo_escolar"] == "Infantil Tarde"
     assert data["eh_cei"] is True
 
     alunos_matriculados_integral = AlunosMatriculadosPeriodoEscola.objects.get(
-        periodo_escolar__nome="INTEGRAL", escola__tipo_unidade__iniciais="CEI DIRET"
+        periodo_escolar__nome="INTEGRAL",
+        escola__tipo_unidade__iniciais=TIPO_UNIDADE_CEI_DIRET,
     )
     data = alunos_matriculados_integral.formata_para_relatorio()
     assert data["periodo_escolar"] == "INTEGRAL"
@@ -818,7 +837,7 @@ class TestEscolaQuantidadeAlunosPorCeiEmei:
         assert resultado is not None
         assert len(resultado) > 0
         for item in resultado:
-            assert item["CEI"] == []
+            assert item[TIPOS_UNIDADE_ESCOLAR.CEI.value] == []
 
     def test_cemei_com_alunos_retorna_dados_corretos(
         self, escola_cemei, faixas_etarias_ativas
@@ -831,5 +850,5 @@ class TestEscolaQuantidadeAlunosPorCeiEmei:
 
         primeiro_periodo = resultado[0]
         assert "nome" in primeiro_periodo
-        assert "CEI" in primeiro_periodo
-        assert "EMEI" in primeiro_periodo
+        assert TIPOS_UNIDADE_ESCOLAR.CEI.value in primeiro_periodo
+        assert TIPOS_UNIDADE_ESCOLAR.EMEI.value in primeiro_periodo

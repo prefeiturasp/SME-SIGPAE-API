@@ -1,6 +1,7 @@
 import environ
 from rest_framework import serializers
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.escola.api.serializers import EscolaFormIMRSelializer
 from src.imr.models import (
     AnexosFormularioBase,
@@ -121,7 +122,7 @@ class FormularioSupervisaoRetrieveSerializer(serializers.ModelSerializer):
         return obj.escola.diretoria_regional.uuid
 
     def get_data(self, obj):
-        return obj.formulario_base.data.strftime("%d/%m/%Y")
+        return obj.formulario_base.data.strftime(FORMATO_DATA_BRASILEIRO)
 
 
 class FormularioSupervisaoSimplesSerializer(serializers.ModelSerializer):
@@ -131,7 +132,7 @@ class FormularioSupervisaoSimplesSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source="get_status_display")
 
     def get_data(self, obj):
-        return obj.formulario_base.data.strftime("%d/%m/%Y")
+        return obj.formulario_base.data.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = FormularioSupervisao

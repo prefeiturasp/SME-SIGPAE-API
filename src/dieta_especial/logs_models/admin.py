@@ -1,6 +1,7 @@
 from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
+from src.dados_comuns.constants import CRIADO_EM
 from src.escola.models import FaixaEtaria
 
 from .models import (
@@ -43,7 +44,7 @@ class LogDietasAtivasCanceladasAutomaticamenteAdmin(admin.ModelAdmin):
         if obj.criado_em:
             return obj.criado_em.strftime("%d/%m/%Y %H:%M:%S")
 
-    get_criado_em.short_description = "Criado em"
+    get_criado_em.short_description = CRIADO_EM
 
     def has_add_permission(self, request, obj=None):
         return False

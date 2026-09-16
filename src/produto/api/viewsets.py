@@ -41,6 +41,7 @@ from src.produto.utils.genericos import (
 
 from ...dados_comuns import constants
 from ...dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
     TIPO_USUARIO_CODAE_GABINETE,
     TIPO_USUARIO_DIRETORIA_REGIONAL,
     TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -67,7 +68,11 @@ from ...dados_comuns.permissions import (
     UsuarioSupervisaoNutricao,
     UsuarioTerceirizadaProduto,
 )
-from ...dados_comuns.utils import url_configs
+from ...dados_comuns.utils import (
+    atualiza_central_download_com_erro,
+    gera_objeto_na_central_download,
+    url_configs,
+)
 from ...dieta_especial.protocolo_padrao.models import Alimento
 from ...escola.models import DiretoriaRegional, Escola, Lote
 from ...relatorios.relatorios import (
@@ -108,6 +113,9 @@ from ..models import (
 )
 from ..tasks import (
     gera_excel_relatorio_reclamacao_produtos_async,
+    gera_imagens_historico_reclamacao_produto_async,
+    gera_pdf_historico_reclamacao_produto_async,
+    gera_pdf_relatorio_historico_produto_async,
     gera_pdf_relatorio_produtos_homologados_async,
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
@@ -167,6 +175,10 @@ from .serializers.serializers import (
     UnidadeMedidaSerialzer,
     VinculosProdutosEditalAtivosSerializer,
 )
+from ..services.historico_reclamacao_produto import (
+    ServicoHistoricoReclamacaoProduto,
+)
+from .permissions import PermissaoArquivosHistoricoReclamacao
 from .serializers.serializers_create import (
     CadastroProdutosEditalCreateSerializer,
     ProdutoEditalCreateSerializer,
@@ -276,12 +288,14 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
                     "edital": nome_edital,
                     "tipo": produto_edital.tipo_produto,
                     "tem_aditivos_alergenicos": hom_produto.produto.tem_aditivos_alergenicos,
-                    "cadastro": hom_produto.produto.criado_em.strftime("%d/%m/%Y"),
+                    "cadastro": hom_produto.produto.criado_em.strftime(
+                        FORMATO_DATA_BRASILEIRO
+                    ),
                     "homologacao": produto_edital.datas_horas_vinculo.filter(
                         suspenso=False
                     )
                     .first()
-                    .criado_em.strftime("%d/%m/%Y"),
+                    .criado_em.strftime(FORMATO_DATA_BRASILEIRO),
                 }
             )
         return produtos_agrupados
@@ -724,7 +738,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
         query_set = query_set.filter(**filtros).filter(**filtros_params).distinct()
         if request_data.get("data_homologacao"):
             data_homologacao = datetime.strptime(
-                request_data.get("data_homologacao"), "%d/%m/%Y"
+                request_data.get("data_homologacao"), FORMATO_DATA_BRASILEIRO
             ).date()
             query_set = query_set | query_set_nao_homologados
             query_set = query_set.filter(
@@ -831,6 +845,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             constants.CODAE_QUESTIONADO: produtos_correcao_de_produto,
             constants.CODAE_PEDIU_ANALISE_SENSORIAL: produtos_aguardando_amostra_analise_sensorial,
             constants.CODAE_PEDIU_ANALISE_RECLAMACAO: produtos_questionamento_da_codae,
+            constants.RESPONDER_QUESTIONAMENTO_DA_CODAE: produtos_questionamento_da_codae,
         }
 
         funcao = filtros_funcao.get(filtro_aplicado)
@@ -1248,6 +1263,9 @@ class HomologacaoProdutoViewSet(
         justificativa += f"<p>{numeros_editais_para_justificativa}</p>"
 
         try:
+            editais_ja_suspensos = not vinculos_produto_edital.filter(
+                edital__uuid__in=editais_para_suspensao_ativacao, suspenso=False
+            ).exists()
             vinculos_produto_edital.filter(
                 edital__uuid__in=editais_para_suspensao_ativacao
             ).update(
@@ -1274,7 +1292,10 @@ class HomologacaoProdutoViewSet(
                     )
                     homologacao_produto.save()
             else:
-                homologacao_produto.codae_suspende(request=request)
+                homologacao_produto.codae_suspende(
+                    request=request,
+                    manteve_produto_suspenso=editais_ja_suspensos,
+                )
             return Response(
                 self.get_serializer(homologacao_produto).data, status=status.HTTP_200_OK
             )
@@ -1401,7 +1422,7 @@ class HomologacaoProdutoViewSet(
         return Response(protocolo)
 
     def retorna_datetime(self, data):
-        data = datetime.strptime(data, "%d/%m/%Y")
+        data = datetime.strptime(data, FORMATO_DATA_BRASILEIRO)
         return data
 
     @action(
@@ -1871,6 +1892,28 @@ class ProdutoViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
+        url_path=constants.RELATORIO_HISTORICO,
+        methods=["get"],
+        permission_classes=(AllowAny,),
+    )
+    def relatorio_historico(self, request, uuid=None):
+        user = request.user.get_username()
+        produto = self.get_object()
+        nome_arquivo = f"relatorio_historico_produto_{produto.id_externo}.pdf"
+
+        gera_pdf_relatorio_historico_produto_async.delay(
+            user=user,
+            nome_arquivo=nome_arquivo,
+            uuid_produto=str(produto.uuid),
+        )
+
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
+
+    @action(
+        detail=True,
         url_path=constants.RELATORIO_ANALISE,
         methods=["get"],
         permission_classes=(IsAuthenticated,),
@@ -2202,7 +2245,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             data_final = query_params.get("data_suspensao_final", None)
 
         if data_final:
-            data_final = datetime.strptime(data_final, "%d/%m/%Y").date()
+            data_final = datetime.strptime(data_final, FORMATO_DATA_BRASILEIRO).date()
             homologacoes = homologacoes.filter(
                 produto__vinculos__edital__numero=nome_edital,
                 produto__vinculos__datas_horas_vinculo__suspenso=True,
@@ -2691,14 +2734,14 @@ class ProdutosEditaisViewSet(viewsets.ModelViewSet):
             queryset = self.get_queryset().filter(edital__uuid__in=editais_uuid)
             if (
                 tipo_produto_edital_origem.lower()
-                == ProdutoEdital.TIPO_PRODUTO["Comum"].lower()
+                == ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"].lower()
             ):
                 queryset = queryset.filter(
-                    tipo_produto__icontains=ProdutoEdital.TIPO_PRODUTO["Comum"]
+                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"]
                 )
             else:
                 queryset = queryset.exclude(
-                    tipo_produto__icontains=ProdutoEdital.TIPO_PRODUTO["Comum"]
+                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO["Comum"]
                 )
             queryset = queryset.order_by("produto__nome", "produto__marca__nome")
             data = self.get_serializer(queryset, many=True).data
@@ -3515,6 +3558,144 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
                 dict(detail=f"Erro de transição de estado: {e}"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @staticmethod
+    def _obter_configuracao_download_historico(tipo_arquivo):
+        return {
+            "pdf": {
+                "obter_anexos": (
+                    ServicoHistoricoReclamacaoProduto.obter_pdfs_acao
+                ),
+                "obter_nome": (
+                    ServicoHistoricoReclamacaoProduto.obter_nome_download_pdfs
+                ),
+                "tarefa": gera_pdf_historico_reclamacao_produto_async,
+                "mensagem_sem_arquivo": (
+                    "Não há PDF disponível para esta ação do histórico."
+                ),
+                "mensagem_sucesso": (
+                    "Solicitação de download do PDF recebida com sucesso."
+                ),
+            },
+            "imagens": {
+                "obter_anexos": (
+                    ServicoHistoricoReclamacaoProduto.obter_imagens_acao
+                ),
+                "obter_nome": (
+                    ServicoHistoricoReclamacaoProduto.obter_nome_download_imagens
+                ),
+                "tarefa": gera_imagens_historico_reclamacao_produto_async,
+                "mensagem_sem_arquivo": (
+                    "Não há imagens disponíveis para esta ação do histórico."
+                ),
+                "mensagem_sucesso": (
+                    "Solicitação de download das imagens recebida com sucesso."
+                ),
+            },
+        }[tipo_arquivo]
+
+    @staticmethod
+    def _iniciar_download_historico(
+        configuracao,
+        download,
+        reclamacao_produto,
+        uuid_log,
+    ):
+        try:
+            configuracao["tarefa"].delay(
+                uuid_central_download=str(download.uuid),
+                uuid_reclamacao=str(reclamacao_produto.uuid),
+                uuid_log=str(uuid_log),
+            )
+        except Exception as erro:
+            atualiza_central_download_com_erro(download, str(erro))
+            return Response(
+                {"detail": "Não foi possível iniciar o processamento do arquivo."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+    def _solicitar_download_historico(
+        self,
+        request,
+        uuid_log,
+        tipo_arquivo,
+    ):
+        configuracao = self._obter_configuracao_download_historico(tipo_arquivo)
+        reclamacao_produto = self.get_object()
+        try:
+            anexos = configuracao["obter_anexos"](
+                uuid_reclamacao=reclamacao_produto.uuid,
+                uuid_log=uuid_log,
+            )
+        except LogSolicitacoesUsuario.DoesNotExist:
+            return Response(
+                {
+                    "detail": (
+                        "A ação informada não pertence ao histórico "
+                        "desta reclamação."
+                    )
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not anexos:
+            return Response(
+                {"detail": configuracao["mensagem_sem_arquivo"]},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        nome_arquivo = configuracao["obter_nome"](anexos, uuid_log)
+        download = gera_objeto_na_central_download(
+            request.user.get_username(),
+            nome_arquivo,
+        )
+        resposta_erro = self._iniciar_download_historico(
+            configuracao,
+            download,
+            reclamacao_produto,
+            uuid_log,
+        )
+        if resposta_erro:
+            return resposta_erro
+
+        return Response(
+            {
+                "detail": configuracao["mensagem_sucesso"],
+                "download_uuid": download.uuid,
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[IsAuthenticated, PermissaoArquivosHistoricoReclamacao],
+        url_path=r"historico/(?P<uuid_log>[^/.]+)/download-pdf",
+    )
+    def download_pdf_historico(self, request, uuid=None, uuid_log=None):
+        return self._solicitar_download_historico(
+            request=request,
+            uuid_log=uuid_log,
+            tipo_arquivo="pdf",
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[IsAuthenticated, PermissaoArquivosHistoricoReclamacao],
+        url_path=r"historico/(?P<uuid_log>[^/.]+)/download-imagens",
+    )
+    def download_imagens_historico(
+        self,
+        request,
+        uuid=None,
+        uuid_log=None,
+    ):
+        return self._solicitar_download_historico(
+            request=request,
+            uuid_log=uuid_log,
+            tipo_arquivo="imagens",
+        )
 
 
 class SolicitacaoCadastroProdutoDietaFilter(filters.FilterSet):

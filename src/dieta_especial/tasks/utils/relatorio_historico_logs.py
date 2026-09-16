@@ -6,6 +6,11 @@ import numpy as np
 from django.http import QueryDict
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.escola.models import DiretoriaRegional, PeriodoEscolar
 from src.escola.utils import faixa_to_string
 from src.relatorios.utils import html_to_pdf_file
@@ -13,12 +18,12 @@ from src.relatorios.utils import html_to_pdf_file
 
 def get_faixa_etaria_cei(log: dict, faixa_etaria: str) -> str:
     if log["tipo_unidade"] not in [
-        "CEI DIRET",
-        "CEU CEI",
-        "CEI",
-        "CCI",
-        "CCI/CIPS",
-        "CEI CEU",
+        TIPO_UNIDADE_CEI_DIRET,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
     ]:
         return faixa_etaria
     faixa_etaria = faixa_to_string(log["inicio"], log["fim"])
@@ -26,7 +31,10 @@ def get_faixa_etaria_cei(log: dict, faixa_etaria: str) -> str:
 
 
 def get_faixa_etaria_cemei(log: dict, faixa_etaria: str) -> str:
-    if log["tipo_unidade"] not in ["CEMEI", "CEU CEMEI"]:
+    if log["tipo_unidade"] not in [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+    ]:
         return faixa_etaria
     if log["inicio"]:
         faixa_etaria = faixa_to_string(log["inicio"], log["fim"])
@@ -36,7 +44,7 @@ def get_faixa_etaria_cemei(log: dict, faixa_etaria: str) -> str:
 
 
 def get_faixa_etaria_emebs(log: dict, faixa_etaria: str) -> str:
-    if log["tipo_unidade"] != "EMEBS":
+    if log["tipo_unidade"] != TIPOS_UNIDADE_ESCOLAR.EMEBS.value:
         return faixa_etaria
     if log["infantil_ou_fundamental"] == "INFANTIL":
         faixa_etaria = "Infantil (4 a 6 anos)"
@@ -62,7 +70,7 @@ def formata_logs_para_titulo(logs_dietas: list[dict]) -> list[dict]:
             "periodo": log["nome_periodo_escolar"],
             "faixa_etaria": get_faixa_etaria(log),
             "dietas_autorizadas": log["quantidade_total"],
-            "data_de_referencia": log["data"].strftime("%d/%m/%Y"),
+            "data_de_referencia": log["data"].strftime(FORMATO_DATA_BRASILEIRO),
         }
         for log in logs_dietas
     ]
@@ -128,7 +136,7 @@ def build_titulo(
         titulo += f" | {bold('Períodos:')} {nomes_periodos}"
 
     total_dietas = sum(log["dietas_autorizadas"] for log in logs_dietas_formatados)
-    data_extraido = datetime.date.today().strftime("%d/%m/%Y")
+    data_extraido = datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO)
 
     titulo += f": {bold(total_dietas)}"
     titulo += f" | Data de extração do relatório: {bold(data_extraido)}"
@@ -166,7 +174,7 @@ def build_xlsx_relatorio_historico_dietas(
                 "periodo": log["nome_periodo_escolar"],
                 "faixa_etaria": get_faixa_etaria(log),
                 "dietas_autorizadas": log["quantidade_total"],
-                "data_de_referencia": log["data"].strftime("%d/%m/%Y"),
+                "data_de_referencia": log["data"].strftime(FORMATO_DATA_BRASILEIRO),
             }
             for log in logs_dietas
         ]
@@ -298,8 +306,11 @@ def processar_emebs(periodos):
 
 
 def reestruturar_resultados(objeto):
-    unidades_cemei = ["CEMEI", "CEU CEMEI"]
-    unidades_emebs = ["EMEBS"]
+    unidades_cemei = [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+    ]
+    unidades_emebs = [TIPOS_UNIDADE_ESCOLAR.EMEBS.value]
 
     resultados_novos = []
 
@@ -319,19 +330,32 @@ def reestruturar_resultados(objeto):
 
 
 def gera_pdf_relatorio_historico_dieta_especial(dados, user, titulo, iniciais_dre):
-    unidades_cei = ["CEI DIRET", "CEU CEI", "CEI", "CCI", "CCI/CIPS", "CEI CEU"]
-    unidades_cemei = ["CEMEI", "CEU CEMEI"]
-    unidades_emei_emef = [
-        "EMEI",
-        "CEU EMEI",
-        "CEU EMEI",
-        "EMEF",
-        "CEU EMEF",
-        "EMEFM",
-        "CIEJA",
+    unidades_cei = [
+        TIPO_UNIDADE_CEI_DIRET,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+        TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
     ]
-    unidades_emebs = ["EMEBS"]
-    unidades_sem_periodos = ["CMCT", "CEU GESTAO"]
+    unidades_cemei = [
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+    ]
+    unidades_emei_emef = [
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_EMEI.value,
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_EMEF.value,
+        TIPOS_UNIDADE_ESCOLAR.EMEFM.value,
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+    ]
+    unidades_emebs = [TIPOS_UNIDADE_ESCOLAR.EMEBS.value]
+    unidades_sem_periodos = [
+        TIPOS_UNIDADE_ESCOLAR.CMCT.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
+    ]
 
     dados = reestruturar_resultados(dados)
 

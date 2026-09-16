@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django_filters import rest_framework as filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
@@ -10,6 +12,7 @@ from src.dados_comuns.helpers_autenticidade import (
 from src.dados_comuns.permissions import (
     PermissaoParaAnalisarFichaTecnica,
     PermissaoParaDashboardFichaTecnica,
+    PermissaoParaRelatorioFichasTecnicas,
     PermissaoParaVisualizarCronograma,
     PermissaoParaVisualizarFichaTecnica,
     UsuarioEhFornecedor,
@@ -31,9 +34,13 @@ from src.pre_recebimento.ficha_tecnica.api.serializers.serializers import (
     FichaTecnicaListagemSerializer,
     FichaTecnicaSimplesSerializer,
     PainelFichaTecnicaSerializer,
+    RelatorioFichaTecnicaSerializer,
 )
 from src.pre_recebimento.ficha_tecnica.api.services import (
     ServiceDashboardFichaTecnica,
+)
+from src.pre_recebimento.tasks import (
+    exporta_relatorio_fichas_tecnicas_xlsx,
 )
 
 from ....dados_comuns.api.paginations import DefaultPagination
@@ -80,6 +87,7 @@ class FichaTecnicaModelViewSet(
             "retrieve": FichaTecnicaDetalharSerializer,
             "create": self._get_create_update_serializer(),
             "update": self._get_create_update_serializer(),
+            "listagem_relatorio": RelatorioFichaTecnicaSerializer,
         }
 
         return serializer_classes_map.get(self.action, FichaTecnicaRascunhoSerializer)
@@ -337,6 +345,20 @@ class FichaTecnicaModelViewSet(
 
         return Response(HTTP_200_OK)
 
+    def _calcular_totalizadores(self, qs):
+        workflow = FichaTecnicaDoProduto.workflow_class
+        return {
+            "Total de Fichas Aprovadas": qs.filter(
+                status=workflow.APROVADA
+            ).count(),
+            "Total de Fichas Enviadas para Correção": qs.filter(
+                status=workflow.ENVIADA_PARA_CORRECAO
+            ).count(),
+            "Total de Fichas Pendentes de Aprovação": qs.filter(
+                status=workflow.ENVIADA_PARA_ANALISE
+            ).count(),
+        }
+
     @action(detail=True, methods=["GET"], url_path="gerar-pdf-ficha")
     def gerar_pdf_ficha(self, request, uuid=None):
         ficha = self.get_object()
@@ -349,3 +371,57 @@ class FichaTecnicaModelViewSet(
                 ),
                 status=HTTP_400_BAD_REQUEST,
             )
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="listagem-relatorio",
+        permission_classes=(PermissaoParaRelatorioFichasTecnicas,),
+    )
+    def listagem_relatorio(self, request):
+        queryset = self._queryset_relatorio()
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+            response.data["totalizadores"] = self._calcular_totalizadores(queryset)
+            return response
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(
+            {
+                "results": serializer.data,
+                "totalizadores": self._calcular_totalizadores(queryset),
+            }
+        )
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="exportar-excel",
+        permission_classes=(PermissaoParaRelatorioFichasTecnicas,),
+    )
+    def exportar_excel(self, request):
+        queryset = self._queryset_relatorio()
+
+        nome_arquivo = datetime.now().strftime(
+            "Relatorio_Fichas_Tecnicas_%Y-%m-%d_%H%M%S.xlsx"
+        )
+
+        exporta_relatorio_fichas_tecnicas_xlsx.delay(
+            user=request.user.get_username(),
+            nome_arquivo=nome_arquivo,
+            fichas_ids=list(queryset.values_list("id", flat=True)),
+        )
+
+        return Response(
+            {"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            status=HTTP_200_OK,
+        )
+
+    def _queryset_relatorio(self):
+        """Queryset do relatório: mesmos filtros da tela, excluindo fichas da categoria FLV."""
+        return self.filter_queryset(
+            self.get_queryset().exclude(categoria=FichaTecnicaDoProduto.CATEGORIA_FLV)
+        )

@@ -1,3 +1,5 @@
+"""Filtros da API do submódulo de layout de embalagem."""
+
 from django_filters import rest_framework as filters
 
 from ...dados_comuns.fluxo_status import (
@@ -6,6 +8,14 @@ from ...dados_comuns.fluxo_status import (
 
 
 class LayoutDeEmbalagemFilter(filters.FilterSet):
+    """Filtros dos layouts de embalagem.
+
+    Permite filtrar por ``numero_ficha_tecnica`` (contém), ``nome_produto``
+    (contém), ``nome_fornecedor`` (razão social, contém),
+    ``pregao_chamada_publica`` (contém), ``numero_cronograma`` (contém) e
+    ``status`` (múltipla escolha com os estados do
+    ``LayoutDeEmbalagemWorkflow``).
+    """
     numero_ficha_tecnica = filters.CharFilter(
         field_name="ficha_tecnica__numero",
         lookup_expr="icontains",

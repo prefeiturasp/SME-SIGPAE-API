@@ -2,8 +2,9 @@ import datetime
 import json
 from calendar import monthrange
 
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import Count, F, Max, Q, Sum
+from django.db.models import Count, F, Max, OuterRef, Q, Subquery, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -24,7 +25,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 
-from src.dados_comuns.constants import TEMPO_CACHE_6H
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TEMPO_CACHE_6H,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.medicao_inicial.tasks import (
     exporta_relatorio_controle_frequencia_para_pdf,
 )
@@ -65,8 +71,11 @@ from ...escola.api.serializers_create import (
     MudancaFaixasEtariasCreateSerializer,
 )
 from ...inclusao_alimentacao.models import (
-    InclusaoAlimentacaoContinua,
     InclusaoDeAlimentacaoCEMEI,
+    QuantidadePorPeriodo,
+)
+from ...inclusao_alimentacao.utils import (
+    quantidade_periodo_possui_dia_ativo_no_mes,
 )
 from ...paineis_consolidados.api.constants import FILTRO_DRE_UUID
 from ..forms import AlunosPorFaixaEtariaForm
@@ -105,9 +114,10 @@ from ..utils import (
 from .filters import (
     AlunoFilter,
     DiretoriaRegionalFilter,
+    EscolaParaFiltrosFilter,
     LogAlunosMatriculadosFaixaEtariaDiaFilter,
 )
-from .permissions import PodeVerEditarFotoAlunoNoSGP
+from .permissions import PodeEditarFotoAlunoNoSGP, PodeVerFotoAlunoNoSGP
 from .serializers import (
     AlunosMatriculadosPeriodoEscolaSerializer,
     DiaCalendarioSerializer,
@@ -175,11 +185,7 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
     )
     serializer_class = EscolaParaFiltrosReadOnlySerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = {
-        "tipo_unidade__uuid": ["in"],
-        "diretoria_regional__uuid": ["exact"],
-        "lote__uuid": ["exact"],
-    }
+    filterset_class = EscolaParaFiltrosFilter
     pagination_class = None
 
     @action(detail=True, url_path="periodos-escolares", url_name="periodos-escolares")
@@ -201,7 +207,11 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
 
 class EscolaSimplissimaComEolViewSet(ReadOnlyModelViewSet):
     lookup_field = "uuid"
-    queryset = Escola.objects.all()
+    queryset = (
+        Escola.objects.select_related("diretoria_regional", "lote", "tipo_unidade")
+        .all()
+        .order_by()
+    )
     serializer_class = EscolaEolSimplesSerializer
 
     @action(detail=False, methods=["POST"], url_path="escolas-com-cod-eol")
@@ -234,7 +244,9 @@ class EscolaSimplissimaComEolViewSet(ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["POST"], url_path="terc-total")
     def terc_total(self, request):
-        escolas = self.get_queryset().filter(tipo_gestao__nome="TERC TOTAL")
+        escolas = self.get_queryset().filter(
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value
+        )
         lotes = request.data.get("lotes", None)
         if lotes:
             escolas = escolas.filter(lote__uuid__in=lotes)
@@ -244,7 +256,24 @@ class EscolaSimplissimaComEolViewSet(ReadOnlyModelViewSet):
 
 class EscolaSimplissimaComDREViewSet(ReadOnlyModelViewSet):
     lookup_field = "uuid"
-    queryset = Escola.objects.all().prefetch_related("diretoria_regional")
+    queryset = (
+        Escola.objects.select_related(
+            "diretoria_regional", "lote", "lote__terceirizada", "tipo_unidade"
+        )
+        .annotate(
+            quantidade_alunos_regular=Subquery(
+                AlunosMatriculadosPeriodoEscola.objects.filter(
+                    escola=OuterRef("pk"),
+                    tipo_turma=TipoTurma.REGULAR.name,
+                )
+                .order_by()
+                .values("escola")
+                .annotate(total=Sum("quantidade_alunos"))
+                .values("total")
+            )
+        )
+        .prefetch_related("lote__contratos_do_lote__edital")
+    )
     serializer_class = EscolaListagemSimplissimaComDRESelializer
 
 
@@ -255,7 +284,9 @@ class EscolaSimplissimaComDREUnpaginatedViewSet(EscolaSimplissimaComDREViewSet):
     @method_decorator(cache_page(TEMPO_CACHE_6H))
     @action(detail=False, methods=["GET"], url_path="terc-total")
     def terc_total(self, request):
-        escolas = self.get_queryset().filter(tipo_gestao__nome="TERC TOTAL")
+        escolas = self.get_queryset().filter(
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value
+        )
         escola = request.query_params.get("escola", None)
         dre = request.query_params.get("dre", None)
         tipo_unidade = request.query_params.get("tipo_unidade", None)
@@ -327,6 +358,50 @@ class EscolaQuantidadeAlunosPorPeriodoEFaixaViewSet(GenericViewSet):
             return Response(
                 data={"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST
             )
+
+
+def periodos_inclusao_continua_ativas(instituicao, primeiro_dia_mes, ultimo_dia_mes):
+    quantidades_periodo = (
+        QuantidadePorPeriodo.objects.filter(
+            inclusao_alimentacao_continua__status="CODAE_AUTORIZADO",
+            inclusao_alimentacao_continua__rastro_escola=instituicao,
+            inclusao_alimentacao_continua__data_inicial__lte=ultimo_dia_mes,
+            cancelado=False,
+        )
+        .exclude(inclusao_alimentacao_continua__motivo__nome="ETEC")
+        .filter(
+            Q(
+                encerrado_a_partir_de__isnull=True,
+                inclusao_alimentacao_continua__data_final__gte=primeiro_dia_mes,
+            )
+            | Q(encerrado_a_partir_de__gte=primeiro_dia_mes)
+        )
+        .select_related("periodo_escolar", "inclusao_alimentacao_continua")
+    )
+    periodos = {}
+    for quantidade_periodo in quantidades_periodo:
+        if not quantidade_periodo_possui_dia_ativo_no_mes(
+            quantidade_periodo, primeiro_dia_mes, ultimo_dia_mes
+        ):
+            continue
+        periodo_escolar = quantidade_periodo.periodo_escolar
+        if periodo_escolar and periodo_escolar.nome:
+            periodos[periodo_escolar.nome] = periodo_escolar.uuid
+    return periodos
+
+
+def periodos_cemei_evento_especifico(instituicao, primeiro_dia_mes, ultimo_dia_mes):
+    cemei_periodos_emei = InclusaoDeAlimentacaoCEMEI.objects.filter(
+        status="CODAE_AUTORIZADO",
+        escola=instituicao,
+        dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+        dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
+        dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
+    ).values_list(
+        "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
+        "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__uuid",
+    )
+    return {nome: uuid for nome, uuid in cemei_periodos_emei if nome is not None}
 
 
 class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
@@ -408,6 +483,9 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
         ``InclusaoDeAlimentacaoCEMEI`` com motivo ``Evento Especifico``,
         retornando os periodos escolares distintos (nome e uuid) com datas
         contidas no mes informado via query params ``mes`` e ``ano``.
+        Periodos encerrados antecipadamente (``encerrado_a_partir_de``),
+        cancelados ou sem dia da semana ativo no recorte do mes nao sao
+        retornados.
         """
         try:
             for param in ["mes", "ano"]:
@@ -415,55 +493,24 @@ class PeriodoEscolarViewSet(ReadOnlyModelViewSet):
                     raise ValidationError(f"{param} é obrigatório via query_params")
             mes = request.query_params.get("mes")
             ano = request.query_params.get("ano")
-            escola = request.query_params.get("escola")
             primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
             ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
             instituicao = request.user.vinculo_atual.instituicao
+            escola = request.query_params.get("escola")
             if (
-                isinstance(instituicao, DiretoriaRegional)
-                or isinstance(instituicao, Codae)
-                or isinstance(instituicao, Terceirizada)
-            ) and escola:
+                isinstance(instituicao, (DiretoriaRegional, Codae, Terceirizada))
+                and escola
+            ):
                 instituicao = Escola.objects.get(uuid=escola)
-            periodos = dict(
-                InclusaoAlimentacaoContinua.objects.filter(
-                    status="CODAE_AUTORIZADO", rastro_escola=instituicao
-                )
-                .filter(
-                    data_inicial__lte=ultimo_dia_mes,
-                )
-                .filter(
-                    Q(
-                        quantidades_por_periodo__encerrado_a_partir_de__isnull=True,
-                        data_final__gte=primeiro_dia_mes,
-                    )
-                    | Q(
-                        quantidades_por_periodo__encerrado_a_partir_de__gte=primeiro_dia_mes
-                    )
-                )
-                .exclude(motivo__nome="ETEC")
-                .values_list(
-                    "quantidades_por_periodo__periodo_escolar__nome",
-                    "quantidades_por_periodo__periodo_escolar__uuid",
-                )
-                .distinct()
+            periodos = periodos_inclusao_continua_ativas(
+                instituicao, primeiro_dia_mes, ultimo_dia_mes
             )
-            cemei_base_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
-                status="CODAE_AUTORIZADO",
-                escola=instituicao,
-                dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
-                dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
-                dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
+            periodos.update(
+                periodos_cemei_evento_especifico(
+                    instituicao, primeiro_dia_mes, ultimo_dia_mes
+                )
             )
-            cemei_periodos_emei = cemei_base_qs.values_list(
-                "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__nome",
-                "quantidade_alunos_emei_da_inclusao_cemei__periodo_escolar__uuid",
-            )
-            cemei_tuples = {
-                (nome, uuid) for nome, uuid in cemei_periodos_emei if nome is not None
-            }
-            periodos.update(dict(cemei_tuples))
-            return Response({"periodos": periodos if len(periodos) else None})
+            return Response({"periodos": periodos or None})
         except ValidationError as e:
             return Response({"detail": e}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -611,7 +658,7 @@ class TipoUnidadeEscolarViewSet(ReadOnlyModelViewSet):
                         "escola",
                         filter=Q(
                             escola__diretoria_regional__uuid=dre,
-                            escola__tipo_gestao__nome="TERC TOTAL",
+                            escola__tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
                         ),
                     )
                 )
@@ -650,7 +697,9 @@ class LogAlunosMatriculadosPeriodoEscolaViewSet(ModelViewSet):
                 periodo = periodo_escolar.replace("Infantil ", "")
                 queryset = queryset.filter(periodo_escolar__nome=periodo)
                 if "INTEGRAL" in periodo_escolar:
-                    queryset = queryset.filter(cei_ou_emei="EMEI")
+                    queryset = queryset.filter(
+                        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+                    )
                 else:
                     queryset = queryset.filter(cei_ou_emei="N/A")
             else:
@@ -849,7 +898,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         detail=True,
         methods=["GET"],
         url_path="ver-foto",
-        permission_classes=(PodeVerEditarFotoAlunoNoSGP,),
+        permission_classes=(PodeVerFotoAlunoNoSGP,),
     )
     def ver_foto(self, request, codigo_eol):
         try:
@@ -866,7 +915,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         detail=True,
         methods=["POST"],
         url_path="atualizar-foto",
-        permission_classes=(PodeVerEditarFotoAlunoNoSGP,),
+        permission_classes=(PodeEditarFotoAlunoNoSGP,),
     )
     def atualizar_foto(self, request, codigo_eol):
         try:
@@ -885,7 +934,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         detail=True,
         methods=["DELETE"],
         url_path="deletar-foto",
-        permission_classes=(PodeVerEditarFotoAlunoNoSGP,),
+        permission_classes=(PodeEditarFotoAlunoNoSGP,),
     )
     def deletar_foto(self, request, codigo_eol):
         try:
@@ -1073,7 +1122,8 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
             )
         escolas_uuids = lotes.values_list("escolas__uuid", flat=True).distinct()
         alunos_matriculados = AlunosMatriculadosPeriodoEscola.objects.filter(
-            escola__uuid__in=escolas_uuids, escola__tipo_gestao__nome="TERC TOTAL"
+            escola__uuid__in=escolas_uuids,
+            escola__tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
         )
         alunos_matriculados = self.filtra_alunos_matriculados(
             alunos_matriculados, query_params
@@ -1117,7 +1167,7 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
             )
         escolas_uuids = lotes.values_list("escolas__uuid", flat=True).distinct()
         escolas = Escola.objects.filter(
-            uuid__in=escolas_uuids, tipo_gestao__nome="TERC TOTAL"
+            uuid__in=escolas_uuids, tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value
         )
         tipos_unidade_uuids = escolas.values_list(
             "tipo_unidade__uuid", flat=True
@@ -1240,6 +1290,46 @@ class DiaSuspensaoAtividadesViewSet(ViewSetActionPermissionMixin, ModelViewSet):
             data=instance.data, tipo_unidade=instance.tipo_unidade
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=["GET"], url_path="lista-dias")
+    def lista_dias(self, request):
+        escola_uuid = request.query_params.get("escola")
+        mes = request.query_params.get("mes")
+        ano = request.query_params.get("ano")
+
+        if not escola_uuid or not mes or not ano:
+            return Response(
+                {"detail": "Informe escola, mes e ano."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        escola = Escola.objects.filter(uuid=escola_uuid).first()
+        if not escola:
+            return Response(
+                {"detail": "Escola não encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        dias = (
+            DiaSuspensaoAtividades.objects.filter(
+                data__month=mes,
+                data__year=ano,
+                tipo_unidade=escola.tipo_unidade,
+                edital__uuid__in=escola.editais,
+            )
+            .values("data")
+            .annotate(editais=ArrayAgg("edital__numero"))
+            .order_by("data")
+        )
+
+        resultado = [
+            {
+                "data": d["data"].strftime(FORMATO_DATA_BRASILEIRO),
+                "editais": d["editais"],
+            }
+            for d in dias
+        ]
+        return Response(resultado)
 
 
 class GrupoUnidadeEscolarViewSet(ModelViewSet):

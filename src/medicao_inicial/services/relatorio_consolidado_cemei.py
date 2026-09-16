@@ -4,10 +4,15 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_CEMEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
+    TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
@@ -27,12 +32,12 @@ from src.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
 
 PROGRAMAS_E_PROJETOS = "PROGRAMAS E PROJETOS"
-DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
 DIETA_ESPECIAL_TIPO_A_ENTERAL = (
     "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
 )
@@ -111,7 +116,7 @@ def _get_lista_alimentacoes(
             .values_list("nome_campo", flat=True)
             .distinct()
         )
-        if nome_periodo != "Solicitações de Alimentação":
+        if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
             lista_alimentacoes += [
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
@@ -205,6 +210,7 @@ def get_valores_tabela(
     ).values_list("nome", flat=True)
     valores = []
     for solicitacao in ordenar_unidades(solicitacoes):
+        solictacao_sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao)
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for periodo, campo in colunas:
@@ -214,6 +220,7 @@ def get_valores_tabela(
                 campo,
                 valores_solicitacao_atual,
                 grupos_medicao,
+                solictacao_sem_lancamento,
                 query_params,
             )
         valores.append(valores_solicitacao_atual)
@@ -235,8 +242,13 @@ def _processa_periodo_campo(
     campo: str,
     valores: list[str],
     grupos_medicao: list[str],
+    solictacao_sem_lancamento,
     query_params: dict | None = None,
 ) -> list[str | float]:
+    if solictacao_sem_lancamento:
+        valores.append("SL")
+        return valores
+
     filtros = _define_filtro(periodo, grupos_medicao)
     try:
         if "DIETA ESPECIAL" in periodo:
@@ -255,7 +267,7 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
     filtros = {}
-    if periodo in ["Solicitações de Alimentação", "Programas e Projetos"] + list(
+    if periodo in [GRUPO_SOLICITACOES_ALIMENTACAO, GRUPO_PROGRAMAS_E_PROJETOS] + list(
         grupos_medicao
     ):
         filtros["grupo__nome"] = periodo
@@ -263,7 +275,7 @@ def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
         if "INFANTIL" in periodo:
             filtros["grupo__nome__in"] = grupos_medicao
         elif PROGRAMAS_E_PROJETOS in periodo:
-            filtros["grupo__nome"] = "Programas e Projetos"
+            filtros["grupo__nome"] = GRUPO_PROGRAMAS_E_PROJETOS
         else:
             filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
     else:
@@ -316,7 +328,7 @@ def _processa_periodo_regular(
             campo,
             periodo,
             query_params=query_params,
-            tipo_unidade="EMEI",
+            tipo_unidade=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         )
     return soma
 
@@ -330,6 +342,7 @@ def insere_tabela_periodos_na_planilha(
     NOMES_CAMPOS.update(
         {faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)}
     )
+    NOMES_CAMPOS.update({"Sem registro": ""})
     df = gera_colunas_alimentacao(aba, colunas, linhas, writer, NOMES_CAMPOS)
     return df
 
@@ -337,13 +350,16 @@ def insere_tabela_periodos_na_planilha(
 def ajusta_layout_tabela(
     workbook: Workbook, worksheet: Worksheet, df: pd.DataFrame
 ) -> None:
-    formatacao_base = {
+    estilo_base = {
         "align": "center",
         "valign": "vcenter",
-        "font_color": "#FFFFFF",
-        "bold": True,
         "border": 1,
         "border_color": "#999999",
+    }
+    formatacao_base = {
+        **estilo_base,
+        "font_color": "#FFFFFF",
+        "bold": True,
     }
     formatacao_integral_cei = workbook.add_format(
         {**formatacao_base, "bg_color": "#198459"}
@@ -377,11 +393,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - INTEGRAL": {
             "formatacao": formatacao_integral_cei,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - INTEGRAL": {
             "formatacao": formatacao_integral_cei,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         "PARCIAL": {
             "formatacao": formatacao_parcial,
@@ -389,11 +405,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - PARCIAL": {
             "formatacao": formatacao_parcial,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - PARCIAL": {
             "formatacao": formatacao_parcial,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         "INFANTIL INTEGRAL": {
             "formatacao": formatacao_integral,
@@ -409,11 +425,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - INFANTIL": {
             "formatacao": formatacao_dieta_a,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - INFANTIL": {
             "formatacao": formatacao_dieta_b,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         PROGRAMAS_E_PROJETOS: {
             "formatacao": formatacao_programas,
@@ -421,11 +437,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": {
             "formatacao": formatacao_programas,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
     }
 
@@ -438,15 +454,10 @@ def ajusta_layout_tabela(
         )
         worksheet.write(3, col_num, value[1], formatacao_level2)
 
-    formatacao = workbook.add_format(
-        {
-            "align": "center",
-            "valign": "vcenter",
-        }
-    )
+    formato_dados = workbook.add_format(estilo_base)
 
-    worksheet.set_column(0, len(df.columns) - 1, 15, formatacao)
-    worksheet.set_column(2, 2, 30)
+    worksheet.set_column(0, len(df.columns) - 1, 15, formato_dados)
+    worksheet.set_column(2, 2, 30, formato_dados)
 
     worksheet.set_row(4, None, None, {"hidden": True})
     worksheet.set_row(2, 25)

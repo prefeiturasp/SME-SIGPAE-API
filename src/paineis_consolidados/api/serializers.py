@@ -2,6 +2,7 @@ import datetime
 
 from rest_framework import serializers
 
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.utils import remove_tags_html_from_string
 from ...escola.models import Escola
 from ...kit_lanche.api.serializers.serializers import EscolaQuantidadeSerializerSimples
@@ -54,7 +55,7 @@ class SolicitacoesSerializer(serializers.ModelSerializer):
         if obj.data_log and obj.data_log.date() == datetime.date.today():
             return obj.data_log.strftime("%d/%m/%Y %H:%M")
         elif obj.data_log:
-            return obj.data_log.strftime("%d/%m/%Y")
+            return obj.data_log.strftime(FORMATO_DATA_BRASILEIRO)
         else:
             return None
 
@@ -123,7 +124,11 @@ class SolicitacoesExportXLSXSerializer(serializers.ModelSerializer):
             "INC_ALIMENTA_CEI",
         ]:
             return obj.get_raw_model.objects.get(uuid=obj.uuid).datas
-        return obj.data_evento.strftime("%d/%m/%Y") if obj.data_evento else None
+        return (
+            obj.data_evento.strftime(FORMATO_DATA_BRASILEIRO)
+            if obj.data_evento
+            else None
+        )
 
     def get_tipo_alteracao(self, obj):
         if "ALT_CARDAPIO" not in obj.tipo_doc:

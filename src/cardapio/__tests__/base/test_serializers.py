@@ -4,6 +4,7 @@ from model_bakery import baker
 from src.cardapio.base.api.serializers import (
     TipoUnidadeEscolarAgrupadoSerializer,
 )
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 
 pytestmark = pytest.mark.django_db
 
@@ -61,7 +62,10 @@ def test_tipo_unidade_escolar_agrupado_serializer_estrutura_padrao(
         assert "uuid" in tipo
         assert "nome" in tipo
 
-    assert resultado["iniciais"] in ["EMEF", "CIEJA"]
+    assert resultado["iniciais"] in [
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+    ]
     assert periodo["nome"] == "MANHA"
 
 
@@ -70,14 +74,18 @@ def test_tipo_unidade_escolar_agrupado_serializer_metodo_agrupar():
 
     vinculo1 = baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
-        tipo_unidade_escolar=baker.make("escola.TipoUnidadeEscolar", iniciais="EMEF"),
+        tipo_unidade_escolar=baker.make(
+            "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        ),
         periodo_escolar=baker.make("escola.PeriodoEscolar", nome="MANHA"),
         ativo=True,
     )
 
     vinculo2 = baker.make(
         "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar",
-        tipo_unidade_escolar=baker.make("escola.TipoUnidadeEscolar", iniciais="EMEI"),
+        tipo_unidade_escolar=baker.make(
+            "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+        ),
         periodo_escolar=baker.make("escola.PeriodoEscolar", nome="TARDE"),
         ativo=True,
     )

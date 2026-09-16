@@ -1,3 +1,9 @@
+"""Modelos do submódulo de cronograma semanal de pré-recebimento.
+
+Cronogramas semanais FLV, derivados de cronogramas mensais Ponto a Ponto,
+com as programações de entrega de cada semana.
+"""
+
 from django.db import models
 
 from src.dados_comuns.behaviors import (
@@ -33,6 +39,7 @@ class CronogramaSemanal(
     observacoes = models.TextField("Observações", blank=True)
 
     def __str__(self):
+        """Retorna a representação textual do cronograma semanal."""
         return (
             f"Cronograma Semanal {self.numero or self.uuid} - "
             f"Status: {self.get_status_display()}"
@@ -65,6 +72,7 @@ class ProgramacaoEntregaSemanal(ModeloBase):
     quantidade = models.FloatField("Quantidade da Entrega")
 
     def __str__(self):
+        """Retorna a representação textual da programação de entrega."""
         return (
             f"Programação {self.mes_programado} - {self.data_inicio} a {self.data_fim}"
         )

@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
+from src.dados_comuns.constants import MENSAGEM_PERMISSAO_NEGADA
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
@@ -48,6 +49,7 @@ from src.medicao_inicial.models import (
     Responsavel,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     TipoValorParametrizacaoFinanceira,
     ValorMedicao,
 )
@@ -74,9 +76,20 @@ from src.perfil.models import Usuario
 from src.terceirizada.models import Contrato, Edital
 
 from ...cardapio.base.models import TipoAlimentacao
-from ...dados_comuns.constants import DIRETOR_UE
+from ...dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    DIRETOR_UE,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
-from ..recreio_nas_ferias.models import RecreioNasFerias
+from ..recreio_nas_ferias.models import (
+    RecreioNasFerias,
+    RecreioNasFeriasUnidadeParticipante,
+)
 from ..utils import (
     atualiza_alunos_periodo_parcial,
     log_alteracoes_escola_corrige_periodo,
@@ -108,6 +121,8 @@ from ..validators import (
     validate_solicitacoes_programas_e_projetos_emebs,
     validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
     validate_ultimo_dia_mes_letivo,
+    get_filtro_inclusao_continua_ativa,
+    get_filtro_quantidade_periodo_ativa,
 )
 
 
@@ -140,10 +155,15 @@ class CadastroSobremesaDoceCreateSerializer(serializers.ModelSerializer):
         required=True,
         many=True,
     )
+    tipo = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=TipoSobremesaDoce.objects.all(),
+        required=True,
+    )
 
     class Meta:
         model = DiaSobremesaDoce
-        fields = ("tipo_unidades", "editais")
+        fields = ("tipo_unidades", "editais", "tipo")
 
 
 class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
@@ -151,8 +171,32 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
         many=True, required=True
     )
 
+    def validate(self, attrs):
+        tipos_por_combinacao = {}
+
+        for cadastro in attrs["cadastros_calendario"]:
+            tipo = cadastro["tipo"]
+            for tipo_unidade in cadastro["tipo_unidades"]:
+                for edital in cadastro["editais"]:
+                    chave = (tipo_unidade.uuid, edital.uuid)
+                    tipo_existente = tipos_por_combinacao.get(chave)
+                    if tipo_existente and tipo_existente.uuid != tipo.uuid:
+                        raise serializers.ValidationError(
+                            "Não é possível realizar o cadastro. Já existe "
+                            f"uma {tipo_existente.nome} cadastrada "
+                            "para esta Data, Edital e Tipo de Unidade."
+                        )
+                    tipos_por_combinacao[chave] = tipo
+
+        return attrs
+
     def create(self, validated_data):
-        """Cria ou atualiza dias de sobremesa doce."""
+        return self._save_dias_sobremesa(validated_data)
+
+    def update(self, instance, validated_data):
+        return self._save_dias_sobremesa(validated_data)
+
+    def _save_dias_sobremesa(self, validated_data):
         DiaSobremesaDoce.objects.filter(data=validated_data["data"]).delete()
         dia_sobremesa_doce = None
         for cadastro in validated_data["cadastros_calendario"]:
@@ -162,12 +206,14 @@ class DiaSobremesaDoceCreateManySerializer(serializers.ModelSerializer):
                         data=validated_data["data"],
                         tipo_unidade=tipo_unidade,
                         edital=edital,
+                        tipo=cadastro["tipo"],
                     ):
                         dia_sobremesa_doce = DiaSobremesaDoce(
                             criado_por=self.context["request"].user,
                             data=validated_data["data"],
                             tipo_unidade=tipo_unidade,
                             edital=edital,
+                            tipo=cadastro["tipo"],
                         )
                         dia_sobremesa_doce.save()
         return dia_sobremesa_doce
@@ -235,6 +281,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         allow_null=True,
         default=None,
     )
+    descricao_metodo = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, attrs):
         escola = attrs.get("escola")
@@ -663,7 +710,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
     def logs_filtrados_cei(self, categoria, logs_do_mes, dia, periodo_escolar):
-        if categoria == CategoriaMedicao.objects.get(nome="DIETA ESPECIAL - TIPO A"):
+        if categoria == CategoriaMedicao.objects.get(nome=DIETA_ESPECIAL_TIPO_A):
             logs = logs_do_mes.filter(
                 classificacao__nome__icontains="TIPO A",
                 data__day=dia,
@@ -681,7 +728,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def valor_log_dietas_autorizadas_cei(
         self, categoria, log, logs, valores_medicao_a_criar
     ):
-        if categoria == CategoriaMedicao.objects.get(nome="DIETA ESPECIAL - TIPO A"):
+        if categoria == CategoriaMedicao.objects.get(nome=DIETA_ESPECIAL_TIPO_A):
             return sum(
                 logs.filter(faixa_etaria=log.faixa_etaria).values_list(
                     "quantidade", flat=True
@@ -720,9 +767,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 valor=valor,
                 faixa_etaria=log.faixa_etaria,
             )
-            if categoria == CategoriaMedicao.objects.get(
-                nome="DIETA ESPECIAL - TIPO A"
-            ):
+            if categoria == CategoriaMedicao.objects.get(nome=DIETA_ESPECIAL_TIPO_A):
                 if not self.checa_se_ja_existe_valor_dieta_tipo_a(
                     valores_medicao_a_criar, log
                 ):
@@ -764,7 +809,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             faixa_etaria__isnull=False,
         )
         categorias = CategoriaMedicao.objects.filter(
-            nome__in=["DIETA ESPECIAL - TIPO A", "DIETA ESPECIAL - TIPO B"]
+            nome__in=[DIETA_ESPECIAL_TIPO_A, DIETA_ESPECIAL_TIPO_B]
         )
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
@@ -801,7 +846,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         dia_semana = data.weekday()
         numero_alunos = 0
         for quantidade_periodo in inclusao.quantidades_periodo.filter(
-            dias_semana__icontains=dia_semana, cancelado=False
+            get_filtro_quantidade_periodo_ativa(data),
+            dias_semana__icontains=dia_semana,
+            cancelado=False,
         ):
             numero_alunos += quantidade_periodo.numero_alunos
         return numero_alunos
@@ -834,26 +881,26 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         nome_motivo: str,
         nome_grupo: str,
     ) -> None:
-        if not inclusoes_continuas.filter(motivo__nome__icontains=nome_motivo).exists():
+        inclusoes_do_motivo = inclusoes_continuas.filter(
+            motivo__nome__icontains=nome_motivo
+        )
+        if not inclusoes_do_motivo.exists():
+            return
+        valores_por_dia = self._valores_numero_alunos_inclusoes_continuas_por_dia(
+            instance, inclusoes_do_motivo, quantidade_dias_mes
+        )
+        if not valores_por_dia:
             return
         categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
         medicao = self.retorna_medicao_por_nome_grupo(instance, nome_grupo)
         valores_medicao_a_criar = []
-        for dia in range(1, quantidade_dias_mes + 1):
-            data = date(year=int(instance.ano), month=int(instance.mes), day=dia)
-            numero_alunos = 0
-            for inclusao in inclusoes_continuas.filter(
-                motivo__nome__icontains=nome_motivo
-            ):
-                if not (inclusao.data_inicial <= data <= inclusao.data_final):
-                    continue
-                if medicao.valores_medicao.filter(
-                    categoria_medicao=categoria,
-                    dia=f"{dia:02d}",
-                    nome_campo="numero_de_alunos",
-                ).exists():
-                    continue
-                numero_alunos += self.retorna_numero_alunos_dia(inclusao, data)
+        for dia, numero_alunos in valores_por_dia.items():
+            if medicao.valores_medicao.filter(
+                categoria_medicao=categoria,
+                dia=f"{dia:02d}",
+                nome_campo="numero_de_alunos",
+            ).exists():
+                continue
             valores_medicao_a_criar = self.cria_valor_medicao(
                 numero_alunos,
                 medicao,
@@ -863,6 +910,24 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 valores_medicao_a_criar,
             )
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
+
+    def _valores_numero_alunos_inclusoes_continuas_por_dia(
+        self,
+        instance: SolicitacaoMedicaoInicial,
+        inclusoes_do_motivo: QuerySet,
+        quantidade_dias_mes: int,
+    ) -> dict:
+        valores_por_dia = {}
+        for dia in range(1, quantidade_dias_mes + 1):
+            data = date(year=int(instance.ano), month=int(instance.mes), day=dia)
+            numero_alunos = 0
+            for inclusao in inclusoes_do_motivo:
+                if not (inclusao.data_inicial <= data <= inclusao.data_final):
+                    continue
+                numero_alunos += self.retorna_numero_alunos_dia(inclusao, data)
+            if numero_alunos > 0:
+                valores_por_dia[dia] = numero_alunos
+        return valores_por_dia
 
     def cria_valores_medicao_logs_numero_alunos_inclusoes_continuas_emef_emei(
         self, instance: SolicitacaoMedicaoInicial
@@ -875,10 +940,13 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             year=int(instance.ano), month=int(instance.mes), day=quantidade_dias_mes
         )
         primeiro_dia_mes = date(year=int(instance.ano), month=int(instance.mes), day=1)
-        inclusoes_continuas = escola.inclusoes_alimentacao_continua.filter(
-            status="CODAE_AUTORIZADO",
-            data_inicial__lte=ultimo_dia_mes,
-            data_final__gte=primeiro_dia_mes,
+        inclusoes_continuas = (
+            escola.inclusoes_alimentacao_continua.filter(
+                status="CODAE_AUTORIZADO",
+                data_inicial__lte=ultimo_dia_mes,
+            )
+            .filter(get_filtro_inclusao_continua_ativa(primeiro_dia_mes))
+            .distinct()
         )
         if not inclusoes_continuas.count():
             return
@@ -887,7 +955,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             inclusoes_continuas,
             quantidade_dias_mes,
             "Programas/Projetos",
-            "Programas e Projetos",
+            GRUPO_PROGRAMAS_E_PROJETOS,
         )
         self.cria_valores_medicao_logs_numero_alunos_inclusoes_continuas(
             instance, inclusoes_continuas, quantidade_dias_mes, "ETEC", "ETEC"
@@ -905,7 +973,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     ):
         valores_medicao_a_criar = []
         medicao = self.retorna_medicao_por_nome_grupo(
-            instance, "Solicitações de Alimentação"
+            instance, GRUPO_SOLICITACOES_ALIMENTACAO
         )
         categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
@@ -951,12 +1019,46 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             cancelado=False,
         )
         lanches_emergenciais = escola.alteracaocardapio_set.filter(
-            motivo__nome="Lanche Emergencial",
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
             status="CODAE_AUTORIZADO",
             datas_intervalo__data__month=instance.mes,
             datas_intervalo__data__year=instance.ano,
             datas_intervalo__cancelado=False,
         )
+
+        mes = int(instance.mes)
+        ano = int(instance.ano)
+        inicio_mes = date(ano, mes, 1)
+        fim_mes = date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+        periodos_recreio = RecreioNasFeriasUnidadeParticipante.objects.filter(
+            unidade_educacional=instance.escola,
+            liberar_medicao=True,
+            recreio_nas_ferias__data_inicio__lte=fim_mes,
+            recreio_nas_ferias__data_fim__gte=inicio_mes,
+        ).values_list(
+            "recreio_nas_ferias__data_inicio",
+            "recreio_nas_ferias__data_fim",
+        )
+
+        if periodos_recreio:
+            filtro_kit = Q()
+            filtro_unificado = Q()
+            filtro_lanche = Q()
+            for data_inicio, data_fim in periodos_recreio:
+                filtro_kit &= Q(solicitacao_kit_lanche__data__lt=data_inicio) | Q(
+                    solicitacao_kit_lanche__data__gt=data_fim
+                )
+                filtro_unificado &= Q(
+                    solicitacao_unificada__solicitacao_kit_lanche__data__lt=data_inicio
+                ) | Q(solicitacao_unificada__solicitacao_kit_lanche__data__gt=data_fim)
+                filtro_lanche &= Q(datas_intervalo__data__lt=data_inicio) | Q(
+                    datas_intervalo__data__gt=data_fim
+                )
+
+            kits_lanche = kits_lanche.filter(filtro_kit)
+            kits_lanche_unificado = kits_lanche_unificado.filter(filtro_unificado)
+            lanches_emergenciais = lanches_emergenciais.filter(filtro_lanche)
 
         if (
             not kits_lanche.exists()
@@ -1030,7 +1132,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             and escola_possui_alunos_regulares
             and not escola_p_fom
         ):
-            raise PermissionDenied("Você não tem permissão para executar essa ação.")
+            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
 
     def _update_instance_fields(self, instance, validated_data):
         if "dre_ciencia_correcao_data" in validated_data:
@@ -1180,7 +1282,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             medicao = instance.get_or_create_medicao_por_periodo_e_ou_grupo(
                 medicao_nome
             )
-            if medicao_nome in ["Programas e Projetos", "ETEC"]:
+            if medicao_nome in [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]:
                 if not medicao.possui_ao_menos_uma_observacao():
                     lista_erros.append(
                         {
@@ -1924,7 +2026,9 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             "tipo_alimentacao",
             "faixa_etaria",
             "periodo_escolar",
+            "cei_ou_emei",
             "clausula_desconto",
+            "infantil_ou_fundamental",
             "quantidade",
             "criado_em",
             "alterado_em",
@@ -1942,23 +2046,30 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             getattr(relatorio.grupo_unidade_escolar, "nome", "") or ""
         ).upper()
 
-        if "GRUPO 1" in grupo_nome:
+        if "GRUPO 1" == grupo_nome:
             self._validar_grupo_cei(attrs)
-        elif "GRUPO 2" not in grupo_nome:
+
+        elif "GRUPO 2" == grupo_nome:
+            self._validar_grupo_cemei(attrs)
+
+        elif "GRUPO 5" == grupo_nome:
+            self._validar_grupo_emebs(attrs)
+
+        else:
             self._validar_grupo_emei(attrs)
 
         return attrs
 
-    def _validar_grupo_cei(self, attrs):
+    def _validar_grupo_cei(self, attrs, verifica_instancia=True):
         errors = {}
 
-        faixa_etaria = attrs.get("faixa_etaria") or getattr(
-            self.instance, "faixa_etaria", None
-        )
+        faixa_etaria = attrs.get("faixa_etaria")
+        if faixa_etaria is None and verifica_instancia:
+            faixa_etaria = getattr(self.instance, "faixa_etaria", None)
 
-        periodo_escolar = attrs.get("periodo_escolar") or getattr(
-            self.instance, "periodo_escolar", None
-        )
+        periodo_escolar = attrs.get("periodo_escolar")
+        if periodo_escolar is None and verifica_instancia:
+            periodo_escolar = getattr(self.instance, "periodo_escolar", None)
 
         if not faixa_etaria:
             errors["faixa_etaria"] = "Campo obrigatório para o grupo."
@@ -1969,10 +2080,10 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         if errors:
             raise serializers.ValidationError(errors)
 
-    def _validar_grupo_emei(self, attrs):
-        faixa_etaria = attrs.get("faixa_etaria") or getattr(
-            self.instance, "faixa_etaria", None
-        )
+    def _validar_grupo_emei(self, attrs, verifica_instancia=True):
+        faixa_etaria = attrs.get("faixa_etaria")
+        if faixa_etaria is None and verifica_instancia:
+            faixa_etaria = getattr(self.instance, "faixa_etaria", None)
 
         errors = {}
         if faixa_etaria:
@@ -1982,3 +2093,23 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
 
         if errors:
             raise serializers.ValidationError(errors)
+
+    def _validar_grupo_cemei(self, attrs):
+        cei_ou_emei = attrs.get("cei_ou_emei")
+        if not cei_ou_emei or cei_ou_emei == "N/A":
+            raise serializers.ValidationError(
+                {"cei_ou_emei": "Campo obrigatório para o grupo."}
+            )
+
+        if cei_ou_emei == TIPOS_UNIDADE_ESCOLAR.CEI.value:
+            self._validar_grupo_cei(attrs, False)
+        else:
+            self._validar_grupo_emei(attrs, False)
+
+    def _validar_grupo_emebs(self, attrs):
+        infantil_ou_fundamental = attrs.get("infantil_ou_fundamental")
+        if not infantil_ou_fundamental or infantil_ou_fundamental == "N/A":
+            raise serializers.ValidationError(
+                {"infantil_ou_fundamental": "Campo obrigatório para o grupo."}
+            )
+        self._validar_grupo_emei(attrs)

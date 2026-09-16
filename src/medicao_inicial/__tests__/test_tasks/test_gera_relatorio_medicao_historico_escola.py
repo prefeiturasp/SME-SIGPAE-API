@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 import pytest
 from freezegun import freeze_time
 
+from src.dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
 from src.escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
@@ -33,8 +34,12 @@ class TestGeraRelatorioMedicaoComHistoricoEscola:
 
     def setup_tipos_unidade(self):
         """Cria e retorna os tipos de unidade EMEI e CEMEI."""
-        tipo_unidade_emei = TipoUnidadeEscolarFactory.create(iniciais="EMEI")
-        tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(iniciais="CEMEI")
+        tipo_unidade_emei = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+        )
+        tipo_unidade_cemei = TipoUnidadeEscolarFactory.create(
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
+        )
         return tipo_unidade_emei, tipo_unidade_cemei
 
     def setup_escola_que_mudou_de_tipo(self):
@@ -51,7 +56,7 @@ class TestGeraRelatorioMedicaoComHistoricoEscola:
             terceirizada=terceirizada,
             diretoria_regional=diretoria_regional,
         )
-        tipo_gestao = TipoGestaoFactory.create(nome="TERC TOTAL")
+        tipo_gestao = TipoGestaoFactory.create(nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
         # Escola atual é CEMEI
         escola = EscolaFactory.create(
@@ -267,7 +272,7 @@ class TestGeraRelatorioMedicaoComHistoricoEscola:
         assert historico.tipo_unidade == tipo_emei
         assert historico.data_inicial == datetime.date(2020, 1, 1)
         assert historico.data_final == datetime.date(2025, 12, 31)
-        assert "EMEI" in historico.nome
+        assert TIPOS_UNIDADE_ESCOLAR.EMEI.value in historico.nome
 
     def test_tipo_atual_escola_eh_cemei(self):
         """Verifica que o tipo atual da escola é CEMEI."""

@@ -312,37 +312,57 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
         return query_set, mes, ano, escola_uuid
 
+    def _get_filtro_quantidade_por_faixa_cei(self, periodos_escolares):
+        mapeamento_periodos = {
+            "PARCIAL": (["INTEGRAL"], ["MANHA", "TARDE"]),
+            "INTEGRAL": (["INTEGRAL"], ["INTEGRAL"]),
+            "MANHA": (["MANHA"], ["MANHA"]),
+            "TARDE": (["TARDE"], ["TARDE"]),
+        }
+
+        periodos_internos = []
+        periodos_externos = []
+        periodo_filtro = None
+        for periodo in periodos_escolares:
+            if periodo in mapeamento_periodos:
+                periodos_externos, periodos_internos = mapeamento_periodos[periodo]
+                periodo_filtro = periodo
+                break
+
+        filtro_quantidade_por_faixa = Q(
+            periodo__nome__in=periodos_internos,
+            periodo_externo__nome__in=periodos_externos,
+        )
+        if periodo_filtro == "PARCIAL":
+            filtro_quantidade_por_faixa |= Q(
+                periodo__nome="INTEGRAL", periodo_externo__nome="INTEGRAL"
+            )
+        return filtro_quantidade_por_faixa
+
     def inclusoes_cei(self, query_set, mes, ano, periodos_escolares, return_dict):
         inclusoes_cei = [
             inclusao
             for inclusao in query_set
             if inclusao.tipo_doc == "INC_ALIMENTA_CEI"
         ]
+        filtro_quantidade_por_faixa = self._get_filtro_quantidade_por_faixa_cei(
+            periodos_escolares
+        )
         for inclusao in inclusoes_cei:
             inc = inclusao.get_raw_model.objects.get(uuid=inclusao.uuid)
-            periodos_internos = []
-            periodos_externos = []
-
-            mapeamento_periodos = {
-                "PARCIAL": (["INTEGRAL"], ["MANHA", "TARDE"]),
-                "INTEGRAL": (["INTEGRAL"], ["INTEGRAL"]),
-                "MANHA": (["MANHA"], ["MANHA"]),
-                "TARDE": (["TARDE"], ["TARDE"]),
-            }
-
-            for periodo in periodos_escolares:
-                if periodo in mapeamento_periodos:
-                    periodos_externos, periodos_internos = mapeamento_periodos[periodo]
-                    break
 
             dias_motivos = inc.dias_motivos_da_inclusao_cei.filter(
                 data__month=mes, data__year=ano, cancelado=False
             )
             quantidade_por_faixa = inc.quantidade_alunos_da_inclusao.filter(
-                periodo__nome__in=periodos_internos,
-                periodo_externo__nome__in=periodos_externos,
+                filtro_quantidade_por_faixa
             )
             if quantidade_por_faixa:
+                periodo_interno = ", ".join(
+                    quantidade_por_faixa.values_list(
+                        "periodo__nome", flat=True
+                    ).distinct()
+                )
                 for dia_motivo in dias_motivos:
                     faixas_etarias_uuids = quantidade_por_faixa.values_list(
                         "faixa_etaria__uuid", flat=True
@@ -350,6 +370,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     return_dict.append(
                         {
                             "dia": dia_motivo.data.day,
+                            "periodo": periodo_interno,
                             "faixas_etarias": faixas_etarias_uuids.distinct(),
                         }
                     )

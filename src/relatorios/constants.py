@@ -1,3 +1,5 @@
+from src.dados_comuns.constants import ESCOLA_CANCELOU_LABEL
+
 FLUXO_PARTINDO_DRE = [
     {"titulo": "Solicitação Realizada", "status": "", "criado_em": "", "usuario": None},
     {"titulo": "CODAE", "status": "", "criado_em": "", "usuario": None},
@@ -86,7 +88,7 @@ FLUXO_DIETA_ESPECIAL_INATIVACAO_CANCELADO = [
         "usuario": None,
     },
     {
-        "titulo": "Escola cancelou",
+        "titulo": ESCOLA_CANCELOU_LABEL,
         "status": "",
         "criado_em": "",
         "usuario": None,

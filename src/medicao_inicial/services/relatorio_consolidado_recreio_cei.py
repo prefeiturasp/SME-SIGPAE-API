@@ -8,6 +8,9 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_RECREIO_NAS_FERIAS,
     NOMES_CAMPOS,
     ORDEM_CAMPOS_RECREIO,
     ORDEM_HEADERS_RECREIO_CEI,
@@ -317,7 +320,7 @@ def _processa_periodo_campo(
     filtros = {}
     try:
         if "DIETA ESPECIAL" in grupo:
-            filtros["grupo__nome"] = "Recreio nas Férias"
+            filtros["grupo__nome"] = GRUPO_RECREIO_NAS_FERIAS
             total = processa_dieta_especial(
                 solicitacao, filtros, campo, grupo, query_params
             )
@@ -536,8 +539,8 @@ def ajusta_layout_tabela(
         "": formatacao_level2,
         "ALIMENTAÇÕES ALUNOS PARTICIPANTES": formatacao_alunos,
         "COLABORADORES": formatacao_colaboradores,
-        "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
+        DIETA_ESPECIAL_TIPO_A: formatacao_dieta_a,
+        DIETA_ESPECIAL_TIPO_B: formatacao_dieta_b,
     }
 
     for col_num, value in enumerate(df.columns.values):

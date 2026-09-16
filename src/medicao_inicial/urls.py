@@ -19,6 +19,7 @@ router.register(
     "solicitacao-medicao-inicial", viewsets.SolicitacaoMedicaoInicialViewSet
 )
 router.register("tipo-contagem-alimentacao", viewsets.TipoContagemAlimentacaoViewSet)
+router.register("tipos-sobremesa-doce", viewsets.TipoSobremesaDoceViewSet)
 router.register("valores-medicao", viewsets.ValorMedicaoViewSet)
 router.register("ocorrencia", viewsets.OcorrenciaViewSet)
 router.register(

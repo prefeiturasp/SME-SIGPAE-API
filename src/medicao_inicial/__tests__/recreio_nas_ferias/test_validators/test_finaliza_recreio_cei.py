@@ -3,6 +3,10 @@ import datetime
 import pytest
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
+)
 from src.medicao_inicial.models import ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cei_cci_cips import (
     _categoria_tem_logs_dieta_autorizada_cei,
@@ -56,7 +60,7 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_cei_dados_nao_lancados
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -88,7 +92,7 @@ def test_validate_lancamento_dietas_medicao_recreio_cei_dados_nao_lancados(
     assert lista_erros == [
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         }
     ]
 
@@ -104,14 +108,23 @@ def test_agrupar_tipos_alimentacao_por_categoria(solicitacao_recreio_cei):
     resultado = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
 
     assert "Colaboradores" in resultado
-    colaboradores = ["Refeição", "Sobremesa"]
+    colaboradores = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+    ]
     for esperado in colaboradores:
         assert (
             esperado in resultado["Colaboradores"]
         ), f"Elemento {esperado} não encontrado"
 
     assert "Inscritos" in resultado
-    inscritos = ["Refeição", "Sobremesa", "Lanche", "Lanche 4h", "Almoço"]
+    inscritos = [
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.ALMOCO.value,
+    ]
     for esperado in inscritos:
         assert esperado in resultado["Inscritos"], f"Elemento {esperado} não encontrado"
 
@@ -229,7 +242,7 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_cei_erro_quando_existe
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -267,7 +280,7 @@ def test_validate_lancamento_alimentacoes_medicao_recreio_cei_gera_erro_sem_obse
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": "Recreio nas Férias",
+            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -441,7 +454,7 @@ def test_cria_valores_medicao_participantes_cei_sem_tipo_alimentacao_colaborador
 
     ValorMedicao.objects.filter(
         medicao__solicitacao_medicao_inicial=solicitacao_recreio_cei,
-        medicao__grupo__nome="Recreio nas Férias",
+        medicao__grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
         nome_campo="participantes",
     ).delete()
     ValorMedicao.objects.filter(
@@ -454,7 +467,7 @@ def test_cria_valores_medicao_participantes_cei_sem_tipo_alimentacao_colaborador
 
     participantes_valores = ValorMedicao.objects.filter(
         medicao__solicitacao_medicao_inicial=solicitacao_recreio_cei,
-        medicao__grupo__nome="Recreio nas Férias",
+        medicao__grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
         nome_campo="participantes",
     )
     colaboradores_valores = ValorMedicao.objects.filter(

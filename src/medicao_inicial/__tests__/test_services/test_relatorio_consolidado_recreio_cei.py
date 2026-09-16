@@ -5,6 +5,14 @@ import openpyxl
 import pandas as pd
 import pytest
 
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _calcula_soma_medicao,
     _get_lista_alimentacoes,
@@ -26,13 +34,13 @@ def test_get_alimentacoes_por_periodo(solicitacao_recreio_cei, faixas_etarias_at
     colunas = get_alimentacoes_por_periodo([solicitacao_recreio_cei])
     assert isinstance(colunas, list)
     assert len(colunas) == 22
-    assert sum(1 for tupla in colunas if tupla[0] == "Recreio nas Férias") == 8
+    assert sum(1 for tupla in colunas if tupla[0] == GRUPO_RECREIO_NAS_FERIAS) == 8
     assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 0
     assert sum(1 for tupla in colunas if tupla[0] == "PARCIAL") == 0
     assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 0
     assert sum(1 for tupla in colunas if tupla[0] == "TARDE") == 0
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO A") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == "DIETA ESPECIAL - TIPO B") == 0
+    assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_A) == 8
+    assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_B) == 0
     assert sum(1 for tupla in colunas if tupla[0] == "Colaboradores") == 6
 
     assert sum(1 for tupla in colunas if tupla[1] == faixas_etarias_ativas[0].id) == 2
@@ -88,7 +96,7 @@ def test_get_lista_alimentacoes_dietas(solicitacao_recreio_cei, faixas_etarias_a
     medicao_colaboradores = medicoes[0]
     medicao_recreio = medicoes[1]
 
-    dieta = "DIETA ESPECIAL - TIPO A"
+    dieta = DIETA_ESPECIAL_TIPO_A
 
     dietas_colaboradores = _get_lista_alimentacoes_dietas(medicao_colaboradores, dieta)
     assert isinstance(dietas_colaboradores, list)
@@ -104,7 +112,7 @@ def test_sort_and_merge(faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
 
     periodos_alimentacoes = {
-        "Recreio nas Férias": faixas,
+        GRUPO_RECREIO_NAS_FERIAS: faixas,
         "Colaboradores": [
             "lanche",
             "lanche_4h",
@@ -114,15 +122,15 @@ def test_sort_and_merge(faixas_etarias_ativas):
     }
 
     dietas_alimentacoes = {
-        "DIETA ESPECIAL - TIPO A": [faixas[0]],
-        "DIETA ESPECIAL - TIPO B": [faixas[1], faixas[2]],
+        DIETA_ESPECIAL_TIPO_A: [faixas[0]],
+        DIETA_ESPECIAL_TIPO_B: [faixas[1], faixas[2]],
     }
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
     assert isinstance(dict_periodos_dietas, dict)
 
-    assert "Recreio nas Férias" in dict_periodos_dietas
-    assert len(dict_periodos_dietas["Recreio nas Férias"]) == 8
-    assert dict_periodos_dietas["Recreio nas Férias"] == faixas
+    assert GRUPO_RECREIO_NAS_FERIAS in dict_periodos_dietas
+    assert len(dict_periodos_dietas[GRUPO_RECREIO_NAS_FERIAS]) == 8
+    assert dict_periodos_dietas[GRUPO_RECREIO_NAS_FERIAS] == faixas
 
     assert "Colaboradores" in dict_periodos_dietas
     assert len(dict_periodos_dietas["Colaboradores"]) == 4
@@ -133,17 +141,17 @@ def test_sort_and_merge(faixas_etarias_ativas):
         "total_sobremesas_pagamento",
     ]
 
-    assert "DIETA ESPECIAL - TIPO A" in dict_periodos_dietas
-    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO A"]) == 1
-    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO A"] == [faixas[0]]
+    assert DIETA_ESPECIAL_TIPO_A in dict_periodos_dietas
+    assert len(dict_periodos_dietas[DIETA_ESPECIAL_TIPO_A]) == 1
+    assert dict_periodos_dietas[DIETA_ESPECIAL_TIPO_A] == [faixas[0]]
 
-    assert "DIETA ESPECIAL - TIPO B" in dict_periodos_dietas
-    assert len(dict_periodos_dietas["DIETA ESPECIAL - TIPO B"]) == 2
-    assert dict_periodos_dietas["DIETA ESPECIAL - TIPO B"] == [faixas[1], faixas[2]]
+    assert DIETA_ESPECIAL_TIPO_B in dict_periodos_dietas
+    assert len(dict_periodos_dietas[DIETA_ESPECIAL_TIPO_B]) == 2
+    assert dict_periodos_dietas[DIETA_ESPECIAL_TIPO_B] == [faixas[1], faixas[2]]
 
 
 def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
-    tipos_unidade = ["CEI"]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
     linhas = get_valores_tabela(
         [solicitacao_recreio_cei], mock_colunas_recreio_cei, tipos_unidade
     )
@@ -152,7 +160,7 @@ def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
     assert isinstance(linhas[0], list)
     assert len(linhas[0]) == 25
     assert linhas[0] == [
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "765432",
         "CEI DIRET TESTE",
         168.0,
@@ -189,13 +197,13 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
 
     recreio = _processa_periodo_campo(
         solicitacao_recreio_cei,
-        "Recreio nas Férias",
+        GRUPO_RECREIO_NAS_FERIAS,
         faixas_etarias_ativas[0].id,
         valores_iniciais,
     )
     assert isinstance(recreio, list)
     assert len(recreio) == 4
-    assert recreio == ["CEI DIRET", "765432", "CEI DIRET TESTE", 168.0]
+    assert recreio == [TIPO_UNIDADE_CEI_DIRET, "765432", "CEI DIRET TESTE", 168.0]
 
     colaboradores = _processa_periodo_campo(
         solicitacao_recreio_cei,
@@ -205,12 +213,18 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     )
     assert isinstance(colaboradores, list)
     assert len(colaboradores) == 5
-    assert colaboradores == ["CEI DIRET", "765432", "CEI DIRET TESTE", 168.0, 280.0]
+    assert colaboradores == [
+        TIPO_UNIDADE_CEI_DIRET,
+        "765432",
+        "CEI DIRET TESTE",
+        168.0,
+        280.0,
+    ]
 
 
 def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas):
-    filtros = {"grupo__nome": "Recreio nas Férias"}
-    periodo = "DIETA ESPECIAL - TIPO A"
+    filtros = {"grupo__nome": GRUPO_RECREIO_NAS_FERIAS}
+    periodo = DIETA_ESPECIAL_TIPO_A
     faixa_etaria = faixas_etarias_ativas[2].id
     total = processa_dieta_especial(
         solicitacao_recreio_cei, filtros, faixa_etaria, periodo
@@ -218,7 +232,7 @@ def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas)
     assert math.isclose(total, 28.0, rel_tol=1e-9)
 
     filtros = {"grupo__nome": "Colaboradores"}
-    periodo = "DIETA ESPECIAL - TIPO A"
+    periodo = DIETA_ESPECIAL_TIPO_A
     faixa_etaria = faixas_etarias_ativas[2].id
     total = processa_dieta_especial(
         solicitacao_recreio_cei, filtros, faixa_etaria, periodo
@@ -227,8 +241,8 @@ def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas)
 
 
 def test_processa_grupos_recreio(solicitacao_recreio_cei, faixas_etarias_ativas):
-    periodo = "Recreio nas Férias"
-    filtros = {"grupo__nome": "Recreio nas Férias"}
+    periodo = GRUPO_RECREIO_NAS_FERIAS
+    filtros = {"grupo__nome": GRUPO_RECREIO_NAS_FERIAS}
     faixa_etaria = faixas_etarias_ativas[0].id
     total = processa_grupos_recreio(
         solicitacao_recreio_cei, filtros, faixa_etaria, periodo
@@ -267,7 +281,7 @@ def test_calcula_soma_medicao_dieta_especial(
     medicoes = solicitacao_recreio_cei.medicoes.all().order_by("grupo__nome")
     medicao_colaboradores = medicoes[0]
     colaboradores = _calcula_soma_medicao(
-        medicao_colaboradores, "refeicao", None, "DIETA ESPECIAL - TIPO A"
+        medicao_colaboradores, "refeicao", None, DIETA_ESPECIAL_TIPO_A
     )
     assert colaboradores is None
 
@@ -276,7 +290,7 @@ def test_calcula_soma_medicao_dieta_especial(
         medicao_recreio,
         "frequencia",
         faixas_etarias_ativas[0].id,
-        "DIETA ESPECIAL - TIPO A",
+        DIETA_ESPECIAL_TIPO_A,
     )
     assert math.isclose(recreio, 28.0, rel_tol=1e-9)
 
@@ -302,23 +316,35 @@ def test_insere_tabela_periodos_na_planilha(
         )
         == 8
     )
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO A") == 8
-    assert sum(1 for tupla in colunas_df if tupla[0] == "DIETA ESPECIAL - TIPO B") == 0
+    assert sum(1 for tupla in colunas_df if tupla[0] == DIETA_ESPECIAL_TIPO_A) == 8
+    assert sum(1 for tupla in colunas_df if tupla[0] == DIETA_ESPECIAL_TIPO_B) == 0
     assert sum(1 for tupla in colunas_df if tupla[1] == "Tipo") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Cód. EOL") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Unidade Escolar") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 0
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche 4h") == 0
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Refeição") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
+        == 0
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE_4H.value)
+        == 0
+    )
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.REFEICAO.value)
+        == 1
+    )
     assert (
         sum(
             1 for tupla in colunas_df if tupla[1] == "Total de Refeições para Pagamento"
         )
         == 1
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "Sobremesa") == 1
+    assert (
+        sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.SOBREMESA.value)
+        == 1
+    )
     assert (
         sum(
             1
@@ -344,7 +370,7 @@ def test_insere_tabela_periodos_na_planilha(
     assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
 
     assert df.iloc[0].tolist() == [
-        "CEI DIRET",
+        TIPO_UNIDADE_CEI_DIRET,
         "765432",
         "CEI DIRET TESTE",
         168.0,
@@ -417,7 +443,7 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_recreio_cei):
     assert sheet["D3"].value == "ALIMENTAÇÕES ALUNOS PARTICIPANTES"
     assert sheet["D3"].fill.fgColor.rgb == "FFE8BE25"
 
-    assert sheet["L3"].value == "DIETA ESPECIAL - TIPO A"
+    assert sheet["L3"].value == DIETA_ESPECIAL_TIPO_A
     assert sheet["L3"].fill.fgColor.rgb == "FF20AA73"
 
     assert sheet["T3"].value == "COLABORADORES"

@@ -2,13 +2,49 @@ from datetime import datetime, timedelta
 
 from django_filters import rest_framework as filters
 
-from src.escola.models import Aluno, HistoricoMatriculaAluno
+from src.escola.models import Aluno, Escola, HistoricoMatriculaAluno
+from src.terceirizada.models import Terceirizada
 
 
 class DiretoriaRegionalFilter(filters.FilterSet):
     dre = filters.CharFilter(
         field_name="diretoria_regional__uuid", lookup_expr="iexact"
     )
+
+
+class EscolaParaFiltrosFilter(filters.FilterSet):
+    class Meta:
+        model = Escola
+        fields = {
+            "tipo_unidade__uuid": ["in"],
+            "diretoria_regional__uuid": ["exact"],
+            "lote__uuid": ["exact"],
+            "tipo_gestao__nome": ["exact"],
+        }
+
+    def filter_queryset(self, queryset):
+        if self.request and isinstance(
+            self.request.user.vinculo_atual.instituicao, Terceirizada
+        ):
+            queryset = queryset.filter(
+                lote__terceirizada=self.request.user.vinculo_atual.instituicao
+            )
+
+        queryset = super().filter_queryset(queryset)
+
+        tipos_unidades = self.data.getlist("tipo_unidade__uuid[]")
+        if tipos_unidades:
+            queryset = queryset.filter(tipo_unidade__uuid__in=tipos_unidades)
+
+        lotes = self.data.getlist("lote__uuid[]")
+        if lotes:
+            queryset = queryset.filter(lote__uuid__in=lotes)
+
+        excluir_tipo_unidade = self.data.getlist("excluir_tipo_unidade__uuid[]")
+        if excluir_tipo_unidade:
+            queryset = queryset.exclude(tipo_unidade__uuid__in=excluir_tipo_unidade)
+
+        return queryset
 
 
 class AlunoFilter(filters.FilterSet):

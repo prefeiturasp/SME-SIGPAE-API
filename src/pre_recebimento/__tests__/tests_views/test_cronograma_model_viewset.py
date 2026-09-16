@@ -102,7 +102,7 @@ def test_fornecedor_ciente_nao_aplica_alteracoes_se_ja_assinado_codae(
     )
 
 
-def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
+def test_fornecedor_ciente_finaliza_cronograma_legado_em_alteracao_codae(
     client_user_autenticado_fornecedor,
     solicitacao_alteracao_cronograma,
     django_user_model,
@@ -131,7 +131,7 @@ def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
 
     usuario_codae = django_user_model.objects.create_user(
         username="codae@test.com",
-        password="adminadmin",
+        password=DJANGO_ADMIN_PASSWORD,
         email="codae@test.com",
     )
     cronograma.salvar_log_transicao(
@@ -155,14 +155,131 @@ def test_fornecedor_ciente_aplica_alteracoes_se_nao_assinado_codae(
 
     assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
     assert cronograma.qtd_total_programada == solicitacao.qtd_total_programada
+    assert list(cronograma.etapas.values_list("id", flat=True)) == list(
+        solicitacao.etapas_novas.values_list("id", flat=True)
+    )
+    assert list(
+        cronograma.programacoes_de_recebimento.values_list("id", flat=True)
+    ) == list(solicitacao.programacoes_novas.values_list("id", flat=True))
+
+
+def test_analise_dilog_aprova_migra_etapas_e_programacoes(
+    client_autenticado_dilog_diretoria,
+    solicitacao_alteracao_cronograma,
+):
+    import json
+
+    solicitacao = solicitacao_alteracao_cronograma
+    cronograma = solicitacao.cronograma
+
+    solicitacao.status = (
+        SolicitacaoAlteracaoCronograma.workflow_class.APROVADO_DILOG_ABASTECIMENTO
+    )
+    solicitacao.save(update_fields=["status"])
+
+    data = json.dumps({"aprovado": True})
+    response = client_autenticado_dilog_diretoria.patch(
+        f"/solicitacao-de-alteracao-de-cronograma/{solicitacao.uuid}/analise-dilog/",
+        data,
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK, response.data
+
+    solicitacao.refresh_from_db()
+    cronograma.refresh_from_db()
+
+    assert solicitacao.status == "APROVADO_DILOG"
+    assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
+    assert cronograma.qtd_total_programada == solicitacao.qtd_total_programada
 
     assert list(cronograma.etapas.values_list("id", flat=True)) == list(
         solicitacao.etapas_novas.values_list("id", flat=True)
     )
-
     assert list(
         cronograma.programacoes_de_recebimento.values_list("id", flat=True)
     ) == list(solicitacao.programacoes_novas.values_list("id", flat=True))
+
+
+def test_dilog_cria_alteracao_e_aplica_no_cronograma(
+    client_autenticado_vinculo_dilog_cronograma,
+    cronograma_factory,
+    etapas_do_cronograma_factory,
+):
+    import json
+
+    from src.pre_recebimento.cronograma_entrega.models import (
+        Cronograma,
+        ProgramacaoDoRecebimentoDoCronograma,
+        SolicitacaoAlteracaoCronograma,
+    )
+
+    client, _ = client_autenticado_vinculo_dilog_cronograma
+
+    cronograma = cronograma_factory.create(
+        status=Cronograma.workflow_class.ASSINADO_CODAE
+    )
+    etapa_antiga = etapas_do_cronograma_factory.create(cronograma=cronograma)
+    cronograma.etapas.set([etapa_antiga])
+
+    programacao_antiga = ProgramacaoDoRecebimentoDoCronograma.objects.create(
+        data_programada="01/01/2026 - Etapa 1",
+        tipo_carga=ProgramacaoDoRecebimentoDoCronograma.PALETIZADA,
+    )
+    cronograma.programacoes_de_recebimento.set([programacao_antiga])
+
+    payload = {
+        "cronograma": f"{cronograma.uuid}",
+        "qtd_total_programada": "999.0",
+        "etapas": [
+            {
+                "numero_empenho": "10",
+                "qtd_total_empenho": 10,
+                "etapa": 1,
+                "data_programada": "2026-08-01",
+                "quantidade": "999",
+                "total_embalagens": "10",
+            }
+        ],
+        "programacoes_de_recebimento": [
+            {
+                "data_programada": "01/08/2026 - Etapa 1 - Parte 1",
+                "tipo_carga": ProgramacaoDoRecebimentoDoCronograma.PALETIZADA,
+            }
+        ],
+        "justificativa": "teste alteracao dilog",
+    }
+
+    response = client.post(
+        "/solicitacao-de-alteracao-de-cronograma/",
+        json.dumps(payload),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED, response.data
+
+    solicitacao = SolicitacaoAlteracaoCronograma.objects.get(uuid=response.data["uuid"])
+    cronograma.refresh_from_db()
+
+    assert (
+        solicitacao.status
+        == SolicitacaoAlteracaoCronograma.workflow_class.ALTERACAO_ENVIADA_FORNECEDOR
+    )
+    assert cronograma.status == Cronograma.workflow_class.ASSINADO_CODAE
+    assert cronograma.qtd_total_programada == pytest.approx(999.0)
+
+    assert list(cronograma.etapas.values_list("id", flat=True)) == list(
+        solicitacao.etapas_novas.values_list("id", flat=True)
+    )
+    assert list(
+        cronograma.programacoes_de_recebimento.values_list("id", flat=True)
+    ) == list(solicitacao.programacoes_novas.values_list("id", flat=True))
+
+    # Etapas novas devem estar vinculadas ao cronograma (FK preenchida)
+    assert cronograma.etapas.exclude(cronograma__isnull=True).count() > 0
+    assert all(
+        etapa.cronograma_id == cronograma.id for etapa in cronograma.etapas.all()
+    )
 
 
 def test_post_cronograma_ponto_a_ponto(

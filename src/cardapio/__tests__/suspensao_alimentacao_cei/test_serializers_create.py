@@ -7,13 +7,14 @@ from src.cardapio.suspensao_alimentacao_cei.api.serializers_create import (
 from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
+from src.dados_comuns.constants import MODEL_USUARIO
 
 pytestmark = pytest.mark.django_db
 
 
 def test_suspensao_alimentacao_cei_creators(suspensao_alimentacao_cei_params, escola):
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     motivo, data_create, data_update = suspensao_alimentacao_cei_params
 
@@ -21,9 +22,12 @@ def test_suspensao_alimentacao_cei_creators(suspensao_alimentacao_cei_params, es
         context={"request": FakeObject}
     )
 
-    validated_data_create = dict(
-        escola=escola, motivo=motivo, outro_motivo="xxx", data=data_create
-    )
+    validated_data_create = {
+        "escola": escola,
+        "motivo": motivo,
+        "outro_motivo": "xxx",
+        "data": data_create,
+    }
 
     resp_create = serializer_obj.create(validated_data=validated_data_create)
 
@@ -35,9 +39,12 @@ def test_suspensao_alimentacao_cei_creators(suspensao_alimentacao_cei_params, es
 
     motivo = baker.make("cardapio.MotivoSuspensao", nome="motivo")
 
-    validated_data_update = dict(
-        escola=escola, motivo=motivo, outro_motivo="", data=data_update
-    )
+    validated_data_update = {
+        "escola": escola,
+        "motivo": motivo,
+        "outro_motivo": "",
+        "data": data_update,
+    }
 
     resp_update = serializer_obj.update(
         instance=resp_create, validated_data=validated_data_update

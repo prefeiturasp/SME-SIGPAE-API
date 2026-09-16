@@ -1,0 +1,275 @@
+{% extends 'cabecalho_relatorio_produto.html' %}
+{% load index %}
+{% load static %}
+{% load safe_html_tags %}
+
+{% block css %}
+<style>
+  .justificativa-motivo {
+    margin-bottom: 1em;
+    border: 1px solid black;
+    border-radius: 4px;
+    padding: 0.25em;
+    padding-left: 0.75em;
+    padding-top: 0em;
+    line-height: 10px;
+  }
+
+  .justificativa-motivo .label {
+    height: 20px;
+    display: flex;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
+    color: #686868;
+  }
+
+  .justificativa-motivo .value {
+    height: 20px;
+    display: flex;
+    font-weight: 500;
+    font-size: 12px;
+    color: #000000;
+    margin-top: 7px;
+  }
+
+  .nova-pagina-bloco {
+</style>
+{% endblock %}
+{% block conteudo %}
+<header class="header">
+  <figure class="logo-titulo">
+    <img src="{% static 'images/LOGO_PB_POSITIVO.png' %}" alt="" />
+    <h1>SISTEMA GESTÃO DO PROGRAMA DE ALIMENTAÇÃO ESCOLAR</h1>
+  </figure>
+  <section class="conteudo-titulo">
+    <article class="article-dre">
+      <section>
+        <h3 class="n-pedido-header">N° PEDIDO: {{ homologacao.id_externo }}</h3>
+      </section>
+    </article>
+  </section>
+</header>
+<p style="page-break-before: avoid;"></p>
+<section class="corpo-relatorio-produto">
+  {% if homologacao.status == 'CODAE_NAO_HOMOLOGADO' %}
+  <div class="label">Motivo da recusa de homologação (Data: {{ homologacao.logs.last.criado_em|date:'d/m/Y' }})</div>
+  <article class="justificativa-motivo">
+    {{ homologacao.logs.last.justificativa|safe_content }}
+  </article>
+  {% endif %}
+  {% if homologacao.status == 'CODAE_SUSPENDEU' %}
+  <div class="label">Motivo da suspensão (Data: {{ homologacao.logs.last.criado_em|date:'d/m/Y' }})</div>
+  <article class="justificativa-motivo">
+    {{ homologacao.logs.last.justificativa|safe_content }}
+  </article>
+  {% endif %}
+  {% if homologacao.status == 'CODAE_QUESTIONADO' %}
+  <div class="label">Motivo da solicitação de correção do produto (Data: {{ homologacao.logs.last.criado_em|date:'d/m/Y'
+    }})</div>
+  <article class="justificativa-motivo">
+    {{ homologacao.logs.last.justificativa|safe_content }}
+  </article>
+  {% endif %}
+
+  {% if homologacao.status == 'CODAE_AUTORIZOU_RECLAMACAO' %}
+  <article class="justificativa-motivo">
+    <div class="value">Reclamação aceita pela equipe de gestão de produto CODAE em {{
+      reclamacao.ultimo_log.criado_em|date:'d/m/Y' }} </div>
+    <div class="label">Para mais detalhes favor extrair o relatório de reclamação de produto</div>
+  </article>
+  {% endif %}
+
+  {% if homologacao.status == 'CODAE_PEDIU_ANALISE_SENSORIAL' %}
+  <div style="display: flex; justify-content: space-between;">
+    <div class="label">Solicitação de análise sensorial:</div>
+    <div class="label">Protocolo Análise Sensorial: {{ homologacao.protocolo_analise_sensorial }}</div>
+  </div>
+  <article class="detalhes-empresa" style="height: auto">
+    <div style="width: 100%; display: flex; justify-content: space-between; padding: 0 10px">
+      <div class="value" style="height: auto">
+        <div>{{ justificativa_analise_sensorial|safe_content }}</div>
+      </div>
+    </div>
+  </article>
+  <br>
+  {% endif %}
+
+  <article class="detalhes-empresa">
+    <div class="nome">
+      <div class="label">Empresa solicitante (Terceirizada)</div>
+      <div class="value">{{ terceirizada.nome }}</div>
+    </div>
+    <div class="telefone">
+      <div class="label">Telefone</div>
+      <div class="value">{{ terceirizada.representante_telefone }}</div>
+    </div>
+    <div class="email">
+      <div class="label">E-mail</div>
+      <div class="value">{{ terceirizada.representante_email }}</div>
+    </div>
+  </article>
+
+  <article>
+    {% include "bloco_fluxo_status_homologacao.html" %}
+  </article>
+  <p style="page-break-before: avoid;"></p>
+  <section class="identificacao-produto nova-pagina-bloco">
+    <h4>
+      Identificação do Produto
+    </h4>
+    <article class="uma-informacao">
+      <header>
+        <p>Nome do produto</p>
+      </header>
+      <main>
+        <p>{{ produto.nome }}</p>
+      </main>
+    </article>
+
+    <article class="uma-informacao">
+      <header>
+        <p>O produto se destina a alimentação de alunos com dieta especial?</p>
+      </header>
+      <main>
+        {% if produto.eh_para_alunos_com_dieta %}
+        <p>SIM</p>
+        {% else %}
+        <p>NÃO</p>
+        {% endif %}
+      </main>
+    </article>
+
+    <article class="duas-informacoes">
+      <header>
+        <p>Marca</p>
+        <p>Fabricante</p>
+      </header>
+      <main>
+        <p>{{ produto.marca }}</p>
+        <p>{{ produto.fabricante }}</p>
+      </main>
+    </article>
+
+    <article class="uma-informacao">
+      <header>
+        <p>Compoentes do produto</p>
+      </header>
+      <main>
+        <p>{{ produto.componentes }}</p>
+      </main>
+    </article>
+
+    <article class="uma-informacao">
+      <header>
+        <p>O produto contém ou pode conter ingredientes/aditivos alergênicos?</p>
+      </header>
+      <main>
+        {% if produto.tem_aditivos_alergenicos %}
+        <p>SIM</p>
+        {% else %}
+        <p>NÃO</p>
+        {% endif %}
+      </main>
+    </article>
+
+    {% if produto.tem_aditivos_alergenicos %}
+    <article class="uma-informacao">
+      <header>
+        <p>Quais?</p>
+      </header>
+      <main>
+        <p>{{ produto.aditivos }}</p>
+      </main>
+    </article>
+    {% endif %}
+  </section>
+  <p style="page-break-before: avoid;"></p>
+  <section class="identificacao-produto mt">
+    <h4>
+      Informações nutricionais
+    </h4>
+    <article class="duas-informacoes">
+      <header>
+        <p>Porção</p>
+        <p>Unidade caseira</p>
+      </header>
+      <main>
+        <p>{{ produto.porcao }}</p>
+        <p>{{ produto.unidade_caseira }}</p>
+      </main>
+    </article>
+  </section>
+  <section class="tabela-informacoes-nutricionais">
+    <header>
+      <p>Quantidade por porção</p>
+      <p>% VD</p>
+    </header>
+    <ul>
+      {% for informacao in produto.informacoes_nutricionais.all %}
+      <li>
+        <p>{{ informacao.informacao_nutricional.nome }}</p>
+        <p>{{ informacao.quantidade_porcao }} {{ informacao.informacao_nutricional.medida }}</p>
+        <p>{{ informacao.valor_diario }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+    <footer>
+      <b>IMPORTANTE:</b> * % VD com base em uma dieta de 2.000 Kcal ou 8.400 KJ. Seus valores diários podem ser maiores
+      ou
+      menores dependendo de suas necessidades energéticas. (**) VD não estabelecidos
+    </footer>
+  </section>
+  <section class="identificacao-produto nova-pagina-bloco">
+    <h4>
+      Informação do Produto (Classificação)
+    </h4>
+    <article class="uma-informacao">
+      <header>
+        <p>Tipo</p>
+      </header>
+      <main>
+        <p>{{ produto.tipo }}</p>
+      </main>
+    </article>
+    <article class="duas-informacoes">
+      <header>
+        <p>Embalagem primária</p>
+        <p>Prazo de validade</p>
+      </header>
+      <main>
+        <p>{{ produto.embalagem }}</p>
+        <p>{{ produto.prazo_validade }}</p>
+      </main>
+    </article>
+    <p style="page-break-before: aways;"></p>
+    <article class="uma-informacao">
+      <header>
+        <p>Condições de armazenamento, conservação e prazo máximo para consumo após abertura da embalagem </p>
+      </header>
+      <main>
+        <p>{{ produto.info_armazenamento }}</p>
+      </main>
+    </article>
+
+    <article class="uma-informacao">
+      <header>
+        <p>Outras informações que empresa julgar necessário</p>
+      </header>
+      <main>
+        <p>{{ produto.outras_informacoes }}</p>
+      </main>
+    </article>
+
+    <article class="uma-informacao">
+      <header>
+        <p>Nº de registro do produto de órgão competente</p>
+      </header>
+      <main>
+        <p>{{ produto.numero_registro }}</p>
+      </main>
+    </article>
+  </section>
+</section>
+
+{% endblock %}

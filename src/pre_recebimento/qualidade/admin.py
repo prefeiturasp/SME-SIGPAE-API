@@ -1,3 +1,5 @@
+"""Configuração do Django Admin do submódulo de qualidade."""
+
 from django.contrib import admin
 
 from ..forms import CaixaAltaNomeForm
@@ -9,6 +11,14 @@ from .models import (
 
 @admin.register(Laboratorio)
 class Laboratoriodmin(admin.ModelAdmin):
+    """Admin dos laboratórios.
+
+    Exibe ``nome``, ``cnpj``, ``cidade`` e ``credenciado`` na listagem,
+    ordena por ``-criado_em``, busca por nome e filtra por nome. O campo
+    ``nome`` é normalizado em letras maiúsculas (``CaixaAltaNomeForm``) e
+    ``uuid`` é somente leitura.
+    """
+
     form = CaixaAltaNomeForm
     list_display = ("nome", "cnpj", "cidade", "credenciado")
     ordering = ("-criado_em",)
@@ -19,7 +29,9 @@ class Laboratoriodmin(admin.ModelAdmin):
 
 @admin.register(TipoEmbalagemQld)
 class EmbalagemQldAdmin(admin.ModelAdmin):
-    form = CaixaAltaNomeForm
-    list_display = ("nome", "abreviacao", "criado_em")
-    search_fields = ("nome",)
-    readonly_fields = ("uuid",)
+    """Admin dos tipos de embalagem (qualidade).
+
+    Exibe ``nome``, ``abreviacao`` e ``criado_em`` na listagem e busca por
+    nome. O campo ``nome`` é normalizado em letras maiúsculas
+    (``CaixaAltaNomeForm``) e ``uuid`` é somente leitura.
+    """

@@ -1,3 +1,5 @@
+"""Factory de layout de embalagem para testes."""
+
 from factory import SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
@@ -12,6 +14,8 @@ fake = Faker("pt_BR")
 
 
 class LayoutDeEmbalagemFactory(DjangoModelFactory):
+    """Cria um ``LayoutDeEmbalagem`` vinculado a uma ``FichaTecnicaFactory``."""
+
     class Meta:
         model = LayoutDeEmbalagem
 

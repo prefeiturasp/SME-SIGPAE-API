@@ -14,6 +14,7 @@ from rest_framework import status
 from src.dados_comuns.constants import (
     DJANGO_EOL_API_TOKEN,
     DJANGO_EOL_API_URL,
+    TIPOS_GESTAO,
 )
 from src.escola.models import (
     Escola,
@@ -217,7 +218,7 @@ def atualiza_tipo_gestao_das_escolas(path_planilha, id_planilha):  # noqa: C901
         parceira = TipoGestao.objects.get(nome="PARCEIRA")
         mista = TipoGestao.objects.get(nome="MISTA")
         direta = TipoGestao.objects.get(nome="DIRETA")
-        terc_total = TipoGestao.objects.get(nome="TERC TOTAL")
+        terc_total = TipoGestao.objects.get(nome=TIPOS_GESTAO.TERC_TOTAL.value)
 
         tipo_gestao = {
             "PARCEIRA": parceira,

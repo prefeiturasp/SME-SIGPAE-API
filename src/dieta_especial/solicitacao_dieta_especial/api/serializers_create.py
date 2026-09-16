@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from rest_framework import serializers
 
-from src.dados_comuns.constants import DEZ_MB
+from src.dados_comuns.constants import DEZ_MB, FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_date_format,
@@ -154,7 +154,7 @@ class SolicitacaoDietaEspecialCreateSerializer(serializers.ModelSerializer):
         nome_aluno = aluno_data.get("nome")
         data_nascimento_aluno = convert_date_format(
             date=aluno_data.get("data_nascimento"),
-            from_format="%d/%m/%Y",
+            from_format=FORMATO_DATA_BRASILEIRO,
             to_format="%Y-%m-%d",
         )
         deve_ser_no_passado(

@@ -1,3 +1,5 @@
+"""Serviços da API do submódulo de layout de embalagem."""
+
 from src.dados_comuns.constants import (
     ADMINISTRADOR_CODAE_GABINETE,
     ADMINISTRADOR_GESTAO_PRODUTO,
@@ -15,6 +17,12 @@ from src.pre_recebimento.base.api.services import BaseServiceDashboard
 
 
 class ServiceDashboardLayoutEmbalagem(BaseServiceDashboard):
+    """Service do dashboard de layouts de embalagem.
+
+    Define, para cada perfil, os status exibidos nos cards do dashboard:
+    ``ENVIADO_PARA_ANALISE``, ``APROVADO`` e ``SOLICITADO_CORRECAO``.
+    """
+
     STATUS_POR_PERFIL = {
         COORDENADOR_CODAE_DILOG_LOGISTICA: [
             LayoutDeEmbalagemWorkflow.ENVIADO_PARA_ANALISE,

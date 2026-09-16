@@ -9,6 +9,7 @@ import openpyxl
 import pytest
 from openpyxl import load_workbook
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.escola.utils_analise_dietas_ativas import (
     dict_codigos_escolas,
     escreve_xlsx,
@@ -530,7 +531,7 @@ def test_retorna_protocolo_dieta_inexistentes(protocolos):
 
 def test_string_to_date():
     assert string_to_date("2025-01-29", "%Y-%m-%d") == date(2025, 1, 29)
-    assert string_to_date("29/01/2025", "%d/%m/%Y") == date(2025, 1, 29)
+    assert string_to_date("29/01/2025", FORMATO_DATA_BRASILEIRO) == date(2025, 1, 29)
     assert string_to_date("29-01-2025 15:30:00", "%d-%m-%Y %H:%M:%S") == date(
         2025, 1, 29
     )

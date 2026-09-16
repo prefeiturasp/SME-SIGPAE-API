@@ -89,6 +89,7 @@ FILTRO_STATUS_HOMOLOGACAO = (
 )
 
 RELATORIO = "relatorio"
+RELATORIO_HISTORICO = "relatorio-historico"
 RELATORIO_ANALISE = "relatorio-analise-sensorial"
 RELATORIO_SUSPENSOS = "relatorio-produtos-suspensos"
 RELATORIO_RECEBIMENTO = "relatorio-analise-sensorial-recebimento"
@@ -253,6 +254,9 @@ CODAE_QUESTIONOU_UE = "CODAE questionou U.E. sobre reclamação"
 CODAE_RESPONDEU_RECLAMACAO = "CODAE respondeu ao reclamante da reclamação"
 TERCEIRIZADA_RESPONDEU_RECLAMACAO = "Terceirizada respondeu a reclamação"
 UE_RESPONDEU_RECLAMACAO = "U.E. respondeu a reclamação"
+ESCOLA_CANCELOU_LABEL = "Escola cancelou"
+EM_ANALISE_LABEL = "Em análise"
+ERRO_SALVAR_LOG_TRANSICAO = "Deve criar um método salvar_log_transicao"
 
 TIPO_SOLICITACAO_DIETA = {
     "COMUM": "COMUM",
@@ -261,6 +265,21 @@ TIPO_SOLICITACAO_DIETA = {
 }
 
 TIPOS_TURMAS_EMEBS = ["INFANTIL", "FUNDAMENTAL"]
+
+#
+# NOMES DE GRUPOS DE MEDICAÇÃO E DIETAS (reutilizados no módulo medicao_inicial)
+#
+
+GRUPO_INFANTIL_MANHA = "Infantil MANHA"
+GRUPO_INFANTIL_TARDE = "Infantil TARDE"
+GRUPO_INFANTIL_INTEGRAL = "Infantil INTEGRAL"
+GRUPO_PROGRAMAS_E_PROJETOS = "Programas e Projetos"
+GRUPO_SOLICITACOES_ALIMENTACAO = "Solicitações de Alimentação"
+GRUPO_RECREIO_NAS_FERIAS = "Recreio nas Férias"
+GRUPO_RECREIO_NAS_FERIAS_0_A_3 = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
+GRUPO_RECREIO_NAS_FERIAS_4_A_14 = "Recreio nas Férias - 4 a 14 anos"
+DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
+DIETA_ESPECIAL_TIPO_B = "DIETA ESPECIAL - TIPO B"
 
 ORDEM_PERIODOS_GRUPOS_EMEBS = {
     "MANHA - INFANTIL": 1,
@@ -283,19 +302,19 @@ ORDEM_PERIODOS_GRUPOS_EMEBS = {
 
 ORDEM_PERIODOS_GRUPOS = {
     "MANHA": 1,
-    "Infantil MANHA": 1,
+    GRUPO_INFANTIL_MANHA: 1,
     "TARDE": 2,
-    "Infantil TARDE": 2,
+    GRUPO_INFANTIL_TARDE: 2,
     "INTEGRAL": 3,
-    "Infantil INTEGRAL": 3,
+    GRUPO_INFANTIL_INTEGRAL: 3,
     "NOITE": 4,
     "Infantil NOITE": 4,
     "INTERMEDIARIO": 5,
     "VESPERTINO": 6,
-    "Programas e Projetos": 7,
-    "Solicitações de Alimentação": 8,
+    GRUPO_PROGRAMAS_E_PROJETOS: 7,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 8,
     "ETEC": 9,
-    "Recreio nas Férias": 10,
+    GRUPO_RECREIO_NAS_FERIAS: 10,
     "Colaboradores": 11,
 }
 
@@ -304,30 +323,30 @@ ORDEM_PERIODOS_GRUPOS_CEI = {
     "PARCIAL": 2,
     "MANHA": 3,
     "TARDE": 4,
-    "Recreio nas Férias": 5,
+    GRUPO_RECREIO_NAS_FERIAS: 5,
     "Colaboradores": 6,
 }
 
 ORDEM_PERIODOS_GRUPOS_CEMEI = {
     "INTEGRAL": 1,
     "PARCIAL": 2,
-    "Infantil INTEGRAL": 3,
-    "Infantil MANHA": 4,
-    "Infantil TARDE": 5,
-    "Programas e Projetos": 6,
-    "Recreio nas Férias": 7,
-    "Recreio nas Férias - de 0 a 3 anos e 11 meses": 8,
-    "Recreio nas Férias - 4 a 14 anos": 9,
-    "Solicitações de Alimentação": 10,
+    GRUPO_INFANTIL_INTEGRAL: 3,
+    GRUPO_INFANTIL_MANHA: 4,
+    GRUPO_INFANTIL_TARDE: 5,
+    GRUPO_PROGRAMAS_E_PROJETOS: 6,
+    GRUPO_RECREIO_NAS_FERIAS: 7,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3: 8,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14: 9,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 10,
     "Colaboradores": 11,
 }
 
 ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS = {
-    "Recreio nas Férias": 1,
-    "Recreio nas Férias - de 0 a 3 anos e 11 meses": 2,
-    "Recreio nas Férias - 4 a 14 anos": 3,
+    GRUPO_RECREIO_NAS_FERIAS: 1,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3: 2,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14: 3,
     "Colaboradores": 4,
-    "Solicitações de Alimentação": 5,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 5,
 }
 
 MAX_COLUNAS = 15
@@ -424,21 +443,21 @@ ORDEM_UNIDADES_GRUPO_CIEJA_CMCT = {"CIEJA": 1, "CMCT": 2}
 
 
 ORDEM_HEADERS_EMEI_EMEF = {
-    "Solicitações de Alimentação": 1,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 1,
     "MANHA": 2,
     "TARDE": 3,
     "INTEGRAL": 4,
     "NOITE": 5,
     "INTERMEDIARIO": 6,
     "VESPERTINO": 7,
-    "Programas e Projetos": 8,
+    GRUPO_PROGRAMAS_E_PROJETOS: 8,
     "ETEC": 9,
-    "DIETA ESPECIAL - TIPO A": 10,
-    "DIETA ESPECIAL - TIPO B": 11,
+    DIETA_ESPECIAL_TIPO_A: 10,
+    DIETA_ESPECIAL_TIPO_B: 11,
 }
 
 ORDEM_HEADERS_CEI = {
-    "Solicitações de Alimentação": 1,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 1,
     "INTEGRAL": 2,
     "DIETA ESPECIAL - TIPO A - INTEGRAL": 3,
     "DIETA ESPECIAL - TIPO B - INTEGRAL": 4,
@@ -447,53 +466,53 @@ ORDEM_HEADERS_CEI = {
     "DIETA ESPECIAL - TIPO B - PARCIAL": 7,
     "MANHA": 8,
     "TARDE": 9,
-    "DIETA ESPECIAL - TIPO A": 10,
-    "DIETA ESPECIAL - TIPO B": 11,
+    DIETA_ESPECIAL_TIPO_A: 10,
+    DIETA_ESPECIAL_TIPO_B: 11,
 }
 
 ORDEM_HEADERS_CEMEI = {
-    "Solicitações de Alimentação": 1,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 1,
     "INTEGRAL": 2,
     "DIETA ESPECIAL - TIPO A - INTEGRAL": 3,
     "DIETA ESPECIAL - TIPO B - INTEGRAL": 4,
     "PARCIAL": 5,
     "DIETA ESPECIAL - TIPO A - PARCIAL": 6,
     "DIETA ESPECIAL - TIPO B - PARCIAL": 7,
-    "Infantil INTEGRAL": 8,
-    "Infantil MANHA": 9,
-    "Infantil TARDE": 10,
+    GRUPO_INFANTIL_INTEGRAL: 8,
+    GRUPO_INFANTIL_MANHA: 9,
+    GRUPO_INFANTIL_TARDE: 10,
     "DIETA ESPECIAL - TIPO A - INFANTIL": 11,
     "DIETA ESPECIAL - TIPO B - INFANTIL": 12,
-    "Programas e Projetos": 13,
+    GRUPO_PROGRAMAS_E_PROJETOS: 13,
     "DIETA ESPECIAL - TIPO A - PROGRAMAS E PROJETOS": 14,
     "DIETA ESPECIAL - TIPO B - PROGRAMAS E PROJETOS": 15,
 }
 
 ORDEM_HEADERS_EMEBS = {
-    "Solicitações de Alimentação": 1,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 1,
     "MANHA": 2,
     "TARDE": 3,
     "INTEGRAL": 4,
     "NOITE": 5,
     "INTERMEDIARIO": 6,
     "VESPERTINO": 7,
-    "Programas e Projetos": 8,
-    "DIETA ESPECIAL - TIPO A": 9,
-    "DIETA ESPECIAL - TIPO B": 10,
+    GRUPO_PROGRAMAS_E_PROJETOS: 8,
+    DIETA_ESPECIAL_TIPO_A: 9,
+    DIETA_ESPECIAL_TIPO_B: 10,
 }
 
 ORDEM_HEADERS_CIEJA_CMCT = {
-    "Solicitações de Alimentação": 1,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 1,
     "MANHA": 2,
     "TARDE": 3,
     "INTEGRAL": 4,
     "NOITE": 5,
     "INTERMEDIARIO": 6,
     "VESPERTINO": 7,
-    "Programas e Projetos": 8,
+    GRUPO_PROGRAMAS_E_PROJETOS: 8,
     "ETEC": 9,
-    "DIETA ESPECIAL - TIPO A": 10,
-    "DIETA ESPECIAL - TIPO B": 11,
+    DIETA_ESPECIAL_TIPO_A: 10,
+    DIETA_ESPECIAL_TIPO_B: 11,
 }
 
 # Para o recreio nas Férias
@@ -527,27 +546,27 @@ ORDEM_CAMPOS_RECREIO = [
 ]
 
 ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
-    "Solicitações de Alimentação": 1,
-    "Recreio nas Férias": 2,
-    "DIETA ESPECIAL - TIPO A": 3,
-    "DIETA ESPECIAL - TIPO B": 4,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 1,
+    GRUPO_RECREIO_NAS_FERIAS: 2,
+    DIETA_ESPECIAL_TIPO_A: 3,
+    DIETA_ESPECIAL_TIPO_B: 4,
     "Colaboradores": 5,
 }
 
 ORDEM_HEADERS_RECREIO_CEI = {
-    "Solicitações de Alimentação": 1,
-    "Recreio nas Férias": 2,
-    "DIETA ESPECIAL - TIPO A": 3,
-    "DIETA ESPECIAL - TIPO B": 4,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 1,
+    GRUPO_RECREIO_NAS_FERIAS: 2,
+    DIETA_ESPECIAL_TIPO_A: 3,
+    DIETA_ESPECIAL_TIPO_B: 4,
     "Colaboradores": 5,
 }
 
 ORDEM_HEADERS_RECREIO_CEMEI = {
-    "Solicitações de Alimentação": 1,
-    "Recreio nas Férias - de 0 a 3 anos e 11 meses": 2,
+    GRUPO_SOLICITACOES_ALIMENTACAO: 1,
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3: 2,
     "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": 3,
     "DIETA ESPECIAL - TIPO B - RECREIO NAS FÉRIAS - DE 0 A 3 ANOS E 11 MESES": 4,
-    "Recreio nas Férias - 4 a 14 anos": 5,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14: 5,
     "DIETA ESPECIAL - TIPO A - RECREIO NAS FÉRIAS - 4 A 14 ANOS": 6,
     "DIETA ESPECIAL - TIPO B - RECREIO NAS FÉRIAS - 4 A 14 ANOS": 7,
     "Colaboradores": 8,
@@ -565,6 +584,86 @@ class StatusProcessamentoArquivo(Enum):
     @classmethod
     def choices(cls):
         return [(key.value, key.name) for key in cls]
+
+
+class TIPOS_ALIMENTACAO(Enum):
+    DESJEJUM = "Desjejum"
+    COLACAO = "Colação"
+    ALMOCO = "Almoço"
+    REFEICAO = "Refeição"
+    REFEICAO_DA_TARDE = "Refeição da Tarde"
+    MERENDA_SECA = "Merenda seca"
+    SOBREMESA = "Sobremesa"
+    LANCHE = "Lanche"
+    LANCHE_4H = "Lanche 4h"
+    LANCHE_EMERGENCIAL = "Lanche Emergencial"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class TIPOS_GESTAO(Enum):
+    TERC_TOTAL = "TERC TOTAL"
+    MISTA = "MISTA"
+    PARCEIRA = "PARCEIRA"
+    DIRETA = "DIRETA"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class TIPOS_UNIDADE_ESCOLAR(Enum):
+    EMEF = "EMEF"
+    CEU_EMEF = "CEU EMEF"
+    EMEFM = "EMEFM"
+    EMEF_P_FOM = "EMEF P FOM"
+    CEU_GESTAO = "CEU GESTAO"
+    EMEI = "EMEI"
+    CEU_EMEI = "CEU EMEI"
+    EMEI_P_FOM = "EMEI P FOM"
+    CEI_DIRET = "CEI DIRET"
+    CEI_CEU = "CEI CEU"
+    CEU_CEI = "CEU CEI"
+    CCI = "CCI"
+    CCI_CIPS = "CCI/CIPS"
+    CEI = "CEI"
+    CEMEI = "CEMEI"
+    CEU_CEMEI = "CEU CEMEI"
+    EMEBS = "EMEBS"
+    CIEJA = "CIEJA"
+    CMCT = "CMCT"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+TIPO_UNIDADE_CEI_DIRET = TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value
+NOME_ALUNO_PADRAO = "Roberto Alves da Silva"
+MODEL_PERFIL = "perfil.Perfil"
+MODEL_VINCULO = "perfil.Vinculo"
+EMAIL_TESTE = "test@test.com"
+NOME_ESCOLA_EMEBS = "Escola EMEBS"
+NOME_LOTE_EMEBS = "Lote EMEBS"
+NOME_ESCOLA_EMEF = "Escola EMEF"
+NOME_LOTE_EMEF = "LOTE EMEF"
+NOME_ESCOLA_CEU_GESTAO = "Escola CEU GESTAO"
+NOME_LOTE_CEU_GESTAO = "LOTE CEU GESTAO"
+NOME_ESCOLA_CEI_DIRET = "Escola CEI DIRET"
+NOME_LOTE_CEI_DIRET = "LOTE CEI DIRET"
+NOME_ESCOLA_CEMEI = "Escola CEMEI"
+NOME_LOTE_CEMEI = "LOTE CEMEI"
+NOME_PROTOCOLO_PLANILHA = "nome protocolo na planilha"
+CHAVE_UUID = "UUID"
+CHAVE_NOME_ESCOLA = "NOME ESCOLA"
+CHAVE_COD_EOL_ESCOLA = "COD EOL ESCOLA"
+CHAVE_NOME_ALUNO = "NOME ALUNO"
+CHAVE_COD_EOL_ALUNO = "COD EOL ALUNO"
+CHAVE_LOTE = "LOTE"
+CHAVE_NOME_PROTOCOLO_IMPORTADO_DIETA = "NOME PROTOCOLO IMPORTADO DIETA"
+CHAVE_NOME_PROTOCOLO_DB = "NOME PROTOCOLO NO DB"
 
 
 PERIODOS_INCLUSAO_MOTIVO_ESPECIFICO = ["MANHA", "TARDE", "NOITE", "INTEGRAL"]
@@ -587,3 +686,32 @@ TRADUCOES_FERIADOS = {
     "Dia da Consciência Negra": "Dia da Consciência Negra",
     "Christmas Day": "Natal",
 }
+
+#
+# LITERAIS REUTILIZÁVEIS (evitam duplicação de strings)
+#
+
+TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
+PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+MODEL_TERCEIRIZADA = "terceirizada.Terceirizada"
+MODEL_ESCOLA = "escola.Escola"
+MODEL_DIRETORIA_REGIONAL = "escola.DiretoriaRegional"
+MODEL_LOTE = "escola.Lote"
+DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
+FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
+FORMATO_DATA_HORA_BRASILEIRO = "%d/%m/%Y - %H:%M"
+EMAIL_ADMIN = "admin@admin.com"
+TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR = "fluxo_autorizar_negar_cancelar.html"
+TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA = "fluxo_codae_autoriza_ou_nega.html"
+MODULO_GESTAO_PRODUTO = "Gestão de Produto"
+MODULO_GESTAO_ALIMENTACAO = "Gestão de Alimentação"
+MODULO_DIETA_ESPECIAL = "Dieta Especial"
+MENSAGEM_PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
+CRIADO_EM = "Criado em"
+MODEL_USUARIO = "perfil.Usuario"
+STATUS_ENVIADO_PARA_ANALISE = "Enviado para Análise"
+EMAIL_ASSUNTO_STATUS_SOLICITACAO = "[SIGPAE] Status de solicitação - "
+RELATED_NAME_RASTRO_TERCEIRIZADA = "%(app_label)s_%(class)s_rastro_terceirizada"
+RELATED_NAME_RASTRO_LOTE = "%(app_label)s_%(class)s_rastro_lote"
+RELATED_NAME_RASTRO_DRE = "%(app_label)s_%(class)s_rastro_dre"
+RELATED_NAME_RASTRO_ESCOLA = "%(app_label)s_%(class)s_rastro_escola"

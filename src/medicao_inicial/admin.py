@@ -4,11 +4,14 @@ import importlib
 from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 from .models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
     DadosLiquidacao,
+    DescontoFinanceiro,
     DiaSobremesaDoce,
     Empenho,
     GrupoMedicao,
@@ -21,15 +24,15 @@ from .models import (
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     ValorMedicao,
-    DescontoFinanceiro,
 )
 
 admin.site.register(AlimentacaoLancamentoEspecial)
 admin.site.register(CategoriaMedicao)
-admin.site.register(DiaSobremesaDoce)
 admin.site.register(GrupoMedicao)
 admin.site.register(TipoContagemAlimentacao)
+admin.site.register(TipoSobremesaDoce)
 
 
 @admin.register(LancheEmergencialDiario)
@@ -40,12 +43,46 @@ class LancheEmergencialDiarioAdmin(admin.ModelAdmin):
     search_help_text = "Pesquisa por: nome da escola, código eol da escola"
 
 
+@admin.register(DiaSobremesaDoce)
+class DiaSobremesaDoceAdmin(admin.ModelAdmin):
+    list_display = (
+        "data",
+        "tipo_unidade",
+        "edital",
+        "tipo",
+        "criado_em",
+        "criado_por",
+    )
+    search_fields = (
+        "tipo_unidade__iniciais",
+        "tipo_unidade__nome",
+        "edital__numero",
+        "tipo__nome",
+    )
+    list_filter = (
+        ("data", DateRangeFilter),
+        "tipo_unidade",
+        "edital__numero",
+        "tipo",
+    )
+    search_help_text = (
+        "Pesquise por: iniciais ou nome do tipo de unidade, "
+        "número do edital, tipo de sobremesa"
+    )
+
+
 @admin.register(SolicitacaoMedicaoInicial)
 class SolicitacaoMedicaoInicialAdmin(admin.ModelAdmin):
     list_display = ("id_externo", "escola", "mes", "ano", "criado_em", "status")
     search_fields = ("escola__nome", "escola__codigo_eol")
     search_help_text = "Pesquise por: nome da escola ou código eol da escola"
-    list_filter = ("mes", "ano", "status", "escola__lote__iniciais")
+    list_filter = (
+        "mes",
+        "ano",
+        "status",
+        "escola__lote__iniciais",
+        "recreio_nas_ferias",
+    )
 
 
 @admin.register(Medicao)
@@ -111,7 +148,7 @@ class PermissaoLancamentoEspecialAdmin(admin.ModelAdmin):
     @admin.display(description="Data Inicial")
     def get_data_inicial(self, obj):
         return (
-            datetime.date.strftime(obj.data_inicial, "%d/%m/%Y")
+            datetime.date.strftime(obj.data_inicial, FORMATO_DATA_BRASILEIRO)
             if obj.data_inicial
             else "-"
         )
@@ -119,7 +156,7 @@ class PermissaoLancamentoEspecialAdmin(admin.ModelAdmin):
     @admin.display(description="Data Final")
     def get_data_final(self, obj):
         return (
-            datetime.date.strftime(obj.data_final, "%d/%m/%Y")
+            datetime.date.strftime(obj.data_final, FORMATO_DATA_BRASILEIRO)
             if obj.data_final
             else "-"
         )

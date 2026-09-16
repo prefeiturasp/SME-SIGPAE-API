@@ -1,0 +1,1147 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.cronograma_semanal.api.viewsets &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../cardapio.html">cardapio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html">alteracao_tipo_alimentacao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.admin.AlteracaoCardapioModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.behaviors">behaviors</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.behaviors.EhAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">EhAlteracaoCardapio</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.AlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.DataIntervaloAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.MotivoAlteracaoCardapio"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoCardapio</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.models.SubstituicaoAlimentacaoNoPeriodoEscolar"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolar</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#module-src.cardapio.alteracao_tipo_alimentacao.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDesteMesManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioDoMesCorrenteManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioDoMesCorrenteManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao.html#src.cardapio.alteracao_tipo_alimentacao.managers.alteracao_tipo_alimentacao_managers.AlteracoesCardapioVencidaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioVencidaManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html">alteracao_tipo_alimentacao_cei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.admin.AlteracaoCardapioCEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEIModelAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.admin.SubstituicoesCEIInLine"><code class="docutils literal notranslate"><span class="pre">SubstituicoesCEIInLine</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.AlteracaoCardapioCEI"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.models.FaixaEtariaSubstituicaoAlimentacaoCEI"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#module-src.cardapio.alteracao_tipo_alimentacao_cei.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cei.html#src.cardapio.alteracao_tipo_alimentacao_cei.managers.alteracao_tipo_alimentacao_cei_managers.AlteracoesCardapioCEIDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEIDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html">alteracao_tipo_alimentacao_cemei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.admin.AlteracaoCardapioCEMEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEMEIModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.AlteracaoCardapioCEMEI"><code class="docutils literal notranslate"><span class="pre">AlteracaoCardapioCEMEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.FaixaEtariaSubstituicaoAlimentacaoCEMEICEI"><code class="docutils literal notranslate"><span class="pre">FaixaEtariaSubstituicaoAlimentacaoCEMEICEI</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.models.DataIntervaloAlteracaoCardapioCEMEI"><code class="docutils literal notranslate"><span class="pre">DataIntervaloAlteracaoCardapioCEMEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#module-src.cardapio.alteracao_tipo_alimentacao_cemei.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers.AlteracoesCardapioCEMEIDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEMEIDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/alteracao_tipo_alimentacao_cemei.html#src.cardapio.alteracao_tipo_alimentacao_cemei.managers.alteracao_tipo_alimentacao_cemei_managers.AlteracoesCardapioCEMEIDesteMesManager"><code class="docutils literal notranslate"><span class="pre">AlteracoesCardapioCEMEIDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/base.html">base</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#src.cardapio.base.admin.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#src.cardapio.base.admin.MotivoDRENaoValidaAdmin"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValidaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#src.cardapio.base.admin.TipoAlimentacaoAdmin"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacaoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#src.cardapio.base.admin.VinculoTipoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#src.cardapio.base.models.TipoAlimentacao"><code class="docutils literal notranslate"><span class="pre">TipoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#src.cardapio.base.models.HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"><code class="docutils literal notranslate"><span class="pre">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#src.cardapio.base.models.MotivoDRENaoValida"><code class="docutils literal notranslate"><span class="pre">MotivoDRENaoValida</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/base.html#module-src.cardapio.base.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html">inversao_dia_cardapio</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.admin.InversaoCardapioModelAdmin"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.models.InversaoCardapio"><code class="docutils literal notranslate"><span class="pre">InversaoCardapio</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#module-src.cardapio.inversao_dia_cardapio.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioDesteMesManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioDesteMesManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/inversao_dia_cardapio.html#src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers.InversaoCardapioVencidaManager"><code class="docutils literal notranslate"><span class="pre">InversaoCardapioVencidaManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/management.html">management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/management.html#module-src.cardapio.management.commands">commands</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/management.html#src.cardapio.management.commands.substituicao_atualiza_matriculados_no_dia.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/models.html">models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html">suspensao_alimentacao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacaoModelAdmin"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoModelAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.QuantidadePorPeriodoSuspensaoAlimentacaoInline"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacaoInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacaoInline"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.GrupoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.MotivoSuspensao"><code class="docutils literal notranslate"><span class="pre">MotivoSuspensao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.SuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacao</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.models.QuantidadePorPeriodoSuspensaoAlimentacao"><code class="docutils literal notranslate"><span class="pre">QuantidadePorPeriodoSuspensaoAlimentacao</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#module-src.cardapio.suspensao_alimentacao.managers">managers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers.GrupoSuspensaoAlimentacaoDestaSemanaManager"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoDestaSemanaManager</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers.GrupoSuspensaoAlimentacaoDesteMesManager"><code class="docutils literal notranslate"><span class="pre">GrupoSuspensaoAlimentacaoDesteMesManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html">suspensao_alimentacao_cei</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.admin">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.admin.SuspensaoAlimentacaoDaCEIModelAdmin"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEIModelAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.models">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI"><code class="docutils literal notranslate"><span class="pre">SuspensaoAlimentacaoDaCEI</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.serializers_create">serializers_create</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.api.viewsets">viewsets</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.fixtures">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../cardapio/suspensao_alimentacao_cei.html#module-src.cardapio.suspensao_alimentacao_cei.fixtures.factories">fixtures/factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dieta_especial.html">dieta_especial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial.html">solicitacao_dieta_especial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/models.html#solicitacaodietaespecial">SolicitacaoDietaEspecial</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/models.html#motivonegacao">MotivoNegacao</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/models.html#motivoalteracaoue">MotivoAlteracaoUE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/models.html#alergiaintolerancia">AlergiaIntolerancia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/models.html#classificacaodieta">ClassificacaoDieta</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/models.html#anexo">Anexo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/models.html#solicitacoesdietaespecialativasinativasporaluno">SolicitacoesDietaEspecialAtivasInativasPorAluno</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.forms">forms</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.pagination">pagination</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.utils">utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/api.html#module-src.dieta_especial.solicitacao_dieta_especial.api.validators">validators</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/services.html">services</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/solicitacao_dieta_especial/services.html#module-src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo">historico_protocolo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao.html">protocolo_padrao</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/models.html#alimento">Alimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/models.html#substituicaoalimento">SubstituicaoAlimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/models.html#alimentosubstituto">AlimentoSubstituto</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/models.html#protocolopadraodietaespecial">ProtocoloPadraoDietaEspecial</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/models.html#substituicaoalimentoprotocolopadrao">SubstituicaoAlimentoProtocoloPadrao</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.pagination">pagination</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.utils">utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/protocolo_padrao/api.html#module-src.dieta_especial.protocolo_padrao.api.validators">validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/logs_models.html">logs_models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/logs_models/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/models.html#logdietasativascanceladasautomaticamente">LogDietasAtivasCanceladasAutomaticamente</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadas">LogQuantidadeDietasAutorizadas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadascei">LogQuantidadeDietasAutorizadasCEI</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadasrecreionasferias">LogQuantidadeDietasAutorizadasRecreioNasFerias</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/models.html#logquantidadedietasautorizadasrecreionasferiascei">LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/logs_models/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/api.html#module-src.dieta_especial.logs_models.api.serializers">serializers</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/logs_models/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/logs_models/fixtures.html#module-src.dieta_especial.logs_models.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/carga_dados.html">carga_dados</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/carga_dados/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaAlimentosSubstitutos"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaAlimentosSubstitutos</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.ArquivoCargaDietaEspecial"><code class="docutils literal notranslate"><span class="pre">ArquivoCargaDietaEspecial</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/carga_dados/models.html#src.dieta_especial.carga_dados.models.PlanilhaDietasAtivas"><code class="docutils literal notranslate"><span class="pre">PlanilhaDietasAtivas</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/tasks.html">tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/admin_actions.html">admin_actions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/logs.html">logs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/processamentos.html">processamentos</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/relatorio_pdf.html">relatorio_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/relatorio_terceirizadas_pdf.html">relatorio_terceirizadas_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/relatorio_terceirizadas_xlsx.html">relatorio_terceirizadas_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/relatorio_historico_logs_pdf.html">relatorio_historico_logs_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/relatorio_historico_logs_xlsx.html">relatorio_historico_logs_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/relatorio_recreio_nas_ferias_pdf.html">relatorio_recreio_nas_ferias_pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/relatorio_recreio_nas_ferias_xlsx.html">relatorio_recreio_nas_ferias_xlsx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/tasks/utils.html">utils</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.logs">logs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.processamentos">processamentos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_historico_logs">relatorio_historico_logs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_recreio_nas_ferias">relatorio_recreio_nas_ferias</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/tasks/utils.html#module-src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx">relatorio_terceirizadas_xlsx</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/management.html">management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html">commands</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.corrige_alergias_intolerancias_duplicadas">corrige_alergias_intolerancias_duplicadas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.corrige_protocolos_padrao">corrige_protocolos_padrao</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_autorizar">dieta_especial_autorizar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_cancelar">dieta_especial_cancelar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_criar">dieta_especial_criar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.dieta_especial_deletar">dieta_especial_deletar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.exportar_planilha_relacao_protocolo">exportar_planilha_relacao_protocolo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.fix_nomes_protocolos">fix_nomes_protocolos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.gerar_logs_dietas_periodo_escolar">gerar_logs_dietas_periodo_escolar</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.gera_zip_protocolos">gera_zip_protocolos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_invalidos">processar_planilha_protocolos_invalidos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_protocolos_validos">processar_planilha_protocolos_validos</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.processar_planilha_retorno_nucleo">processar_planilha_retorno_nucleo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.unifica_dietas_tipo_b">unifica_dietas_tipo_b</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.verificar_duplicidade_solicitacoes_dietas">verificar_duplicidade_solicitacoes_dietas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/management/commands.html#module-src.dieta_especial.management.commands.verificar_solicitacoes_sem_protocolo">verificar_solicitacoes_sem_protocolo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/utils.html">utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/utils.html#module-src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias">filtra_relatorio_recreio_nas_ferias</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.filtra_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">filtra_relatorio_recreio_nas_ferias()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/utils.html#src.dieta_especial.utils.filtra_relatorio_recreio_nas_ferias.gera_filtros_relatorio_recreio_nas_ferias"><code class="docutils literal notranslate"><span class="pre">gera_filtros_relatorio_recreio_nas_ferias()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/utils.html#module-src.dieta_especial.utils.gera_dicionario_historico_dietas">gera_dicionario_historico_dietas</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/utils.html#src.dieta_especial.utils.gera_dicionario_historico_dietas.gera_dicionario_historico_dietas"><code class="docutils literal notranslate"><span class="pre">gera_dicionario_historico_dietas()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/utils.html#module-src.dieta_especial.utils.gerar_filtros_relatorio_historico">gerar_filtros_relatorio_historico</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/utils.html#src.dieta_especial.utils.gerar_filtros_relatorio_historico.gerar_filtros_relatorio_historico"><code class="docutils literal notranslate"><span class="pre">gerar_filtros_relatorio_historico()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/utils.html#module-src.dieta_especial.utils.get_logs_historico_dietas">get_logs_historico_dietas</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/utils.html#src.dieta_especial.utils.get_logs_historico_dietas.get_logs_historico_dietas"><code class="docutils literal notranslate"><span class="pre">get_logs_historico_dietas()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/data.html">data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/data.html#module-src.dieta_especial.data.alergia_intolerancia">alergia_intolerancia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/data.html#module-src.dieta_especial.data.alimentos">alimentos</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/data.html#module-src.dieta_especial.data.classificacao_dieta">classificacao_dieta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/data.html#module-src.dieta_especial.data.motivo_alteracao_ue">motivo_alteracao_ue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/data.html#module-src.dieta_especial.data.motivo_negacao">motivo_negacao</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html">fixtures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html#module-src.dieta_especial.fixtures.factories">factories</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlergiaIntoleranciaFactory"><code class="docutils literal notranslate"><span class="pre">AlergiaIntoleranciaFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.AlimentoFactory"><code class="docutils literal notranslate"><span class="pre">AlimentoFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ClassificacaoDietaFactory"><code class="docutils literal notranslate"><span class="pre">ClassificacaoDietaFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.MotivoAlteracaoUEFactory"><code class="docutils literal notranslate"><span class="pre">MotivoAlteracaoUEFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.ProtocoloPadraoDietaEspecialFactory"><code class="docutils literal notranslate"><span class="pre">ProtocoloPadraoDietaEspecialFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SolicitacaoDietaEspecialFactory"><code class="docutils literal notranslate"><span class="pre">SolicitacaoDietaEspecialFactory</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial/fixtures.html#src.dieta_especial.fixtures.factories.dieta_especial_base_factory.SubstituicaoAlimentoFactory"><code class="docutils literal notranslate"><span class="pre">SubstituicaoAlimentoFactory</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial.html#module-src.dieta_especial.apps">apps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial.html#src.dieta_especial.apps.DietaEspecialConfig"><code class="docutils literal notranslate"><span class="pre">DietaEspecialConfig</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial.html#src.dieta_especial.apps.DietaEspecialConfig.name"><code class="docutils literal notranslate"><span class="pre">DietaEspecialConfig.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dieta_especial.html#module-src.dieta_especial.forms">forms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.base_fields"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.base_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.declared_fields"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.declared_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../dieta_especial.html#src.dieta_especial.forms.RelatorioDietaForm.media"><code class="docutils literal notranslate"><span class="pre">RelatorioDietaForm.media</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../pre_recebimento.html">pre_recebimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega.html">cronograma_entrega</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/models.html#src.pre_recebimento.cronograma_entrega.models.gerar_numero_solicitacao"><code class="docutils literal notranslate"><span class="pre">gerar_numero_solicitacao()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/models.html#cronograma">Cronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/models.html#etapasdocronograma">EtapasDoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/models.html#programacaodorecebimentodocronograma">ProgramacaoDoRecebimentoDoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/models.html#solicitacaoalteracaocronograma">SolicitacaoAlteracaoCronograma</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/models.html#solicitacaoalteracaocronogramaqueryset">SolicitacaoAlteracaoCronogramaQuerySet</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/models.html#interrupcaoprogramadaentrega">InterrupcaoProgramadaEntrega</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/api.html#module-src.pre_recebimento.cronograma_entrega.api.helpers">helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.CronogramaAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasAntigasInline"><code class="docutils literal notranslate"><span class="pre">EtapasAntigasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasInline"><code class="docutils literal notranslate"><span class="pre">EtapasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.EtapasNovasInline"><code class="docutils literal notranslate"><span class="pre">EtapasNovasInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/admin.html#src.pre_recebimento.cronograma_entrega.admin.SolicitacaoAdmin"><code class="docutils literal notranslate"><span class="pre">SolicitacaoAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_entrega/fixtures.html#module-src.pre_recebimento.cronograma_entrega.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica.html">ficha_tecnica</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/models.html#src.pre_recebimento.ficha_tecnica.models.gerar_numero_ficha_tecnica"><code class="docutils literal notranslate"><span class="pre">gerar_numero_ficha_tecnica()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/models.html#fabricantefichatecnica">FabricanteFichaTecnica</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/models.html#fichatecnicadoproduto">FichaTecnicaDoProduto</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/models.html#informacoesnutricionaisfichatecnica">InformacoesNutricionaisFichaTecnica</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/models.html#analisefichatecnica">AnaliseFichaTecnica</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.validators">validators</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.helpers">helpers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/api.html#module-src.pre_recebimento.ficha_tecnica.api.relatorio_fichas_tecnicas_excel">relatorio_fichas_tecnicas_excel</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/admin.html#src.pre_recebimento.ficha_tecnica.admin.AnaliseFichaTecnicaInline"><code class="docutils literal notranslate"><span class="pre">AnaliseFichaTecnicaInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/admin.html#src.pre_recebimento.ficha_tecnica.admin.FabricanteFichaTecnicaAdmin"><code class="docutils literal notranslate"><span class="pre">FabricanteFichaTecnicaAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/admin.html#src.pre_recebimento.ficha_tecnica.admin.FichaTecnicaDoProdutoAdmin"><code class="docutils literal notranslate"><span class="pre">FichaTecnicaDoProdutoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/admin.html#src.pre_recebimento.ficha_tecnica.admin.InformacoesNutricionaisFichaTecnicaInline"><code class="docutils literal notranslate"><span class="pre">InformacoesNutricionaisFichaTecnicaInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/ficha_tecnica/fixtures.html#module-src.pre_recebimento.ficha_tecnica.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento.html">documento_recebimento</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/models.html#src.pre_recebimento.documento_recebimento.models.data_maxima_recebimento_pre_save"><code class="docutils literal notranslate"><span class="pre">data_maxima_recebimento_pre_save()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/models.html#arquivodotipodedocumento">ArquivoDoTipoDeDocumento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/models.html#tipodedocumentoderecebimento">TipoDeDocumentoDeRecebimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/models.html#documentoderecebimento">DocumentoDeRecebimento</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/models.html#datadefabricaoeprazo">DataDeFabricaoEPrazo</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.helpers">helpers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/api.html#module-src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel">relatorio_documentos_recebimento_excel</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.ArquivoDoTipoDeDocumentoInline"><code class="docutils literal notranslate"><span class="pre">ArquivoDoTipoDeDocumentoInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.DocumentoDeRecebimentoAdmin"><code class="docutils literal notranslate"><span class="pre">DocumentoDeRecebimentoAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/admin.html#src.pre_recebimento.documento_recebimento.admin.TipoDocumentoRecebimentoInline"><code class="docutils literal notranslate"><span class="pre">TipoDocumentoRecebimentoInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/documento_recebimento/fixtures.html#module-src.pre_recebimento.documento_recebimento.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pre_recebimento/base.html">base</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/base/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/base/models.html#unidademedida">UnidadeMedida</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/base/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/base/api.html#module-src.pre_recebimento.base.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/base/api.html#module-src.pre_recebimento.base.api.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/base/api.html#module-src.pre_recebimento.base.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/base/api.html#module-src.pre_recebimento.base.api.paginations">paginations</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/base/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/base/admin.html#src.pre_recebimento.base.admin.UnidadeMedidaAdmin"><code class="docutils literal notranslate"><span class="pre">UnidadeMedidaAdmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/base/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/base/fixtures.html#module-src.pre_recebimento.base.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pre_recebimento/qualidade.html">qualidade</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/models.html#laboratorio">Laboratorio</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/models.html#tipoembalagemqld">TipoEmbalagemQld</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/api.html#module-src.pre_recebimento.qualidade.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/api.html#module-src.pre_recebimento.qualidade.api.filters">filters</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/admin.html#src.pre_recebimento.qualidade.admin.EmbalagemQldAdmin"><code class="docutils literal notranslate"><span class="pre">EmbalagemQldAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/admin.html#src.pre_recebimento.qualidade.admin.Laboratoriodmin"><code class="docutils literal notranslate"><span class="pre">Laboratoriodmin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/qualidade/fixtures.html#module-src.pre_recebimento.qualidade.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal.html">cronograma_semanal</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/models.html#cronogramasemanal">CronogramaSemanal</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/models.html#programacaoentregasemanal">ProgramacaoEntregaSemanal</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/api.html#module-src.pre_recebimento.cronograma_semanal.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/api.html#module-src.pre_recebimento.cronograma_semanal.api.filters">filters</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/admin.html#src.pre_recebimento.cronograma_semanal.admin.CronogramaSemanalAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaSemanalAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/admin.html#src.pre_recebimento.cronograma_semanal.admin.ProgramacaoEntregaSemanalAdmin"><code class="docutils literal notranslate"><span class="pre">ProgramacaoEntregaSemanalAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/admin.html#src.pre_recebimento.cronograma_semanal.admin.ProgramacaoEntregaSemanalInline"><code class="docutils literal notranslate"><span class="pre">ProgramacaoEntregaSemanalInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/cronograma_semanal/fixtures.html#factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem.html">layout_embalagem</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/models.html#imagemdotipodeembalagem">ImagemDoTipoDeEmbalagem</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/models.html#tipodeembalagemdelayout">TipoDeEmbalagemDeLayout</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/models.html#layoutdeembalagem">LayoutDeEmbalagem</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/api.html">api</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/api.html#module-src.pre_recebimento.layout_embalagem.api.viewsets">viewsets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/api.html#module-src.pre_recebimento.layout_embalagem.filters">filters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/api.html#module-src.pre_recebimento.layout_embalagem.api.services">services</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/api.html#module-src.pre_recebimento.layout_embalagem.api.helpers">helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/admin.html">admin</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/admin.html#src.pre_recebimento.layout_embalagem.admin.ImagemDoTipoDeEmbalagemInline"><code class="docutils literal notranslate"><span class="pre">ImagemDoTipoDeEmbalagemInline</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/admin.html#src.pre_recebimento.layout_embalagem.admin.LayoutDeEmbalagemAdmin"><code class="docutils literal notranslate"><span class="pre">LayoutDeEmbalagemAdmin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/admin.html#src.pre_recebimento.layout_embalagem.admin.TipoEmbalagemLayoutInline"><code class="docutils literal notranslate"><span class="pre">TipoEmbalagemLayoutInline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/fixtures.html">fixtures</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pre_recebimento/layout_embalagem/fixtures.html#module-src.pre_recebimento.layout_embalagem.fixtures.factories">factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../pos_recebimento.html">pos_recebimento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pos_recebimento/models.html">models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pos_recebimento/models.html#termorecebimentodefinitivo">TermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pos_recebimento/models.html#cronogramatermorecebimentodefinitivo">CronogramaTermoRecebimentoDefinitivo</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/models.html#src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pos_recebimento/api.html">api</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.viewsets">viewsets</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoViewSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.permissions">permissions</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.permissions.PermissaoParaCadastrarTermoRecebimentoDefinitivo"><code class="docutils literal notranslate"><span class="pre">PermissaoParaCadastrarTermoRecebimentoDefinitivo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.services">services</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.services.TermoRecebimentoDefinitivoService"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoService</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.serializers.serializers">serializers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/api.html#module-src.pos_recebimento.api.serializers.serializers_create">serializers_create</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../pos_recebimento/admin.html">admin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.extra"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.extra</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.fields"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.media"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.CronogramaTermoRecebimentoDefinitivoInline.model"><code class="docutils literal notranslate"><span class="pre">CronogramaTermoRecebimentoDefinitivoInline.model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.inlines"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.inlines</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_display"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_display</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.list_filter"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.list_filter</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.media"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.media</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.readonly_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.readonly_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../pos_recebimento/admin.html#src.pos_recebimento.admin.TermoRecebimentoDefinitivoAdmin.search_fields"><code class="docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivoAdmin.search_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.cronograma_semanal.api.viewsets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.cronograma_semanal.api.viewsets</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Viewsets da API do submódulo de cronograma semanal.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">rest_framework</span> <span class="k">as</span> <span class="n">filters</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">mixins</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">viewsets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ADMINISTRADOR_EMPRESA</span><span class="p">,</span>
+    <span class="n">USUARIO_EMPRESA</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">CronogramaSemanalWorkflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PermissaoParaCriarCronogramaSemanal</span><span class="p">,</span>
+    <span class="n">PermissaoParaDarCienciaCronogramaSemanal</span><span class="p">,</span>
+    <span class="n">PermissaoParaVisualizarCalendarioCronograma</span><span class="p">,</span>
+    <span class="n">PermissaoParaVisualizarCronogramaSemanal</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.base.api.paginations</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PreRecebimentoPagination</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaMensalAssinadoSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cronograma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_semanal.api.filters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaSemanalFilter</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_semanal.api.serializers.serializer_create</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaSemanalAlterarSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaSemanalAssinarEEnviarSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaSemanalRascunhoSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_semanal.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CronogramaSemanalCalendarioSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaSemanalDetailSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaSemanalListagemSerializer</span><span class="p">,</span>
+    <span class="n">CronogramaSemanalRascunhosSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_semanal.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">CronogramaSemanal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.relatorios.relatorios</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_pdf_cronograma_semanal</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CronogramaSemanalViewSet</span><span class="p">(</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">CreateModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">UpdateModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
+    <span class="n">mixins</span><span class="o">.</span><span class="n">RetrieveModelMixin</span><span class="p">,</span>
+    <span class="n">viewsets</span><span class="o">.</span><span class="n">GenericViewSet</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ViewSet para CRUD de Cronograma Semanal FLV.</span>
+<span class="sd">    Apenas perfis DILOG_CRONOGRAMA e COORDENADOR_CODAE_DILOG_LOGISTICA têm acesso.</span>
+
+<span class="sd">    Endpoints disponíveis:</span>
+<span class="sd">    - GET /cronogramas-semanais/ - Lista cronogramas semanais (ordenado por data de alteração)</span>
+<span class="sd">    - GET /cronogramas-semanais/{uuid}/ - Detalha cronograma semanal</span>
+<span class="sd">    - POST /cronogramas-semanais/rascunho/ - Cria cronograma semanal como rascunho</span>
+<span class="sd">    - PATCH /cronogramas-semanais/{uuid}/ - Atualiza cronograma semanal</span>
+<span class="sd">    - PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/ - Assina e envia cronograma semanal</span>
+<span class="sd">    - GET /cronogramas-semanais/cronogramas-mensal-assinados/ - Lista cronogramas mensal Ponto a Ponto assinados</span>
+<span class="sd">    - GET /cronogramas-semanais/rascunhos/ - Lista cronogramas semanais com status RASCUNHO</span>
+<span class="sd">    - GET /cronogramas-semanais/{uuid}/ - Detalha cronograma semanal</span>
+<span class="sd">    - GET /cronogramas-semanais/calendario/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">CronogramaSemanal</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">CronogramaSemanalListagemSerializer</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">PermissaoParaVisualizarCronogramaSemanal</span><span class="p">]</span>
+    <span class="n">permission_action_classes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;rascunho&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaCriarCronogramaSemanal</span><span class="p">],</span>
+        <span class="s2">&quot;create&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaCriarCronogramaSemanal</span><span class="p">],</span>
+        <span class="s2">&quot;update&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaCriarCronogramaSemanal</span><span class="p">],</span>
+        <span class="s2">&quot;partial_update&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaCriarCronogramaSemanal</span><span class="p">],</span>
+        <span class="s2">&quot;cronogramas_mensal_assinados&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaVisualizarCronogramaSemanal</span><span class="p">],</span>
+        <span class="s2">&quot;fornecedor_ciente&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaDarCienciaCronogramaSemanal</span><span class="p">],</span>
+        <span class="s2">&quot;rascunhos_listagem&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaCriarCronogramaSemanal</span><span class="p">],</span>
+        <span class="s2">&quot;alterar_cronograma&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaCriarCronogramaSemanal</span><span class="p">],</span>
+        <span class="s2">&quot;calendario&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">PermissaoParaVisualizarCalendarioCronograma</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">&quot;uuid&quot;</span>
+    <span class="n">filter_backends</span> <span class="o">=</span> <span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">DjangoFilterBackend</span><span class="p">,)</span>
+    <span class="n">filterset_class</span> <span class="o">=</span> <span class="n">CronogramaSemanalFilter</span>
+    <span class="n">pagination_class</span> <span class="o">=</span> <span class="n">PreRecebimentoPagination</span>
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.get_permissions">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.get_permissions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">permission_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">permission_action_classes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">permission_classes</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">permission</span><span class="p">()</span> <span class="k">for</span> <span class="n">permission</span> <span class="ow">in</span> <span class="n">permission_classes</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.get_queryset">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.get_queryset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retorna queryset ordenado por data de alteração (mais recente primeiro).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">CronogramaSemanal</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span>
+                <span class="s2">&quot;cronograma_mensal&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma_mensal__ficha_tecnica&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma_mensal__ficha_tecnica__produto&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma_mensal__empresa&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s2">&quot;programacoes&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.get_serializer_class">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.get_serializer_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serializer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">serializer_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;rascunho&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalRascunhoSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;update&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalRascunhoSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;partial_update&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalRascunhoSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;assinar_e_enviar&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalAssinarEEnviarSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;alterar_cronograma&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalAlterarSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;rascunhos_listagem&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalRascunhosSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;retrieve&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalDetailSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;fornecedor_ciente&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalDetailSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;list&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalListagemSerializer</span><span class="p">,</span>
+            <span class="s2">&quot;calendario&quot;</span><span class="p">:</span> <span class="n">CronogramaSemanalCalendarioSerializer</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">serializer_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="n">CronogramaSemanalListagemSerializer</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.list">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endpoint: GET /cronogramas-semanais/</span>
+
+<span class="sd">        Lista cronogramas semanais ordenados por data de alteração (mais recente primeiro).</span>
+<span class="sd">        Suporta paginação através do PreRecebimentoPagination.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vinculo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_queryset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">())</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-alterado_em&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">vinculo</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="n">ADMINISTRADOR_EMPRESA</span>
+            <span class="ow">or</span> <span class="n">vinculo</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="n">USUARIO_EMPRESA</span>
+        <span class="p">)</span> <span class="ow">and</span> <span class="n">vinculo</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_fornecedor</span><span class="p">:</span>
+            <span class="n">queryset</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">cronograma_mensal__empresa</span><span class="o">=</span><span class="n">vinculo</span><span class="o">.</span><span class="n">instituicao</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;RASCUNHO&quot;</span><span class="p">)</span>
+
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.calendario">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.calendario">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;calendario&quot;</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">&quot;calendario&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calendario</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lista cronogramas semanais para exibição no calendário.</span>
+<span class="sd">        Filtra as programações pelo mês e ano informados via query params.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mes&quot;</span><span class="p">)</span>
+        <span class="n">ano</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ano&quot;</span><span class="p">)</span>
+        <span class="n">status_filter</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mes</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ano</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Os parâmetros &#39;mes&#39; e &#39;ano&#39; são obrigatórios.&quot;</span><span class="p">},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mes</span><span class="p">)</span>
+            <span class="n">ano</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ano</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Os parâmetros &#39;mes&#39; e &#39;ano&#39; devem ser números inteiros.&quot;</span><span class="p">},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">CronogramaSemanal</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span>
+                <span class="s2">&quot;cronograma_mensal&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma_mensal__ficha_tecnica__produto&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma_mensal__empresa&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma_mensal__armazem&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cronograma_mensal__unidade_medida&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s2">&quot;programacoes&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">programacoes__data_inicio__month</span><span class="o">=</span><span class="n">mes</span><span class="p">,</span>
+                <span class="n">programacoes__data_inicio__year</span><span class="o">=</span><span class="n">ano</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;RASCUNHO&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">status_filter</span><span class="p">:</span>
+            <span class="n">queryset</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status_filter</span><span class="p">)</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaSemanalCalendarioSerializer</span><span class="p">(</span>
+            <span class="n">queryset</span><span class="p">,</span>
+            <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mes&quot;</span><span class="p">:</span> <span class="n">mes</span><span class="p">,</span> <span class="s2">&quot;ano&quot;</span><span class="p">:</span> <span class="n">ano</span><span class="p">,</span> <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.rascunho">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.rascunho">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;rascunho&quot;</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">&quot;rascunho&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rascunho</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endpoint: POST /cronogramas-semanais/rascunho/</span>
+
+<span class="sd">        Cria um novo cronograma semanal como rascunho.</span>
+<span class="sd">        Apenas o campo cronograma_mensal é obrigatório.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaSemanalRascunhoSerializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">salvar_log_cronograma_semanal_criado</span><span class="p">(</span><span class="n">usuario</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_201_CREATED</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.rascunhos_listagem">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.rascunhos_listagem">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;rascunhos&quot;</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">&quot;rascunhos_listagem&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rascunhos_listagem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endpoint: GET /cronogramas-semanais/rascunhos/</span>
+
+<span class="sd">        Lista cronogramas semanais com status RASCUNHO.</span>
+<span class="sd">        Retorna uuid, numero e alterado_em de cada rascunho.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">CronogramaSemanalWorkflow</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">CronogramaSemanalWorkflow</span><span class="o">.</span><span class="n">RASCUNHO</span><span class="p">)</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaSemanalRascunhosSerializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.cronogramas_mensal_assinados">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.cronogramas_mensal_assinados">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;cronogramas-mensal-assinados&quot;</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">&quot;cronogramas_mensal_assinados&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cronogramas_mensal_assinados</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endpoint: GET /cronogramas-semanais/cronogramas-mensal-assinados/</span>
+
+<span class="sd">        Retorna lista de cronogramas mensal do tipo Ponto a Ponto com status ASSINADO_CODAE.</span>
+<span class="sd">        Usado no seletor de Cronograma Mensal no formulário de cadastro.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cronogramas</span> <span class="o">=</span> <span class="n">Cronograma</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;ASSINADO_CODAE&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span>
+            <span class="s2">&quot;empresa&quot;</span><span class="p">,</span> <span class="s2">&quot;contrato&quot;</span><span class="p">,</span> <span class="s2">&quot;ficha_tecnica__produto&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">cronogramas_ponto_a_ponto</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cronogramas</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">ponto_a_ponto</span><span class="p">]</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">CronogramaMensalAssinadoSerializer</span><span class="p">(</span>
+            <span class="n">cronogramas_ponto_a_ponto</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validar_senha_e_executar_serializador</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Método auxiliar compartilhado entre assinar_e_enviar e alterar_cronograma.</span>
+<span class="sd">        Valida a senha do usuário, obtém o objeto, executa o serializer e retorna a Response.</span>
+<span class="sd">        O serializer (e portanto a transição do workflow) é determinado pela action atual.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">usuario</span><span class="o">.</span><span class="n">verificar_autenticidade</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Assinatura do cronograma não foi validada.&quot;</span><span class="p">},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cronograma_semanal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">cronograma_semanal</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.assinar_e_enviar">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.assinar_e_enviar">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;assinar-e-enviar&quot;</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">&quot;assinar_e_enviar&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">assinar_e_enviar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endpoint: PATCH /cronogramas-semanais/{uuid}/assinar-e-enviar/</span>
+
+<span class="sd">        Assina digitalmente e envia o cronograma semanal para aprovação.</span>
+<span class="sd">        Valida a senha do usuário e executa a transição inicia_fluxo do workflow</span>
+<span class="sd">        (RASCUNHO -&gt; ENVIADO_AO_FORNECEDOR).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validar_senha_e_executar_serializador</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.alterar_cronograma">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.alterar_cronograma">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;alterar-cronograma&quot;</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">&quot;alterar_cronograma&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">alterar_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endpoint: PATCH /cronogramas-semanais/{uuid}/alterar-cronograma/</span>
+
+<span class="sd">        Altera um cronograma semanal após o fornecedor ter dado ciência.</span>
+<span class="sd">        Valida a senha do usuário e executa a transição alterar_cronograma do workflow</span>
+<span class="sd">        (FORNECEDOR_CIENTE -&gt; ENVIADO_AO_FORNECEDOR).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validar_senha_e_executar_serializador</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.fornecedor_ciente">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.fornecedor_ciente">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;fornecedor-ciente&quot;</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">&quot;fornecedor_ciente&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fornecedor_ciente</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endpoint: PATCH /cronogramas-semanais/{uuid}/fornecedor-ciente/</span>
+
+<span class="sd">        Registra a ciência do fornecedor sobre o cronograma semanal.</span>
+<span class="sd">        Valida a senha do usuário e executa a transição fornecedor_ciente do workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cronograma_semanal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+            <span class="n">cronograma_semanal</span><span class="o">.</span><span class="n">fornecedor_ciente</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">cronograma_semanal</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CronogramaSemanalViewSet.gerar_pdf_cronograma">
+<a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_semanal/api.html#src.pre_recebimento.cronograma_semanal.api.viewsets.CronogramaSemanalViewSet.gerar_pdf_cronograma">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;gerar-pdf-cronograma&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gerar_pdf_cronograma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gera o PDF do cronograma semanal.</span>
+
+<span class="sd">        Endpoint ``GET /cronogramas-semanais/{uuid}/gerar-pdf-cronograma/``.</span>
+<span class="sd">        Só é permitido quando o cronograma está no status</span>
+<span class="sd">        ``FORNECEDOR_CIENTE``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cronograma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">CronogramaSemanalWorkflow</span><span class="o">.</span><span class="n">FORNECEDOR_CIENTE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;O PDF só pode ser gerado para cronogramas no status Fornecedor Ciente.&quot;</span>
+                <span class="p">},</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">get_pdf_cronograma_semanal</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

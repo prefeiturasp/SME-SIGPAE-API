@@ -2,6 +2,13 @@ import datetime
 
 from rest_framework import serializers
 
+from src.dados_comuns.api.serializers import (
+    LogSolicitacoesUsuarioSerializer,
+)
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    FORMATO_DATA_HORA_BRASILEIRO,
+)
 from src.pre_recebimento.base.api.serializers.serializers import (
     UnidadeMedidaSimplesSerializer,
 )
@@ -25,7 +32,7 @@ from src.terceirizada.api.serializers.serializers import (
 class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
     produto = NomeDeProdutoEditalSerializer()
     uuid_empresa = serializers.SerializerMethodField()
-    ponto_a_ponto = serializers.BooleanField(read_only=True)
+    ponto_a_ponto = serializers.BooleanField(source="eh_ponto_a_ponto", read_only=True)
 
     def get_uuid_empresa(self, obj):
         return obj.empresa.uuid if obj.empresa else None
@@ -66,13 +73,13 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
     criado_em = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
     programa = serializers.CharField()
-    ponto_a_ponto = serializers.BooleanField(read_only=True)
+    ponto_a_ponto = serializers.BooleanField(source="eh_ponto_a_ponto", read_only=True)
 
     def get_nome_produto(self, obj):
         return obj.produto.nome if obj.produto else None
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = FichaTecnicaDoProduto
@@ -142,9 +149,10 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
     unidade_medida_primaria_vazia = UnidadeMedidaSimplesSerializer()
     unidade_medida_secundaria_vazia = UnidadeMedidaSimplesSerializer()
     unidade_medida_volume_primaria = UnidadeMedidaSimplesSerializer()
+    logs = LogSolicitacoesUsuarioSerializer(many=True, read_only=True)
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = FichaTecnicaDoProduto
@@ -208,6 +216,7 @@ class FichaTecnicaDetalharSerializer(serializers.ModelSerializer):
             "arquivo",
             "modo_de_preparo",
             "informacoes_adicionais",
+            "logs",
         )
 
 
@@ -237,11 +246,13 @@ class FichaTecnicaComAnaliseDetalharSerializer(FichaTecnicaDetalharSerializer):
 
         if log_mais_recente:
             return datetime.datetime.strftime(
-                log_mais_recente.criado_em, "%d/%m/%Y - %H:%M"
+                log_mais_recente.criado_em, FORMATO_DATA_HORA_BRASILEIRO
             )
 
         else:
-            return datetime.datetime.strftime(obj.alterado_em, "%d/%m/%Y - %H:%M")
+            return datetime.datetime.strftime(
+                obj.alterado_em, FORMATO_DATA_HORA_BRASILEIRO
+            )
 
     class Meta(FichaTecnicaDetalharSerializer.Meta):
         fields = FichaTecnicaDetalharSerializer.Meta.fields + (
@@ -267,10 +278,10 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
                     obj.log_mais_recente.criado_em, "%d/%m/%Y %H:%M"
                 )
             return datetime.datetime.strftime(
-                obj.log_mais_recente.criado_em, "%d/%m/%Y"
+                obj.log_mais_recente.criado_em, FORMATO_DATA_BRASILEIRO
             )
         else:
-            return datetime.datetime.strftime(obj.criado_em, "%d/%m/%Y")
+            return datetime.datetime.strftime(obj.criado_em, FORMATO_DATA_BRASILEIRO)
 
     def get_programa_leve_leite(self, obj):
         try:
@@ -290,4 +301,25 @@ class PainelFichaTecnicaSerializer(serializers.ModelSerializer):
             "programa_leve_leite",
             "categoria",
             "tipo_entrega",
+        )
+
+
+class RelatorioFichaTecnicaSerializer(serializers.ModelSerializer):
+    produto = NomeDeProdutoEditalSerializer()
+    empresa = TerceirizadaLookUpSerializer()
+    status = serializers.CharField(source="get_status_display", read_only=True)
+    categoria = serializers.CharField(source="get_categoria_display", read_only=True)
+    programa = serializers.CharField(source="get_programa_display", read_only=True)
+
+    class Meta:
+        model = FichaTecnicaDoProduto
+        fields = (
+            "uuid",
+            "numero",
+            "produto",
+            "empresa",
+            "categoria",
+            "programa",
+            "pregao_chamada_publica",
+            "status",
         )

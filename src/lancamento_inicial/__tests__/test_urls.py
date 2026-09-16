@@ -2,6 +2,7 @@ from datetime import date
 
 from rest_framework import status
 
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ..utils import eh_feriado_ou_fds
 
 
@@ -26,7 +27,7 @@ def test_get_lancamentos_por_mes(
                 uuid_lancamentos[dia_atual - 1]
             )
             assert dados_dia["lancamento"]["data"] == objeto_data_atual.strftime(
-                "%d/%m/%Y"
+                FORMATO_DATA_BRASILEIRO
             )
             assert (
                 dados_dia["lancamento"]["escola_periodo_escolar"]

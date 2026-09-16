@@ -5,6 +5,14 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 
+from .constants import (
+    CRIADO_EM,
+    ESCOLA_CANCELOU_LABEL,
+    MODEL_PERFIL,
+    MODEL_USUARIO,
+    MODULO_DIETA_ESPECIAL,
+)
+
 
 class LogSolicitacoesUsuario(
     ExportModelOperationsMixin("log_solicitacoes"), models.Model
@@ -141,7 +149,10 @@ class LogSolicitacoesUsuario(
         CRONOGRAMA_SEMANAL_ENVIADO_AO_FORNECEDOR,
         CRONOGRAMA_SEMANAL_FORNECEDOR_CIENTE,
         ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA,
-    ) = range(114)
+        FICHA_TECNICA_CADASTRADA,
+        MEDICAO_CODAE_REABRIU_LANCAMENTO,
+        CODAE_MANTEVE_PRODUTO_SUSPENSO,
+    ) = range(117)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -155,7 +166,7 @@ class LogSolicitacoesUsuario(
         (DRE_PEDIU_REVISAO, "DRE pediu revisão"),
         (DRE_NAO_VALIDOU, "DRE não validou"),
         (ESCOLA_REVISOU, "Escola revisou"),
-        (ESCOLA_CANCELOU, "Escola cancelou"),
+        (ESCOLA_CANCELOU, ESCOLA_CANCELOU_LABEL),
         (CODAE_NEGOU_CANCELAMENTO, "CODAE negou cancelamento"),
         (DRE_CANCELOU, "DRE cancelou"),
         (CODAE_QUESTIONOU, "Questionamento pela CODAE"),
@@ -301,6 +312,7 @@ class LogSolicitacoesUsuario(
         (DOCUMENTO_ENVIADO_PARA_CORRECAO, "Documento enviado para correção"),
         (DOCUMENTO_APROVADO, "Documento aprovado"),
         (DOCUMENTO_CORRECAO_REALIZADA, "Documento correção realizada"),
+        (FICHA_TECNICA_CADASTRADA, "Ficha Técnica cadastrada"),
         (FICHA_TECNICA_ENVIADA_PARA_ANALISE, "Ficha Técnica enviada para análise"),
         (FICHA_TECNICA_APROVADA, "Ficha Técnica aprovada"),
         (FICHA_TECNICA_ENVIADA_PARA_CORRECAO, "Ficha Técnica enviada para correção"),
@@ -327,6 +339,8 @@ class LogSolicitacoesUsuario(
             "Cancelamento por Encerramento de Matrícula",
         ),
         (ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA, "Escola alterou"),
+        (MEDICAO_CODAE_REABRIU_LANCAMENTO, "CODAE reabriu lançamento"),
+        (CODAE_MANTEVE_PRODUTO_SUSPENSO, "CODAE manteve o produto suspenso"),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,
@@ -370,7 +384,7 @@ class LogSolicitacoesUsuario(
         (INCLUSAO_ALIMENTACAO_CEI, "Inclusão de alimentação da CEI"),
         (SUSPENSAO_ALIMENTACAO_CEI, "Suspensão de alimentação da CEI"),
         (INCLUSAO_ALIMENTACAO_CONTINUA, "Inclusão de alimentação contínua"),
-        (DIETA_ESPECIAL, "Dieta Especial"),
+        (DIETA_ESPECIAL, MODULO_DIETA_ESPECIAL),
         (SOLICITACAO_KIT_LANCHE_UNIFICADA, "Solicitação de kit lanche unificada"),
         (HOMOLOGACAO_PRODUTO, "Homologação de Produto"),
         (RECLAMACAO_PRODUTO, "Reclamação de Produto"),
@@ -391,14 +405,14 @@ class LogSolicitacoesUsuario(
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     descricao = models.TextField("Descricao", blank=True)
     justificativa = models.TextField("Justificativa", blank=True)
     resposta_sim_nao = models.BooleanField("Resposta - Sim ou Não", default=False)
     status_evento = models.PositiveSmallIntegerField(choices=STATUS_POSSIVEIS)
     solicitacao_tipo = models.PositiveSmallIntegerField(choices=TIPOS_SOLICITACOES)
     uuid_original = models.UUIDField()
-    usuario = models.ForeignKey("perfil.Usuario", on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
 
     class Meta:
         ordering = ("-criado_em",)
@@ -477,11 +491,17 @@ class CategoriaPerguntaFrequente(ExportModelOperationsMixin("cat_faq"), models.M
 
 class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
     categoria = models.ForeignKey(
-        "CategoriaPerguntaFrequente", on_delete=models.PROTECT
+        "CategoriaPerguntaFrequente", on_delete=models.CASCADE
     )
+    perfis = models.ManyToManyField(
+        MODEL_PERFIL,
+        related_name="perguntas_frequentes",
+        blank=True,
+    )
+    todos_os_perfis = models.BooleanField(default=False)
     pergunta = models.TextField("Pergunta")
     resposta = models.TextField("Resposta")
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
@@ -611,10 +631,10 @@ class Notificacao(models.Model):
     resolvido = models.BooleanField("Foi resolvido?", default=False)
 
     usuario = models.ForeignKey(
-        "perfil.Usuario", on_delete=models.CASCADE, default="", null=True, blank=True
+        MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
     )
 
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
     link = models.CharField("Link", max_length=200, default="", blank=True)
 
@@ -764,9 +784,9 @@ class CentralDeDownload(models.Model):
     msg_erro = models.CharField("Mensagem erro", max_length=300, blank=True)
     visto = models.BooleanField("Foi visto?", default=False)
     usuario = models.ForeignKey(
-        "perfil.Usuario", on_delete=models.CASCADE, default="", null=True, blank=True
+        MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
     )
-    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+    criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
     class Meta:
         verbose_name = "Central de Download"
@@ -783,10 +803,35 @@ class CentralDeDownload(models.Model):
 
 class SolicitacaoAberta(models.Model):
     uuid_solicitacao = models.CharField(max_length=50)
-    usuario = models.ForeignKey("perfil.Usuario", on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
     datetime_ultimo_acesso = models.DateTimeField()
 
     def __str__(self):
         retorno = f'Solicitação "#{str(self.uuid_solicitacao).upper()[:5]}"'
         retorno += f' está aberta e em edição pelo usuário "{self.usuario}"'
         return retorno
+
+
+class VersaoSistemaManager(models.Manager):
+    def get(self):
+        obj, _ = self.get_queryset().get_or_create(id=1)
+        return obj
+
+
+class VersaoSistema(models.Model):
+    id = models.PositiveIntegerField(primary_key=True, default=1, editable=False)
+    versao = models.CharField(max_length=50, default="2.71.5")
+    atualizada_em = models.DateTimeField(auto_now=True)
+
+    objects = VersaoSistemaManager()
+
+    class Meta:
+        verbose_name = "Versão do Sistema"
+        verbose_name_plural = "Versões do Sistema"
+
+    def save(self, *args, **kwargs):
+        self.id = 1
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.versao

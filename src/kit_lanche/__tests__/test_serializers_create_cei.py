@@ -3,6 +3,8 @@ import datetime
 import pytest
 from model_bakery import baker
 
+from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_USUARIO
+
 from ..api.serializers.serializers_create_cei import (
     FaixaEtariaSolicitacaoKitLancheCEIAvulsaCreateSerializer,
     SolicitacaoKitLancheCEIAvulsaCreationSerializer,
@@ -26,7 +28,7 @@ def test_faixa_etaria_kit_lanche_cei_serializer():
 @pytest.mark.django_db
 def test_kit_lanche_cei_avulsa_serializer_create_create():
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     hoje = datetime.date.today()
     # TODO: Achar uma forma de esse teste travar a data atual do sistema,
@@ -39,7 +41,7 @@ def test_kit_lanche_cei_avulsa_serializer_create_create():
     alunos = baker.make("escola.Aluno", _quantity=4)
     alunos_com_dieta = [aluno.uuid for aluno in alunos]
 
-    escola = baker.make("escola.Escola")
+    escola = baker.make(MODEL_ESCOLA)
     local = "Tão-tão distante"
 
     kits_lanche = baker.make("kit_lanche.KitLanche", _quantity=2)
@@ -85,7 +87,7 @@ def test_kit_lanche_cei_avulsa_serializer_create_update():
     alunos = baker.make("escola.Aluno", _quantity=4)
     alunos_com_dieta = [aluno.uuid for aluno in alunos]
 
-    escola = baker.make("escola.Escola")
+    escola = baker.make(MODEL_ESCOLA)
     local = "Tão-tão distante"
     descricao = "Um texto aleatório"
 

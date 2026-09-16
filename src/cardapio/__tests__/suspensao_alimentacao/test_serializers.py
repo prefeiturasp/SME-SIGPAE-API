@@ -7,6 +7,7 @@ from src.cardapio.suspensao_alimentacao.api.serializers_create import (
 from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
+from src.dados_comuns.constants import MODEL_USUARIO
 
 pytestmark = pytest.mark.django_db
 
@@ -17,7 +18,7 @@ def test_suspensao_alimentacao_serializer(suspensao_alimentacao_serializer):
 
 def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_params):
     class FakeObject(object):
-        user = baker.make("perfil.Usuario")
+        user = baker.make(MODEL_USUARIO)
 
     serializer_obj = GrupoSuspensaoAlimentacaoCreateSerializer(
         context={"request": FakeObject}
@@ -28,28 +29,28 @@ def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_para
     )
     for quantidade_periodo in quantidades_periodo:
         quantidades_por_periodo.append(
-            dict(
-                numero_alunos=quantidade_periodo.numero_alunos,
-                periodo_escolar=quantidade_periodo.periodo_escolar,
-            )
+            {
+                "numero_alunos": quantidade_periodo.numero_alunos,
+                "periodo_escolar": quantidade_periodo.periodo_escolar,
+            }
         )
 
     suspensoes_alimentacao = []
     suspensoes = baker.make("SuspensaoAlimentacao", _quantity=3)
     for suspensao in suspensoes:
         suspensoes_alimentacao.append(
-            dict(
-                prioritario=suspensao.prioritario,
-                motivo=suspensao.motivo,
-                data=suspensao.data,
-                outro_motivo=suspensao.outro_motivo,
-            )
+            {
+                "prioritario": suspensao.prioritario,
+                "motivo": suspensao.motivo,
+                "data": suspensao.data,
+                "outro_motivo": suspensao.outro_motivo,
+            }
         )
-    validated_data_create = dict(
-        quantidades_por_periodo=quantidades_por_periodo,
-        suspensoes_alimentacao=suspensoes_alimentacao,
-        escola=baker.make("Escola"),
-    )
+    validated_data_create = {
+        "quantidades_por_periodo": quantidades_por_periodo,
+        "suspensoes_alimentacao": suspensoes_alimentacao,
+        "escola": baker.make("Escola"),
+    }
     grupo_suspensao_created = serializer_obj.create(
         validated_data=validated_data_create
     )
@@ -59,11 +60,11 @@ def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_para
     assert grupo_suspensao_created.suspensoes_alimentacao.count() == 3
     assert isinstance(grupo_suspensao_created, GrupoSuspensaoAlimentacao)
 
-    validated_data_update = dict(
-        quantidades_por_periodo=quantidades_por_periodo[:2],
-        suspensoes_alimentacao=suspensoes_alimentacao[:1],
-        escola=baker.make("Escola"),
-    )
+    validated_data_update = {
+        "quantidades_por_periodo": quantidades_por_periodo[:2],
+        "suspensoes_alimentacao": suspensoes_alimentacao[:1],
+        "escola": baker.make("Escola"),
+    }
     grupo_suspensao_updated = serializer_obj.update(
         instance=grupo_suspensao_created, validated_data=validated_data_update
     )

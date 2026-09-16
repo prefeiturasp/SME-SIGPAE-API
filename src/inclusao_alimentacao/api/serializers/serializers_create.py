@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from workalendar.america import BrazilSaoPauloCity
 
 from ....cardapio.base.models import TipoAlimentacao
+from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ....dados_comuns.utils import update_instance_from_dict
 from ....dados_comuns.validators import (
     deve_pedir_com_antecedencia,
@@ -331,7 +332,7 @@ class InclusaoAlimentacaoContinuaCreationSerializer(serializers.ModelSerializer)
             if dias_semana and data_atual.weekday() not in dias_semana:
                 pass
             elif calendario.is_holiday(data_atual):
-                data_formatada = data_atual.strftime("%d/%m/%Y")
+                data_formatada = data_atual.strftime(FORMATO_DATA_BRASILEIRO)
                 raise ValidationError(
                     f"Não pode haver feriado na faixa escolhida. Feriado encontrado: {data_formatada}"
                 )

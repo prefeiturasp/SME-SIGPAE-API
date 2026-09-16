@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.test import RequestFactory
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.relatorios import relatorios
 
@@ -26,9 +27,13 @@ def test_relatorio_inclusao_alimentacao_continua_exibe_encerramento_e_historico_
     )
     periodo_integral = periodo_escolar_factory.create(nome="INTEGRAL")
     periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
-    tipo_lanche = tipo_alimentacao_factory.create(nome="Lanche")
-    tipo_refeicao = tipo_alimentacao_factory.create(nome="Refeição")
-    tipo_lanche_4h = tipo_alimentacao_factory.create(nome="Lanche 4h")
+    tipo_lanche = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    tipo_refeicao = tipo_alimentacao_factory.create(
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value
+    )
+    tipo_lanche_4h = tipo_alimentacao_factory.create(
+        nome=TIPOS_ALIMENTACAO.LANCHE_4H.value
+    )
     usuario = usuario_factory.create()
 
     inclusao = inclusao_alimentacao_continua_factory.create(
@@ -153,7 +158,7 @@ def test_relatorio_inclusao_alimentacao_continua_destaca_data_final_quando_todos
     )
     periodo_integral = periodo_escolar_factory.create(nome="INTEGRAL")
     periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
-    tipo_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+    tipo_lanche = tipo_alimentacao_factory.create(nome=TIPOS_ALIMENTACAO.LANCHE.value)
 
     inclusao = inclusao_alimentacao_continua_factory.create(
         escola=escola,

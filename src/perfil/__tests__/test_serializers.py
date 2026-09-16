@@ -1,11 +1,12 @@
 import pytest
+from model_bakery import baker
 
 from src.escola.__tests__.conftest import mocked_response
 
 from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from ..__tests__.conftest import mocked_request_api_eol
-from ..api.serializers import UsuarioUpdateSerializer
-from ..models import Usuario
+from ..api.serializers import PerfilSimplesSerializer, UsuarioUpdateSerializer
+from ..models import Perfil, Usuario
 
 pytestmark = pytest.mark.django_db
 
@@ -43,3 +44,15 @@ def test_usuario_update_serializer_create(monkeypatch):
     assert usuario.registro_funcional == "5858585"
     assert usuario.is_active is False
     assert usuario.cpf == "34811126025"
+
+
+def test_perfil_simples_serializer_retorna_status_ativo():
+    perfil = baker.make(
+        Perfil,
+        uuid="940afcfd-22f6-40cb-997b-4ca4177ce547",
+        ativo=True,
+    )
+
+    dados = PerfilSimplesSerializer(perfil).data
+
+    assert dados["ativo"] is True

@@ -8,6 +8,9 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     ORDEM_HEADERS_CEI,
     ORDEM_UNIDADES_GRUPO_CEI,
 )
@@ -21,6 +24,7 @@ from src.medicao_inicial.services.utils import (
     get_categorias_dietas,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
     update_periodos_alimentacoes,
 )
@@ -135,6 +139,7 @@ def get_valores_tabela(
 ) -> list[list[str | float]]:
     valores = []
     for solicitacao in ordenar_unidades(solicitacoes):
+        solictacao_sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao)
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for periodo, faixa_etaria in colunas:
@@ -143,6 +148,7 @@ def get_valores_tabela(
                 periodo,
                 faixa_etaria,
                 valores_solicitacao_atual,
+                solictacao_sem_lancamento,
                 query_params,
             )
         valores.append(valores_solicitacao_atual)
@@ -166,8 +172,13 @@ def _processa_periodo_campo(
     periodo: str,
     faixa_etaria: int,
     valores: list[str],
+    solictacao_sem_lancamento,
     query_params: dict | None = None,
 ) -> list[str | float]:
+    if solictacao_sem_lancamento:
+        valores.append("SL")
+        return valores
+
     filtros = _define_filtro(periodo)
 
     try:
@@ -187,7 +198,7 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str) -> dict:
     filtros = {}
-    if periodo == "Solicitações de Alimentação":
+    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         filtros["grupo__nome"] = periodo
     elif "DIETA ESPECIAL" in periodo:
         if "INTEGRAL" in periodo or "PARCIAL" in periodo:
@@ -233,7 +244,7 @@ def processa_periodo_regular(
         return "-"
 
     categoria = "ALIMENTAÇÃO"
-    if periodo == "Solicitações de Alimentação":
+    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         categoria = periodo.upper()
 
     soma = _calcula_soma_medicao(medicao, faixa_etaria, categoria, query_params)
@@ -267,6 +278,7 @@ def insere_tabela_periodos_na_planilha(
     NOMES_CAMPOS = {
         faixa.id: faixa.__str__() for faixa in FaixaEtaria.objects.filter(ativo=True)
     }
+    NOMES_CAMPOS.update({"Sem registro": ""})
     df = gera_colunas_alimentacao(aba, colunas, linhas, writer, NOMES_CAMPOS)
     return df
 
@@ -274,13 +286,16 @@ def insere_tabela_periodos_na_planilha(
 def ajusta_layout_tabela(
     workbook: Workbook, worksheet: Worksheet, df: pd.DataFrame
 ) -> None:
-    formatacao_base = {
+    estilo_base = {
         "align": "center",
         "valign": "vcenter",
-        "font_color": "#FFFFFF",
-        "bold": True,
         "border": 1,
         "border_color": "#999999",
+    }
+    formatacao_base = {
+        **estilo_base,
+        "font_color": "#FFFFFF",
+        "bold": True,
     }
     formatacao_integral = workbook.add_format(
         {**formatacao_base, "bg_color": "#198459"}
@@ -308,11 +323,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - INTEGRAL": {
             "formatacao": formatacao_integral,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - INTEGRAL": {
             "formatacao": formatacao_integral,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         "PARCIAL": {
             "formatacao": formatacao_parcial,
@@ -320,11 +335,11 @@ def ajusta_layout_tabela(
         },
         "DIETA ESPECIAL - TIPO A - PARCIAL": {
             "formatacao": formatacao_parcial,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
         "DIETA ESPECIAL - TIPO B - PARCIAL": {
             "formatacao": formatacao_parcial,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
         "MANHA": {
             "formatacao": formatacao_manha,
@@ -334,13 +349,13 @@ def ajusta_layout_tabela(
             "formatacao": formatacao_tarde,
             "nome": "TARDE",
         },
-        "DIETA ESPECIAL - TIPO A": {
+        DIETA_ESPECIAL_TIPO_A: {
             "formatacao": formatacao_dieta_a,
-            "nome": "DIETA ESPECIAL - TIPO A",
+            "nome": DIETA_ESPECIAL_TIPO_A,
         },
-        "DIETA ESPECIAL - TIPO B": {
+        DIETA_ESPECIAL_TIPO_B: {
             "formatacao": formatacao_dieta_b,
-            "nome": "DIETA ESPECIAL - TIPO B",
+            "nome": DIETA_ESPECIAL_TIPO_B,
         },
     }
 
@@ -353,15 +368,10 @@ def ajusta_layout_tabela(
         )
         worksheet.write(3, col_num, value[1], formatacao_level2)
 
-    formatacao = workbook.add_format(
-        {
-            "align": "center",
-            "valign": "vcenter",
-        }
-    )
+    formato_dados = workbook.add_format(estilo_base)
 
-    worksheet.set_column(0, len(df.columns) - 1, 15, formatacao)
-    worksheet.set_column(2, 2, 30)
+    worksheet.set_column(0, len(df.columns) - 1, 15, formato_dados)
+    worksheet.set_column(2, 2, 30, formato_dados)
 
     worksheet.set_row(4, None, None, {"hidden": True})
     worksheet.set_row(2, 25)

@@ -9,7 +9,7 @@ class FormularioSupervisaoFilter(filters.FilterSet):
         lookup_expr="exact",
     )
     diretoria_regional = filters.CharFilter(
-        field_name="escola__lote__diretoria_regional__uuid",
+        field_name="escola__diretoria_regional__uuid",
         lookup_expr="exact",
     )
     unidade_educacional = filters.CharFilter(

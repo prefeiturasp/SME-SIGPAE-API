@@ -67,11 +67,8 @@ class Perfil(
             {"codigo": 3085, "cargo": "ASSISTENTE DE DIREÇÃO DE ESCOLA"},
             {"codigo": 43, "cargo": "COORDENADOR GERAL"},
             {"codigo": 515, "cargo": "GESTOR DE EQUIPAMENTO PÚBLICO II"},
+            {"codigo": 3379, "cargo": "COORDENADOR PEDAGÓGICO"},
         ]
-
-    @classmethod
-    def cargos_adm_escola(cls):
-        return [{"codigo": 3379, "cargo": "COORDENADOR PEDAGÓGICO"}]
 
     class Meta:
         verbose_name = "Perfil"

@@ -4,6 +4,11 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+    TIPOS_ALIMENTACAO,
+)
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cemei_recreio_nas_ferias,
 )
@@ -51,12 +56,12 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
         self.medicao_0a3 = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
             periodo_escolar=None,
-            grupo__nome="Recreio nas Férias - de 0 a 3 anos e 11 meses",
+            grupo__nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3,
         )
         self.medicao_4a14 = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
             periodo_escolar=None,
-            grupo__nome="Recreio nas Férias - 4 a 14 anos",
+            grupo__nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14,
         )
         self.medicao_colaboradores = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
@@ -223,9 +228,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
                 "DIETA TIPO B",
             ],
             "valores_campos": [
-                ["Lanche", "320", "20", "12"],
-                ["Refeição", "200", "0", "0"],
-                ["Sobremesa", "160", "0", "0"],
+                [TIPOS_ALIMENTACAO.LANCHE.value, "320", "20", "12"],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, "200", "0", "0"],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, "160", "0", "0"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os alunos em Recreio nas Férias - 01/2026",
         }
@@ -237,9 +242,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
                 "Total de Alimentações para Colaboradores",
             ],
             "valores_campos": [
-                ["Lanche", "20"],
-                ["Refeição", "28"],
-                ["Sobremesa", "28"],
+                [TIPOS_ALIMENTACAO.LANCHE.value, "20"],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, "28"],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, "28"],
             ],
             "legenda": "*A tabela acima representa a soma das alimentações lançadas para os colaboradores em Recreio nas Férias - 01/2026",
         }

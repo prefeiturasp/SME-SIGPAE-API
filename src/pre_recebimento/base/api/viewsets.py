@@ -1,3 +1,5 @@
+"""Viewsets da API do submódulo base de pré-recebimento."""
+
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -24,6 +26,14 @@ from src.pre_recebimento.base.models import (
 
 
 class UnidadeMedidaViewset(viewsets.ModelViewSet):
+    """Viewset de unidades de medida.
+
+    Exposto em ``/unidades-medida-logistica/``, com CRUD completo. A
+    permissão ``PermissaoParaCadastrarVisualizarUnidadesMedida`` restringe
+    o acesso a usuários da CODAE com perfis ``DILOG_QUALIDADE``,
+    ``DILOG_CRONOGRAMA`` ou ``COORDENADOR_CODAE_DILOG_LOGISTICA``.
+    """
+
     lookup_field = "uuid"
     queryset = UnidadeMedida.objects.all().order_by("-criado_em")
     permission_classes = (PermissaoParaCadastrarVisualizarUnidadesMedida,)
@@ -32,6 +42,13 @@ class UnidadeMedidaViewset(viewsets.ModelViewSet):
     filterset_class = UnidadeMedidaFilter
 
     def get_serializer_class(self):
+        """Retorna o serializer conforme a ação.
+
+        ``retrieve`` e ``list`` usam o serializer de leitura
+        (``UnidadeMedidaSerialzer``); as demais ações usam o serializer de
+        criação (``UnidadeMedidaCreateSerializer``), que valida a
+        capitalização de nome e abreviação.
+        """
         if self.action in ["retrieve", "list"]:
             return UnidadeMedidaSerialzer
         return UnidadeMedidaCreateSerializer
@@ -43,6 +60,13 @@ class UnidadeMedidaViewset(viewsets.ModelViewSet):
         permission_classes=(PermissaoParaVisualizarUnidadesMedida,),
     )
     def listar_nomes_abreviacoes(self, request):
+        """Lista os pares ``nome``/``abreviacao`` de todas as unidades.
+
+        Endpoint ``GET /unidades-medida-logistica/lista-nomes-abreviacoes/``,
+        acessível também aos perfis ``ADMINISTRADOR_EMPRESA`` e
+        ``USUARIO_EMPRESA`` (via ``PermissaoParaVisualizarUnidadesMedida``).
+        Usado para popular seletores no frontend.
+        """
         unidades_medida = self.get_queryset()
         serializer = UnidadeMedidaSimplesSerializer(unidades_medida, many=True)
         response = {"results": serializer.data}

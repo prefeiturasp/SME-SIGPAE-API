@@ -1,3 +1,5 @@
+"""Factory de questões por produto para testes."""
+
 from factory import SubFactory
 from factory.django import DjangoModelFactory
 
@@ -8,6 +10,8 @@ from src.recebimento.models import QuestoesPorProduto
 
 
 class QuestoesPorProdutoFactory(DjangoModelFactory):
+    """Cria um ``QuestoesPorProduto`` vinculado a uma ``FichaTecnicaFactory``."""
+
     class Meta:
         model = QuestoesPorProduto
 

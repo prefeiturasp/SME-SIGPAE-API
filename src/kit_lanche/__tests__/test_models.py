@@ -6,6 +6,7 @@ from model_bakery import baker
 from xworkflows import InvalidTransitionError
 
 from ...dados_comuns.behaviors import TempoPasseio
+from ...dados_comuns.constants import MODEL_USUARIO
 
 pytestmark = pytest.mark.django_db
 
@@ -60,7 +61,7 @@ def test_solicitacao(solicitacao):
 def test_solicitacao_avulsa_workflow_case_1_partindo_da_escola(solicitacao_avulsa):
     """RASCUNHO > DRE_A_VALIDAR > DRE_VALIDADO > CODAE_AUTORIZADO > TERCEIRIZADA_TOMOU_CIENCIA."""
     wc = solicitacao_avulsa.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     solicitacao_avulsa.inicia_fluxo(user=user)
@@ -85,7 +86,7 @@ def test_solicitacao_avulsa_workflow_case_1_partindo_da_escola(solicitacao_avuls
 def test_solicitacao_avulsa_workflow_case_2_partindo_da_escola(solicitacao_avulsa):
     """RASCUNHO > DRE_A_VALIDAR > DRE_PEDIU_ESCOLA_REVISAR > DRE_A_VALIDAR."""
     wc = solicitacao_avulsa.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     solicitacao_avulsa.inicia_fluxo(user=user)
@@ -105,7 +106,7 @@ def test_solicitacao_avulsa_workflow_case_2_partindo_da_escola(solicitacao_avuls
 def test_solicitacao_avulsa_workflow_case_3_partindo_da_escola(solicitacao_avulsa):
     """RASCUNHO > DRE_A_VALIDAR > DRE_NAO_VALIDOU_PEDIDO_ESCOLA."""
     wc = solicitacao_avulsa.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     solicitacao_avulsa.inicia_fluxo(user=user)
@@ -118,7 +119,7 @@ def test_solicitacao_avulsa_workflow_case_3_partindo_da_escola(solicitacao_avuls
 def test_solicitacao_avulsa_workflow_case_4_partindo_da_escola(solicitacao_avulsa):
     """RASCUNHO > DRE_A_VALIDAR > DRE_VALIDADO > CODAE_NEGOU_PEDIDO."""
     wc = solicitacao_avulsa.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     solicitacao_avulsa.inicia_fluxo(user=user)
@@ -135,7 +136,7 @@ def test_solicitacao_avulsa_workflow_case_4_partindo_da_escola(solicitacao_avuls
 
 def test_solicitacao_avulsa_workflow_partindo_da_escola_with_error(solicitacao_avulsa):
     wc = solicitacao_avulsa.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     assert solicitacao_avulsa.status == wc.RASCUNHO
 
     with pytest.raises(
@@ -187,7 +188,7 @@ def test_solicitacao_unificada_lista_igual_workflow_case_1_partindo_da_diretoria
 ):
     """RASCUNHO > CODAE_A_AUTORIZAR > CODAE_PEDIU_DRE_REVISAR > CODAE_A_AUTORIZAR."""
     wc = solicitacao_unificada_lista_igual.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     perfil_diretor = baker.make("Perfil", nome="DIRETOR", ativo=True)
     hoje = datetime.date.today()
     baker.make(
@@ -219,7 +220,7 @@ def test_solicitacao_unificada_lista_igual_workflow_case_2_partindo_da_diretoria
 ):
     """RASCUNHO > CODAE_A_AUTORIZAR > CODAE_AUTORIZADO > TERCEIRIZADA_TOMOU_CIENCIA."""
     wc = solicitacao_unificada_lista_igual.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     assert solicitacao_unificada_lista_igual.status == wc.RASCUNHO
     assert solicitacao_unificada_lista_igual.ta_na_dre is True
 
@@ -238,7 +239,7 @@ def test_solicitacao_unificada_lista_igual_workflow_case_3_partindo_da_diretoria
 ):
     """RASCUNHO > CODAE_A_AUTORIZAR > CODAE_NEGOU_PEDIDO."""
     wc = solicitacao_unificada_lista_igual.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     assert solicitacao_unificada_lista_igual.status == wc.RASCUNHO
 
     solicitacao_unificada_lista_igual.inicia_fluxo(user=user)
@@ -252,7 +253,7 @@ def test_solicitacao_unificada_lista_igual_workflow_partindo_da_escola_with_erro
     solicitacao_unificada_lista_igual,
 ):
     wc = solicitacao_unificada_lista_igual.workflow_class
-    user = baker.make("perfil.Usuario")
+    user = baker.make(MODEL_USUARIO)
     assert solicitacao_unificada_lista_igual.status == wc.RASCUNHO
 
     with pytest.raises(

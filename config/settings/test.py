@@ -56,6 +56,8 @@ EMAIL_PORT = 1025
 # Your stuff...
 # ------------------------------------------------------------------------------
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25 MB
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

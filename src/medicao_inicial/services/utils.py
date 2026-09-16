@@ -5,6 +5,7 @@ import pandas as pd
 from django.db.models import FloatField, Sum
 from django.db.models.functions import Cast
 
+from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
 from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
 
 
@@ -120,7 +121,7 @@ def generate_columns(dict_periodos_dietas: dict) -> list:
     columns = [
         (chave, valor)
         for chave, valores in dict_periodos_dietas.items()
-        for valor in valores
+        for valor in (valores if len(valores) > 0 else ["Sem registro"])
     ]
     return columns
 
@@ -234,7 +235,7 @@ def gera_colunas_alimentacao(
     if headers is None:
         headers = [
             (
-                chave.upper() if chave != "Solicitações de Alimentação" else "",
+                chave.upper() if chave != GRUPO_SOLICITACOES_ALIMENTACAO else "",
                 nomes_campos[valor],
             )
             for chave, valor in colunas
@@ -310,3 +311,13 @@ def total_pagamento_colaboradores(
     )
     total_pagamento = resposta["total"]
     return 0 if total_pagamento is None else total_pagamento
+
+
+def todas_medicoes_sem_lancamentos(solicitacao):
+    total_medicoes = solicitacao.medicoes.count()
+    sem_lancamentos = solicitacao.medicoes.filter(
+        status="MEDICAO_SEM_LANCAMENTOS"
+    ).count()
+
+    todas_sem_lancamentos = total_medicoes == sem_lancamentos
+    return todas_sem_lancamentos

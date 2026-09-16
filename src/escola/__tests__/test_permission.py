@@ -15,7 +15,8 @@ from src.escola.api.permissions import (
     PodeCriarAdministradoresDaCODAESupervisaoNutricao,
     PodeCriarAdministradoresDaDiretoriaRegional,
     PodeCriarAdministradoresDaEscola,
-    PodeVerEditarFotoAlunoNoSGP,
+    PodeEditarFotoAlunoNoSGP,
+    PodeVerFotoAlunoNoSGP,
 )
 
 pytestmark = pytest.mark.django_db
@@ -227,12 +228,27 @@ def test_pode_criar_administradores_codae_nutricao_has_permission_retorna_false_
     assert permission.has_permission(mock_request, None) is False
 
 
-# PodeVerEditarFotoAlunoNoSGP
-def test_pode_ver_editar_foto_has_object_permission_retorna_true(
+# PodeEditarFotoAlunoNoSGP
+def test_pode_editar_foto_has_permission_retorna_true(
+    mock_request, usuario_diretor_escola
+):
+    usuario, _ = usuario_diretor_escola
+    permission = PodeEditarFotoAlunoNoSGP()
+    mock_request.user = usuario
+    assert permission.has_permission(mock_request, None) is True
+
+
+def test_pode_editar_foto_has_permission_retorna_false_anonimo(mock_request):
+    permission = PodeEditarFotoAlunoNoSGP()
+    mock_request.user.is_anonymous = True
+    assert permission.has_permission(mock_request, None) is False
+
+
+def test_pode_editar_foto_has_object_permission_retorna_true(
     mock_request, usuario_diretor_escola, dia_calendario_letivo
 ):
     usuario, _ = usuario_diretor_escola
-    permission = PodeVerEditarFotoAlunoNoSGP()
+    permission = PodeEditarFotoAlunoNoSGP()
     mock_request.user = usuario
     assert (
         permission.has_object_permission(mock_request, None, dia_calendario_letivo)
@@ -240,12 +256,51 @@ def test_pode_ver_editar_foto_has_object_permission_retorna_true(
     )
 
 
-def test_pode_ver_editar_foto_has_object_permission_retorna_false_model_codae(
+def test_pode_editar_foto_has_object_permission_retorna_false_model_codae(
     mock_request, dia_calendario_letivo
 ):
-    permission = PodeVerEditarFotoAlunoNoSGP()
+    permission = PodeEditarFotoAlunoNoSGP()
     mock_request.user.vinculo_atual.content_type.model = "codae"
     assert (
         permission.has_object_permission(mock_request, None, dia_calendario_letivo)
         == False
+    )
+
+
+# PodeVerFotoAlunoNoSGP
+def test_pode_ver_foto_has_permission_retorna_true(
+    mock_request, usuario_diretor_escola
+):
+    usuario, _ = usuario_diretor_escola
+    permission = PodeVerFotoAlunoNoSGP()
+    mock_request.user = usuario
+    assert permission.has_permission(mock_request, None) is True
+
+
+def test_pode_ver_foto_has_permission_retorna_false_anonimo(mock_request):
+    permission = PodeVerFotoAlunoNoSGP()
+    mock_request.user.is_anonymous = True
+    assert permission.has_permission(mock_request, None) is False
+
+
+def test_pode_ver_foto_has_object_permission_retorna_true_diretor_escola(
+    mock_request, usuario_diretor_escola, dia_calendario_letivo
+):
+    usuario, _ = usuario_diretor_escola
+    permission = PodeVerFotoAlunoNoSGP()
+    mock_request.user = usuario
+    assert (
+        permission.has_object_permission(mock_request, None, dia_calendario_letivo)
+        is True
+    )
+
+
+def test_pode_ver_foto_has_object_permission_retorna_true_model_codae(
+    mock_request, dia_calendario_letivo
+):
+    permission = PodeVerFotoAlunoNoSGP()
+    mock_request.user.vinculo_atual.content_type.model = "codae"
+    assert (
+        permission.has_object_permission(mock_request, None, dia_calendario_letivo)
+        is True
     )

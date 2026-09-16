@@ -5,7 +5,11 @@ import requests
 from django.core.management.base import BaseCommand
 from requests import ConnectionError
 
-from ....dados_comuns.constants import DJANGO_EOL_SGP_API_TOKEN, DJANGO_EOL_SGP_API_URL
+from ....dados_comuns.constants import (
+    DJANGO_EOL_SGP_API_TOKEN,
+    DJANGO_EOL_SGP_API_URL,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from ....dados_comuns.models import Contato, Endereco
 from ...models import DiretoriaRegional, Escola, Subprefeitura, TipoUnidadeEscolar
 
@@ -65,7 +69,7 @@ class Command(BaseCommand):
         nome_unidade_educacao = escola_dict["nomeEscola"].strip()
         nome_tipo_escola = escola_dict["siglaTipoEscola"].strip()
         if nome_tipo_escola == "CEU":
-            nome_tipo_escola = "CEU GESTAO"
+            nome_tipo_escola = TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value
         nome_escola = f"{nome_tipo_escola} {nome_unidade_educacao}"
         nome_subprefeitura = escola_dict["nomeSubprefeitura"].strip()
 

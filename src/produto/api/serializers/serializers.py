@@ -13,6 +13,7 @@ from ....dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioComVinculoSerializer,
     LogSolicitacoesUsuarioSerializer,
 )
+from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ....dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from ....dados_comuns.validators import objeto_nao_deve_ter_duplicidade
 from ....dieta_especial.protocolo_padrao.models import Alimento
@@ -51,6 +52,9 @@ from ...models import (
     SolicitacaoCadastroProdutoDieta,
     TipoDeInformacaoNutricional,
     UnidadeMedida,
+)
+from ...services.historico_reclamacao_produto import (
+    ServicoHistoricoReclamacaoProduto,
 )
 
 
@@ -137,6 +141,26 @@ class InformacoesNutricionaisDoProdutoSerializer(serializers.ModelSerializer):
         exclude = ("id", "produto")
 
 
+class LogHistoricoReclamacaoProdutoSerializer(
+    LogSolicitacoesUsuarioComAnexosSerializer
+):
+    arquivos_disponiveis = serializers.SerializerMethodField()
+
+    def get_arquivos_disponiveis(self, obj):
+        anexos = ServicoHistoricoReclamacaoProduto.obter_anexos_log_para_resumo(
+            log=obj,
+            anexos_iniciais=self.context["anexos_iniciais"],
+        )
+        return ServicoHistoricoReclamacaoProduto.obter_resumo_arquivos(anexos)
+
+    class Meta(LogSolicitacoesUsuarioComAnexosSerializer.Meta):
+        fields = LogSolicitacoesUsuarioComAnexosSerializer.Meta.fields + (
+            "uuid",
+            "status_evento",
+            "arquivos_disponiveis",
+        )
+
+
 class ReclamacaoDeProdutoSerializer(serializers.ModelSerializer):
     escola = EscolaSimplissimaSerializer()
     anexos = serializers.SerializerMethodField()
@@ -144,24 +168,54 @@ class ReclamacaoDeProdutoSerializer(serializers.ModelSerializer):
     logs = serializers.SerializerMethodField()
     usuario = serializers.SerializerMethodField()
 
+    def get_logs(self, obj):
+        anexos_iniciais = list(obj.anexos.all())
+        logs = list(
+            LogSolicitacoesUsuario.objects.filter(
+                uuid_original=obj.uuid,
+                solicitacao_tipo=LogSolicitacoesUsuario.RECLAMACAO_PRODUTO,
+            )
+            .prefetch_related("anexos")
+            .order_by("criado_em")
+        )
+        dados_logs = LogHistoricoReclamacaoProdutoSerializer(
+            logs,
+            many=True,
+            context={**self.context, "anexos_iniciais": anexos_iniciais},
+        ).data
+
+        acao_inicial = (
+            ServicoHistoricoReclamacaoProduto.obter_dados_acao_inicial_legada(
+                reclamacao=obj,
+                logs=logs,
+                anexos=anexos_iniciais,
+            )
+        )
+        if acao_inicial:
+            acao_inicial["anexos"] = AnexoReclamacaoDeProdutoSerializer(
+                acao_inicial["anexos"],
+                context=self.context,
+                many=True,
+            ).data
+            acao_inicial["usuario"] = UsuarioSerializer(
+                acao_inicial["usuario"]
+            ).data
+            dados_logs.insert(0, acao_inicial)
+
+        return dados_logs
+
+    def get_anexos(self, obj):
+        return AnexoReclamacaoDeProdutoSerializer(
+            obj.anexos.all(),
+            context=self.context,
+            many=True,
+        ).data
+
     def get_usuario(self, obj):
         return UsuarioSerializer(
             Usuario.objects.filter(
                 registro_funcional=obj.reclamante_registro_funcional
             ).first(),
-        ).data
-
-    def get_anexos(self, obj):
-        return AnexoReclamacaoDeProdutoSerializer(
-            obj.anexos.all(), context=self.context, many=True
-        ).data
-
-    def get_logs(self, obj):
-        return LogSolicitacoesUsuarioComAnexosSerializer(
-            LogSolicitacoesUsuario.objects.filter(uuid_original=obj.uuid).order_by(
-                "criado_em"
-            ),
-            many=True,
         ).data
 
     class Meta:
@@ -360,7 +414,7 @@ class CadastroProdutosEditalSerializer(serializers.ModelSerializer):
     criado_em = serializers.SerializerMethodField()
 
     def get_criado_em(self, obj):
-        return obj.criado_em.strftime("%d/%m/%Y")
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     def get_nome(self, obj):
         return obj.nome
@@ -498,7 +552,9 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
     def get_log_mais_recente(self, obj):
         data = obj.log_mais_recente.criado_em if obj.log_mais_recente else obj.criado_em
         format_str = (
-            "%d/%m/%Y %H:%M" if data.date() == datetime.date.today() else "%d/%m/%Y"
+            "%d/%m/%Y %H:%M"
+            if data.date() == datetime.date.today()
+            else FORMATO_DATA_BRASILEIRO
         )
         return data.strftime(format_str)
 
@@ -538,7 +594,7 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
         ):
             if data.date() == datetime.date.today():
                 return datetime.datetime.strftime(data, "%d/%m/%Y %H:%M")
-            return datetime.datetime.strftime(data, "%d/%m/%Y")
+            return datetime.datetime.strftime(data, FORMATO_DATA_BRASILEIRO)
         return None
 
     def get_editais(self, obj):
@@ -1138,12 +1194,12 @@ class RelatorioProdutosSuspensosSerializer(serializers.ModelSerializer):
             "nome": produto_edital.edital.numero,
             "tipo": produto_edital.tipo_produto,
             "data_suspensao": produto_edital.datas_horas_vinculo.last().criado_em.strftime(
-                "%d/%m/%Y"
+                FORMATO_DATA_BRASILEIRO
             ),
         }
 
     def get_data_cadastro(self, obj):
-        return obj.homologacao.logs.first().criado_em.strftime("%d/%m/%Y")
+        return obj.homologacao.logs.first().criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
         model = Produto

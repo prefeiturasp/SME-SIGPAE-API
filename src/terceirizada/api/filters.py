@@ -23,13 +23,6 @@ class TerceirizadaFilter(filters.FilterSet):
         )
 
 
-class EmailTerceirizadaPorModuloFilter(filters.FilterSet):
-    modulo = filters.CharFilter(
-        field_name="modulo__nome",
-        lookup_expr="icontains",
-    )
-
-
 class ContratoFilter(filters.FilterSet):
     busca = filters.CharFilter(method="filtrar_contrato")
 

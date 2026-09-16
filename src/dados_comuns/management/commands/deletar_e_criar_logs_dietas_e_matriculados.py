@@ -3,6 +3,7 @@ import datetime
 
 from django.core.management import BaseCommand
 
+from src.dados_comuns.constants import TIPOS_GESTAO
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -106,7 +107,7 @@ class Command(BaseCommand):
                         break
 
     def analisa_logs_quantidade_dietas_autorizadas_mes(self, mes=8, ano=2023):
-        escolas = Escola.objects.filter(tipo_gestao__nome="TERC TOTAL")
+        escolas = Escola.objects.filter(tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value)
         for index, escola in enumerate(escolas):
             msg = "análise de LogQuantidadeDietasAutorizadas / LogQuantidadeDietasAutorizadasCEI"
             msg += f" para escola {escola.nome} ({index + 1}/{(escolas).count()})"

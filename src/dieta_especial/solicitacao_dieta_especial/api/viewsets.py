@@ -28,6 +28,7 @@ from xworkflows import InvalidTransitionError
 
 from src.dados_comuns import constants
 from src.dados_comuns.api.paginations import HistoricoDietasPagination
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.permissions import (
@@ -1108,7 +1109,7 @@ class SolicitacaoDietaEspecialViewSet(
         elif data.get("status_selecionado") == "CANCELADAS":
             data_inicial_str = data.get("data_cancelamento_inicial")
             data_final_str = data.get("data_cancelamento_final")
-            formato = "%d/%m/%Y"
+            formato = FORMATO_DATA_BRASILEIRO
 
             data_inicial = (
                 datetime.strptime(data_inicial_str, formato)

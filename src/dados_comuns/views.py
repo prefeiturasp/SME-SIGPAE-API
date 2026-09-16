@@ -9,6 +9,8 @@ from django.template import loader
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from src.dados_comuns.constants import TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR
+
 subject = getattr(settings, "DES_TEST_SUBJECT", _("Test Email"))
 text_template = getattr(settings, "DES_TEST_TEXT_TEMPLATE", "des/test_email.txt")
 html_template = getattr(settings, "DES_TEST_HTML_TEMPLATE", None)
@@ -46,4 +48,4 @@ def send_test_email(request):
 
 @require_http_methods(["GET"])
 def test_visualiza_email(request):
-    return render(request, "fluxo_autorizar_negar_cancelar.html")
+    return render(request, TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR)

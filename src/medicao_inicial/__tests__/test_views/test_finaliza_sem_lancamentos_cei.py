@@ -7,6 +7,10 @@ from rest_framework import status
 from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
+from src.dados_comuns.constants import (
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    TIPOS_ALIMENTACAO,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -42,8 +46,12 @@ class TestUseCaseFinalizaMedicaoSemLancamentosCEI:
         self.periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
 
     def setup_tipos_alimentacao(self):
-        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
-        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
+        )
+        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
 
     def setup_medicao_inicial(self, escola_cei):
         self.solicitacao_medicao_inicial = SolicitacaoMedicaoInicialFactory.create(
@@ -58,7 +66,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentosCEI:
 
     def setup_grupos_medicao(self):
         self.grupo_solicitacoes_alimentacao = self.get_or_create_grupo(
-            "Solicitações de Alimentação"
+            GRUPO_SOLICITACOES_ALIMENTACAO
         )
 
     def setup_kit_lanche(self, escola_cei):
@@ -107,7 +115,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentosCEI:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == [
             {
-                "periodo_escolar": "Solicitações de Alimentação",
+                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
                 "erro": "Existem solicitações de alimentações no período. Não é possível finalizar sem lançamentos.",
             }
         ]

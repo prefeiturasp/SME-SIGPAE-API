@@ -2,6 +2,8 @@ import datetime
 
 from rest_framework import serializers
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+
 
 def deve_ter_atributos(data, atributos):
     for atributo in atributos:
@@ -23,7 +25,7 @@ def atributos_string_nao_vazios(data, atributos):
 
 def masca_data_valida(data):
     try:
-        datetime.datetime.strptime(data, "%d/%m/%Y")
+        datetime.datetime.strptime(data, FORMATO_DATA_BRASILEIRO)
         return True
     except ValueError:
         raise serializers.ValidationError(

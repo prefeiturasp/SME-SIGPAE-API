@@ -2,8 +2,10 @@ from datetime import date, timedelta
 
 import environ
 import redis
+from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 
+from ....dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET, TIPOS_UNIDADE_ESCOLAR
 from ....eol_servico.utils import EOLServicoSGP, dt_nascimento_from_api
 from ...models import (
     Aluno,
@@ -37,14 +39,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         iniciais = [
-            "CEI DIRET",
-            "CEU CEI",
-            "CEI",
-            "CCI",
-            "CCI/CIPS",
-            "CEI CEU",
-            "CEU CEMEI",
-            "CEMEI",
+            TIPO_UNIDADE_CEI_DIRET,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         ]
         escolas = Escola.objects.filter(tipo_unidade__iniciais__in=iniciais)
         for escola in escolas:
@@ -126,11 +128,14 @@ class Command(BaseCommand):
         self, lista_alunos_eol, periodo_do_log, faixa_etaria_do_log
     ):
         lista_filtrada_alunos_eol = []
+        seis_anos_atras = date.today() - relativedelta(years=6)
         for aluno in lista_alunos_eol:
             if aluno["tipoTurno"] == periodo_do_log:
                 faixa = FaixaEtaria.objects.get(uuid=faixa_etaria_do_log.uuid)
                 aluno_data_nascimento = dt_nascimento_from_api(aluno["dataNascimento"])
                 if faixa.data_pertence_a_faixa(aluno_data_nascimento, date.today()):
+                    lista_filtrada_alunos_eol.append(aluno)
+                elif aluno_data_nascimento < seis_anos_atras and faixa.fim == 73:
                     lista_filtrada_alunos_eol.append(aluno)
         return lista_filtrada_alunos_eol
 

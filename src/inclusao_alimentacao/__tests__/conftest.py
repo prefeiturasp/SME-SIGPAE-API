@@ -30,7 +30,7 @@ def escola():
         nome="DIRETORIA REGIONAL IPIRANGA",
         uuid="9640fef4-a068-474e-8979-2e1b2654357a",
     )
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         codigo_eol="000086",
@@ -57,7 +57,9 @@ def make_escola():
             nome="DIRETORIA REGIONAL IPIRANGA",
             uuid="4227ee4f-1da3-47b3-83bb-479adc81111c",
         )
-        tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+        tipo_gestao = baker.make(
+            "TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value
+        )
         return baker.make(
             "Escola",
             lote=lote,
@@ -96,8 +98,11 @@ def escola_cemei():
         nome="DIRETORIA REGIONAL GUAIANASES",
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
-    tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="CEMEI")
-    tipo_gestao = baker.make("TipoGestao", nome="TERC TOTAL")
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar",
+        iniciais=constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+    )
+    tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
         nome="CEMEI PARQUE DO LAGO",
@@ -649,7 +654,9 @@ def faixa_etaria():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make("TipoAlimentacao", nome="Refeição")
+    return baker.make(
+        "TipoAlimentacao", nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+    )
 
 
 @pytest.fixture
@@ -661,7 +668,7 @@ def client_autenticado_vinculo_escola_inclusao(
     periodo_escolar,
     faixa_etaria,
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -726,7 +733,7 @@ def client_autenticado_vinculo_dre_inclusao(client, django_user_model, escola):
 
 @pytest.fixture
 def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola, codae):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"
@@ -754,7 +761,7 @@ def client_autenticado_vinculo_codae_inclusao(client, django_user_model, escola,
 def client_autenticado_vinculo_terceirizada_inclusao(
     client, django_user_model, escola, codae
 ):
-    email = "test@test.com"
+    email = constants.EMAIL_TESTE
     password = constants.DJANGO_ADMIN_PASSWORD
     user = django_user_model.objects.create_user(
         username=email, password=password, email=email, registro_funcional="8888888"

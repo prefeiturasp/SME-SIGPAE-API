@@ -1,3 +1,5 @@
+"""Serializers de criação do submódulo de cronograma semanal."""
+
 from datetime import date
 
 from django.db import transaction

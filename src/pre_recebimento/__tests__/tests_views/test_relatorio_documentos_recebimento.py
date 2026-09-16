@@ -205,3 +205,164 @@ class TestListaRelatorioAction:
         response = client.get(self.url)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+class TestExportarExcelAction:
+    url = "/documentos-de-recebimento/exportar-excel/"
+
+    def test_export_retorna_200_e_content_type_correto(
+        self,
+        client_autenticado_vinculo_dilog_qualidade,
+        cronograma_leve_leite,
+        documento_recebimento_leve_leite,
+    ):
+        client, _ = client_autenticado_vinculo_dilog_qualidade
+        response = client.get(self.url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response["Content-Type"] == (
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        assert "Content-Disposition" in response
+        assert "relatorio_documentos_recebimento" in response["Content-Disposition"]
+
+    def test_export_com_filtro_status_aprovado(
+        self,
+        client_autenticado_vinculo_dilog_qualidade,
+        cronograma_leve_leite,
+        documento_recebimento_leve_leite,
+    ):
+        baker.make(
+            "DocumentoDeRecebimento",
+            cronograma=cronograma_leve_leite,
+            status=DocumentoDeRecebimentoWorkflow.APROVADO,
+        )
+
+        client, _ = client_autenticado_vinculo_dilog_qualidade
+        response = client.get(
+            self.url, {"status_documento": DocumentoDeRecebimentoWorkflow.APROVADO}
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response["Content-Type"].startswith(
+            "application/vnd.openxmlformats-officedocument"
+        )
+
+    def test_export_sem_permissao_fornecedor_retorna_403(
+        self,
+        client_user_autenticado_fornecedor,
+        documento_recebimento_leve_leite,
+    ):
+        client, _ = client_user_autenticado_fornecedor
+        response = client.get(self.url)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_export_arquivo_com_colunas_corretas(
+        self,
+        client_autenticado_vinculo_dilog_qualidade,
+        cronograma_leve_leite,
+        documento_recebimento_leve_leite,
+    ):
+        import openpyxl
+        import io
+
+        client, _ = client_autenticado_vinculo_dilog_qualidade
+        response = client.get(self.url)
+
+        assert response.status_code == status.HTTP_200_OK
+
+        workbook = openpyxl.load_workbook(io.BytesIO(response.content))
+        sheet = workbook.active
+
+        # Linha 2 (0-indexed) = cabeçalho das colunas
+        colunas_esperadas = [
+            "Nº do Cronograma",
+            "Produto",
+            "Empresa",
+            "Nº do Pregão ou Chamada Pública",
+            "Nº do Processo SEI",
+            "Nº do Laudo",
+            "Status",
+            "Nome do Laboratório",
+            "Data de Fabricação",
+            "Data de Validade",
+            "Nº do(s) Lote(s) do Laudo",
+            "Data de Fabricação Até",
+            "Data Máxima de Recebimento",
+            "Data de Conclusão do Laudo",
+            "Unidade",
+            "Quantidade Total do Laudo",
+            "Saldo Inicial do Laudo",
+            "Saldo Atual",
+            "Obs",
+            "Solicitação de Correção",
+        ]
+
+        for col_idx, coluna_esperada in enumerate(colunas_esperadas):
+            assert (
+                sheet.cell(row=3, column=col_idx + 1).value == coluna_esperada
+            ), f"Coluna {col_idx + 1}: esperado '{coluna_esperada}', obtido '{sheet.cell(row=3, column=col_idx + 1).value}'"
+
+    def test_export_arquivo_com_totalizadores(
+        self,
+        client_autenticado_vinculo_dilog_qualidade,
+        cronograma_leve_leite,
+        documento_recebimento_leve_leite,
+    ):
+        import openpyxl
+        import io
+
+        client, _ = client_autenticado_vinculo_dilog_qualidade
+        response = client.get(self.url)
+
+        assert response.status_code == status.HTTP_200_OK
+
+        workbook = openpyxl.load_workbook(io.BytesIO(response.content))
+        sheet = workbook.active
+
+        # Linha 2 (1-indexed) = subtítulo com totalizadores
+        subtitulo = sheet.cell(row=2, column=1).value or ""
+        assert "Total de Documentos Recebidos" in subtitulo
+        assert "Pendentes de Aprovação" in subtitulo
+        assert "Enviados para Correção" in subtitulo
+        assert "Aprovados" in subtitulo
+        assert "Data/Hora da extração" in subtitulo
+
+    def test_export_arquivo_com_dados_dos_documentos(
+        self,
+        client_autenticado_vinculo_dilog_qualidade,
+        cronograma_leve_leite,
+        documento_recebimento_leve_leite,
+        laboratorio,
+        unidade_medida_logistica,
+    ):
+        import openpyxl
+        import io
+
+        doc = documento_recebimento_leve_leite
+        doc.laboratorio = laboratorio
+        doc.unidade_medida = unidade_medida_logistica
+        doc.quantidade_laudo = 500
+        doc.save()
+
+        client, _ = client_autenticado_vinculo_dilog_qualidade
+        response = client.get(self.url)
+
+        assert response.status_code == status.HTTP_200_OK
+
+        workbook = openpyxl.load_workbook(io.BytesIO(response.content))
+        sheet = workbook.active
+
+        # Linha 4 (1-indexed) = primeira linha de dados
+        numero_cronograma = sheet.cell(row=4, column=1).value
+        assert numero_cronograma == cronograma_leve_leite.numero
+
+        produto = sheet.cell(row=4, column=2).value
+        assert produto == cronograma_leve_leite.ficha_tecnica.produto.nome
+
+        numero_laudo = sheet.cell(row=4, column=6).value
+        assert numero_laudo == doc.numero_laudo
+
+        laboratorio_nome = sheet.cell(row=4, column=8).value
+        assert laboratorio_nome == laboratorio.nome

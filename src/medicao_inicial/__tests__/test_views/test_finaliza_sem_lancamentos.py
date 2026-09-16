@@ -8,6 +8,12 @@ from rest_framework import status
 from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
+from src.dados_comuns.constants import (
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    MENSAGEM_PERMISSAO_NEGADA,
+    TIPOS_ALIMENTACAO,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -72,12 +78,16 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
         assert escola.periodos_escolares(2025).count() == 2
 
     def setup_tipos_alimentacao(self):
-        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(nome="Refeição")
-        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(nome="Lanche")
+        self.tipo_alimentacao_refeicao = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
+        )
+        self.tipo_alimentacao_lanche = TipoAlimentacaoFactory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
 
     def setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(
-            nome="Programas e Projetos"
+            nome=GRUPO_PROGRAMAS_E_PROJETOS
         )
         self.motivo_etec = MotivoInclusaoContinuaFactory.create(nome="ETEC")
 
@@ -117,9 +127,11 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
             return GrupoMedicaoFactory.create(nome=nome)
 
     def setup_grupos_medicao(self):
-        self.grupo_programas_projetos = self.get_or_create_grupo("Programas e Projetos")
+        self.grupo_programas_projetos = self.get_or_create_grupo(
+            GRUPO_PROGRAMAS_E_PROJETOS
+        )
         self.grupo_solicitacoes_alimentacao = self.get_or_create_grupo(
-            "Solicitações de Alimentação"
+            GRUPO_SOLICITACOES_ALIMENTACAO
         )
 
     def setup_medicao_programas_projetos_com_observacao(self):
@@ -180,7 +192,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == [
             {
-                "periodo_escolar": "Programas e Projetos",
+                "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
                 "erro": "Existem solicitações de alimentações no período, adicione ao menos uma justificativa para finalizar",
             }
         ]
@@ -227,11 +239,11 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == [
             {
-                "periodo_escolar": "Solicitações de Alimentação",
+                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
                 "erro": "Existem solicitações de alimentações no período. Não é possível finalizar sem lançamentos.",
             },
             {
-                "periodo_escolar": "Programas e Projetos",
+                "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
                 "erro": "Existem solicitações de alimentações no período, adicione ao menos uma justificativa para finalizar",
             },
         ]
@@ -253,6 +265,4 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
             data=json.dumps(data_update),
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.json() == {
-            "detail": "Você não tem permissão para executar essa ação."
-        }
+        assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}

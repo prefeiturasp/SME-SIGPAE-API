@@ -2,15 +2,15 @@ import datetime
 import json
 from calendar import monthrange
 
-from django.db.models import Q
-
 import environ
+from django.db.models import Q
 from rest_framework import serializers
 
 from src.dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioComAnexosSerializer,
     LogSolicitacoesUsuarioSerializer,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
@@ -31,8 +31,8 @@ from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
-    DescontoFinanceiro,
     DadosLiquidacao,
+    DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
     Empenho,
@@ -47,6 +47,7 @@ from src.medicao_inicial.models import (
     Responsavel,
     SolicitacaoMedicaoInicial,
     TipoContagemAlimentacao,
+    TipoSobremesaDoce,
     ValorMedicao,
 )
 from src.medicao_inicial.recreio_nas_ferias.api.serializers import (
@@ -63,7 +64,13 @@ from ..utils import (
     calcular_total_pagamento,
 )
 
-FORMATO_DATA_BR = "%d/%m/%Y"
+FORMATO_DATA_BR = FORMATO_DATA_BRASILEIRO
+
+
+class TipoSobremesaDoceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoSobremesaDoce
+        fields = ("uuid", "nome")
 
 
 class DiaSobremesaDoceSerializer(serializers.ModelSerializer):
@@ -73,6 +80,7 @@ class DiaSobremesaDoceSerializer(serializers.ModelSerializer):
         slug_field="uuid", queryset=Edital.objects.all()
     )
     edital_numero = serializers.CharField(source="edital.numero")
+    tipo = TipoSobremesaDoceSerializer()
 
     def get_criado_por(self, obj):
         return {"nome": obj.criado_por.nome}
@@ -590,6 +598,8 @@ class DescontoFinanceiroSerializer(serializers.ModelSerializer):
             "tipo_alimentacao",
             "faixa_etaria",
             "periodo_escolar",
+            "cei_ou_emei",
+            "infantil_ou_fundamental",
             "clausula_desconto",
             "quantidade",
             "criado_em",

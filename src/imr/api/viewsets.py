@@ -14,11 +14,15 @@ from src.dados_comuns.permissions import (
     UsuarioCODAENutriSupervisao,
     UsuarioEscolaTercTotal,
 )
-from src.terceirizada.models import Edital
+from src.terceirizada.models import Edital, Terceirizada
 
-from ...dados_comuns.constants import COORDENADOR_SUPERVISAO_NUTRICAO
+from ...dados_comuns.constants import (
+    ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from ...dados_comuns.fluxo_status import FormularioSupervisaoWorkflow
-from ...escola.models import Escola
+from ...escola.models import DiretoriaRegional, Escola
 from ..models import (
     Equipamento,
     FormularioSupervisao,
@@ -130,12 +134,20 @@ class FormularioSupervisaoModelViewSet(
     }
 
     def get_queryset(self):
-        user = self.request.user
-        if user.vinculo_atual.perfil.nome == COORDENADOR_SUPERVISAO_NUTRICAO:
-            return FormularioSupervisao.objects.filter(
-                formulario_base__usuario=user
-            ).order_by("-criado_em")
-        return FormularioSupervisao.objects.all().order_by("-criado_em")
+        usuario = self.request.user
+        instituicao = usuario.vinculo_atual.instituicao
+        queryset = super().get_queryset()
+
+        if usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_SUPERVISAO_NUTRICAO:
+            return queryset.filter(formulario_base__usuario=usuario)
+
+        if isinstance(instituicao, DiretoriaRegional):
+            return queryset.filter(escola__diretoria_regional=instituicao)
+
+        if isinstance(instituicao, Terceirizada):
+            return queryset.filter(escola__lote__terceirizada=instituicao)
+
+        return queryset
 
     def get_serializer_class(self):
         return {
@@ -147,17 +159,24 @@ class FormularioSupervisaoModelViewSet(
         categorias_excluir = []
 
         if tipo_escola not in [
-            "CEI",
-            "CEI DIRET",
-            "CEI CEU",
-            "CEU CEI",
-            "CCI/CIPS",
-            "CCI",
-            "CEMEI",
-            "CEU CEMEI",
+            TIPOS_UNIDADE_ESCOLAR.CEI.value,
+            TIPO_UNIDADE_CEI_DIRET,
+            TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
         ]:
             categorias_excluir.append("LACTÁRIO")
-        if tipo_escola in ["CEI", "CEI DIRET", "CEI CEU", "CEU CEI", "CCI/CIPS", "CCI"]:
+        if tipo_escola in [
+            TIPOS_UNIDADE_ESCOLAR.CEI.value,
+            TIPO_UNIDADE_CEI_DIRET,
+            TIPOS_UNIDADE_ESCOLAR.CEI_CEU.value,
+            TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+            TIPOS_UNIDADE_ESCOLAR.CCI.value,
+        ]:
             categorias_excluir.append("RESÍDUO DE ÓLEO UTILIZADO NA FRITURA")
 
         return categorias_excluir
@@ -290,7 +309,7 @@ class FormularioSupervisaoModelViewSet(
     def relatorio_pdf(self, request, uuid):
         try:
             user = request.user.get_username()
-            formulario_supervisao = get_object_or_404(FormularioSupervisao, uuid=uuid)
+            formulario_supervisao = get_object_or_404(self.get_queryset(), uuid=uuid)
             gera_pdf_relatorio_formulario_supervisao_async.delay(
                 user=user,
                 nome_arquivo=f"Relatório de Fiscalização - {formulario_supervisao.escola.nome}.pdf",
@@ -314,7 +333,7 @@ class FormularioSupervisaoModelViewSet(
     )
     def lista_nomes_nutricionistas(self, request):
         queryset = (
-            FormularioSupervisao.objects.all()
+            self.get_queryset()
             .values_list("formulario_base__usuario__nome", flat=True)
             .distinct()
         )

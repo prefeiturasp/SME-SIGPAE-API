@@ -1,3 +1,5 @@
+"""Configuração do Django Admin do submódulo base de pré-recebimento."""
+
 from django.contrib import admin
 
 from .models import (
@@ -7,5 +9,8 @@ from .models import (
 
 @admin.register(UnidadeMedida)
 class UnidadeMedidaAdmin(admin.ModelAdmin):
-    list_display = ("nome", "abreviacao", "criado_em")
-    search_fields = ("nome", "abreviacao")
+    """Admin das unidades de medida.
+
+    Exibe ``nome``, ``abreviacao`` e ``criado_em`` na listagem e permite
+    busca por nome e abreviação.
+    """

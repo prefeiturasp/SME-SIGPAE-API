@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from xworkflows.base import InvalidTransitionError
 
+from src.dados_comuns.constants import EM_ANALISE_LABEL
 from src.dados_comuns.fluxo_status import (
     GuiaRemessaWorkFlow,
     SolicitacaoRemessaWorkFlow,
@@ -69,7 +70,7 @@ def retorna_status_das_requisicoes(status_list: list) -> list:  # noqa C901
             lista_com_status.append(SolicitacaoRemessaWorkFlow.PAPA_CANCELA)
         elif status == "Confirmada":
             lista_com_status.append(SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA)
-        elif status == "Em análise":
+        elif status == EM_ANALISE_LABEL:
             lista_com_status.append(
                 SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_SOLICITA_ALTERACAO
             )
@@ -84,7 +85,7 @@ def retorna_status_para_usuario(status_evento: str) -> str:  # noqa C901
     elif status_evento == "Distribuidor confirmou requisição":
         return "Confirmada"
     elif status_evento == "Distribuidor pede alteração da requisição":
-        return "Em análise"
+        return EM_ANALISE_LABEL
     else:
         return "Cancelada"
 
@@ -110,7 +111,9 @@ def retorna_dados_normalizados_excel_visao_distribuidor(queryset):
             When(status="DILOG_ENVIA", then=Value("Enviada")),
             When(status="CANCELADA", then=Value("Cancelada")),
             When(status="DISTRIBUIDOR_CONFIRMA", then=Value("Confirmada")),
-            When(status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value("Em análise")),
+            When(
+                status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value(EM_ANALISE_LABEL)
+            ),
             When(status="DILOG_ACEITA_ALTERACAO", then=Value("Alterada")),
             output_field=CharField(),
         ),
@@ -146,7 +149,9 @@ def retorna_dados_normalizados_excel_visao_dilog(queryset):
             When(status="DILOG_ENVIA", then=Value("Enviada")),
             When(status="CANCELADA", then=Value("Cancelada")),
             When(status="DISTRIBUIDOR_CONFIRMA", then=Value("Confirmada")),
-            When(status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value("Em análise")),
+            When(
+                status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value(EM_ANALISE_LABEL)
+            ),
             When(status="DILOG_ACEITA_ALTERACAO", then=Value("Alterada")),
             output_field=CharField(),
         ),
@@ -197,7 +202,9 @@ def retorna_dados_normalizados_excel_entregas_distribuidor(queryset):  # noqa C9
             When(status="DILOG_ENVIA", then=Value("Recebida")),
             When(status="CANCELADA", then=Value("Cancelada")),
             When(status="DISTRIBUIDOR_CONFIRMA", then=Value("Confirmada")),
-            When(status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value("Em análise")),
+            When(
+                status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value(EM_ANALISE_LABEL)
+            ),
             When(status="DILOG_ACEITA_ALTERACAO", then=Value("Alterada")),
             output_field=CharField(),
         )

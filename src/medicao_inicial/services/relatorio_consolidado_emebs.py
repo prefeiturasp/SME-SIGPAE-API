@@ -5,6 +5,10 @@ from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
 
 from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_A,
+    DIETA_ESPECIAL_TIPO_B,
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_EMEBS,
@@ -18,6 +22,7 @@ from src.medicao_inicial.services.utils import (
     get_lista_dias_periodo,
     get_nome_periodo,
     get_valores_iniciais,
+    todas_medicoes_sem_lancamentos,
 )
 
 logger = logging.getLogger(__name__)
@@ -68,6 +73,7 @@ def get_alimentacoes_por_periodo(solicitacoes, query_params=None):
         dietas_alimentacoes, turma="FUNDAMENTAL"
     )
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
+    dict_periodos_dietas.get("INFANTIL").pop("NOITE", None)
     columns = _generate_columns(dict_periodos_dietas)
 
     return columns
@@ -100,17 +106,17 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
         .distinct()
     )
 
-    if nome_periodo != "Solicitações de Alimentação":
-        if nome_periodo.upper() != "NOITE" and len(infantil) > 0:
+    if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
+        if nome_periodo.upper() != "NOITE":
             infantil += [
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
             ]
-        if len(fundamental) > 0:
-            fundamental += [
-                "total_refeicoes_pagamento",
-                "total_sobremesas_pagamento",
-            ]
+
+        fundamental += [
+            "total_refeicoes_pagamento",
+            "total_sobremesas_pagamento",
+        ]
 
     return infantil, fundamental
 
@@ -200,7 +206,7 @@ def _update_dietas_alimentacoes(
 
 
 def _unificar_dietas_tipo_a(dietas_alimentacoes, turma):
-    dieta_principal = "DIETA ESPECIAL - TIPO A"
+    dieta_principal = DIETA_ESPECIAL_TIPO_A
     dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
     valor_principal = dietas_alimentacoes.get(turma, {}).get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(turma, {}).get(dieta_alternativa, [])
@@ -256,18 +262,19 @@ def _generate_columns(dict_periodos_dietas):
     solicitacoes = []
     if "INFANTIL" in dict_periodos_dietas:
         solicitacoes += dict_periodos_dietas["INFANTIL"].pop(
-            "Solicitações de Alimentação", []
+            GRUPO_SOLICITACOES_ALIMENTACAO, []
         )
     if "FUNDAMENTAL" in dict_periodos_dietas:
         solicitacoes += dict_periodos_dietas["FUNDAMENTAL"].pop(
-            "Solicitações de Alimentação", []
+            GRUPO_SOLICITACOES_ALIMENTACAO, []
         )
     ordem_solicitacoes = ["lanche_emergencial", "kit_lanche"]
     solicitacoes = sorted(solicitacoes, key=lambda x: ordem_solicitacoes.index(x))
-    columns = [("", "Solicitações de Alimentação", valor) for valor in solicitacoes]
+    columns = [("", GRUPO_SOLICITACOES_ALIMENTACAO, valor) for valor in solicitacoes]
     for turma, categorias in dict_periodos_dietas.items():
         for categoria, valores in categorias.items():
-            for valor in valores:
+            dados = valores if len(valores) > 0 else ["Sem registro"]
+            for valor in dados:
                 columns.append((turma, categoria, valor))
     return columns
 
@@ -279,6 +286,7 @@ def get_valores_tabela(solicitacoes, colunas, query_params=None):
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []
     for solicitacao in ordenar_unidades(solicitacoes):
+        solictacao_sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao)
         valores_solicitacao_atual = []
         valores_solicitacao_atual += get_valores_iniciais(solicitacao)
         for turma, periodo, campo in colunas:
@@ -290,6 +298,7 @@ def get_valores_tabela(solicitacoes, colunas, query_params=None):
                 valores_solicitacao_atual,
                 dietas_especiais,
                 periodos_escolares,
+                solictacao_sem_lancamento,
                 query_params,
             )
         valores.append(valores_solicitacao_atual)
@@ -311,8 +320,13 @@ def _processa_periodo_campo(
     valores,
     dietas_especiais,
     periodos_escolares,
+    solictacao_sem_lancamento,
     query_params=None,
 ):
+    if solictacao_sem_lancamento:
+        valores.append("SL")
+        return valores
+
     filtros = _define_filtro(periodo, dietas_especiais, periodos_escolares)
 
     try:
@@ -339,14 +353,14 @@ def _processa_periodo_campo(
 def _define_filtro(periodo, dietas_especiais, periodos_escolares):
     filtros = {}
     if periodo in [
-        "Programas e Projetos",
+        GRUPO_PROGRAMAS_E_PROJETOS,
         "ETEC",
-        "Solicitações de Alimentação",
+        GRUPO_SOLICITACOES_ALIMENTACAO,
     ]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
-        filtros["grupo__nome__in"] = ["Programas e Projetos", "ETEC"]
+        filtros["grupo__nome__in"] = [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
@@ -365,10 +379,10 @@ def processa_dieta_especial(
 
     categorias = (
         [
-            "DIETA ESPECIAL - TIPO A",
+            DIETA_ESPECIAL_TIPO_A,
             "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
         ]
-        if periodo == "DIETA ESPECIAL - TIPO A"
+        if periodo == DIETA_ESPECIAL_TIPO_A
         else [periodo]
     )
     total = 0.0
@@ -388,7 +402,7 @@ def processa_periodo_regular(
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
         return _get_total_pagamento(medicao, campo, turma, query_params)
 
-    if periodo == "Solicitações de Alimentação":
+    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         categorias = [periodo.upper()]
         turma = ["INFANTIL", "FUNDAMENTAL"]
     else:
@@ -425,7 +439,7 @@ def _get_total_pagamento(medicao, nome_campo, turma, query_params=None):
             total_valores > 0
             and medicao.periodo_escolar
             in medicao.solicitacao_medicao_inicial.escola.periodos_escolares()
-        ) or (medicao.grupo and medicao.grupo.nome == "Programas e Projetos"):
+        ) or (medicao.grupo and medicao.grupo.nome == GRUPO_PROGRAMAS_E_PROJETOS):
             valor_padrao = 0
         else:
             valor_padrao = "-"
@@ -560,10 +574,11 @@ def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
         ("", "", "Cód. EOL"),
         ("", "", "Unidade Escolar"),
     ]
+    NOMES_CAMPOS.update({"Sem registro": ""})
 
     headers = []
     for turma, chave, valor in colunas:
-        if chave == "Solicitações de Alimentação":
+        if chave == GRUPO_SOLICITACOES_ALIMENTACAO:
             headers.append(("", "", NOMES_CAMPOS[valor]))
         else:
             headers.append((turma, chave.upper(), NOMES_CAMPOS[valor]))
@@ -581,13 +596,16 @@ def insere_tabela_periodos_na_planilha(aba, colunas, linhas, writer):
 
 
 def ajusta_layout_tabela(workbook, worksheet, df):
-    formatacao_base = {
+    estilo_base = {
         "align": "center",
         "valign": "vcenter",
-        "font_color": "#FFFFFF",
-        "bold": True,
         "border": 1,
         "border_color": "#999999",
+    }
+    formatacao_base = {
+        **estilo_base,
+        "font_color": "#FFFFFF",
+        "bold": True,
     }
     formatacao_manha = workbook.add_format({**formatacao_base, "bg_color": "#198459"})
     formatacao_tarde = workbook.add_format({**formatacao_base, "bg_color": "#D06D12"})
@@ -632,8 +650,8 @@ def ajusta_layout_tabela(workbook, worksheet, df):
         "VESPERTINO": formatacao_vespertino,
         "INTERMEDIARIO": formatacao_intermediario,
         "PROGRAMAS E PROJETOS": formatacao_programas,
-        "DIETA ESPECIAL - TIPO A": formatacao_dieta_a,
-        "DIETA ESPECIAL - TIPO B": formatacao_dieta_b,
+        DIETA_ESPECIAL_TIPO_A: formatacao_dieta_a,
+        DIETA_ESPECIAL_TIPO_B: formatacao_dieta_b,
     }
     formatacao_turma = {
         "": {"formatacao": formatacao_level2, "nome": ""},
@@ -657,15 +675,10 @@ def ajusta_layout_tabela(workbook, worksheet, df):
         worksheet.write(3, col_num, value[1], formatacao_level1[value[1]])
         worksheet.write(4, col_num, value[2], formatacao_level2)
 
-    formatacao = workbook.add_format(
-        {
-            "align": "center",
-            "valign": "vcenter",
-        }
-    )
+    formato_dados = workbook.add_format(estilo_base)
 
-    worksheet.set_column(0, len(df.columns) - 1, 15, formatacao)
-    worksheet.set_column(2, 2, 30)
+    worksheet.set_column(0, len(df.columns) - 1, 15, formato_dados)
+    worksheet.set_column(2, 2, 30, formato_dados)
 
     worksheet.set_row(5, None, None, {"hidden": True})
     worksheet.set_row(2, 25)

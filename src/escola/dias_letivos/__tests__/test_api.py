@@ -1,13 +1,14 @@
 import json
 from datetime import date, timedelta
-from django.utils import timezone
 from typing import Any
 
 import pytest
 from django.test import Client
+from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
 
+from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE, TIPOS_UNIDADE_ESCOLAR
 from src.escola.dias_letivos.fixtures.factories.dias_letivos_factory import (
     DiaLetivoSIGPAEFactory,
 )
@@ -44,9 +45,9 @@ def test_create_dias_letivos_success(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
-    lote = baker.make("escola.Lote")
+    lote = baker.make(MODEL_LOTE)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
-    escola = baker.make("escola.Escola", lote=lote)
+    escola = baker.make(MODEL_ESCOLA, lote=lote)
 
     payload = _build_payload([periodo], [lote], [tipo_unidade], [escola])
 
@@ -65,7 +66,7 @@ def test_create_dias_letivos_sem_unidades_educacionais(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
-    lote = baker.make("escola.Lote")
+    lote = baker.make(MODEL_LOTE)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
 
     payload = _build_payload([periodo], [lote], [tipo_unidade])
@@ -86,9 +87,9 @@ def test_create_dias_letivos_duplicate(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
-    lote = baker.make("escola.Lote")
+    lote = baker.make(MODEL_LOTE)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
-    escola = baker.make("escola.Escola", lote=lote)
+    escola = baker.make(MODEL_ESCOLA, lote=lote)
 
     payload = _build_payload([periodo], [lote], [tipo_unidade], [escola])
 
@@ -114,7 +115,7 @@ def test_create_dias_letivos_duplicate_sem_escolas(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
-    lote = baker.make("escola.Lote")
+    lote = baker.make(MODEL_LOTE)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
 
     payload = _build_payload([periodo], [lote], [tipo_unidade])
@@ -320,7 +321,7 @@ def test_list_dias_letivos_com_unidades(
     lote = baker.make(Lote, nome="Lote A", iniciais="LA")
     lote.contratos_do_lote.add(contrato)
     periodo = baker.make(PeriodoEscolar, nome="Manhã")
-    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais="EMEF")
+    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value)
     escola = baker.make(Escola, nome="EMEF Teste", lote=lote)
 
     DiaLetivoSIGPAEFactory(
@@ -343,7 +344,9 @@ def test_list_dias_letivos_com_unidades(
     assert item["lotes"][0]["nome"] == lote.nome
     assert item["lotes"][0]["iniciais"] == lote.iniciais
     assert len(item["tipos_unidade_escolar"]) == 1
-    assert item["tipos_unidade_escolar"][0]["iniciais"] == "EMEF"
+    assert (
+        item["tipos_unidade_escolar"][0]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
     assert len(item["periodos_escolares"]) == 1
     assert item["periodos_escolares"][0]["nome"] == "Manhã"
     assert item["unidades_escolares"] == "EMEF Teste"
@@ -359,7 +362,7 @@ def test_list_dias_letivos_sem_unidades(
     lote = baker.make(Lote, nome="Lote B", iniciais="LB")
     lote.contratos_do_lote.add(contrato)
     periodo = baker.make(PeriodoEscolar, nome="Tarde")
-    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais="CEI")
+    tipo_ue = baker.make(TipoUnidadeEscolar, iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value)
 
     DiaLetivoSIGPAEFactory(
         data=date(2026, 6, 23),
@@ -380,7 +383,9 @@ def test_list_dias_letivos_sem_unidades(
     assert item["lotes"][0]["nome"] == lote.nome
     assert item["lotes"][0]["iniciais"] == lote.iniciais
     assert len(item["tipos_unidade_escolar"]) == 1
-    assert item["tipos_unidade_escolar"][0]["iniciais"] == "CEI"
+    assert (
+        item["tipos_unidade_escolar"][0]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.CEI.value
+    )
     assert len(item["periodos_escolares"]) == 1
     assert item["periodos_escolares"][0]["nome"] == "Tarde"
     assert item["unidades_escolares"] is None
@@ -436,13 +441,13 @@ def test_update_dia_letivo_success(
         "lotes": [str(novo_lote.uuid)],
         "tipos_unidades": [str(tipo.uuid)],
         "unidades_educacionais": [],
-        "periodos_escolares": [str(periodo.uuid)]
+        "periodos_escolares": [str(periodo.uuid)],
     }
 
     response = client.put(
         f"/dias-letivos/{dia.uuid}/",
         data=json.dumps(payload),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -455,7 +460,7 @@ def test_update_dia_letivo_duplicate_error(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
 
-    lote = baker.make("escola.Lote")
+    lote = baker.make(MODEL_LOTE)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
     periodo = baker.make("escola.PeriodoEscolar")
 
@@ -601,3 +606,106 @@ def test_calendario_dias_letivos_filtro_ano_obrigatorio(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "ano" in response.json()
+
+
+def test_calendario_dias_letivos_retorna_dias_da_escola_e_dias_gerais_do_lote_e_tipo_unidade(
+    client_autenticado_codae_gestao_alimentacao: Client,
+) -> None:
+    client = client_autenticado_codae_gestao_alimentacao
+
+    lote = baker.make(Lote)
+    outro_lote = baker.make(Lote)
+
+    tipo_unidade = baker.make(TipoUnidadeEscolar)
+    outro_tipo_unidade = baker.make(TipoUnidadeEscolar)
+
+    escola_consultada = baker.make(
+        Escola,
+        lote=lote,
+        tipo_unidade=tipo_unidade,
+    )
+    outra_escola = baker.make(
+        Escola,
+        lote=lote,
+        tipo_unidade=tipo_unidade,
+    )
+
+    periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
+    periodo_integral = baker.make(PeriodoEscolar, nome="INTEGRAL")
+
+    # Deve ser retornado: dia letivo vinculado diretamente à escola consultada.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 4),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[escola_consultada],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Deve ser retornado: não possui escola vinculada, mas pertence ao mesmo
+    # lote e tipo de unidade da escola consultada.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 5),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: dia vinculado a outra escola.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 6),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[outra_escola],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: sem escola, mas pertence a outro lote.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 7),
+        lotes=[outro_lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: sem escola, mas pertence a outro tipo de unidade.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 8),
+        lotes=[lote],
+        tipos_unidade_escolar=[outro_tipo_unidade],
+        escolas=[],
+        periodos_escolares=[periodo_manha],
+    )
+
+    # Não deve ser retornado: mesmo lote e tipo, mas outro período escolar.
+    DiaLetivoSIGPAEFactory(
+        data=date(2026, 6, 9),
+        lotes=[lote],
+        tipos_unidade_escolar=[tipo_unidade],
+        escolas=[],
+        periodos_escolares=[periodo_integral],
+    )
+
+    response = client.get(
+        "/dias-letivos/calendario/",
+        {
+            "mes": 6,
+            "ano": 2026,
+            "escola": str(escola_consultada.uuid),
+            "periodo_escolar": "MANHA",
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            "data": "04/06/2026",
+            "periodos_escolares": ["MANHA"],
+        },
+        {
+            "data": "05/06/2026",
+            "periodos_escolares": ["MANHA"],
+        },
+    ]

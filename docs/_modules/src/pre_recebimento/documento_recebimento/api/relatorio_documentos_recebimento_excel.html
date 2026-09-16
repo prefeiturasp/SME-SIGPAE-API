@@ -1,0 +1,459 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.documento_recebimento.api.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">calcular_saldo_laudo</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">COLUNAS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Nº do Cronograma&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Produto&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Empresa&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nº do Pregão ou Chamada Pública&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nº do Processo SEI&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nº do Laudo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Status&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nome do Laboratório&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Data de Fabricação&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Data de Validade&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nº do(s) Lote(s) do Laudo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Data de Fabricação Até&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Data Máxima de Recebimento&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Data de Conclusão do Laudo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Unidade&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Quantidade Total do Laudo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Saldo Inicial do Laudo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Saldo Atual&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Obs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Solicitação de Correção&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_formata_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retorna data formatada como dd/mm/yyyy ou string vazia.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_formata_numero</span><span class="p">(</span><span class="n">valor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retorna valor numérico formatado ou string vazia.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">valor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">valor</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sanitiza_texto</span><span class="p">(</span><span class="n">valor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Previne Excel formula injection prefixando valores que começam com =, +, - ou @.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">valor</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">valor</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valor</span> <span class="ow">and</span> <span class="n">valor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;@&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="n">valor</span>
+    <span class="k">return</span> <span class="n">valor</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_escreve_cabecalho</span><span class="p">(</span><span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">totalizadores</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Escreve cabeçalho com logo, título, subtítulo e linha de colunas.&quot;&quot;&quot;</span>
+    <span class="n">formato_titulo</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;bg_color&quot;</span><span class="p">:</span> <span class="s2">&quot;#A9D18E&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;valign&quot;</span><span class="p">:</span> <span class="s2">&quot;vcenter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;font_size&quot;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">formato_subtitulo</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;bg_color&quot;</span><span class="p">:</span> <span class="s2">&quot;#D9EAD3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;valign&quot;</span><span class="p">:</span> <span class="s2">&quot;vcenter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;font_size&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;text_wrap&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">formato_header</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;bold&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;bg_color&quot;</span><span class="p">:</span> <span class="s2">&quot;#A9D18E&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;valign&quot;</span><span class="p">:</span> <span class="s2">&quot;vcenter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;border&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;text_wrap&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;font_size&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Logo + Título (linha 0)</span>
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span>
+        <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">COLUNAS</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Relatório Documentos de Recebimento&quot;</span><span class="p">,</span> <span class="n">formato_titulo</span>
+    <span class="p">)</span>
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">insert_image</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;src/relatorios/static/images/logo-sigpae.png&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;x_offset&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="s2">&quot;y_offset&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                <span class="s2">&quot;x_scale&quot;</span><span class="p">:</span> <span class="mf">0.08</span><span class="p">,</span>
+                <span class="s2">&quot;y_scale&quot;</span><span class="p">:</span> <span class="mf">0.08</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># Segue sem a imagem se o arquivo não for encontrado</span>
+
+    <span class="c1"># Subtítulo (linha 1) - totalizadores + data/hora</span>
+    <span class="n">total_geral</span> <span class="o">=</span> <span class="n">totalizadores</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Total de Documentos Recebidos&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">pendentes</span> <span class="o">=</span> <span class="n">totalizadores</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Total de Pendentes de Aprovação&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">correcao</span> <span class="o">=</span> <span class="n">totalizadores</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Total de Enviados para Correção&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">aprovados</span> <span class="o">=</span> <span class="n">totalizadores</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Total de Aprovados&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">data_hora</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M&quot;</span><span class="p">)</span>
+
+    <span class="n">texto_totalizadores</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Total de Documentos Recebidos: </span><span class="si">{</span><span class="n">total_geral</span><span class="si">}</span><span class="s2">  |  &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Pendentes de Aprovação: </span><span class="si">{</span><span class="n">pendentes</span><span class="si">}</span><span class="s2">  |  &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Enviados para Correção: </span><span class="si">{</span><span class="n">correcao</span><span class="si">}</span><span class="s2">  |  &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Aprovados: </span><span class="si">{</span><span class="n">aprovados</span><span class="si">}</span><span class="s2">  |  &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Data/Hora da extração: </span><span class="si">{</span><span class="n">data_hora</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">COLUNAS</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">texto_totalizadores</span><span class="p">,</span> <span class="n">formato_subtitulo</span>
+    <span class="p">)</span>
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+
+    <span class="c1"># Linha de cabeçalho das colunas (linha 2)</span>
+    <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">coluna</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">COLUNAS</span><span class="p">):</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">coluna</span><span class="p">,</span> <span class="n">formato_header</span><span class="p">)</span>
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_escreve_dados</span><span class="p">(</span><span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">queryset</span><span class="p">,</span> <span class="n">max_lengths</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Itera sobre os cronogramas e escreve os dados linha a linha.&quot;&quot;&quot;</span>
+    <span class="n">formato_dados</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;valign&quot;</span><span class="p">:</span> <span class="s2">&quot;vcenter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;border&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;font_size&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+            <span class="s2">&quot;text_wrap&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">formato_dados_numero</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;valign&quot;</span><span class="p">:</span> <span class="s2">&quot;vcenter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;border&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;font_size&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+            <span class="s2">&quot;num_format&quot;</span><span class="p">:</span> <span class="s2">&quot;#,##0.00&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">linha_atual</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">for</span> <span class="n">cronograma</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">:</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cronograma</span><span class="o">.</span><span class="n">documentos_de_recebimento</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">docs</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">:</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">datas_fabricacao_e_prazos</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+
+            <span class="k">if</span> <span class="n">datas</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">data_item</span> <span class="ow">in</span> <span class="n">datas</span><span class="p">:</span>
+                    <span class="n">_escreve_linha</span><span class="p">(</span>
+                        <span class="n">worksheet</span><span class="p">,</span>
+                        <span class="n">linha_atual</span><span class="p">,</span>
+                        <span class="n">cronograma</span><span class="p">,</span>
+                        <span class="n">doc</span><span class="p">,</span>
+                        <span class="n">data_item</span><span class="p">,</span>
+                        <span class="n">formato_dados</span><span class="p">,</span>
+                        <span class="n">formato_dados_numero</span><span class="p">,</span>
+                        <span class="n">max_lengths</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">linha_atual</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_escreve_linha</span><span class="p">(</span>
+                    <span class="n">worksheet</span><span class="p">,</span>
+                    <span class="n">linha_atual</span><span class="p">,</span>
+                    <span class="n">cronograma</span><span class="p">,</span>
+                    <span class="n">doc</span><span class="p">,</span>
+                    <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">formato_dados</span><span class="p">,</span>
+                    <span class="n">formato_dados_numero</span><span class="p">,</span>
+                    <span class="n">max_lengths</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">linha_atual</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">linha_atual</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepara_valores_linha</span><span class="p">(</span><span class="n">cronograma</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">data_item</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepara todos os valores de uma linha para escrita na planilha.&quot;&quot;&quot;</span>
+    <span class="n">contrato</span> <span class="o">=</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">contrato</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cronograma</span><span class="p">,</span> <span class="s2">&quot;contrato&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="n">num_pregao_chamada</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">contrato</span><span class="p">:</span>
+        <span class="n">num_pregao_chamada</span> <span class="o">=</span> <span class="n">contrato</span><span class="o">.</span><span class="n">pregao_chamada_publica</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">numero_processo_sei</span> <span class="o">=</span> <span class="n">contrato</span><span class="o">.</span><span class="n">processo</span> <span class="k">if</span> <span class="n">contrato</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">numero_laudo</span> <span class="o">=</span> <span class="n">_sanitiza_texto</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">numero_laudo</span><span class="p">)</span>
+    <span class="n">status_doc</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get_status_display</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;get_status_display&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">nome_laboratorio</span> <span class="o">=</span> <span class="n">_sanitiza_texto</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">laboratorio</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">laboratorio</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">numero_lote_laudo</span> <span class="o">=</span> <span class="n">_sanitiza_texto</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">numero_lote_laudo</span><span class="p">)</span>
+
+    <span class="n">data_final_lote</span> <span class="o">=</span> <span class="n">_formata_data</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">data_final_lote</span><span class="p">)</span>
+    <span class="n">data_conclusao</span> <span class="o">=</span> <span class="n">_formata_data</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">criado_em</span><span class="p">)</span>
+
+    <span class="n">unidade_medida</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">unidade_medida</span><span class="o">.</span><span class="n">abreviacao</span> <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">unidade_medida</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">quantidade_laudo</span> <span class="o">=</span> <span class="n">_formata_numero</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">quantidade_laudo</span><span class="p">)</span>
+    <span class="n">saldo_inicial</span> <span class="o">=</span> <span class="n">quantidade_laudo</span>
+    <span class="n">saldo_atual</span> <span class="o">=</span> <span class="n">_formata_numero</span><span class="p">(</span><span class="n">calcular_saldo_laudo</span><span class="p">(</span><span class="n">doc</span><span class="p">))</span>
+
+    <span class="n">correcao</span> <span class="o">=</span> <span class="n">_sanitiza_texto</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">correcao_solicitada</span><span class="p">)</span>
+
+    <span class="n">data_fabricacao</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">data_validade</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">data_maxima_recebimento</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">data_item</span><span class="p">:</span>
+        <span class="n">data_fabricacao</span> <span class="o">=</span> <span class="n">_formata_data</span><span class="p">(</span><span class="n">data_item</span><span class="o">.</span><span class="n">data_fabricacao</span><span class="p">)</span>
+        <span class="n">data_validade</span> <span class="o">=</span> <span class="n">_formata_data</span><span class="p">(</span><span class="n">data_item</span><span class="o">.</span><span class="n">data_validade</span><span class="p">)</span>
+        <span class="n">data_maxima_recebimento</span> <span class="o">=</span> <span class="n">_formata_data</span><span class="p">(</span><span class="n">data_item</span><span class="o">.</span><span class="n">data_maxima_recebimento</span><span class="p">)</span>
+
+    <span class="n">valores</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span>
+        <span class="k">if</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span> <span class="ow">and</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span>
+        <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span><span class="o">.</span><span class="n">razao_social</span> <span class="k">if</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">empresa</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">num_pregao_chamada</span><span class="p">,</span>
+        <span class="n">numero_processo_sei</span><span class="p">,</span>
+        <span class="n">numero_laudo</span><span class="p">,</span>
+        <span class="n">status_doc</span><span class="p">,</span>
+        <span class="n">nome_laboratorio</span><span class="p">,</span>
+        <span class="n">data_fabricacao</span><span class="p">,</span>
+        <span class="n">data_validade</span><span class="p">,</span>
+        <span class="n">numero_lote_laudo</span><span class="p">,</span>
+        <span class="n">data_final_lote</span><span class="p">,</span>
+        <span class="n">data_maxima_recebimento</span><span class="p">,</span>
+        <span class="n">data_conclusao</span><span class="p">,</span>
+        <span class="n">unidade_medida</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">valores_numericos</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">quantidade_laudo</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">saldo_inicial</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="n">saldo_atual</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;valores&quot;</span><span class="p">:</span> <span class="n">valores</span><span class="p">,</span>
+        <span class="s2">&quot;valores_numericos&quot;</span><span class="p">:</span> <span class="n">valores_numericos</span><span class="p">,</span>
+        <span class="s2">&quot;correcao&quot;</span><span class="p">:</span> <span class="n">correcao</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_escreve_linha</span><span class="p">(</span><span class="n">worksheet</span><span class="p">,</span> <span class="n">linha</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">data_item</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">fmt_numero</span><span class="p">,</span> <span class="n">max_lengths</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Escreve uma única linha de dados na planilha.&quot;&quot;&quot;</span>
+    <span class="n">dados</span> <span class="o">=</span> <span class="n">_prepara_valores_linha</span><span class="p">(</span><span class="n">cronograma</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">data_item</span><span class="p">)</span>
+    <span class="n">valores</span> <span class="o">=</span> <span class="n">dados</span><span class="p">[</span><span class="s2">&quot;valores&quot;</span><span class="p">]</span>
+    <span class="n">valores_numericos</span> <span class="o">=</span> <span class="n">dados</span><span class="p">[</span><span class="s2">&quot;valores_numericos&quot;</span><span class="p">]</span>
+    <span class="n">correcao</span> <span class="o">=</span> <span class="n">dados</span><span class="p">[</span><span class="s2">&quot;correcao&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Escreve colunas de texto (índices 0 a 14)</span>
+    <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">valor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">valores</span><span class="p">):</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linha</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">valor</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+
+    <span class="c1"># Escreve colunas numéricas (índices 15, 16, 17)</span>
+    <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">valor</span> <span class="ow">in</span> <span class="n">valores_numericos</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">valor</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">worksheet</span><span class="o">.</span><span class="n">write_number</span><span class="p">(</span><span class="n">linha</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">valor</span><span class="p">,</span> <span class="n">fmt_numero</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linha</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+
+    <span class="c1"># Escreve colunas de texto no final (índices 18, 19)</span>
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linha</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="n">_sanitiza_texto</span><span class="p">(</span><span class="n">cronograma</span><span class="o">.</span><span class="n">observacoes</span><span class="p">),</span> <span class="n">fmt</span><span class="p">)</span>
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">linha</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="n">correcao</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+
+    <span class="n">_atualiza_max_lengths</span><span class="p">(</span><span class="n">max_lengths</span><span class="p">,</span> <span class="n">valores</span><span class="p">,</span> <span class="n">valores_numericos</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">,</span> <span class="n">correcao</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ajusta_max_length</span><span class="p">(</span><span class="n">max_lengths</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">valor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compara e atualiza o tamanho máximo de uma coluna.&quot;&quot;&quot;</span>
+    <span class="n">tamanho</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">valor</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">tamanho</span> <span class="o">&gt;</span> <span class="n">max_lengths</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]:</span>
+        <span class="n">max_lengths</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">tamanho</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_atualiza_max_lengths</span><span class="p">(</span><span class="n">max_lengths</span><span class="p">,</span> <span class="n">valores</span><span class="p">,</span> <span class="n">valores_numericos</span><span class="p">,</span> <span class="n">cronograma</span><span class="p">,</span> <span class="n">correcao</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Atualiza as larguras máximas das colunas baseado no conteúdo escrito.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">max_lengths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">valor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">valores</span><span class="p">):</span>
+        <span class="n">_ajusta_max_length</span><span class="p">(</span><span class="n">max_lengths</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">valor</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">col_idx</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">]:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">col_idx</span> <span class="o">-</span> <span class="mi">15</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">valores_numericos</span><span class="p">):</span>
+            <span class="n">_ajusta_max_length</span><span class="p">(</span><span class="n">max_lengths</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">valores_numericos</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">_ajusta_max_length</span><span class="p">(</span><span class="n">max_lengths</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="n">_sanitiza_texto</span><span class="p">(</span><span class="n">cronograma</span><span class="o">.</span><span class="n">observacoes</span><span class="p">))</span>
+    <span class="n">_ajusta_max_length</span><span class="p">(</span><span class="n">max_lengths</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="n">correcao</span><span class="p">)</span>
+
+
+<span class="n">TAMANHO_MAXIMO_COLUNA</span> <span class="o">=</span> <span class="mi">40</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ajusta_largura_colunas</span><span class="p">(</span><span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">max_lengths</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ajusta a largura das colunas dinamicamente baseado no conteúdo.&quot;&quot;&quot;</span>
+    <span class="n">formato</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">()</span>
+    <span class="n">formato</span><span class="o">.</span><span class="n">set_align</span><span class="p">(</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+    <span class="n">formato</span><span class="o">.</span><span class="n">set_align</span><span class="p">(</span><span class="s2">&quot;vcenter&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">tamanho</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">max_lengths</span><span class="p">):</span>
+        <span class="n">largura</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">tamanho</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">TAMANHO_MAXIMO_COLUNA</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">largura</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">largura</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="n">col_idx</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">largura</span><span class="p">,</span> <span class="n">formato</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="gera_relatorio_documentos_recebimento_xlsx">
+<a class="viewcode-back" href="../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.relatorio_documentos_recebimento_excel.gera_relatorio_documentos_recebimento_xlsx">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gera_relatorio_documentos_recebimento_xlsx</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">totalizadores</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gera o arquivo Excel do Relatório Documentos de Recebimento.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        queryset: QuerySet de Cronograma com documentos_de_recebimento</span>
+<span class="sd">                  pré-carregados (select_related + prefetch_related).</span>
+<span class="sd">        totalizadores: Dict com os totalizadores dos cards.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bytes: Conteúdo do arquivo .xlsx.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+
+    <span class="c1"># Usa xlsxwriter que é a engine padrão do projeto</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xlsxwriter</span>
+
+    <span class="n">workbook</span> <span class="o">=</span> <span class="n">xlsxwriter</span><span class="o">.</span><span class="n">Workbook</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;in_memory&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+    <span class="n">worksheet</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_worksheet</span><span class="p">(</span><span class="s2">&quot;Docs Recebimento&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Desabilita a grade padrão para limpeza visual</span>
+    <span class="n">worksheet</span><span class="o">.</span><span class="n">hide_gridlines</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">_escreve_cabecalho</span><span class="p">(</span><span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">totalizadores</span><span class="p">)</span>
+    <span class="n">max_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">COLUNAS</span><span class="p">]</span>
+    <span class="n">_escreve_dados</span><span class="p">(</span><span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">queryset</span><span class="p">,</span> <span class="n">max_lengths</span><span class="p">)</span>
+    <span class="n">_ajusta_largura_colunas</span><span class="p">(</span><span class="n">workbook</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">max_lengths</span><span class="p">)</span>
+
+    <span class="n">workbook</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">file</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

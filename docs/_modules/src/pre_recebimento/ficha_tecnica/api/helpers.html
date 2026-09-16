@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.pre_recebimento.ficha_tecnica.api.helpers &mdash; SME-SIGPAE-API 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            SME-SIGPAE-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Conteúdo:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">Referência da API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">SME-SIGPAE-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.pre_recebimento.ficha_tecnica.api.helpers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.pre_recebimento.ficha_tecnica.api.helpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FichaTecnicaDoProdutoWorkflow</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">convert_base64_to_contentfile</span><span class="p">,</span>
+    <span class="n">update_instance_from_dict</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.ficha_tecnica.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AnaliseFichaTecnica</span><span class="p">,</span>
+    <span class="n">FabricanteFichaTecnica</span><span class="p">,</span>
+    <span class="n">FichaTecnicaDoProduto</span><span class="p">,</span>
+    <span class="n">InformacoesNutricionaisFichaTecnica</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.produto.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">InformacaoNutricional</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cria_fabricante_ficha_tecnica</span><span class="p">(</span><span class="n">fabricante_data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fabricante_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">FabricanteFichaTecnica</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">fabricante_data</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_atualiza_fabricante_ficha_tecnica</span><span class="p">(</span><span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">fabricante_data</span><span class="p">,</span> <span class="n">field_name</span><span class="p">):</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fabricante_data</span> <span class="o">==</span> <span class="p">{}:</span>
+        <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fabricante_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">current</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fabricante</span> <span class="o">=</span> <span class="n">_cria_fabricante_ficha_tecnica</span><span class="p">(</span><span class="n">fabricante_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fabricante</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">fabricante</span><span class="p">)</span>
+            <span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="cria_ficha_tecnica">
+<a class="viewcode-back" href="../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.helpers.cria_ficha_tecnica">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cria_ficha_tecnica</span><span class="p">(</span><span class="n">validated_data</span><span class="p">):</span>
+    <span class="n">dados_informacoes_nutricionais</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;informacoes_nutricionais&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">fabricante_data</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fabricante&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">envasador_data</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;envasador_distribuidor&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">_converte_arquivo_para_contentfile</span><span class="p">(</span><span class="n">validated_data</span><span class="p">)</span>
+
+    <span class="n">fabricante</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_cria_fabricante_ficha_tecnica</span><span class="p">(</span><span class="n">fabricante_data</span><span class="p">)</span> <span class="k">if</span> <span class="n">fabricante_data</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="n">envasador</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_cria_fabricante_ficha_tecnica</span><span class="p">(</span><span class="n">envasador_data</span><span class="p">)</span> <span class="k">if</span> <span class="n">envasador_data</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+
+    <span class="n">ficha_tecnica</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="o">**</span><span class="n">validated_data</span><span class="p">,</span> <span class="n">fabricante</span><span class="o">=</span><span class="n">fabricante</span><span class="p">,</span> <span class="n">envasador_distribuidor</span><span class="o">=</span><span class="n">envasador</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dados_informacoes_nutricionais</span><span class="p">:</span>
+        <span class="n">_cria_informacoes_nutricionais</span><span class="p">(</span>
+            <span class="n">ficha_tecnica</span><span class="p">,</span>
+            <span class="n">dados_informacoes_nutricionais</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ficha_tecnica</span></div>
+
+
+
+<div class="viewcode-block" id="atualiza_ficha_tecnica">
+<a class="viewcode-back" href="../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.helpers.atualiza_ficha_tecnica">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">atualiza_ficha_tecnica</span><span class="p">(</span><span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+    <span class="n">dados_informacoes_nutricionais</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;informacoes_nutricionais&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">fabricante_data</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fabricante&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">envasador_data</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;envasador_distribuidor&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">_converte_arquivo_para_contentfile</span><span class="p">(</span><span class="n">validated_data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fabricante_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_atualiza_fabricante_ficha_tecnica</span><span class="p">(</span><span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">fabricante_data</span><span class="p">,</span> <span class="s2">&quot;fabricante&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">envasador_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_atualiza_fabricante_ficha_tecnica</span><span class="p">(</span>
+            <span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">envasador_data</span><span class="p">,</span> <span class="s2">&quot;envasador_distribuidor&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dados_informacoes_nutricionais</span><span class="p">:</span>
+        <span class="n">_cria_informacoes_nutricionais</span><span class="p">(</span>
+            <span class="n">ficha_tecnica</span><span class="p">,</span>
+            <span class="n">dados_informacoes_nutricionais</span><span class="p">,</span>
+            <span class="n">deletar_antigas</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">update_instance_from_dict</span><span class="p">(</span><span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_converte_arquivo_para_contentfile</span><span class="p">(</span><span class="n">validated_data</span><span class="p">):</span>
+    <span class="n">arquivo_base64</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;arquivo&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">arquivo_base64</span><span class="p">:</span>
+        <span class="n">validated_data</span><span class="p">[</span><span class="s2">&quot;arquivo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_base64_to_contentfile</span><span class="p">(</span><span class="n">arquivo_base64</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cria_informacoes_nutricionais</span><span class="p">(</span>
+    <span class="n">ficha_tecnica</span><span class="p">,</span>
+    <span class="n">dados_informacoes_nutricionais</span><span class="p">,</span>
+    <span class="n">deletar_antigas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">deletar_antigas</span><span class="p">:</span>
+        <span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">informacoes_nutricionais</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">dados</span> <span class="ow">in</span> <span class="n">dados_informacoes_nutricionais</span><span class="p">:</span>
+        <span class="n">informacao_nutricional</span> <span class="o">=</span> <span class="n">InformacaoNutricional</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dados</span><span class="p">[</span><span class="s2">&quot;informacao_nutricional&quot;</span><span class="p">])</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="n">InformacoesNutricionaisFichaTecnica</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">ficha_tecnica</span><span class="o">=</span><span class="n">ficha_tecnica</span><span class="p">,</span>
+            <span class="n">informacao_nutricional</span><span class="o">=</span><span class="n">informacao_nutricional</span><span class="p">,</span>
+            <span class="n">quantidade_por_100g</span><span class="o">=</span><span class="n">dados</span><span class="p">[</span><span class="s2">&quot;quantidade_por_100g&quot;</span><span class="p">],</span>
+            <span class="n">quantidade_porcao</span><span class="o">=</span><span class="n">dados</span><span class="p">[</span><span class="s2">&quot;quantidade_porcao&quot;</span><span class="p">],</span>
+            <span class="n">valor_diario</span><span class="o">=</span><span class="n">dados</span><span class="p">[</span><span class="s2">&quot;valor_diario&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="limpar_campos_dependentes_ficha_tecnica">
+<a class="viewcode-back" href="../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.helpers.limpar_campos_dependentes_ficha_tecnica">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">limpar_campos_dependentes_ficha_tecnica</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;organico&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s2">&quot;mecanismo_controle&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alergenicos&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s2">&quot;ingredientes_alergenicos&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lactose&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s2">&quot;lactose_detalhe&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;produto_eh_liquido&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s2">&quot;volume_embalagem_primaria&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s2">&quot;unidade_medida_volume_primaria&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">instance</span></div>
+
+
+
+<div class="viewcode-block" id="reseta_analise_atualizacao">
+<a class="viewcode-back" href="../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.helpers.reseta_analise_atualizacao">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reseta_analise_atualizacao</span><span class="p">(</span><span class="n">analise</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+    <span class="n">mapa</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;fabricante&quot;</span><span class="p">:</span> <span class="s2">&quot;fabricante_envasador_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;envasador_distribuidor&quot;</span><span class="p">:</span> <span class="s2">&quot;fabricante_envasador_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;componentes_produto&quot;</span><span class="p">:</span> <span class="s2">&quot;detalhes_produto_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;alergenicos&quot;</span><span class="p">:</span> <span class="s2">&quot;detalhes_produto_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ingredientes_alergenicos&quot;</span><span class="p">:</span> <span class="s2">&quot;detalhes_produto_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gluten&quot;</span><span class="p">:</span> <span class="s2">&quot;detalhes_produto_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;porcao&quot;</span><span class="p">:</span> <span class="s2">&quot;informacoes_nutricionais_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unidade_medida_porcao&quot;</span><span class="p">:</span> <span class="s2">&quot;informacoes_nutricionais_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;valor_unidade_caseira&quot;</span><span class="p">:</span> <span class="s2">&quot;informacoes_nutricionais_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unidade_medida_caseira&quot;</span><span class="p">:</span> <span class="s2">&quot;informacoes_nutricionais_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;informacoes_nutricionais&quot;</span><span class="p">:</span> <span class="s2">&quot;informacoes_nutricionais_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;condicoes_de_conservacao&quot;</span><span class="p">:</span> <span class="s2">&quot;conservacao_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;embalagem_primaria&quot;</span><span class="p">:</span> <span class="s2">&quot;armazenamento_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;embalagem_secundaria&quot;</span><span class="p">:</span> <span class="s2">&quot;armazenamento_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nome_responsavel_tecnico&quot;</span><span class="p">:</span> <span class="s2">&quot;responsavel_tecnico_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;habilitacao&quot;</span><span class="p">:</span> <span class="s2">&quot;responsavel_tecnico_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;numero_registro_orgao&quot;</span><span class="p">:</span> <span class="s2">&quot;responsavel_tecnico_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arquivo&quot;</span><span class="p">:</span> <span class="s2">&quot;responsavel_tecnico_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;modo_de_preparo&quot;</span><span class="p">:</span> <span class="s2">&quot;modo_preparo_conferido&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;informacoes_adicionais&quot;</span><span class="p">:</span> <span class="s2">&quot;outras_informacoes_conferido&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mapa</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">analise</span><span class="p">,</span> <span class="n">mapa</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">analise</span></div>
+
+
+
+<div class="viewcode-block" id="gerar_nova_analise_ficha_tecnica">
+<a class="viewcode-back" href="../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.helpers.gerar_nova_analise_ficha_tecnica">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gerar_nova_analise_ficha_tecnica</span><span class="p">(</span><span class="n">ficha_tecnica</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">analise_antiga</span> <span class="o">=</span> <span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">analises</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">payload</span><span class="p">:</span>
+        <span class="n">analise_antiga</span> <span class="o">=</span> <span class="n">reseta_analise_atualizacao</span><span class="p">(</span><span class="n">analise_antiga</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+    <span class="n">campos</span> <span class="o">=</span> <span class="n">AnaliseFichaTecnica</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">fields</span>
+    <span class="n">valores_antigos</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">campo</span> <span class="ow">in</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">campos</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_conferido&quot;</span><span class="p">)]:</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">analise_antiga</span><span class="p">,</span> <span class="n">campo</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">valores_antigos</span><span class="p">[</span><span class="n">campo</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">for</span> <span class="n">campo</span> <span class="ow">in</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">campos</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_correcoes&quot;</span><span class="p">)]:</span>
+        <span class="n">campo_conferido</span> <span class="o">=</span> <span class="n">campo</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_correcoes&quot;</span><span class="p">,</span> <span class="s2">&quot;_conferido&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">analise_antiga</span><span class="p">,</span> <span class="n">campo_conferido</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">valores_antigos</span><span class="p">[</span><span class="n">campo</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">analise_antiga</span><span class="p">,</span> <span class="n">campo</span><span class="p">)</span>
+
+    <span class="n">AnaliseFichaTecnica</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">criado_por</span><span class="o">=</span><span class="n">analise_antiga</span><span class="o">.</span><span class="n">criado_por</span><span class="p">,</span>
+        <span class="n">ficha_tecnica</span><span class="o">=</span><span class="n">ficha_tecnica</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">valores_antigos</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="retorna_status_ficha_tecnica">
+<a class="viewcode-back" href="../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.helpers.retorna_status_ficha_tecnica">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">retorna_status_ficha_tecnica</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+    <span class="n">nomes_status</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProdutoWorkflow</span><span class="o">.</span><span class="n">states</span>
+
+    <span class="n">aprovada</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProdutoWorkflow</span><span class="o">.</span><span class="n">APROVADA</span>
+    <span class="n">enviada_analise</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProdutoWorkflow</span><span class="o">.</span><span class="n">ENVIADA_PARA_ANALISE</span>
+    <span class="n">enviada_correcao</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProdutoWorkflow</span><span class="o">.</span><span class="n">ENVIADA_PARA_CORRECAO</span>
+
+    <span class="n">switcher</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">aprovada</span><span class="p">:</span> <span class="n">nomes_status</span><span class="p">[</span><span class="n">aprovada</span><span class="p">],</span>
+        <span class="n">enviada_analise</span><span class="p">:</span> <span class="n">nomes_status</span><span class="p">[</span><span class="n">enviada_analise</span><span class="p">],</span>
+        <span class="n">enviada_correcao</span><span class="p">:</span> <span class="n">nomes_status</span><span class="p">[</span><span class="n">enviada_correcao</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="n">switcher</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s2">&quot;Status Inválido&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">state</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">state</span><span class="o">.</span><span class="n">title</span></div>
+
+
+
+<div class="viewcode-block" id="formata_cnpj_ficha_tecnica">
+<a class="viewcode-back" href="../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.helpers.formata_cnpj_ficha_tecnica">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">formata_cnpj_ficha_tecnica</span><span class="p">(</span><span class="n">cnpj</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cnpj</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">cnpj</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cnpj</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cnpj</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">14</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cnpj</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cnpj</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">cnpj</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">cnpj</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">cnpj</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">cnpj</span><span class="p">[</span><span class="mi">12</span><span class="p">:]</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="formata_telefone_ficha_tecnica">
+<a class="viewcode-back" href="../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.helpers.formata_telefone_ficha_tecnica">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">formata_telefone_ficha_tecnica</span><span class="p">(</span><span class="n">telefone</span><span class="p">):</span>
+    <span class="n">telefone</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">telefone</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">telefone</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">telefone</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">telefone</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">telefone</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">telefone</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">telefone</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">telefone</span><span class="p">)</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">telefone</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">telefone</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">telefone</span><span class="p">[</span><span class="mi">7</span><span class="p">:]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">telefone</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Equipe SME.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

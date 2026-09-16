@@ -7,7 +7,6 @@ from .views import send_test_email, test_visualiza_email
 
 router = routers.DefaultRouter()
 router.register("api-version", viewsets.ApiVersion, basename="Version")
-router.register("email", viewsets.ConfiguracaoEmailViewSet, basename="Email")
 router.register("dias-semana", viewsets.DiasDaSemanaViewSet, basename="Dias da semana")
 router.register(
     "tempos-passeio", viewsets.TempoDePasseioViewSet, basename="Tempos de passeio"

@@ -3,7 +3,14 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
-from src.dados_comuns.constants import ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS,
+    GRUPO_SOLICITACOES_ALIMENTACAO,
+    ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
+    TIPOS_ALIMENTACAO,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_recreio_nas_ferias,
     build_tabelas_relatorio_medicao,
@@ -16,15 +23,17 @@ pytestmark = pytest.mark.django_db
 @freeze_time("2026-01-10")
 class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
     def _setup_tipos_alimentacao(self, tipo_alimentacao_factory):
-        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
         self.tipo_alimentacao_lanche_4h = tipo_alimentacao_factory.create(
-            nome="Lanche 4h"
+            nome=TIPOS_ALIMENTACAO.LANCHE_4H.value
         )
         self.tipo_alimentacao_refeicao = tipo_alimentacao_factory.create(
-            nome="Refeição"
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
         )
         self.tipo_alimentacao_sobremesa = tipo_alimentacao_factory.create(
-            nome="Sobremesa"
+            nome=TIPOS_ALIMENTACAO.SOBREMESA.value
         )
 
     def _setup_categorias_medicao(self, categoria_medicao_factory):
@@ -47,7 +56,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_emef = escola_factory.create(
             nome="EMEF TESTE",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
         )
@@ -109,7 +118,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         self.medicao_recreio = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao_medicao_inicial,
             periodo_escolar=None,
-            grupo__nome="Recreio nas Férias",
+            grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
         )
 
     def _setup_medicao_colaboradores(self, medicao_factory):
@@ -123,7 +132,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         self.medicao_solicitacoes = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao_medicao_inicial,
             periodo_escolar=None,
-            grupo__nome="Solicitações de Alimentação",
+            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO,
         )
 
     def _setup_logs_medicao_recreio_alimentacao(self, valor_medicao_factory):
@@ -231,7 +240,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             self.solicitacao_medicao_inicial
         )
         assert any(
-            item.get("periodos") == ["Recreio nas Férias"] for item in build_tabelas
+            item.get("periodos") == [GRUPO_RECREIO_NAS_FERIAS] for item in build_tabelas
         ), "Nenhum item com periodos=['Recreio nas Férias'] encontrado"
         assert any(
             item.get("periodos") == ["Colaboradores"] for item in build_tabelas
@@ -241,7 +250,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             build_tabelas, "total_refeicoes_pagamento"
         )
         assert dict_total_refeicoes == {
-            "Recreio nas Férias": 40,
+            GRUPO_RECREIO_NAS_FERIAS: 40,
             "Colaboradores": 40,
         }
 
@@ -249,7 +258,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             build_tabelas, "total_sobremesas_pagamento"
         )
         assert dict_total_sobremesas == {
-            "Recreio nas Férias": 40,
+            GRUPO_RECREIO_NAS_FERIAS: 40,
             "Colaboradores": 44,
         }
 
@@ -268,10 +277,10 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
                 "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES",
             ],
             "body": [
-                ["Lanche", 40],
-                ["Lanche 4h", 40],
-                ["Refeição", 40],
-                ["Sobremesa", 40],
+                [TIPOS_ALIMENTACAO.LANCHE.value, 40],
+                [TIPOS_ALIMENTACAO.LANCHE_4H.value, 40],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, 40],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, 40],
             ],
         }
 
@@ -284,10 +293,10 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
                 "TOTAL DE ALIMENTAÇÕES PARA COLABORADORES",
             ],
             "body": [
-                ["Lanche", 20],
-                ["Lanche 4h", 20],
-                ["Refeição", 40],
-                ["Sobremesa", 44],
+                [TIPOS_ALIMENTACAO.LANCHE.value, 20],
+                [TIPOS_ALIMENTACAO.LANCHE_4H.value, 20],
+                [TIPOS_ALIMENTACAO.REFEICAO.value, 40],
+                [TIPOS_ALIMENTACAO.SOBREMESA.value, 44],
             ],
         }
 
@@ -339,8 +348,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             item["periodos"] for item in build_tabelas if item["periodos"]
         ]
         todos_periodos = [p for periodos in periodos_por_tabela for p in periodos]
-        idx_recreio = todos_periodos.index("Recreio nas Férias")
-        idx_solicitacoes = todos_periodos.index("Solicitações de Alimentação")
+        idx_recreio = todos_periodos.index(GRUPO_RECREIO_NAS_FERIAS)
+        idx_solicitacoes = todos_periodos.index(GRUPO_SOLICITACOES_ALIMENTACAO)
         assert idx_solicitacoes > idx_recreio, (
             f"Solicitações de Alimentação deve vir depois de Recreio nas Férias, "
             f"mas periodos={todos_periodos}"
@@ -374,7 +383,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             row[0] == "Kit Lanche" for row in body
         ), "Kit Lanche deve aparecer no somatório"
         assert any(
-            row[0] == "Lanche Emergencial" for row in body
+            row[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value for row in body
         ), "Lanche Emergencial deve aparecer no somatório"
 
         # Kit Lanche: valor 0 na coluna ALIMENTAÇÕES, 60 na coluna SOLICITAÇÕES
@@ -388,7 +397,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
 
         # Lanche Emergencial: valor 0 na coluna ALIMENTAÇÕES, 40 na coluna SOLICITAÇÕES
         lanche_emergencial_row = next(
-            row for row in body if row[0] == "Lanche Emergencial"
+            row for row in body if row[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
         )
         assert (
             lanche_emergencial_row[1] == 0
@@ -398,7 +407,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         ), f"Lanche Emergencial deve ser 40 na coluna SOLICITAÇÕES, mas foi {lanche_emergencial_row[2]}"
 
         # Alimentos regulares: valor >0 na coluna ALIMENTAÇÕES, 0 na coluna SOLICITAÇÕES
-        lanche_row = next(row for row in body if row[0] == "Lanche")
+        lanche_row = next(
+            row for row in body if row[0] == TIPOS_ALIMENTACAO.LANCHE.value
+        )
         assert (
             lanche_row[1] == 40
         ), f"Lanche deve ser 40 na ALIMENTAÇÕES, mas foi {lanche_row[1]}"
@@ -412,7 +423,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             row[0] == "Kit Lanche" for row in colab_body
         ), "Kit Lanche não deve aparecer no somatório de colaboradores"
         assert not any(
-            row[0] == "Lanche Emergencial" for row in colab_body
+            row[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value for row in colab_body
         ), "Lanche Emergencial não deve aparecer no somatório de colaboradores"
 
 
@@ -432,15 +443,17 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
     """
 
     def _setup_tipos_alimentacao(self, tipo_alimentacao_factory):
-        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(nome="Lanche")
+        self.tipo_alimentacao_lanche = tipo_alimentacao_factory.create(
+            nome=TIPOS_ALIMENTACAO.LANCHE.value
+        )
         self.tipo_alimentacao_lanche_4h = tipo_alimentacao_factory.create(
-            nome="Lanche 4h"
+            nome=TIPOS_ALIMENTACAO.LANCHE_4H.value
         )
         self.tipo_alimentacao_refeicao = tipo_alimentacao_factory.create(
-            nome="Refeição"
+            nome=TIPOS_ALIMENTACAO.REFEICAO.value
         )
         self.tipo_alimentacao_sobremesa = tipo_alimentacao_factory.create(
-            nome="Sobremesa"
+            nome=TIPOS_ALIMENTACAO.SOBREMESA.value
         )
 
     def _setup_categorias_medicao(self, categoria_medicao_factory):
@@ -455,8 +468,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_emei = escola_factory.create(
             nome="EMEI TESTE",
-            tipo_unidade__iniciais="EMEI",
-            tipo_gestao__nome="TERC TOTAL",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+            tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
         )
@@ -515,7 +528,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         self.medicao_recreio = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
             periodo_escolar=None,
-            grupo__nome="Recreio nas Férias",
+            grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
         )
         self.medicao_colaboradores = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
@@ -612,9 +625,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         )
 
         # Sem IMR: refeicao=8 × 4 dias = 32 (repeticao ignorada)
-        assert dict_total_refeicoes["Recreio nas Férias"] == 32
+        assert dict_total_refeicoes[GRUPO_RECREIO_NAS_FERIAS] == 32
         # Sem IMR: sobremesa=8 × 4 dias = 32 (repeticao ignorada)
-        assert dict_total_sobremesas["Recreio nas Férias"] == 32
+        assert dict_total_sobremesas[GRUPO_RECREIO_NAS_FERIAS] == 32
         # Colaboradores: soma simples (5+5) × 4 = 40
         assert dict_total_refeicoes["Colaboradores"] == 40
         assert dict_total_sobremesas["Colaboradores"] == 40
@@ -671,9 +684,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         )
 
         # Com IMR: min(8 + 6, 10) = 10 × 4 dias = 40
-        assert dict_total_refeicoes["Recreio nas Férias"] == 40
+        assert dict_total_refeicoes[GRUPO_RECREIO_NAS_FERIAS] == 40
         # Com IMR: min(8 + 6, 10) = 10 × 4 dias = 40
-        assert dict_total_sobremesas["Recreio nas Férias"] == 40
+        assert dict_total_sobremesas[GRUPO_RECREIO_NAS_FERIAS] == 40
         # Colaboradores: soma simples (5+5) × 4 = 40
         assert dict_total_refeicoes["Colaboradores"] == 40
         assert dict_total_sobremesas["Colaboradores"] == 40

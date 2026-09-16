@@ -5,6 +5,7 @@ from django.utils import timezone
 from freezegun.api import freeze_time
 from rest_framework import status
 
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -21,6 +22,7 @@ from src.escola.fixtures.factories.escola_factory import (
 )
 from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     GrupoInclusaoAlimentacaoNormalFactory,
+    InclusaoAlimentacaoContinuaFactory,
     InclusaoAlimentacaoNormalFactory,
     QuantidadePorPeriodoFactory,
 )
@@ -507,7 +509,7 @@ class TestPrioridadeEfetiva:
     def test_vencido_lanche_emergencial_retorna_prioritario(self):
         from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
 
-        mock = self._make_mock("VENCIDO", "Lanche Emergencial")
+        mock = self._make_mock("VENCIDO", TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value)
         assert SolicitacoesViewSet._prioridade_efetiva(mock) == "PRIORITARIO"
 
     def test_vencido_outro_motivo_retorna_vencido(self):
@@ -519,19 +521,21 @@ class TestPrioridadeEfetiva:
     def test_prioritario_lanche_emergencial_retorna_prioritario(self):
         from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
 
-        mock = self._make_mock("PRIORITARIO", "Lanche Emergencial")
+        mock = self._make_mock(
+            "PRIORITARIO", TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+        )
         assert SolicitacoesViewSet._prioridade_efetiva(mock) == "PRIORITARIO"
 
     def test_limite_retorna_limite(self):
         from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
 
-        mock = self._make_mock("LIMITE", "Lanche Emergencial")
+        mock = self._make_mock("LIMITE", TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value)
         assert SolicitacoesViewSet._prioridade_efetiva(mock) == "LIMITE"
 
     def test_regular_retorna_regular(self):
         from src.paineis_consolidados.api.viewsets import SolicitacoesViewSet
 
-        mock = self._make_mock("REGULAR", "Lanche Emergencial")
+        mock = self._make_mock("REGULAR", TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value)
         assert SolicitacoesViewSet._prioridade_efetiva(mock) == "REGULAR"
 
     def test_vencido_sem_motivo_retorna_vencido(self):
@@ -539,3 +543,46 @@ class TestPrioridadeEfetiva:
 
         mock = self._make_mock("VENCIDO", None)
         assert SolicitacoesViewSet._prioridade_efetiva(mock) == "VENCIDO"
+
+
+@pytest.mark.usefixtures("client_autenticado_codae_paineis_consolidados", "escola")
+class TestRelatorioSolicitacoesAlimentacaoNumeroAlunos:
+    def test_inclusao_continua_numero_alunos_no_relatorio(
+        self,
+        client_autenticado_codae_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_codae_paineis_consolidados
+
+        inclusao_continua = InclusaoAlimentacaoContinuaFactory.create(
+            escola=escola,
+            rastro_escola=escola,
+            rastro_dre=escola.diretoria_regional,
+            rastro_lote=escola.lote,
+            rastro_terceirizada=escola.lote.terceirizada,
+            status="CODAE_AUTORIZADO",
+        )
+        QuantidadePorPeriodoFactory.create(
+            numero_alunos=15,
+            inclusao_alimentacao_continua=inclusao_continua,
+            grupo_inclusao_normal=None,
+        )
+        LogSolicitacoesUsuarioFactory.create(
+            uuid_original=inclusao_continua.uuid,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+            solicitacao_tipo=LogSolicitacoesUsuario.INCLUSAO_ALIMENTACAO_CONTINUA,
+            usuario=usuario,
+        )
+
+        response = client.post(
+            "/codae-solicitacoes/filtrar-solicitacoes-ga/",
+            content_type="application/json",
+            data={"status": "AUTORIZADOS"},
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        items = response.json()["results"]
+        inclusao_continua_item = next(
+            item for item in items if item.get("tipo_doc") == "INC_ALIMENTA_CONTINUA"
+        )
+        assert inclusao_continua_item["numero_alunos"] == 15

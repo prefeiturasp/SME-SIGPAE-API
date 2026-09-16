@@ -1,5 +1,6 @@
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA
 from src.dados_comuns.templatetags.email_templatetags import (
     traduz_movimentacao,
 )
@@ -7,7 +8,7 @@ from src.dados_comuns.templatetags.email_templatetags import (
 
 def test_template_email_base():
     titulo = "Teste template"
-    template = "fluxo_codae_autoriza_ou_nega.html"
+    template = TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA
     hidden_email = None
     movimentacao_realizada = "ESCOLA_CANCELOU"
     dados_template = {

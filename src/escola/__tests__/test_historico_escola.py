@@ -4,6 +4,8 @@ import uuid as uuid_module
 from model_bakery import baker
 from rest_framework import status
 
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+
 
 class TestHistoricoEscolaEndpoint:
     """Testes para o endpoint de histórico da escola."""
@@ -105,7 +107,9 @@ class TestHistoricoEscolaEndpoint:
         Testa que quando não existe histórico vigente,
         retorna os dados atuais da escola.
         """
-        tipo_unidade = baker.make("TipoUnidadeEscolar", iniciais="EMEF")
+        tipo_unidade = baker.make(
+            "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+        )
         escola = baker.make("Escola", nome="Escola Teste", tipo_unidade=tipo_unidade)
 
         response = get_historico_escola(escola.uuid, mes=6, ano=2023)
@@ -113,7 +117,7 @@ class TestHistoricoEscolaEndpoint:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["nome"] == "Escola Teste"
-        assert data["tipo_unidade"]["iniciais"] == "EMEF"
+        assert data["tipo_unidade"]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.EMEF.value
         assert "uuid" in data["tipo_unidade"]
 
     def test_historico_escola_com_historico_vigente_retorna_dados_historico(
@@ -125,11 +129,11 @@ class TestHistoricoEscolaEndpoint:
         """
         tipo_unidade_atual = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="EMEF",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         )
         tipo_unidade_historico = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="CEI",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value,
         )
 
         escola = baker.make(
@@ -150,7 +154,7 @@ class TestHistoricoEscolaEndpoint:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["nome"] == "Escola Nome Antigo"
-        assert data["tipo_unidade"]["iniciais"] == "CEI"
+        assert data["tipo_unidade"]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.CEI.value
         assert "uuid" in data["tipo_unidade"]
 
     def test_historico_escola_com_historico_fora_do_periodo_retorna_dados_atuais(
@@ -162,11 +166,11 @@ class TestHistoricoEscolaEndpoint:
         """
         tipo_unidade_atual = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="EMEF",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         )
         tipo_unidade_historico = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="CEI",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value,
         )
 
         escola = baker.make(
@@ -187,7 +191,7 @@ class TestHistoricoEscolaEndpoint:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["nome"] == "Escola Nome Atual"
-        assert data["tipo_unidade"]["iniciais"] == "EMEF"
+        assert data["tipo_unidade"]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.EMEF.value
 
     def test_historico_escola_com_data_inicial_null(self, get_historico_escola):
         """
@@ -196,11 +200,11 @@ class TestHistoricoEscolaEndpoint:
         """
         tipo_unidade_atual = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="EMEF",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         )
         tipo_unidade_historico = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="CEI",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value,
         )
 
         escola = baker.make(
@@ -221,7 +225,7 @@ class TestHistoricoEscolaEndpoint:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["nome"] == "Escola Nome Historico"
-        assert data["tipo_unidade"]["iniciais"] == "CEI"
+        assert data["tipo_unidade"]["iniciais"] == TIPOS_UNIDADE_ESCOLAR.CEI.value
 
     def test_historico_escola_multiplos_historicos_retorna_primeiro(
         self, get_historico_escola
@@ -232,11 +236,11 @@ class TestHistoricoEscolaEndpoint:
         """
         tipo_unidade_historico1 = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="CEI",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value,
         )
         tipo_unidade_historico2 = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="EMEI",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         )
 
         escola = baker.make("Escola")
@@ -269,7 +273,9 @@ class TestHistoricoEscolaEndpoint:
         Testa que a data de referência no início do período (dia 1)
         está incluída no range do histórico.
         """
-        tipo_unidade_historico = baker.make("TipoUnidadeEscolar", iniciais="CEI")
+        tipo_unidade_historico = baker.make(
+            "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value
+        )
 
         escola = baker.make("Escola")
 
@@ -295,7 +301,7 @@ class TestHistoricoEscolaEndpoint:
         """
         tipo_unidade_historico = baker.make(
             "TipoUnidadeEscolar",
-            iniciais="CEI",
+            iniciais=TIPOS_UNIDADE_ESCOLAR.CEI.value,
         )
 
         escola = baker.make("Escola")

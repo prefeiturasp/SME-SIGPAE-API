@@ -1,3 +1,5 @@
+"""Serializers de criação/atualização do submódulo de layout de embalagem."""
+
 from rest_framework import serializers
 from xworkflows.base import InvalidTransitionError
 
@@ -17,6 +19,13 @@ from ..helpers import (
 
 
 class TipoDeEmbalagemDeLayoutCreateSerializer(serializers.ModelSerializer):
+    """Serializer de criação de um tipo de embalagem de layout.
+
+    Exige o ``tipo_embalagem`` e a lista de ``imagens_do_tipo_de_embalagem``
+    (JSON com ``arquivo`` em base64 e ``nome``). Para os tipos primária e
+    secundária, ao menos uma imagem com arquivo e nome é obrigatória.
+    """
+
     tipo_embalagem = serializers.ChoiceField(
         choices=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_CHOICES,
         required=True,
@@ -50,6 +59,15 @@ class TipoDeEmbalagemDeLayoutCreateSerializer(serializers.ModelSerializer):
 
 
 class LayoutDeEmbalagemCreateSerializer(serializers.ModelSerializer):
+    """Serializer de criação/atualização do layout de embalagem.
+
+    O ``ficha_tecnica`` é obrigatório e não pode estar em rascunho. Na
+    criação, os tipos de embalagem são persistidos e o workflow é iniciado
+    (``inicia_fluxo``, de ``LAYOUT_CRIADO`` para ``ENVIADO_PARA_ANALISE``).
+    Na atualização, os tipos de embalagem são recriados e a transição
+    ``fornecedor_atualiza`` é executada (apenas para layouts ``APROVADO``).
+    """
+
     ficha_tecnica = serializers.SlugRelatedField(
         slug_field="uuid",
         queryset=FichaTecnicaDoProduto.objects.all(),
@@ -108,6 +126,12 @@ class LayoutDeEmbalagemCreateSerializer(serializers.ModelSerializer):
 
 
 class TipoDeEmbalagemDeLayoutAnaliseSerializer(serializers.ModelSerializer):
+    """Serializer de análise de um tipo de embalagem pela CODAE.
+
+    Para o tipo primária, exige ``uuid`` e ``status``. O
+    ``complemento_do_status`` é obrigatório (justificativa da análise).
+    """
+
     uuid = serializers.UUIDField(required=False)
 
     def validate(self, attrs):
@@ -137,6 +161,14 @@ class TipoDeEmbalagemDeLayoutAnaliseSerializer(serializers.ModelSerializer):
 
 
 class LayoutDeEmbalagemAnaliseSerializer(serializers.ModelSerializer):
+    """Serializer de análise do layout de embalagem pela CODAE.
+
+    Aplica o status definido pela CODAE a cada tipo de embalagem e, ao
+    final, aprova o layout (``codae_aprova``) quando todos os tipos estão
+    aprovados ou solicita correção (``codae_solicita_correcao``) caso
+    contrário.
+    """
+
     tipos_de_embalagens = TipoDeEmbalagemDeLayoutAnaliseSerializer(many=True)
 
     def validate_tipos_de_embalagens(self, value):
@@ -195,6 +227,13 @@ class LayoutDeEmbalagemAnaliseSerializer(serializers.ModelSerializer):
 
 
 class TipoDeEmbalagemDeLayoutCorrecaoSerializer(serializers.ModelSerializer):
+    """Serializer de correção de um tipo de embalagem pelo fornecedor.
+
+    Exige ``uuid``, ``tipo_embalagem`` e as novas imagens
+    (``imagens_do_tipo_de_embalagem``). Só é possível corrigir tipos com
+    status ``REPROVADO``.
+    """
+
     uuid = serializers.UUIDField()
     tipo_embalagem = serializers.ChoiceField(
         choices=TipoDeEmbalagemDeLayout.TIPO_EMBALAGEM_CHOICES,
@@ -234,6 +273,13 @@ class TipoDeEmbalagemDeLayoutCorrecaoSerializer(serializers.ModelSerializer):
 
 
 class LayoutDeEmbalagemCorrecaoSerializer(serializers.ModelSerializer):
+    """Serializer de correção do layout de embalagem pelo fornecedor.
+
+    Reenvia as imagens dos tipos de embalagem reprovados: cada tipo volta
+    para ``EM_ANALISE`` com as novas imagens e o layout volta para
+    ``ENVIADO_PARA_ANALISE`` (``fornecedor_realiza_correcao``).
+    """
+
     tipos_de_embalagens = TipoDeEmbalagemDeLayoutCorrecaoSerializer(
         many=True, required=True
     )

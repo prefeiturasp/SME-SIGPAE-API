@@ -27,9 +27,7 @@ def test_url_endpoint_solicitacoes_kit_lanche_avulsa_nao_pode(
     client_q_nao_faz_parte_da_escola = client_autenticado
     response = client_q_nao_faz_parte_da_escola.get(f"/{ENDPOINT_AVULSO}/")
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {
-        "detail": "Você não tem permissão para executar essa ação."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
 
 
 def test_url_endpoint_solicitacoes_kit_lanche_avulsa_pode(

@@ -1,7 +1,7 @@
 import pytest
 from django.contrib import admin
 
-from ..models import CentralDeDownload, Notificacao
+from ..models import CentralDeDownload, Notificacao, VersaoSistema
 
 pytestmark = pytest.mark.django_db
 
@@ -111,3 +111,37 @@ def test_srt_model_central_download(download):
 def test_meta_modelo_central_download(download):
     assert download._meta.verbose_name == "Central de Download"
     assert download._meta.verbose_name_plural == "Central de Downloads"
+
+
+def test_versao_sistema_singleton():
+    v1 = VersaoSistema.objects.get()
+    assert v1.id == 1
+    assert v1.pk == 1
+    v1.versao = "1.0.0"
+    v1.save()
+
+    v2 = VersaoSistema.objects.get()
+    assert v2.pk == 1
+    assert v2.versao == "1.0.0"
+    assert VersaoSistema.objects.count() == 1
+
+    v3 = VersaoSistema.objects.get()
+    assert v3.pk == 1
+    assert v3.versao == "1.0.0"
+
+
+def test_srt_model_versao_sistema():
+    v = VersaoSistema.objects.get()
+    v.versao = "2.0.0"
+    v.save()
+    assert str(v) == "2.0.0"
+
+
+def test_meta_modelo_versao_sistema():
+    v = VersaoSistema.objects.get()
+    assert v._meta.verbose_name == "Versão do Sistema"
+    assert v._meta.verbose_name_plural == "Versões do Sistema"
+
+
+def test_admin_versao_sistema():
+    assert admin.site._registry[VersaoSistema]

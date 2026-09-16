@@ -3,11 +3,12 @@ import io
 import logging
 from pathlib import Path
 
-from bs4 import BeautifulSoup
 import numpy as np
+from bs4 import BeautifulSoup
 from celery import shared_task
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
@@ -89,14 +90,14 @@ def build_subtitulo(
     data_final = data.get("ate")
     subtitulo += f" | Data final: {data_final}" if data_final else ""
 
-    subtitulo += f' | Data de Extração do Relatório: {datetime.date.today().strftime("%d/%m/%Y")}'
+    subtitulo += f" | Data de Extração do Relatório: {datetime.date.today().strftime(FORMATO_DATA_BRASILEIRO)}"
 
     return subtitulo
 
 
 def formata_data(model_obj):
-    data_inicial = model_obj.data_inicial.strftime("%d/%m/%Y")
-    data_final = model_obj.data_final.strftime("%d/%m/%Y")
+    data_inicial = model_obj.data_inicial.strftime(FORMATO_DATA_BRASILEIRO)
+    data_final = model_obj.data_final.strftime(FORMATO_DATA_BRASILEIRO)
     return f"{data_inicial} - {data_final}"
 
 
@@ -110,7 +111,7 @@ def cria_nova_linha(df, index, model_obj, qt_periodo, observacoes):
     nova_linha["data_evento"] = formata_data(model_obj)
     nova_linha["dia_semana"] = qt_periodo.dias_semana_display()
     nova_linha["encerrado_a_partir_de"] = (
-        qt_periodo.encerrado_a_partir_de.strftime("%d/%m/%Y")
+        qt_periodo.encerrado_a_partir_de.strftime(FORMATO_DATA_BRASILEIRO)
         if qt_periodo.encerrado_a_partir_de
         else "-"
     )
@@ -146,9 +147,7 @@ def novas_linhas_inc_continua_e_kit_lanche(df, queryset, instituicao):
         if solicitacao.tipo_doc == "INC_ALIMENTA_CONTINUA":
             observacoes = _obter_observacoes(model_obj.observacoes)
             for idx, qt_periodo in enumerate(model_obj.quantidades_periodo.all()):
-                obs_periodo = (
-                    observacoes[idx] if len(observacoes) > idx else ""
-                )
+                obs_periodo = observacoes[idx] if len(observacoes) > idx else ""
                 nova_linha = cria_nova_linha(
                     df, index, model_obj, qt_periodo, obs_periodo
                 )
@@ -260,9 +259,9 @@ def aplica_fundo_amarelo_tipo2(
                 worksheet.write_rich_string(
                     row_idx,
                     COLUNAS[constants.COL_IDX_DATA_EVENTO],
-                    f"{model_obj.data_inicial.strftime('%d/%m/%Y')} - ",
+                    f"{model_obj.data_inicial.strftime(FORMATO_DATA_BRASILEIRO)} - ",
                     strike_format,
-                    model_obj.data_final.strftime("%d/%m/%Y"),
+                    model_obj.data_final.strftime(FORMATO_DATA_BRASILEIRO),
                     cell_format,
                 )
             if qt_periodo.cancelado:
@@ -428,7 +427,9 @@ def build_pdf(lista_solicitacoes_dict, status):
         {
             "solicitacoes": lista_solicitacoes_dict,
             "total_solicitacoes": len(lista_solicitacoes_dict),
-            "data_extracao_relatorio": datetime.date.today().strftime("%d/%m/%Y"),
+            "data_extracao_relatorio": datetime.date.today().strftime(
+                FORMATO_DATA_BRASILEIRO
+            ),
             "status": status,
             "status_formatado": "".join(
                 letra for letra in status.title() if not letra.isspace()

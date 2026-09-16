@@ -6,10 +6,11 @@ import pikepdf
 import pytest
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
-from django_weasyprint.utils import django_url_fetcher
+from django_weasyprint.utils import DjangoURLFetcher
 from pypdf import PdfReader
 from weasyprint import HTML
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.relatorios.utils import merge_pdf_com_rodape_assinatura
 
 from ..utils import (
@@ -90,13 +91,13 @@ def test_config_cabecario_obter_cabecario_reduzido():
 
 
 def test_config_cabecario_obter_cabecario_por_data():
-    filtros = {"data_analise_inicial": date.today().strftime("%d/%m/%Y")}
+    filtros = {"data_analise_inicial": date.today().strftime(FORMATO_DATA_BRASILEIRO)}
     config = get_config_cabecario_relatorio_analise(filtros, None, None)
     assert config["cabecario_tipo"] == "CABECARIO_POR_DATA"
 
     filtros = {
-        "data_analise_inicial": date.today().strftime("%d/%m/%Y"),
-        "data_analise_final": date.today().strftime("%d/%m/%Y"),
+        "data_analise_inicial": date.today().strftime(FORMATO_DATA_BRASILEIRO),
+        "data_analise_final": date.today().strftime(FORMATO_DATA_BRASILEIRO),
     }
     assert config["cabecario_tipo"] == "CABECARIO_POR_DATA"
     config = get_config_cabecario_relatorio_analise(filtros, None, None)
@@ -147,7 +148,7 @@ def test_html_to_pdf_response():
 def test_extrair_texto_de_pdf():
     html_string = "<h1>Teste de PDF</h1><p>Conteúdo do PDF gerado</p>"
     pdf_file = HTML(
-        string=html_string, url_fetcher=django_url_fetcher, base_url="file://abobrinha"
+        string=html_string, url_fetcher=DjangoURLFetcher(), base_url="file://abobrinha"
     ).write_pdf()
     response = HttpResponse(pdf_file, content_type="application/pdf")
     texto = extrair_texto_de_pdf(response.content)

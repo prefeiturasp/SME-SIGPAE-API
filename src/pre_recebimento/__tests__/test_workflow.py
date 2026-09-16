@@ -3,9 +3,16 @@ from unittest.mock import patch
 import pytest
 
 from src.dados_comuns.constants import (
+    ADMINISTRADOR_CODAE_GABINETE,
     ADMINISTRADOR_GESTAO_PRODUTO,
+    COORDENADOR_CODAE_DILOG_LOGISTICA,
     COORDENADOR_GESTAO_PRODUTO,
+    DILOG_CRONOGRAMA,
+    DILOG_DIRETORIA,
+    DILOG_QUALIDADE,
+    DJANGO_ADMIN_PASSWORD,
 )
+from src.dados_comuns.fluxo_status import DocumentoDeRecebimentoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario, Notificacao
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
@@ -244,7 +251,7 @@ def test_ficha_tecnica_deve_enviar_email_ao_iniciar_fluxo(
 
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -302,7 +309,7 @@ def test_ficha_tecnica_deve_enviar_email_ao_aprovar(
 
     usuario = django_user_model.objects.create_user(
         username="codae@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="codae@test.com",
         registro_funcional="7654321",
     )
@@ -339,6 +346,41 @@ def test_ficha_tecnica_deve_enviar_email_ao_aprovar(
     "usuarios_vinculados_a_empresa_do_objeto"
 )
 @patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
+def test_ficha_tecnica_deve_salvar_log_ao_aprovar(
+    mock_enviar_email,
+    mock_usuarios_vinculados,
+    ficha_tecnica_factory,
+    django_user_model,
+):
+    mock_usuarios_vinculados.return_value = ["fornecedor@test.com"]
+
+    usuario = django_user_model.objects.create_user(
+        username="codae-aprovacao@test.com",
+        password=DJANGO_ADMIN_PASSWORD,
+        email="codae-aprovacao@test.com",
+        registro_funcional="7654321",
+    )
+
+    ficha = ficha_tecnica_factory(
+        status=FichaTecnicaDoProduto.workflow_class.ENVIADA_PARA_ANALISE
+    )
+
+    ficha.gpcodae_aprova(user=usuario)
+
+    log = LogSolicitacoesUsuario.objects.get(
+        uuid_original=ficha.uuid,
+        usuario=usuario,
+        status_evento=LogSolicitacoesUsuario.FICHA_TECNICA_APROVADA,
+    )
+
+    assert log.status_evento_explicacao == "Ficha Técnica aprovada"
+
+
+@patch(
+    "src.dados_comuns.fluxo_status.PartesInteressadasService."
+    "usuarios_vinculados_a_empresa_do_objeto"
+)
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
 def test_ficha_tecnica_deve_enviar_email_ao_solicitar_correcao(
     mock_enviar_email,
     mock_usuarios_vinculados,
@@ -350,7 +392,7 @@ def test_ficha_tecnica_deve_enviar_email_ao_solicitar_correcao(
 
     usuario = django_user_model.objects.create_user(
         username="codae@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="codae@test.com",
         registro_funcional="7654321",
     )
@@ -393,7 +435,7 @@ def test_deve_enviar_email_quando_fornecedor_corrigir_ficha_tecnica(
 
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -409,14 +451,16 @@ def test_deve_enviar_email_quando_fornecedor_corrigir_ficha_tecnica(
     _, kwargs = mock_enviar_email.call_args
 
     assert (
-        kwargs["titulo"] == f"Ficha Técnica corrigida pelo fornecedor - ({ficha.numero})"
+        kwargs["titulo"]
+        == f"Ficha Técnica corrigida pelo fornecedor - ({ficha.numero})"
     )
     assert (
         kwargs["assunto"]
         == f"Ficha Técnica corrigida pelo fornecedor - ({ficha.numero})"
     )
     assert (
-        kwargs["template"] == "pre_recebimento_email_fornecedor_corrige_ficha_tecnica.html"
+        kwargs["template"]
+        == "pre_recebimento_email_fornecedor_corrige_ficha_tecnica.html"
     )
     assert email_coordenador in kwargs["destinatarios"]
     assert email_admin in kwargs["destinatarios"]
@@ -436,7 +480,7 @@ def test_ficha_tecnica_deve_salvar_log_ao_iniciar_fluxo(
 
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -466,7 +510,7 @@ def test_ficha_tecnica_deve_consultar_perfis_corretos(
 
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -502,7 +546,7 @@ def test_ficha_tecnica_deve_alterar_status_ao_iniciar_fluxo(
 ):
     usuario = django_user_model.objects.create_user(
         username="fornecedor@test.com",
-        password="123",
+        password=DJANGO_ADMIN_PASSWORD,
         email="fornecedor@test.com",
         registro_funcional="1234567",
     )
@@ -516,3 +560,78 @@ def test_ficha_tecnica_deve_alterar_status_ao_iniciar_fluxo(
     ficha.refresh_from_db()
 
     assert ficha.status == ficha.workflow_class.ENVIADA_PARA_ANALISE
+
+
+PERFIS_EMAIL_DOCUMENTOS_PENDENTES_APROVACAO = [
+    DILOG_QUALIDADE,
+    DILOG_CRONOGRAMA,
+    COORDENADOR_CODAE_DILOG_LOGISTICA,
+]
+
+
+def _nomes_perfis_email(mock_usuarios_por_perfis):
+    for call in mock_usuarios_por_perfis.call_args_list:
+        if call.kwargs.get("somente_email") is True:
+            return call.kwargs["nomes_perfis"]
+    raise AssertionError("Nenhuma chamada de e-mail foi feita.")
+
+
+def _criar_usuario_fornecedor(django_user_model, email="fornecedor@test.com"):
+    return django_user_model.objects.create_user(
+        username=email,
+        password=DJANGO_ADMIN_PASSWORD,
+        email=email,
+        registro_funcional="1234567",
+        cpf="12345678901",
+        nome="Fornecedor Teste",
+    )
+
+
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_notificacao")
+@patch("src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis")
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
+def test_documento_recebimento_email_pendentes_aprovacao_ao_iniciar_fluxo(
+    mock_enviar_email,
+    mock_usuarios_por_perfis,
+    mock_enviar_notificacao,
+    documento_de_recebimento_factory,
+    django_user_model,
+):
+    mock_usuarios_por_perfis.return_value = ["qualidade@test.com"]
+    usuario = _criar_usuario_fornecedor(django_user_model)
+    documento = documento_de_recebimento_factory()
+
+    documento.inicia_fluxo(user=usuario)
+
+    mock_enviar_email.assert_called_once()
+    nomes_perfis = _nomes_perfis_email(mock_usuarios_por_perfis)
+
+    assert nomes_perfis == PERFIS_EMAIL_DOCUMENTOS_PENDENTES_APROVACAO
+    assert DILOG_DIRETORIA not in nomes_perfis
+    assert ADMINISTRADOR_CODAE_GABINETE not in nomes_perfis
+
+
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_notificacao")
+@patch("src.dados_comuns.fluxo_status.PartesInteressadasService.usuarios_por_perfis")
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
+def test_documento_recebimento_email_pendentes_aprovacao_ao_atualizar(
+    mock_enviar_email,
+    mock_usuarios_por_perfis,
+    mock_enviar_notificacao,
+    documento_de_recebimento_factory,
+    django_user_model,
+):
+    mock_usuarios_por_perfis.return_value = ["qualidade@test.com"]
+    usuario = _criar_usuario_fornecedor(django_user_model)
+    documento = documento_de_recebimento_factory(
+        status=DocumentoDeRecebimentoWorkflow.APROVADO
+    )
+
+    documento.fornecedor_atualiza(user=usuario)
+
+    mock_enviar_email.assert_called_once()
+    nomes_perfis = _nomes_perfis_email(mock_usuarios_por_perfis)
+
+    assert nomes_perfis == PERFIS_EMAIL_DOCUMENTOS_PENDENTES_APROVACAO
+    assert DILOG_DIRETORIA not in nomes_perfis
+    assert ADMINISTRADOR_CODAE_GABINETE not in nomes_perfis

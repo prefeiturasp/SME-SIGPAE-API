@@ -3,6 +3,8 @@ import logging
 
 from celery import shared_task
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.models import CentralDeDownload
 from src.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
@@ -12,10 +14,14 @@ from src.dados_comuns.utils import (
 from src.produto.models import HomologacaoProduto, Produto
 from src.relatorios.relatorios import (
     produtos_suspensos_por_edital,
+    relatorio_historico_produto,
     relatorio_marcas_por_produto_homologacao,
     relatorio_produtos_agrupado_terceirizada,
     relatorio_reclamacao_produtos,
     relatorio_reclamacao_produtos_excel,
+)
+from src.produto.services.historico_reclamacao_produto import (
+    ServicoHistoricoReclamacaoProduto,
 )
 
 logger = logging.getLogger(__name__)
@@ -203,10 +209,12 @@ def gera_xls_relatorio_produtos_suspensos_async(
         for produto in produtos:
             produto_edital = produto.vinculos.get(edital__numero=nome_edital)
             data_suspensao = (
-                produto_edital.datas_horas_vinculo.last().criado_em.strftime("%d/%m/%Y")
+                produto_edital.datas_horas_vinculo.last().criado_em.strftime(
+                    FORMATO_DATA_BRASILEIRO
+                )
             )
             data_cadastro = produto.homologacao.logs.first().criado_em.strftime(
-                "%d/%m/%Y"
+                FORMATO_DATA_BRASILEIRO
             )
             lista_produtos.append(
                 {
@@ -280,3 +288,107 @@ def gera_excel_relatorio_reclamacao_produtos_async(
         atualiza_central_download_com_erro(obj_central_download, str(e))
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def gera_pdf_relatorio_historico_produto_async(
+    user: str,
+    nome_arquivo: str,
+    uuid_produto: str,
+) -> None:
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
+
+    obj_central_download = gera_objeto_na_central_download(
+        user=user,
+        identificador=nome_arquivo,
+    )
+
+    try:
+        produto = Produto.objects.get(uuid=uuid_produto)
+        arquivo = relatorio_historico_produto(produto=produto)
+
+        atualiza_central_download(
+            obj_central_download,
+            nome_arquivo,
+            arquivo,
+        )
+
+    except Exception as e:
+        atualiza_central_download_com_erro(obj_central_download, str(e))
+        logger.error(f"Erro ao gerar relatório de histórico do produto: {e}")
+
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+
+
+def _processar_download_historico_reclamacao(
+    uuid_central_download,
+    uuid_reclamacao,
+    uuid_log,
+    gerador_arquivo,
+    descricao_arquivo,
+):
+    obj_central_download = CentralDeDownload.objects.get(
+        uuid=uuid_central_download
+    )
+    try:
+        nome_arquivo, arquivo, tipo_mime = gerador_arquivo(
+            uuid_reclamacao,
+            uuid_log,
+        )
+        atualiza_central_download(
+            obj_central_download,
+            nome_arquivo,
+            arquivo,
+            content_type=tipo_mime,
+        )
+    except Exception as exc:
+        atualiza_central_download_com_erro(
+            obj_central_download,
+            str(exc),
+        )
+        logger.exception(
+            "Erro ao processar %s do histórico da reclamação %s",
+            descricao_arquivo,
+            uuid_reclamacao,
+        )
+
+    logger.info(
+        "Finalizado processamento de %s do histórico da reclamação %s",
+        descricao_arquivo,
+        uuid_reclamacao,
+    )
+
+
+@shared_task(time_limit=3000, soft_time_limit=3000)
+def gera_pdf_historico_reclamacao_produto_async(
+    uuid_central_download,
+    uuid_reclamacao,
+    uuid_log,
+):
+    _processar_download_historico_reclamacao(
+        uuid_central_download,
+        uuid_reclamacao,
+        uuid_log,
+        ServicoHistoricoReclamacaoProduto.gerar_arquivo_pdfs,
+        "documento",
+    )
+
+
+@shared_task(time_limit=3000, soft_time_limit=3000)
+def gera_imagens_historico_reclamacao_produto_async(
+    uuid_central_download,
+    uuid_reclamacao,
+    uuid_log,
+):
+    _processar_download_historico_reclamacao(
+        uuid_central_download,
+        uuid_reclamacao,
+        uuid_log,
+        ServicoHistoricoReclamacaoProduto.gerar_arquivo_imagens,
+        "imagens",
+    )

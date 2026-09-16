@@ -12,6 +12,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce
 
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -128,7 +129,11 @@ def get_logs_historico_dietas(filtros, eh_exportacao=False) -> list:
             log
             for log in log_escolas
             if log.get("nome_periodo_escolar") is not None
-            or log.get("tipo_unidade") in {"CEU GESTAO", "CMCT"}
+            or log.get("tipo_unidade")
+            in {
+                TIPOS_UNIDADE_ESCOLAR.CEU_GESTAO.value,
+                TIPOS_UNIDADE_ESCOLAR.CMCT.value,
+            }
         ]
     log_dietas = sorted(
         chain(log_escolas_cei, log_escolas), key=lambda x: x["nome_escola"]

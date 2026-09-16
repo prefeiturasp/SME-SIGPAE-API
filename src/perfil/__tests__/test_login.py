@@ -244,6 +244,11 @@ def test_login_coresso_erro_usuario_sem_email(
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
         "pegar_token_acesso",
         lambda p1, p2, p3: mocked_response({"token": "#ABC123"}, 200),
     )
@@ -308,6 +313,11 @@ def test_login_coresso_diretor_sem_acesso_ao_coresso(
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
         "pegar_token_acesso",
         lambda p1, p2, p3: mocked_response({"token": "#ABC123"}, 200),
     )
@@ -330,7 +340,11 @@ def test_login_usuario_com_acesso_automatico_adm_escola(
     data = {"login": "1234567", "password": DJANGO_ADMIN_PASSWORD}
 
     monkeypatch.setattr(
-        AutenticacaoService, "autentica", lambda p1, p2: mocked_response({}, 200)
+        AutenticacaoService,
+        "autentica",
+        lambda p1, p2: mocked_response(
+            mocked_response_autentica_coresso_diretor(), 200
+        ),
     )
     monkeypatch.setattr(
         EOLServicoSGP,
@@ -339,22 +353,12 @@ def test_login_usuario_com_acesso_automatico_adm_escola(
             mocked_response_get_dados_usuario_coresso_adm_escola(), 200
         ),
     )
-    monkeypatch.setattr(
-        NovoSGPServicoLogado,
-        "pegar_token_acesso",
-        lambda p1, p2, p3: mocked_response({"token": "#ABC123"}, 200),
-    )
-    monkeypatch.setattr(
-        ProcessaPlanilhaUsuarioServidorCoreSSO,
-        "cria_usuario_servidor",
-        lambda p1, p2, p3: None,
-    )
     response = client_autenticado_da_escola_adm.post(
         "/login/", content_type="application/json", data=json.dumps(data)
     )
     assert response.status_code == status.HTTP_200_OK
     usuario = Usuario.objects.get(username=data["login"])
-    assert usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_UE
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
 
 
 def test_login_coresso_diretor_sem_vinculo_no_sigpae(
@@ -433,7 +437,7 @@ def test_login_coresso_adm_escola_sem_vinculo_no_sigpae(
     )
     assert response.status_code == status.HTTP_200_OK
     usuario = Usuario.objects.get(username=data["login"])
-    assert usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_UE
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
 
 
 def test_login_coresso_cargo_sem_acesso_automatico_sem_vinculo_no_sigpae(
@@ -469,6 +473,11 @@ def test_login_coresso_login_cpf_erro(client_autenticado_da_escola_adm, monkeypa
 
     monkeypatch.setattr(
         AutenticacaoService, "autentica", lambda p1, p2: mocked_response({}, 200)
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -549,7 +558,7 @@ def test_login_usuario_adm_escola_trocou_unidade_sucesso(
     )
     assert response.status_code == status.HTTP_200_OK
     usuario = Usuario.objects.get(username=data["login"])
-    assert usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_UE
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
     assert usuario.vinculo_atual.instituicao.codigo_eol == "400158"
 
 
@@ -587,6 +596,11 @@ def test_login_coresso_cargo_sem_acesso_automatico_no_sigpae(
 
     monkeypatch.setattr(
         AutenticacaoService, "autentica", lambda p1, p2: mocked_response({}, 200)
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
     )
     monkeypatch.setattr(
         NovoSGPServicoLogado,
@@ -633,7 +647,7 @@ def test_login_coresso_diretor_que_vira_adm_ue(
     )
     assert response.status_code == status.HTTP_200_OK
     usuario = Usuario.objects.get(username=data["login"])
-    assert usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_UE
+    assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
 
 
 def test_login_coresso_cieja_coordenador_geral_tem_vinculo_diretor_ue(

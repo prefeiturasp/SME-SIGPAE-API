@@ -18,11 +18,12 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
 
-FORMATO_DATA_BR = "%d/%m/%Y"
+FORMATO_DATA_BR = FORMATO_DATA_BRASILEIRO
 
 
 class InversaoCardapio(
@@ -70,7 +71,7 @@ class InversaoCardapio(
         "Alunos da CEMEI", blank=True, default="", max_length=50
     )
     escola = models.ForeignKey(
-        "escola.Escola", blank=True, null=True, on_delete=models.DO_NOTHING
+        MODEL_ESCOLA, blank=True, null=True, on_delete=models.DO_NOTHING
     )
 
     tipos_alimentacao = models.ManyToManyField(
@@ -132,17 +133,21 @@ class InversaoCardapio(
 
     @property
     def data(self):
-        """Retorna a menor data relevante entre a primeira e a segunda data da inversao.
+        """Retorna a menor data entre todos os conjuntos da inversão.
 
         Returns:
-            datetime.date | None: Menor data entre ``data_de`` e ``data_para``.
-                Se apenas uma delas existir, retorna a data disponivel.
+            datetime.date | None: Menor data preenchida na solicitação ou
+                ``None`` quando nenhuma data foi informada.
         """
-        if self.data_de is None:
-            return self.data_para
-        if self.data_para is None:
-            return self.data_de
-        return self.data_para if self.data_para < self.data_de else self.data_de
+        datas_inversao = [
+            self.data_de_inversao,
+            self.data_para_inversao,
+            self.data_de_inversao_2,
+            self.data_para_inversao_2,
+        ]
+        datas_preenchidas = [data for data in datas_inversao if data]
+
+        return min(datas_preenchidas, default=None)
 
     @property
     def tipo(self):
