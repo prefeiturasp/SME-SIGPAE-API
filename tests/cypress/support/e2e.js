@@ -122,6 +122,8 @@ import './step_definitions/cronogramas'
 import './step_definitions/imr'
 import './commands_api/commands_ajuste_saldo_laudo'
 import './step_definitions/ajuste_saldo_laudo'
+import './commands_api/commands_alteracoes_cardapio_cei'
+import './step_definitions/alteracoes_cardapio_cei'
 
 import '@shelex/cypress-allure-plugin'
 import 'cypress-cloud/support'
