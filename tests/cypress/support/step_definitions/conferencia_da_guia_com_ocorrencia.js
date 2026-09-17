@@ -1,4 +1,24 @@
 import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
+
+function buscarConferencia(criterio, descricao, offset = 0) {
+	return cy.consultar_conferencia_da_guia_com_ocorrencia(
+		`limit=100&offset=${offset}`,
+	).then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array')
+		const conferencia = response.body.results.find(criterio)
+		if (conferencia) {
+			return conferencia
+		}
+		if (response.body.next && response.body.results.length > 0) {
+			return buscarConferencia(criterio, descricao, offset + response.body.results.length)
+		}
+		throw new Error(
+			`Nenhuma conferência ${descricao} foi encontrada após consultar todas as páginas.`,
+		)
+	})
+}
+
 const inexistente = '00000000-0000-0000-0000-000000000000'
 function enumNormalizado(valor) {
 	return String(valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
@@ -26,7 +46,8 @@ function dadosPut(conferencia) {
 	}
 }
 function guiaAtiva(item) {
-	return enumNormalizado(item.guia?.situacao) === 'ATIVA'
+	return enumNormalizado(item.guia?.situacao) === 'ATIVA' &&
+		enumNormalizado(item.guia?.status) === 'RECEBIDA'
 }
 Given('que estou autenticado como abastecimento para conferencia com ocorrencia', () => {
 	cy.autenticar_login(Cypress.env('usuario_abastecimento'), Cypress.env('senha'))
@@ -48,24 +69,20 @@ When('consulto uma conferencia com ocorrencia por UUID inexistente', function ()
 		.then((response) => { this.response = response })
 })
 function atualizarPut(contexto, predicado) {
-	cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then((lista) => {
-		const conferencia = lista.body.results.find(predicado)
-		expect(conferencia).to.exist
+	buscarConferencia(predicado, 'compativel com o cenario PUT').then((conferencia) => {
 		contexto.uuid = conferencia.uuid
 		cy.atualizar_conferencia_da_guia_com_ocorrencia(conferencia.uuid, dadosPut(conferencia))
 			.then((response) => { contexto.response = response })
 	})
 }
 When('atualizo por PUT uma conferencia com ocorrencia ativa', function () {
-	atualizarPut(this, guiaAtiva)
+	atualizarPut(this, (item) => guiaAtiva(item) && item.eh_reposicao === false)
 })
 When('atualizo por PUT uma conferencia vinculada a guia arquivada', function () {
 	atualizarPut(this, (item) => item.guia.situacao === 'ARQUIVADA')
 })
 When('atualizo por PATCH uma conferencia com ocorrencia ativa', function () {
-	cy.consultar_conferencia_da_guia_com_ocorrencia('limit=100&offset=0').then((lista) => {
-		const conferencia = lista.body.results.find(guiaAtiva)
-		expect(conferencia).to.exist
+	buscarConferencia(guiaAtiva, 'com guia ativa e recebida').then((conferencia) => {
 		this.uuid = conferencia.uuid
 		cy.atualizar_conferencia_da_guia_com_ocorrencia_patch(
 			conferencia.uuid, { nome_motorista: conferencia.nome_motorista },
@@ -82,10 +99,10 @@ When('excluo uma conferencia com ocorrencia inexistente', function () {
 		.then((response) => { this.response = response })
 })
 When('cadastro uma conferencia da guia com ocorrencia valida', function () {
-	cy.consultar_conferencia_da_guia_com_ocorrencia('limit=10&offset=0').then((lista) => {
-		const conferencia = lista.body.results.find((item) =>
-			item.conferencia_dos_alimentos.some((alimento) => alimento.tem_ocorrencia))
-		expect(conferencia).to.exist
+	buscarConferencia(
+		(item) => item.conferencia_dos_alimentos.some((alimento) => alimento.tem_ocorrencia),
+		'com alimento com ocorrencia',
+	).then((conferencia) => {
 		const alimento = conferencia.conferencia_dos_alimentos.find((item) => item.tem_ocorrencia)
 		this.dados = {
 			conferencia_dos_alimentos: [{
