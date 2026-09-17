@@ -5686,6 +5686,12 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
     workflow_class = DocumentoDeRecebimentoWorkflow
     status = xwf_models.StateField(workflow_class)
 
+    PERFIS_EMAIL_DOCUMENTOS_PENDENTES_APROVACAO = [
+        constants.DILOG_QUALIDADE,
+        constants.DILOG_CRONOGRAMA,
+        constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
+    ]
+
     @xworkflows.after_transition("inicia_fluxo")
     def _inicia_fluxo_hook(self, *args, **kwargs):
         user = kwargs["user"]
@@ -5732,10 +5738,7 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 template="pre_recebimento_email_fornecedor_envia_documento_recebimento.html",
                 contexto_template=contexto,
                 destinatarios=PartesInteressadasService.usuarios_por_perfis(
-                    nomes_perfis=[
-                        constants.DILOG_QUALIDADE,
-                        constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
-                    ],
+                    nomes_perfis=self.PERFIS_EMAIL_DOCUMENTOS_PENDENTES_APROVACAO,
                     somente_email=True,
                 ),
             )
@@ -5837,10 +5840,7 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 template="pre_recebimento_email_fornecedor_corrige_documento_recebimento.html",
                 contexto_template=contexto,
                 destinatarios=PartesInteressadasService.usuarios_por_perfis(
-                    nomes_perfis=[
-                        constants.DILOG_QUALIDADE,
-                        constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
-                    ],
+                    nomes_perfis=self.PERFIS_EMAIL_DOCUMENTOS_PENDENTES_APROVACAO,
                     somente_email=True,
                 ),
             )
@@ -5895,12 +5895,7 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
                 template="pre_recebimento_email_fornecedor_envia_documento_recebimento.html",
                 contexto_template=contexto,
                 destinatarios=PartesInteressadasService.usuarios_por_perfis(
-                    nomes_perfis=[
-                        constants.DILOG_QUALIDADE,
-                        constants.COORDENADOR_CODAE_DILOG_LOGISTICA,
-                        constants.DILOG_DIRETORIA,
-                        constants.ADMINISTRADOR_CODAE_GABINETE,
-                    ],
+                    nomes_perfis=self.PERFIS_EMAIL_DOCUMENTOS_PENDENTES_APROVACAO,
                     somente_email=True,
                 ),
             )

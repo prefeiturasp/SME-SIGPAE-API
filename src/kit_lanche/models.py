@@ -175,14 +175,12 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
 
     @property
     def solicitacoes_similares(self):
-        tempo_passeio = self.solicitacao_kit_lanche.tempo_passeio
         data_evento = self.solicitacao_kit_lanche.data
         all_objects = SolicitacaoKitLancheAvulsa.objects.filter(
             escola=self.escola
         ).exclude(status=SolicitacaoKitLancheAvulsa.workflow_class.RASCUNHO)
         solicitacoes_similares = all_objects.filter(
-            solicitacao_kit_lanche__data=data_evento,
-            solicitacao_kit_lanche__tempo_passeio=tempo_passeio,
+            solicitacao_kit_lanche__data=data_evento
         )
         solicitacoes_similares = solicitacoes_similares.exclude(uuid=self.uuid)
         return solicitacoes_similares
@@ -319,14 +317,12 @@ class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
 
     @property
     def solicitacoes_similares(self):
-        tempo_passeio = self.solicitacao_kit_lanche.tempo_passeio
         data_evento = self.solicitacao_kit_lanche.data
         all_objects = SolicitacaoKitLancheCEIAvulsa.objects.filter(
             escola=self.escola
         ).exclude(status=SolicitacaoKitLancheCEIAvulsa.workflow_class.RASCUNHO)
         solicitacoes_similares = all_objects.filter(
-            solicitacao_kit_lanche__data=data_evento,
-            solicitacao_kit_lanche__tempo_passeio=tempo_passeio,
+            solicitacao_kit_lanche__data=data_evento
         )
         solicitacoes_similares = solicitacoes_similares.exclude(uuid=self.uuid)
         return solicitacoes_similares
@@ -602,14 +598,12 @@ class SolicitacaoKitLancheUnificada(
 
     @property
     def solicitacoes_similares(self):
-        tempo_passeio = self.solicitacao_kit_lanche.tempo_passeio
         data_evento = self.solicitacao_kit_lanche.data
         all_objects = SolicitacaoKitLancheUnificada.objects.filter(
             diretoria_regional=self.diretoria_regional
         ).exclude(status=SolicitacaoKitLancheUnificada.workflow_class.RASCUNHO)
         solicitacoes_similares = all_objects.filter(
-            solicitacao_kit_lanche__data=data_evento,
-            solicitacao_kit_lanche__tempo_passeio=tempo_passeio,
+            solicitacao_kit_lanche__data=data_evento
         )
         solicitacoes_similares = solicitacoes_similares.exclude(uuid=self.uuid)
         return solicitacoes_similares
@@ -813,14 +807,6 @@ class SolicitacaoKitLancheCEMEI(
     @property
     def solicitacoes_similares(self):
         filtros = {"data": self.data, "escola": self.escola}
-        if self.tem_solicitacao_cei:
-            filtros["solicitacao_cei__tempo_passeio"] = (
-                self.solicitacao_cei.tempo_passeio
-            )
-        if self.tem_solicitacao_emei:
-            filtros["solicitacao_emei__tempo_passeio"] = (
-                self.solicitacao_emei.tempo_passeio
-            )
         return SolicitacaoKitLancheCEMEI.objects.filter(**filtros).exclude(
             Q(uuid=self.uuid)
             | Q(status=SolicitacaoKitLancheCEMEI.workflow_class.RASCUNHO)

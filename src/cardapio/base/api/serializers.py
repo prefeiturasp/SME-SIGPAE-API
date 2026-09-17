@@ -236,7 +236,7 @@ class TipoUnidadeEscolarAgrupadoSerializer(serializers.Serializer):
                 agrupados[key].append(vinculo)
 
         resultado = []
-        for _, vinculos_do_tipo in agrupados.items():
+        for vinculos_do_tipo in agrupados.values():
             tipo_ue = vinculos_do_tipo[0].tipo_unidade_escolar
 
             dados_tipo_ue = {

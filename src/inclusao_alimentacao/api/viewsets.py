@@ -369,7 +369,6 @@ class InclusaoAlimentacaoDaCEIViewSet(InclusaoAlimentacaoViewSetBase):
         permission_classes=(UsuarioCODAEGestaoAlimentacao,),
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de codae CODAE aqui...
         try:
             usuario = request.user
             codae = usuario.vinculo_atual.instituicao
@@ -458,7 +457,6 @@ class GrupoInclusaoAlimentacaoNormalViewSet(InclusaoAlimentacaoViewSetBase):
         permission_classes=(UsuarioCODAEGestaoAlimentacao,),
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
         inclusoes_continuas = (
@@ -638,7 +636,6 @@ class InclusaoAlimentacaoContinuaViewSet(
         permission_classes=(UsuarioCODAEGestaoAlimentacao,),
     )
     def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        # TODO: colocar regras de codae CODAE aqui...
         usuario = request.user
         codae = usuario.vinculo_atual.instituicao
         inclusoes_continuas = codae.inclusoes_alimentacao_continua_das_minhas_escolas(

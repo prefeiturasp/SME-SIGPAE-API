@@ -319,7 +319,7 @@ def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano)
         nome="outro",
         uuid="478b09e1-4c14-4e50-a446-fbc0af727a09",
     )
-    data_inicial, data_final = request.param
+    _, _ = request.param
     return {
         "observacao": "<p>teste</p>\n",
         "motivo": str(motivo.uuid),
