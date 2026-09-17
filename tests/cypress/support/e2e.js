@@ -120,6 +120,8 @@ import './step_definitions/codae_solicitacoes'
 import './step_definitions/cadastro_produtos_edital'
 import './step_definitions/cronogramas'
 import './step_definitions/imr'
+import './commands_api/commands_ajuste_saldo_laudo'
+import './step_definitions/ajuste_saldo_laudo'
 
 import '@shelex/cypress-allure-plugin'
 import 'cypress-cloud/support'
