@@ -31,6 +31,7 @@ module.exports = defineConfig({
 			usuario_dilog_qualidade: process.env.DILOG_QUALIDADE,
 			usuario_abastecimento: process.env.ABASTECIMENTO,
 			usuario_diretor_ue: process.env.DIRETOR_UE,
+			usuario_escola_cei_admin: process.env.USUARIO_ESCOLA_CEI_ADMIN,
 			usuario_codae: process.env.CODAE,
 			usuario_gpcodae: process.env.GPCODAE,
 			usuario_dre: process.env.DRE,
