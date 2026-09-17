@@ -1,3 +1,5 @@
+import os
+
 from django.apps import AppConfig
 
 
@@ -11,7 +13,7 @@ class PerfilConfig(AppConfig):
 
         runtime.configure(
             Settings(
-                service_name="sigpae",
-                service_version="1.0.0",
+                service_name=os.getenv("SME_SERVICE_NAME", "sigpae"),
+                service_version=os.getenv("SME_SERVICE_VERSION", "1.0.0"),
             )
         )
